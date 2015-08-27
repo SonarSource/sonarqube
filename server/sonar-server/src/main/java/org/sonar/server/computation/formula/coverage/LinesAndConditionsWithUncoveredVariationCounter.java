@@ -25,6 +25,7 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
 
+import static org.sonar.server.computation.formula.coverage.CoverageUtils.getLongVariation;
 import static org.sonar.server.computation.formula.coverage.CoverageUtils.supportedPeriods;
 
 public final class LinesAndConditionsWithUncoveredVariationCounter extends ElementsAndCoveredElementsVariationCounter {
@@ -49,11 +50,11 @@ public final class LinesAndConditionsWithUncoveredVariationCounter extends Eleme
       if (!newLines.hasVariation(period.getIndex())) {
         continue;
       }
-      long elements = (long) newLines.getVariation(period.getIndex()) + CoverageUtils.getLongVariation(newConditions, period);
+      long elements = (long) newLines.getVariation(period.getIndex()) + getLongVariation(newConditions, period);
       this.elements.increment(period, elements);
       coveredElements.increment(
         period,
-        elements - CoverageUtils.getLongVariation(uncoveredConditions, period) - CoverageUtils.getLongVariation(uncoveredLines, period));
+        elements - getLongVariation(uncoveredConditions, period) - getLongVariation(uncoveredLines, period));
     }
   }
 }

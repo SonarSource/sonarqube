@@ -20,9 +20,6 @@
 package org.sonar.server.computation.formula.coverage;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import java.util.List;
-import javax.annotation.Nonnull;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.formula.CreateMeasureContext;
@@ -32,6 +29,7 @@ import org.sonar.server.computation.period.Period;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.computation.period.PeriodPredicates.viewsRestrictedPeriods;
 
 public final class CoverageUtils {
   private static final Measure DEFAULT_MEASURE = newMeasureBuilder().create(0L);
@@ -87,19 +85,11 @@ public final class CoverageUtils {
     return supportedPeriods(context.getLeaf().getType(), context.getPeriods());
   }
 
-  private static Iterable<Period> supportedPeriods(Component.Type type, List<Period> periods) {
+  private static Iterable<Period> supportedPeriods(Component.Type type, Iterable<Period> periods) {
     if (type.isReportType()) {
       return periods;
     }
-    return from(periods).filter(ViewsSupportedPeriods.INSTANCE);
+    return from(periods).filter(viewsRestrictedPeriods());
   }
 
-  private enum ViewsSupportedPeriods implements Predicate<Period> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull Period input) {
-      return input.getIndex() < 4;
-    }
-  }
 }

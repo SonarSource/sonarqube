@@ -41,7 +41,7 @@ import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.formula.coverage.NewCoverageVariationSumFormula;
+import org.sonar.server.computation.formula.VariationSumFormula;
 import org.sonar.server.computation.formula.counter.IntVariationValue;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredVariationFormula;
@@ -56,6 +56,7 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.computation.period.PeriodPredicates.viewsRestrictedPeriods;
 
 /**
  * Computes measures related to the New Coverage. These measures do not have values, only variations.
@@ -63,8 +64,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 public class NewCoverageMeasuresStep implements ComputationStep {
   private static final List<Formula> FORMULAS = ImmutableList.<Formula>of(
     // UT coverage
-    new NewCoverageFormula()
-      ,
+    new NewCoverageFormula(),
     new NewBranchCoverageFormula(),
     new NewLineCoverageFormula(),
     // IT File coverage
@@ -74,8 +74,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     // Overall coverage
     new NewOverallCodeCoverageFormula(),
     new NewOverallBranchCoverageFormula(),
-    new NewOverallLineCoverageFormula()
-  );
+    new NewOverallLineCoverageFormula());
 
   private final TreeRootHolder treeRootHolder;
   private final PeriodsHolder periodsHolder;
@@ -132,7 +131,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
       CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_LINES_KEY,
       CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY);
-    private static final Iterable<Formula<?>> VIEWS_FORMULAS = intSumFormulas(OUTPUT_METRIC_KEYS);
+    private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
 
     private NewLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
       super(batchReportReader,
@@ -180,7 +179,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
       CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY,
       CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY);
-    private static final Iterable<Formula<?>> VIEWS_FORMULAS = intSumFormulas(OUTPUT_METRIC_KEYS);
+    private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
 
     private NewItLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
       super(batchReportReader,
@@ -229,7 +228,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
       CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY,
       CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY);
-    private static final Iterable<Formula<?>> VIEWS_FORMULAS = intSumFormulas(OUTPUT_METRIC_KEYS);
+    private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
 
     private NewOverallLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
       super(batchReportReader,
@@ -278,12 +277,12 @@ public class NewCoverageMeasuresStep implements ComputationStep {
    * Creates a List of {@link org.sonar.server.computation.formula.SumFormula.IntSumFormula} for each
    * metric key of the specified {@link NewCoverageOutputMetricKeys} instance.
    */
-  private static Iterable<Formula<?>> intSumFormulas(NewCoverageOutputMetricKeys outputMetricKeys) {
+  private static Iterable<Formula<?>> variationSumFormulas(NewCoverageOutputMetricKeys outputMetricKeys) {
     return ImmutableList.<Formula<?>>of(
-      new NewCoverageVariationSumFormula(outputMetricKeys.getNewLinesToCover()),
-      new NewCoverageVariationSumFormula(outputMetricKeys.getNewUncoveredLines()),
-      new NewCoverageVariationSumFormula(outputMetricKeys.getNewConditionsToCover()),
-      new NewCoverageVariationSumFormula(outputMetricKeys.getNewUncoveredConditions()));
+      new VariationSumFormula(outputMetricKeys.getNewLinesToCover(), viewsRestrictedPeriods()),
+      new VariationSumFormula(outputMetricKeys.getNewUncoveredLines(), viewsRestrictedPeriods()),
+      new VariationSumFormula(outputMetricKeys.getNewConditionsToCover(), viewsRestrictedPeriods()),
+      new VariationSumFormula(outputMetricKeys.getNewUncoveredConditions(), viewsRestrictedPeriods()));
   }
 
   public static class NewLinesAndConditionsFormula implements Formula<NewCoverageCounter> {

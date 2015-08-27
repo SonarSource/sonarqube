@@ -17,36 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.formula.coverage;
+package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.formula.Counter;
-import org.sonar.server.computation.formula.CounterInitializationContext;
-import org.sonar.server.computation.formula.CreateMeasureContext;
-import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.counter.DoubleVariationValue;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
 
+import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.formula.coverage.CoverageUtils.supportedPeriods;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**
- * A Formula which aggregates a new coverage measure by simply making the sums of its variations.
+ * A Formula which aggregates variations of a specific metric by simply making the sums of its variations. It supports
+ * make the sum of only specific periods.
  */
-public class NewCoverageVariationSumFormula implements Formula<NewCoverageVariationSumFormula.VariationSumCounter> {
+public class VariationSumFormula implements Formula<VariationSumFormula.VariationSumCounter> {
   private final String metricKey;
+  private final Predicate<Period> supportedPeriods;
 
-  public NewCoverageVariationSumFormula(String metricKey) {
+  public VariationSumFormula(String metricKey, Predicate<Period> supportedPeriods) {
+    this.supportedPeriods = supportedPeriods;
     this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
   }
 
   @Override
   public VariationSumCounter createNewCounter() {
-    return new VariationSumCounter(metricKey);
+    return new VariationSumCounter(metricKey, supportedPeriods);
   }
 
   @Override
@@ -61,9 +61,9 @@ public class NewCoverageVariationSumFormula implements Formula<NewCoverageVariat
     return Optional.of(newMeasureBuilder().setVariations(variations.build()).createNoValue());
   }
 
-  private static MeasureVariations.Builder createAndPopulateBuilder(DoubleVariationValue.Array array, CreateMeasureContext context) {
+  private MeasureVariations.Builder createAndPopulateBuilder(DoubleVariationValue.Array array, CreateMeasureContext context) {
     MeasureVariations.Builder builder = MeasureVariations.newMeasureVariationsBuilder();
-    for (Period period : supportedPeriods(context)) {
+    for (Period period : from(context.getPeriods()).filter(supportedPeriods)) {
       DoubleVariationValue elements = array.get(period);
       if (elements.isSet()) {
         builder.setVariation(period, elements.getValue());
@@ -74,15 +74,17 @@ public class NewCoverageVariationSumFormula implements Formula<NewCoverageVariat
 
   @Override
   public String[] getOutputMetricKeys() {
-    return new String[] { metricKey };
+    return new String[] {metricKey};
   }
 
   public static final class VariationSumCounter implements Counter<VariationSumCounter> {
     private final DoubleVariationValue.Array array = DoubleVariationValue.newArray();
     private final String metricKey;
+    private final Predicate<Period> supportedPeriods;
 
-    private VariationSumCounter(String metricKey) {
+    private VariationSumCounter(String metricKey, Predicate<Period> supportedPeriods) {
       this.metricKey = metricKey;
+      this.supportedPeriods = supportedPeriods;
     }
 
     @Override
@@ -97,7 +99,7 @@ public class NewCoverageVariationSumFormula implements Formula<NewCoverageVariat
         return;
       }
       MeasureVariations variations = measure.get().getVariations();
-      for (Period period : supportedPeriods(context)) {
+      for (Period period : from(context.getPeriods()).filter(supportedPeriods)) {
         if (variations.hasVariation(period.getIndex())) {
           double variation = variations.getVariation(period.getIndex());
           if (variation > 0) {

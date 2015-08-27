@@ -57,15 +57,15 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
   @Override
   public void execute() {
     Metric qProfilesMetric = metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY);
-    new PathAwareCrawler<>(new NewCoverageAggregationComponentCrawler(qProfilesMetric))
+    new PathAwareCrawler<>(new NewCoverageAggregationComponentVisitor(qProfilesMetric))
       .visit(treeRootHolder.getRoot());
   }
 
-  private class NewCoverageAggregationComponentCrawler extends PathAwareVisitorAdapter<QProfiles> {
+  private class NewCoverageAggregationComponentVisitor extends PathAwareVisitorAdapter<QProfiles> {
 
     private final Metric qProfilesMetric;
 
-    public NewCoverageAggregationComponentCrawler(Metric qProfilesMetric) {
+    public NewCoverageAggregationComponentVisitor(Metric qProfilesMetric) {
       super(CrawlerDepthLimit.MODULE, POST_ORDER, new SimpleStackElementFactory<QProfiles>() {
         @Override
         public QProfiles createForAny(Component component) {
