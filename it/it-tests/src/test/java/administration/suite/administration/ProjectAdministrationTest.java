@@ -268,17 +268,6 @@ public class ProjectAdministrationTest {
     orchestrator.executeSelenese(selenese);
   }
 
-  @Test
-  public void anonymous_should_have_user_role_to_access_project() {
-    scanSample();
-
-    Selenese selenese = Selenese.builder()
-      .setHtmlTestsInClasspath("anonymous_should_have_user_role_to_access_project",
-        "/administration/suite/ProjectAdministrationTest/anonymous_should_have_user_role_to_access_project/remove_user_role.html"
-      ).build();
-    orchestrator.executeSelenese(selenese);
-  }
-
   /**
    * SONAR-4060
    */
