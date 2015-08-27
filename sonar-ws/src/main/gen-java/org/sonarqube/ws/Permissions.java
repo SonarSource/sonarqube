@@ -5314,18 +5314,18 @@ public final class Permissions {
         com.google.protobuf.MessageOrBuilder {
 
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      boolean hasUuid();
+      boolean hasId();
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      java.lang.String getUuid();
+      java.lang.String getId();
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
       com.google.protobuf.ByteString
-          getUuidBytes();
+          getIdBytes();
 
       /**
        * <code>optional string key = 2;</code>
@@ -5448,7 +5448,7 @@ public final class Permissions {
               case 10: {
                 com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000001;
-                uuid_ = bs;
+                id_ = bs;
                 break;
               }
               case 18: {
@@ -5520,19 +5520,19 @@ public final class Permissions {
       }
 
       private int bitField0_;
-      public static final int UUID_FIELD_NUMBER = 1;
-      private java.lang.Object uuid_;
+      public static final int ID_FIELD_NUMBER = 1;
+      private java.lang.Object id_;
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public boolean hasUuid() {
+      public boolean hasId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public java.lang.String getUuid() {
-        java.lang.Object ref = uuid_;
+      public java.lang.String getId() {
+        java.lang.Object ref = id_;
         if (ref instanceof java.lang.String) {
           return (java.lang.String) ref;
         } else {
@@ -5540,22 +5540,22 @@ public final class Permissions {
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            uuid_ = s;
+            id_ = s;
           }
           return s;
         }
       }
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getUuidBytes() {
-        java.lang.Object ref = uuid_;
+          getIdBytes() {
+        java.lang.Object ref = id_;
         if (ref instanceof java.lang.String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          uuid_ = b;
+          id_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
@@ -5724,7 +5724,7 @@ public final class Permissions {
       }
 
       private void initFields() {
-        uuid_ = "";
+        id_ = "";
         key_ = "";
         qualifier_ = "";
         name_ = "";
@@ -5744,7 +5744,7 @@ public final class Permissions {
                           throws java.io.IOException {
         getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeBytes(1, getUuidBytes());
+          output.writeBytes(1, getIdBytes());
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
           output.writeBytes(2, getKeyBytes());
@@ -5769,7 +5769,7 @@ public final class Permissions {
         size = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(1, getUuidBytes());
+            .computeBytesSize(1, getIdBytes());
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
           size += com.google.protobuf.CodedOutputStream
@@ -5905,7 +5905,7 @@ public final class Permissions {
 
         public Builder clear() {
           super.clear();
-          uuid_ = "";
+          id_ = "";
           bitField0_ = (bitField0_ & ~0x00000001);
           key_ = "";
           bitField0_ = (bitField0_ & ~0x00000002);
@@ -5950,7 +5950,7 @@ public final class Permissions {
           if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
             to_bitField0_ |= 0x00000001;
           }
-          result.uuid_ = uuid_;
+          result.id_ = id_;
           if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
             to_bitField0_ |= 0x00000002;
           }
@@ -5988,9 +5988,9 @@ public final class Permissions {
 
         public Builder mergeFrom(org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project other) {
           if (other == org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.getDefaultInstance()) return this;
-          if (other.hasUuid()) {
+          if (other.hasId()) {
             bitField0_ |= 0x00000001;
-            uuid_ = other.uuid_;
+            id_ = other.id_;
             onChanged();
           }
           if (other.hasKey()) {
@@ -6061,24 +6061,24 @@ public final class Permissions {
         }
         private int bitField0_;
 
-        private java.lang.Object uuid_ = "";
+        private java.lang.Object id_ = "";
         /**
-         * <code>optional string uuid = 1;</code>
+         * <code>optional string id = 1;</code>
          */
-        public boolean hasUuid() {
+        public boolean hasId() {
           return ((bitField0_ & 0x00000001) == 0x00000001);
         }
         /**
-         * <code>optional string uuid = 1;</code>
+         * <code>optional string id = 1;</code>
          */
-        public java.lang.String getUuid() {
-          java.lang.Object ref = uuid_;
+        public java.lang.String getId() {
+          java.lang.Object ref = id_;
           if (!(ref instanceof java.lang.String)) {
             com.google.protobuf.ByteString bs =
                 (com.google.protobuf.ByteString) ref;
             java.lang.String s = bs.toStringUtf8();
             if (bs.isValidUtf8()) {
-              uuid_ = s;
+              id_ = s;
             }
             return s;
           } else {
@@ -6086,53 +6086,53 @@ public final class Permissions {
           }
         }
         /**
-         * <code>optional string uuid = 1;</code>
+         * <code>optional string id = 1;</code>
          */
         public com.google.protobuf.ByteString
-            getUuidBytes() {
-          java.lang.Object ref = uuid_;
+            getIdBytes() {
+          java.lang.Object ref = id_;
           if (ref instanceof String) {
             com.google.protobuf.ByteString b = 
                 com.google.protobuf.ByteString.copyFromUtf8(
                     (java.lang.String) ref);
-            uuid_ = b;
+            id_ = b;
             return b;
           } else {
             return (com.google.protobuf.ByteString) ref;
           }
         }
         /**
-         * <code>optional string uuid = 1;</code>
+         * <code>optional string id = 1;</code>
          */
-        public Builder setUuid(
+        public Builder setId(
             java.lang.String value) {
           if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-          uuid_ = value;
+          id_ = value;
           onChanged();
           return this;
         }
         /**
-         * <code>optional string uuid = 1;</code>
+         * <code>optional string id = 1;</code>
          */
-        public Builder clearUuid() {
+        public Builder clearId() {
           bitField0_ = (bitField0_ & ~0x00000001);
-          uuid_ = getDefaultInstance().getUuid();
+          id_ = getDefaultInstance().getId();
           onChanged();
           return this;
         }
         /**
-         * <code>optional string uuid = 1;</code>
+         * <code>optional string id = 1;</code>
          */
-        public Builder setUuidBytes(
+        public Builder setIdBytes(
             com.google.protobuf.ByteString value) {
           if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-          uuid_ = value;
+          id_ = value;
           onChanged();
           return this;
         }
@@ -10106,26 +10106,26 @@ public final class Permissions {
       "\030\003 \001(\t\022\022\n\nusersCount\030\004 \001(\005\022\023\n\013groupsCoun" +
       "t\030\005 \001(\005\"\\\n\037SearchGlobalPermissionsRespon" +
       "se\0229\n\013permissions\030\001 \003(\0132$.sonarqube.ws.p" +
-      "ermissions.Permission\"\344\002\n SearchProjectP" +
+      "ermissions.Permission\"\341\002\n SearchProjectP" +
       "ermissionsResponse\022,\n\006paging\030\001 \001(\0132\034.son" +
       "arqube.ws.commons.Paging\022T\n\010projects\030\002 \003" +
       "(\0132B.sonarqube.ws.permissions.SearchProj",
       "ectPermissionsResponse.Project\0229\n\013permis" +
       "sions\030\003 \003(\0132$.sonarqube.ws.permissions.P" +
-      "ermission\032\200\001\n\007Project\022\014\n\004uuid\030\001 \001(\t\022\013\n\003k" +
-      "ey\030\002 \001(\t\022\021\n\tqualifier\030\003 \001(\t\022\014\n\004name\030\004 \001(" +
-      "\t\0229\n\013permissions\030\005 \003(\0132$.sonarqube.ws.pe" +
-      "rmissions.Permission\"\202\001\n\022PermissionTempl" +
-      "ate\022\013\n\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013descri" +
-      "ption\030\003 \001(\t\022\026\n\016projectPattern\030\004 \001(\t\022\021\n\tc" +
-      "reatedAt\030\005 \001(\t\022\021\n\tupdatedAt\030\006 \001(\t\"l\n Cre" +
-      "atePermissionTemplateResponse\022H\n\022permiss",
-      "ionTemplate\030\001 \001(\0132,.sonarqube.ws.permiss" +
-      "ions.PermissionTemplate\"l\n UpdatePermiss" +
-      "ionTemplateResponse\022H\n\022permissionTemplat" +
-      "e\030\001 \001(\0132,.sonarqube.ws.permissions.Permi" +
-      "ssionTemplateB!\n\020org.sonarqube.wsB\013Permi" +
-      "ssionsH\001"
+      "ermission\032~\n\007Project\022\n\n\002id\030\001 \001(\t\022\013\n\003key\030" +
+      "\002 \001(\t\022\021\n\tqualifier\030\003 \001(\t\022\014\n\004name\030\004 \001(\t\0229" +
+      "\n\013permissions\030\005 \003(\0132$.sonarqube.ws.permi" +
+      "ssions.Permission\"\202\001\n\022PermissionTemplate" +
+      "\022\013\n\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013descripti" +
+      "on\030\003 \001(\t\022\026\n\016projectPattern\030\004 \001(\t\022\021\n\tcrea" +
+      "tedAt\030\005 \001(\t\022\021\n\tupdatedAt\030\006 \001(\t\"l\n Create" +
+      "PermissionTemplateResponse\022H\n\022permission",
+      "Template\030\001 \001(\0132,.sonarqube.ws.permission" +
+      "s.PermissionTemplate\"l\n UpdatePermission" +
+      "TemplateResponse\022H\n\022permissionTemplate\030\001" +
+      " \001(\0132,.sonarqube.ws.permissions.Permissi" +
+      "onTemplateB!\n\020org.sonarqube.wsB\013Permissi" +
+      "onsH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -10187,7 +10187,7 @@ public final class Permissions {
     internal_static_sonarqube_ws_permissions_SearchProjectPermissionsResponse_Project_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_SearchProjectPermissionsResponse_Project_descriptor,
-        new java.lang.String[] { "Uuid", "Key", "Qualifier", "Name", "Permissions", });
+        new java.lang.String[] { "Id", "Key", "Qualifier", "Name", "Permissions", });
     internal_static_sonarqube_ws_permissions_PermissionTemplate_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_sonarqube_ws_permissions_PermissionTemplate_fieldAccessorTable = new
