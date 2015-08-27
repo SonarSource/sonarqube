@@ -740,7 +740,11 @@ define([
               secondaryLocations = issue.get('secondaryLocations'),
               _locations = [primaryLocation].concat(secondaryLocations);
           issue.get('executionFlows').forEach(function (flow) {
-            _locations = [].concat(_locations, flow.locations);
+            var flowLocationsCount = _.size(flow.locations);
+            var flowLocations = flow.locations.map(function (loc, index) {
+              return _.extend({ index: flowLocationsCount - index }, loc);
+            });
+            _locations = [].concat(_locations, flowLocations);
           });
           _locations.forEach(this.showIssueLocation, this);
         },

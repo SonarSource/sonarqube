@@ -1,1 +1,4 @@
-<div class="source-viewer-issue-location" title="{{msg}}">{{limitString msg}}</div>
+<div class="source-viewer-issue-location" title="{{msg}}">
+  {{#if index}}<strong>{{index}}: </strong>{{/if}}
+  {{limitString msg}}
+</div>

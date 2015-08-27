@@ -3,8 +3,6 @@ define(function (require) {
   require('../helpers/test-page');
 
   bdd.describe('Source Viewer', function () {
-    var file = { uuid: 'uuid', key: 'key' };
-
     bdd.describe('Issues', function () {
       bdd.it('should show precise issue location', function () {
         return this.remote

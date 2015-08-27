@@ -135,11 +135,10 @@
 
 .source-line-code-secondary-issue {
   display: inline-block;
-  background-color: @red;
-  color: #fff !important;
+  background-color: @issueBackgroundColor;
 
   &.highlighted {
-    background-color: mix(#B3D4FF, @red, 60%);
+    background-color: mix(#B3D4FF, @issueBackgroundColor, 40%);
   }
 }
 
@@ -472,9 +471,7 @@
   line-height: @source-line-height - 1px;
   margin-right: 10px;
   padding: 0 10px;
-  border-radius: 3px;
-  background-color: @red;
-  color: #fff;
+  background-color: #ffeaea;
   font-size: 12px;
   .text-ellipsis;
 }
