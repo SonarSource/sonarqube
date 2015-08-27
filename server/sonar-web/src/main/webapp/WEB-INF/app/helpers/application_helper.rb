@@ -277,7 +277,7 @@ module ApplicationHelper
       if options[:period]
         html=m.format_numeric_value(m.variation(options[:period].to_i))
       elsif m.metric.val_type==Metric::VALUE_TYPE_LEVEL
-        html="<i class=\"icon-alert-#{m.alert_status.downcase}\"></i>" unless m.alert_status.blank?
+        html=message("level.#{m.formatted_value}")
       else
         html=m.formatted_value
       end
