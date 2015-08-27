@@ -36,7 +36,7 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.UserWithPermissionQueryResult;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Permissions.UsersResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
@@ -105,7 +105,6 @@ public class UsersAction implements PermissionsWsAction {
 
     UsersResponse.Builder userResponse = UsersResponse.newBuilder();
     UsersResponse.User.Builder user = UsersResponse.User.newBuilder();
-    Common.Paging.Builder paging = Common.Paging.newBuilder();
     for (UserWithPermission userWithPermission : usersWithPermission) {
       userResponse.addUsers(
         user
@@ -114,14 +113,14 @@ public class UsersAction implements PermissionsWsAction {
           .setName(nullToEmpty(userWithPermission.name()))
           .setEmail(nullToEmpty(userWithPermission.email()))
           .setSelected(userWithPermission.hasPermission()));
-      userResponse.setPaging(
-        paging
-          .clear()
-          .setPageIndex(page)
-          .setPageSize(pageSize)
-          .setTotal(usersResult.total())
-        );
     }
+    userResponse.setPaging(
+      Paging.newBuilder()
+        .clear()
+        .setPageIndex(page)
+        .setPageSize(pageSize)
+        .setTotal(usersResult.total())
+      );
 
     return userResponse.build();
   }
