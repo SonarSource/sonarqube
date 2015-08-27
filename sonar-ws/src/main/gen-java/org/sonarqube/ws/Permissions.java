@@ -7658,18 +7658,18 @@ public final class Permissions {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string id = 1;</code>
      */
-    boolean hasKey();
+    boolean hasId();
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string id = 1;</code>
      */
-    java.lang.String getKey();
+    java.lang.String getId();
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string id = 1;</code>
      */
     com.google.protobuf.ByteString
-        getKeyBytes();
+        getIdBytes();
 
     /**
      * <code>optional string name = 2;</code>
@@ -7700,18 +7700,18 @@ public final class Permissions {
         getDescriptionBytes();
 
     /**
-     * <code>optional string projectPattern = 4;</code>
+     * <code>optional string projectKeyPattern = 4;</code>
      */
-    boolean hasProjectPattern();
+    boolean hasProjectKeyPattern();
     /**
-     * <code>optional string projectPattern = 4;</code>
+     * <code>optional string projectKeyPattern = 4;</code>
      */
-    java.lang.String getProjectPattern();
+    java.lang.String getProjectKeyPattern();
     /**
-     * <code>optional string projectPattern = 4;</code>
+     * <code>optional string projectKeyPattern = 4;</code>
      */
     com.google.protobuf.ByteString
-        getProjectPatternBytes();
+        getProjectKeyPatternBytes();
 
     /**
      * <code>optional string createdAt = 5;</code>
@@ -7820,7 +7820,7 @@ public final class Permissions {
             case 10: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              key_ = bs;
+              id_ = bs;
               break;
             }
             case 18: {
@@ -7838,7 +7838,7 @@ public final class Permissions {
             case 34: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              projectPattern_ = bs;
+              projectKeyPattern_ = bs;
               break;
             }
             case 42: {
@@ -7893,19 +7893,19 @@ public final class Permissions {
     }
 
     private int bitField0_;
-    public static final int KEY_FIELD_NUMBER = 1;
-    private java.lang.Object key_;
+    public static final int ID_FIELD_NUMBER = 1;
+    private java.lang.Object id_;
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string id = 1;</code>
      */
-    public boolean hasKey() {
+    public boolean hasId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string id = 1;</code>
      */
-    public java.lang.String getKey() {
-      java.lang.Object ref = key_;
+    public java.lang.String getId() {
+      java.lang.Object ref = id_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -7913,22 +7913,22 @@ public final class Permissions {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          key_ = s;
+          id_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string id = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getKeyBytes() {
-      java.lang.Object ref = key_;
+        getIdBytes() {
+      java.lang.Object ref = id_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        key_ = b;
+        id_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -8019,19 +8019,19 @@ public final class Permissions {
       }
     }
 
-    public static final int PROJECTPATTERN_FIELD_NUMBER = 4;
-    private java.lang.Object projectPattern_;
+    public static final int PROJECTKEYPATTERN_FIELD_NUMBER = 4;
+    private java.lang.Object projectKeyPattern_;
     /**
-     * <code>optional string projectPattern = 4;</code>
+     * <code>optional string projectKeyPattern = 4;</code>
      */
-    public boolean hasProjectPattern() {
+    public boolean hasProjectKeyPattern() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional string projectPattern = 4;</code>
+     * <code>optional string projectKeyPattern = 4;</code>
      */
-    public java.lang.String getProjectPattern() {
-      java.lang.Object ref = projectPattern_;
+    public java.lang.String getProjectKeyPattern() {
+      java.lang.Object ref = projectKeyPattern_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -8039,22 +8039,22 @@ public final class Permissions {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          projectPattern_ = s;
+          projectKeyPattern_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string projectPattern = 4;</code>
+     * <code>optional string projectKeyPattern = 4;</code>
      */
     public com.google.protobuf.ByteString
-        getProjectPatternBytes() {
-      java.lang.Object ref = projectPattern_;
+        getProjectKeyPatternBytes() {
+      java.lang.Object ref = projectKeyPattern_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        projectPattern_ = b;
+        projectKeyPattern_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -8170,10 +8170,10 @@ public final class Permissions {
     }
 
     private void initFields() {
-      key_ = "";
+      id_ = "";
       name_ = "";
       description_ = "";
-      projectPattern_ = "";
+      projectKeyPattern_ = "";
       createdAt_ = "";
       updatedAt_ = "";
     }
@@ -8191,7 +8191,7 @@ public final class Permissions {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getKeyBytes());
+        output.writeBytes(1, getIdBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getNameBytes());
@@ -8200,7 +8200,7 @@ public final class Permissions {
         output.writeBytes(3, getDescriptionBytes());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeBytes(4, getProjectPatternBytes());
+        output.writeBytes(4, getProjectKeyPatternBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeBytes(5, getCreatedAtBytes());
@@ -8219,7 +8219,7 @@ public final class Permissions {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getKeyBytes());
+          .computeBytesSize(1, getIdBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -8231,7 +8231,7 @@ public final class Permissions {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(4, getProjectPatternBytes());
+          .computeBytesSize(4, getProjectKeyPatternBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
@@ -8358,13 +8358,13 @@ public final class Permissions {
 
       public Builder clear() {
         super.clear();
-        key_ = "";
+        id_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         name_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
         description_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
-        projectPattern_ = "";
+        projectKeyPattern_ = "";
         bitField0_ = (bitField0_ & ~0x00000008);
         createdAt_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -8401,7 +8401,7 @@ public final class Permissions {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.key_ = key_;
+        result.id_ = id_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
@@ -8413,7 +8413,7 @@ public final class Permissions {
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.projectPattern_ = projectPattern_;
+        result.projectKeyPattern_ = projectKeyPattern_;
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
@@ -8438,9 +8438,9 @@ public final class Permissions {
 
       public Builder mergeFrom(org.sonarqube.ws.Permissions.PermissionTemplate other) {
         if (other == org.sonarqube.ws.Permissions.PermissionTemplate.getDefaultInstance()) return this;
-        if (other.hasKey()) {
+        if (other.hasId()) {
           bitField0_ |= 0x00000001;
-          key_ = other.key_;
+          id_ = other.id_;
           onChanged();
         }
         if (other.hasName()) {
@@ -8453,9 +8453,9 @@ public final class Permissions {
           description_ = other.description_;
           onChanged();
         }
-        if (other.hasProjectPattern()) {
+        if (other.hasProjectKeyPattern()) {
           bitField0_ |= 0x00000008;
-          projectPattern_ = other.projectPattern_;
+          projectKeyPattern_ = other.projectKeyPattern_;
           onChanged();
         }
         if (other.hasCreatedAt()) {
@@ -8495,24 +8495,24 @@ public final class Permissions {
       }
       private int bitField0_;
 
-      private java.lang.Object key_ = "";
+      private java.lang.Object id_ = "";
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public boolean hasKey() {
+      public boolean hasId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public java.lang.String getKey() {
-        java.lang.Object ref = key_;
+      public java.lang.String getId() {
+        java.lang.Object ref = id_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            key_ = s;
+            id_ = s;
           }
           return s;
         } else {
@@ -8520,53 +8520,53 @@ public final class Permissions {
         }
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string id = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getKeyBytes() {
-        java.lang.Object ref = key_;
+          getIdBytes() {
+        java.lang.Object ref = id_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          key_ = b;
+          id_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public Builder setKey(
+      public Builder setId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        key_ = value;
+        id_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public Builder clearKey() {
+      public Builder clearId() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        key_ = getDefaultInstance().getKey();
+        id_ = getDefaultInstance().getId();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public Builder setKeyBytes(
+      public Builder setIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        key_ = value;
+        id_ = value;
         onChanged();
         return this;
       }
@@ -8723,24 +8723,24 @@ public final class Permissions {
         return this;
       }
 
-      private java.lang.Object projectPattern_ = "";
+      private java.lang.Object projectKeyPattern_ = "";
       /**
-       * <code>optional string projectPattern = 4;</code>
+       * <code>optional string projectKeyPattern = 4;</code>
        */
-      public boolean hasProjectPattern() {
+      public boolean hasProjectKeyPattern() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional string projectPattern = 4;</code>
+       * <code>optional string projectKeyPattern = 4;</code>
        */
-      public java.lang.String getProjectPattern() {
-        java.lang.Object ref = projectPattern_;
+      public java.lang.String getProjectKeyPattern() {
+        java.lang.Object ref = projectKeyPattern_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            projectPattern_ = s;
+            projectKeyPattern_ = s;
           }
           return s;
         } else {
@@ -8748,53 +8748,53 @@ public final class Permissions {
         }
       }
       /**
-       * <code>optional string projectPattern = 4;</code>
+       * <code>optional string projectKeyPattern = 4;</code>
        */
       public com.google.protobuf.ByteString
-          getProjectPatternBytes() {
-        java.lang.Object ref = projectPattern_;
+          getProjectKeyPatternBytes() {
+        java.lang.Object ref = projectKeyPattern_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          projectPattern_ = b;
+          projectKeyPattern_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string projectPattern = 4;</code>
+       * <code>optional string projectKeyPattern = 4;</code>
        */
-      public Builder setProjectPattern(
+      public Builder setProjectKeyPattern(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000008;
-        projectPattern_ = value;
+        projectKeyPattern_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string projectPattern = 4;</code>
+       * <code>optional string projectKeyPattern = 4;</code>
        */
-      public Builder clearProjectPattern() {
+      public Builder clearProjectKeyPattern() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        projectPattern_ = getDefaultInstance().getProjectPattern();
+        projectKeyPattern_ = getDefaultInstance().getProjectKeyPattern();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string projectPattern = 4;</code>
+       * <code>optional string projectKeyPattern = 4;</code>
        */
-      public Builder setProjectPatternBytes(
+      public Builder setProjectKeyPatternBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000008;
-        projectPattern_ = value;
+        projectKeyPattern_ = value;
         onChanged();
         return this;
       }
@@ -10115,17 +10115,17 @@ public final class Permissions {
       "ermission\032~\n\007Project\022\n\n\002id\030\001 \001(\t\022\013\n\003key\030" +
       "\002 \001(\t\022\021\n\tqualifier\030\003 \001(\t\022\014\n\004name\030\004 \001(\t\0229" +
       "\n\013permissions\030\005 \003(\0132$.sonarqube.ws.permi" +
-      "ssions.Permission\"\202\001\n\022PermissionTemplate" +
-      "\022\013\n\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013descripti" +
-      "on\030\003 \001(\t\022\026\n\016projectPattern\030\004 \001(\t\022\021\n\tcrea" +
-      "tedAt\030\005 \001(\t\022\021\n\tupdatedAt\030\006 \001(\t\"l\n Create" +
-      "PermissionTemplateResponse\022H\n\022permission",
-      "Template\030\001 \001(\0132,.sonarqube.ws.permission" +
-      "s.PermissionTemplate\"l\n UpdatePermission" +
-      "TemplateResponse\022H\n\022permissionTemplate\030\001" +
-      " \001(\0132,.sonarqube.ws.permissions.Permissi" +
-      "onTemplateB!\n\020org.sonarqube.wsB\013Permissi" +
-      "onsH\001"
+      "ssions.Permission\"\204\001\n\022PermissionTemplate" +
+      "\022\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013descriptio" +
+      "n\030\003 \001(\t\022\031\n\021projectKeyPattern\030\004 \001(\t\022\021\n\tcr" +
+      "eatedAt\030\005 \001(\t\022\021\n\tupdatedAt\030\006 \001(\t\"l\n Crea" +
+      "tePermissionTemplateResponse\022H\n\022permissi",
+      "onTemplate\030\001 \001(\0132,.sonarqube.ws.permissi" +
+      "ons.PermissionTemplate\"l\n UpdatePermissi" +
+      "onTemplateResponse\022H\n\022permissionTemplate" +
+      "\030\001 \001(\0132,.sonarqube.ws.permissions.Permis" +
+      "sionTemplateB!\n\020org.sonarqube.wsB\013Permis" +
+      "sionsH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -10193,7 +10193,7 @@ public final class Permissions {
     internal_static_sonarqube_ws_permissions_PermissionTemplate_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_PermissionTemplate_descriptor,
-        new java.lang.String[] { "Key", "Name", "Description", "ProjectPattern", "CreatedAt", "UpdatedAt", });
+        new java.lang.String[] { "Id", "Name", "Description", "ProjectKeyPattern", "CreatedAt", "UpdatedAt", });
     internal_static_sonarqube_ws_permissions_CreatePermissionTemplateResponse_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_sonarqube_ws_permissions_CreatePermissionTemplateResponse_fieldAccessorTable = new

@@ -37,7 +37,7 @@ class PermissionTemplateDtoToPermissionTemplateResponse {
     @Override
     public PermissionTemplate apply(@Nonnull PermissionTemplateDto permissionTemplate) {
       PermissionTemplate.Builder permissionTemplateBuilder = PermissionTemplate.newBuilder()
-        .setKey(permissionTemplate.getKee())
+        .setId(permissionTemplate.getKee())
         .setName(permissionTemplate.getName())
         .setCreatedAt(DateUtils.formatDateTime(permissionTemplate.getCreatedAt()))
         .setUpdatedAt(DateUtils.formatDateTime(permissionTemplate.getUpdatedAt()));
@@ -45,7 +45,7 @@ class PermissionTemplateDtoToPermissionTemplateResponse {
         permissionTemplateBuilder.setDescription(permissionTemplate.getDescription());
       }
       if (permissionTemplate.getKeyPattern() != null) {
-        permissionTemplateBuilder.setProjectPattern(permissionTemplate.getKeyPattern());
+        permissionTemplateBuilder.setProjectKeyPattern(permissionTemplate.getKeyPattern());
       }
       return permissionTemplateBuilder.build();
     }
