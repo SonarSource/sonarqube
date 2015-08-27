@@ -61,8 +61,6 @@ public class SearchAction implements IssueFilterWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn();
-
     DbSession dbSession = dbClient.openSession(false);
     try {
       Set<IssueFilterDto> issueFilters = searchIssueFilters(dbSession);

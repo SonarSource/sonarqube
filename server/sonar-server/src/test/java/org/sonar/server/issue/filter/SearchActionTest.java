@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDto;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -60,7 +59,7 @@ public class SearchActionTest {
   public void setUp() {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    userSession.login();
+    userSession.anonymous();
 
     ws = new WsActionTester(new SearchAction(dbClient, userSession));
   }
@@ -102,14 +101,6 @@ public class SearchActionTest {
     TestResponse result = newRequest();
 
     assertJson(result.getInput()).isSimilarTo(getClass().getResource("SearchActionTest/search.json"));
-  }
-
-  @Test
-  public void fail_if_anonymous() throws Exception {
-    userSession.anonymous();
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest();
   }
 
   private TestResponse newRequest() {
