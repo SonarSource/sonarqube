@@ -92,7 +92,9 @@ public class UpdateTemplateActionTest {
   public void update_all_permission_template_fields() {
     TestResponse result = newRequest(templateDto.getKee(), "Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
-    assertJson(result.getInput()).isSimilarTo(getClass().getResource("UpdateTemplateActionTest/update_template.json"));
+    assertJson(result.getInput())
+      .ignoreFields("id")
+      .isSimilarTo(getClass().getResource("update_template-example.json"));
     PermissionTemplateDto finance = dbClient.permissionTemplateDao().selectByName(dbSession, "Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");

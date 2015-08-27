@@ -76,7 +76,9 @@ public class CreateTemplateActionTest {
   public void create_full_permission_template() {
     TestResponse result = newRequest("Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
-    assertJson(result.getInput()).isSimilarTo(getClass().getResource("CreateTemplateActionTest/create_template.json"));
+    assertJson(result.getInput())
+      .ignoreFields("id")
+      .isSimilarTo(getClass().getResource("create_template-example.json"));
     PermissionTemplateDto finance = dbClient.permissionTemplateDao().selectByName(dbSession, "Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");
