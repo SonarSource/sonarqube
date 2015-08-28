@@ -86,7 +86,7 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
     componentMeasureByMetricKey.put(metricKey, MeasureImpl.createMeasure(value));
   }
 
-  public void addIntegerChildrenMeasures(String metricKey, List<Integer> values) {
+  public void addChildrenMeasures(String metricKey, Integer... values) {
     for (Integer value : values) {
       childrenComponentMeasureByMetricKey.put(metricKey, MeasureImpl.createMeasure(value));
     }
@@ -102,7 +102,7 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
     componentMeasureByMetricKey.put(metricKey, MeasureImpl.createMeasure(value));
   }
 
-  public void addDoubleChildrenMeasures(String metricKey, List<Double> values) {
+  public void addChildrenMeasures(String metricKey, Double... values) {
     for (Double value : values) {
       childrenComponentMeasureByMetricKey.put(metricKey, MeasureImpl.createMeasure(value));
     }
@@ -118,7 +118,7 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
     componentMeasureByMetricKey.put(metricKey, MeasureImpl.createMeasure(value));
   }
 
-  public void addLongChildrenMeasures(String metricKey, List<Long> values) {
+  public void addChildrenMeasures(String metricKey, Long... values) {
     for (Long value : values) {
       childrenComponentMeasureByMetricKey.put(metricKey, MeasureImpl.createMeasure(value));
     }
@@ -134,7 +134,7 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
     componentMeasureByMetricKey.put(metricKey, MeasureImpl.createMeasure(value));
   }
 
-  public void addStringChildrenMeasures(String metricKey, List<String> values) {
+  public void addChildrenMeasures(String metricKey, String... values) {
     for (String value : values) {
       childrenComponentMeasureByMetricKey.put(metricKey,MeasureImpl.createMeasure(value));
     }
