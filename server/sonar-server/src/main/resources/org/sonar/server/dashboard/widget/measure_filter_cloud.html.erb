@@ -42,9 +42,9 @@
       .source(baseUrl + '/measures/search_filter?' + query)
       .metricsPriority(metrics)
       .options({
-        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
+        maxItemsReachedMessage: '<%= escape_javascript message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
         baseUrl: baseUrl + '/dashboard/index',
-        noData: '<%= message('no_data') -%>'
+        noData: '<%= escape_javascript message('no_data') -%>'
       })
       .render('#<%= containerId -%>');
 
