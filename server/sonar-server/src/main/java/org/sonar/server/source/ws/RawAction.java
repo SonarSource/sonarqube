@@ -20,11 +20,11 @@
 
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -53,7 +53,7 @@ public class RawAction implements SourcesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("raw")
-      .setDescription("Get source code as plain text. Require See Source Code permission on file")
+      .setDescription("Get source code as raw text. Require 'See Source Code' permission on file")
       .setSince("5.0")
       .setResponseExample(Resources.getResource(getClass(), "example-raw.txt"))
       .setHandler(this);
@@ -62,23 +62,30 @@ public class RawAction implements SourcesWsAction {
       .createParam("key")
       .setRequired(true)
       .setDescription("File key")
-      .setExampleValue("my_project:/src/foo/Bar.php");
+      .setExampleValue("my_project:src/foo/Bar.php");
   }
 
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
-    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto componentDto = componentFinder.getByKey(session, fileKey);
-      List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), null, null);
+      ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
+      userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
+
+      Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(dbSession, file.uuid(), 1, Integer.MAX_VALUE);
       response.stream().setMediaType("text/plain");
-      IOUtils.writeLines(lines, "\n", response.stream().output(), StandardCharsets.UTF_8);
+      if (lines.isPresent()) {
+        OutputStream output = response.stream().output();
+        for (String line : lines.get()) {
+          output.write(line.getBytes(StandardCharsets.UTF_8));
+          output.write("\n".getBytes(StandardCharsets.UTF_8));
+        }
+      }
     } catch (IOException e) {
       throw new IllegalStateException("Fail to write raw source of file " + fileKey, e);
     } finally {
-      session.close();
+      dbClient.closeSession(dbSession);
     }
   }
 }

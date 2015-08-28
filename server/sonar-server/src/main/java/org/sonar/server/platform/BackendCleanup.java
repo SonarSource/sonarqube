@@ -31,7 +31,6 @@ import org.sonar.db.MyBatis;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 @ServerSide
@@ -126,9 +125,7 @@ public class BackendCleanup {
 
       deleteManualRules(connection);
 
-      // Clear inspection indexes
       clearIndex(IssueIndexDefinition.INDEX);
-      clearIndex(SourceLineIndexDefinition.INDEX);
       clearIndex(ViewIndexDefinition.INDEX);
 
     } finally {

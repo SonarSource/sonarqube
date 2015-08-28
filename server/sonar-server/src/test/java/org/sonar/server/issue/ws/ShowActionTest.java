@@ -58,7 +58,6 @@ import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.WsTester;
@@ -114,9 +113,6 @@ public class ShowActionTest {
 
   @Mock
   Durations durations;
-
-  @Mock
-  SourceService sourceService;
 
   Date issueCreationDate;
 

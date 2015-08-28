@@ -97,7 +97,6 @@ public class ReportComputationSteps implements ComputationSteps {
       // ES indexing is done after all db changes
       ApplyPermissionsStep.class,
       IndexIssuesStep.class,
-      IndexSourceLinesStep.class,
       IndexTestsStep.class,
 
       // notifications are sent at the end, so that webapp displays up-to-date information

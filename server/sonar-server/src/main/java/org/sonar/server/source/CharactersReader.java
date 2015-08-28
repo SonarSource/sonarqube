@@ -24,9 +24,6 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-/**
- * @since 3.6
- */
 class CharactersReader {
 
   static final int END_OF_STREAM = -1;

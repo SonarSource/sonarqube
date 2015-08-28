@@ -51,6 +51,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
@@ -59,8 +60,7 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -79,7 +79,7 @@ public class IssueService {
   private final RuleFinder ruleFinder;
   private final UserFinder userFinder;
   private final UserIndex userIndex;
-  private final SourceLineIndex sourceLineIndex;
+  private final SourceService sourceService;
   private final UserSession userSession;
 
   public IssueService(DbClient dbClient, IssueIndex issueIndex,
@@ -90,7 +90,7 @@ public class IssueService {
     ActionPlanService actionPlanService,
     RuleFinder ruleFinder,
     UserFinder userFinder,
-    UserIndex userIndex, SourceLineIndex sourceLineIndex, UserSession userSession) {
+    UserIndex userIndex, SourceService sourceService, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
     this.workflow = workflow;
@@ -101,7 +101,7 @@ public class IssueService {
     this.notificationService = notificationService;
     this.userFinder = userFinder;
     this.userIndex = userIndex;
-    this.sourceLineIndex = sourceLineIndex;
+    this.sourceService = sourceService;
     this.userSession = userSession;
   }
 
@@ -111,7 +111,7 @@ public class IssueService {
 
   /**
    * List of available transitions.
-   * <p/>
+   * <p>
    * Never return null, but return an empty list if the issue does not exist.
    */
   public List<Transition> listTransitions(String issueKey) {
@@ -241,14 +241,14 @@ public class IssueService {
   public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity) {
     verifyLoggedIn();
 
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      Optional<ComponentDto> componentOptional = dbClient.componentDao().selectByKey(session, componentKey);
+      Optional<ComponentDto> componentOptional = dbClient.componentDao().selectByKey(dbSession, componentKey);
       if (!componentOptional.isPresent()) {
         throw new BadRequestException(String.format("Component with key '%s' not found", componentKey));
       }
       ComponentDto component = componentOptional.get();
-      ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
+      ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, component.projectUuid());
 
       userSession.checkProjectPermission(UserRole.USER, project.getKey());
       if (!ruleKey.isManual()) {
@@ -267,7 +267,7 @@ public class IssueService {
         .severity(Objects.firstNonNull(severity, Severity.MAJOR))
         .ruleKey(ruleKey)
         .reporter(userSession.getLogin())
-        .assignee(findSourceLineUser(component.uuid(), line))
+        .assignee(findSourceLineUser(dbSession, component.uuid(), line))
         .build();
 
       Date now = new Date();
@@ -276,7 +276,7 @@ public class IssueService {
       issueStorage.save(issue);
       return issue;
     } finally {
-      session.close();
+      dbSession.close();
     }
   }
 
@@ -362,12 +362,11 @@ public class IssueService {
   }
 
   @CheckForNull
-  private String findSourceLineUser(String fileUuid, @Nullable Integer line) {
+  private String findSourceLineUser(DbSession dbSession, String fileUuid, @Nullable Integer line) {
     if (line != null) {
-      SourceLineDoc sourceLine = sourceLineIndex.getLine(fileUuid, line);
-      String scmAuthor = sourceLine.scmAuthor();
-      if (!Strings.isNullOrEmpty(scmAuthor)) {
-        UserDoc userDoc = userIndex.getNullableByScmAccount(scmAuthor);
+      Optional<DbFileSources.Line> sourceLine = sourceService.getLine(dbSession, fileUuid, line);
+      if (sourceLine.isPresent() && sourceLine.get().hasScmAuthor()) {
+        UserDoc userDoc = userIndex.getNullableByScmAccount(sourceLine.get().getScmAuthor());
         if (userDoc != null) {
           return userDoc.login();
         }

@@ -35,8 +35,6 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.test.DbTests;
@@ -103,7 +101,6 @@ public class BackendCleanupMediumTest {
   public void reset_data() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc());
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, new SourceLineDoc().setProjectUuid("ABCD").setFileUuid("BCDE"));
     esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));
     esTester.putDocuments(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), newRuleDoc());
 
@@ -113,7 +110,6 @@ public class BackendCleanupMediumTest {
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("properties")).isEqualTo(0);
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0);
-    assertThat(esTester.countDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE)).isEqualTo(0);
     assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEqualTo(0);
 
     // Rules should not be removed

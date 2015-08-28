@@ -1,43 +1,46 @@
 {
   "sources": [
     {
-      "code": "<span class=\"k\">package</span> <span class=\"sym-42 sym\">org.polop</span>;",
       "line": 1,
-      "scmAuthor": "polop",
-      "scmRevision": "cafebabe",
-      "utLineHits": 3,
+      "code": "<p>SOURCE_1</p>",
+      "scmAuthor": "AUTHOR_1",
+      "scmRevision": "REVISION_1",
+      "scmDate": "1974-10-03T03:40:00+0100",
+      "utLineHits": 1,
       "utConditions": 2,
-      "utCoveredConditions": 1,
-      "itLineHits": 3,
-      "itConditions": 2,
-      "itCoveredConditions": 1
-    },
-    {
-      "code": "<span class=\"c\">abc</span>",
-      "line": 2,
-      "scmAuthor": "polop",
-      "scmRevision": "cafebabe",
-      "utLineHits": 3,
-      "utConditions": 2,
-      "utCoveredConditions": 1,
+      "utCoveredConditions": 3,
+      "itLineHits": 4,
+      "itConditions": 5,
+      "itCoveredConditions": 6,
       "duplicated": true
     },
     {
-      "code": "}",
+      "line": 2,
+      "code": "<p>SOURCE_2</p>",
+      "scmAuthor": "AUTHOR_2",
+      "scmRevision": "REVISION_2",
+      "scmDate": "1974-10-03T03:40:00+0100",
+      "utLineHits": 2,
+      "utConditions": 3,
+      "utCoveredConditions": 4,
+      "itLineHits": 5,
+      "itConditions": 6,
+      "itCoveredConditions": 7,
+      "duplicated": true
+    },
+    {
       "line": 3,
-      "scmAuthor": "polop",
-      "scmRevision": "cafebabe",
-      "itLineHits": 3,
-      "itConditions": 2,
-      "itCoveredConditions": 1
+      "code": "<p>SOURCE_3</p>",
+      "scmAuthor": "AUTHOR_3",
+      "scmRevision": "REVISION_3",
+      "scmDate": "1974-10-03T03:40:00+0100",
+      "utLineHits": 3,
+      "utConditions": 4,
+      "utCoveredConditions": 5,
+      "itLineHits": 6,
+      "itConditions": 7,
+      "itCoveredConditions": 8,
+      "duplicated": true
     }
   ]
 }
-
-
-
-
-
-
-
-

@@ -19,8 +19,8 @@
  */
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
-import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
@@ -82,33 +83,37 @@ public class ShowAction implements SourcesWsAction {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
-    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
-
-    int from = Math.max(request.mandatoryParamAsInt("from"), 1);
+    int from = Math.max(request.paramAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto componentDto = componentFinder.getByKey(session, fileKey);
-      List<String> linesHtml = sourceService.getLinesAsHtml(componentDto.uuid(), from, to);
-      JsonWriter json = response.newJsonWriter().beginObject();
-      writeSource(linesHtml, from, json);
+      ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
+      userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
 
-      json.endObject().close();
+      Optional<Iterable<String>> linesHtml = sourceService.getLinesAsHtml(dbSession, file.uuid(), from, to);
+      if (linesHtml.isPresent()) {
+        JsonWriter json = response.newJsonWriter().beginObject();
+        writeSource(linesHtml.get(), from, json);
+        json.endObject().close();
+      } else {
+        throw new NotFoundException();
+      }
+
     } finally {
-      session.close();
+      dbClient.closeSession(dbSession);
     }
-
   }
 
-  private void writeSource(List<String> lines, int from, JsonWriter json) {
+  private void writeSource(Iterable<String> lines, int from, JsonWriter json) {
     json.name("sources").beginArray();
-    for (int i = 0; i < lines.size(); i++) {
-      String line = lines.get(i);
+    long index = 0L;
+    for (String line : lines) {
       json.beginArray();
-      json.value((long) i + from);
+      json.value(index + from);
       json.value(line);
       json.endArray();
+      index++;
     }
     json.endArray();
   }

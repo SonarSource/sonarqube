@@ -19,15 +19,11 @@
  */
 package org.sonar.server.source;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
-
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.List;
-
-@ServerSide
 public class HtmlSourceDecorator {
 
   @CheckForNull

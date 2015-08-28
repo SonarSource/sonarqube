@@ -22,23 +22,21 @@ package org.sonar.server.source.ws;
 
 import java.util.Date;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.es.EsTester;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndex;
-import org.sonar.server.source.index.SourceLineIndexDefinition;
+import org.sonar.server.source.HtmlSourceDecorator;
+import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -51,9 +49,6 @@ public class ScmActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -64,8 +59,8 @@ public class ScmActionTest {
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    esTester.truncateIndices();
-    tester = new WsTester(new SourcesWs(new ScmAction(dbClient, new SourceLineIndex(esTester.client()), userSessionRule, new ComponentFinder(dbClient))));
+    tester = new WsTester(
+      new SourcesWs(new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()), userSessionRule, new ComponentFinder(dbClient))));
   }
 
   @Test
@@ -73,9 +68,11 @@ public class ScmActionTest {
     initFile();
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1)
-    );
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(DbFileSources.Data.newBuilder().addLines(
+        newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1)).build()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
     request.execute().assertJson(getClass(), "show_scm.json");
@@ -86,12 +83,15 @@ public class ScmActionTest {
     initFile();
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1),
-      newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2),
-      newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3),
-      newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4)
-    );
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(DbFileSources.Data.newBuilder()
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .build()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("from", "2").setParam("to", "3");
     request.execute().assertJson(getClass(), "show_scm_from_given_range_lines.json");
@@ -103,14 +103,18 @@ public class ScmActionTest {
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1),
-      newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2),
-      newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3),
-      newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4)
-    );
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(DbFileSources.Data.newBuilder()
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .build()));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("commits_by_line", "true");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("commits_by_line",
+      "true");
     request.execute().assertJson(getClass(), "not_group_lines_by_commit.json");
   }
 
@@ -120,14 +124,18 @@ public class ScmActionTest {
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1),
-      newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2),
-      newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3),
-      newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4)
-    );
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(DbFileSources.Data.newBuilder()
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .build()));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("commits_by_line", "false");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("commits_by_line",
+      "false");
     request.execute().assertJson(getClass(), "group_lines_by_commit.json");
   }
 
@@ -136,14 +144,18 @@ public class ScmActionTest {
     initFile();
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1),
-      newSourceLine("julien", "123-456-710", DateUtils.parseDateTime("2015-03-29T12:34:56+0000"), 2),
-      newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3),
-      newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4)
-    );
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(DbFileSources.Data.newBuilder()
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
+        .addLines(newSourceLine("julien", "123-456-710", DateUtils.parseDateTime("2015-03-29T12:34:56+0000"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .build()));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("from", "-2").setParam("to", "3");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("from",
+      "-2").setParam("to", "3");
     request.execute().assertJson(getClass(), "accept_negative_value_in_from_parameter.json");
   }
 
@@ -152,9 +164,10 @@ public class ScmActionTest {
     initFile();
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      newSourceLine(null, null, null, 1)
-    );
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(DbFileSources.Data.newBuilder().build()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
     request.execute().assertJson(getClass(), "return_empty_value_when_no_scm.json");
@@ -175,13 +188,12 @@ public class ScmActionTest {
     dbTester.getSession().commit();
   }
 
-  private SourceLineDoc newSourceLine(String author, String revision, Date date, int line) {
-    return new SourceLineDoc()
+  private DbFileSources.Line newSourceLine(String author, String revision, Date date, int line) {
+    return DbFileSources.Line.newBuilder()
       .setScmAuthor(author)
       .setScmRevision(revision)
-      .setScmDate(date)
+      .setScmDate(date.getTime())
       .setLine(line)
-      .setProjectUuid(PROJECT_UUID)
-      .setFileUuid(FILE_UUID);
+      .build();
   }
 }

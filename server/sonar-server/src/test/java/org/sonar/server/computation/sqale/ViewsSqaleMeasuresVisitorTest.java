@@ -109,9 +109,9 @@ public class ViewsSqaleMeasuresVisitorTest {
 
     assertThat(toEntries(measureRepository.getRawMeasures(root)))
       .containsOnly(
-          entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
-          entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d)),
-          entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A)));
+        entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
+        entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d)),
+        entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A)));
   }
 
   private Measure createSqaleRatingMeasure(SqaleRatingGrid.SqaleRating sqaleRating) {
@@ -150,9 +150,9 @@ public class ViewsSqaleMeasuresVisitorTest {
 
   private void assertNewRawMeasures(int componentRef, long debt, long devCost, SqaleRatingGrid.SqaleRating sqaleRating) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
-        entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(String.valueOf(devCost))),
-        entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(debt / (double) devCost * 100.0)),
-        entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(sqaleRating)));
+      entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(String.valueOf(devCost))),
+      entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(debt / (double) devCost * 100.0)),
+      entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(sqaleRating)));
   }
 
   private void assertNoNewRawMeasureOnProjectViews() {
@@ -168,18 +168,6 @@ public class ViewsSqaleMeasuresVisitorTest {
 
   private void addRawMeasure(String metricKey, int componentRef, long value) {
     measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
-  }
-
-  private void verifyFileMeasures(int componentRef, long measureValue, long debt, long languageCost, SqaleRatingGrid.SqaleRating expectedRating) {
-    long developmentCost = measureValue * languageCost;
-    verifyComponentMeasures(componentRef, developmentCost, debt / developmentCost, expectedRating);
-  }
-
-  private void verifyComponentMeasures(int componentRef, long expectedDevCost, double expectedDebtRatio, SqaleRatingGrid.SqaleRating expectedRating) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
-      entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(Long.toString(expectedDevCost))),
-      entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(expectedDebtRatio * 100.0)),
-      entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(expectedRating)));
   }
 
   private void assertNoNewRawMeasure(int componentRef) {

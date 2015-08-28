@@ -32,8 +32,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
@@ -76,13 +76,13 @@ public class RawActionTest {
   @Test
   public void get_txt() throws Exception {
     String fileKey = "src/Foo.java";
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
 
-    when(sourceService.getLinesAsTxt(file.uuid(), null, null)).thenReturn(newArrayList(
+    Iterable<String> lines = newArrayList(
       "public class HelloWorld {",
-      "}"
-    ));
+      "}");
+    when(sourceService.getLinesAsRawText(session, file.uuid(), 1, Integer.MAX_VALUE)).thenReturn(Optional.of(lines));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", fileKey);
     String result = request.execute().outputAsString();
@@ -91,6 +91,7 @@ public class RawActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void requires_code_viewer_permission() throws Exception {
-    tester.newGetRequest("api/sources", "raw").setParam("key", "any").execute();
+    when(componentDao.selectByKey(session, "src/Foo.java")).thenReturn(Optional.of(file));
+    tester.newGetRequest("api/sources", "raw").setParam("key", "src/Foo.java").execute();
   }
 }

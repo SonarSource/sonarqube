@@ -31,8 +31,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
@@ -77,16 +77,15 @@ public class ShowActionTest {
   @Test
   public void show_source() throws Exception {
     String fileKey = "src/Foo.java";
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
-    when(sourceService.getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt())).thenReturn(newArrayList(
+    when(sourceService.getLinesAsHtml(eq(session), eq(file.uuid()), anyInt(), anyInt())).thenReturn(Optional.of((Iterable<String>) newArrayList(
       "/*",
       " * Header",
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {",
-      "}"
-    ));
+      "}")));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", fileKey);
     request.execute().assertJson(getClass(), "show_source.json");
@@ -95,13 +94,12 @@ public class ShowActionTest {
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
     String fileKey = "src/Foo.java";
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
-    when(sourceService.getLinesAsHtml(file.uuid(), 3, 5)).thenReturn(newArrayList(
+    when(sourceService.getLinesAsHtml(session, file.uuid(), 3, 5)).thenReturn(Optional.of((Iterable<String>) newArrayList(
       " */",
       "",
-      "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
-    ));
+      "public class <span class=\"sym-31 sym\">HelloWorld</span> {")));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "show")
       .setParam("key", fileKey)
@@ -113,25 +111,25 @@ public class ShowActionTest {
   @Test
   public void show_source_accept_from_less_than_one() throws Exception {
     String fileKey = "src/Foo.java";
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
     when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
-    when(sourceService.getLinesAsHtml(file.uuid(), 1, 5)).thenReturn(newArrayList(
+    when(sourceService.getLinesAsHtml(session, file.uuid(), 1, 5)).thenReturn(Optional.of((Iterable<String>) newArrayList(
       " */",
       "",
-      "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
-    ));
+      "public class <span class=\"sym-31 sym\">HelloWorld</span> {")));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "show")
       .setParam("key", fileKey)
       .setParam("from", "0")
       .setParam("to", "5");
     request.execute();
-    verify(sourceService).getLinesAsHtml(file.uuid(), 1, 5);
+    verify(sourceService).getLinesAsHtml(session, file.uuid(), 1, 5);
   }
 
   @Test(expected = ForbiddenException.class)
   public void require_code_viewer() throws Exception {
     String fileKey = "src/Foo.java";
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     tester.newGetRequest("api/sources", "show").setParam("key", fileKey).execute();
   }
 }

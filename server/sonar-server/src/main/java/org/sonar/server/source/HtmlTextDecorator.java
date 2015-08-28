@@ -30,10 +30,6 @@ import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-
-/**
- * @since 3.6
- */
 class HtmlTextDecorator {
 
   static final char CR_END_OF_LINE = '\r';

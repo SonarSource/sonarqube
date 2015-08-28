@@ -17,53 +17,114 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.source;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.sonar.api.server.ServerSide;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndex;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import javax.annotation.Nonnull;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileSourceDto;
 
-import javax.annotation.Nullable;
-
-import java.util.List;
-
-@ServerSide
 public class SourceService {
 
-  private final HtmlSourceDecorator sourceDecorator;
-  private final SourceLineIndex sourceLineIndex;
+  private final DbClient dbClient;
+  private final HtmlSourceDecorator htmlDecorator;
 
-  public SourceService(HtmlSourceDecorator sourceDecorator, SourceLineIndex sourceLineIndex) {
-    this.sourceDecorator = sourceDecorator;
-    this.sourceLineIndex = sourceLineIndex;
+  public SourceService(DbClient dbClient, HtmlSourceDecorator htmlDecorator) {
+    this.dbClient = dbClient;
+    this.htmlDecorator = htmlDecorator;
   }
 
   /**
-   * Raw lines of source file.
+   * Returns a range of lines as raw db data. User permission is not verified.
+   * @param from starts from 1
+   * @param toInclusive starts from 1, must be greater than or equal param {@code from}
    */
-  public List<String> getLinesAsTxt(String fileUuid, @Nullable Integer fromParam, @Nullable Integer toParam) {
-    int from = (Integer) ObjectUtils.defaultIfNull(fromParam, 1);
-    int to = (Integer) ObjectUtils.defaultIfNull(toParam, Integer.MAX_VALUE);
-    List<String> lines = Lists.newArrayList();
-    for (SourceLineDoc lineDoc : sourceLineIndex.getLines(fileUuid, from, to)) {
-      lines.add(lineDoc.source());
-    }
-    return lines;
+  public Optional<Iterable<DbFileSources.Line>> getLines(DbSession dbSession, String fileUuid, int from, int toInclusive) {
+    return getLines(dbSession, fileUuid, from, toInclusive, Functions.<DbFileSources.Line>identity());
   }
 
   /**
-   * Decorated lines of source file.
+   * Returns a range of lines as raw text.
+   * @see #getLines(DbSession, String, int, int)
    */
-  public List<String> getLinesAsHtml(String fileUuid, @Nullable Integer fromParam, @Nullable Integer toParam) {
-    int from = (Integer) ObjectUtils.defaultIfNull(fromParam, 1);
-    int to = (Integer) ObjectUtils.defaultIfNull(toParam, Integer.MAX_VALUE);
-    List<String> lines = Lists.newArrayList();
-    for (SourceLineDoc lineDoc : sourceLineIndex.getLines(fileUuid, from, to)) {
-      lines.add(sourceDecorator.getDecoratedSourceAsHtml(lineDoc.source(), lineDoc.highlighting(), lineDoc.symbols()));
+  public Optional<Iterable<String>> getLinesAsRawText(DbSession dbSession, String fileUuid, int from, int toInclusive) {
+    return getLines(dbSession, fileUuid, from, toInclusive, LineToRaw.INSTANCE);
+  }
+
+  public Optional<Iterable<String>> getLinesAsHtml(DbSession dbSession, String fileUuid, int from, int toInclusive) {
+    return getLines(dbSession, fileUuid, from, toInclusive, lineToHtml());
+  }
+
+  /**
+   * Returns a single line from a source file. {@code Optional.absent()} is returned if the
+   * file or the line do not exist.
+   * @param line starts from 1
+   */
+  public Optional<DbFileSources.Line> getLine(DbSession dbSession, String fileUuid, int line) {
+    verifyLine(line);
+    FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, fileUuid);
+    if (dto == null) {
+      return Optional.absent();
     }
-    return lines;
+    DbFileSources.Data data = dto.getSourceData();
+    return FluentIterable.from(data.getLinesList())
+      .filter(new IsGreaterOrEqualThanLine(line))
+      .first();
+  }
+
+  private <E> Optional<Iterable<E>> getLines(DbSession dbSession, String fileUuid, int from, int toInclusive, Function<DbFileSources.Line, E> function) {
+    verifyLine(from);
+    Preconditions.checkArgument(toInclusive >= from, String.format("Line number must greater than or equal to %d, got %d", from, toInclusive));
+    FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, fileUuid);
+    if (dto == null) {
+      return Optional.absent();
+    }
+    DbFileSources.Data data = dto.getSourceData();
+    return Optional.of((Iterable<E>) FluentIterable.from(data.getLinesList())
+      .filter(new IsGreaterOrEqualThanLine(from))
+      .limit(toInclusive - from + 1)
+      .transform(function));
+  }
+
+  private static void verifyLine(int line) {
+    Preconditions.checkArgument(line >= 1, String.format("Line number must start at 1, got %d", line));
+  }
+
+  private Function<DbFileSources.Line, String> lineToHtml() {
+    return new Function<DbFileSources.Line, String>() {
+      @Override
+      public String apply(@Nonnull DbFileSources.Line line) {
+        return htmlDecorator.getDecoratedSourceAsHtml(line.getSource(), line.getHighlighting(), line.getSymbols());
+      }
+    };
+  }
+
+  private enum LineToRaw implements Function<DbFileSources.Line, String> {
+    INSTANCE;
+    @Override
+    public String apply(@Nonnull DbFileSources.Line line) {
+      return line.getSource();
+    }
+
+  }
+
+  private class IsGreaterOrEqualThanLine implements Predicate<DbFileSources.Line> {
+    private final int from;
+
+    IsGreaterOrEqualThanLine(int from) {
+      this.from = from;
+    }
+
+    @Override
+    public boolean apply(@Nonnull DbFileSources.Line line) {
+      return line.hasLine() && line.getLine() >= from;
+    }
   }
 }

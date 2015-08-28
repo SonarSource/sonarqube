@@ -25,13 +25,12 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.server.activity.index.ActivityIndexer;
-import org.sonar.server.db.DeprecatedDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.db.DeprecatedDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.view.index.ViewIndexer;
@@ -42,7 +41,6 @@ public class IndexSynchronizer {
 
   private final DbClient db;
   private final IndexClient index;
-  private final SourceLineIndexer sourceLineIndexer;
   private final TestIndexer testIndexer;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final IssueIndexer issueIndexer;
@@ -56,12 +54,11 @@ public class IndexSynchronizer {
    * because we need {@link org.sonar.server.issue.index.IssueAuthorizationIndexer} to be executed before
    * {@link org.sonar.server.issue.index.IssueIndexer}
    */
-  public IndexSynchronizer(DbClient db, IndexClient index, SourceLineIndexer sourceLineIndexer,
+  public IndexSynchronizer(DbClient db, IndexClient index,
     TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
     UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer, Settings settings) {
     this.db = db;
     this.index = index;
-    this.sourceLineIndexer = sourceLineIndexer;
     this.testIndexer = testIndexer;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
@@ -90,9 +87,6 @@ public class IndexSynchronizer {
       LOG.info("Index issues");
       issueAuthorizationIndexer.setEnabled(true).index();
       issueIndexer.setEnabled(true).index();
-
-      LOG.info("Index source lines");
-      sourceLineIndexer.setEnabled(true).index();
 
       LOG.info("Index tests");
       testIndexer.setEnabled(true).index();

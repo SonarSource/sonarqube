@@ -33,7 +33,6 @@ import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
 @ServerSide
@@ -42,17 +41,15 @@ public class ComponentCleanerService {
   private final DbClient dbClient;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final IssueIndexer issueIndexer;
-  private final SourceLineIndexer sourceLineIndexer;
   private final TestIndexer testIndexer;
   private final ResourceTypes resourceTypes;
   private final ComponentFinder componentFinder;
 
   public ComponentCleanerService(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-                                 SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
+    TestIndexer testIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
-    this.sourceLineIndexer = sourceLineIndexer;
     this.testIndexer = testIndexer;
     this.resourceTypes = resourceTypes;
     this.componentFinder = componentFinder;
@@ -88,7 +85,6 @@ public class ComponentCleanerService {
     // optimization : index "issues" is refreshed once at the end
     issueAuthorizationIndexer.deleteProject(projectUuid, false);
     issueIndexer.deleteProject(projectUuid, true);
-    sourceLineIndexer.deleteByProject(projectUuid);
     testIndexer.deleteByProject(projectUuid);
   }
 

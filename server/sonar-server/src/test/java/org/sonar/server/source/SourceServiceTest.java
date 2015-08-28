@@ -17,79 +17,125 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.source;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.db.measure.MeasureDao;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndex;
-
-import java.util.Arrays;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import java.io.IOException;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.source.index.FileSourceTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SourceServiceTest {
 
-  static final String PROJECT_KEY = "org.sonar.sample";
-  static final String COMPONENT_UUID = "abc123";
+  public static final String FILE_UUID = "FILE_UUID";
 
-  @Mock
-  HtmlSourceDecorator sourceDecorator;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Mock
-  MeasureDao measureDao;
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Mock
-  SourceLineIndex sourceLineIndex;
+  HtmlSourceDecorator htmlDecorator = mock(HtmlSourceDecorator.class);
 
-  SourceService service;
+  SourceService underTest = new SourceService(dbTester.getDbClient(), htmlDecorator);
 
   @Before
-  public void setUp() {
-    service = new SourceService(sourceDecorator, sourceLineIndex);
+  public void injectFakeLines() throws IOException {
+    FileSourceDto dto = new FileSourceDto();
+    dto.setFileUuid(FILE_UUID).setProjectUuid("PROJECT_UUID");
+    dto.setSourceData(FileSourceTesting.newFakeData(10).build());
+    dbTester.getDbClient().fileSourceDao().insert(dto);
   }
 
   @Test
-  public void get_html_lines() {
-    when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
-      Arrays.asList(new SourceLineDoc().setSource("source").setHighlighting("highlight").setSymbols("symbols")));
-
-    service.getLinesAsHtml(COMPONENT_UUID, null, null);
-
-    verify(sourceDecorator).getDecoratedSourceAsHtml("source", "highlight", "symbols");
+  public void get_range_of_lines() throws Exception {
+    Optional<Iterable<DbFileSources.Line>> linesOpt = underTest.getLines(dbTester.getSession(), FILE_UUID, 5, 7);
+    assertThat(linesOpt.isPresent()).isTrue();
+    List<DbFileSources.Line> lines = Lists.newArrayList(linesOpt.get());
+    assertThat(lines).hasSize(3);
+    assertThat(lines.get(0).getLine()).isEqualTo(5);
+    assertThat(lines.get(1).getLine()).isEqualTo(6);
+    assertThat(lines.get(2).getLine()).isEqualTo(7);
   }
 
   @Test
-  public void get_block_of_lines() {
-
-    when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
-      Arrays.asList(new SourceLineDoc().setSource("source").setHighlighting("highlight").setSymbols("symbols"),
-        new SourceLineDoc().setSource("source2").setHighlighting("highlight2").setSymbols("symbols2")));
-
-    service.getLinesAsHtml(COMPONENT_UUID, null, null);
-
-    verify(sourceDecorator).getDecoratedSourceAsHtml("source", "highlight", "symbols");
-    verify(sourceDecorator).getDecoratedSourceAsHtml("source2", "highlight2", "symbols2");
+  public void get_range_of_lines_as_raw_text() throws Exception {
+    Optional<Iterable<String>> linesOpt = underTest.getLinesAsRawText(dbTester.getSession(), FILE_UUID, 5, 7);
+    assertThat(linesOpt.isPresent()).isTrue();
+    List<String> lines = Lists.newArrayList(linesOpt.get());
+    assertThat(lines).containsExactly("SOURCE_5", "SOURCE_6", "SOURCE_7");
   }
 
   @Test
-  public void getLinesAsTxt() {
-    when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
-      Arrays.asList(
-        new SourceLineDoc().setSource("line1"),
-        new SourceLineDoc().setSource("line2")));
+  public void get_range_of_lines_as_html() throws Exception {
+    when(htmlDecorator.getDecoratedSourceAsHtml("SOURCE_5", "HIGHLIGHTING_5", "SYMBOLS_5")).thenReturn("HTML_5");
+    when(htmlDecorator.getDecoratedSourceAsHtml("SOURCE_6", "HIGHLIGHTING_6", "SYMBOLS_6")).thenReturn("HTML_6");
+    when(htmlDecorator.getDecoratedSourceAsHtml("SOURCE_7", "HIGHLIGHTING_7", "SYMBOLS_7")).thenReturn("HTML_7");
 
-    List<String> result = service.getLinesAsTxt(COMPONENT_UUID, null, null);
-    assertThat(result).contains("line1", "line2");
+    Optional<Iterable<String>> linesOpt = underTest.getLinesAsHtml(dbTester.getSession(), FILE_UUID, 5, 7);
+    assertThat(linesOpt.isPresent()).isTrue();
+    List<String> lines = Lists.newArrayList(linesOpt.get());
+    assertThat(lines).containsExactly("HTML_5", "HTML_6", "HTML_7");
   }
 
+  @Test
+  public void getLines_fails_if_range_starts_at_zero() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Line number must start at 1, got 0");
+
+    underTest.getLines(dbTester.getSession(), FILE_UUID, 0, 2);
+  }
+
+  @Test
+  public void getLines_fails_if_range_upper_bound_less_than_lower_bound() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Line number must greater than or equal to 5, got 4");
+
+    underTest.getLines(dbTester.getSession(), FILE_UUID, 5, 4);
+  }
+
+  @Test
+  public void getLines_returns_empty_iterable_if_range_is_out_of_scope() throws Exception {
+    Optional<Iterable<DbFileSources.Line>> lines = underTest.getLines(dbTester.getSession(), FILE_UUID, 500, 510);
+    assertThat(lines.isPresent()).isTrue();
+    assertThat(lines.get()).isEmpty();
+  }
+
+  @Test
+  public void getLines_file_does_not_exist() throws Exception {
+    Optional<Iterable<DbFileSources.Line>> lines = underTest.getLines(dbTester.getSession(), "FILE_DOES_NOT_EXIST", 1, 10);
+    assertThat(lines.isPresent()).isFalse();
+  }
+
+  @Test
+  public void getLine() throws Exception {
+    Optional<DbFileSources.Line> line = underTest.getLine(dbTester.getSession(), FILE_UUID, 4);
+    assertThat(line.isPresent()).isTrue();
+    assertThat(line.get().getLine()).isEqualTo(4);
+    assertThat(line.get().getSource()).isEqualTo("SOURCE_4");
+  }
+
+  @Test
+  public void getLine_absent_line() throws Exception {
+    Optional<DbFileSources.Line> line = underTest.getLine(dbTester.getSession(), FILE_UUID, 500);
+    assertThat(line.isPresent()).isFalse();
+  }
+
+  @Test
+  public void getLine_absent_file() throws Exception {
+    Optional<DbFileSources.Line> line = underTest.getLine(dbTester.getSession(), "FILE_DOES_NOT_EXIST", 10);
+    assertThat(line.isPresent()).isFalse();
+  }
 }

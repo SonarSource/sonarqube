@@ -33,7 +33,6 @@ import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
-import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJECT_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
 import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
@@ -117,7 +116,7 @@ public class TestIndexer extends BaseIndexer {
       .setTypes(TYPE)
       .setQuery(QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
-        FilterBuilders.termFilter(FIELD_PROJECT_UUID, projectUuid).cache(false)));
+        FilterBuilders.termFilter(TestIndexDefinition.FIELD_PROJECT_UUID, projectUuid).cache(false)));
     BulkIndexer.delete(esClient, INDEX, searchRequest);
   }
 }

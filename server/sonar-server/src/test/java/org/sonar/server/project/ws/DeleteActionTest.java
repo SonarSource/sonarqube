@@ -39,6 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
@@ -49,7 +50,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -59,9 +59,6 @@ import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndexDefinition;
-import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
@@ -86,7 +83,7 @@ public class DeleteActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new SourceLineIndexDefinition(new Settings()),
+  public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()),
     new TestIndexDefinition(new Settings()));
 
   @Rule
@@ -120,7 +117,6 @@ public class DeleteActionTest {
           dbClient,
           new IssueAuthorizationIndexer(dbClient, es.client()),
           new IssueIndexer(dbClient, es.client()),
-          new SourceLineIndexer(dbClient, es.client()),
           new TestIndexer(dbClient, es.client()),
           mockResourceTypes,
           new ComponentFinder(dbClient)),
@@ -203,8 +199,6 @@ public class DeleteActionTest {
       .containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
-    assertThat(es.getDocumentFieldValues(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, SourceLineIndexDefinition.FIELD_PROJECT_UUID))
-      .containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestIndexDefinition.FIELD_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
   }
@@ -270,13 +264,9 @@ public class DeleteActionTest {
     dbSession.commit();
 
     es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc("issue-key-" + suffix, project));
-    SourceLineDoc sourceLineDoc = new SourceLineDoc()
-      .setProjectUuid(project.uuid())
-      .setFileUuid(project.uuid());
     es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
       ImmutableMap.<String, Object>of(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, project.uuid()));
 
-    es.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, sourceLineDoc);
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);
   }

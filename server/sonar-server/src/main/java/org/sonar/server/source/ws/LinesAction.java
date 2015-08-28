@@ -19,11 +19,10 @@
  */
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import java.util.Date;
-import java.util.List;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,26 +31,31 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
 public class LinesAction implements SourcesWsAction {
 
   private static final String PARAM_UUID = "uuid";
   private static final String PARAM_KEY = "key";
+  private static final String PARAM_FROM = "from";
+  private static final String PARAM_TO = "to";
 
-  private final SourceLineIndex sourceLineIndex;
+  private final ComponentFinder componentFinder;
+  private final SourceService sourceService;
   private final HtmlSourceDecorator htmlSourceDecorator;
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public LinesAction(DbClient dbClient, SourceLineIndex sourceLineIndex, HtmlSourceDecorator htmlSourceDecorator, UserSession userSession) {
-    this.sourceLineIndex = sourceLineIndex;
+  public LinesAction(ComponentFinder componentFinder, DbClient dbClient, SourceService sourceService,
+                     HtmlSourceDecorator htmlSourceDecorator, UserSession userSession) {
+    this.componentFinder = componentFinder;
+    this.sourceService = sourceService;
     this.htmlSourceDecorator = htmlSourceDecorator;
     this.dbClient = dbClient;
     this.userSession = userSession;
@@ -91,83 +95,75 @@ public class LinesAction implements SourcesWsAction {
       .setExampleValue("org.sample:src/main/java/Foo.java");
 
     action
-      .createParam("from")
-      .setDescription("First line to return. Starts at 1")
+      .createParam(PARAM_FROM)
+      .setDescription("First line to return. Starts from 1")
       .setExampleValue("10")
       .setDefaultValue("1");
 
     action
-      .createParam("to")
-      .setDescription("Last line to return (inclusive)")
+      .createParam(PARAM_TO)
+      .setDescription("Optional last line to return (inclusive). It must be greater than " +
+        "or equal to parameter 'from'. If unset, then all the lines greater than or equal to 'from' " +
+        "are returned.")
       .setExampleValue("20");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    ComponentDto component = loadComponent(request);
-    userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      ComponentDto file = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_UUID), request.param(PARAM_KEY));
+      userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
 
-    int from = Math.max(request.mandatoryParamAsInt("from"), 1);
-    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
+      int from = request.mandatoryParamAsInt(PARAM_FROM);
+      int to = Objects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
 
-    List<SourceLineDoc> sourceLines = sourceLineIndex.getLines(component.uuid(), from, to);
-    if (sourceLines.isEmpty()) {
-      throw new NotFoundException("File '" + component.key() + "' has no sources");
+      Optional<Iterable<DbFileSources.Line>> lines = sourceService.getLines(dbSession, file.uuid(), from, to);
+      if (!lines.isPresent()) {
+        throw new NotFoundException();
+      }
+
+      JsonWriter json = response.newJsonWriter().beginObject();
+      writeSource(lines.get(), json);
+      json.endObject().close();
+    } finally {
+      dbClient.closeSession(dbSession);
     }
-
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeSource(sourceLines, json);
-
-    json.endObject().close();
   }
 
-  private void writeSource(List<SourceLineDoc> lines, JsonWriter json) {
+  private void writeSource(Iterable<DbFileSources.Line> lines, JsonWriter json) {
     json.name("sources").beginArray();
-    for (SourceLineDoc line : lines) {
+    for (DbFileSources.Line line : lines) {
       json.beginObject()
-        .prop("line", line.line())
-        .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.source(), line.highlighting(), line.symbols()))
-        .prop("scmAuthor", line.scmAuthor())
-        .prop("scmRevision", line.scmRevision());
-      Date scmDate = line.scmDate();
-      json.prop("scmDate", scmDate == null ? null : DateUtils.formatDateTime(scmDate));
-      json.prop("utLineHits", line.utLineHits())
-        .prop("utConditions", line.utConditions())
-        .prop("utCoveredConditions", line.utCoveredConditions())
-        .prop("itLineHits", line.itLineHits())
-        .prop("itConditions", line.itConditions())
-        .prop("itCoveredConditions", line.itCoveredConditions());
-      if (!line.duplications().isEmpty()) {
-        json.prop("duplicated", true);
+        .prop("line", line.getLine())
+        .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.getSource(), line.getHighlighting(), line.getSymbols()))
+        .prop("scmAuthor", line.getScmAuthor())
+        .prop("scmRevision", line.getScmRevision());
+      if (line.hasScmDate()) {
+        json.prop("scmDate", DateUtils.formatDateTime(new Date(line.getScmDate())));
       }
+      if (line.hasUtLineHits()) {
+        json.prop("utLineHits", line.getUtLineHits());
+      }
+      if (line.hasUtConditions()) {
+        json.prop("utConditions", line.getUtConditions());
+      }
+      if (line.hasUtCoveredConditions()) {
+        json.prop("utCoveredConditions", line.getUtCoveredConditions());
+      }
+      if (line.hasItLineHits()) {
+        json.prop("itLineHits", line.getItLineHits());
+      }
+      if (line.hasItConditions()) {
+        json.prop("itConditions", line.getItConditions());
+      }
+      if (line.hasItCoveredConditions()) {
+        json.prop("itCoveredConditions", line.getItCoveredConditions());
+      }
+      json.prop("duplicated", line.getDuplicationCount() > 0);
       json.endObject();
     }
     json.endArray();
-  }
-
-  private ComponentDto loadComponent(Request request) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      String fileUuid = request.param(PARAM_UUID);
-      if (fileUuid != null) {
-        Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(session, fileUuid);
-        if (!componentDto.isPresent()) {
-          throw new NotFoundException(String.format("Component with uuid '%s' not found", fileUuid));
-        }
-        return componentDto.get();
-      }
-      String fileKey = request.param(PARAM_KEY);
-      if (fileKey != null) {
-        Optional<ComponentDto> componentDto = dbClient.componentDao().selectByKey(session, fileKey);
-        if (!componentDto.isPresent()) {
-          throw new NotFoundException(String.format("Component with key '%s' not found", fileKey));
-        }
-        return componentDto.get();
-      }
-      throw new IllegalArgumentException(String.format("Param %s or param %s is missing", PARAM_UUID, PARAM_KEY));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
 }

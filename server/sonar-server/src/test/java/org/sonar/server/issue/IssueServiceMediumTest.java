@@ -20,10 +20,8 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -44,16 +42,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.source.FileSourceDao;
+import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
@@ -65,9 +65,6 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.source.index.FileSourcesUpdaterHelper;
-import org.sonar.server.source.index.SourceLineIndexer;
-import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUser;
@@ -613,8 +610,13 @@ public class IssueServiceMediumTest {
       .setLine(line)
       .setScmAuthor(scmAuthor)
       .build();
-    FileSourcesUpdaterHelper.Row row = SourceLineResultSetIterator.toRow(file.projectUuid(), file.uuid(), new Date(), dataBuilder.build());
-    tester.get(SourceLineIndexer.class).index(Iterators.singletonIterator(row));
+    FileSourceDto dto = new FileSourceDto();
+    dto.setProjectUuid(file.projectUuid());
+    dto.setFileUuid(file.uuid());
+    dto.setCreatedAt(System.currentTimeMillis());
+    dto.setSourceData(dataBuilder.build());
+    dto.setDataType(FileSourceDto.Type.SOURCE);
+    tester.get(FileSourceDao.class).insert(dto);
   }
 
   private void newUser(String login) {

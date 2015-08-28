@@ -19,32 +19,34 @@
  */
 package org.sonar.server.computation.issue;
 
-import java.util.Date;
+import com.google.common.base.Optional;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.source.SourceService;
 
 /**
  * Detect the SCM author and SQ assignee.
  * <p/>
  * It relies on:
  * <ul>
- *   <li>the SCM information sent in the report for modified files</li>
- *   <li>the Elasticsearch index of source lines for non-modified files</li>
+ *   <li>SCM information sent in the report for modified files</li>
+ *   <li>sources lines stored in database for non-modified files</li>
  * </ul>
  */
 public class IssueAssigner extends IssueVisitor {
 
-  private final SourceLineIndex sourceLineIndex;
+  private final DbClient dbClient;
+  private final SourceService sourceService;
   private final BatchReportReader reportReader;
   private final DefaultAssignee defaultAssigne;
   private final ScmAccountToUser scmAccountToUser;
@@ -53,9 +55,10 @@ public class IssueAssigner extends IssueVisitor {
   private String lastCommitAuthor = null;
   private BatchReport.Changesets scmChangesets = null;
 
-  public IssueAssigner(SourceLineIndex sourceLineIndex, BatchReportReader reportReader,
+  public IssueAssigner(DbClient dbClient, SourceService sourceService, BatchReportReader reportReader,
     ScmAccountToUser scmAccountToUser, DefaultAssignee defaultAssigne) {
-    this.sourceLineIndex = sourceLineIndex;
+    this.dbClient = dbClient;
+    this.sourceService = sourceService;
     this.reportReader = reportReader;
     this.scmAccountToUser = scmAccountToUser;
     this.defaultAssigne = defaultAssigne;
@@ -84,7 +87,7 @@ public class IssueAssigner extends IssueVisitor {
     if (scmChangesets == null) {
       scmChangesets = loadScmChangesetsFromReport(component);
       if (scmChangesets == null) {
-        scmChangesets = loadScmChangesetsFromIndex(component);
+        scmChangesets = loadScmChangesetsFromDb(component);
       }
       computeLastCommitDateAndAuthor();
     }
@@ -115,38 +118,43 @@ public class IssueAssigner extends IssueVisitor {
     return reportReader.readChangesets(component.getReportAttributes().getRef());
   }
 
-  private BatchReport.Changesets loadScmChangesetsFromIndex(Component component) {
-    List<SourceLineDoc> lines = sourceLineIndex.getLines(component.getUuid());
-    Map<String, BatchReport.Changesets.Changeset> changesetByRevision = new HashMap<>();
-    BatchReport.Changesets.Builder scmBuilder = BatchReport.Changesets.newBuilder()
-      .setComponentRef(component.getReportAttributes().getRef());
-    for (SourceLineDoc sourceLine : lines) {
-      String scmRevision = sourceLine.scmRevision();
-      if (scmRevision == null || changesetByRevision.get(scmRevision) == null) {
-        BatchReport.Changesets.Changeset.Builder changeSetBuilder = BatchReport.Changesets.Changeset.newBuilder();
-        String scmAuthor = sourceLine.scmAuthor();
-        if (scmAuthor != null) {
-          changeSetBuilder.setAuthor(scmAuthor);
-        }
-        Date scmDate = sourceLine.scmDate();
-        if (scmDate != null) {
-          changeSetBuilder.setDate(scmDate.getTime());
-        }
-        if (scmRevision != null) {
-          changeSetBuilder.setRevision(scmRevision);
-        }
+  private BatchReport.Changesets loadScmChangesetsFromDb(Component component) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Optional<Iterable<DbFileSources.Line>> lines = sourceService.getLines(dbSession, component.getUuid(), 1, Integer.MAX_VALUE);
+      Map<String, BatchReport.Changesets.Changeset> changesetByRevision = new HashMap<>();
+      BatchReport.Changesets.Builder scmBuilder = BatchReport.Changesets.newBuilder()
+        .setComponentRef(component.getReportAttributes().getRef());
+      if (lines.isPresent()) {
+        for (DbFileSources.Line sourceLine : lines.get()) {
+          String scmRevision = sourceLine.getScmRevision();
+          if (scmRevision == null || changesetByRevision.get(scmRevision) == null) {
+            BatchReport.Changesets.Changeset.Builder changeSetBuilder = BatchReport.Changesets.Changeset.newBuilder();
+            if (sourceLine.hasScmAuthor()) {
+              changeSetBuilder.setAuthor(sourceLine.getScmAuthor());
+            }
+            if (sourceLine.hasScmDate()) {
+              changeSetBuilder.setDate(sourceLine.getScmDate());
+            }
+            if (scmRevision != null) {
+              changeSetBuilder.setRevision(scmRevision);
+            }
 
-        BatchReport.Changesets.Changeset changeset = changeSetBuilder.build();
-        scmBuilder.addChangeset(changeset);
-        scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetCount() - 1);
-        if (scmRevision != null) {
-          changesetByRevision.put(scmRevision, changeset);
+            BatchReport.Changesets.Changeset changeset = changeSetBuilder.build();
+            scmBuilder.addChangeset(changeset);
+            scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetCount() - 1);
+            if (scmRevision != null) {
+              changesetByRevision.put(scmRevision, changeset);
+            }
+          } else {
+            scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetList().indexOf(changesetByRevision.get(scmRevision)));
+          }
         }
-      } else {
-        scmBuilder.addChangesetIndexByLine(scmBuilder.getChangesetList().indexOf(changesetByRevision.get(scmRevision)));
       }
+      return scmBuilder.build();
+    } finally {
+      dbClient.closeSession(dbSession);
     }
-    return scmBuilder.build();
   }
 
   private void computeLastCommitDateAndAuthor() {

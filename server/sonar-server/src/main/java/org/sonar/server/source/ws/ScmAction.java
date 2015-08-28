@@ -20,10 +20,10 @@
 
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import java.util.Date;
-import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.server.ws.Request;
@@ -35,22 +35,22 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
 public class ScmAction implements SourcesWsAction {
 
   private final DbClient dbClient;
-  private final SourceLineIndex sourceLineIndex;
+  private final SourceService sourceService;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public ScmAction(DbClient dbClient, SourceLineIndex sourceLineIndex, UserSession userSession, ComponentFinder componentFinder) {
+  public ScmAction(DbClient dbClient, SourceService sourceService, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
-    this.sourceLineIndex = sourceLineIndex;
+    this.sourceService = sourceService;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
   }
@@ -102,36 +102,34 @@ public class ScmAction implements SourcesWsAction {
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
     boolean commitsByLine = request.mandatoryParamAsBoolean("commits_by_line");
 
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto fileDto = componentFinder.getByKey(session, fileKey);
-      userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, fileDto.projectUuid());
-      List<SourceLineDoc> sourceLines = sourceLineIndex.getLines(fileDto.uuid(), from, to);
-      if (sourceLines.isEmpty()) {
-        throw new NotFoundException("File '" + fileKey + "' has no sources");
+      ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
+      userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
+      Optional<Iterable<DbFileSources.Line>> sourceLines = sourceService.getLines(dbSession, file.uuid(), from, to);
+      if (!sourceLines.isPresent()) {
+        throw new NotFoundException(String.format("File '%s' has no sources", fileKey));
       }
-
       JsonWriter json = response.newJsonWriter().beginObject();
-      writeSource(sourceLines, commitsByLine, json);
+      writeSource(sourceLines.get(), commitsByLine, json);
       json.endObject().close();
     } finally {
-      session.close();
+      dbClient.closeSession(dbSession);
     }
   }
 
-  private static void writeSource(List<SourceLineDoc> lines, boolean showCommitsByLine, JsonWriter json) {
+  private static void writeSource(Iterable<DbFileSources.Line> lines, boolean showCommitsByLine, JsonWriter json) {
     json.name("scm").beginArray();
 
-    SourceLineDoc previousLine = null;
+    DbFileSources.Line previousLine = null;
     boolean started = false;
-    for (SourceLineDoc lineDoc : lines) {
+    for (DbFileSources.Line lineDoc : lines) {
       if (hasScm(lineDoc) && (!started || showCommitsByLine || !isSameCommit(previousLine, lineDoc))) {
         json.beginArray()
-          .value(lineDoc.line())
-          .value(lineDoc.scmAuthor());
-        Date date = lineDoc.scmDate();
-        json.value(date == null ? null : DateUtils.formatDateTime(date));
-        json.value(lineDoc.scmRevision());
+          .value(lineDoc.getLine())
+          .value(lineDoc.getScmAuthor());
+        json.value(lineDoc.hasScmDate() ? DateUtils.formatDateTime(new Date(lineDoc.getScmDate())) : null);
+        json.value(lineDoc.getScmRevision());
         json.endArray();
         started = true;
       }
@@ -140,15 +138,15 @@ public class ScmAction implements SourcesWsAction {
     json.endArray();
   }
 
-  private static boolean isSameCommit(SourceLineDoc previousLine, SourceLineDoc currentLine) {
+  private static boolean isSameCommit(DbFileSources.Line previousLine, DbFileSources.Line currentLine) {
     return new EqualsBuilder()
-      .append(previousLine.scmAuthor(), currentLine.scmAuthor())
-      .append(previousLine.scmDate(), currentLine.scmDate())
-      .append(previousLine.scmRevision(), currentLine.scmRevision())
+      .append(previousLine.getScmAuthor(), currentLine.getScmAuthor())
+      .append(previousLine.getScmDate(), currentLine.getScmDate())
+      .append(previousLine.getScmRevision(), currentLine.getScmRevision())
       .isEquals();
   }
 
-  private static boolean hasScm(SourceLineDoc line) {
-    return !Strings.isNullOrEmpty(line.scmAuthor()) || line.scmDate() != null || !Strings.isNullOrEmpty(line.scmRevision());
+  private static boolean hasScm(DbFileSources.Line line) {
+    return !Strings.isNullOrEmpty(line.getScmAuthor()) || line.hasScmDate() || !Strings.isNullOrEmpty(line.getScmRevision());
   }
 }

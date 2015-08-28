@@ -27,7 +27,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
-import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -40,10 +39,9 @@ public class SourcesWsTest {
 
   ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class), userSessionRule, mock(ComponentFinder.class));
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class), userSessionRule, mock(ComponentFinder.class));
-  LinesAction linesAction = new LinesAction(mock(DbClient.class), mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class), userSessionRule);
+  LinesAction linesAction = new LinesAction(mock(ComponentFinder.class), mock(DbClient.class), mock(SourceService.class), mock(HtmlSourceDecorator.class), userSessionRule);
   HashAction hashAction = new HashAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class));
-  IndexAction indexAction = new IndexAction(mock(DbClient.class), mock(SourceService.class), userSessionRule, mock(ComponentFinder.class));
-  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, linesAction, hashAction, indexAction));
+  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, linesAction, hashAction));
 
   @Test
   public void define_ws() {
@@ -51,7 +49,7 @@ public class SourcesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(4);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -84,14 +82,5 @@ public class SourcesWsTest {
     assertThat(hash.isInternal()).isTrue();
     assertThat(hash.responseExampleAsString()).isNotEmpty();
     assertThat(hash.params()).hasSize(1);
-
-    WebService.Action index = controller.action("index");
-    assertThat(index).isNotNull();
-    assertThat(index.handler()).isSameAs(indexAction);
-    assertThat(index.since()).isEqualTo("5.0");
-    assertThat(index.isInternal()).isTrue();
-    assertThat(index.responseExampleAsString()).isNotEmpty();
-    assertThat(index.params()).hasSize(3);
-
   }
 }

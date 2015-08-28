@@ -20,33 +20,33 @@
 
 package org.sonar.server.source.ws;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Date;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.es.EsTester;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
-import org.sonar.server.source.index.SourceLineDoc;
-import org.sonar.server.source.index.SourceLineIndex;
-import org.sonar.server.source.index.SourceLineIndexDefinition;
+import org.sonar.server.source.SourceService;
+import org.sonar.server.source.index.FileSourceTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LinesActionTest {
 
@@ -57,16 +57,13 @@ public class LinesActionTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  SourceLineIndex sourceLineIndex;
+  SourceService sourceService;
 
   HtmlSourceDecorator htmlSourceDecorator;
 
@@ -77,79 +74,28 @@ public class LinesActionTest {
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    esTester.truncateIndices();
 
-    htmlSourceDecorator = new HtmlSourceDecorator();
-    sourceLineIndex = new SourceLineIndex(esTester.client());
+    htmlSourceDecorator = mock(HtmlSourceDecorator.class);
+    when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).then(new Answer<String>() {
+      @Override
+      public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+        return "<p>" + invocationOnMock.getArguments()[0] + "</p>";
+      }
+    });
+    sourceService = new SourceService(dbTester.getDbClient(), htmlSourceDecorator);
     componentDao = new ComponentDao();
-    DbClient dbClient = dbTester.getDbClient();
-    wsTester = new WsTester(new SourcesWs(new LinesAction(dbClient, sourceLineIndex, htmlSourceDecorator, userSessionRule)));
+    wsTester = new WsTester(new SourcesWs(
+      new LinesAction(new ComponentFinder(dbTester.getDbClient()), dbTester.getDbClient(), sourceService, htmlSourceDecorator, userSessionRule)));
   }
 
   @Test
   public void show_source() throws Exception {
     newFile();
 
-    Date updatedAt = new Date();
-    String scmDate = "2014-01-01T12:34:56.789Z";
-    SourceLineDoc line1 = new SourceLineDoc()
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
-      .setLine(1)
-      .setScmRevision("cafebabe")
-      .setScmAuthor("polop")
-      .setSource("package org.polop;")
-      .setHighlighting("0,7,k")
-      .setSymbols("8,17,42")
-      .setUtLineHits(3)
-      .setUtConditions(2)
-      .setUtCoveredConditions(1)
-      .setItLineHits(3)
-      .setItConditions(2)
-      .setItCoveredConditions(1)
-      .setDuplications(ImmutableList.<Integer>of())
-      .setUpdateDate(updatedAt);
-    line1.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
-
-    SourceLineDoc line2 = new SourceLineDoc()
-      .setProjectUuid(PROJECT_UUID)
-      .setFileUuid(FILE_UUID)
-      .setLine(2)
-      .setScmRevision("cafebabe")
-      .setScmAuthor("polop")
-      .setSource("abc")
-      .setHighlighting("0,5,c")
-      .setSymbols("")
-      .setUtLineHits(3)
-      .setUtConditions(2)
-      .setUtCoveredConditions(1)
-      .setItLineHits(null)
-      .setItConditions(null)
-      .setItCoveredConditions(null)
-      .setDuplications(ImmutableList.of(1))
-      .setUpdateDate(updatedAt);
-    line2.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
-
-    SourceLineDoc line3 = new SourceLineDoc()
-      .setProjectUuid(PROJECT_UUID)
-      .setFileUuid(FILE_UUID)
-      .setLine(3)
-      .setScmRevision("cafebabe")
-      .setScmAuthor("polop")
-      .setSource("}")
-      .setHighlighting(null)
-      .setSymbols(null)
-      .setUtLineHits(null)
-      .setUtConditions(null)
-      .setUtCoveredConditions(null)
-      .setItLineHits(3)
-      .setItConditions(2)
-      .setItCoveredConditions(1)
-      .setDuplications(ImmutableList.<Integer>of())
-      .setUpdateDate(updatedAt);
-    line3.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
-
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, line1, line2, line3);
+      .setSourceData(FileSourceTesting.newFakeData(3).build()));
 
     userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
@@ -173,93 +119,46 @@ public class LinesActionTest {
   }
 
   @Test
-  public void show_source_with_from_and_to_params() throws Exception {
+  public void show_paginated_lines() throws Exception {
     newFile();
 
     userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      new SourceLineDoc()
-        .setProjectUuid(PROJECT_UUID)
-        .setFileUuid(FILE_UUID)
-        .setLine(3)
-        .setScmRevision("cafebabe")
-        .setScmDate(null)
-        .setScmAuthor("polop")
-        .setSource("}")
-        .setHighlighting("")
-        .setSymbols("")
-        .setUtLineHits(null)
-        .setUtConditions(null)
-        .setUtCoveredConditions(null)
-        .setItLineHits(null)
-        .setItConditions(null)
-        .setItCoveredConditions(null)
-        .setDuplications(null)
-        .setUpdateDate(new Date())
-    );
+    dbTester.getDbClient().fileSourceDao().insert(new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setSourceData(FileSourceTesting.newFakeData(3).build()));
 
     WsTester.TestRequest request = wsTester
       .newGetRequest("api/sources", "lines")
       .setParam("uuid", FILE_UUID)
       .setParam("from", "3")
       .setParam("to", "3");
-    request.execute().assertJson(getClass(), "show_source_with_params_from_and_to.json");
-  }
-
-  @Test
-  public void show_source_by_file_key() throws Exception {
-    newFile();
-
-    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-      new SourceLineDoc()
-        .setProjectUuid(PROJECT_UUID)
-        .setFileUuid(FILE_UUID)
-        .setLine(3)
-        .setScmRevision("cafebabe")
-        .setScmDate(null)
-        .setScmAuthor("polop")
-        .setSource("}")
-        .setHighlighting("")
-        .setSymbols("")
-        .setUtLineHits(null)
-        .setUtConditions(null)
-        .setUtCoveredConditions(null)
-        .setItLineHits(null)
-        .setItConditions(null)
-        .setItCoveredConditions(null)
-        .setDuplications(null)
-        .setUpdateDate(new Date())
-    );
-
-    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
-
-    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("key", FILE_KEY);
-    request.execute().assertJson(getClass(), "show_source_by_file_key.json");
+    request.execute().assertJson(getClass(), "show_paginated_lines.json");
   }
 
   @Test
   public void fail_when_no_uuid_or_key_param() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Param uuid or param key is missing");
+    thrown.expectMessage("The component key or the component id must be provided, not both.");
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
     request.execute();
   }
 
   @Test
-  public void fail_when_file_key_does_not_exists() throws Exception {
+  public void fail_when_file_key_does_not_exist() throws Exception {
     thrown.expect(NotFoundException.class);
-    thrown.expectMessage("Component with key 'Foo.java' not found");
+    thrown.expectMessage("Component key 'Foo.java' not found");
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("key", FILE_KEY);
     request.execute();
   }
 
   @Test
-  public void fail_when_file_uuid_does_not_exists() throws Exception {
+  public void fail_when_file_uuid_does_not_exist() throws Exception {
     thrown.expect(NotFoundException.class);
-    thrown.expectMessage("Component with uuid 'ABCD' not found");
+    thrown.expectMessage("Component id 'ABCD' not found");
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", "ABCD");
     request.execute();
