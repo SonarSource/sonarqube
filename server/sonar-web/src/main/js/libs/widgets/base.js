@@ -45,6 +45,8 @@
         if (d.measures[key] != null) {
           if (d.measures[key].text != null) {
             return d.measures[key].text;
+          } else if (d.measures[key].data != null) {
+            return d.measures[key].data;
           } else {
             return d.measures[key].val;
           }

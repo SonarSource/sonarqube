@@ -207,13 +207,7 @@
   };
 
   Treemap.prototype.getRatingColorScale = function () {
-    var domain = [1, 2, 3, 4, 5];
-    if (this.components().length > 0) {
-      var colorMetricSample = this.colorMetric.value(_.first(this.components()));
-      if (typeof colorMetricSample === 'string') {
-        domain = ['A', 'B', 'C', 'D', 'E'];
-      }
-    }
+    var domain = ['A', 'B', 'C', 'D', 'E'];
     return d3.scale.ordinal().domain(domain).range(this.colors5r);
   };
 
@@ -272,7 +266,9 @@
         component.msr.forEach(function (measure) {
           measures[measure.key] = {
             val: measure.val,
-            fval: measure.frmt_val
+            fval: measure.frmt_val,
+            text: measure.text,
+            data: measure.data
           };
         });
         return {
