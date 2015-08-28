@@ -140,7 +140,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void should_reject_invalid_key_pattern_on_creation() {
     expected.expect(BadRequestException.class);
-    expected.expectMessage("The 'projectPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
+    expected.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
     underTest.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, "[azerty");
   }
@@ -246,7 +246,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void should_validate_template_key_pattern_on_update_if_applicable() {
     expected.expect(BadRequestException.class);
-    expected.expectMessage("The 'projectPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
+    expected.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
     PermissionTemplateDto template1 = new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1));
