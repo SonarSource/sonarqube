@@ -19,8 +19,6 @@
  */
 package org.sonar.core.util;
 
-import com.google.common.collect.Sets;
-import java.util.Set;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,19 +28,19 @@ public class UuidFactoryImplTest {
   UuidFactory underTest = UuidFactoryImpl.INSTANCE;
 
   @Test
-  public void create_unique() {
-    Set<String> all = Sets.newHashSet();
-    for (int i = 0; i < 50; i++) {
-      String uuid = underTest.create();
-      assertThat(uuid).isNotEmpty();
-      // not in the specification, but still to be sure that there's an upper-bound.
-      assertThat(uuid.length()).isLessThanOrEqualTo(20);
+  public void create_different_uuids() {
+    // this test is not enough to ensure that generated strings are unique,
+    // but it still does a simple and stupid verification
+    assertThat(underTest.create()).isNotEqualTo(underTest.create());
+  }
 
-      // URL-safe
-      assertThat(uuid).doesNotContain("/").doesNotContain("+").doesNotContain("=").doesNotContain("&");
+  @Test
+  public void test_format_of_uuid() throws Exception {
+    String uuid = underTest.create();
 
-      all.add(uuid);
-    }
-    assertThat(all).hasSize(50);
+    assertThat(uuid.length()).isGreaterThan(10).isLessThan(40);
+
+    // URL-safe: only letters, digits, dash and underscore.
+    assertThat(uuid).matches("^[\\w\\-_]+$");
   }
 }

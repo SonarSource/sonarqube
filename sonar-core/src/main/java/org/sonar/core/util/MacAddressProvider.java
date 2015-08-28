@@ -41,19 +41,6 @@ class MacAddressProvider {
     // only static stuff
   }
 
-  private static boolean isValidAddress(@Nullable byte[] address) {
-    if (address == null || address.length != BYTE_SIZE) {
-      return false;
-    }
-    for (byte b : address) {
-      if (b != 0x00) {
-        // If any of the bytes are non zero assume a good address
-        return true;
-      }
-    }
-    return false;
-  }
-
   public static byte[] getSecureMungedAddress() {
     byte[] address = null;
     try {
@@ -75,6 +62,19 @@ class MacAddressProvider {
     }
 
     return mungedBytes;
+  }
+
+  private static boolean isValidAddress(@Nullable byte[] address) {
+    if (address == null || address.length != BYTE_SIZE) {
+      return false;
+    }
+    for (byte b : address) {
+      if (b != 0x00) {
+        // If any of the bytes are non zero assume a good address
+        return true;
+      }
+    }
+    return false;
   }
 
   @CheckForNull

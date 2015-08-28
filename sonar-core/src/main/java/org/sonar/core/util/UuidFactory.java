@@ -23,8 +23,11 @@ public interface UuidFactory {
 
   /**
    * Create a universally unique identifier. Underlying algorithm, so format and max length,
-   * can vary over SonarQube versions. Format is URL-safe, it does not contain - and + characters
-   * but only letters, digits, dash (-) and underscore (_).
+   * can vary over SonarQube versions.
+   * <p/>
+   * UUID is a base64 ASCII encoded string and is URL-safe. It does not contain - and + characters
+   * but only letters, digits, dash (-) and underscore (_). Length can vary but does
+   * not exceed 40 characters (arbitrary value).
    */
   String create();
 

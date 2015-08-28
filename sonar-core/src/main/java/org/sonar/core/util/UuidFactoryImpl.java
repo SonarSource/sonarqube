@@ -45,16 +45,6 @@ public enum UuidFactoryImpl implements UuidFactory {
 
   private final byte[] secureMungedAddress = MacAddressProvider.getSecureMungedAddress();
 
-  /** Puts the lower numberOfLongBytes from l into the array, starting index pos. */
-  private static void putLong(byte[] array, long l, int pos, int numberOfLongBytes) {
-    for (int i = 0; i < numberOfLongBytes; ++i) {
-      array[pos + numberOfLongBytes - i - 1] = (byte) (l >>> (i * 8));
-    }
-  }
-
-  private UuidFactoryImpl() {
-  }
-
   @Override
   public String create() {
     int sequenceId = sequenceNumber.incrementAndGet() & 0xffffff;
@@ -86,5 +76,12 @@ public enum UuidFactoryImpl implements UuidFactory {
     putLong(uuidBytes, sequenceId, 12, 3);
 
     return Base64.encodeBase64URLSafeString(uuidBytes);
+  }
+
+  /** Puts the lower numberOfLongBytes from l into the array, starting index pos. */
+  private static void putLong(byte[] array, long l, int pos, int numberOfLongBytes) {
+    for (int i = 0; i < numberOfLongBytes; ++i) {
+      array[pos + numberOfLongBytes - i - 1] = (byte) (l >>> (i * 8));
+    }
   }
 }
