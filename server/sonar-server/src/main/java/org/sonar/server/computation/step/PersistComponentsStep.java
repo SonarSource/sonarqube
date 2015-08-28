@@ -44,7 +44,7 @@ import org.sonar.server.computation.component.MutableDbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 /**
- * Persist components
+ * Persist report components
  * Also feed the components cache {@link DbIdsRepositoryImpl} with component ids
  */
 public class PersistComponentsStep implements ComputationStep {
