@@ -45,6 +45,11 @@ class App {
    * Start the Main App
    */
   start() {
+    if (window.location.pathname.indexOf('/sessions/') !== -1) {
+      // do not run any app on the login page
+      return;
+    }
+
     App.initLanguage(this.options.lang);
     $.when(
         window.requestMessages(),
