@@ -30,6 +30,8 @@ public interface Component {
 
   Type getType();
 
+  String getKey();
+
   /**
    * The attributes of the Component if it's type is File.
    *

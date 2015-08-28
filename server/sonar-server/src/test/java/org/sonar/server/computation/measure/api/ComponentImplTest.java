@@ -36,6 +36,7 @@ public class ComponentImplTest {
   public void create_project() throws Exception {
     ComponentImpl component = new ComponentImpl("Project", Component.Type.PROJECT, null);
 
+    assertThat(component.getKey()).isEqualTo("Project");
     assertThat(component.getType()).isEqualTo(Component.Type.PROJECT);
   }
 

@@ -60,6 +60,11 @@ public class ComponentImpl implements Component {
   }
 
   @Override
+  public String getKey() {
+    return key;
+  }
+
+  @Override
   public FileAttributes getFileAttributes() {
     checkState(this.type == Component.Type.FILE, "Only component of type FILE have a FileAttributes object");
     return fileAttributes;
