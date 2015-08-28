@@ -75,8 +75,8 @@
         baseUrl: baseUrl + '/dashboard/index',
         xLog: <%= xLog -%>,
         yLog: <%= yLog -%>,
-        noData: '<%= message('no_data') -%>',
-        noMainMetric: '<%= message('widget.measure_filter.no_main_metric') -%>'
+        noData: '<%= escape_javascript message('no_data') -%>',
+        noMainMetric: '<%= escape_javascript message('widget.measure_filter.no_main_metric') -%>'
       })
       .render('#<%= containerId -%>');
 
