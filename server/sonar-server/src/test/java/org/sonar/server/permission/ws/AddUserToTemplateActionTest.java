@@ -157,7 +157,7 @@ public class AddUserToTemplateActionTest {
   @Test
   public void fail_if_template_key_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with key 'unknown-key' is not found");
+    expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
 
     newRequest(USER_LOGIN, "unknown-key", CODEVIEWER);
   }

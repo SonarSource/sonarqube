@@ -19,17 +19,12 @@
     WHERE id = #{templateId}
   </delete>
 
-  <delete id="deleteByKey" parameterType="string">
-    DELETE FROM permission_templates
-    WHERE kee = #{key}
-  </delete>
-
-  <delete id="deleteUsersPermissions" parameterType="long">
+  <delete id="deleteUserPermissions" parameterType="long">
     DELETE FROM perm_templates_users
     WHERE template_id = #{templateId}
   </delete>
 
-  <delete id="deleteGroupsPermissions" parameterType="long">
+  <delete id="deleteGroupPermissions" parameterType="long">
     DELETE FROM perm_templates_groups
     WHERE template_id = #{templateId}
   </delete>
@@ -175,11 +170,11 @@
     id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
   </sql>
 
-  <select id="selectByKey" parameterType="String" resultType="PermissionTemplate">
+  <select id="selectByUuid" parameterType="String" resultType="PermissionTemplate">
     SELECT
     <include refid="templateColumns"/>
     FROM permission_templates
-    WHERE kee = #{kee}
+    WHERE kee=#{uuid}
   </select>
 
   <select id="selectAllPermissionTemplates" resultType="PermissionTemplate">
@@ -192,7 +187,7 @@
     SELECT
     <include refid="templateColumns"/>
     FROM permission_templates
-    WHERE UPPER(name) LIKE #{templateName} ESCAPE '/'
+    WHERE UPPER(name)=#{templateName}
   </select>
 
   <select id="selectTemplateUsersPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult">

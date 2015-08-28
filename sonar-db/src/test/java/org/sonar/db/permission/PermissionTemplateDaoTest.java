@@ -96,7 +96,7 @@ public class PermissionTemplateDaoTest {
   public void should_select_permission_template() {
     db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
-    PermissionTemplateDto permissionTemplate = underTest.selectByKeyWithUserAndGroupPermissions("my_template_20130102_030405");
+    PermissionTemplateDto permissionTemplate = underTest.selectByUuidWithUserAndGroupPermissions("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
@@ -117,7 +117,7 @@ public class PermissionTemplateDaoTest {
   public void should_select_empty_permission_template() {
     db.prepareDbUnit(getClass(), "selectEmptyPermissionTemplate.xml");
 
-    PermissionTemplateDto permissionTemplate = underTest.selectByKeyWithUserAndGroupPermissions("my_template_20130102_030405");
+    PermissionTemplateDto permissionTemplate = underTest.selectByUuidWithUserAndGroupPermissions("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
@@ -130,7 +130,7 @@ public class PermissionTemplateDaoTest {
   public void should_select_permission_template_by_key() {
     db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
-    PermissionTemplateDto permissionTemplate = underTest.selectByKey("my_template_20130102_030405");
+    PermissionTemplateDto permissionTemplate = underTest.selectByUuid("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
@@ -165,20 +165,10 @@ public class PermissionTemplateDaoTest {
   public void should_delete_permission_template() {
     db.prepareDbUnit(getClass(), "deletePermissionTemplate.xml");
 
-    underTest.deleteById(1L);
+    underTest.deleteById(session, 1L);
+    session.commit();
 
     checkTemplateTables("deletePermissionTemplate-result.xml");
-  }
-
-  @Test
-  public void delete_by_key() {
-    String templateKey = "permission-template-key";
-    underTest.insert(session, newPermissionTemplateDto().setKee(templateKey));
-    assertThat(underTest.selectByKey(session, templateKey)).isNotNull();
-
-    underTest.deleteByKey(session, templateKey);
-
-    assertThat(underTest.selectByKey(session, templateKey)).isNull();
   }
 
   @Test
@@ -252,8 +242,8 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setKee("test_template");
     PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
     underTest = mock(PermissionTemplateDao.class);
-    when(underTest.selectByKey(db.getSession(), "test_template")).thenReturn(permissionTemplateDto);
-    when(underTest.selectByKeyWithUserAndGroupPermissions(db.getSession(), "test_template")).thenReturn(templateWithPermissions);
+    when(underTest.selectByUuid(db.getSession(), "test_template")).thenReturn(permissionTemplateDto);
+    when(underTest.selectByUuidWithUserAndGroupPermissions(db.getSession(), "test_template")).thenReturn(templateWithPermissions);
     when(underTest.selectPermissionTemplateWithPermissions(db.getSession(), "test_template")).thenCallRealMethod();
 
     PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplateWithPermissions(db.getSession(), "test_template");

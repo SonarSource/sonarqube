@@ -20,33 +20,20 @@
 
 package org.sonar.server.permission.ws;
 
-import org.sonar.core.platform.Module;
+import com.google.common.base.Function;
+import javax.annotation.Nonnull;
+import org.sonar.api.resources.ResourceType;
 
-public class PermissionsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      PermissionsWs.class,
-      // actions
-      AddGroupAction.class,
-      AddUserAction.class,
-      RemoveGroupAction.class,
-      RemoveUserAction.class,
-      UsersAction.class,
-      GroupsAction.class,
-      SearchGlobalPermissionsAction.class,
-      SearchProjectPermissionsAction.class,
-      RemoveUserFromTemplateAction.class,
-      AddUserToTemplateAction.class,
-      AddGroupToTemplateAction.class,
-      RemoveGroupFromTemplateAction.class,
-      CreateTemplateAction.class,
-      UpdateTemplateAction.class,
-      DeleteTemplateAction.class,
-      // utility classes
-      PermissionChangeBuilder.class,
-      SearchProjectPermissionsDataLoader.class,
-      PermissionDependenciesFinder.class,
-      DefaultPermissionTemplateFinder.class);
+class ResourceTypeToQualifier {
+
+  static final Function<ResourceType, String> RESOURCE_TYPE_TO_QUALIFIER = Singleton.INSTANCE;
+
+  private enum Singleton implements Function<ResourceType, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull ResourceType resourceType) {
+      return resourceType.getQualifier();
+    }
   }
 }

@@ -126,25 +126,25 @@ public class PermissionTemplateDao implements Dao {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectByKey(DbSession session, String templateKey) {
-    return mapper(session).selectByKey(templateKey);
+  public PermissionTemplateDto selectByUuid(DbSession session, String templateKey) {
+    return mapper(session).selectByUuid(templateKey);
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectByKey(String templateKey) {
+  public PermissionTemplateDto selectByUuid(String templateKey) {
     DbSession session = myBatis.openSession(false);
     try {
-      return selectByKey(session, templateKey);
+      return selectByUuid(session, templateKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectByKeyWithUserAndGroupPermissions(DbSession session, String templateKey) {
+  public PermissionTemplateDto selectByUuidWithUserAndGroupPermissions(DbSession session, String templateKey) {
     PermissionTemplateDto permissionTemplate = null;
     PermissionTemplateMapper mapper = mapper(session);
-    permissionTemplate = mapper.selectByKey(templateKey);
+    permissionTemplate = mapper.selectByUuid(templateKey);
     PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateKey);
     if (templateUsersPermissions != null) {
       permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
@@ -157,10 +157,10 @@ public class PermissionTemplateDao implements Dao {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectByKeyWithUserAndGroupPermissions(String templateKey) {
+  public PermissionTemplateDto selectByUuidWithUserAndGroupPermissions(String templateKey) {
     DbSession session = myBatis.openSession(false);
     try {
-      return selectByKeyWithUserAndGroupPermissions(session, templateKey);
+      return selectByUuidWithUserAndGroupPermissions(session, templateKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -186,21 +186,11 @@ public class PermissionTemplateDao implements Dao {
     return permissionTemplate;
   }
 
-  public void deleteByKey(DbSession dbSession, String key) {
-    mapper(dbSession).deleteByKey(key);
-  }
-
-  public void deleteById(Long templateId) {
-    SqlSession session = myBatis.openSession(false);
-    try {
-      PermissionTemplateMapper mapper = mapper(session);
-      mapper.deleteUsersPermissions(templateId);
-      mapper.deleteGroupsPermissions(templateId);
-      mapper.delete(templateId);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public void deleteById(DbSession session, long templateId) {
+    PermissionTemplateMapper mapper = mapper(session);
+    mapper.deleteUserPermissions(templateId);
+    mapper.deleteGroupPermissions(templateId);
+    mapper.delete(templateId);
   }
 
   /**
@@ -319,25 +309,32 @@ public class PermissionTemplateDao implements Dao {
     session.commit();
   }
 
+  public void deleteGroupPermissions(DbSession session, long templateId) {
+    mapper(session).deleteGroupPermissions(templateId);
+  }
+
+  public void deleteUserPermissions(DbSession session, long templateId) {
+    mapper(session).deleteUserPermissions(templateId);
+  }
+
   /**
    * Load permission template and load associated collections of users and groups permissions
    */
   @VisibleForTesting
   PermissionTemplateDto selectPermissionTemplateWithPermissions(DbSession session, String templateKey) {
-    PermissionTemplateDto permissionTemplateDto = selectByKey(session, templateKey);
+    PermissionTemplateDto permissionTemplateDto = selectByUuid(session, templateKey);
     if (permissionTemplateDto == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
     }
-    PermissionTemplateDto templateWithPermissions = selectByKeyWithUserAndGroupPermissions(session, permissionTemplateDto.getKee());
+    PermissionTemplateDto templateWithPermissions = selectByUuidWithUserAndGroupPermissions(session, permissionTemplateDto.getKee());
     if (templateWithPermissions == null) {
       throw new IllegalArgumentException("Could not retrieve permissions for template with key " + templateKey);
     }
     return templateWithPermissions;
   }
 
-  public PermissionTemplateDto selectByName(DbSession dbSession, String templateName) {
-    char wildcard = '%';
-    return mapper(dbSession).selectByName(wildcard + templateName.toUpperCase() + wildcard);
+  public PermissionTemplateDto selectByName(DbSession dbSession, String name) {
+    return mapper(dbSession).selectByName(name.toUpperCase());
   }
 
   /**

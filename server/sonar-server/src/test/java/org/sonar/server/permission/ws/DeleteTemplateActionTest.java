@@ -20,18 +20,27 @@
 
 package org.sonar.server.permission.ws;
 
+import java.util.Collections;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupTesting;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -39,12 +48,15 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.util.collections.Sets.newSet;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 
 public class DeleteTemplateActionTest {
 
-  static final String TEMPLATE_KEY = "permission-template-key";
+  static final String TEMPLATE_UUID = "permission-template-uuid";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -56,6 +68,8 @@ public class DeleteTemplateActionTest {
   WsActionTester ws;
   DbClient dbClient;
   DbSession dbSession;
+  DefaultPermissionTemplateFinder defautTemplatePermissionFinder;
+
   PermissionTemplateDto permissionTemplate;
 
   @Before
@@ -64,20 +78,40 @@ public class DeleteTemplateActionTest {
 
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    ws = new WsActionTester(new DeleteTemplateAction(dbClient, userSession));
+    defautTemplatePermissionFinder = mock(DefaultPermissionTemplateFinder.class);
+    when(defautTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(Collections.<String>emptySet());
+    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient));
+    ws = new WsActionTester(new DeleteTemplateAction(dbClient, userSession, finder, defautTemplatePermissionFinder));
 
-    permissionTemplate = insertTemplate(newPermissionTemplateDto().setKee("permission-template-key"));
-    commit();
-    assertThat(dbClient.permissionTemplateDao().selectByKey(dbSession, TEMPLATE_KEY)).isNotNull();
+    permissionTemplate = insertTemplateAndAssociatedPermissions(newPermissionTemplateDto().setKee(TEMPLATE_UUID));
+    PermissionTemplateDto permissionTemplateInDatabase = dbClient.permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(dbSession, TEMPLATE_UUID);
+    assertThat(permissionTemplateInDatabase.getKee()).isEqualTo(TEMPLATE_UUID);
+    assertThat(permissionTemplateInDatabase.getGroupsPermissions()).isNotEmpty();
+    assertThat(permissionTemplateInDatabase.getUsersPermissions()).isNotEmpty();
   }
 
   @Test
   public void delete_template_in_db() {
-
-    TestResponse result = newRequest(TEMPLATE_KEY);
+    TestResponse result = newRequest(TEMPLATE_UUID);
 
     assertThat(result.getInput()).isEmpty();
-    assertThat(dbClient.permissionTemplateDao().selectByKey(dbSession, TEMPLATE_KEY)).isNull();
+    assertThat(dbClient.permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(dbSession, TEMPLATE_UUID)).isNull();
+  }
+
+  @Test
+  public void fail_if_uuid_is_not_known() {
+    expectedException.expect(NotFoundException.class);
+
+    newRequest("unknown-template-uuid");
+  }
+
+  @Test
+  public void fail_if_template_is_default() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("It is not possible to delete a default template");
+    when(defautTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(newSet(TEMPLATE_UUID));
+
+    newRequest(TEMPLATE_UUID);
   }
 
   @Test
@@ -85,7 +119,7 @@ public class DeleteTemplateActionTest {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(TEMPLATE_KEY);
+    newRequest(TEMPLATE_UUID);
   }
 
   @Test
@@ -93,28 +127,35 @@ public class DeleteTemplateActionTest {
     expectedException.expect(ForbiddenException.class);
     userSession.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(TEMPLATE_KEY);
+    newRequest(TEMPLATE_UUID);
   }
 
   @Test
-  public void fail_if_key_is_not_provided() {
+  public void fail_if_uuid_is_not_provided() {
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest(null);
   }
 
-  private PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
-    return dbClient.permissionTemplateDao().insert(dbSession, template);
+  private PermissionTemplateDto insertTemplateAndAssociatedPermissions(PermissionTemplateDto template) {
+    dbClient.permissionTemplateDao().insert(dbSession, template);
+    UserDto user = dbClient.userDao().insert(dbSession, UserTesting.newUserDto().setActive(true));
+    GroupDto group = dbClient.groupDao().insert(dbSession, GroupTesting.newGroupDto());
+    dbClient.permissionTemplateDao().insertUserPermission(dbSession, template.getId(), user.getId(), UserRole.ADMIN);
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group.getId(), UserRole.CODEVIEWER);
+    commit();
+
+    return template;
   }
 
   private void commit() {
     dbSession.commit();
   }
 
-  private TestResponse newRequest(@Nullable String key) {
+  private TestResponse newRequest(@Nullable String id) {
     TestRequest request = ws.newRequest();
-    if (key != null) {
-      request.setParam(PARAM_TEMPLATE_ID, key);
+    if (id != null) {
+      request.setParam(PARAM_TEMPLATE_ID, id);
     }
 
     TestResponse result = executeRequest(request);

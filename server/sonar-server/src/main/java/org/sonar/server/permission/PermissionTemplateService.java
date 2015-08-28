@@ -75,7 +75,7 @@ public class PermissionTemplateService {
   @CheckForNull
   public PermissionTemplate selectPermissionTemplate(String templateKey) {
     checkGlobalAdminUser(userSession);
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectByKeyWithUserAndGroupPermissions(templateKey);
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectByUuidWithUserAndGroupPermissions(templateKey);
     return PermissionTemplate.create(permissionTemplateDto);
   }
 
@@ -132,7 +132,13 @@ public class PermissionTemplateService {
 
   public void deletePermissionTemplate(Long templateId) {
     checkGlobalAdminUser(userSession);
-    permissionTemplateDao.deleteById(templateId);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      permissionTemplateDao.deleteById(dbSession, templateId);
+      dbSession.commit();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   /**

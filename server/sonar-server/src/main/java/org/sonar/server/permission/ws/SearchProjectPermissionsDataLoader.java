@@ -31,7 +31,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.Paging;
@@ -46,6 +45,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.permission.ws.ResourceTypeToQualifier.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
 
 public class SearchProjectPermissionsDataLoader {
@@ -56,7 +56,7 @@ public class SearchProjectPermissionsDataLoader {
   public SearchProjectPermissionsDataLoader(DbClient dbClient, ComponentFinder componentFinder, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
-    this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), new ResourceTypeToQualifierFunction());
+    this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER);
   }
 
   public SearchProjectPermissionsData load(Request wsRequest) {
@@ -133,13 +133,6 @@ public class SearchProjectPermissionsDataLoader {
     @Override
     public Long apply(@Nonnull ComponentDto component) {
       return component.getId();
-    }
-  }
-
-  private static class ResourceTypeToQualifierFunction implements Function<ResourceType, String> {
-    @Override
-    public String apply(@Nonnull ResourceType resourceType) {
-      return resourceType.getQualifier();
     }
   }
 }

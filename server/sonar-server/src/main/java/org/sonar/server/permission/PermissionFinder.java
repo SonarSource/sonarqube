@@ -152,7 +152,7 @@ public class PermissionFinder {
   }
 
   private Long templateId(String templateKey) {
-    PermissionTemplateDto dto = permissionTemplateDao.selectByKey(templateKey);
+    PermissionTemplateDto dto = permissionTemplateDao.selectByUuid(templateKey);
     if (dto == null) {
       throw new NotFoundException(String.format("Template '%s' does not exist", templateKey));
     }

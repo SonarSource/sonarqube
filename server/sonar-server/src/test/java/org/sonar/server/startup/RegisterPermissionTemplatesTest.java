@@ -24,6 +24,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -46,6 +47,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
+import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 
 public class RegisterPermissionTemplatesTest {
 
@@ -94,7 +97,7 @@ public class RegisterPermissionTemplatesTest {
     verify(permissionTemplateDao).insertGroupPermission(1L, null, UserRole.USER);
     verify(permissionTemplateDao).insertGroupPermission(1L, null, UserRole.CODEVIEWER);
     verifyNoMoreInteractions(permissionTemplateDao);
-    verify(settings).saveProperty(RegisterPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY, PermissionTemplateDto.DEFAULT.getKee());
+    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, PermissionTemplateDto.DEFAULT.getKee());
   }
 
   @Test
@@ -111,7 +114,7 @@ public class RegisterPermissionTemplatesTest {
 
   @Test
   public void should_reference_TRK_template_as_default_when_present() {
-    when(settings.getString(RegisterPermissionTemplates.DEFAULT_PROJECTS_TEMPLATE_PROPERTY)).thenReturn("my_projects_template");
+    when(settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT))).thenReturn("my_projects_template");
 
     LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(PermissionTemplateDto.DEFAULT.getKee())
       .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
@@ -120,7 +123,7 @@ public class RegisterPermissionTemplatesTest {
     initializer.start();
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
-    verify(settings).saveProperty(RegisterPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY, "my_projects_template");
+    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, "my_projects_template");
     verifyZeroInteractions(permissionTemplateDao);
   }
 

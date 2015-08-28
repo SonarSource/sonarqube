@@ -18,18 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.db;
+package org.sonar.server.permission;
 
-/**
- * The RuntimeException thrown by default when a element is not found at the DAO layer.
- * When selecting by id or key, the methods respect one of the following pattern:
- * <ul>
- *   <li>selectOrFailByKey return the element or throws a RowNotFoundException</li>
- *   <li>selectByUuid return an Optional (now) or a nullable element (legacy)</li>
- * </ul>
- */
-public class RowNotFoundException extends RuntimeException {
-  public RowNotFoundException(String message) {
-    super(message);
+import static java.lang.String.format;
+
+public class DefaultPermissionTemplates {
+  public static final String DEFAULT_TEMPLATE_PROPERTY = "sonar.permission.template.default";
+  private static final String DEFAULT_ROOT_QUALIFIER_TEMPLATE_PROPERTY = "sonar.permission.template.%s.default";
+
+  public static String defaultRootQualifierTemplateProperty(String qualifier) {
+    return format(DEFAULT_ROOT_QUALIFIER_TEMPLATE_PROPERTY, qualifier);
   }
 }

@@ -31,6 +31,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 
+import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
@@ -100,8 +101,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
     validateTemplateNameFormat(name);
 
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, name);
-    checkRequest(permissionTemplateWithSameName == null, String.format
-      (MSG_TEMPLATE_WITH_SAME_NAME, name));
+    checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, name));
   }
 
   private PermissionTemplateDto insertTemplate(DbSession dbSession, String name, String description, String projectPattern) {

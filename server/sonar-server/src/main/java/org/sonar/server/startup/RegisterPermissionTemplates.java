@@ -20,6 +20,7 @@
 
 package org.sonar.server.startup;
 
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -32,10 +33,10 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.platform.PersistentSettings;
 
-public class RegisterPermissionTemplates {
+import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
+import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 
-  public static final String DEFAULT_TEMPLATE_PROPERTY = "sonar.permission.template.default";
-  public static final String DEFAULT_PROJECTS_TEMPLATE_PROPERTY = "sonar.permission.template.TRK.default";
+public class RegisterPermissionTemplates {
 
   private static final Logger LOG = Loggers.get(RegisterPermissionTemplates.class);
 
@@ -52,7 +53,7 @@ public class RegisterPermissionTemplates {
 
     if (shouldRegister()) {
       if (hasExistingPermissionsConfig()) {
-        String projectsPermissionsKey = settings.getString(DEFAULT_PROJECTS_TEMPLATE_PROPERTY);
+        String projectsPermissionsKey = settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT));
         setDefaultProperty(projectsPermissionsKey);
       } else {
         insertDefaultTemplate();
@@ -64,7 +65,7 @@ public class RegisterPermissionTemplates {
   }
 
   private boolean hasExistingPermissionsConfig() {
-    return settings.getString(DEFAULT_PROJECTS_TEMPLATE_PROPERTY) != null;
+    return settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT)) != null;
   }
 
   private boolean shouldRegister() {

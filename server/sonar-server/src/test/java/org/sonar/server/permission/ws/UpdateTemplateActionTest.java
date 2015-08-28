@@ -108,7 +108,7 @@ public class UpdateTemplateActionTest {
   public void update_with_the_same_values() {
     newRequest(templateDto.getKee(), templateDto.getName(), templateDto.getDescription(), templateDto.getKeyPattern());
 
-    PermissionTemplateDto updatedTemplate = dbClient.permissionTemplateDao().selectByKey(dbSession, templateDto.getKee());
+    PermissionTemplateDto updatedTemplate = dbClient.permissionTemplateDao().selectByUuid(dbSession, templateDto.getKee());
     assertThat(updatedTemplate.getName()).isEqualTo(templateDto.getName());
     assertThat(updatedTemplate.getDescription()).isEqualTo(templateDto.getDescription());
     assertThat(updatedTemplate.getKeyPattern()).isEqualTo(templateDto.getKeyPattern());
@@ -127,7 +127,7 @@ public class UpdateTemplateActionTest {
   @Test
   public void fail_if_key_is_not_found() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Permission template with key 'unknown-key' is not found");
+    expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
 
     newRequest("unknown-key", null, null, null);
   }

@@ -35,11 +35,15 @@ public interface PermissionTemplateMapper {
 
   void delete(long templateId);
 
-  void deleteUsersPermissions(long templateId);
+  void deleteUserPermissions(long templateId);
 
-  void deleteGroupsPermissions(long templateId);
+  void deleteUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
-  PermissionTemplateDto selectByKey(String templateKey);
+  void deleteGroupPermissions(long templateId);
+
+  void deleteGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
+
+  PermissionTemplateDto selectByUuid(String templateUuid);
 
   PermissionTemplateDto selectTemplateUsersPermissions(String templateKey);
 
@@ -47,11 +51,7 @@ public interface PermissionTemplateMapper {
 
   void insertUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
-  void deleteUserPermission(PermissionTemplateUserDto permissionTemplateUser);
-
   void insertGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
-
-  void deleteGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
 
   void deleteByGroupId(long groupId);
 
@@ -64,6 +64,4 @@ public interface PermissionTemplateMapper {
   int countUsers(Map<String, Object> params);
 
   int countGroups(Map<String, Object> parameters);
-
-  void deleteByKey(String key);
 }
