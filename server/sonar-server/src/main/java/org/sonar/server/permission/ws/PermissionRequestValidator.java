@@ -20,7 +20,6 @@
 
 package org.sonar.server.permission.ws;
 
-import com.google.common.base.CharMatcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
@@ -28,6 +27,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 
+import static com.google.common.base.CharMatcher.WHITESPACE;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
@@ -59,7 +59,7 @@ public class PermissionRequestValidator {
   }
 
   public static void validateTemplateNameFormat(String name) {
-    String nameWithoutWhitespaces = CharMatcher.WHITESPACE.removeFrom(name);
+    String nameWithoutWhitespaces = WHITESPACE.trimFrom(name);
     checkRequest(!nameWithoutWhitespaces.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
   }
 

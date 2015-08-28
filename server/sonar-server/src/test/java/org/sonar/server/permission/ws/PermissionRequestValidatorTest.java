@@ -33,6 +33,7 @@ public class PermissionRequestValidatorTest {
 
   @Test
   public void validate_template_name() {
+    PermissionRequestValidator.validateTemplateNameFormat("  text \r\n");
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(MSG_TEMPLATE_NAME_NOT_BLANK);
 

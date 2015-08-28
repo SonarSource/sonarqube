@@ -19,20 +19,19 @@
  */
 package org.sonar.api.server.ws.internal;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * @since 4.2
@@ -65,10 +64,11 @@ public abstract class ValidatingRequest extends Request {
   private String param(String key, boolean validateValue) {
     WebService.Param definition = action.param(key);
     String value = readParamOrDefaultValue(key, definition);
-    if (value != null && validateValue) {
-      validate(value, definition);
+    String trimmedValue = value == null ? value : CharMatcher.WHITESPACE.trimFrom(value);
+    if (trimmedValue != null && validateValue) {
+      validate(trimmedValue, definition);
     }
-    return value;
+    return trimmedValue;
   }
 
   @CheckForNull

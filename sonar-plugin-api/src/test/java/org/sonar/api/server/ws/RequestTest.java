@@ -175,6 +175,7 @@ public class RequestTest {
   @Test
   public void param_as_string() {
     assertThat(request.setParam("a_string", "foo").param("a_string")).isEqualTo("foo");
+    assertThat(request.setParam("a_string", " f o o \r\n ").param("a_string")).isEqualTo("f o o");
   }
 
   @Test
