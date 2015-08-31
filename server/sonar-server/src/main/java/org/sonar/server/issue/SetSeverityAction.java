@@ -26,22 +26,22 @@ import java.util.Map;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.condition.IsUnResolved;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
 public class SetSeverityAction extends Action {
 
-  public static final String KEY = "set_severity";
+  public static final String SET_SEVERITY_KEY = "set_severity";
 
   private final IssueUpdater issueUpdater;
   private final UserSession userSession;
 
   public SetSeverityAction(IssueUpdater issueUpdater, UserSession userSession) {
-    super(KEY);
+    super(SET_SEVERITY_KEY);
     this.issueUpdater = issueUpdater;
     this.userSession = userSession;
     super.setConditions(new IsUnResolved(), new Condition() {

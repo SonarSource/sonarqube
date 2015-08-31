@@ -98,7 +98,7 @@ public class DuplicationsParserTest {
     List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_same_file.xml"), session);
     assertThat(blocks).hasSize(1);
 
-    List<DuplicationsParser.Duplication> duplications = blocks.get(0).duplications();
+    List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
     assertThat(duplications).hasSize(2);
 
     // Smallest line comes first
@@ -118,7 +118,7 @@ public class DuplicationsParserTest {
     List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_same_project.xml"), session);
     assertThat(blocks).hasSize(1);
 
-    List<DuplicationsParser.Duplication> duplications = blocks.get(0).duplications();
+    List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
     assertThat(duplications).hasSize(2);
 
     // Current file comes first
@@ -138,7 +138,7 @@ public class DuplicationsParserTest {
     List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplications_on_different_project.xml"), session);
     assertThat(blocks).hasSize(1);
 
-    List<DuplicationsParser.Duplication> duplications = blocks.get(0).duplications();
+    List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
     assertThat(duplications).hasSize(3);
 
     // Current file's project comes first
@@ -168,11 +168,11 @@ public class DuplicationsParserTest {
 
     // Block with smaller line should come first
 
-    assertThat(blocks.get(0).duplications().get(0).from()).isEqualTo(38);
-    assertThat(blocks.get(0).duplications().get(1).from()).isEqualTo(29);
+    assertThat(blocks.get(0).getDuplications().get(0).from()).isEqualTo(38);
+    assertThat(blocks.get(0).getDuplications().get(1).from()).isEqualTo(29);
 
-    assertThat(blocks.get(1).duplications().get(0).from()).isEqualTo(94);
-    assertThat(blocks.get(1).duplications().get(1).from()).isEqualTo(83);
+    assertThat(blocks.get(1).getDuplications().get(0).from()).isEqualTo(94);
+    assertThat(blocks.get(1).getDuplications().get(1).from()).isEqualTo(83);
   }
 
   @Test
@@ -180,7 +180,7 @@ public class DuplicationsParserTest {
     List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_removed_file.xml"), session);
     assertThat(blocks).hasSize(1);
 
-    List<DuplicationsParser.Duplication> duplications = blocks.get(0).duplications();
+    List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
     assertThat(duplications).hasSize(2);
 
     // Duplications on removed file

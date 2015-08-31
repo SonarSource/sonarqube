@@ -61,9 +61,6 @@ public class Platform {
   private final List<Object> level4AddedComponents = Lists.newArrayList();
   private final Profiler profiler = Profiler.createIfTrace(Loggers.get(Platform.class));
 
-  public Platform() {
-  }
-
   public static Platform getInstance() {
     return INSTANCE;
   }

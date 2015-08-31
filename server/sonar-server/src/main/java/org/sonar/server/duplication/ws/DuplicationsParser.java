@@ -157,8 +157,8 @@ public class DuplicationsParser {
       if (b1 == null || b2 == null) {
         return -1;
       }
-      List<Duplication> duplications1 = b1.duplications();
-      List<Duplication> duplications2 = b2.duplications();
+      List<Duplication> duplications1 = b1.getDuplications();
+      List<Duplication> duplications2 = b2.getDuplications();
       if (duplications1.isEmpty() || duplications2.isEmpty()) {
         return -1;
       }
@@ -194,14 +194,14 @@ public class DuplicationsParser {
     }
   }
 
-  public static class Block {
-    List<Duplication> duplications;
+  static class Block {
+    private final List<Duplication> duplications;
 
-    Block(List<Duplication> duplications) {
+    public Block(List<Duplication> duplications) {
       this.duplications = duplications;
     }
 
-    List<Duplication> duplications() {
+    public List<Duplication> getDuplications() {
       return duplications;
     }
   }

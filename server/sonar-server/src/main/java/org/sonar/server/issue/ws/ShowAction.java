@@ -211,11 +211,6 @@ public class ShowAction implements IssuesWsAction {
           usersByLogin.put(userLogin, user);
         }
       }
-    }
-
-    for (IssueComment comment : comments) {
-      String userLogin = comment.userLogin();
-      User user = usersByLogin.get(userLogin);
       json
         .beginObject()
         .prop("key", comment.key())

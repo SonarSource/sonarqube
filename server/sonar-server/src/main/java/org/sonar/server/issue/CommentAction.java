@@ -24,21 +24,21 @@ import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
 public class CommentAction extends Action {
 
-  public static final String KEY = "comment";
+  public static final String COMMENT_KEY = "comment";
   public static final String COMMENT_PROPERTY = "comment";
 
   private final IssueUpdater issueUpdater;
 
   public CommentAction(IssueUpdater issueUpdater) {
-    super(KEY);
+    super(COMMENT_KEY);
     this.issueUpdater = issueUpdater;
   }
 

@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
@@ -68,9 +67,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   DbClient dbClient = dbTester.getDbClient();
   PersistFileSourcesStep underTest;

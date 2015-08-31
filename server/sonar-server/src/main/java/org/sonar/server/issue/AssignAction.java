@@ -21,29 +21,28 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.IsUnResolved;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
-import org.sonar.core.issue.IssueUpdater;
-import org.sonar.server.user.UserSession;
-
 import java.util.Collection;
 import java.util.Map;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.condition.IsUnResolved;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.user.UserSession;
 
 @ServerSide
 public class AssignAction extends Action {
 
-  public static final String KEY = "assign";
+  private static final String ASSIGN_KEY = "assign";
   public static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
 
   private final UserFinder userFinder;
   private final IssueUpdater issueUpdater;
 
   public AssignAction(UserFinder userFinder, IssueUpdater issueUpdater) {
-    super(KEY);
+    super(ASSIGN_KEY);
     this.userFinder = userFinder;
     this.issueUpdater = issueUpdater;
     super.setConditions(new IsUnResolved());

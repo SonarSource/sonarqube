@@ -103,7 +103,7 @@ public class IssueBulkChangeService {
       if (result.issuesChanged().contains(issue)) {
         // Apply comment action only on changed issues
         if (issueBulkChangeQuery.hasComment()) {
-          applyAction(getAction(CommentAction.KEY), actionContext, issueBulkChangeQuery, result);
+          applyAction(getAction(CommentAction.COMMENT_KEY), actionContext, issueBulkChangeQuery, result);
         }
         issueStorage.save((DefaultIssue) issue);
         if (issueBulkChangeQuery.sendNotifications()) {

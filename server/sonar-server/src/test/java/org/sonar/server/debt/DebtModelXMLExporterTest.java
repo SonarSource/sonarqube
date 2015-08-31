@@ -20,6 +20,10 @@
 package org.sonar.server.debt;
 
 import com.google.common.io.Resources;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.custommonkey.xmlunit.Diff;
@@ -29,11 +33,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,12 +90,12 @@ public class DebtModelXMLExporterTest {
     String xml = xmlExporter.export(debtModel, Collections.<RuleDebt>emptyList());
 
     // root characteristics are sorted by the column "characteristic_order"
-    Pattern regex = Pattern.compile(".*USABILITY.*PORTABILITY.*EFFICIENCY.*", Pattern.DOTALL);
-    assertThat(regex.matcher(xml).matches());
+    assertThat(Pattern.compile(".*PORTABILITY.*USABILITY.*EFFICIENCY.*", Pattern.DOTALL).matcher(xml).matches()).isTrue();
+    assertThat(Pattern.compile(".*USABILITY.*PORTABILITY.*EFFICIENCY.*", Pattern.DOTALL).matcher(xml).matches()).isFalse();
 
     // sub characteristics are sorted by name
-    regex = Pattern.compile(".*CPU Efficiency.*Other Efficiency.*RAM Efficiency.*", Pattern.DOTALL);
-    assertThat(regex.matcher(xml).matches());
+    assertThat(Pattern.compile(".*CPU Efficiency.*Other Efficiency.*RAM Efficiency.*", Pattern.DOTALL).matcher(xml).matches()).isTrue();
+    assertThat(Pattern.compile(".*CPU Efficiency.*RAM Efficiency.*Other Efficiency.*", Pattern.DOTALL).matcher(xml).matches()).isFalse();
   }
 
   @Test

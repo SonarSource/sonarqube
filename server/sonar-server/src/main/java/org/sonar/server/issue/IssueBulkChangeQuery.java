@@ -77,7 +77,7 @@ public class IssueBulkChangeQuery {
       hasComment = true;
       Map<String, Object> commentMap = newHashMap();
       commentMap.put(CommentAction.COMMENT_PROPERTY, comment);
-      propertiesByActions.put(CommentAction.KEY, commentMap);
+      propertiesByActions.put(CommentAction.COMMENT_KEY, commentMap);
     }
   }
 

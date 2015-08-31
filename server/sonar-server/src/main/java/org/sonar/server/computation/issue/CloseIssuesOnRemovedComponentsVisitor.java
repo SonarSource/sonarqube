@@ -40,7 +40,8 @@ public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapt
   private final IssueCache issueCache;
   private final IssueLifecycle issueLifecycle;
 
-  public CloseIssuesOnRemovedComponentsVisitor(BaseIssuesLoader baseIssuesLoader, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, IssueCache issueCache, IssueLifecycle issueLifecycle) {
+  public CloseIssuesOnRemovedComponentsVisitor(BaseIssuesLoader baseIssuesLoader, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, IssueCache issueCache,
+    IssueLifecycle issueLifecycle) {
     super(CrawlerDepthLimit.PROJECT, POST_ORDER);
     this.baseIssuesLoader = baseIssuesLoader;
     this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
