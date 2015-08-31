@@ -42,7 +42,7 @@ public class WebServiceTest {
   }
 
   @Test
-  public void favourites_web_service() throws Exception {
+  public void favourites_web_service() {
     Sonar adminWsClient = orchestrator.getServer().getAdminWsClient();
 
     // GET (nothing)

@@ -91,7 +91,7 @@ public class ServerAdministrationTest {
    * SONAR-5197
    */
   @Test
-  public void api_ws_shortcut() throws Exception {
+  public void api_ws_shortcut() throws IOException {
     HttpClient httpclient = new DefaultHttpClient();
     try {
       HttpGet get = new HttpGet(orchestrator.getServer().getUrl() + "/api");
