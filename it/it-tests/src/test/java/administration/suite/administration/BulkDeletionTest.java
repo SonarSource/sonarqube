@@ -26,6 +26,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 
@@ -52,7 +53,7 @@ public class BulkDeletionTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("project-bulk-deletion-on-selected-project",
       "/administration/suite/BulkDeletionTest/project-bulk-deletion/bulk-delete-filter-projects.html"
     ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   /**
@@ -67,7 +68,7 @@ public class BulkDeletionTest {
         "/administration/suite/BulkDeletionTest/project-bulk-deletion/display-two-letters-long-project.html",
         "/administration/suite/BulkDeletionTest/project-bulk-deletion/filter-two-letters-long-project.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   private void executeBuild(String projectKey, String projectName) {

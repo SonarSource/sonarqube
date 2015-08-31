@@ -63,6 +63,7 @@ public class MeasureFiltersTest {
       "/measure/suite/measure_filters/search-by-name.html",
       "/measure/suite/measure_filters/empty_filter.html"
       ).build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
   }
 
@@ -75,6 +76,7 @@ public class MeasureFiltersTest {
       "/measure/suite/measure_filters/list_sort_by_descending_name.html",
       "/measure/suite/measure_filters/list_sort_by_ncloc.html"
       ).build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
   }
 
@@ -89,6 +91,7 @@ public class MeasureFiltersTest {
         // SONAR-4469
         "/measure/suite/measure_filters/should-unshare-filter-remove-other-filters-favourite.html"
         ).build();
+      // Use the old runner because it fails with the new Selenium runner
       orchestrator.executeSelenese(selenese);
 
     } finally {
@@ -105,6 +108,7 @@ public class MeasureFiltersTest {
     createUser(user, "User Measure Filters without sharing permission");
 
     try {
+      // Use the old runner because it fails with the new Selenium runner
       orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("should_not_share_filter_when_user_have_no_sharing_permissions",
         "/measure/suite/measure_filters/should-not-share-filter-when-user-have-no-sharing-permissions.html"
         ).build());
@@ -119,6 +123,7 @@ public class MeasureFiltersTest {
       "/measure/suite/measure_filters/copy_measure_filter.html",
       "/measure/suite/measure_filters/copy_uniqueness_of_name.html"
       ).build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
   }
 
@@ -127,6 +132,7 @@ public class MeasureFiltersTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("manage_measure_filters",
       "/measure/suite/measure_filters/save_with_special_characters.html"
       ).build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
   }
 
@@ -137,6 +143,7 @@ public class MeasureFiltersTest {
       "/measure/suite/measure_filters/list_widget_sort.html",
       "/measure/suite/measure_filters/list_widget_warning_if_missing_filter.html"
       ).build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
   }
 

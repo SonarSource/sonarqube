@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
+import selenium.SeleneseTest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +71,7 @@ public class ServerTest {
       // SONAR-3127 - hide passwords
       "/server/ServerTest/settings/hide-passwords.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   @Test
@@ -92,7 +93,7 @@ public class ServerTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("property_relocation",
       "/server/ServerTest/settings/property_relocation.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   /**

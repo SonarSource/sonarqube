@@ -43,6 +43,7 @@ import org.sonar.wsclient.qualitygate.UpdateCondition;
 import org.sonar.wsclient.services.PropertyQuery;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
+import selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
@@ -116,9 +117,10 @@ public class ProjectAdministrationTest {
       adminClient.permissionClient().addPermission(
         PermissionParameters.create().user(projectAdminUser).component("sample").permission("admin"));
 
+      // Use the old runner because it fails with the new Selenium runner
       orchestrator.executeSelenese(
         Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/administration/suite/ProjectAdministrationTest/project-deletion/project-deletion.html").build()
-        );
+      );
     } finally {
       adminClient.userClient().deactivate(projectAdminUser);
     }
@@ -141,21 +143,19 @@ public class ProjectAdministrationTest {
     // There are 7 modules
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(7);
 
-    Selenese selenese = Selenese
-      .builder()
+    Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("modify_version_of_multimodule_project",
         "/administration/suite/ProjectAdministrationTest/project-administration/multimodule-project-modify-version.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
 
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(14);
 
-    selenese = Selenese
-      .builder()
+    selenese = Selenese.builder()
       .setHtmlTestsInClasspath("delete_version_of_multimodule_project",
         "/administration/suite/ProjectAdministrationTest/project-administration/multimodule-project-delete-version.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
 
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(7);
   }
@@ -174,11 +174,11 @@ public class ProjectAdministrationTest {
     qgClient.updateCondition(UpdateCondition.create(lowThresholds.id()).metricKey("lines").operator("GT").warningThreshold("5000").errorThreshold("5000"));
     scanSampleWithDate("2012-01-02");
 
-    Selenese selenese = Selenese
-      .builder()
+    Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("display-alerts-history-page",
         "/administration/suite/ProjectAdministrationTest/display-alerts-history-page/should-display-alerts-correctly-history-page.html"
       ).build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
 
     qgClient.unsetDefault();
@@ -202,12 +202,11 @@ public class ProjectAdministrationTest {
     // Red alert because lines number has not changed since previous analysis
     scanSample();
 
-    Selenese selenese = Selenese
-      .builder()
+    Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("display-period-alerts",
         "/administration/suite/ProjectAdministrationTest/display-alerts/should-display-period-alerts-correctly.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
 
     qgClient.unsetDefault();
     qgClient.destroy(qGate.id());
@@ -226,7 +225,7 @@ public class ProjectAdministrationTest {
 
       "/administration/suite/ProjectAdministrationTest/project-settings/only-on-project-settings.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
 
     assertThat(orchestrator.getServer().getAdminWsClient().find(PropertyQuery.createForResource("sonar.skippedModules", "sample")).getValue())
       .isEqualTo("my-excluded-module");
@@ -240,14 +239,14 @@ public class ProjectAdministrationTest {
     SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"));
     orchestrator.executeBuild(build);
 
-    Selenese selenese = Selenese
-      .builder()
+    Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("project-bulk-update-keys",
         "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-duplicate-keys.html",
         "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-input.html",
         "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-match.html",
         "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-success.html"
       ).build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
   }
 
@@ -259,12 +258,12 @@ public class ProjectAdministrationTest {
     SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"));
     orchestrator.executeBuild(build);
 
-    Selenese selenese = Selenese
-      .builder()
+    Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("project-fine-grained-update-keys",
         "/administration/suite/ProjectAdministrationTest/project-update-keys/fine-grained-update-impossible.html",
         "/administration/suite/ProjectAdministrationTest/project-update-keys/fine-grained-update-success.html"
       ).build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
   }
 
@@ -279,7 +278,7 @@ public class ProjectAdministrationTest {
       // SONAR-3425
       "/administration/suite/ProjectAdministrationTest/module-settings/display-module-settings.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   private void scanSample() {

@@ -53,6 +53,7 @@ public class I18nTest {
       "/ui/i18n/french-pack.html",
       "/ui/i18n/locale-with-france-country.html",
       "/ui/i18n/locale-with-swiss-country.html").build();
+    // Use the old runner because it fails with the new Selenium runner
     orchestrator.executeSelenese(selenese);
   }
 

@@ -23,6 +23,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
+import selenium.SeleneseTest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +49,7 @@ public class ServerTest {
     if (orchestrator.getConfiguration().getString("sonar.jdbc.dialect").equals("h2")) {
       Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("derby-warnings",
         "/server/ServerTest/derby-warning.html").build();
-      orchestrator.executeSelenese(selenese);
+      new SeleneseTest(selenese).runOn(orchestrator);
     }
   }
 
@@ -59,7 +60,7 @@ public class ServerTest {
   public void hide_jdbc_settings_to_non_admin() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("jdbc-settings",
       "/server/ServerTest/hide-jdbc-settings.html").build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   /**
@@ -125,7 +126,7 @@ public class ServerTest {
     // Access dashboard
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("url_ending_by_jsp",
       "/server/ServerTest/url_ending_by_jsp.html").build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   // SONAR-4404
@@ -133,7 +134,7 @@ public class ServerTest {
   public void should_get_settings_default_value() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("settings-default-value",
       "/server/ServerTest/settings-default-value.html").build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
 }

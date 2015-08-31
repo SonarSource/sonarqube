@@ -22,6 +22,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
+import selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -51,7 +52,7 @@ public class ServerAdministrationTest {
       // SONAR-4102
       "/server/ServerAdministrationTest/server_id/organisation_must_not_accept_special_chars.html",
       "/server/ServerAdministrationTest/server_id/valid_id.html").build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   @Test
@@ -59,7 +60,7 @@ public class ServerAdministrationTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server-administration",
       "/server/ServerAdministrationTest/server-administration/system_info.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   /**
@@ -91,7 +92,7 @@ public class ServerAdministrationTest {
    * SONAR-5197
    */
   @Test
-  public void api_ws_shortcut() throws IOException {
+  public void api_ws_shortcut() throws Exception {
     HttpClient httpclient = new DefaultHttpClient();
     try {
       HttpGet get = new HttpGet(orchestrator.getServer().getUrl() + "/api");

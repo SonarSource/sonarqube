@@ -26,6 +26,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.PropertyQuery;
+import selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
@@ -45,7 +46,7 @@ public class SubCategoriesTest {
       // SONAR-4495
       "/administration/suite/SubCategoriesTest/subcategories/global-subcategories-no-default.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
     assertThat(getProperty("prop3", null)).isEqualTo("myValue");
   }
 
@@ -61,7 +62,7 @@ public class SubCategoriesTest {
       // SONAR-4495
       "/administration/suite/SubCategoriesTest/subcategories/project-subcategories-no-default.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
     assertThat(getProperty("prop3", "sample")).isEqualTo("myValue2");
   }
 

@@ -1,0 +1,171 @@
+package selenium;
+
+import com.google.common.base.*;
+import com.google.common.collect.FluentIterable;
+import org.openqa.selenium.WebElement;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
+
+import static selenium.Text.plural;
+import static selenium.WebElementHelper.text;
+
+class LazyShould {
+  private final LazyDomElement element;
+  private final Retry retry;
+  private final boolean ok;
+
+  LazyShould(LazyDomElement element, Retry retry, boolean ok) {
+    this.element = element;
+    this.retry = retry;
+    this.ok = ok;
+  }
+
+  public LazyShould beDisplayed() {
+    return verify(
+      isOrNot("displayed"),
+      new Predicate<List<WebElement>>() {
+        @Override
+        public boolean apply(List<WebElement> elements) {
+          return !elements.isEmpty() && FluentIterable.from(elements).allMatch(new Predicate<WebElement>() {
+            @Override
+            public boolean apply(WebElement element) {
+              return element.isDisplayed();
+            }
+          });
+        }
+      },
+      new Function<List<WebElement>, String>() {
+        @Override
+        public String apply(List<WebElement> elements) {
+          return "It is " + statuses(elements, new Function<WebElement, String>() {
+            @Override
+            public String apply(WebElement element) {
+              return displayedStatus(element);
+            }
+          });
+        }
+      });
+  }
+
+  public LazyShould match(final Pattern regexp) {
+    return verify(
+      doesOrNot("match") + " (" + regexp.pattern() + ")",
+      new Predicate<List<WebElement>>() {
+        @Override
+        public boolean apply(List<WebElement> elements) {
+          return !elements.isEmpty() && FluentIterable.from(elements).anyMatch(new Predicate<WebElement>() {
+            @Override
+            public boolean apply(WebElement element) {
+              return regexp.matcher(text(element)).matches();
+            }
+          });
+        }
+      },
+      new Function<List<WebElement>, String>() {
+        @Override
+        public String apply(List<WebElement> elements) {
+          return "It contains " + statuses(elements, new Function<WebElement, String>() {
+            @Nullable
+            @Override
+            public String apply(@Nullable WebElement element) {
+              return text(element);
+            }
+          });
+        }
+      });
+  }
+
+  public LazyShould contain(final String text) {
+    return verify(
+      doesOrNot("contain(") + text + ")",
+      new Predicate<List<WebElement>>() {
+        @Override
+        public boolean apply(List<WebElement> elements) {
+          return FluentIterable.from(elements).anyMatch(new Predicate<WebElement>() {
+            @Override
+            public boolean apply(@Nullable WebElement element) {
+              if (text.startsWith("exact:")) {
+                return text(element).equals(text.substring(6));
+              }
+              return text(element).contains(text);
+            }
+          });
+        }
+      },
+      new Function<List<WebElement>, String>() {
+        @Override
+        public String apply(List<WebElement> elements) {
+          return "It contains " + statuses(elements, new Function<WebElement, String>() {
+            @Override
+            public String apply(WebElement element) {
+              return text(element);
+            }
+          });
+        }
+      });
+  }
+
+  public LazyShould exist() {
+    return verify(
+      doesOrNot("exist"),
+      new Predicate<List<WebElement>>() {
+        @Override
+        public boolean apply(List<WebElement> elements) {
+          return !elements.isEmpty();
+        }
+      },
+      new Function<List<WebElement>, String>() {
+        @Override
+        public String apply(List<WebElement> elements) {
+          return "It contains " + plural(elements.size(), "element");
+        }
+      });
+  }
+
+  private static String displayedStatus(WebElement element) {
+    return element.isDisplayed() ? "displayed" : "not displayed";
+  }
+
+  private LazyShould verify(String message, Predicate<List<WebElement>> predicate, Function<List<WebElement>, String> toErrorMessage) {
+    String verification = "verify that " + element + " " + message;
+    System.out.println("   -> " + verification);
+
+    try {
+      if (!retry.verify(new Supplier<List<WebElement>>() {
+        @Override
+        public List<WebElement> get() {
+          return LazyShould.this.findElements();
+        }
+      }, ok ? predicate : Predicates.not(predicate))) {
+        throw Failure.create("Failed to " + verification + ". " + toErrorMessage.apply(findElements()));
+      }
+    } catch (NoSuchElementException e) {
+      throw Failure.create("Element not found. Failed to " + verification);
+    }
+
+    return ok ? this : not();
+  }
+
+  private List<WebElement> findElements() {
+    return element.stream();
+  }
+
+  private static String statuses(List<WebElement> elements, Function<WebElement, String> toStatus) {
+    return "(" + FluentIterable.from(elements).transform(toStatus).join(Joiner.on(";")) + ")";
+  }
+
+  public LazyShould not() {
+    return new LazyShould(element, retry, !ok);
+  }
+
+  private String doesOrNot(String verb) {
+    return Text.doesOrNot(!ok, verb);
+  }
+
+  private String isOrNot(String state) {
+    return Text.isOrNot(!ok, state);
+  }
+}

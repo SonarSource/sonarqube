@@ -13,6 +13,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.Plugin;
 import org.sonar.wsclient.services.UpdateCenterQuery;
+import selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
@@ -42,7 +43,7 @@ public class UpdateCenterTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server-update-center",
       "/updatecenter/installed-plugins.html")
       .build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   private Plugin findPlugin(List<Plugin> plugins, String pluginKey) {

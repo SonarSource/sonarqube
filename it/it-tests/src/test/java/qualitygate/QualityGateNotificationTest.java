@@ -24,6 +24,7 @@ import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
+import selenium.SeleneseTest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,7 +65,7 @@ public class QualityGateNotificationTest {
         .setHtmlTestsInClasspath("notifications",
           "/qualitygate/notifications/email_configuration.html",
           "/qualitygate/notifications/activate_notification_channels.html").build();
-      orchestrator.executeSelenese(selenese);
+      new SeleneseTest(selenese).runOn(orchestrator);
 
       // Create quality gate with conditions on variations
       QualityGate simple = qgClient().create("SimpleWithDifferential");

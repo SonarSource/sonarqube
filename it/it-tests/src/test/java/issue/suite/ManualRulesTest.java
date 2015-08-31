@@ -13,6 +13,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import selenium.SeleneseTest;
 
 public class ManualRulesTest {
 
@@ -37,7 +38,7 @@ public class ManualRulesTest {
       .setHtmlTestsInClasspath("manual-rules",
         "/issue/suite/ManualRulesTest/create_edit_delete_manual_rule.html"
       ).build();
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   protected static void deleteManualRules(){
