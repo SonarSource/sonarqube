@@ -52,8 +52,8 @@ public class PermissionDependenciesFinder {
       return Optional.absent();
     }
 
-    WsProject wsProject = request.project().get();
-    return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, wsProject.uuid(), wsProject.key()));
+    WsProjectRef wsProjectRef = request.project().get();
+    return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, wsProjectRef.uuid(), wsProjectRef.key()));
   }
 
   String getGroupName(DbSession dbSession, PermissionRequest request) {
@@ -67,7 +67,7 @@ public class PermissionDependenciesFinder {
    * @return null if it's the anyone group
    */
   @CheckForNull
-  GroupDto getGroup(DbSession dbSession, WsGroup group) {
+  GroupDto getGroup(DbSession dbSession, WsGroupRef group) {
     Long groupId = group.id();
     String groupName = group.name();
 

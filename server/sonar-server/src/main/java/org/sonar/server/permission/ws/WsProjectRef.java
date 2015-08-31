@@ -21,6 +21,7 @@
 package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
@@ -31,34 +32,34 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 /**
  * Project identifiers from a WS request. Guaranties the project id and project key are not provided at the same time.
  */
-class WsProject {
+class WsProjectRef {
   private final String uuid;
   private final String key;
 
-  private WsProject(String uuid, String key) {
+  private WsProjectRef(@Nullable String uuid, @Nullable String key) {
     checkRequest(uuid != null ^ key != null, "Project id or project key can be provided, not both.");
 
     this.uuid = uuid;
     this.key = key;
   }
 
-  static Optional<WsProject> fromRequest(Request wsRequest) {
+  static Optional<WsProjectRef> fromRequest(Request wsRequest) {
     if (hasNoProjectParam(wsRequest)) {
       return Optional.absent();
     }
 
-    return Optional.of(new WsProject(
+    return Optional.of(new WsProjectRef(
       wsRequest.param(PARAM_PROJECT_UUID),
       wsRequest.param(PARAM_PROJECT_KEY))
       );
   }
 
-  @Nullable
+  @CheckForNull
   String uuid() {
     return this.uuid;
   }
 
-  @Nullable
+  @CheckForNull
   String key() {
     return this.key;
   }

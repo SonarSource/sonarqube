@@ -36,8 +36,8 @@ import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 class PermissionRequest {
   private final String permission;
   private final String userLogin;
-  private final WsGroup group;
-  private final Optional<WsProject> project;
+  private final WsGroupRef group;
+  private final Optional<WsProjectRef> project;
   private final Integer page;
   private final Integer pageSize;
   private final String selected;
@@ -65,8 +65,8 @@ class PermissionRequest {
     private String permission;
     private String userLogin;
 
-    private WsGroup group;
-    private Optional<WsProject> project;
+    private WsGroupRef group;
+    private Optional<WsProjectRef> project;
     private Integer page;
     private Integer pageSize;
     private String selected;
@@ -134,12 +134,12 @@ class PermissionRequest {
 
     private void setGroup(Request request) {
       if (withGroup) {
-        this.group = WsGroup.fromRequest(request);
+        this.group = WsGroupRef.fromRequest(request);
       }
     }
 
     private void setProject(Request request) {
-      this.project = WsProject.fromRequest(request);
+      this.project = WsProjectRef.fromRequest(request);
     }
 
     private void checkPermissionParameter() {
@@ -159,11 +159,11 @@ class PermissionRequest {
     return userLogin;
   }
 
-  WsGroup group() {
+  WsGroupRef group() {
     return group;
   }
 
-  Optional<WsProject> project() {
+  Optional<WsProjectRef> project() {
     return project;
   }
 

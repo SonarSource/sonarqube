@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
@@ -30,31 +31,31 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 /**
  * Group from a WS request. Guaranties the group id or the group name is provided, not both.
  */
-class WsGroup {
+class WsGroupRef {
 
   private final Long id;
   private final String name;
 
-  private WsGroup(Long id, String name) {
+  private WsGroupRef(@Nullable Long id, @Nullable String name) {
     checkRequest(id != null ^ name != null, "Group name or group id must be provided, not both.");
 
     this.id = id;
     this.name = name;
   }
 
-  static WsGroup fromRequest(Request wsRequest) {
+  static WsGroupRef fromRequest(Request wsRequest) {
     Long id = wsRequest.paramAsLong(PARAM_GROUP_ID);
     String name = wsRequest.param(PARAM_GROUP_NAME);
 
-    return new WsGroup(id, name);
+    return new WsGroupRef(id, name);
   }
 
-  @Nullable
+  @CheckForNull
   Long id() {
     return this.id;
   }
 
-  @Nullable
+  @CheckForNull
   String name() {
     return this.name;
   }

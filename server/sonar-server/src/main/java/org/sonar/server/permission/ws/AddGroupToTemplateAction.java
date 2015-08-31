@@ -77,7 +77,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
 
     String templateKey = wsRequest.mandatoryParam(PARAM_LONG_TEMPLATE_ID);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    WsGroup group = WsGroup.fromRequest(wsRequest);
+    WsGroupRef group = WsGroupRef.fromRequest(wsRequest);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
