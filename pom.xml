@@ -91,6 +91,7 @@
 
     <sonar.snapshotRepository.url>dav:https://dav.codehaus.org/snapshots.repository/sonar</sonar.snapshotRepository.url>
     <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=160m</argLine>
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
 
   <build>
