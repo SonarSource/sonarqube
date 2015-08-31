@@ -1068,7 +1068,7 @@ public class RuleIndexMediumTest {
   public void available_since() throws InterruptedException {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")));
     dbSession.commit();
-    Thread.sleep(500);
+
     Date since = new Date();
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")));
     dbSession.commit();

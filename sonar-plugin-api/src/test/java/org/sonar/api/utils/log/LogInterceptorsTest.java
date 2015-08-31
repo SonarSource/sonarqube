@@ -39,7 +39,7 @@ public class LogInterceptorsTest {
 
   @Test
   public void private_constructor() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(LogInterceptors.class));
+    assertThat(TestUtils.hasOnlyPrivateConstructors(LogInterceptors.class)).isTrue();
   }
 }
 
