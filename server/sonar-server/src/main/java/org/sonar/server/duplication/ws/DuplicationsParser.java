@@ -115,8 +115,7 @@ public class DuplicationsParser {
     }
 
     @Override
-    public int compare(@Nullable Duplication d1,
-                       @Nullable Duplication d2) {
+    public int compare(@Nullable Duplication d1, @Nullable Duplication d2) {
       if (d1 == null || d2 == null) {
         return -1;
       }
@@ -126,25 +125,27 @@ public class DuplicationsParser {
       if (file1 == null || file2 == null) {
         return -1;
       }
-
       if (file1.equals(d2.file())) {
         // if duplication on same file => order by starting line
         return d1.from().compareTo(d2.from());
-      } else if (file1.uuid().equals(uuid)) {
-        // the current resource must be displayed first
-        return -1;
-      } else if (file2.uuid().equals(uuid)) {
-        // the current resource must be displayed first
-        return 1;
-      } else if (StringUtils.equals(file1.projectUuid(), projectUuid) && !StringUtils.equals(file2.projectUuid(), projectUuid)) {
-        // if resource is in the same project, this it must be displayed first
-        return -1;
-      } else if (StringUtils.equals(file2.projectUuid(), projectUuid) && !StringUtils.equals(file1.projectUuid(), projectUuid)) {
-        // if resource is in the same project, this it must be displayed first
-        return 1;
-      } else {
-        return d1.from().compareTo(d2.from());
       }
+      if (file1.uuid().equals(uuid)) {
+        // the current resource must be displayed first
+        return -1;
+      }
+      if (file2.uuid().equals(uuid)) {
+        // the current resource must be displayed first
+        return 1;
+      }
+      if (StringUtils.equals(file1.projectUuid(), projectUuid) && !StringUtils.equals(file2.projectUuid(), projectUuid)) {
+        // if resource is in the same project, this it must be displayed first
+        return -1;
+      }
+      if (StringUtils.equals(file2.projectUuid(), projectUuid) && !StringUtils.equals(file1.projectUuid(), projectUuid)) {
+        // if resource is in the same project, this it must be displayed first
+        return 1;
+      }
+      return d1.from().compareTo(d2.from());
     }
   }
 
@@ -152,8 +153,7 @@ public class DuplicationsParser {
     private static final long serialVersionUID = 1;
 
     @Override
-    public int compare(@Nullable Block b1,
-                       @Nullable Block b2) {
+    public int compare(@Nullable Block b1, @Nullable Block b2) {
       if (b1 == null || b2 == null) {
         return -1;
       }
