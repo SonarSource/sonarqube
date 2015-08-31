@@ -272,7 +272,6 @@ import org.sonar.server.rule.ws.TagsAction;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.source.ws.HashAction;
-import org.sonar.server.source.ws.IndexAction;
 import org.sonar.server.source.ws.LinesAction;
 import org.sonar.server.source.ws.RawAction;
 import org.sonar.server.source.ws.ScmAction;
@@ -645,7 +644,6 @@ public class PlatformLevel4 extends PlatformLevel {
       LinesAction.class,
       HashAction.class,
       RawAction.class,
-      IndexAction.class,
       ScmAction.class,
 
     // Duplications
