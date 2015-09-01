@@ -45,7 +45,7 @@ class WsProjectRef {
   }
 
   static Optional<WsProjectRef> optionalFromRequest(Request wsRequest) {
-    if (hasNoProjectParam(wsRequest)) {
+    if (!hasProjectParam(wsRequest)) {
       return Optional.absent();
     }
 
@@ -53,6 +53,8 @@ class WsProjectRef {
   }
 
   static WsProjectRef fromRequest(Request wsRequest) {
+    checkRequest(hasProjectParam(wsRequest), "Project id or project key must be provided, not both.");
+
     return new WsProjectRef(wsRequest);
   }
 
@@ -66,7 +68,7 @@ class WsProjectRef {
     return this.key;
   }
 
-  private static boolean hasNoProjectParam(Request wsRequest) {
-    return !wsRequest.hasParam(PARAM_PROJECT_ID) && !wsRequest.hasParam(PARAM_PROJECT_KEY);
+  private static boolean hasProjectParam(Request wsRequest) {
+    return wsRequest.hasParam(PARAM_PROJECT_ID) || wsRequest.hasParam(PARAM_PROJECT_KEY);
   }
 }

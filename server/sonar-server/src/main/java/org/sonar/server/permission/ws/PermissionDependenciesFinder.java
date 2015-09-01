@@ -35,7 +35,6 @@ import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionDependenciesFinder {
   private final DbClient dbClient;
@@ -59,10 +58,9 @@ public class PermissionDependenciesFinder {
   }
 
   public ComponentDto getProject(DbSession dbSession, Request wsRequest) {
-    Optional<WsProjectRef> projectRef = WsProjectRef.optionalFromRequest(wsRequest);
-    checkRequest(projectRef.isPresent(), "The project id or the project key must be provided.");
+    WsProjectRef projectRef = WsProjectRef.fromRequest(wsRequest);
 
-    return componentFinder.getProjectByUuidOrKey(dbSession, projectRef.get().uuid(), projectRef.get().key());
+    return componentFinder.getProjectByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
   }
 
   String getGroupName(DbSession dbSession, PermissionRequest request) {
