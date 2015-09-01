@@ -23,7 +23,9 @@ package org.sonar.api.ce.measure;
 import javax.annotation.CheckForNull;
 
 /**
- * Settings of the current component.
+ * Settings of the current component used in {@link MeasureComputer}
+ *
+ * @since 5.2
  */
 public interface Settings {
 

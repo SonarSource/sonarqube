@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.ce.measure.Measure;
-import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.ce.measure.Settings;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.SettingsRepository;
@@ -43,11 +42,12 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerContext;
+import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-public class MeasureComputerImplementationContext implements MeasureComputer.Implementation.Context {
+public class MeasureComputerContextImpl implements MeasureComputerContext {
 
-  private final MeasureComputer measureComputer;
   private final SettingsRepository settings;
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
@@ -56,18 +56,17 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
   private final Component component;
   private final List<DefaultIssue> componentIssues;
 
-  private final Set<String> allowedMetrics;
+  private MeasureComputerDefinition definition;
+  private Set<String> allowedMetrics;
 
-  public MeasureComputerImplementationContext(org.sonar.server.computation.component.Component component, MeasureComputer measureComputer,
-    SettingsRepository settings, MeasureRepository measureRepository, MetricRepository metricRepository, ComponentIssuesRepository componentIssuesRepository) {
-    this.measureComputer = measureComputer;
+  public MeasureComputerContextImpl(org.sonar.server.computation.component.Component component, SettingsRepository settings,
+    MeasureRepository measureRepository, MetricRepository metricRepository, ComponentIssuesRepository componentIssuesRepository) {
     this.settings = settings;
     this.internalComponent = component;
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
     this.component = newComponent(component);
     this.componentIssues = componentIssuesRepository.getIssues(component);
-    this.allowedMetrics = allowedMetric(measureComputer);
   }
 
   private Component newComponent(org.sonar.server.computation.component.Component component) {
@@ -79,10 +78,20 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
         null);
   }
 
-  private static Set<String> allowedMetric(MeasureComputer measureComputer) {
+  /**
+   * Definition needs to be reset each time a new computer is processed.
+   * Defining it by a setter allows to reduce the number of this class to be created (one per component instead of one per component and per computer).
+   */
+  public MeasureComputerContextImpl setDefinition(MeasureComputerDefinition definition) {
+    this.definition = definition;
+    this.allowedMetrics = allowedMetric(definition);
+    return this;
+  }
+
+  private static Set<String> allowedMetric(MeasureComputerDefinition definition) {
     Set<String> allowedMetrics = new HashSet<>();
-    allowedMetrics.addAll(measureComputer.getInputMetrics());
-    allowedMetrics.addAll(measureComputer.getOutputMetrics());
+    allowedMetrics.addAll(definition.getInputMetrics());
+    allowedMetrics.addAll(definition.getOutputMetrics());
     return allowedMetrics;
   }
 
@@ -160,12 +169,12 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
   }
 
   private void validateInputMetric(String metric) {
-    checkArgument(allowedMetrics.contains(metric), "Only metrics in %s can be used to load measures", measureComputer.getInputMetrics());
+    checkArgument(allowedMetrics.contains(metric), "Only metrics in %s can be used to load measures", definition.getInputMetrics());
   }
 
   private void validateAddMeasure(Metric metric) {
-    checkArgument(measureComputer.getOutputMetrics().contains(metric.getKey()), "Only metrics in %s can be used to add measures. Metric '%s' is not allowed.",
-      measureComputer.getOutputMetrics(), metric.getKey());
+    checkArgument(definition.getOutputMetrics().contains(metric.getKey()), "Only metrics in %s can be used to add measures. Metric '%s' is not allowed.",
+      definition.getOutputMetrics(), metric.getKey());
     if (measureRepository.getRawMeasure(internalComponent, metric).isPresent()) {
       throw new UnsupportedOperationException(String.format("A measure on metric '%s' already exists on component '%s'", metric.getKey(), internalComponent.getKey()));
     }

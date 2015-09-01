@@ -24,6 +24,11 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 
+/**
+ * Issue that can be used in a {@link MeasureComputer}
+ *
+ * @since 5.2
+ */
 public interface Issue {
 
   String key();

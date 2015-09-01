@@ -25,7 +25,7 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.ce.measure.MeasureComputer;
+import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,7 @@ public class MeasureComputersHolderImplTest {
 
   @Test
   public void get_measure_computers() throws Exception {
-    MeasureComputer measureComputer = mock(MeasureComputer.class);
+    MeasureComputerWrapper measureComputer = mock(MeasureComputerWrapper.class);
     underTest.setMeasureComputers(Collections.singletonList(measureComputer));
 
     assertThat(underTest.getMeasureComputers()).containsOnly(measureComputer);
@@ -55,7 +55,7 @@ public class MeasureComputersHolderImplTest {
 
   @Test
   public void set_measure_computers_supports_empty_arg_is_empty() {
-    underTest.setMeasureComputers(ImmutableList.<MeasureComputer>of());
+    underTest.setMeasureComputers(ImmutableList.<MeasureComputerWrapper>of());
 
     assertThat(underTest.getMeasureComputers()).isEmpty();
   }
@@ -65,7 +65,7 @@ public class MeasureComputersHolderImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Measure computers have already been initialized");
 
-    MeasureComputer measureComputer = mock(MeasureComputer.class);
+    MeasureComputerWrapper measureComputer = mock(MeasureComputerWrapper.class);
     underTest.setMeasureComputers(Collections.singletonList(measureComputer));
     underTest.setMeasureComputers(Collections.singletonList(measureComputer));
   }

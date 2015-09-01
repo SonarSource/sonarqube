@@ -27,59 +27,42 @@ import org.sonar.api.ce.measure.MeasureComputer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MeasureComputerImplTest {
-
-  private static final MeasureComputer.Implementation DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION = new MeasureComputer.Implementation() {
-    @Override
-    public void compute(MeasureComputer.Implementation.Context ctx) {
-      // Nothing here for this test
-    }
-
-    @Override
-    public String toString() {
-      return "Test implementation";
-    }
-  };
+public class MeasureComputerDefinitionImplTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void build_measure_computer() throws Exception {
+  public void build_measure_computer_definition() throws Exception {
     String inputMetric = "ncloc";
     String outputMetric = "comment_density";
-    MeasureComputer measureComputer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    MeasureComputer.MeasureComputerDefinition measureComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics(inputMetric)
       .setOutputMetrics(outputMetric)
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
 
     assertThat(measureComputer.getInputMetrics()).containsOnly(inputMetric);
     assertThat(measureComputer.getOutputMetrics()).containsOnly(outputMetric);
-    assertThat(measureComputer.getImplementation()).isEqualTo(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
   }
 
   @Test
   public void build_measure_computer_with_multiple_metrics() throws Exception {
     String[] inputMetrics = {"ncloc", "comment"};
     String[] outputMetrics = {"comment_density_1", "comment_density_2"};
-    MeasureComputer measureComputer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    MeasureComputer.MeasureComputerDefinition measureComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics(inputMetrics)
       .setOutputMetrics(outputMetrics)
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
 
     assertThat(measureComputer.getInputMetrics()).containsOnly(inputMetrics);
     assertThat(measureComputer.getOutputMetrics()).containsOnly(outputMetrics);
-    assertThat(measureComputer.getImplementation()).isEqualTo(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
   }
 
   @Test
   public void input_metrics_can_be_empty() throws Exception {
-    MeasureComputer measureComputer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    MeasureComputer.MeasureComputerDefinition measureComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics()
       .setOutputMetrics("comment_density_1", "comment_density_2")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
 
     assertThat(measureComputer.getInputMetrics()).isEmpty();
@@ -87,9 +70,8 @@ public class MeasureComputerImplTest {
 
   @Test
   public void input_metrics_is_empty_when_not_set() throws Exception {
-    MeasureComputer measureComputer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    MeasureComputer.MeasureComputerDefinition measureComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setOutputMetrics("comment_density_1", "comment_density_2")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
 
     assertThat(measureComputer.getInputMetrics()).isEmpty();
@@ -100,10 +82,9 @@ public class MeasureComputerImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Input metrics cannot be null");
 
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics(null)
-      .setOutputMetrics("comment_density_1", "comment_density_2")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
+      .setOutputMetrics("comment_density_1", "comment_density_2");
   }
 
   @Test
@@ -111,32 +92,29 @@ public class MeasureComputerImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Null metric is not allowed");
 
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", null)
-      .setOutputMetrics("comment_density_1", "comment_density_2")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
+      .setOutputMetrics("comment_density_1", "comment_density_2");
   }
 
   @Test
-  public void fail_with_IAE_when_no_output_metrics() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("At least one output metric must be defined");
+  public void fail_with_NPE_when_no_output_metrics() throws Exception {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Output metrics cannot be null");
 
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
   }
 
   @Test
-  public void fail_with_IAE_when_null_output_metrics() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("At least one output metric must be defined");
+  public void fail_with_NPE_when_null_output_metrics() throws Exception {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Output metrics cannot be null");
 
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics(null)
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
+      .setOutputMetrics(null);
   }
 
   @Test
@@ -144,10 +122,9 @@ public class MeasureComputerImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Null metric is not allowed");
 
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics("comment_density_1", null)
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
+      .setOutputMetrics("comment_density_1", null);
   }
 
   @Test
@@ -155,52 +132,26 @@ public class MeasureComputerImplTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("At least one output metric must be defined");
 
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics()
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
-  }
-
-  @Test
-  public void fail_with_IAE_when_no_implementation() throws Exception {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("The implementation is missing");
-
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
-      .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics("comment_density_1", "comment_density_2")
-      .build();
-  }
-
-  @Test
-  public void fail_with_IAE_when_null_implementation() throws Exception {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("The implementation is missing");
-
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
-      .setInputMetrics("ncloc", "comment")
-      .setOutputMetrics("comment_density_1", "comment_density_2")
-      .setImplementation(null);
+      .setOutputMetrics();
   }
 
   @Test
   public void test_equals_and_hashcode() throws Exception {
-    MeasureComputer computer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    MeasureComputer.MeasureComputerDefinition computer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
       .setOutputMetrics("comment_density_1", "comment_density_2")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
 
-    MeasureComputer sameComputer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    MeasureComputer.MeasureComputerDefinition sameComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("comment", "ncloc")
       .setOutputMetrics("comment_density_2", "comment_density_1")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
 
-    MeasureComputer anotherComputer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    MeasureComputer.MeasureComputerDefinition anotherComputer = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("comment")
       .setOutputMetrics("debt")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
 
     assertThat(computer).isEqualTo(computer);
@@ -215,11 +166,11 @@ public class MeasureComputerImplTest {
 
   @Test
   public void test_to_string() throws Exception {
-    assertThat(new MeasureComputerImpl.MeasureComputerBuilderImpl()
+    assertThat(new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics("ncloc", "comment")
       .setOutputMetrics("comment_density_1", "comment_density_2")
-      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build().toString())
-      .isEqualTo("MeasureComputerImpl{inputMetricKeys=[ncloc, comment], outputMetrics=[comment_density_1, comment_density_2], implementation=Test implementation}");
+      .isEqualTo("MeasureComputerDefinitionImpl{inputMetricKeys=[ncloc, comment], outputMetrics=[comment_density_1, comment_density_2]}");
   }
+
 }

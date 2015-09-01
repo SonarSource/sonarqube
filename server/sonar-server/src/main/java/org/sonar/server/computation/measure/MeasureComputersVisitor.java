@@ -27,7 +27,8 @@ import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.issue.ComponentIssuesRepository;
-import org.sonar.server.computation.measure.api.MeasureComputerImplementationContext;
+import org.sonar.server.computation.measure.api.MeasureComputerContextImpl;
+import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 import org.sonar.server.computation.metric.MetricRepository;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
@@ -55,11 +56,12 @@ public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
 
   @Override
   public void visitAny(org.sonar.server.computation.component.Component component) {
-    for (MeasureComputer computer : measureComputersHolder.getMeasureComputers()) {
-      LOGGER.trace("Measure computer '{}' is computing component {}", computer.getImplementation(), component);
-      MeasureComputerImplementationContext measureComputerContext = new MeasureComputerImplementationContext(component, computer,
-        settings, measureRepository, metricRepository, componentIssuesRepository);
-      computer.getImplementation().compute(measureComputerContext);
+    MeasureComputerContextImpl context = new MeasureComputerContextImpl(component, settings, measureRepository, metricRepository, componentIssuesRepository);
+    for (MeasureComputerWrapper measureComputerWrapper : measureComputersHolder.getMeasureComputers()) {
+      context.setDefinition(measureComputerWrapper.getDefinition());
+      MeasureComputer measureComputer = measureComputerWrapper.getComputer();
+      LOGGER.trace("Measure computer '{}' is computing component {}", measureComputer, component);
+      measureComputer.compute(context);
     }
   }
 }
