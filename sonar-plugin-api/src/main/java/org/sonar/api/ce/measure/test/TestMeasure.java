@@ -27,40 +27,40 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
-public class MeasureImpl implements Measure {
+public class TestMeasure implements Measure {
 
   private Integer intValue;
   private Long longValue;
   private Double doubleValue;
   private String stringValue;
 
-  public static MeasureImpl createMeasure(double doubleValue){
-    MeasureImpl measure = new MeasureImpl();
+  public static TestMeasure createMeasure(double doubleValue){
+    TestMeasure measure = new TestMeasure();
     measure.doubleValue = doubleValue;
     return measure;
   }
 
-  public static MeasureImpl createMeasure(int intValue) {
-    MeasureImpl measure = new MeasureImpl();
+  public static TestMeasure createMeasure(int intValue) {
+    TestMeasure measure = new TestMeasure();
     measure.intValue = intValue;
     return measure;
   }
 
-  public static MeasureImpl createMeasure(long longValue) {
-    MeasureImpl measure = new MeasureImpl();
+  public static TestMeasure createMeasure(long longValue) {
+    TestMeasure measure = new TestMeasure();
     measure.longValue = longValue;
     return measure;
   }
 
-  public static MeasureImpl createMeasure(String stringValue) {
-    MeasureImpl measure = new MeasureImpl();
+  public static TestMeasure createMeasure(String stringValue) {
+    TestMeasure measure = new TestMeasure();
     measure.stringValue = requireNonNull(stringValue, "Value cannot be null");
     return measure;
   }
 
   @Override
   public int getIntValue() {
-    checkState(intValue != null, "Not an int measure");
+    checkState(intValue != null, "Not an integer measure");
     return intValue;
   }
 

@@ -22,6 +22,7 @@ package org.sonar.api.ce.measure.test;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -30,7 +31,8 @@ import org.sonar.api.utils.Duration;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class IssueImpl implements Issue {
+@Immutable
+public class TestIssue implements Issue {
 
   private String key;
   private String status;
@@ -39,7 +41,7 @@ public class IssueImpl implements Issue {
   private RuleKey ruleKey;
   private Duration debt;
 
-  private IssueImpl(Builder builder) {
+  private TestIssue(Builder builder) {
     this.key = builder.key;
     this.status = builder.status;
     this.resolution = builder.resolution;
@@ -151,7 +153,7 @@ public class IssueImpl implements Issue {
       validateSeverity(severity);
       validateStatus(status);
       validateRuleKey(ruleKey);
-      return new IssueImpl(this);
+      return new TestIssue(this);
     }
   }
 }
