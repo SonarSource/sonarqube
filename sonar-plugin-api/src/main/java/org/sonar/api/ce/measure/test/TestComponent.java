@@ -29,7 +29,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
-public class ComponentImpl implements Component {
+public class TestComponent implements Component {
 
   private final String key;
 
@@ -38,7 +38,7 @@ public class ComponentImpl implements Component {
   @CheckForNull
   private final FileAttributes fileAttributes;
 
-  public ComponentImpl(String key, Type type, @Nullable FileAttributes fileAttributes) {
+  public TestComponent(String key, Type type, @Nullable FileAttributes fileAttributes) {
     this.key = requireNonNull(key, "Key cannot be null");
     this.type = requireNonNull(type, "Type cannot be null");
     this.fileAttributes = checkFileAttributes(fileAttributes);
@@ -79,7 +79,7 @@ public class ComponentImpl implements Component {
       return false;
     }
 
-    ComponentImpl component = (ComponentImpl) o;
+    TestComponent component = (TestComponent) o;
 
     return key.equals(component.key);
   }

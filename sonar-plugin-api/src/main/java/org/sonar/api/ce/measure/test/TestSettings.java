@@ -27,7 +27,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ce.measure.Settings;
 
-public class SettingsImpl implements Settings {
+public class TestSettings implements Settings {
 
   private Map<String, String> valuesByKey = new HashMap<>();
 

@@ -28,16 +28,14 @@ import org.sonar.api.ce.measure.MeasureComputer;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-public class MeasureComputerImpl implements MeasureComputer {
+public class TestMeasureComputerDefinition implements MeasureComputer.MeasureComputerDefinition {
 
   private final Set<String> inputMetricKeys;
   private final Set<String> outputMetrics;
-  private final Implementation measureComputerImplementation;
 
-  public MeasureComputerImpl(MeasureComputerBuilderImpl builder) {
+  private TestMeasureComputerDefinition(MeasureComputerDefinitionBuilderImpl builder) {
     this.inputMetricKeys = ImmutableSet.copyOf(builder.inputMetricKeys);
     this.outputMetrics = ImmutableSet.copyOf(builder.outputMetrics);
-    this.measureComputerImplementation = builder.measureComputerImplementation;
   }
 
   @Override
@@ -50,50 +48,28 @@ public class MeasureComputerImpl implements MeasureComputer {
     return outputMetrics;
   }
 
-  @Override
-  public Implementation getImplementation() {
-    return measureComputerImplementation;
-  }
-
-  @Override
-  public String toString() {
-    return "MeasureComputerImpl{" +
-      "inputMetricKeys=" + inputMetricKeys +
-      ", outputMetrics=" + outputMetrics +
-      ", implementation=" + measureComputerImplementation.toString() +
-      '}';
-  }
-
-  public static class MeasureComputerBuilderImpl implements MeasureComputerBuilder {
+  public static class MeasureComputerDefinitionBuilderImpl implements Builder {
 
     private String[] inputMetricKeys = new String[] {};
     private String[] outputMetrics;
-    private Implementation measureComputerImplementation;
 
     @Override
-    public MeasureComputerBuilder setInputMetrics(String... inputMetrics) {
+    public Builder setInputMetrics(String... inputMetrics) {
       this.inputMetricKeys = validateInputMetricKeys(inputMetrics);
       return this;
     }
 
     @Override
-    public MeasureComputerBuilder setOutputMetrics(String... outputMetrics) {
+    public Builder setOutputMetrics(String... outputMetrics) {
       this.outputMetrics = validateOutputMetricKeys(outputMetrics);
       return this;
     }
 
     @Override
-    public MeasureComputerBuilder setImplementation(Implementation impl) {
-      this.measureComputerImplementation = validateImplementation(impl);
-      return this;
-    }
-
-    @Override
-    public MeasureComputer build() {
+    public MeasureComputer.MeasureComputerDefinition build() {
       validateInputMetricKeys(this.inputMetricKeys);
       validateOutputMetricKeys(this.outputMetrics);
-      validateImplementation(this.measureComputerImplementation);
-      return new MeasureComputerImpl(this);
+      return new TestMeasureComputerDefinition(this);
     }
 
     private static String[] validateInputMetricKeys(@Nullable String[] inputMetrics) {
@@ -108,13 +84,9 @@ public class MeasureComputerImpl implements MeasureComputer {
       checkNotNull(outputMetrics);
       return outputMetrics;
     }
-
-    private static Implementation validateImplementation(Implementation impl) {
-      return requireNonNull(impl, "The implementation is missing");
-    }
   }
 
-  private static void checkNotNull(String[] metrics){
+  private static void checkNotNull(String[] metrics) {
     for (String metric : metrics) {
       requireNonNull(metric, "Null metric is not allowed");
     }
