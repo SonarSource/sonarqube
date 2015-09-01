@@ -57,7 +57,7 @@ public class DefaultRulesLoader implements RulesLoader {
     try (InputStream is = input.openStream()) {
       return ListResponse.parseFrom(is);
     } catch (IOException e) {
-      throw new IllegalStateException("Unable to get previous issues", e);
+      throw new IllegalStateException("Unable to get rules", e);
     }
   }
 

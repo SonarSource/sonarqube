@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository.user;
 
-import org.sonar.batch.cache.WSLoaderResult;
+import org.assertj.core.util.Lists;
 
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 import org.junit.Before;
 import com.google.common.collect.ImmutableList;
@@ -59,6 +60,11 @@ public class UserRepositoryLoaderTest {
     userRepo = new UserRepositoryLoader(wsLoader);
   }
 
+  @Test
+  public void testLoadEmptyList() {
+    assertThat(userRepo.load(Lists.<String>emptyList())).isEmpty();
+  }
+  
   @Test
   public void testLoad() throws IOException {
     Map<String, String> userMap = ImmutableMap.of("fmallet", "Freddy Mallet", "sbrandhof", "Simon");

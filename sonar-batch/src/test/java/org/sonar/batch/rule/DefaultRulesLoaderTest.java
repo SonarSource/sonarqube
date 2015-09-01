@@ -22,8 +22,9 @@ package org.sonar.batch.rule;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.sonar.batch.cache.WSLoaderResult;
+import org.junit.rules.ExpectedException;
 
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
@@ -38,6 +39,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 public class DefaultRulesLoaderTest {
+  @org.junit.Rule
+  public ExpectedException exception = ExpectedException.none();
+
   @Test
   public void testParseServerResponse() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
@@ -58,6 +62,19 @@ public class DefaultRulesLoaderTest {
     loader.load(fromCache);
 
     assertThat(fromCache.booleanValue()).isTrue();
+  }
+
+  @Test
+  public void testError() {
+    WSLoader wsLoader = mock(WSLoader.class);
+    ByteSource source = ByteSource.wrap(new String("trash").getBytes());
+    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult<>(source, true));
+    DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Unable to get rules");
+
+    loader.load(null);
   }
 
 }
