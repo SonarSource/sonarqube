@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.test.ce.measure;
+package org.sonar.api.ce.measure.test;
 
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.measure.Measure;

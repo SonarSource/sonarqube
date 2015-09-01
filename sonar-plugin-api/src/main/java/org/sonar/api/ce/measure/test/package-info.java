@@ -19,6 +19,6 @@
  */
 
 @ParametersAreNonnullByDefault
-package org.sonar.api.test.ce.measure;
+package org.sonar.api.ce.measure.test;
 
 import javax.annotation.ParametersAreNonnullByDefault;
