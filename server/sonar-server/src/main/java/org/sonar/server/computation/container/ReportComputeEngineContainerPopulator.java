@@ -36,16 +36,19 @@ import org.sonar.server.computation.component.SettingsRepositoryImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
+import org.sonar.server.computation.issue.CloseIssuesOnRemovedComponentsVisitor;
 import org.sonar.server.computation.issue.ComponentIssuesRepositoryImpl;
 import org.sonar.server.computation.issue.ComponentsWithUnprocessedIssues;
 import org.sonar.server.computation.issue.DebtAggregator;
 import org.sonar.server.computation.issue.DebtCalculator;
 import org.sonar.server.computation.issue.DefaultAssignee;
+import org.sonar.server.computation.issue.IntegrateIssuesVisitor;
 import org.sonar.server.computation.issue.IssueAssigner;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueCounter;
 import org.sonar.server.computation.issue.IssueLifecycle;
 import org.sonar.server.computation.issue.IssueVisitors;
+import org.sonar.server.computation.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
 import org.sonar.server.computation.issue.NewDebtAggregator;
 import org.sonar.server.computation.issue.NewDebtCalculator;
 import org.sonar.server.computation.issue.RuleCacheLoader;
@@ -66,6 +69,7 @@ import org.sonar.server.computation.issue.commonrule.SkippedTestRule;
 import org.sonar.server.computation.issue.commonrule.TestErrorRule;
 import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureComputersHolderImpl;
+import org.sonar.server.computation.measure.MeasureComputersVisitor;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.metric.MetricModule;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
@@ -73,8 +77,8 @@ import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImp
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
+import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
 import org.sonar.server.computation.sqale.SqaleRatingSettings;
-import org.sonar.server.computation.step.ComponentVisitors;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.computation.step.ReportComputationSteps;
 import org.sonar.server.view.index.ViewIndex;
@@ -89,13 +93,10 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
   @Override
   public void populateContainer(ComputeEngineContainer container) {
     ComputationSteps steps = new ReportComputationSteps(container);
-    ComponentVisitors visitors = new ComponentVisitors(container);
     container.add(item);
     container.add(steps);
-    container.add(visitors);
     container.addSingletons(componentClasses());
     container.addSingletons(steps.orderedStepClasses());
-    container.addSingletons(visitors.orderedClasses());
   }
 
   /**
@@ -161,6 +162,13 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
         IssueAssigner.class,
         RuleTagsCopier.class,
         IssueCounter.class,
+
+        // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
+        LoadComponentUuidsHavingOpenIssuesVisitor.class,
+        IntegrateIssuesVisitor.class,
+        CloseIssuesOnRemovedComponentsVisitor.class,
+        SqaleMeasuresVisitor.class,
+        MeasureComputersVisitor.class,
 
         UpdateConflictResolver.class,
         TrackerBaseInputFactory.class,
