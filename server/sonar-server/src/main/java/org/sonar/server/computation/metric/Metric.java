@@ -51,7 +51,7 @@ public interface Metric {
 
   enum MetricType {
     INT(Measure.ValueType.INT),
-    MILLISEC(Measure.ValueType.INT),
+    MILLISEC(Measure.ValueType.LONG),
     RATING(Measure.ValueType.INT),
     WORK_DUR(Measure.ValueType.LONG),
     FLOAT(Measure.ValueType.DOUBLE),

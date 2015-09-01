@@ -106,7 +106,7 @@ public class ShowAction implements SourcesWsAction {
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
       json.beginArray();
-      json.value(1L * i + from);
+      json.value((long) i + from);
       json.value(line);
       json.endArray();
     }

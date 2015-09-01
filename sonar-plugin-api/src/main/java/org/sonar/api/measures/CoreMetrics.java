@@ -2228,6 +2228,20 @@ public final class CoreMetrics {
     .setDomain(CoreMetrics.DOMAIN_SCM)
     .create();
 
+  /**
+   * @since 5.2
+   */
+  public static final String LAST_COMMIT_DATE_KEY = "last_commit_date";
+
+  /**
+   * Date of the most recent commit. Current implementation is based on commits touching lines of source code. It
+   * ignores other changes like file renaming or file deletion.
+   * @since 5.2
+   */
+  public static final Metric LAST_COMMIT_DATE = new Metric.Builder(LAST_COMMIT_DATE_KEY, "Date of last commit", Metric.ValueType.MILLISEC)
+    .setDomain(CoreMetrics.DOMAIN_SCM)
+    .create();
+
   private static final List<Metric> METRICS;
 
   static {

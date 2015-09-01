@@ -81,7 +81,6 @@ public class ReportComputationSteps implements ComputationSteps {
       // Persist data
       PersistComponentsStep.class,
       PersistSnapshotsStep.class,
-      PersistNumberOfDaysSinceLastCommitStep.class,
       PersistMeasuresStep.class,
       PersistIssuesStep.class,
       PersistProjectLinksStep.class,

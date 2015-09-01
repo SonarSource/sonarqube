@@ -77,6 +77,7 @@ import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImp
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
+import org.sonar.server.computation.source.LastCommitVisitor;
 import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
 import org.sonar.server.computation.sqale.SqaleRatingSettings;
 import org.sonar.server.computation.step.ComputationSteps;
@@ -168,6 +169,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
         IntegrateIssuesVisitor.class,
         CloseIssuesOnRemovedComponentsVisitor.class,
         SqaleMeasuresVisitor.class,
+        LastCommitVisitor.class,
         MeasureComputersVisitor.class,
 
         UpdateConflictResolver.class,
