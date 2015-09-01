@@ -131,6 +131,17 @@ public class TestMeasureComputerContext implements MeasureComputerContext {
     componentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
   }
 
+  @Override
+  public void addMeasure(String metricKey, boolean value) {
+    validateAddMeasure(metricKey);
+    componentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
+  }
+
+
+  public void addInputMeasure(String metricKey, boolean value) {
+    componentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
+  }
+
   public void addInputMeasure(String metricKey, String value) {
     componentMeasureByMetricKey.put(metricKey, TestMeasure.createMeasure(value));
   }

@@ -92,6 +92,13 @@ public class TestMeasureComputerContextTest {
   }
 
   @Test
+  public void get_boolean_measure() throws Exception {
+    underTest.addInputMeasure(INPUT_METRIC, true);
+
+    assertThat(underTest.getMeasure(INPUT_METRIC).getBooleanValue()).isTrue();
+  }
+
+  @Test
   public void fail_with_IAE_when_trying_to_get_measure_on_unknown_metric() throws Exception {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only metrics in [INPUT_METRIC] can be used to load measures");

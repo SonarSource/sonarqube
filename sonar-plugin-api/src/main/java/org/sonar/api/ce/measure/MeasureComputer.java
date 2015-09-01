@@ -213,6 +213,14 @@ public interface MeasureComputer {
     void addMeasure(String metric, String value);
 
     /**
+     * Add a new measure of a given metric which measure type will be boolean
+     *
+     * @throws IllegalArgumentException if the metric is not listed in {@link MeasureComputerDefinition#getOutputMetrics()}
+     * @throws UnsupportedOperationException if a measure for the specified metric already exists for the current component
+     */
+    void addMeasure(String metric, boolean value);
+
+    /**
      * Return list of all issues (open, closed, etc.) of current component.
      */
     List<? extends Issue> getIssues();

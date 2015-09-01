@@ -30,29 +30,36 @@ public interface Measure {
   /**
    * The value of this measure as a integer.
    *
-   * @throws IllegalStateException if the value type of the metric is not a integer {see @link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not a integer. See {@link org.sonar.api.measures.Metric.ValueType}
    */
   int getIntValue();
 
   /**
    * The value of this measure as a long.
    *
-   * @throws IllegalStateException if the value type of the metric is not a long {see @link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not a long. See {@link org.sonar.api.measures.Metric.ValueType}
    */
   long getLongValue();
 
   /**
    * The value of this measure as a double.
    *
-   * @throws IllegalStateException if the value type of the metric is not a double {see @link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not a double. See {@link org.sonar.api.measures.Metric.ValueType}
    */
   double getDoubleValue();
 
   /**
    * The value of this measure as a string.
    *
-   * @throws IllegalStateException if the value type of the metric is not a string {see @link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not a string. See {@link org.sonar.api.measures.Metric.ValueType}
    */
   String getStringValue();
+
+  /**
+   * The value of this measure as a boolean.
+   *
+   * @throws IllegalStateException if the value type of the metric is not a boolean. See {@link org.sonar.api.measures.Metric.ValueType}
+   */
+  boolean getBooleanValue();
 
 }
