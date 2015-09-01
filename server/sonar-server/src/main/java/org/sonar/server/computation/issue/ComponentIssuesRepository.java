@@ -27,7 +27,7 @@ import org.sonar.server.computation.component.Component;
 
 /**
  * This repository contains issues for only one component at a time. It's populated by {@link IntegrateIssuesVisitor} and
- * it's mainly used by {@link org.sonar.server.computation.measure.api.MeasureComputerImplementationContext} in order for a {@link MeasureComputer}
+ * it's mainly used by {@link org.sonar.api.ce.measure.MeasureComputer.MeasureComputerContext} in order for a {@link MeasureComputer}
  * to access to the issues of a component.
  *
  * This repository must NEVER contains more issues than in issues from one component order to not consume to much memory.

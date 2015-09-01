@@ -37,6 +37,7 @@ import org.sonar.api.utils.KeyValueFormat;
  * <p>An example of usage : you wish to record the percentage of lines of code that belong to method
  * with pre-defined ranges of complexity.</p>
  *
+ * @since 5.2
  */
 public class RangeDistributionBuilder {
 

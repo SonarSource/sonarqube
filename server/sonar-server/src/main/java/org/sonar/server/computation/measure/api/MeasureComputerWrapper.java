@@ -17,20 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.measure;
 
-import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
+package org.sonar.server.computation.measure.api;
 
-/**
- * A {@link MeasureComputersHolder} which value can be set only once.
- */
-public interface MutableMeasureComputersHolder extends MeasureComputersHolder {
+import javax.annotation.concurrent.Immutable;
+import org.sonar.api.ce.measure.MeasureComputer;
+import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 
-  /**
-   * Initializes the measure computers in the holder.
-   *
-   * @throws NullPointerException if the specified Iterable is {@code null}
-   * @throws IllegalStateException if the holder has already been initialized
-   */
-  void setMeasureComputers(Iterable<MeasureComputerWrapper> measureComputers);
+import static java.util.Objects.requireNonNull;
+
+@Immutable
+public class MeasureComputerWrapper {
+
+  private final MeasureComputer computer;
+  private final MeasureComputerDefinition definition;
+
+  public MeasureComputerWrapper(MeasureComputer computer, MeasureComputerDefinition definition) {
+    this.computer = requireNonNull(computer);
+    this.definition = requireNonNull(definition);
+  }
+
+  public MeasureComputer getComputer() {
+    return computer;
+  }
+
+  public MeasureComputerDefinition getDefinition() {
+    return definition;
+  }
+
+  @Override
+  public String toString() {
+    return computer.toString();
+  }
 }

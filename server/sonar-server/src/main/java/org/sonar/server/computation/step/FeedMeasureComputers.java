@@ -21,9 +21,10 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,124 +32,118 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.measure.MeasureComputer;
-import org.sonar.api.ce.measure.MeasureComputerProvider;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 import org.sonar.server.computation.measure.MutableMeasureComputersHolder;
-import org.sonar.server.computation.measure.api.MeasureComputerProviderContext;
+import org.sonar.server.computation.measure.api.MeasureComputerDefinitionImpl;
+import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
+
+import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
+import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinitionContext;
 
 public class FeedMeasureComputers implements ComputationStep {
 
-  private static final Set<String> CORE_METRIC_KEYS = FluentIterable.from(CoreMetrics.getMetrics()).transform(MetricToKey.INSTANCE).toSet();
+  private static final Set<String> CORE_METRIC_KEYS = from(CoreMetrics.getMetrics()).transform(MetricToKey.INSTANCE).toSet();
+  private Set<String> pluginMetricKeys;
 
   private final MutableMeasureComputersHolder measureComputersHolder;
-  private final Metrics[] metricsRepositories;
-  private final MeasureComputerProvider[] measureComputerProviders;
+  private final MeasureComputer[] measureComputers;
 
-  public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories, MeasureComputerProvider[] measureComputerProviders) {
+  public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories, MeasureComputer[] measureComputers) {
     this.measureComputersHolder = measureComputersHolder;
-    this.measureComputerProviders = measureComputerProviders;
-    this.metricsRepositories = metricsRepositories;
+    this.measureComputers = measureComputers;
+    this.pluginMetricKeys = from(Arrays.asList(metricsRepositories))
+      .transformAndConcat(MetricsToMetricList.INSTANCE)
+      .transform(MetricToKey.INSTANCE)
+      .toSet();
   }
 
   /**
    * Constructor override used by Pico to instantiate the class when no plugin is defining metrics
    */
-  public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, MeasureComputerProvider[] measureComputerProviders) {
-    this(measureComputersHolder, new Metrics[] {}, measureComputerProviders);
+  public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, MeasureComputer[] measureComputers) {
+    this(measureComputersHolder, new Metrics[] {}, measureComputers);
   }
 
   /**
    * Constructor override used by Pico to instantiate the class when no plugin is defining measure computers
    */
   public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories) {
-    this(measureComputersHolder, metricsRepositories, new MeasureComputerProvider[] {});
+    this(measureComputersHolder, metricsRepositories, new MeasureComputer[]{});
   }
 
   /**
    * Constructor override used by Pico to instantiate the class when no plugin is defining metrics neither measure computers
    */
   public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder) {
-    this(measureComputersHolder, new Metrics[] {}, new MeasureComputerProvider[] {});
+    this(measureComputersHolder, new Metrics[] {}, new MeasureComputer[] {});
   }
 
   @Override
   public void execute() {
-    MeasureComputerProviderContext context = new MeasureComputerProviderContext();
-    for (MeasureComputerProvider provider : measureComputerProviders) {
-      provider.register(context);
-    }
-    validateInputMetrics(context.getMeasureComputers());
-    measureComputersHolder.setMeasureComputers(sortComputers(context.getMeasureComputers()));
+    List<MeasureComputerWrapper> wrappers = from(Arrays.asList(measureComputers)).transform(ToMeasureWrapper.INSTANCE).toList();
+    validateMetrics(wrappers);
+    measureComputersHolder.setMeasureComputers(sortComputers(wrappers));
   }
 
-  private static Iterable<MeasureComputer> sortComputers(List<MeasureComputer> computers) {
-    Map<String, MeasureComputer> computersByOutputMetric = new HashMap<>();
-    Map<String, MeasureComputer> computersByInputMetric = new HashMap<>();
-    feedComputersByMetric(computers, computersByOutputMetric, computersByInputMetric);
+  private static Iterable<MeasureComputerWrapper> sortComputers(List<MeasureComputerWrapper> wrappers) {
+    Map<String, MeasureComputerWrapper> computersByOutputMetric = new HashMap<>();
+    Map<String, MeasureComputerWrapper> computersByInputMetric = new HashMap<>();
+    feedComputersByMetric(wrappers, computersByOutputMetric, computersByInputMetric);
     ToComputerByKey toComputerByOutputMetricKey = new ToComputerByKey(computersByOutputMetric);
     ToComputerByKey toComputerByInputMetricKey = new ToComputerByKey(computersByInputMetric);
 
     DirectAcyclicGraph dag = new DirectAcyclicGraph();
-    for (MeasureComputer computer : computers) {
+    for (MeasureComputerWrapper computer : wrappers) {
       dag.add(computer);
-      for (MeasureComputer dependency : getDependencies(computer, toComputerByOutputMetricKey)) {
+      for (MeasureComputerWrapper dependency : getDependencies(computer, toComputerByOutputMetricKey)) {
         dag.add(computer, dependency);
       }
-      for (MeasureComputer generates : getDependents(computer, toComputerByInputMetricKey)) {
+      for (MeasureComputerWrapper generates : getDependents(computer, toComputerByInputMetricKey)) {
         dag.add(generates, computer);
       }
     }
     return dag.sort();
   }
 
-  private static void feedComputersByMetric(List<MeasureComputer> computers, Map<String, MeasureComputer> computersByOutputMetric,
-    Map<String, MeasureComputer> computersByInputMetric) {
-    for (MeasureComputer computer : computers) {
-      for (String outputMetric : computer.getOutputMetrics()) {
+  private static void feedComputersByMetric(List<MeasureComputerWrapper> wrappers, Map<String, MeasureComputerWrapper> computersByOutputMetric,
+    Map<String, MeasureComputerWrapper> computersByInputMetric) {
+    for (MeasureComputerWrapper computer : wrappers) {
+      for (String outputMetric : computer.getDefinition().getOutputMetrics()) {
         computersByOutputMetric.put(outputMetric, computer);
       }
-      for (String inputMetric : computer.getInputMetrics()) {
+      for (String inputMetric : computer.getDefinition().getInputMetrics()) {
         computersByInputMetric.put(inputMetric, computer);
       }
     }
   }
 
-  private void validateInputMetrics(List<MeasureComputer> computers) {
-    Set<String> pluginMetricKeys = FluentIterable.from(Arrays.asList(metricsRepositories))
-      .transformAndConcat(MetricsToMetricList.INSTANCE)
-      .transform(MetricToKey.INSTANCE)
-      .toSet();
-    // TODO would be nice to generate an error containing all bad input metrics
-    for (MeasureComputer computer : computers) {
-      for (String metric : computer.getInputMetrics()) {
-        if (!pluginMetricKeys.contains(metric) && !CORE_METRIC_KEYS.contains(metric)) {
-          throw new IllegalStateException(String.format("Metric '%s' cannot be used as an input metric as it's no a core metric and no plugin declare this metric", metric));
-        }
-      }
-    }
+  private void validateMetrics(List<MeasureComputerWrapper> wrappers) {
+    from(wrappers).transformAndConcat(ToInputMetrics.INSTANCE).filter(new ValidateInputMetric()).size();
+    from(wrappers).transformAndConcat(ToOutputMetrics.INSTANCE).filter(new ValidateOutputMetric()).size();
   }
 
-  private static Iterable<MeasureComputer> getDependencies(MeasureComputer measureComputer, ToComputerByKey toComputerByOutputMetricKey) {
+  private static Iterable<MeasureComputerWrapper> getDependencies(MeasureComputerWrapper measureComputer, ToComputerByKey toComputerByOutputMetricKey) {
     // Remove null computer because a computer can depend on a metric that is only generated by a sensor or on a core metrics
-    return FluentIterable.from(measureComputer.getInputMetrics()).transform(toComputerByOutputMetricKey).filter(Predicates.notNull());
+    return from(measureComputer.getDefinition().getInputMetrics()).transform(toComputerByOutputMetricKey).filter(Predicates.notNull());
   }
 
-  private static Iterable<MeasureComputer> getDependents(MeasureComputer measureComputer, ToComputerByKey toComputerByInputMetricKey) {
-    return FluentIterable.from(measureComputer.getInputMetrics()).transform(toComputerByInputMetricKey);
+  private static Iterable<MeasureComputerWrapper> getDependents(MeasureComputerWrapper measureComputer, ToComputerByKey toComputerByInputMetricKey) {
+    return from(measureComputer.getDefinition().getInputMetrics()).transform(toComputerByInputMetricKey);
   }
 
-  private static class ToComputerByKey implements Function<String, MeasureComputer> {
-    private final Map<String, MeasureComputer> computersByMetric;
+  private static class ToComputerByKey implements Function<String, MeasureComputerWrapper> {
+    private final Map<String, MeasureComputerWrapper> computersByMetric;
 
-    private ToComputerByKey(Map<String, MeasureComputer> computersByMetric) {
+    private ToComputerByKey(Map<String, MeasureComputerWrapper> computersByMetric) {
       this.computersByMetric = computersByMetric;
     }
 
     @Override
-    public MeasureComputer apply(@Nonnull String metricKey) {
+    public MeasureComputerWrapper apply(@Nonnull String metricKey) {
       return computersByMetric.get(metricKey);
     }
   }
@@ -169,6 +164,73 @@ public class FeedMeasureComputers implements ComputationStep {
     @Override
     public List<Metric> apply(@Nonnull Metrics input) {
       return input.getMetrics();
+    }
+  }
+
+  private enum ToMeasureWrapper implements Function<MeasureComputer, MeasureComputerWrapper> {
+    INSTANCE;
+
+    private final MeasureComputerDefinitionContextImpl context = new MeasureComputerDefinitionContextImpl();
+
+    @Override
+    public MeasureComputerWrapper apply(@Nonnull MeasureComputer measureComputer) {
+      MeasureComputerDefinition def = measureComputer.define(context);
+      // If the computer has not been created by the builder, we recreate it to make sure it's valid
+      Set<String> inputMetrics = def.getInputMetrics();
+      Set<String> outputMetrics = def.getOutputMetrics();
+      MeasureComputerDefinition validateDef = new MeasureComputerDefinitionImpl.BuilderImpl()
+        .setInputMetrics(from(inputMetrics).toArray(String.class))
+        .setOutputMetrics(from(outputMetrics).toArray(String.class))
+        .build();
+      return new MeasureComputerWrapper(measureComputer, validateDef);
+    }
+  }
+
+  private enum ToInputMetrics implements Function<MeasureComputerWrapper, Collection<String>> {
+    INSTANCE;
+
+    @Override
+    public Collection<String> apply(@Nonnull MeasureComputerWrapper input) {
+      return input.getDefinition().getInputMetrics();
+    }
+  }
+
+  private class ValidateInputMetric implements Predicate<String> {
+    @Override
+    public boolean apply(@Nullable String metric) {
+      if (!pluginMetricKeys.contains(metric) && !CORE_METRIC_KEYS.contains(metric)) {
+        throw new IllegalStateException(String.format("Metric '%s' cannot be used as an input metric as it's not a core metric and no plugin declare this metric", metric));
+      }
+      return true;
+    }
+  }
+
+  private enum ToOutputMetrics implements Function<MeasureComputerWrapper, Collection<String>> {
+    INSTANCE;
+
+    @Override
+    public Collection<String> apply(@Nonnull MeasureComputerWrapper input) {
+      return input.getDefinition().getOutputMetrics();
+    }
+  }
+
+  private class ValidateOutputMetric implements Predicate<String> {
+    @Override
+    public boolean apply(@Nullable String metric) {
+      if (CORE_METRIC_KEYS.contains(metric)) {
+        throw new IllegalStateException(String.format("Metric '%s' cannot be used as an output metric as it's a core metric", metric));
+      }
+      if (!pluginMetricKeys.contains(metric)) {
+        throw new IllegalStateException(String.format("Metric '%s' cannot be used as an output metric as no plugin declare this metric", metric));
+      }
+      return true;
+    }
+  }
+
+  private static class MeasureComputerDefinitionContextImpl implements MeasureComputerDefinitionContext {
+    @Override
+    public MeasureComputerDefinition.Builder newDefinitionBuilder() {
+      return new MeasureComputerDefinitionImpl.BuilderImpl();
     }
   }
 

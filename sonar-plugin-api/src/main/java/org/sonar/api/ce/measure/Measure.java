@@ -20,6 +20,11 @@
 
 package org.sonar.api.ce.measure;
 
+/**
+ * Measure used in {@link MeasureComputer}
+ *
+ * @since 5.2
+ */
 public interface Measure {
 
   /**

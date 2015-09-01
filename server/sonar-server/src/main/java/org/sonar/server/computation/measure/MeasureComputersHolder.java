@@ -20,7 +20,7 @@
 
 package org.sonar.server.computation.measure;
 
-import org.sonar.api.ce.measure.MeasureComputer;
+import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 
 public interface MeasureComputersHolder {
 
@@ -29,5 +29,5 @@ public interface MeasureComputersHolder {
    *
    * @throws IllegalStateException if the measure computers haven't been initialized
    */
-  Iterable<MeasureComputer> getMeasureComputers();
+  Iterable<MeasureComputerWrapper> getMeasureComputers();
 }

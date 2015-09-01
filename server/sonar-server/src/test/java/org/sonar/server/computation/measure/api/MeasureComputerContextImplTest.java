@@ -24,7 +24,6 @@ import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,7 +42,6 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
-import static com.google.common.collect.ImmutableSet.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -53,7 +51,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-public class MeasureComputerImplementationContextTest {
+public class MeasureComputerContextImplTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -98,7 +96,7 @@ public class MeasureComputerImplementationContextTest {
 
   @Test
   public void get_component() throws Exception {
-    MeasureComputer.Implementation.Context underTest = newContext(FILE_1_REF);
+    MeasureComputerContextImpl underTest = newContext(FILE_1_REF);
     assertThat(underTest.getComponent().getType()).isEqualTo(Component.Type.FILE);
   }
 
@@ -108,7 +106,7 @@ public class MeasureComputerImplementationContextTest {
     serverSettings.setProperty("prop", "value");
     when(settingsRepository.getSettings(FILE_1)).thenReturn(serverSettings);
 
-    MeasureComputer.Implementation.Context underTest = newContext(FILE_1_REF);
+    MeasureComputerContextImpl underTest = newContext(FILE_1_REF);
     assertThat(underTest.getSettings().getString("prop")).isEqualTo("value");
     assertThat(underTest.getSettings().getString("unknown")).isNull();
   }
@@ -119,7 +117,7 @@ public class MeasureComputerImplementationContextTest {
     serverSettings.setProperty("prop", "1,3.4,8,50");
     when(settingsRepository.getSettings(FILE_1)).thenReturn(serverSettings);
 
-    MeasureComputer.Implementation.Context underTest = newContext(FILE_1_REF);
+    MeasureComputerContextImpl underTest = newContext(FILE_1_REF);
     assertThat(underTest.getSettings().getStringArray("prop")).containsExactly("1", "3.4", "8", "50");
     assertThat(underTest.getSettings().getStringArray("unknown")).isEmpty();
   }
@@ -128,7 +126,7 @@ public class MeasureComputerImplementationContextTest {
   public void get_measure() throws Exception {
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(10));
 
-    MeasureComputer.Implementation.Context underTest = newContext(FILE_1_REF, of(NCLOC_KEY), of(COMMENT_LINES_KEY));
+    MeasureComputerContextImpl underTest = newContext(FILE_1_REF, NCLOC_KEY, COMMENT_LINES_KEY);
     assertThat(underTest.getMeasure(NCLOC_KEY).getIntValue()).isEqualTo(10);
   }
 
@@ -137,7 +135,7 @@ public class MeasureComputerImplementationContextTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only metrics in [another metric] can be used to load measures");
 
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of("another metric"), of("debt"));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, "another metric", "debt");
     underTest.getMeasure(NCLOC_KEY);
   }
 
@@ -146,7 +144,7 @@ public class MeasureComputerImplementationContextTest {
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(10));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(12));
 
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(COMMENT_LINES_KEY));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, COMMENT_LINES_KEY);
     assertThat(underTest.getChildrenMeasures(NCLOC_KEY)).hasSize(2);
     assertThat(underTest.getChildrenMeasures(NCLOC_KEY)).extracting("intValue").containsOnly(10, 12);
   }
@@ -156,7 +154,7 @@ public class MeasureComputerImplementationContextTest {
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(10));
     // No data on file 2
 
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(COMMENT_LINES_KEY));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, COMMENT_LINES_KEY);
     assertThat(underTest.getChildrenMeasures(NCLOC_KEY)).extracting("intValue").containsOnly(10);
   }
 
@@ -164,7 +162,7 @@ public class MeasureComputerImplementationContextTest {
   public void not_fail_to_get_children_measures_on_output_metric() throws Exception {
     measureRepository.addRawMeasure(FILE_1_REF, INT_METRIC_KEY, newMeasureBuilder().create(10));
 
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(INT_METRIC_KEY));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, INT_METRIC_KEY);
     assertThat(underTest.getChildrenMeasures(INT_METRIC_KEY)).hasSize(1);
     assertThat(underTest.getChildrenMeasures(INT_METRIC_KEY)).extracting("intValue").containsOnly(10);
   }
@@ -174,13 +172,13 @@ public class MeasureComputerImplementationContextTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only metrics in [another metric] can be used to load measures");
 
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of("another metric"), of("debt"));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, "another metric", "debt");
     underTest.getChildrenMeasures(NCLOC_KEY);
   }
 
   @Test
   public void add_int_measure_create_measure_of_type_int_with_right_value() throws Exception {
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(INT_METRIC_KEY));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, INT_METRIC_KEY);
     underTest.addMeasure(INT_METRIC_KEY, 10);
 
     Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_KEY);
@@ -190,7 +188,7 @@ public class MeasureComputerImplementationContextTest {
 
   @Test
   public void add_double_measure_create_measure_of_type_double_with_right_value() throws Exception {
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(DOUBLE_METRIC_KEY));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, DOUBLE_METRIC_KEY);
     underTest.addMeasure(DOUBLE_METRIC_KEY, 10d);
 
     Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, DOUBLE_METRIC_KEY);
@@ -200,7 +198,7 @@ public class MeasureComputerImplementationContextTest {
 
   @Test
   public void add_long_measure_create_measure_of_type_long_with_right_value() throws Exception {
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(LONG_METRIC_KEY));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, LONG_METRIC_KEY);
     underTest.addMeasure(LONG_METRIC_KEY, 10L);
 
     Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, LONG_METRIC_KEY);
@@ -210,7 +208,7 @@ public class MeasureComputerImplementationContextTest {
 
   @Test
   public void add_string_measure_create_measure_of_type_string_with_right_value() throws Exception {
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(STRING_METRIC_KEY));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, STRING_METRIC_KEY);
     underTest.addMeasure(STRING_METRIC_KEY, "data");
 
     Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, STRING_METRIC_KEY);
@@ -223,7 +221,7 @@ public class MeasureComputerImplementationContextTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only metrics in [int_metric_key] can be used to add measures. Metric 'double_metric_key' is not allowed.");
 
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(INT_METRIC_KEY));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, INT_METRIC_KEY);
     underTest.addMeasure(DOUBLE_METRIC_KEY, 10);
   }
 
@@ -234,7 +232,7 @@ public class MeasureComputerImplementationContextTest {
 
     measureRepository.addRawMeasure(FILE_1_REF, INT_METRIC_KEY, newMeasureBuilder().create(20));
 
-    MeasureComputer.Implementation.Context underTest = newContext(FILE_1_REF, of(NCLOC_KEY), of(INT_METRIC_KEY));
+    MeasureComputerContextImpl underTest = newContext(FILE_1_REF, NCLOC_KEY, INT_METRIC_KEY);
     underTest.addMeasure(INT_METRIC_KEY, 10);
   }
 
@@ -248,7 +246,7 @@ public class MeasureComputerImplementationContextTest {
       .setResolution("FIXED")
       .setDebt(Duration.create(10l));
 
-    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, Arrays.asList(issue));
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, Arrays.asList(issue));
 
     assertThat(underTest.getIssues()).hasSize(1);
     org.sonar.api.ce.measure.Issue result = underTest.getIssues().get(0);
@@ -260,37 +258,29 @@ public class MeasureComputerImplementationContextTest {
     assertThat(result.debt()).isEqualTo(Duration.create(10l));
   }
 
-  private MeasureComputer.Implementation.Context newContext(int componentRef) {
-    return newContext(componentRef, Collections.<String>emptySet(), Collections.<String>emptySet());
+  private MeasureComputerContextImpl newContext(int componentRef) {
+    return newContext(componentRef, NCLOC_KEY, COMMENT_LINES_KEY, Collections.<DefaultIssue>emptyList());
   }
 
-  private MeasureComputer.Implementation.Context newContext(int componentRef, List<DefaultIssue> issues) {
-    return newContext(componentRef, Collections.<String>emptySet(), Collections.<String>emptySet(), issues);
+  private MeasureComputerContextImpl newContext(int componentRef, List<DefaultIssue> issues) {
+    return newContext(componentRef, NCLOC_KEY, COMMENT_LINES_KEY, issues);
   }
 
-  private MeasureComputer.Implementation.Context newContext(int componentRef, final Set<String> inputMetrics, final Set<String> outputMetrics) {
-    return newContext(componentRef, inputMetrics, outputMetrics, Collections.<DefaultIssue>emptyList());
+  private MeasureComputerContextImpl newContext(int componentRef, String inputMetric, String outputMetric) {
+    return newContext(componentRef, inputMetric, outputMetric, Collections.<DefaultIssue>emptyList());
   }
 
-  private MeasureComputer.Implementation.Context newContext(int componentRef, final Set<String> inputMetrics, final Set<String> outputMetrics, List<DefaultIssue> issues) {
+  private MeasureComputerContextImpl newContext(int componentRef, String inputMetric, String outputMetric, List<DefaultIssue> issues) {
     componentIssuesRepository.setIssues(componentRef, issues);
-    MeasureComputer measureComputer = new MeasureComputer() {
-      @Override
-      public Set<String> getInputMetrics() {
-        return inputMetrics;
-      }
 
-      @Override
-      public Set<String> getOutputMetrics() {
-        return outputMetrics;
-      }
+    MeasureComputer.MeasureComputerDefinition definition = new MeasureComputerDefinitionImpl.BuilderImpl()
+      .setInputMetrics(new String[] {inputMetric})
+      .setOutputMetrics(new String[] {outputMetric})
+      .build();
 
-      @Override
-      public Implementation getImplementation() {
-        return null;
-      }
-    };
-    return new MeasureComputerImplementationContext(treeRootHolder.getComponentByRef(componentRef), measureComputer,
+    MeasureComputerContextImpl context = new MeasureComputerContextImpl(treeRootHolder.getComponentByRef(componentRef),
       settingsRepository, measureRepository, metricRepository, componentIssuesRepository);
+    context.setDefinition(definition);
+    return context;
   }
 }

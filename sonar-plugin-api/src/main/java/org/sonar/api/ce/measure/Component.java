@@ -22,6 +22,11 @@ package org.sonar.api.ce.measure;
 
 import javax.annotation.CheckForNull;
 
+/**
+ * Component that can be used in a {@link MeasureComputer}
+ *
+ * @since 5.2
+ */
 public interface Component {
 
   enum Type {

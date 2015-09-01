@@ -30,7 +30,8 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.issue.ComponentIssuesRepository;
-import org.sonar.server.computation.measure.api.MeasureComputerImpl;
+import org.sonar.server.computation.measure.api.MeasureComputerDefinitionImpl;
+import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -105,26 +106,32 @@ public class MeasureComputersVisitorTest {
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(50));
     measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
 
+    final MeasureComputer.MeasureComputerDefinition definition = new MeasureComputerDefinitionImpl.BuilderImpl()
+      .setInputMetrics(NCLOC_KEY, COMMENT_LINES_KEY)
+      .setOutputMetrics(NEW_METRIC_KEY)
+      .build();
     measureComputersHolder.setMeasureComputers(newArrayList(
-      new MeasureComputerImpl.MeasureComputerBuilderImpl()
-        .setInputMetrics(NCLOC_KEY, COMMENT_LINES_KEY)
-        .setOutputMetrics(NEW_METRIC_KEY)
-        .setImplementation(
-          new MeasureComputer.Implementation() {
-            @Override
-            public void compute(Context ctx) {
-              org.sonar.api.ce.measure.Measure ncloc = ctx.getMeasure(NCLOC_KEY);
-              org.sonar.api.ce.measure.Measure comment = ctx.getMeasure(COMMENT_LINES_KEY);
-              if (ncloc != null && comment != null) {
-                ctx.addMeasure(NEW_METRIC_KEY, ncloc.getIntValue() + comment.getIntValue());
-              }
+      new MeasureComputerWrapper(
+        new MeasureComputer() {
+          @Override
+          public MeasureComputerDefinition define(MeasureComputerDefinitionContext defContext) {
+            return definition;
+          }
+
+          @Override
+          public void compute(MeasureComputerContext context) {
+            org.sonar.api.ce.measure.Measure ncloc = context.getMeasure(NCLOC_KEY);
+            org.sonar.api.ce.measure.Measure comment = context.getMeasure(COMMENT_LINES_KEY);
+            if (ncloc != null && comment != null) {
+              context.addMeasure(NEW_METRIC_KEY, ncloc.getIntValue() + comment.getIntValue());
             }
           }
-        )
-        .build()
-      ));
+        },
+        definition
+      )));
 
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null, measureComputersHolder, componentIssuesRepository)));
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
+      measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(ROOT);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(12)));
@@ -147,8 +154,9 @@ public class MeasureComputersVisitorTest {
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(50));
     measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
 
-    measureComputersHolder.setMeasureComputers(Collections.<MeasureComputer>emptyList());
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null, measureComputersHolder, componentIssuesRepository)));
+    measureComputersHolder.setMeasureComputers(Collections.<MeasureComputerWrapper>emptyList());
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
+      measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(ROOT);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).isEmpty();
