@@ -103,11 +103,10 @@ public class FileMetadataTest {
   public void non_ascii_utf_16() throws Exception {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "föo\r\nbàr\r\n\u1D11Ebaßz\r\n", StandardCharsets.UTF_16, true);
-
     FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, StandardCharsets.UTF_16);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
-    assertThat(metadata.hash).isEqualTo(md5Hex("föo\nbàr\n\u1D11Ebaßz\n"));
+    assertThat(metadata.hash).isEqualTo(md5Hex("föo\nbàr\n\u1D11Ebaßz\n".getBytes(StandardCharsets.UTF_8)));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
   }
 

@@ -38,7 +38,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -129,6 +134,15 @@ public class FileMetadata {
   private static class FileHashComputer extends CharHandler {
     private MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
     private StringBuilder sb = new StringBuilder();
+    private final CharsetEncoder encoder;
+    private final File file;
+
+    public FileHashComputer(File f) {
+      encoder = StandardCharsets.UTF_8.newEncoder()
+        .onMalformedInput(CodingErrorAction.REPLACE)
+        .onUnmappableCharacter(CodingErrorAction.REPLACE);
+      file = f;
+    }
 
     @Override
     protected void handleIgnoreEoL(char c) {
@@ -138,14 +152,25 @@ public class FileMetadata {
     @Override
     protected void newLine() {
       sb.append(LINE_FEED);
-      globalMd5Digest.update(sb.toString().getBytes(StandardCharsets.UTF_8));
+      processBuffer();
       sb.setLength(0);
     }
 
     @Override
     protected void eof() {
       if (sb.length() > 0) {
-        globalMd5Digest.update(sb.toString().getBytes(StandardCharsets.UTF_8));
+        processBuffer();
+      }
+    }
+
+    private void processBuffer() {
+      try {
+        if (sb.length() > 0) {
+          ByteBuffer encoded = encoder.encode(CharBuffer.wrap(sb));
+          globalMd5Digest.update(encoded.array(), 0, encoded.limit());
+        }
+      } catch (CharacterCodingException e) {
+        throw new IllegalStateException("Error encoding line hash in file: " + file.getAbsolutePath(), e);
       }
     }
 
@@ -157,12 +182,18 @@ public class FileMetadata {
 
   private static class LineHashComputer extends CharHandler {
     private final MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
+    private final CharsetEncoder encoder;
     private final StringBuilder sb = new StringBuilder();
     private final LineHashConsumer consumer;
+    private final File file;
     private int line = 1;
 
-    public LineHashComputer(LineHashConsumer consumer) {
+    public LineHashComputer(LineHashConsumer consumer, File f) {
       this.consumer = consumer;
+      this.file = f;
+      this.encoder = StandardCharsets.UTF_8.newEncoder()
+        .onMalformedInput(CodingErrorAction.REPLACE)
+        .onUnmappableCharacter(CodingErrorAction.REPLACE);
     }
 
     @Override
@@ -174,7 +205,7 @@ public class FileMetadata {
 
     @Override
     protected void newLine() {
-      consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8)) : null);
+      processBuffer();
       sb.setLength(0);
       line++;
     }
@@ -182,10 +213,21 @@ public class FileMetadata {
     @Override
     protected void eof() {
       if (this.line > 0) {
-        consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8)) : null);
+        processBuffer();
       }
     }
 
+    private void processBuffer() {
+      try {
+        if (sb.length() > 0) {
+          ByteBuffer encoded = encoder.encode(CharBuffer.wrap(sb));
+          lineMd5Digest.update(encoded.array(), 0, encoded.limit());
+          consumer.consume(line, lineMd5Digest.digest());
+        }
+      } catch (CharacterCodingException e) {
+        throw new IllegalStateException("Error encoding line hash in file: " + file.getAbsolutePath(), e);
+      }
+    }
   }
 
   private static class LineOffsetCounter extends CharHandler {
@@ -228,7 +270,7 @@ public class FileMetadata {
    */
   public Metadata readMetadata(File file, Charset encoding) {
     LineCounter lineCounter = new LineCounter(file, encoding);
-    FileHashComputer fileHashComputer = new FileHashComputer();
+    FileHashComputer fileHashComputer = new FileHashComputer(file);
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
     readFile(file, encoding, lineCounter, fileHashComputer, lineOffsetCounter);
     return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
@@ -240,7 +282,7 @@ public class FileMetadata {
    */
   public Metadata readMetadata(Reader reader) {
     LineCounter lineCounter = new LineCounter(new File("fromString"), StandardCharsets.UTF_16);
-    FileHashComputer fileHashComputer = new FileHashComputer();
+    FileHashComputer fileHashComputer = new FileHashComputer(new File("fromString"));
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
     try {
       read(reader, lineCounter, fileHashComputer, lineOffsetCounter);
@@ -325,6 +367,6 @@ public class FileMetadata {
    * Compute a MD5 hash of each line of the file after removing of all blank chars
    */
   public static void computeLineHashesForIssueTracking(DefaultInputFile f, LineHashConsumer consumer) {
-    readFile(f.file(), f.charset(), new LineHashComputer(consumer));
+    readFile(f.file(), f.charset(), new LineHashComputer(consumer, f.file()));
   }
 }
