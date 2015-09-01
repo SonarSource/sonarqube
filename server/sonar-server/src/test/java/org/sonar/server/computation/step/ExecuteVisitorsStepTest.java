@@ -36,8 +36,6 @@ import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
@@ -84,12 +82,9 @@ public class ExecuteVisitorsStepTest {
         ).build());
   }
 
-  ComponentVisitors visitors = mock(ComponentVisitors.class);
-
   @Test
   public void execute_with_type_aware_visitor() throws Exception {
-    when(visitors.instances()).thenReturn(Arrays.<ComponentVisitor>asList(new TestTypeAwareVisitor()));
-    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, visitors);
+    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, Arrays.<ComponentVisitor>asList(new TestTypeAwareVisitor()));
 
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(1));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(2));
@@ -108,8 +103,7 @@ public class ExecuteVisitorsStepTest {
 
   @Test
   public void execute_with_path_aware_visitor() throws Exception {
-    when(visitors.instances()).thenReturn(Arrays.<ComponentVisitor>asList(new TestPathAwareVisitor()));
-    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, visitors);
+    ExecuteVisitorsStep underStep = new ExecuteVisitorsStep(treeRootHolder, Arrays.<ComponentVisitor>asList(new TestPathAwareVisitor()));
 
     measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(1));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(1));

@@ -20,17 +20,18 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.List;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.VisitorsCrawler;
 
 public class ExecuteVisitorsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
-  private final Iterable<ComponentVisitor> visitors;
+  private final List<ComponentVisitor> visitors;
 
-  public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, ComponentVisitors visitors) {
+  public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, List<ComponentVisitor> visitors) {
     this.treeRootHolder = treeRootHolder;
-    this.visitors = visitors.instances();
+    this.visitors = visitors;
   }
 
   @Override
