@@ -168,6 +168,13 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
     measureRepository.add(internalComponent, metric, newMeasureBuilder().create(value));
   }
 
+  @Override
+  public void addMeasure(String metricKey, boolean value) {
+    Metric metric = metricRepository.getByKey(metricKey);
+    validateAddMeasure(metric);
+    measureRepository.add(internalComponent, metric, newMeasureBuilder().create(value));
+  }
+
   private void validateInputMetric(String metric) {
     checkArgument(allowedMetrics.contains(metric), "Only metrics in %s can be used to load measures", definition.getInputMetrics());
   }

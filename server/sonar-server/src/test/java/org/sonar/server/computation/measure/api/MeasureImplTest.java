@@ -93,9 +93,24 @@ public class MeasureImplTest {
   }
 
   @Test
+  public void get_boolean_value() throws Exception {
+    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(true));
+    assertThat(measure.getBooleanValue()).isTrue();
+  }
+
+  @Test
+  public void fail_with_ISE_when_not_boolean_value() throws Exception {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Value can not be converted to boolean because current value type is a DOUBLE");
+
+    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d));
+    measure.getBooleanValue();
+  }
+
+  @Test
   public void fail_with_ISE_when_creating_measure_with_no_value() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Only following types are allowed [INT, LONG, DOUBLE, STRING]");
+    thrown.expectMessage("Only following types are allowed [INT, LONG, DOUBLE, STRING, BOOLEAN]");
 
     new MeasureImpl(Measure.newMeasureBuilder().createNoValue());
   }
@@ -103,7 +118,7 @@ public class MeasureImplTest {
   @Test
   public void fail_with_ISE_when_creating_measure_with_not_allowed_value() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Only following types are allowed [INT, LONG, DOUBLE, STRING]");
+    thrown.expectMessage("Only following types are allowed [INT, LONG, DOUBLE, STRING, BOOLEAN]");
 
     new MeasureImpl(Measure.newMeasureBuilder().create(Measure.Level.ERROR));
   }

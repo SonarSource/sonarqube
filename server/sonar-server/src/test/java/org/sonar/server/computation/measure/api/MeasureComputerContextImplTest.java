@@ -60,6 +60,7 @@ public class MeasureComputerContextImplTest {
   private static final String DOUBLE_METRIC_KEY = "double_metric_key";
   private static final String LONG_METRIC_KEY = "long_metric_key";
   private static final String STRING_METRIC_KEY = "string_metric_key";
+  private static final String BOOLEAN_METRIC_KEY = "boolean_metric_key";
 
   private static final int PROJECT_REF = 1;
   private static final int FILE_1_REF = 12341;
@@ -84,7 +85,9 @@ public class MeasureComputerContextImplTest {
     .add(new MetricImpl(2, INT_METRIC_KEY, "int metric", Metric.MetricType.INT))
     .add(new MetricImpl(3, DOUBLE_METRIC_KEY, "double metric", Metric.MetricType.FLOAT))
     .add(new MetricImpl(4, LONG_METRIC_KEY, "long metric", Metric.MetricType.MILLISEC))
-    .add(new MetricImpl(5, STRING_METRIC_KEY, "string metric", Metric.MetricType.STRING));
+    .add(new MetricImpl(5, STRING_METRIC_KEY, "string metric", Metric.MetricType.STRING))
+    .add(new MetricImpl(6, BOOLEAN_METRIC_KEY, "boolean metric", Metric.MetricType.BOOL))
+    ;
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -214,6 +217,16 @@ public class MeasureComputerContextImplTest {
     Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, STRING_METRIC_KEY);
     assertThat(measure).isPresent();
     assertThat(measure.get().getStringValue()).isEqualTo("data");
+  }
+
+  @Test
+  public void add_boolean_measure_create_measure_of_type_boolean_with_right_value() throws Exception {
+    MeasureComputerContextImpl underTest = newContext(PROJECT_REF, NCLOC_KEY, BOOLEAN_METRIC_KEY);
+    underTest.addMeasure(BOOLEAN_METRIC_KEY, true);
+
+    Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, BOOLEAN_METRIC_KEY);
+    assertThat(measure).isPresent();
+    assertThat(measure.get().getBooleanValue()).isTrue();
   }
 
   @Test

@@ -28,6 +28,7 @@ import org.sonar.api.ce.measure.Measure;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.computation.measure.Measure.ValueType.BOOLEAN;
 import static org.sonar.server.computation.measure.Measure.ValueType.DOUBLE;
 import static org.sonar.server.computation.measure.Measure.ValueType.INT;
 import static org.sonar.server.computation.measure.Measure.ValueType.LONG;
@@ -36,7 +37,7 @@ import static org.sonar.server.computation.measure.Measure.ValueType.STRING;
 @Immutable
 public class MeasureImpl implements Measure {
 
-  private static final Set<org.sonar.server.computation.measure.Measure.ValueType> ALLOWED_VALUE_TYPES = ImmutableSet.of(INT, LONG, DOUBLE, STRING);
+  private static final Set<org.sonar.server.computation.measure.Measure.ValueType> ALLOWED_VALUE_TYPES = ImmutableSet.of(INT, LONG, DOUBLE, STRING, BOOLEAN);
 
   private final org.sonar.server.computation.measure.Measure measure;
 
@@ -67,6 +68,12 @@ public class MeasureImpl implements Measure {
   public String getStringValue() {
     checkValueType(STRING);
     return measure.getStringValue();
+  }
+
+  @Override
+  public boolean getBooleanValue() {
+    checkValueType(BOOLEAN);
+    return measure.getBooleanValue();
   }
 
   private void checkValueType(org.sonar.server.computation.measure.Measure.ValueType expected) {

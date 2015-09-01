@@ -52,6 +52,11 @@ public class TestMeasureTest {
   }
 
   @Test
+  public void create_boolean_measure() throws Exception {
+    assertThat(TestMeasure.createMeasure(true).getBooleanValue()).isTrue();
+  }
+
+  @Test
   public void getDoubleValue_fails_with_ISE_when_not_a_double() throws Exception {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Not a double measure");
@@ -81,5 +86,13 @@ public class TestMeasureTest {
     thrown.expectMessage("Not a string measure");
 
     TestMeasure.createMeasure(10).getStringValue();
+  }
+
+  @Test
+  public void getBooleanValue_fails_with_ISE_when_not_a_boolean() throws Exception {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Not a boolean measure");
+
+    TestMeasure.createMeasure(10).getBooleanValue();
   }
 }

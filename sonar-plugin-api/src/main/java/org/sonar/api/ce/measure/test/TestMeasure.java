@@ -33,6 +33,7 @@ public class TestMeasure implements Measure {
   private Long longValue;
   private Double doubleValue;
   private String stringValue;
+  private Boolean booleanValue;
 
   public static TestMeasure createMeasure(double doubleValue){
     TestMeasure measure = new TestMeasure();
@@ -58,6 +59,12 @@ public class TestMeasure implements Measure {
     return measure;
   }
 
+  public static TestMeasure createMeasure(boolean booleanValue) {
+    TestMeasure measure = new TestMeasure();
+    measure.booleanValue = requireNonNull(booleanValue, "Value cannot be null");
+    return measure;
+  }
+
   @Override
   public int getIntValue() {
     checkState(intValue != null, "Not an integer measure");
@@ -80,5 +87,11 @@ public class TestMeasure implements Measure {
   public String getStringValue() {
     checkState(stringValue != null, "Not a string measure");
     return stringValue;
+  }
+
+  @Override
+  public boolean getBooleanValue() {
+    checkState(booleanValue != null, "Not a boolean measure");
+    return booleanValue;
   }
 }
