@@ -66,8 +66,23 @@ public class PermissionTemplateDto {
     return kee;
   }
 
+  /**
+   * @since 5.2 the kee column is a proper uuid. Before that it was build on the name + timestamp
+   */
+  public String getUuid() {
+    return kee;
+  }
+
   public PermissionTemplateDto setKee(String kee) {
     this.kee = kee;
+    return this;
+  }
+
+  /**
+   * @since 5.2 the kee column is a proper uuid. Before it was build on the name + timestamp
+   */
+  public PermissionTemplateDto setUuid(String uuid) {
+    this.kee = uuid;
     return this;
   }
 

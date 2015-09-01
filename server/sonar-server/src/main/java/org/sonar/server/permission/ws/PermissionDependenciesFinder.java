@@ -22,6 +22,7 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
+import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -34,6 +35,7 @@ import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionDependenciesFinder {
   private final DbClient dbClient;
@@ -56,6 +58,13 @@ public class PermissionDependenciesFinder {
     return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, wsProjectRef.uuid(), wsProjectRef.key()));
   }
 
+  public ComponentDto getProject(DbSession dbSession, Request wsRequest) {
+    Optional<WsProjectRef> projectRef = WsProjectRef.optionalFromRequest(wsRequest);
+    checkRequest(projectRef.isPresent(), "The project id or the project key must be provided.");
+
+    return componentFinder.getProjectByUuidOrKey(dbSession, projectRef.get().uuid(), projectRef.get().key());
+  }
+
   String getGroupName(DbSession dbSession, PermissionRequest request) {
     GroupDto group = getGroup(dbSession, request.group());
 
@@ -63,7 +72,7 @@ public class PermissionDependenciesFinder {
   }
 
   /**
-   * 
+   *
    * @return null if it's the anyone group
    */
   @CheckForNull

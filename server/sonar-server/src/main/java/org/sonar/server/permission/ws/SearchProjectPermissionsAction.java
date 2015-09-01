@@ -39,8 +39,7 @@ import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
-import static org.sonar.server.permission.ws.Parameters.createProjectKeyParameter;
-import static org.sonar.server.permission.ws.Parameters.createProjectUuidParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchProjectPermissionsAction implements PermissionsWsAction {
@@ -70,8 +69,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .addSearchQuery("sonarq", "project names", "project keys")
       .setHandler(this);
 
-    createProjectUuidParameter(action);
-    createProjectKeyParameter(action);
+    createProjectParameter(action);
   }
 
   @Override
@@ -89,7 +87,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   }
 
   private void checkRequestAndPermissions(Request wsRequest) {
-    Optional<WsProjectRef> project = WsProjectRef.fromRequest(wsRequest);
+    Optional<WsProjectRef> project = WsProjectRef.optionalFromRequest(wsRequest);
     boolean hasProject = project.isPresent();
     boolean hasProjectUuid = hasProject && project.get().uuid() != null;
     boolean hasProjectKey = hasProject && project.get().key() != null;

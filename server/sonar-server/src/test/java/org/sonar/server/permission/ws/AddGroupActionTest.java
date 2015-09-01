@@ -53,7 +53,7 @@ import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
 import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 
 @Category(DbTests.class)
@@ -118,7 +118,7 @@ public class AddGroupActionTest {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
@@ -156,7 +156,7 @@ public class AddGroupActionTest {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(PARAM_PROJECT_UUID, "unknown-project-uuid")
+      .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -186,7 +186,7 @@ public class AddGroupActionTest {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(PARAM_PROJECT_UUID, "file-uuid")
+      .setParam(PARAM_PROJECT_ID, "file-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -230,7 +230,7 @@ public class AddGroupActionTest {
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }

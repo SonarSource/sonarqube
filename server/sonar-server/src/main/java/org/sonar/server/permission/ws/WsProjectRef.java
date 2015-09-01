@@ -22,11 +22,10 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -36,22 +35,25 @@ class WsProjectRef {
   private final String uuid;
   private final String key;
 
-  private WsProjectRef(@Nullable String uuid, @Nullable String key) {
+  private WsProjectRef(Request wsRequest) {
+    String uuid = wsRequest.param(PARAM_PROJECT_ID);
+    String key = wsRequest.param(PARAM_PROJECT_KEY);
     checkRequest(uuid != null ^ key != null, "Project id or project key can be provided, not both.");
 
     this.uuid = uuid;
     this.key = key;
   }
 
-  static Optional<WsProjectRef> fromRequest(Request wsRequest) {
+  static Optional<WsProjectRef> optionalFromRequest(Request wsRequest) {
     if (hasNoProjectParam(wsRequest)) {
       return Optional.absent();
     }
 
-    return Optional.of(new WsProjectRef(
-      wsRequest.param(PARAM_PROJECT_UUID),
-      wsRequest.param(PARAM_PROJECT_KEY))
-      );
+    return Optional.of(new WsProjectRef(wsRequest));
+  }
+
+  static WsProjectRef fromRequest(Request wsRequest) {
+    return new WsProjectRef(wsRequest);
   }
 
   @CheckForNull
@@ -65,6 +67,6 @@ class WsProjectRef {
   }
 
   private static boolean hasNoProjectParam(Request wsRequest) {
-    return !wsRequest.hasParam(PARAM_PROJECT_UUID) && !wsRequest.hasParam(PARAM_PROJECT_KEY);
+    return !wsRequest.hasParam(PARAM_PROJECT_ID) && !wsRequest.hasParam(PARAM_PROJECT_KEY);
   }
 }

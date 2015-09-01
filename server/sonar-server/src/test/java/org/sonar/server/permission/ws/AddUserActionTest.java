@@ -51,7 +51,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.permission.ws.AddUserAction.ACTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 
@@ -99,7 +99,7 @@ public class AddUserActionTest {
 
     ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
-      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
@@ -130,7 +130,7 @@ public class AddUserActionTest {
 
     ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
-      .setParam(PARAM_PROJECT_UUID, "unknown-project-uuid")
+      .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -153,7 +153,7 @@ public class AddUserActionTest {
 
     ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
-      .setParam(PARAM_PROJECT_UUID, "file-uuid")
+      .setParam(PARAM_PROJECT_ID, "file-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -196,7 +196,7 @@ public class AddUserActionTest {
     ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
-      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }

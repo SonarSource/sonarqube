@@ -134,17 +134,19 @@ public class PermissionRepository {
     }
   }
 
-  public void applyPermissionTemplate(DbSession session, String templateKey, Long resourceId) {
-    PermissionTemplateDto permissionTemplate = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateKey);
+  public void applyPermissionTemplate(DbSession session, String templateUuid, long resourceId) {
+    PermissionTemplateDto permissionTemplate = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
     updateProjectAuthorizationDate(session, resourceId);
     dbClient.roleDao().removeAllPermissions(session, resourceId);
     List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
+    //TODO should return an empty list if there's no user permissions
     if (usersPermissions != null) {
       for (PermissionTemplateUserDto userPermission : usersPermissions) {
         insertUserPermission(resourceId, userPermission.getUserId(), userPermission.getPermission(), false, session);
       }
     }
     List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
+    //TODO should return an empty list if there's no group permission
     if (groupsPermissions != null) {
       for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
         Long groupId = groupPermission.getGroupId() == null ? null : groupPermission.getGroupId();
@@ -153,7 +155,7 @@ public class PermissionRepository {
     }
   }
 
-  public void grantDefaultRoles(DbSession session, Long componentId, String qualifier) {
+  public void grantDefaultRoles(DbSession session, long componentId, String qualifier) {
     ResourceDto resource = dbClient.resourceDao().selectResource(componentId, session);
     String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(session, resource.getKey(), qualifier);
     applyPermissionTemplate(session, applicablePermissionTemplateKey, componentId);

@@ -44,8 +44,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
 import static org.sonar.server.permission.PermissionQueryParser.toMembership;
 import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createProjectKeyParameter;
-import static org.sonar.server.permission.ws.Parameters.createProjectUuidParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UsersAction implements PermissionsWsAction {
@@ -79,8 +78,7 @@ public class UsersAction implements PermissionsWsAction {
       .setHandler(this);
 
     createPermissionParameter(action);
-    createProjectUuidParameter(action);
-    createProjectKeyParameter(action);
+    createProjectParameter(action);
   }
 
   @Override

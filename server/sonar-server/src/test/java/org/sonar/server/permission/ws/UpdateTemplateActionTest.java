@@ -32,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -206,6 +207,10 @@ public class UpdateTemplateActionTest {
 
   private PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
     return dbClient.permissionTemplateDao().insert(dbSession, template);
+  }
+
+  private GroupDto insertGroup(GroupDto group) {
+    return dbClient.groupDao().insert(db.getSession(), group);
   }
 
   private void commit() {

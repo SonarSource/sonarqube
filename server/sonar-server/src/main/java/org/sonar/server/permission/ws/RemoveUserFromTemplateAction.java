@@ -32,10 +32,10 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID_EXPLICIT;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameterToAddRemoveUserOrGroup;
+import static org.sonar.server.permission.ws.Parameters.createExplicitTemplateId;
 import static org.sonar.server.permission.ws.Parameters.createUserLoginParameter;
 
 public class RemoveUserFromTemplateAction implements PermissionsWsAction {
@@ -59,7 +59,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
         "It requires administration permissions to access.")
       .setHandler(this);
 
-    createTemplateKeyParameterToAddRemoveUserOrGroup(action);
+    createExplicitTemplateId(action);
     createProjectPermissionParameter(action);
     createUserLoginParameter(action);
   }
@@ -68,7 +68,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateKey = wsRequest.mandatoryParam(PARAM_LONG_TEMPLATE_ID);
+    String templateKey = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID_EXPLICIT);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     String userLogin = wsRequest.mandatoryParam(PARAM_USER_LOGIN);
 

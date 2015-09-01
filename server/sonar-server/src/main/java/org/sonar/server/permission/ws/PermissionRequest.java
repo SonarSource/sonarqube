@@ -139,7 +139,7 @@ class PermissionRequest {
     }
 
     private void setProject(Request request) {
-      this.project = WsProjectRef.fromRequest(request);
+      this.project = WsProjectRef.optionalFromRequest(request);
     }
 
     private void checkPermissionParameter() {

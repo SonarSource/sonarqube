@@ -52,7 +52,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @Category(DbTests.class)
@@ -120,7 +120,7 @@ public class UsersActionTest {
 
     String result = ws.newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
       .execute().getInput();
 
     assertThat(result).contains("project-user-login")
@@ -195,7 +195,7 @@ public class UsersActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }

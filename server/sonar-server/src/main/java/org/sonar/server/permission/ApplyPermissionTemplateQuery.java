@@ -20,50 +20,51 @@
 
 package org.sonar.server.permission;
 
-import org.apache.commons.lang.StringUtils;
-import org.picocontainer.annotations.Nullable;
+import java.util.List;
+import java.util.Map;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.util.RubyUtils;
 
-import java.util.List;
-import java.util.Map;
+import static com.google.common.base.CharMatcher.WHITESPACE;
 
 public class ApplyPermissionTemplateQuery {
 
   private static final String TEMPLATE_KEY = "template_key";
   private static final String COMPONENTS_KEY = "components";
 
-  private final String templateKey;
-  private List<String> selectedComponents;
+  private final String templateUuid;
+  private List<String> componentKeys;
 
-  private ApplyPermissionTemplateQuery(@Nullable String templateKey) {
-    this.templateKey = templateKey;
+  private ApplyPermissionTemplateQuery(String templateUuid, List<String> componentKeys) {
+    this.templateUuid = templateUuid;
+    this.componentKeys = componentKeys;
+    validate();
   }
 
-  public static ApplyPermissionTemplateQuery buildFromParams(Map<String, Object> params) {
-    ApplyPermissionTemplateQuery query = new ApplyPermissionTemplateQuery((String)params.get(TEMPLATE_KEY));
-    query.setSelectedComponents(RubyUtils.toStrings(params.get(COMPONENTS_KEY)));
-    return query;
+  public static ApplyPermissionTemplateQuery createFromMap(Map<String, Object> params) {
+    String templateUuid = (String) params.get(TEMPLATE_KEY);
+    List<String> componentKeys = RubyUtils.toStrings(params.get(COMPONENTS_KEY));
+    return new ApplyPermissionTemplateQuery(templateUuid, componentKeys);
   }
 
-  public String getTemplateKey() {
-    return templateKey;
+  public static ApplyPermissionTemplateQuery create(String templateUuid, List<String> componentKeys) {
+    return new ApplyPermissionTemplateQuery(templateUuid, componentKeys);
   }
 
-  public List<String> getSelectedComponents() {
-    return selectedComponents;
+  public String getTemplateUuid() {
+    return templateUuid;
   }
 
-  public void validate() {
-    if(StringUtils.isBlank(templateKey)) {
+  public List<String> getComponentKeys() {
+    return componentKeys;
+  }
+
+  private void validate() {
+    if (templateUuid == null || WHITESPACE.trimFrom(templateUuid).isEmpty()) {
       throw new BadRequestException("Permission template is mandatory");
     }
-    if(selectedComponents == null || selectedComponents.isEmpty()) {
-      throw new BadRequestException("Please provide at least one entry to which the permission template should be applied");
+    if (componentKeys == null || componentKeys.isEmpty()) {
+      throw new BadRequestException("No project provided. Please provide at least one project.");
     }
-  }
-
-  private void setSelectedComponents(List<String> selectedComponents) {
-    this.selectedComponents = selectedComponents;
   }
 }

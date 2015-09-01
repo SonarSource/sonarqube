@@ -27,9 +27,9 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 
-import static com.google.common.base.CharMatcher.WHITESPACE;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
@@ -59,8 +59,7 @@ public class PermissionRequestValidator {
   }
 
   public static void validateTemplateNameFormat(String name) {
-    String nameWithoutWhitespaces = WHITESPACE.trimFrom(name);
-    checkRequest(!nameWithoutWhitespaces.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
+    checkRequest(!isBlank(name), MSG_TEMPLATE_NAME_NOT_BLANK);
   }
 
   public static void validateProjectPattern(@Nullable String projectPattern) {

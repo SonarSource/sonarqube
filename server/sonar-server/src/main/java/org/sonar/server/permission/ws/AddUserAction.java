@@ -30,8 +30,7 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 
 import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createProjectKeyParameter;
-import static org.sonar.server.permission.ws.Parameters.createProjectUuidParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
 import static org.sonar.server.permission.ws.Parameters.createUserLoginParameter;
 
 public class AddUserAction implements PermissionsWsAction {
@@ -60,8 +59,7 @@ public class AddUserAction implements PermissionsWsAction {
 
     createPermissionParameter(action);
     createUserLoginParameter(action);
-    createProjectUuidParameter(action);
-    createProjectKeyParameter(action);
+    createProjectParameter(action);
   }
 
   @Override

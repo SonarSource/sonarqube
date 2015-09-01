@@ -24,29 +24,31 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
 
+import static java.lang.String.format;
+
 class Parameters {
 
   static final String PARAM_PERMISSION = "permission";
   static final String PARAM_GROUP_NAME = "groupName";
   static final String PARAM_GROUP_ID = "groupId";
-  static final String PARAM_PROJECT_UUID = "projectId";
+  static final String PARAM_PROJECT_ID = "projectId";
   static final String PARAM_PROJECT_KEY = "projectKey";
   static final String PARAM_USER_LOGIN = "login";
-  static final String PARAM_LONG_TEMPLATE_ID = "templateId";
+  static final String PARAM_TEMPLATE_ID_EXPLICIT = "templateId";
 
   static final String PARAM_TEMPLATE_ID = "id";
   static final String PARAM_TEMPLATE_NAME = "name";
   static final String PARAM_TEMPLATE_DESCRIPTION = "description";
   static final String PARAM_TEMPLATE_PATTERN = "projectKeyPattern";
 
-  private static final String PERMISSION_PARAM_DESCRIPTION = String.format("Permission" +
+  private static final String PERMISSION_PARAM_DESCRIPTION = format("Permission" +
     "<ul>" +
     "<li>Possible values for global permissions: %s</li>" +
     "<li>Possible values for project permissions %s</li>" +
     "</ul>",
     GlobalPermissions.ALL_ON_ONE_LINE,
     ProjectPermissions.ALL_ON_ONE_LINE);
-  private static final String PROJECT_PERMISSION_PARAM_DESCRIPTION = String.format("Permission" +
+  private static final String PROJECT_PERMISSION_PARAM_DESCRIPTION = format("Permission" +
     "<ul>" +
     "<li>Possible values for project permissions %s</li>" +
     "</ul>",
@@ -80,13 +82,18 @@ class Parameters {
       .setExampleValue("42");
   }
 
-  static void createProjectUuidParameter(NewAction action) {
-    action.createParam(PARAM_PROJECT_UUID)
+  static void createProjectParameter(NewAction action) {
+    createProjectIdParameter(action);
+    createProjectKeyParameter(action);
+  }
+
+  private static void createProjectIdParameter(NewAction action) {
+    action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project id")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
   }
 
-  static void createProjectKeyParameter(NewAction action) {
+  private static void createProjectKeyParameter(NewAction action) {
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("Project key")
       .setExampleValue("org.apache.hbas:hbase");
@@ -99,11 +106,11 @@ class Parameters {
       .setExampleValue("g.hopper");
   }
 
-  static void createTemplateKeyParameterToAddRemoveUserOrGroup(NewAction action) {
-    action.createParam(PARAM_LONG_TEMPLATE_ID)
+  static void createExplicitTemplateId(NewAction action) {
+    action.createParam(PARAM_TEMPLATE_ID_EXPLICIT)
       .setRequired(true)
-      .setDescription("Template key")
-      .setExampleValue("developer_template_20150820_170218");
+      .setDescription("Template id")
+      .setExampleValue("617f3501-3d32-41bd-a7ac-18315d2e3c7a");
   }
 
   static void createTemplateProjectKeyPatternParameter(NewAction action) {

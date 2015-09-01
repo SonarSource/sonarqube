@@ -41,6 +41,9 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
+
 /**
  * Used by ruby code <pre>Internal.permissions</pre>
  */
@@ -160,40 +163,34 @@ public class PermissionService {
     indexProjectPermissions();
   }
 
+  /**
+   * @deprecated since 5.2 – to be deleted once Permission Template page does not rely on Ruby
+   */
+  @Deprecated
   public void applyPermissionTemplate(Map<String, Object> params) {
-    userSession.checkLoggedIn();
-    ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
+    ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.createFromMap(params);
     applyPermissionTemplate(query);
   }
 
-  void applyPermissionTemplate(ApplyPermissionTemplateQuery query) {
-    query.validate();
-
-    boolean projectsChanged = false;
-    DbSession session = dbClient.openSession(false);
+  public void applyPermissionTemplate(ApplyPermissionTemplateQuery query) {
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      // If only one project is selected, check user has admin permission on it, otherwise we are in the case of a bulk change and only
-      // system
-      // admin has permission to do it
-      if (query.getSelectedComponents().size() == 1) {
-        checkProjectAdminPermission(query.getSelectedComponents().get(0));
+      if (query.getComponentKeys().size() == 1) {
+        checkProjectAdminUserByComponentKey(userSession, query.getComponentKeys().get(0));
       } else {
-        checkProjectAdminPermission(null);
-        userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+        checkGlobalAdminUser(userSession);
       }
 
-      for (String componentKey : query.getSelectedComponents()) {
-        ComponentDto component = componentFinder.getByKey(session, componentKey);
-        permissionRepository.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
-        projectsChanged = true;
+      for (String componentKey : query.getComponentKeys()) {
+        ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
+        permissionRepository.applyPermissionTemplate(dbSession, query.getTemplateUuid(), component.getId());
       }
-      session.commit();
+      dbSession.commit();
     } finally {
-      session.close();
+      dbClient.closeSession(dbSession);
     }
-    if (projectsChanged) {
-      indexProjectPermissions();
-    }
+
+    indexProjectPermissions();
   }
 
   private void applyChange(Operation operation, PermissionChange change, DbSession session) {
