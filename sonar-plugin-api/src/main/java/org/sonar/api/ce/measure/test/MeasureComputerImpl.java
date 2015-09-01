@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.test.ce.measure;
+package org.sonar.api.ce.measure.test;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
@@ -103,7 +103,8 @@ public class MeasureComputerImpl implements MeasureComputer {
     }
 
     private static String[] validateOutputMetricKeys(@Nullable String[] outputMetrics) {
-      checkArgument(outputMetrics != null && outputMetrics.length > 0, "At least one output metric must be defined");
+      requireNonNull(outputMetrics, "Output metrics cannot be null");
+      checkArgument(outputMetrics.length > 0, "At least one output metric must be defined");
       checkNotNull(outputMetrics);
       return outputMetrics;
     }
