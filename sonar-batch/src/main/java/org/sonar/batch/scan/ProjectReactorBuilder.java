@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import org.sonar.batch.analysis.AnalysisProperties;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -30,14 +32,12 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -118,59 +118,46 @@ public class ProjectReactorBuilder {
 
   public ProjectReactor execute() {
     Profiler profiler = Profiler.create(LOG).startInfo("Process project properties");
-    Map<String, Map<String, String>> propertiesByModuleId = extractPropertiesByModule("", taskProps.properties());
+    Map<String, Map<String, String>> propertiesByModuleId = new HashMap<>();
+    extractPropertiesByModule(propertiesByModuleId, "", taskProps.properties());
     ProjectDefinition rootProject = defineRootProject(propertiesByModuleId.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleId);
     cleanAndCheckProjectDefinitions(rootProject);
     // Since task properties are now empty we should add root module properties
-    for (Map.Entry<String, String> entry : propertiesByModuleId.get("").entrySet()) {
-      taskProps.properties().put((String) entry.getKey(), (String) entry.getValue());
-    }
+    taskProps.properties().putAll(propertiesByModuleId.get(""));
     profiler.stopDebug();
     return new ProjectReactor(rootProject);
   }
 
-  private static Map<String, Map<String, String>> extractPropertiesByModule(String currentModuleId, Map<String, String> parentProperties) {
-    Map<String, String> allProperties = new HashMap<>();
-    allProperties.putAll(parentProperties);
+  private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleId, String currentModuleId, Map<String, String> parentProperties) {
+    if (propertiesByModuleId.containsKey(currentModuleId)) {
+      throw new IllegalStateException(String.format("Two modules have the same id: %s. Each module must have a unique id.", currentModuleId));
+    }
+
     Map<String, String> currentModuleProperties = new HashMap<>();
-    String prefix = !currentModuleId.isEmpty() ? currentModuleId + "." : "";
+    String prefix = !currentModuleId.isEmpty() ? (currentModuleId + ".") : "";
+    int prefixLength = prefix.length();
+
     // By default all properties starting with module prefix belong to current module
-    for (Map.Entry<String, String> entry : allProperties.entrySet()) {
-      String key = entry.getKey();
-      int prefixLength = prefix.length();
+    Iterator<Entry<String, String>> it = parentProperties.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry<String, String> e = it.next();
+      String key = e.getKey();
       if (key.startsWith(prefix)) {
-        currentModuleProperties.put(key.substring(prefixLength), entry.getValue());
-        parentProperties.remove(key);
+        currentModuleProperties.put(key.substring(prefixLength), e.getValue());
+        it.remove();
       }
     }
-    List<String> moduleIds = new ArrayList<>(Arrays.asList(getListFromProperty(currentModuleProperties, PROPERTY_MODULES)));
+    String[] moduleIds = getListFromProperty(currentModuleProperties, PROPERTY_MODULES);
     // Sort module by reverse lexicographic order to avoid issue when one module id is a prefix of another one
-    Collections.sort(moduleIds);
-    Collections.reverse(moduleIds);
+    Arrays.sort(moduleIds);
+    ArrayUtils.reverse(moduleIds);
 
-    Map<String, Map<String, String>> result = new HashMap<>();
-    result.put(currentModuleId, currentModuleProperties);
+    propertiesByModuleId.put(currentModuleId, currentModuleProperties);
 
     for (String moduleId : moduleIds) {
-      Map<String, Map<String, String>> subModuleProps = extractPropertiesByModule(moduleId, currentModuleProperties);
-      checkRepeatedModuleNames(result.keySet(), subModuleProps.keySet());
-      result.putAll(subModuleProps);
-    }
-    return result;
-  }
-
-  private static void checkRepeatedModuleNames(Collection<String> currentModules, Collection<String> modulesToMerge) {
-    Set<String> union = new HashSet<>();
-    union.addAll(currentModules);
-    union.retainAll(modulesToMerge);
-    if (!union.isEmpty()) {
-      if (union.size() > 1) {
-        throw new IllegalStateException(String.format("Modules have the following repeated names: %s. Each module must have a unique name.", union));
-      } else {
-        throw new IllegalStateException(String.format("Two modules have the same name: %s. Each module must have a unique name.", union.iterator().next()));
-      }
+      extractPropertiesByModule(propertiesByModuleId, moduleId, currentModuleProperties);
     }
   }
 

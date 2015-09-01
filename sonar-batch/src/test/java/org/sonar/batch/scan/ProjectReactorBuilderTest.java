@@ -79,11 +79,11 @@ public class ProjectReactorBuilderTest {
   }
   
   @Test
-  public void modulesRepeatedNames() {
+  public void modulesRepeatedIds() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Two modules have the same name: module1");
+    thrown.expectMessage("Two modules have the same id: module1");
     
-    loadProjectDefinition("multi-module-repeated-names");
+    loadProjectDefinition("multi-module-repeated-id");
   }
 
   @Test
