@@ -20,8 +20,6 @@
 package org.sonar.batch.cache;
 
 import org.sonar.batch.analysis.AnalysisProperties;
-
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.slf4j.Logger;
@@ -52,14 +50,14 @@ import org.sonar.batch.repository.ProjectRepositoriesLoader;
 public class ProjectCacheSynchronizer {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectCacheSynchronizer.class);
   private static final int NUM_THREAD = 2;
-  
-  private ProjectDefinition project;
-  private AnalysisProperties properties;
-  private ProjectRepositoriesLoader projectRepositoryLoader;
-  private ServerIssuesLoader issuesLoader;
-  private ServerLineHashesLoader lineHashesLoader;
-  private UserRepositoryLoader userRepository;
-  private ProjectCacheStatus cacheStatus;
+
+  private final ProjectDefinition project;
+  private final AnalysisProperties properties;
+  private final ProjectRepositoriesLoader projectRepositoryLoader;
+  private final ServerIssuesLoader issuesLoader;
+  private final ServerLineHashesLoader lineHashesLoader;
+  private final UserRepositoryLoader userRepository;
+  private final ProjectCacheStatus cacheStatus;
 
   public ProjectCacheSynchronizer(ProjectReactor project, ProjectRepositoriesLoader projectRepositoryLoader, AnalysisProperties properties,
     ServerIssuesLoader issuesLoader, ServerLineHashesLoader lineHashesLoader, UserRepositoryLoader userRepository, ProjectCacheStatus cacheStatus) {
@@ -102,10 +100,10 @@ public class ProjectCacheSynchronizer {
 
   private void loadData() {
     Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
+
     profiler.startInfo("Load project repository");
-    MutableBoolean fromCache = new MutableBoolean();
-    ProjectRepositories projectRepo = projectRepositoryLoader.load(project, properties, fromCache);
-    profiler.stopInfo(fromCache.booleanValue());
+    ProjectRepositories projectRepo = projectRepositoryLoader.load(project, properties, null);
+    profiler.stopInfo();
 
     if (projectRepo.lastAnalysisDate() == null) {
       LOG.debug("No previous analysis found");
@@ -114,14 +112,14 @@ public class ProjectCacheSynchronizer {
 
     profiler.startInfo("Load server issues");
     UserLoginAccumulator consumer = new UserLoginAccumulator();
-    boolean isFromCache = issuesLoader.load(project.getKeyWithBranch(), consumer);
-    profiler.stopInfo(isFromCache);
+    issuesLoader.load(project.getKeyWithBranch(), consumer);
+    profiler.stopInfo();
 
     profiler.startInfo("Load user information (" + consumer.loginSet.size() + " users)");
     for (String login : consumer.loginSet) {
       userRepository.load(login, null);
     }
-    stopInfo(profiler, "Load user information", isFromCache);
+    profiler.stopInfo("Load user information");
 
     loadLineHashes(projectRepo.fileDataByModuleAndPath(), profiler);
   }
@@ -183,14 +181,6 @@ public class ProjectCacheSynchronizer {
         loginSet.add(input.getAssigneeLogin());
       }
       return null;
-    }
-  }
-
-  private static void stopInfo(Profiler profiler, String msg, boolean fromCache) {
-    if (fromCache) {
-      profiler.stopInfo(msg + " (done from cache)");
-    } else {
-      profiler.stopInfo(msg + " (done)");
     }
   }
 }
