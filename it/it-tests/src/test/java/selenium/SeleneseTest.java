@@ -270,7 +270,8 @@ public class SeleneseTest {
     }
 
     if (pattern.startsWith("regexp:")) {
-      find(selector).should().match(Pattern.compile(pattern.substring(7)));
+      String expectedRegEx = pattern.replaceFirst("regexp:", ".*") + ".*";
+      find(selector).should().match(Pattern.compile(expectedRegEx, Pattern.DOTALL));
       return;
     }
 
@@ -287,7 +288,8 @@ public class SeleneseTest {
     }
 
     if (pattern.startsWith("regexp:")) {
-      find(selector).should().not().match(Pattern.compile(pattern.substring(7)));
+      String expectedRegEx = pattern.replaceFirst("regexp:", ".*") + ".*";
+      find(selector).should().not().match(Pattern.compile(expectedRegEx, Pattern.DOTALL));
       return;
     }
 
