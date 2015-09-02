@@ -30,8 +30,8 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
-import static org.sonar.server.permission.ws.Parameters.createTemplateIdParameter;
+import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
+import static org.sonar.server.permission.ws.Parameters.createIdParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class DeleteTemplateAction implements PermissionsWsAction {
@@ -56,14 +56,14 @@ public class DeleteTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    createTemplateIdParameter(action);
+    createIdParameter(action);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String uuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
+    String uuid = wsRequest.mandatoryParam(PARAM_ID);
     checkTemplateUuidIsNotDefault(uuid);
 
     deleteTemplate(uuid);

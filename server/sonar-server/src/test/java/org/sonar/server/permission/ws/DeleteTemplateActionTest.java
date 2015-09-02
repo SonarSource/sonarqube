@@ -52,7 +52,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.util.collections.Sets.newSet;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
 
 public class DeleteTemplateActionTest {
 
@@ -155,7 +155,7 @@ public class DeleteTemplateActionTest {
   private TestResponse newRequest(@Nullable String id) {
     TestRequest request = ws.newRequest();
     if (id != null) {
-      request.setParam(PARAM_TEMPLATE_ID, id);
+      request.setParam(PARAM_ID, id);
     }
 
     TestResponse result = executeRequest(request);

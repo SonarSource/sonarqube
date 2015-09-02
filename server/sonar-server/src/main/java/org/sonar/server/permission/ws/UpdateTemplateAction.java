@@ -37,11 +37,11 @@ import static com.google.common.base.Objects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
 import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateIdParameter;
+import static org.sonar.server.permission.ws.Parameters.createIdParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
@@ -73,7 +73,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    createTemplateIdParameter(action);
+    createIdParameter(action);
 
     action.createParam(PARAM_TEMPLATE_NAME)
       .setDescription("Name")
@@ -87,7 +87,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String key = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
+    String key = wsRequest.mandatoryParam(PARAM_ID);
     String nameParam = wsRequest.param(PARAM_TEMPLATE_NAME);
     String descriptionParam = wsRequest.param(PARAM_TEMPLATE_DESCRIPTION);
     String projectPatternParam = wsRequest.param(PARAM_TEMPLATE_PATTERN);

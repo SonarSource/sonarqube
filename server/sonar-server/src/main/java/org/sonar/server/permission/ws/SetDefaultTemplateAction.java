@@ -39,8 +39,8 @@ import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEM
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.Parameters.PARAM_QUALIFIER;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID_EXPLICIT;
-import static org.sonar.server.permission.ws.Parameters.createExplicitTemplateId;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.createTemplateIdParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.ResourceTypeToQualifier.RESOURCE_TYPE_TO_QUALIFIER;
 
@@ -71,7 +71,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
       .setSince("5.2")
       .setHandler(this);
 
-    createExplicitTemplateId(action);
+    createTemplateIdParameter(action);
 
     action.createParam(PARAM_QUALIFIER)
       .setDescription("Project qualifier. Possible values are:")
@@ -83,7 +83,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID_EXPLICIT);
+    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
     String qualifier = wsRequest.mandatoryParam(PARAM_QUALIFIER);
 
     checkTemplateExists(templateUuid);

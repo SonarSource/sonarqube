@@ -57,7 +57,7 @@ import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID_EXPLICIT;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 
 @Category(DbTests.class)
 public class RemoveGroupFromTemplateActionTest {
@@ -108,7 +108,7 @@ public class RemoveGroupFromTemplateActionTest {
     commit();
 
     ws.newRequest()
-      .setParam(PARAM_TEMPLATE_ID_EXPLICIT, permissionTemplate.getKee())
+      .setParam(PARAM_TEMPLATE_ID, permissionTemplate.getKee())
       .setParam(PARAM_PERMISSION, PERMISSION)
       .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
       .execute();
@@ -200,7 +200,7 @@ public class RemoveGroupFromTemplateActionTest {
       request.setParam(Parameters.PARAM_GROUP_NAME, groupName);
     }
     if (templateKey != null) {
-      request.setParam(PARAM_TEMPLATE_ID_EXPLICIT, templateKey);
+      request.setParam(PARAM_TEMPLATE_ID, templateKey);
     }
     if (permission != null) {
       request.setParam(Parameters.PARAM_PERMISSION, permission);

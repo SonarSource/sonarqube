@@ -70,7 +70,7 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID_EXPLICIT;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 
 @Category(DbTests.class)
 public class ApplyTemplateActionTest {
@@ -221,7 +221,7 @@ public class ApplyTemplateActionTest {
   private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
     TestRequest request = ws.newRequest();
     if (templateUuid != null) {
-      request.setParam(PARAM_TEMPLATE_ID_EXPLICIT, templateUuid);
+      request.setParam(PARAM_TEMPLATE_ID, templateUuid);
     }
     if (projectUuid != null) {
       request.setParam(PARAM_PROJECT_ID, projectUuid);

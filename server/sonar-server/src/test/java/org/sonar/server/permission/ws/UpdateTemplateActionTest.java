@@ -48,7 +48,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -220,7 +220,7 @@ public class UpdateTemplateActionTest {
   private TestResponse newRequest(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) {
     TestRequest request = ws.newRequest();
     if (key != null) {
-      request.setParam(PARAM_TEMPLATE_ID, key);
+      request.setParam(PARAM_ID, key);
     }
     if (name != null) {
       request.setParam(PARAM_TEMPLATE_NAME, name);

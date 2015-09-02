@@ -34,9 +34,9 @@ class Parameters {
   static final String PARAM_PROJECT_ID = "projectId";
   static final String PARAM_PROJECT_KEY = "projectKey";
   static final String PARAM_USER_LOGIN = "login";
-  static final String PARAM_TEMPLATE_ID_EXPLICIT = "templateId";
+  static final String PARAM_TEMPLATE_ID = "templateId";
 
-  static final String PARAM_TEMPLATE_ID = "id";
+  static final String PARAM_ID = "id";
   static final String PARAM_TEMPLATE_NAME = "name";
   static final String PARAM_TEMPLATE_DESCRIPTION = "description";
   static final String PARAM_TEMPLATE_PATTERN = "projectKeyPattern";
@@ -108,8 +108,8 @@ class Parameters {
       .setExampleValue("g.hopper");
   }
 
-  static void createExplicitTemplateId(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_ID_EXPLICIT)
+  static void createTemplateIdParameter(NewAction action) {
+    action.createParam(PARAM_TEMPLATE_ID)
       .setRequired(true)
       .setDescription("Template id")
       .setExampleValue("617f3501-3d32-41bd-a7ac-18315d2e3c7a");
@@ -127,10 +127,10 @@ class Parameters {
       .setExampleValue("Permissions for all projects related to the financial service");
   }
 
-  static void createTemplateIdParameter(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_ID)
+  static void createIdParameter(NewAction action) {
+    action.createParam(PARAM_ID)
       .setRequired(true)
-      .setDescription("Key")
+      .setDescription("Id")
       .setExampleValue("af8cb8cc-1e78-4c4e-8c00-ee8e814009a5");
   }
 }
