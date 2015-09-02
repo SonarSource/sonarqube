@@ -25,7 +25,7 @@ import org.jfree.chart.renderer.category.BarRenderer;
 
 public class CustomBarRenderer extends BarRenderer {
 
-  public static final Paint[] COLORS = {
+  protected static final Paint[] COLORS = {
     Color.red, Color.blue, Color.green,
     Color.yellow, Color.orange, Color.cyan,
     Color.magenta, Color.blue};

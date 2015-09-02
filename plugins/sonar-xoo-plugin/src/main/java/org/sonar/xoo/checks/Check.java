@@ -25,7 +25,7 @@ import org.sonar.api.rule.RuleKey;
 
 public interface Check {
 
-  public Class<Check>[] ALL = new Class[] {TemplateRuleCheck.class};
+  Class<Check>[] ALL = new Class[] {TemplateRuleCheck.class};
 
   void execute(SensorContext context, InputFile file, RuleKey ruleKey);
 

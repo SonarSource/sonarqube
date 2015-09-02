@@ -45,15 +45,15 @@ public class StaticResourcesServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     String pluginKey = getPluginKey(request);
     String resource = getResourcePath(request);
-
-    PluginRepository pluginRepository = Platform.getInstance().getContainer().getComponentByType(PluginRepository.class);
-    if (!pluginRepository.hasPlugin(pluginKey)) {
-      response.sendError(HttpServletResponse.SC_NOT_FOUND);
-      return;
-    }
     InputStream in = null;
     OutputStream out = null;
     try {
+      PluginRepository pluginRepository = Platform.getInstance().getContainer().getComponentByType(PluginRepository.class);
+      if (!pluginRepository.hasPlugin(pluginKey)) {
+        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        return;
+      }
+
       in = pluginRepository.getPluginInstance(pluginKey).getClass().getClassLoader().getResourceAsStream(resource);
       if (in != null) {
         // mime type must be set before writing response body

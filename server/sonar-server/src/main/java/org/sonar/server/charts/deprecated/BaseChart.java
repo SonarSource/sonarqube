@@ -36,10 +36,8 @@ import org.jfree.ui.RectangleEdge;
 public abstract class BaseChart {
 
   public static final Color BASE_COLOR = new Color(51, 51, 51);
-  public static final Color BASE_COLOR_LIGHT = new Color(204, 204, 204);
-  public static final Color SERIE_BORDER_COLOR = new Color(67, 119, 166);
 
-  public static final Color[] COLORS = {
+  protected static final Color[] COLORS = {
     new Color(5, 141, 199),
     new Color(80, 180, 50),
     new Color(237, 86, 27),
