@@ -36,8 +36,6 @@ public class SeleneseTest {
     this.baseUrl = orchestrator.getServer().getUrl();
     this.driver = Browser.FIREFOX.getDriverForThread();
 
-    driver.manage().deleteAllCookies();
-
     for (File file : suite.getHtmlTests()) {
       System.out.println();
       System.out.println("============ " + file.getName() + " ============");
