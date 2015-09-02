@@ -31,6 +31,7 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.DosFileAttributeView;
 
 public class ProjectLock implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectLock.class);
@@ -50,18 +51,31 @@ public class ProjectLock implements Startable {
     try {
       lockRandomAccessFile = new RandomAccessFile(lockFilePath.toFile(), "rw");
       lockChannel = lockRandomAccessFile.getChannel();
+      hideLockFileWindows(lockFilePath);
       lockFile = lockChannel.tryLock(0, 1024, false);
 
       if (lockFile == null) {
         failAlreadyInProgress(null);
       }
+      
     } catch (OverlappingFileLockException e) {
       failAlreadyInProgress(e);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create project lock in " + lockFilePath.toString(), e);
     }
   }
-  
+
+  private static void hideLockFileWindows(Path p) {
+    try {
+      DosFileAttributeView fileAttrView = Files.getFileAttributeView(p, DosFileAttributeView.class);
+      if (fileAttrView != null) {
+        fileAttrView.setHidden(true);
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to hide file: " + p.toString(), e);
+    }
+  }
+
   private static void failAlreadyInProgress(Exception e) {
     throw new IllegalStateException("Another SonarQube analysis is already in progress for this project", e);
   }
@@ -92,11 +106,11 @@ public class ProjectLock implements Startable {
         LOG.error("Error closing file", e);
       }
     }
-    
+
     try {
       Files.delete(lockFilePath);
     } catch (IOException e) {
-      //ignore, as an error happens if another process just started to acquire the same lock
+      // ignore, as an error happens if another process just started to acquire the same lock
       LOG.debug("Couldn't delete lock file: " + lockFilePath.toString(), e);
     }
   }
