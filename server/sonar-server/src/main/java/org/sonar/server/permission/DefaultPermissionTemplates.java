@@ -24,9 +24,9 @@ import static java.lang.String.format;
 
 public class DefaultPermissionTemplates {
   public static final String DEFAULT_TEMPLATE_PROPERTY = "sonar.permission.template.default";
-  private static final String DEFAULT_ROOT_QUALIFIER_TEMPLATE_PROPERTY = "sonar.permission.template.%s.default";
+  private static final String DEFAULT_ROOT_QUALIFIER_TEMPLATE_PATTERN = "sonar.permission.template.%s.default";
 
   public static String defaultRootQualifierTemplateProperty(String qualifier) {
-    return format(DEFAULT_ROOT_QUALIFIER_TEMPLATE_PROPERTY, qualifier);
+    return format(DEFAULT_ROOT_QUALIFIER_TEMPLATE_PATTERN, qualifier);
   }
 }

@@ -31,7 +31,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
-import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateIdParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class DeleteTemplateAction implements PermissionsWsAction {
@@ -56,7 +56,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    createTemplateKeyParameter(action);
+    createTemplateIdParameter(action);
   }
 
   @Override

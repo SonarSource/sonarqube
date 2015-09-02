@@ -41,6 +41,8 @@ class Parameters {
   static final String PARAM_TEMPLATE_DESCRIPTION = "description";
   static final String PARAM_TEMPLATE_PATTERN = "projectKeyPattern";
 
+  static final String PARAM_QUALIFIER = "qualifier";
+
   private static final String PERMISSION_PARAM_DESCRIPTION = format("Permission" +
     "<ul>" +
     "<li>Possible values for global permissions: %s</li>" +
@@ -125,7 +127,7 @@ class Parameters {
       .setExampleValue("Permissions for all projects related to the financial service");
   }
 
-  static void createTemplateKeyParameter(NewAction action) {
+  static void createTemplateIdParameter(NewAction action) {
     action.createParam(PARAM_TEMPLATE_ID)
       .setRequired(true)
       .setDescription("Key")

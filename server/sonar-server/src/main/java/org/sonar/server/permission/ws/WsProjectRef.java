@@ -36,12 +36,9 @@ class WsProjectRef {
   private final String key;
 
   private WsProjectRef(Request wsRequest) {
-    String uuid = wsRequest.param(PARAM_PROJECT_ID);
-    String key = wsRequest.param(PARAM_PROJECT_KEY);
+    this.uuid = wsRequest.param(PARAM_PROJECT_ID);
+    this.key = wsRequest.param(PARAM_PROJECT_KEY);
     checkRequest(uuid != null ^ key != null, "Project id or project key can be provided, not both.");
-
-    this.uuid = uuid;
-    this.key = key;
   }
 
   static Optional<WsProjectRef> optionalFromRequest(Request wsRequest) {

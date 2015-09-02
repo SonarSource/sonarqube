@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
@@ -32,6 +33,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_QUALIFIER;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -60,6 +62,11 @@ public class PermissionRequestValidator {
 
   public static void validateTemplateNameFormat(String name) {
     checkRequest(!isBlank(name), MSG_TEMPLATE_NAME_NOT_BLANK);
+  }
+
+  public static void validateQualifier(String qualifier, Set<String> rootQualifiers) {
+    checkRequest(rootQualifiers.contains(qualifier),
+      format("The '%s' parameter must be one of %s. '%s' was passed.", PARAM_QUALIFIER, rootQualifiers, qualifier));
   }
 
   public static void validateProjectPattern(@Nullable String projectPattern) {

@@ -68,14 +68,14 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateKey = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID_EXPLICIT);
+    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID_EXPLICIT);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     String userLogin = wsRequest.mandatoryParam(PARAM_USER_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateKey);
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateUuid);
       UserDto user = dependenciesFinder.getUser(dbSession, userLogin);
 
       dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);

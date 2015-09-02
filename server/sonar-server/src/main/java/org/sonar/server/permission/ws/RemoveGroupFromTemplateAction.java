@@ -70,7 +70,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateKey = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID_EXPLICIT);
+    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID_EXPLICIT);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     WsGroupRef group = WsGroupRef.fromRequest(wsRequest);
 
@@ -78,7 +78,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
     try {
       validateProjectPermission(permission);
 
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateKey);
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateUuid);
       GroupDto groupDto = dependenciesFinder.getGroup(dbSession, group);
 
       Long groupId = groupDto == null ? null : groupDto.getId();

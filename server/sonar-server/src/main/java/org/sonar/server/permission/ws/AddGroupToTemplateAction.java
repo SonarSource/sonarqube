@@ -75,7 +75,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateKey = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID_EXPLICIT);
+    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID_EXPLICIT);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     WsGroupRef group = WsGroupRef.fromRequest(wsRequest);
 
@@ -84,7 +84,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       validateProjectPermission(permission);
       validateNotAnyoneAndAdminPermission(permission, group.name());
 
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateKey);
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateUuid);
       GroupDto groupDto = dependenciesFinder.getGroup(dbSession, group);
 
       if (!groupAlreadyAdded(dbSession, template.getId(), groupDto, permission)) {
