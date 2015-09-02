@@ -27,7 +27,6 @@ import com.sonar.orchestrator.selenium.Selenese;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 
@@ -54,7 +53,8 @@ public class I18nTest {
       "/ui/i18n/french-pack.html",
       "/ui/i18n/locale-with-france-country.html",
       "/ui/i18n/locale-with-swiss-country.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    // Use the old runner because it fails with the new Selenium runner
+    orchestrator.executeSelenese(selenese);
   }
 
 }
