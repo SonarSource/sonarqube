@@ -13,7 +13,7 @@
 
   <properties>
     <category1>*</category1>
-    <category2>*</category2>
+    <category2>NONE</category2>
     <surefire.argLine>-Xmx128m -server</surefire.argLine>
     <skipIts>false</skipIts>
   </properties>
