@@ -24,7 +24,6 @@ import com.sonar.orchestrator.selenium.Selenese;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -37,7 +36,9 @@ import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
+import static java.util.regex.Pattern.DOTALL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static selenium.Retry._5_SECONDS;
 
 public class SeleneseTest {
   private final Selenese suite;
@@ -75,7 +76,7 @@ public class SeleneseTest {
     }
   }
 
-  private Document parse(File file) {
+  private static Document parse(File file) {
     try {
       return Jsoup.parse(file, UTF_8.name());
     } catch (IOException e) {
@@ -86,7 +87,7 @@ public class SeleneseTest {
   public SeleneseTest action(String action, String param1, String param2) {
     switch (action) {
       case "open":
-        open(param1, param2);
+        open(param1);
         return this;
       case "type":
         type(param1, param2);
@@ -96,19 +97,19 @@ public class SeleneseTest {
         return this;
       case "clickAndWait":
       case "click":
-        click(param1, param2);
+        click(param1);
         return this;
       case "check":
-        check(param1, param2);
+        check(param1);
         return this;
       case "selectFrame":
-        selectFrame(param1, param2);
+        selectFrame(param1);
         return this;
       case "assertElementPresent":
-        assertElementPresent(param1, param2);
+        assertElementPresent(param1);
         return this;
       case "assertElementNotPresent":
-        assertElementNotPresent(param1, param2);
+        assertElementNotPresent(param1);
         return this;
       case "storeText":
         storeText(param1, param2);
@@ -125,18 +126,18 @@ public class SeleneseTest {
         assertNotText(param1, param2);
         return this;
       case "assertTextPresent":
-        assertTextPresent(param1, param2);
+        assertTextPresent(param1);
       case "assertTextNotPresent":
-        assertTextNotPresent(param1, param2);
+        assertTextNotPresent(param1);
         return this;
       case "assertLocation":
-        assertLocation(param1, param2);
+        assertLocation(param1);
         return this;
       case "waitForElementPresent":
-        waitForElementPresent(param1, param2);
+        waitForElementPresent(param1);
         return this;
       case "waitForVisible":
-        waitForVisible(param1, param2);
+        waitForVisible(param1);
         return this;
       case "assertValue":
       case "waitForValue":
@@ -144,7 +145,7 @@ public class SeleneseTest {
         assertInputValue(param1, param2);
         return this;
       case "assertConfirmation":
-        confirm(param1, param2);
+        confirm(param1);
         return this;
       case "setTimeout":
         // Ignore
@@ -152,6 +153,14 @@ public class SeleneseTest {
     }
 
     throw new IllegalArgumentException("Unsupported action: " + action);
+  }
+
+  private void open(String url) {
+    if (url.startsWith("/sonar/")) {
+      goTo(url.substring(6));
+    } else {
+      goTo(url);
+    }
   }
 
   private void goTo(String url) {
@@ -165,14 +174,6 @@ public class SeleneseTest {
     System.out.println("goTo " + url);
     driver.get(url);
     System.out.println(" - current url " + driver.getCurrentUrl());
-  }
-
-  private void open(String url, String ignored) {
-    if (url.startsWith("/sonar/")) {
-      goTo(url.substring(6));
-    } else {
-      goTo(url);
-    }
   }
 
   private LazyDomElement find(String selector) {
@@ -189,50 +190,39 @@ public class SeleneseTest {
       by = new By.ByXPath(selector.substring(6));
     } else if (selector.startsWith("id=")) {
       by = new By.ById(selector.substring(3));
+    } else if (selector.startsWith("name=")) {
+      by = new By.ByName(selector.substring(5));
+    } else if (selector.startsWith("css=")) {
+      by = new By.ByCssSelector(selector.substring(4));
+    } else if (selector.startsWith("class=")) {
+      by = new By.ByCssSelector("." + selector.substring(6));
     } else {
-      by = new ByCssSelectorOrByNameOrById(cleanUp(selector));
+      by = new ByCssSelectorOrByNameOrById(selector);
     }
 
     return new LazyDomElement(driver, by);
   }
 
-  private void click(String selector, String ignored) {
+  private void click(String selector) {
     find(selector).click();
   }
 
-  private void check(String selector, String ignored) {
+  private void check(String selector) {
     find(selector).check();
   }
 
-  private void selectFrame(final String id, String ignored) {
+  private void selectFrame(final String id) {
     if ("relative=parent".equals(id)) {
-      //driver().switchTo().parentFrame();
-    } else {
-      System.out.println(" - selectFrame(" + id + ")");
+      return;
+    }
 
-      Retry._5_SECONDS.execute(new Runnable() {
-        @Override
-        public void run() {
-          driver.switchTo().frame(id);
-        }
-      });
-    }
-  }
-
-  private String cleanUp(String selector) {
-    if (selector.startsWith("name=")) {
-      return selector.substring(5);
-    }
-    if (selector.startsWith("css=")) {
-      return selector.substring(4);
-    }
-    if (selector.startsWith("id=")) {
-      return "#" + selector.substring(3);
-    }
-    if (selector.startsWith("class=")) {
-      return "." + selector.substring(6);
-    }
-    return selector;
+    System.out.println(" - selectFrame(" + id + ")");
+    _5_SECONDS.execute(new Runnable() {
+      @Override
+      public void run() {
+        driver.switchTo().frame(id);
+      }
+    });
   }
 
   private void type(String selector, String text) {
@@ -247,11 +237,11 @@ public class SeleneseTest {
     }
   }
 
-  private void assertElementPresent(String selector, String ignored) {
+  private void assertElementPresent(String selector) {
     find(selector).should().beDisplayed();
   }
 
-  private void assertElementNotPresent(String selector, String ignored) {
+  private void assertElementNotPresent(String selector) {
     find(selector).should().not().beDisplayed();
   }
 
@@ -260,8 +250,7 @@ public class SeleneseTest {
   }
 
   private void storeEval(String expression, String name) {
-    String value = driver.executeScript("return " + expression).toString();
-    variables.put(name, value);
+    variables.put(name, driver.executeScript("return " + expression).toString());
   }
 
   private class ExtractVariable implements Consumer<WebElement> {
@@ -291,8 +280,7 @@ public class SeleneseTest {
     }
 
     if (pattern.startsWith("regexp:")) {
-      String expectedRegEx = pattern.replaceFirst("regexp:", ".*") + ".*";
-      find(selector).should().match(Pattern.compile(expectedRegEx, Pattern.DOTALL));
+      find(selector).should().match(regex(pattern));
       return;
     }
 
@@ -309,35 +297,39 @@ public class SeleneseTest {
     }
 
     if (pattern.startsWith("regexp:")) {
-      String expectedRegEx = pattern.replaceFirst("regexp:", ".*") + ".*";
-      find(selector).should().not().match(Pattern.compile(expectedRegEx, Pattern.DOTALL));
+      find(selector).should().not().match(regex(pattern));
       return;
     }
 
     find(selector).should().not().match(glob(pattern));
   }
 
-  private Pattern glob(String pattern) {
-    String expectedGlob = pattern.replaceFirst("glob:", "");
-    expectedGlob = expectedGlob.replaceAll("([\\]\\[\\\\{\\}$\\(\\)\\|\\^\\+.])", "\\\\$1");
-    expectedGlob = expectedGlob.replaceAll("\\*", ".*");
-    expectedGlob = expectedGlob.replaceAll("\\?", ".");
-    return Pattern.compile(expectedGlob, Pattern.DOTALL);
+  private static Pattern glob(String pattern) {
+    String regexp = pattern.replaceFirst("glob:", "");
+    regexp = regexp.replaceAll("([\\]\\[\\\\{\\}$\\(\\)\\|\\^\\+.])", "\\\\$1");
+    regexp = regexp.replaceAll("\\*", ".*");
+    regexp = regexp.replaceAll("\\?", ".");
+    return Pattern.compile(regexp, DOTALL);
   }
 
-  private void assertTextPresent(String text, String ignored) {
-    find("html").should().contain(text);
+  private static Pattern regex(String pattern) {
+    String regexp = pattern.replaceFirst("regexp:", ".*") + ".*";
+    return Pattern.compile(regexp, DOTALL);
   }
 
-  private void assertTextNotPresent(String text, String ignored) {
-    find("html").should().not().contain(text);
+  private void assertTextPresent(String text) {
+    find("body").should().contain(text);
   }
 
-  private void waitForElementPresent(String selector, String ignored) {
+  private void assertTextNotPresent(String text) {
+    find("body").should().not().contain(text);
+  }
+
+  private void waitForElementPresent(String selector) {
     find(selector).should().exist();
   }
 
-  private void waitForVisible(String selector, String ignored) {
+  private void waitForVisible(String selector) {
     find(selector).should().beDisplayed();
   }
 
@@ -345,21 +337,18 @@ public class SeleneseTest {
     find(selector).should().contain(text);
   }
 
-  private void confirm(final String message, String ignored) {
+  private void confirm(final String message) {
     System.out.println(" - confirm(" + message + ")");
 
-    Retry._5_SECONDS.execute(new Runnable() {
+    _5_SECONDS.execute(new Runnable() {
       @Override
       public void run() {
-        Alert alert = driver.switchTo().alert();
-        if (alert.getText().contains(message)) {
-          alert.accept();
-        }
+        driver.switchTo().alert().accept();
       }
     });
   }
 
-  private void assertLocation(String urlPattern, String ignored) {
+  private void assertLocation(String urlPattern) {
     assertThat(driver.getCurrentUrl()).matches(glob(urlPattern));
   }
 
