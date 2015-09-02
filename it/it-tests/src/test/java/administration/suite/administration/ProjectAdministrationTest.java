@@ -104,7 +104,7 @@ public class ProjectAdministrationTest {
    * Test updated for SONAR-3570 and SONAR-5923
    */
   @Test
-  public void project_deletion() throws Exception {
+  public void project_deletion() {
     String projectAdminUser = "project-deletion-with-admin-permission-on-project";
     SonarClient adminClient = orchestrator.getServer().adminWsClient();
     try {
@@ -117,10 +117,9 @@ public class ProjectAdministrationTest {
       adminClient.permissionClient().addPermission(
         PermissionParameters.create().user(projectAdminUser).component("sample").permission("admin"));
 
-      // Use the old runner because it fails with the new Selenium runner
-      orchestrator.executeSelenese(
+      new SeleneseTest(
         Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/administration/suite/ProjectAdministrationTest/project-deletion/project-deletion.html").build()
-      );
+      ).runOn(orchestrator);
     } finally {
       adminClient.userClient().deactivate(projectAdminUser);
     }
@@ -128,7 +127,7 @@ public class ProjectAdministrationTest {
 
   // SONAR-4203
   @Test
-  public void delete_version_of_multimodule_project() throws Exception {
+  public void delete_version_of_multimodule_project() {
     GregorianCalendar today = new GregorianCalendar();
     SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
       .setProperty("sonar.dynamicAnalysis", "false")
@@ -162,7 +161,7 @@ public class ProjectAdministrationTest {
 
   // SONAR-3326
   @Test
-  public void display_alerts_correctly_in_history_page() throws Exception {
+  public void display_alerts_correctly_in_history_page() {
     QualityGateClient qgClient = orchestrator.getServer().adminWsClient().qualityGateClient();
     QualityGate qGate = qgClient.create("AlertsForHistory");
     qgClient.setDefault(qGate.id());
@@ -178,8 +177,7 @@ public class ProjectAdministrationTest {
       .setHtmlTestsInClasspath("display-alerts-history-page",
         "/administration/suite/ProjectAdministrationTest/display-alerts-history-page/should-display-alerts-correctly-history-page.html"
       ).build();
-    // Use the old runner because it fails with the new Selenium runner
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
 
     qgClient.unsetDefault();
     qgClient.destroy(qGate.id());
@@ -189,7 +187,7 @@ public class ProjectAdministrationTest {
    * SONAR-1352
    */
   @Test
-  public void display_period_alert_on_project_dashboard() throws Exception {
+  public void display_period_alert_on_project_dashboard() {
     QualityGateClient qgClient = orchestrator.getServer().adminWsClient().qualityGateClient();
     QualityGate qGate = qgClient.create("AlertsForDashboard");
     qgClient.createCondition(NewCondition.create(qGate.id()).metricKey("lines").operator("LT").warningThreshold("0").errorThreshold("10")
@@ -246,8 +244,7 @@ public class ProjectAdministrationTest {
         "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-match.html",
         "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-success.html"
       ).build();
-    // Use the old runner because it fails with the new Selenium runner
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   /**
@@ -263,8 +260,7 @@ public class ProjectAdministrationTest {
         "/administration/suite/ProjectAdministrationTest/project-update-keys/fine-grained-update-impossible.html",
         "/administration/suite/ProjectAdministrationTest/project-update-keys/fine-grained-update-success.html"
       ).build();
-    // Use the old runner because it fails with the new Selenium runner
-    orchestrator.executeSelenese(selenese);
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   /**

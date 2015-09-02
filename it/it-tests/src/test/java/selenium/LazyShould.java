@@ -99,7 +99,7 @@ class LazyShould {
 
   public LazyShould contain(final String text) {
     return verify(
-      doesOrNot("contain(") + text + ")",
+      doesOrNot("contain") + "(" + text + ")",
       new Predicate<List<WebElement>>() {
         @Override
         public boolean apply(List<WebElement> elements) {

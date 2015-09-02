@@ -21,6 +21,7 @@ package selenium;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
+import org.assertj.core.util.Strings;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,7 +39,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static java.util.regex.Pattern.DOTALL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static selenium.Retry._5_SECONDS;
+import static selenium.Retry._30_SECONDS;
 
 public class SeleneseTest {
   private final Selenese suite;
@@ -127,6 +128,7 @@ public class SeleneseTest {
         return this;
       case "assertTextPresent":
         assertTextPresent(param1);
+        return this;
       case "assertTextNotPresent":
         assertTextNotPresent(param1);
         return this;
@@ -134,7 +136,7 @@ public class SeleneseTest {
         assertLocation(param1);
         return this;
       case "waitForElementPresent":
-        waitForElementPresent(param1);
+        waitForElementPresent(param1, param2);
         return this;
       case "waitForVisible":
         waitForVisible(param1);
@@ -148,6 +150,7 @@ public class SeleneseTest {
         confirm(param1);
         return this;
       case "setTimeout":
+      case "pause":
         // Ignore
         return this;
     }
@@ -179,7 +182,7 @@ public class SeleneseTest {
   private LazyDomElement find(String selector) {
     selector = replacePlaceholders(selector);
 
-    if (selector.startsWith("link=")) {
+    if (selector.startsWith("link=") || selector.startsWith("Link=")) {
       return find("a").withText(selector.substring(5));
     }
 
@@ -217,7 +220,7 @@ public class SeleneseTest {
     }
 
     System.out.println(" - selectFrame(" + id + ")");
-    _5_SECONDS.execute(new Runnable() {
+    _30_SECONDS.execute(new Runnable() {
       @Override
       public void run() {
         driver.switchTo().frame(id);
@@ -325,8 +328,12 @@ public class SeleneseTest {
     find("body").should().not().contain(text);
   }
 
-  private void waitForElementPresent(String selector) {
-    find(selector).should().exist();
+  private void waitForElementPresent(String selector, String text) {
+    if (Strings.isNullOrEmpty(text)) {
+      find(selector).should().exist();
+    } else {
+      find(selector).withText(text).should().exist();
+    }
   }
 
   private void waitForVisible(String selector) {
@@ -340,7 +347,7 @@ public class SeleneseTest {
   private void confirm(final String message) {
     System.out.println(" - confirm(" + message + ")");
 
-    _5_SECONDS.execute(new Runnable() {
+    _30_SECONDS.execute(new Runnable() {
       @Override
       public void run() {
         driver.switchTo().alert().accept();

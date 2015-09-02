@@ -71,7 +71,7 @@ class LazyDomElement {
   }
 
   public LazyShould should() {
-    return new LazyShould(this, Retry._5_SECONDS, true);
+    return new LazyShould(this, Retry._30_SECONDS, true);
   }
 
   public void fill(final CharSequence text) {
