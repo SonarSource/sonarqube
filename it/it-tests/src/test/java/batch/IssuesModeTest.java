@@ -50,8 +50,10 @@ public class IssuesModeTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
+    .setSonarVersion("DEV")
     .addPlugin(ItUtils.xooPlugin())
     .setContext("/")
+
     .addPlugin(ItUtils.pluginArtifact("access-secured-props-plugin"))
     .build();
 

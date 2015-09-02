@@ -66,8 +66,13 @@ ITS)
   if [ "$IT_CATEGORY" == "plugins" ] && [ "$TRAVIS_PULL_REQUEST" == "true" ]; then
     echo "Ignore this job since it needs access to private test licenses."
   else
-  	prepareIts
-  	mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -e
+    prepareIts
+
+    CATEGORIES=($(echo "$IT_CATEGORY" | tr '_' '\n'))
+    CATEGORY1=${CATEGORIES[0]:-'NONE'}
+    CATEGORY2=${CATEGORIES[1]:-'NONE'}
+
+    mvn install -Pit,dev -DskipTests -Dcategory1="$CATEGORY1" -Dcategory2="$CATEGORY2" -Dmaven.test.redirectTestOutputToFile=false -e -T2 -Dsource.skip=true
   fi
   ;;
 

@@ -12,7 +12,8 @@
   <name>SonarQube Integration Tests :: Tests</name>
 
   <properties>
-    <category>*</category>
+    <category1>*</category1>
+    <category2>*</category2>
     <surefire.argLine>-Xmx128m -server</surefire.argLine>
     <skipIts>false</skipIts>
   </properties>
@@ -108,9 +109,11 @@
         <configuration>
           <skipTests>${skipIts}</skipTests>
           <includes>
-            <include>${category}/suite/*TestSuite.java</include>
+            <include>${category1}/suite/*TestSuite.java</include>
+            <include>${category2}/suite/*TestSuite.java</include>
             <!-- not included in suites -->
-            <include>${category}/*Test.java</include>
+            <include>${category1}/*Test.java</include>
+            <include>${category2}/*Test.java</include>
           </includes>
           <excludes>
             <!-- included into suites -->

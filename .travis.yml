@@ -9,14 +9,11 @@ env:
   - JOB=POSTGRES
   - JOB=MYSQL
   - JOB=WEB
-  - JOB=ITS IT_CATEGORY=issue
-  - JOB=ITS IT_CATEGORY=analysis
-  - JOB=ITS IT_CATEGORY=administration
   - JOB=ITS IT_CATEGORY=batch
-  - JOB=ITS IT_CATEGORY=server
   - JOB=ITS IT_CATEGORY=plugins
-  - JOB=ITS IT_CATEGORY=qualitygate
-  - JOB=ITS IT_CATEGORY=updatecenter
+  - JOB=ITS IT_CATEGORY=issue_analysis
+  - JOB=ITS IT_CATEGORY=administration_qualitygate
+  - JOB=ITS IT_CATEGORY=server_updatecenter
 
 matrix:
   fast_finish: true

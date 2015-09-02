@@ -30,6 +30,7 @@ public class QualityGateTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
+    .setSonarVersion("DEV")
     .addPlugin(ItUtils.xooPlugin())
 
     // 1 second. Required for notification test.

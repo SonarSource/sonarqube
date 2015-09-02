@@ -37,6 +37,7 @@ public class BatchTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
+    .setSonarVersion("DEV")
     .addPlugin(ItUtils.xooPlugin())
     .setContext("/")
 

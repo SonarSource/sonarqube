@@ -69,6 +69,7 @@ public class HttpsTest {
     try {
       URL jksKeystore = getClass().getResource("/server/HttpsTest/keystore.jks");
       orchestrator = Orchestrator.builderEnv()
+        .setSonarVersion("DEV")
         .setServerProperty("sonar.web.https.port", String.valueOf(httpsPort))
         .setServerProperty("sonar.web.https.keyAlias", "tests")
         .setServerProperty("sonar.web.https.keyPass", "__wrong__")
@@ -88,6 +89,7 @@ public class HttpsTest {
     // start server
     URL jksKeystore = getClass().getResource("/server/HttpsTest/keystore.jks");
     orchestrator = Orchestrator.builderEnv()
+      .setSonarVersion("DEV")
       .setServerProperty("sonar.web.https.port", String.valueOf(httpsPort))
       .setServerProperty("sonar.web.https.keyAlias", "tests")
       .setServerProperty("sonar.web.https.keyPass", "thetests")

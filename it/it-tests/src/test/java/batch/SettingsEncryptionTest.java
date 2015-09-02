@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SettingsEncryptionTest {
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
+    .setSonarVersion("DEV")
     .addPlugin(ItUtils.pluginArtifact("settings-encryption-plugin"))
     .addPlugin(ItUtils.xooPlugin())
     .build();
