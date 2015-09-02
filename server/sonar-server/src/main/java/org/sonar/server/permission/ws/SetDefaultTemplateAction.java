@@ -74,7 +74,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     createTemplateIdParameter(action);
 
     action.createParam(PARAM_QUALIFIER)
-      .setDescription("Project qualifier. Possible values are:")
+      .setDescription("Project qualifier. Possible values are:" + buildRootQualifiersDescription())
       .setDefaultValue(Qualifiers.PROJECT)
       .setPossibleValues(getRootQualifiers());
   }
