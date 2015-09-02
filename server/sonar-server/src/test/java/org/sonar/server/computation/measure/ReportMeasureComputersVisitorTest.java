@@ -50,7 +50,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class MeasureComputersVisitorTest {
+public class ReportMeasureComputersVisitorTest {
 
   private static final String NEW_METRIC_KEY = "new_metric_key";
   private static final String NEW_METRIC_NAME = "new metric name";
@@ -95,16 +95,16 @@ public class MeasureComputersVisitorTest {
 
   @Test
   public void compute_plugin_measure() throws Exception {
-    measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(10));
-    measureRepository.addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(2));
-    measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(40));
-    measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(5));
-    measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(50));
-    measureRepository.addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
-    measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(50));
-    measureRepository.addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
-    measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(50));
-    measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
+    addRawMeasure(FILE_1_REF, NCLOC_KEY, 10);
+    addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 2);
+    addRawMeasure(FILE_2_REF, NCLOC_KEY, 40);
+    addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 5);
+    addRawMeasure(DIRECTORY_REF, NCLOC_KEY, 50);
+    addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 7);
+    addRawMeasure(MODULE_REF, NCLOC_KEY, 50);
+    addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, 7);
+    addRawMeasure(ROOT_REF, NCLOC_KEY, 50);
+    addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 7);
 
     final MeasureComputer.MeasureComputerDefinition definition = new MeasureComputerDefinitionImpl.BuilderImpl()
       .setInputMetrics(NCLOC_KEY, COMMENT_LINES_KEY)
@@ -134,36 +134,48 @@ public class MeasureComputersVisitorTest {
       measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(ROOT);
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(12)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(45)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(57)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(57)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(57)));
+    assertAddedRawMeasure(12, FILE_1_REF, NEW_METRIC_KEY);
+    assertAddedRawMeasure(45, FILE_2_REF, NEW_METRIC_KEY);
+    assertAddedRawMeasure(57, DIRECTORY_REF, NEW_METRIC_KEY);
+    assertAddedRawMeasure(57, MODULE_REF, NEW_METRIC_KEY);
+    assertAddedRawMeasure(57, ROOT_REF, NEW_METRIC_KEY);
   }
 
   @Test
   public void nothing_to_compute() throws Exception {
-    measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(10));
-    measureRepository.addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(2));
-    measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(40));
-    measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(5));
-    measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(50));
-    measureRepository.addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
-    measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(50));
-    measureRepository.addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
-    measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(50));
-    measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
+    addRawMeasure(FILE_1_REF, NCLOC_KEY, 10);
+    addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, 2);
+    addRawMeasure(FILE_2_REF, NCLOC_KEY, 40);
+    addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, 5);
+    addRawMeasure(DIRECTORY_REF, NCLOC_KEY, 50);
+    addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, 7);
+    addRawMeasure(MODULE_REF, NCLOC_KEY, 50);
+    addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, 7);
+    addRawMeasure(ROOT_REF, NCLOC_KEY, 50);
+    addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, 7);
 
     measureComputersHolder.setMeasureComputers(Collections.<MeasureComputerWrapper>emptyList());
     VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null,
       measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(ROOT);
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).isEmpty();
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).isEmpty();
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).isEmpty();
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).isEmpty();
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).isEmpty();
+    assertNoAddedRawMeasure(FILE_1_REF);
+    assertNoAddedRawMeasure(FILE_2_REF);
+    assertNoAddedRawMeasure(DIRECTORY_REF);
+    assertNoAddedRawMeasure(MODULE_REF);
+    assertNoAddedRawMeasure(ROOT_REF);
+  }
+
+  private void addRawMeasure(int componentRef, String metricKey, int value) {
+    measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
+  }
+
+  private void assertNoAddedRawMeasure(int componentRef) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).isEmpty();
+  }
+
+  private void assertAddedRawMeasure(int value, int componentRef, String metricKey) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(value)));
   }
 
 }

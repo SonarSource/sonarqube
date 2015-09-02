@@ -31,6 +31,8 @@ import org.sonar.server.computation.measure.api.MeasureComputerContextImpl;
 import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 import org.sonar.server.computation.metric.MetricRepository;
 
+import static org.sonar.server.computation.component.Component.Type.FILE;
+import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
@@ -46,7 +48,7 @@ public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
 
   public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SettingsRepository settings,
     MeasureComputersHolder measureComputersHolder, ComponentIssuesRepository componentIssuesRepository) {
-    super(CrawlerDepthLimit.FILE, POST_ORDER);
+    super(CrawlerDepthLimit.reportMaxDepth(FILE).withViewsMaxDepth(SUBVIEW), POST_ORDER);
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.settings = settings;

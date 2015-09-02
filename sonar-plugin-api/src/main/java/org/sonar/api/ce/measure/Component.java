@@ -30,7 +30,7 @@ import javax.annotation.CheckForNull;
 public interface Component {
 
   enum Type {
-    PROJECT, MODULE, DIRECTORY, FILE
+    PROJECT, MODULE, DIRECTORY, FILE, VIEW, SUBVIEW
   }
 
   Type getType();
