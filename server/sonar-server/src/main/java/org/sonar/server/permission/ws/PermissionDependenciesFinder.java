@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
-import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -57,9 +56,7 @@ public class PermissionDependenciesFinder {
     return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, wsProjectRef.uuid(), wsProjectRef.key()));
   }
 
-  public ComponentDto getProject(DbSession dbSession, Request wsRequest) {
-    WsProjectRef projectRef = WsProjectRef.fromRequest(wsRequest);
-
+  public ComponentDto getProject(DbSession dbSession, WsProjectRef projectRef) {
     return componentFinder.getProjectByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
   }
 

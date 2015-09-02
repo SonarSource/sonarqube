@@ -32,8 +32,8 @@ import org.sonar.server.permission.PermissionService;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID_EXPLICIT;
-import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
 import static org.sonar.server.permission.ws.Parameters.createExplicitTemplateId;
+import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
 
 public class ApplyTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -67,7 +67,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionTemplateDto template = finder.getTemplate(dbSession, templateUuid);
-      ComponentDto project = finder.getProject(dbSession, wsRequest);
+      ComponentDto project = finder.getProject(dbSession, WsProjectRef.fromRequest(wsRequest));
 
       ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.create(
         template.getUuid(),
