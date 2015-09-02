@@ -87,11 +87,6 @@ public abstract class PathAwareVisitorAdapter<T> implements PathAwareVisitor<T> 
   }
 
   @Override
-  public void visitUnknown(Component unknownComponent, Path<T> path) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
   public void visitAny(Component component, Path<T> path) {
     // empty implementation, meant to be override at will by subclasses
   }
@@ -139,10 +134,6 @@ public abstract class PathAwareVisitorAdapter<T> implements PathAwareVisitor<T> 
       return createForAny(projectView);
     }
 
-    @Override
-    public T createForUnknown(Component file) {
-      return createForAny(file);
-    }
   }
 
 }

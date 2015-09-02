@@ -67,11 +67,6 @@ public interface PathAwareVisitor<T> extends ComponentVisitor {
   void visitProjectView(Component projectView, Path<T> path);
 
   /**
-   * Called when encountering a Component which type has no visit method in this interface.
-   */
-  void visitUnknown(Component unknownComponent, Path<T> path);
-
-  /**
    * Called for any component, <strong>in addition</strong> to the methods specific to each type
    */
   void visitAny(Component component, Path<T> path);
@@ -91,7 +86,6 @@ public interface PathAwareVisitor<T> extends ComponentVisitor {
 
     T createForProjectView(Component projectView);
 
-    T createForUnknown(Component file);
   }
 
   interface Path<T> {

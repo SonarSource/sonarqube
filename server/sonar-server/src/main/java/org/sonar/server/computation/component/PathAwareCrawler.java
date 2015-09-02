@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.component;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
@@ -97,7 +98,7 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
         this.visitor.visitProjectView(component, stack);
         break;
       default:
-        this.visitor.visitUnknown(component, stack);
+        throw new IllegalArgumentException(format("Unsupported component type %s, no visitor method to call", component.getType()));
     }
   }
 
@@ -118,7 +119,7 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
       case PROJECT_VIEW:
         return this.visitor.getFactory().createForProjectView(component);
       default:
-        return this.visitor.getFactory().createForUnknown(component);
+        throw new IllegalArgumentException(format("Unsupported component type %s, can not create stack object", component.getType()));
     }
   }
 

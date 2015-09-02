@@ -76,16 +76,6 @@ class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
   }
 
   @Override
-  public void visitUnknown(Component unknownComponent, Path<Integer> path) {
-    if (unknownComponent.getType().isViewsType()) {
-      callsRecords.add(viewsCallRecord(unknownComponent, path, "visitUnknown"));
-    } else if (unknownComponent.getType().isReportType()) {
-      callsRecords.add(reportCallRecord(unknownComponent, path, "visitUnknown"));
-    }
-    throw new UnsupportedOperationException("Can not record call to visitUnknown");
-  }
-
-  @Override
   public void visitAny(Component component, Path<Integer> path) {
     callsRecords.add(component.getType().isReportType() ? reportCallRecord(component, path, "visitAny") : viewsCallRecord(component, path, "visitAny"));
   }

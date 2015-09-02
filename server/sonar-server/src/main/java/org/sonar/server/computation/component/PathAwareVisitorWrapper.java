@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation.component;
 
+import static java.lang.String.format;
+
 public class PathAwareVisitorWrapper<T> implements VisitorWrapper {
 
   private final PathAwareVisitor<T> delegate;
@@ -100,8 +102,14 @@ public class PathAwareVisitorWrapper<T> implements VisitorWrapper {
         return delegate.getFactory().createForDirectory(component);
       case FILE:
         return delegate.getFactory().createForFile(component);
+      case VIEW:
+        return delegate.getFactory().createForView(component);
+      case SUBVIEW:
+        return delegate.getFactory().createForSubView(component);
+      case PROJECT_VIEW:
+        return delegate.getFactory().createForProjectView(component);
       default:
-        return delegate.getFactory().createForUnknown(component);
+        throw new IllegalArgumentException(format("Unsupported component type %s, can not create stack object", component.getType()));
     }
   }
 
