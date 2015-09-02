@@ -105,6 +105,7 @@
       <foreach item="metricId" index="index" collection="metricIds" open="(" separator=" or " close=")">
         pm.metric_id=#{metricId}
       </foreach>
+      AND pm.person_id IS NULL
     </where>
   </select>
 

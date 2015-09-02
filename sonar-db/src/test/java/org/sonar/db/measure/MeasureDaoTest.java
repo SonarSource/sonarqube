@@ -258,34 +258,16 @@ public class MeasureDaoTest {
   }
 
   @Test
-  public void select_past_measures_on_person_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
+  public void select_past_measures_ignore_measures_with_person_id() {
     db.prepareDbUnit(getClass(), "past_measures_with_person_id.xml");
 
     List<PastMeasureDto> measures = underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "ABCD", 1000L, ImmutableSet.of(1));
-    assertThat(measures).hasSize(3);
+    assertThat(measures).hasSize(1);
 
     Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
 
     PastMeasureDto measure1 = pastMeasuresById.get(1L);
-    assertThat(measure1.getValue()).isEqualTo(60d);
-    assertThat(measure1.getMetricId()).isEqualTo(1);
-    assertThat(measure1.getRuleId()).isNull();
-    assertThat(measure1.getCharacteristicId()).isNull();
     assertThat(measure1.getPersonId()).isNull();
-
-    PastMeasureDto measure2 = pastMeasuresById.get(2L);
-    assertThat(measure2.getValue()).isEqualTo(20d);
-    assertThat(measure2.getMetricId()).isEqualTo(1);
-    assertThat(measure2.getRuleId()).isNull();
-    assertThat(measure2.getCharacteristicId()).isNull();
-    assertThat(measure2.getPersonId()).isEqualTo(20);
-
-    PastMeasureDto measure3 = pastMeasuresById.get(3L);
-    assertThat(measure3.getValue()).isEqualTo(40d);
-    assertThat(measure3.getMetricId()).isEqualTo(1);
-    assertThat(measure3.getRuleId()).isNull();
-    assertThat(measure3.getCharacteristicId()).isNull();
-    assertThat(measure3.getPersonId()).isEqualTo(21);
   }
 
   @Test
