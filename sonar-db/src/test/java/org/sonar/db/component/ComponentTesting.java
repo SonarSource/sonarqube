@@ -20,11 +20,11 @@
 
 package org.sonar.db.component;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.db.component.ComponentDto.MODULE_UUID_PATH_SEP;
 
 public class ComponentTesting {
@@ -135,7 +135,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
-    Preconditions.checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
+    checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
     return newChildComponent(uuid, view)
       .setUuid(uuid)
       .setKey(view.key() + project.key())
@@ -149,7 +149,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newDevProjectCopy(String uuid, ComponentDto project, ComponentDto developer) {
-    Preconditions.checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
+    checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
     return newChildComponent(uuid, developer)
       .setUuid(uuid)
       .setKey(developer.key() + ":" + project.key())

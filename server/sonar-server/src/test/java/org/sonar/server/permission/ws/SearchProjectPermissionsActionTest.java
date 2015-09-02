@@ -55,6 +55,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -104,6 +105,7 @@ public class SearchProjectPermissionsActionTest {
     ComponentDto project2 = insertClang();
     ComponentDto dev = insertDeveloper();
     ComponentDto view = insertView();
+    insertProjectInView(jdk7, view);
 
     insertUserRole(UserRole.ISSUE_ADMIN, user1.getId(), jdk7.getId());
     insertUserRole(UserRole.ADMIN, user1.getId(), jdk7.getId());
@@ -254,6 +256,10 @@ public class SearchProjectPermissionsActionTest {
       .setUuid("752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setKey("Java"));
+  }
+
+  private ComponentDto insertProjectInView(ComponentDto project, ComponentDto view) {
+    return insertComponent(newProjectCopy("project-in-view-uuid", project, view));
   }
 
   private ComponentDto insertDeveloper() {

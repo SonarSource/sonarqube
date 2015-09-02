@@ -178,6 +178,9 @@ public class ComponentDao implements Dao {
     return mapper(session).selectProjects();
   }
 
+  /**
+   * Does not return component copies
+   */
   public List<ComponentDto> selectComponents(DbSession session, Collection<String> qualifiers, int offset, int limit, @Nullable String query) {
     Map<String, Object> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
@@ -284,6 +287,7 @@ public class ComponentDao implements Dao {
   public List<ViewsComponentDto> selectViewTree(DbSession dbSession, String rootViewUuid) {
     return mapper(dbSession).selectViewTree(rootViewUuid);
   }
+
   private ComponentMapper mapper(DbSession session) {
     return session.getMapper(ComponentMapper.class);
   }

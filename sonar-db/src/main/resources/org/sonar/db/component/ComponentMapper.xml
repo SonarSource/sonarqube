@@ -237,7 +237,8 @@
     <include refid="componentColumns"/>
     from projects p
     <where>
-      p.enabled=${_true}
+      AND p.enabled=${_true}
+      AND p.copy_resource_id is null
       AND p.qualifier in
       <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
         #{qualifier}
@@ -257,6 +258,7 @@
     from projects p
     <where>
       p.enabled=${_true}
+      AND p.copy_resource_id is null
       AND p.qualifier in
       <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
         #{qualifier}

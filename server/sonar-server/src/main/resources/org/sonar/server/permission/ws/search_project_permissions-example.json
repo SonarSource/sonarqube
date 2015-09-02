@@ -1,4 +1,9 @@
 {
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 25,
+    "total": 4
+  },
   "projects": [
     {
       "id": "0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a",
@@ -85,10 +90,5 @@
       "name": "See Source Code",
       "description": "Ability to view the project\u0027s source code. (Users will also need \"Browse\" permission)"
     }
-  ],
-  "paging": {
-    "pageIndex": 1,
-    "pageSize": 25,
-    "total": 4
-  }
+  ]
 }
