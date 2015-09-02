@@ -59,7 +59,7 @@ public class DefaultUserFinder implements UserFinder {
     return toUsers(dtos);
   }
 
-  private List<User> toUsers(Collection<UserDto> dtos) {
+  private static List<User> toUsers(Collection<UserDto> dtos) {
     List<User> users = Lists.newArrayList();
     for (UserDto dto : dtos) {
       users.add(dto.toUser());

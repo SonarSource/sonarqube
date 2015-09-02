@@ -93,9 +93,9 @@ public class PluginLoader {
       def.addFiles(explodedPlugin.getLibs());
       def.addMainClass(info.getKey(), info.getMainClass());
 
-        for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
-          def.getExportMask().addInclusion(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
-        }
+      for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
+        def.getExportMask().addInclusion(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
+      }
 
       // The plugins that extend other plugins can only add some files to classloader.
       // They can't change metadata like ordering strategy or compatibility mode.

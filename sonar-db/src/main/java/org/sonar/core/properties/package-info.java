@@ -17,33 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.deprecated;
+@ParametersAreNonnullByDefault
+package org.sonar.core.properties;
 
-import com.google.common.base.Joiner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.ResourceFilter;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * @since 1.12
- */
-public class ResourceFilters {
-
-  public ResourceFilters(ResourceFilter[] filters) {
-    this(LoggerFactory.getLogger(ResourceFilters.class), filters);
-  }
-
-  public ResourceFilters() {
-    // perfect
-  }
-
-  ResourceFilters(Logger logger, ResourceFilter[] filters) {
-    check(logger, filters);
-  }
-
-  private static void check(Logger logger, ResourceFilter[] filters) {
-    if (filters.length > 0) {
-      logger.warn("ResourceFilters are not supported since version 4.2: " + Joiner.on(", ").join(filters));
-    }
-  }
-}

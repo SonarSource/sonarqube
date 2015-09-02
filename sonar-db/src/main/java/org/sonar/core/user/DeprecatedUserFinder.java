@@ -46,7 +46,7 @@ public class DeprecatedUserFinder implements UserFinder {
     return copy(userDao.selectActiveUserByLogin(login));
   }
 
-  private User copy(@Nullable UserDto dto) {
+  private static User copy(@Nullable UserDto dto) {
     if (dto != null) {
       User user = new User().setEmail(dto.getEmail()).setLogin(dto.getLogin()).setName(dto.getName());
       user.setId(dto.getId().intValue());

@@ -43,7 +43,7 @@ public class ActiveRulesPublisher implements ReportPublisherStep {
     writer.writeActiveRules(activeRuleMessages);
   }
 
-  private class ToMessage implements Function<ActiveRule, BatchReport.ActiveRule> {
+  private static class ToMessage implements Function<ActiveRule, BatchReport.ActiveRule> {
     private final BatchReport.ActiveRule.Builder builder = BatchReport.ActiveRule.newBuilder();
 
     @Override

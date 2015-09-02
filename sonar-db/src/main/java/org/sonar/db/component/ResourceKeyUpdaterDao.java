@@ -133,7 +133,7 @@ public class ResourceKeyUpdaterDao implements Dao {
     }
   }
 
-  private Set<ResourceDto> collectAllModules(long projectId, String stringToReplace, ResourceKeyUpdaterMapper mapper) {
+  private static Set<ResourceDto> collectAllModules(long projectId, String stringToReplace, ResourceKeyUpdaterMapper mapper) {
     ResourceDto project = mapper.selectProject(projectId);
     Set<ResourceDto> modules = Sets.newHashSet();
     if (project.getKey().contains(stringToReplace)) {
