@@ -207,11 +207,11 @@ public class ResourceDto {
   }
 
   public Date getCreatedAt() {
-    return createdAt;// NOSONAR May expose internal representation by returning reference to mutable object
+    return createdAt;
   }
 
   public ResourceDto setCreatedAt(Date date) {
-    this.createdAt = date;// NOSONAR May expose internal representation by incorporating reference to mutable object
+    this.createdAt = date;
     return this;
   }
 

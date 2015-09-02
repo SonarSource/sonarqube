@@ -74,7 +74,7 @@ public class ProtobufJsonFormat {
     // only statics
   }
 
-  private static abstract class MessageField {
+  private abstract static class MessageField {
     protected final Descriptors.FieldDescriptor descriptor;
 
     public MessageField(Descriptors.FieldDescriptor descriptor) {

@@ -176,14 +176,14 @@ public class ResourceIndexDao extends AbstractDao {
     return indexed;
   }
 
-  private void insertIndexEntries(String key, long resourceId, String qualifier, long rootId, int nameLength, ResourceIndexMapper mapper) {
+  private static void insertIndexEntries(String key, long resourceId, String qualifier, long rootId, int nameLength, ResourceIndexMapper mapper) {
     ResourceIndexDto dto = new ResourceIndexDto()
       .setResourceId(resourceId)
       .setQualifier(qualifier)
       .setRootProjectId(rootId)
       .setNameSize(nameLength);
 
-    int maxPosition = key.length() == SINGLE_INDEX_SIZE ? 0 : key.length() - MINIMUM_KEY_SIZE;
+    int maxPosition = (key.length() == SINGLE_INDEX_SIZE ? 0 : key.length() - MINIMUM_KEY_SIZE);
     for (int position = 0; position <= maxPosition; position++) {
       dto.setPosition(position);
       dto.setKey(StringUtils.substring(key, position));
@@ -196,7 +196,7 @@ public class ResourceIndexDao extends AbstractDao {
    * If the resource is indexed with a different key, then this index is dropped and the
    * resource must be indexed again.
    */
-  private boolean sanitizeIndex(long resourceId, String key, ResourceIndexMapper mapper) {
+  private static boolean sanitizeIndex(long resourceId, String key, ResourceIndexMapper mapper) {
     ResourceIndexDto masterIndex = mapper.selectMasterIndexByResourceId(resourceId);
     if (masterIndex != null && !StringUtils.equals(key, masterIndex.getKey())) {
       // resource has been renamed -> drop existing indexes

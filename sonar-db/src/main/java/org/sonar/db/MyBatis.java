@@ -284,7 +284,7 @@ public class MyBatis {
     return newScrollingSelectStatement(session, sql, fetchSize);
   }
 
-  private PreparedStatement newScrollingSelectStatement(DbSession session, String sql, int fetchSize) {
+  private static PreparedStatement newScrollingSelectStatement(DbSession session, String sql, int fetchSize) {
     try {
       PreparedStatement stmt = session.getConnection().prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
       stmt.setFetchSize(fetchSize);

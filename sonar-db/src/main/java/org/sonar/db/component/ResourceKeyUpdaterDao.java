@@ -145,7 +145,7 @@ public class ResourceKeyUpdaterDao implements Dao {
     return modules;
   }
 
-  private void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ResourceKeyUpdaterMapper mapper) {
+  private static void checkNewNameOfAllModules(Set<ResourceDto> modules, String stringToReplace, String replacementString, ResourceKeyUpdaterMapper mapper) {
     for (ResourceDto module : modules) {
       String newName = computeNewKey(module, stringToReplace, replacementString);
       if (mapper.countResourceByKey(newName) > 0) {

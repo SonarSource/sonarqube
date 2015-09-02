@@ -82,7 +82,7 @@ public class PurgeProfiler {
     }
   }
 
-  private List<Entry<String, Long>> truncateList(List<Entry<String, Long>> sortedFullList) {
+  private static List<Entry<String, Long>> truncateList(List<Entry<String, Long>> sortedFullList) {
     int maxSize = 10;
     List<Entry<String, Long>> result = new ArrayList<>(maxSize);
     int i = 0;
