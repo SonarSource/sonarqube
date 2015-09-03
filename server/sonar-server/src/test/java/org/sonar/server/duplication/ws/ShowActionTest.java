@@ -92,7 +92,7 @@ public class ShowActionTest {
 
     String data = "{duplications}";
     when(measureDao.selectByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
-      new MeasureDto().setComponentKey(componentKey).setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
+      new MeasureDto().setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
     );
 
     List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
@@ -115,7 +115,7 @@ public class ShowActionTest {
 
     String data = "{duplications}";
     when(measureDao.selectByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
-      new MeasureDto().setComponentKey(componentKey).setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
+      new MeasureDto().setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
     );
 
     List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));

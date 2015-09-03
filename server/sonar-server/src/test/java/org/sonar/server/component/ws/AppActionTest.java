@@ -40,13 +40,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -146,7 +146,7 @@ public class AppActionTest {
     addMeasure(CoreMetrics.SQALE_RATING_KEY, "C");
     addMeasure(CoreMetrics.SQALE_DEBT_RATIO_KEY, 35d);
 
-    measures.add(new MeasureDto().setComponentKey(COMPONENT_KEY).setMetricKey(CoreMetrics.TECHNICAL_DEBT_KEY).setValue(182.0));
+    measures.add(new MeasureDto().setMetricKey(CoreMetrics.TECHNICAL_DEBT_KEY).setValue(182.0));
     when(durations.format(any(Locale.class), any(Duration.class), eq(Durations.DurationFormat.SHORT))).thenReturn("3h 2min");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
@@ -236,17 +236,17 @@ public class AppActionTest {
   }
 
   private void addMeasure(String metricKey, Integer value) {
-    measures.add(new MeasureDto().setComponentKey(COMPONENT_KEY).setMetricKey(metricKey).setValue(value.doubleValue()));
+    measures.add(new MeasureDto().setMetricKey(metricKey).setValue(value.doubleValue()));
     when(i18n.formatInteger(any(Locale.class), eq(value.intValue()))).thenReturn(Integer.toString(value));
   }
 
   private void addMeasure(String metricKey, Double value) {
-    measures.add(new MeasureDto().setComponentKey(COMPONENT_KEY).setMetricKey(metricKey).setValue(value));
+    measures.add(new MeasureDto().setMetricKey(metricKey).setValue(value));
     when(i18n.formatDouble(any(Locale.class), eq(value))).thenReturn(Double.toString(value));
   }
 
   private void addMeasure(String metricKey, String value) {
-    measures.add(new MeasureDto().setComponentKey(COMPONENT_KEY).setMetricKey(metricKey).setData(value));
+    measures.add(new MeasureDto().setMetricKey(metricKey).setData(value));
   }
 
 }

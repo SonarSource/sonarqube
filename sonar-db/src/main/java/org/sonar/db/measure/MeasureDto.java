@@ -51,7 +51,6 @@ public class MeasureDto {
 
   // TODO to delete – not in db
   private String metricKey;
-  private String componentKey;
 
   public Long getId() {
     return id;
@@ -231,15 +230,6 @@ public class MeasureDto {
     return this;
   }
 
-  public String getComponentKey() {
-    return componentKey;
-  }
-
-  public MeasureDto setComponentKey(String componentKey) {
-    this.componentKey = componentKey;
-    return this;
-  }
-
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
@@ -262,7 +252,6 @@ public class MeasureDto {
       .add("characteristicId", characteristicId)
       .add("personId", personId)
       .add("metricKey", metricKey)
-      .add("componentKey", componentKey)
       .toString();
   }
 }

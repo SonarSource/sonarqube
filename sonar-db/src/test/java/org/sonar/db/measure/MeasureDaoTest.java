@@ -97,7 +97,6 @@ public class MeasureDaoTest {
     MeasureDto result = results.get(0);
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
-    assertThat(result.getComponentKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.getMetricKey()).isEqualTo("ncloc");
     assertThat(result.getVariation(1)).isEqualTo(1d);
     assertThat(result.getVariation(2)).isEqualTo(2d);
@@ -126,7 +125,6 @@ public class MeasureDaoTest {
     assertThat(result.getMetricId()).isEqualTo(12);
     assertThat(result.getMetricKey()).isNull();
     assertThat(result.getValue()).isEqualTo(10d);
-    assertThat(result.getComponentKey()).isNull();
     assertThat(result.getVariation(1)).isEqualTo(1d);
     assertThat(result.getVariation(2)).isEqualTo(2d);
     assertThat(result.getVariation(3)).isEqualTo(3d);
@@ -142,7 +140,6 @@ public class MeasureDaoTest {
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
     assertThat(result.getMetricKey()).isEqualTo("ncloc");
-    assertThat(result.getComponentKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.getVariation(1)).isEqualTo(1d);
     assertThat(result.getVariation(2)).isEqualTo(2d);
     assertThat(result.getVariation(3)).isEqualTo(3d);

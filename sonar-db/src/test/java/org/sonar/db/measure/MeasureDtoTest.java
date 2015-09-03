@@ -32,7 +32,6 @@ public class MeasureDtoTest {
   @Test
   public void test_getter_and_setter() throws Exception {
     underTest
-      .setComponentKey("component")
       .setMetricKey("metric")
       .setId(10L)
       .setValue(2d)
