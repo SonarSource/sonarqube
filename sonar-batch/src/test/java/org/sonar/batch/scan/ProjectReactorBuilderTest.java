@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.analysis.AnalysisProperties;
+import org.apache.commons.lang.StringUtils;
 
+import org.sonar.batch.analysis.AnalysisProperties;
 import com.google.common.collect.Maps;
 import org.junit.Rule;
 import org.junit.Test;
@@ -515,24 +516,30 @@ public class ProjectReactorBuilderTest {
     assertThat(props.get("sonar.projectName")).isEqualTo("foo");
   }
 
-  @Test
-  public void shouldFailToLoadPropertiesFile() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Impossible to read the property file");
-
-    ProjectReactorBuilder.toProperties(new File("foo.properties"));
-  }
-
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
     AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
     ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
     return projectReactor.getRoot();
   }
+  
+  protected static Properties toProperties(File propertyFile) {
+    Properties propsFromFile = new Properties();
+    try (FileInputStream fileInputStream = new FileInputStream(propertyFile)) {
+      propsFromFile.load(fileInputStream);
+    } catch (IOException e) {
+      throw new IllegalStateException("Impossible to read the property file: " + propertyFile.getAbsolutePath(), e);
+    }
+    // Trim properties
+    for (String propKey : propsFromFile.stringPropertyNames()) {
+      propsFromFile.setProperty(propKey, StringUtils.trim(propsFromFile.getProperty(propKey)));
+    }
+    return propsFromFile;
+  }
 
   private Map<String, String> loadProps(String projectFolder) {
     Map<String, String> props = Maps.<String, String>newHashMap();
-    Properties runnerProps = ProjectReactorBuilder.toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
+    Properties runnerProps = toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
     for (final String name : runnerProps.stringPropertyNames()) {
       props.put(name, runnerProps.getProperty(name));
     }

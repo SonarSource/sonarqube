@@ -48,7 +48,6 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.BatchComponentCache;
@@ -112,24 +111,11 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
-  private Class<?> projectReactorBuilder() {
-    if (isRunnerVersionLessThan2Dot4()) {
-      return DeprecatedProjectReactorBuilder.class;
-    }
-    return ProjectReactorBuilder.class;
-  }
-
-  private boolean isRunnerVersionLessThan2Dot4() {
-    EnvironmentInformation env = this.getComponentByType(EnvironmentInformation.class);
-    // Starting from SQ Runner 2.4 the key is "SonarQubeRunner"
-    return env != null && "SonarRunner".equals(env.getKey());
-  }
-
   private void addBatchComponents() {
     add(
       props,
       DefaultAnalysisMode.class,
-      projectReactorBuilder(),
+      ProjectReactorBuilder.class,
       new MutableProjectReactorProvider(),
       new ImmutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,

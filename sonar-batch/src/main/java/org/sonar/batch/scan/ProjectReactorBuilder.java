@@ -263,21 +263,6 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected static Properties toProperties(File propertyFile) {
-    Properties propsFromFile = new Properties();
-    try (FileInputStream fileInputStream = new FileInputStream(propertyFile)) {
-      propsFromFile.load(fileInputStream);
-    } catch (IOException e) {
-      throw new IllegalStateException("Impossible to read the property file: " + propertyFile.getAbsolutePath(), e);
-    }
-    // Trim properties
-    for (String propKey : propsFromFile.stringPropertyNames()) {
-      propsFromFile.setProperty(propKey, StringUtils.trim(propsFromFile.getProperty(propKey)));
-    }
-    return propsFromFile;
-  }
-
-  @VisibleForTesting
   protected static void setModuleKeyAndNameIfNotDefined(Map<String, String> childProps, String moduleId, String parentKey) {
     if (!childProps.containsKey(MODULE_KEY_PROPERTY)) {
       if (!childProps.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
