@@ -3,7 +3,7 @@ package hello;
 public class HelloJava {
 
   public static void main(String[] args) {
-    {xoo-start-issue:1:1}System.out.println("Hello"){xoo-end-issue:1:1};
-    {xoo-start-issue:1:2}System.out.println("World"){xoo-end-issue:1:2};
+    {xoo-start-issue:1}System.out.println("Hello"){xoo-end-issue:1};
+    {xoo-start-flow:1:1:1}System.out.println("World"){xoo-end-flow:1:1:1};
   }
 }

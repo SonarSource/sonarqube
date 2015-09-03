@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.output.BatchReport.ExecutionFlow;
+import org.sonar.batch.protocol.output.BatchReport.Flow;
 import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.batch.protocol.output.BatchReport.IssueLocation;
 import org.sonar.xoo.XooPlugin;
@@ -76,12 +76,10 @@ public class MultilineIssuesMediumTest {
     Issue issue = issues.get(0);
     assertThat(issue.getLine()).isEqualTo(6);
     assertThat(issue.getMsg()).isEqualTo("Primary location");
-    IssueLocation primaryLocation = issue.getPrimaryLocation();
-    assertThat(primaryLocation.getMsg()).isEqualTo("Primary location");
-    assertThat(primaryLocation.getTextRange().getStartLine()).isEqualTo(6);
-    assertThat(primaryLocation.getTextRange().getStartOffset()).isEqualTo(25);
-    assertThat(primaryLocation.getTextRange().getEndLine()).isEqualTo(6);
-    assertThat(primaryLocation.getTextRange().getEndOffset()).isEqualTo(52);
+    assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
+    assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);
+    assertThat(issue.getTextRange().getEndLine()).isEqualTo(6);
+    assertThat(issue.getTextRange().getEndOffset()).isEqualTo(50);
   }
 
   @Test
@@ -91,47 +89,44 @@ public class MultilineIssuesMediumTest {
     Issue issue = issues.get(0);
     assertThat(issue.getLine()).isEqualTo(6);
     assertThat(issue.getMsg()).isEqualTo("Primary location");
-    IssueLocation primaryLocation = issue.getPrimaryLocation();
-    assertThat(primaryLocation.getMsg()).isEqualTo("Primary location");
-    assertThat(primaryLocation.getTextRange().getStartLine()).isEqualTo(6);
-    assertThat(primaryLocation.getTextRange().getStartOffset()).isEqualTo(25);
-    assertThat(primaryLocation.getTextRange().getEndLine()).isEqualTo(7);
-    assertThat(primaryLocation.getTextRange().getEndOffset()).isEqualTo(23);
+    assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
+    assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);
+    assertThat(issue.getTextRange().getEndLine()).isEqualTo(7);
+    assertThat(issue.getTextRange().getEndOffset()).isEqualTo(23);
   }
 
   @Test
-  public void testMultipleIssueLocation() throws Exception {
+  public void testFlowWithSingleLocation() throws Exception {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiple.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
     assertThat(issue.getLine()).isEqualTo(6);
     assertThat(issue.getMsg()).isEqualTo("Primary location");
-    IssueLocation primaryLocation = issue.getPrimaryLocation();
-    assertThat(primaryLocation.getMsg()).isEqualTo("Primary location");
-    assertThat(primaryLocation.getTextRange().getStartLine()).isEqualTo(6);
-    assertThat(primaryLocation.getTextRange().getStartOffset()).isEqualTo(25);
-    assertThat(primaryLocation.getTextRange().getEndLine()).isEqualTo(6);
-    assertThat(primaryLocation.getTextRange().getEndOffset()).isEqualTo(52);
+    assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
+    assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);
+    assertThat(issue.getTextRange().getEndLine()).isEqualTo(6);
+    assertThat(issue.getTextRange().getEndOffset()).isEqualTo(50);
 
-    assertThat(issue.getAdditionalLocationList()).hasSize(1);
-    IssueLocation additionalLocation = issue.getAdditionalLocation(0);
-    assertThat(additionalLocation.getMsg()).isEqualTo("Location #2");
+    assertThat(issue.getFlowList()).hasSize(1);
+    Flow flow = issue.getFlow(0);
+    assertThat(flow.getLocationList()).hasSize(1);
+    IssueLocation additionalLocation = flow.getLocation(0);
+    assertThat(additionalLocation.getMsg()).isEqualTo("Flow step #1");
     assertThat(additionalLocation.getTextRange().getStartLine()).isEqualTo(7);
-    assertThat(additionalLocation.getTextRange().getStartOffset()).isEqualTo(25);
+    assertThat(additionalLocation.getTextRange().getStartOffset()).isEqualTo(26);
     assertThat(additionalLocation.getTextRange().getEndLine()).isEqualTo(7);
-    assertThat(additionalLocation.getTextRange().getEndOffset()).isEqualTo(52);
+    assertThat(additionalLocation.getTextRange().getEndOffset()).isEqualTo(53);
   }
 
   @Test
-  public void testExecutionFlows() throws Exception {
+  public void testFlowsWithMultipleElements() throws Exception {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/WithFlow.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
-    assertThat(issue.getExecutionFlowList()).hasSize(1);
+    assertThat(issue.getFlowList()).hasSize(1);
 
-    ExecutionFlow executionFlow = issue.getExecutionFlow(0);
-    assertThat(executionFlow.getLocationList()).hasSize(2);
-
+    Flow flow = issue.getFlow(0);
+    assertThat(flow.getLocationList()).hasSize(2);
     // TODO more assertions
   }
 }

@@ -35,7 +35,7 @@ import org.sonar.api.rule.RuleKey;
 @Beta
 public interface Issue {
 
-  interface ExecutionFlow {
+  interface Flow {
     /**
      * @return Ordered list of locations for the execution flow
      */
@@ -66,16 +66,10 @@ public interface Issue {
   IssueLocation primaryLocation();
 
   /**
-   * List of additional locations for this issue.
+   * List of flows for this issue. Can be empty.
    * @since 5.2
    */
-  List<IssueLocation> locations();
-
-  /**
-   * List of execution flows for this issue. Can be empty.
-   * @since 5.2
-   */
-  List<ExecutionFlow> executionFlows();
+  List<Flow> flows();
 
   /**
    * Key/value pair of attributes that are attached to the issue.

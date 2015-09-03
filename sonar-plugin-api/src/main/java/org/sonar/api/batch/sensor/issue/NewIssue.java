@@ -56,17 +56,11 @@ public interface NewIssue {
   NewIssue at(NewIssueLocation primaryLocation);
 
   /**
-   * Register an additional location for this issue.
+   * Register a flow for this issue. A flow is an ordered list of issue locations that help to understand the issue.
+   * It could be a path leading to the primary location. Several flows can be registered.
    * @since 5.2
    */
-  NewIssue addLocation(NewIssueLocation location);
-
-  /**
-   * Register an execution flow for this issue. An execution flow is an ordered list of issue locations that help to understand the issue.
-   * It is usually the path leading to the primary location. Several execution flows can be registered.
-   * @since 5.2
-   */
-  NewIssue addExecutionFlow(Iterable<NewIssueLocation> flowLocations);
+  NewIssue addFlow(Iterable<NewIssueLocation> flowLocations);
 
   /**
    * Create a new location for this issue. First registered location is considered as primary location.

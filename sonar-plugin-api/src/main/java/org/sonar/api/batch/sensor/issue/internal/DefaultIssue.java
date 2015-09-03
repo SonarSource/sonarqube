@@ -42,10 +42,10 @@ import static java.lang.String.format;
 
 public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
-  private static final class ToExecutionFlow implements Function<List<IssueLocation>, ExecutionFlow> {
+  private static final class ToFlow implements Function<List<IssueLocation>, Flow> {
     @Override
-    public ExecutionFlow apply(final List<IssueLocation> input) {
-      return new ExecutionFlow() {
+    public Flow apply(final List<IssueLocation> input) {
+      return new Flow() {
         @Override
         public List<IssueLocation> locations() {
           return ImmutableList.copyOf(input);
@@ -58,8 +58,7 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   private Double effortToFix;
   private Severity overriddenSeverity;
   private IssueLocation primaryLocation;
-  private List<IssueLocation> locations = new ArrayList<>();
-  private List<List<IssueLocation>> executionFlows = new ArrayList<>();
+  private List<List<IssueLocation>> flows = new ArrayList<>();
   private final Map<String, String> attributes = new LinkedHashMap<>();
 
   public DefaultIssue() {
@@ -103,18 +102,12 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
-  public DefaultIssue addLocation(NewIssueLocation location) {
-    locations.add((DefaultIssueLocation) location);
-    return this;
-  }
-
-  @Override
-  public DefaultIssue addExecutionFlow(Iterable<NewIssueLocation> locations) {
+  public DefaultIssue addFlow(Iterable<NewIssueLocation> locations) {
     List<IssueLocation> flowAsList = new ArrayList<>();
     for (NewIssueLocation issueLocation : locations) {
       flowAsList.add((DefaultIssueLocation) issueLocation);
     }
-    executionFlows.add(flowAsList);
+    flows.add(flowAsList);
     return this;
   }
 
@@ -150,13 +143,8 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
-  public List<IssueLocation> locations() {
-    return ImmutableList.copyOf(this.locations);
-  }
-
-  @Override
-  public List<ExecutionFlow> executionFlows() {
-    return Lists.transform(this.executionFlows, new ToExecutionFlow());
+  public List<Flow> flows() {
+    return Lists.transform(this.flows, new ToFlow());
   }
 
   @Override

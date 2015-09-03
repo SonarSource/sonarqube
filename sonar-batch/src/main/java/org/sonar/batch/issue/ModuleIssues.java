@@ -27,7 +27,7 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.Issue.ExecutionFlow;
+import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.MessageException;
@@ -52,7 +52,7 @@ public class ModuleIssues {
   private final BatchReport.Issue.Builder builder = BatchReport.Issue.newBuilder();
   private final Builder locationBuilder = IssueLocation.newBuilder();
   private final org.sonar.batch.protocol.output.BatchReport.TextRange.Builder textRangeBuilder = org.sonar.batch.protocol.output.BatchReport.TextRange.newBuilder();
-  private final BatchReport.ExecutionFlow.Builder flowBuilder = BatchReport.ExecutionFlow.newBuilder();
+  private final BatchReport.Flow.Builder flowBuilder = BatchReport.Flow.newBuilder();
 
   public ModuleIssues(ActiveRules activeRules, Rules rules, IssueFilters filters, ReportPublisher reportPublisher, BatchComponentCache componentCache) {
     this.activeRules = activeRules;
@@ -89,17 +89,15 @@ public class ModuleIssues {
 
     locationBuilder.setComponentRef(component.batchId());
     TextRange primaryTextRange = issue.primaryLocation().textRange();
-    applyTextRange(primaryTextRange);
     if (primaryTextRange != null) {
       builder.setLine(primaryTextRange.start().line());
+      builder.setTextRange(toProtobufTextRange(primaryTextRange));
     }
-    builder.setPrimaryLocation(locationBuilder.build());
     Double effortToFix = issue.effortToFix();
     if (effortToFix != null) {
       builder.setEffortToFix(effortToFix);
     }
-    applyAdditionalLocations(issue);
-    applyExecutionFlows(issue);
+    applyFlows(issue);
     BatchReport.Issue rawIssue = builder.build();
 
     if (filters.accept(inputComponent.key(), rawIssue)) {
@@ -109,45 +107,33 @@ public class ModuleIssues {
     return false;
   }
 
-  private void applyAdditionalLocations(Issue issue) {
-    for (org.sonar.api.batch.sensor.issue.IssueLocation additionalLocation : issue.locations()) {
-      locationBuilder.clear();
-      locationBuilder.setComponentRef(componentCache.get(additionalLocation.inputComponent()).batchId());
-      String message = additionalLocation.message();
-      if (message != null) {
-        locationBuilder.setMsg(message);
-      }
-      applyTextRange(additionalLocation.textRange());
-      builder.addAdditionalLocation(locationBuilder.build());
-    }
-  }
-
-  private void applyExecutionFlows(Issue issue) {
-    for (ExecutionFlow executionFlow : issue.executionFlows()) {
+  private void applyFlows(Issue issue) {
+    for (Flow flow : issue.flows()) {
       flowBuilder.clear();
-      for (org.sonar.api.batch.sensor.issue.IssueLocation location : executionFlow.locations()) {
+      for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
         locationBuilder.clear();
         locationBuilder.setComponentRef(componentCache.get(location.inputComponent()).batchId());
         String message = location.message();
         if (message != null) {
           locationBuilder.setMsg(message);
         }
-        applyTextRange(location.textRange());
+        TextRange textRange = location.textRange();
+        if (textRange != null) {
+          locationBuilder.setTextRange(toProtobufTextRange(textRange));
+        }
         flowBuilder.addLocation(locationBuilder.build());
       }
-      builder.addExecutionFlow(flowBuilder.build());
+      builder.addFlow(flowBuilder.build());
     }
   }
 
-  private void applyTextRange(TextRange primaryTextRange) {
-    if (primaryTextRange != null) {
-      textRangeBuilder.clear();
-      textRangeBuilder.setStartLine(primaryTextRange.start().line());
-      textRangeBuilder.setStartOffset(primaryTextRange.start().lineOffset());
-      textRangeBuilder.setEndLine(primaryTextRange.end().line());
-      textRangeBuilder.setEndOffset(primaryTextRange.end().lineOffset());
-      locationBuilder.setTextRange(textRangeBuilder.build());
-    }
+  private org.sonar.batch.protocol.output.BatchReport.TextRange toProtobufTextRange(TextRange primaryTextRange) {
+    textRangeBuilder.clear();
+    textRangeBuilder.setStartLine(primaryTextRange.start().line());
+    textRangeBuilder.setStartOffset(primaryTextRange.start().lineOffset());
+    textRangeBuilder.setEndLine(primaryTextRange.end().line());
+    textRangeBuilder.setEndOffset(primaryTextRange.end().lineOffset());
+    return textRangeBuilder.build();
   }
 
   private Rule validateRule(Issue issue) {

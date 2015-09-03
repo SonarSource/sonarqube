@@ -22,6 +22,7 @@ package org.sonar.api.issue;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.rule.RuleKey;
@@ -95,16 +96,9 @@ public interface Issuable extends Perspective {
 
     /**
      * @since 5.2
-     * Register a new secondary location for this issue.
+     * @see NewIssue#addFlow(Iterable)
      */
-    IssueBuilder addLocation(NewIssueLocation location);
-
-    /**
-     * @since 5.2
-     * Register an execution flow for this issue. An execution flow is an ordered list of issue locations that help to understand the issue.
-     * It is usually the path leading to the primary location. Several execution flows can be registered.
-     */
-    IssueBuilder addExecutionFlow(Iterable<NewIssueLocation> flowLocations);
+    IssueBuilder addFlow(Iterable<NewIssueLocation> flowLocations);
 
     /**
      * Overrides the severity declared in Quality profile. Do not execute in standard use-cases.

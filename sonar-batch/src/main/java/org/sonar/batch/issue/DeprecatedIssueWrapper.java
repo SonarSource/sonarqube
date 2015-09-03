@@ -72,12 +72,12 @@ public class DeprecatedIssueWrapper implements Issue {
 
   @Override
   public String message() {
-    return newIssue.locations().get(0).message();
+    return newIssue.primaryLocation().message();
   }
 
   @Override
   public Integer line() {
-    TextRange textRange = newIssue.locations().get(0).textRange();
+    TextRange textRange = newIssue.primaryLocation().textRange();
     return textRange != null ? textRange.start().line() : null;
   }
 

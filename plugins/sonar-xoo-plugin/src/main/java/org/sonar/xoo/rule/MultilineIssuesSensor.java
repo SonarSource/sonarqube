@@ -46,8 +46,8 @@ import org.sonar.xoo.Xoo;
 public class MultilineIssuesSensor implements Sensor {
 
   public static final String RULE_KEY = "MultilineIssue";
-  private static final Pattern START_ISSUE_PATTERN = Pattern.compile("\\{xoo-start-issue:([0-9]+):([0-9]+)\\}");
-  private static final Pattern END_ISSUE_PATTERN = Pattern.compile("\\{xoo-end-issue:([0-9]+):([0-9]+)\\}");
+  private static final Pattern START_ISSUE_PATTERN = Pattern.compile("\\{xoo-start-issue:([0-9]+)\\}");
+  private static final Pattern END_ISSUE_PATTERN = Pattern.compile("\\{xoo-end-issue:([0-9]+)\\}");
 
   private static final Pattern START_FLOW_PATTERN = Pattern.compile("\\{xoo-start-flow:([0-9]+):([0-9]+):([0-9]+)\\}");
   private static final Pattern END_FLOW_PATTERN = Pattern.compile("\\{xoo-end-flow:([0-9]+):([0-9]+):([0-9]+)\\}");
@@ -70,8 +70,8 @@ public class MultilineIssuesSensor implements Sensor {
   }
 
   private static void createIssues(InputFile file, SensorContext context) {
-    Table<Integer, Integer, TextPointer> startIssuesPositions = HashBasedTable.create();
-    Table<Integer, Integer, TextPointer> endIssuesPositions = HashBasedTable.create();
+    Map<Integer, TextPointer> startIssuesPositions = Maps.newHashMap();
+    Map<Integer, TextPointer> endIssuesPositions = Maps.newHashMap();
     Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions = Maps.newHashMap();
     Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions = Maps.newHashMap();
 
@@ -116,24 +116,18 @@ public class MultilineIssuesSensor implements Sensor {
     }
   }
 
-  private static void createIssues(InputFile file, SensorContext context, Table<Integer, Integer, TextPointer> startPositions,
-    Table<Integer, Integer, TextPointer> endPositions, Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions,
+  private static void createIssues(InputFile file, SensorContext context, Map<Integer, TextPointer> startPositions,
+    Map<Integer, TextPointer> endPositions, Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions,
     Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions) {
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
 
-    for (Map.Entry<Integer, Map<Integer, TextPointer>> entry : startPositions.rowMap().entrySet()) {
-      Integer issueId = entry.getKey();
+    for (Map.Entry<Integer, TextPointer> entry : startPositions.entrySet()) {
       NewIssue newIssue = context.newIssue().forRule(ruleKey);
-      for (Map.Entry<Integer, TextPointer> location : entry.getValue().entrySet()) {
-        NewIssueLocation newLocation = newIssue.newLocation()
-          .on(file)
-          .at(file.newRange(location.getValue(), endPositions.row(entry.getKey()).get(location.getKey())));
-        if (location.getKey() == 1) {
-          newIssue.at(newLocation.message("Primary location"));
-        } else {
-          newIssue.addLocation(newLocation.message("Location #" + location.getKey()));
-        }
-      }
+      Integer issueId = entry.getKey();
+      NewIssueLocation primaryLocation = newIssue.newLocation()
+        .on(file)
+        .at(file.newRange(entry.getValue(), endPositions.get(issueId)));
+      newIssue.at(primaryLocation.message("Primary location"));
       if (startFlowsPositions.containsKey(issueId)) {
         Table<Integer, Integer, TextPointer> flows = startFlowsPositions.get(issueId);
         for (Map.Entry<Integer, Map<Integer, TextPointer>> flowEntry : flows.rowMap().entrySet()) {
@@ -150,15 +144,15 @@ public class MultilineIssuesSensor implements Sensor {
               .message("Flow step #" + flowNum);
             flowLocations.add(newLocation);
           }
-          newIssue.addExecutionFlow(flowLocations);
+          newIssue.addFlow(flowLocations);
         }
       }
       newIssue.save();
     }
   }
 
-  private static void parseIssues(InputFile file, SensorContext context, Table<Integer, Integer, TextPointer> startPositions,
-    Table<Integer, Integer, TextPointer> endPositions) {
+  private static void parseIssues(InputFile file, SensorContext context, Map<Integer, TextPointer> startPositions,
+    Map<Integer, TextPointer> endPositions) {
     int currentLine = 0;
     try {
       for (String lineStr : Files.readAllLines(file.path(), context.fileSystem().encoding())) {
@@ -167,17 +161,15 @@ public class MultilineIssuesSensor implements Sensor {
         Matcher m = START_ISSUE_PATTERN.matcher(lineStr);
         while (m.find()) {
           Integer issueId = Integer.parseInt(m.group(1));
-          Integer issueLocationId = Integer.parseInt(m.group(2));
           TextPointer newPointer = file.newPointer(currentLine, m.end());
-          startPositions.row(issueId).put(issueLocationId, newPointer);
+          startPositions.put(issueId, newPointer);
         }
 
         m = END_ISSUE_PATTERN.matcher(lineStr);
         while (m.find()) {
           Integer issueId = Integer.parseInt(m.group(1));
-          Integer issueLocationId = Integer.parseInt(m.group(2));
           TextPointer newPointer = file.newPointer(currentLine, m.start());
-          endPositions.row(issueId).put(issueLocationId, newPointer);
+          endPositions.put(issueId, newPointer);
         }
       }
     } catch (IOException e) {

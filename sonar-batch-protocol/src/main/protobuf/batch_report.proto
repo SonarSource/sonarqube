@@ -98,14 +98,16 @@ message Measure {
 message Issue {
   optional string rule_repository = 1;
   optional string rule_key = 2;
+  // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
+  //TODO To be removed. Use first line of text_range instead
   optional int32 line = 3;
   optional string msg = 4;
   optional Severity severity = 5;
   optional double effort_to_fix = 6;
   optional string attributes = 7;
-  optional IssueLocation primary_location = 9;
-  repeated IssueLocation additional_location = 10;
-  repeated ExecutionFlow execution_flow = 11;
+  // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
+  optional TextRange text_range = 9;
+  repeated Flow flow = 10;
 }
 
 message IssueLocation {
@@ -115,7 +117,7 @@ message IssueLocation {
   optional string msg = 3;
 }
 
-message ExecutionFlow {
+message Flow {
   repeated IssueLocation location = 1;
 }
 
