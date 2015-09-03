@@ -20,19 +20,14 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.sonar.core.util.Uuids;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.UuidFactory;
 
 /**
  * Read all components from the batch report and fill component UUID and key.
@@ -56,7 +51,7 @@ public class FillComponentsStep implements ComputationStep {
     String branch = reportMetadata.hasBranch() ? reportMetadata.getBranch() : null;
     BatchReport.Component reportProject = reportReader.readComponent(reportMetadata.getRootComponentRef());
     String projectKey = ComponentKeys.createKey(reportProject.getKey(), branch);
-    UuidFactory uuidFactory = new UuidFactory(projectKey);
+    UuidFactory uuidFactory = new UuidFactory(dbClient, projectKey);
 
     // feed project information
     ComponentImpl root = (ComponentImpl) treeRootHolder.getRoot();
@@ -104,30 +99,6 @@ public class FillComponentsStep implements ComputationStep {
     String key = ComponentKeys.createEffectiveKey(nearestModule.getKey(), reportComponent.getPath());
     component.setKey(key);
     component.setUuid(uuidFactory.getOrCreateForKey(key));
-  }
-
-  private class UuidFactory {
-    private final Map<String, String> uuidsByKey = new HashMap<>();
-
-    private UuidFactory(String projectKey) {
-      DbSession session = dbClient.openSession(false);
-      try {
-        List<ComponentDto> components = dbClient.componentDao().selectAllComponentsFromProjectKey(session, projectKey);
-        for (ComponentDto componentDto : components) {
-          uuidsByKey.put(componentDto.getKey(), componentDto.uuid());
-        }
-      } finally {
-        session.close();
-      }
-    }
-
-    /**
-     * Get UUID from database if it exists, else generate a new one
-     */
-    String getOrCreateForKey(String key) {
-      String uuid = uuidsByKey.get(key);
-      return (uuid == null) ? Uuids.create() : uuid;
-    }
   }
 
   @Override
