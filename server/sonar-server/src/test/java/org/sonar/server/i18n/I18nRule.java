@@ -37,6 +37,19 @@ public class I18nRule implements I18n {
     return this;
   }
 
+  public void setProjectPermissions() {
+    put("projects_role.admin", "Administer");
+    put("projects_role.admin.desc", "Ability to access project settings and perform administration tasks. " +
+      "(Users will also need \"Browse\" permission)");
+    put("projects_role.issueadmin", "Administer Issues");
+    put("projects_role.issueadmin.desc", "Grants the permission to perform advanced editing on issues: marking an issue " +
+      "False Positive / Won't Fix or changing an Issue's severity. (Users will also need \"Browse\" permission)");
+    put("projects_role.user", "Browse");
+    put("projects_role.user.desc", "Ability to access a project, browse its measures, and create/edit issues for it.");
+    put("projects_role.codeviewer", "See Source Code");
+    put("projects_role.codeviewer.desc", "Ability to view the project's source code. (Users will also need \"Browse\" permission)");
+  }
+
   @Override
   public String message(Locale locale, String key, @Nullable String defaultValue, Object... parameters) {
     String messageInMap = messages.get(key);

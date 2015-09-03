@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableTable.copyOf;
 
-public class SearchProjectPermissionsData {
+class SearchProjectPermissionsData {
   private final List<ComponentDto> rootComponents;
   private final Paging paging;
   private final Table<Long, String, Integer> userCountByProjectIdAndPermission;
@@ -47,27 +47,27 @@ public class SearchProjectPermissionsData {
     this.groupCountByProjectIdAndPermission = copyOf(builder.groupCountByProjectIdAndPermission);
   }
 
-  public static Builder newBuilder() {
+  static Builder newBuilder() {
     return new Builder();
   }
 
-  public List<ComponentDto> rootComponents() {
+  List<ComponentDto> rootComponents() {
     return rootComponents;
   }
 
-  public Paging paging() {
+  Paging paging() {
     return paging;
   }
 
-  public int userCount(long rootComponentId, String permission) {
+  int userCount(long rootComponentId, String permission) {
     return firstNonNull(userCountByProjectIdAndPermission.get(rootComponentId, permission), 0);
   }
 
-  public int groupCount(long rootComponentId, String permission) {
+  int groupCount(long rootComponentId, String permission) {
     return firstNonNull(groupCountByProjectIdAndPermission.get(rootComponentId, permission), 0);
   }
 
-  public Set<String> permissions(long rootComponentId) {
+  Set<String> permissions(long rootComponentId) {
     return FluentIterable.from(
       Iterables.concat(
         userCountByProjectIdAndPermission.row(rootComponentId).keySet(),
@@ -76,7 +76,7 @@ public class SearchProjectPermissionsData {
       ).toSortedSet(Ordering.natural());
   }
 
-  public static class Builder {
+  static class Builder {
     private List<ComponentDto> projects;
     private Paging paging;
     private Table<Long, String, Integer> userCountByProjectIdAndPermission;
@@ -86,7 +86,7 @@ public class SearchProjectPermissionsData {
       // prevents instantiation outside main class
     }
 
-    public SearchProjectPermissionsData build() {
+    SearchProjectPermissionsData build() {
       checkState(projects != null);
       checkState(userCountByProjectIdAndPermission != null);
       checkState(groupCountByProjectIdAndPermission != null);
@@ -94,22 +94,22 @@ public class SearchProjectPermissionsData {
       return new SearchProjectPermissionsData(this);
     }
 
-    public Builder rootComponents(List<ComponentDto> projects) {
+    Builder rootComponents(List<ComponentDto> projects) {
       this.projects = projects;
       return this;
     }
 
-    public Builder paging(Paging paging) {
+    Builder paging(Paging paging) {
       this.paging = paging;
       return this;
     }
 
-    public Builder userCountByProjectIdAndPermission(Table<Long, String, Integer> userCountByProjectIdAndPermission) {
+    Builder userCountByProjectIdAndPermission(Table<Long, String, Integer> userCountByProjectIdAndPermission) {
       this.userCountByProjectIdAndPermission = userCountByProjectIdAndPermission;
       return this;
     }
 
-    public Builder groupCountByProjectIdAndPermission(Table<Long, String, Integer> groupCountByProjectIdAndPermission) {
+    Builder groupCountByProjectIdAndPermission(Table<Long, String, Integer> groupCountByProjectIdAndPermission) {
       this.groupCountByProjectIdAndPermission = groupCountByProjectIdAndPermission;
       return this;
     }

@@ -45,9 +45,11 @@ public class PermissionsWsModule extends Module {
       DeleteTemplateAction.class,
       ApplyTemplateAction.class,
       SetDefaultTemplateAction.class,
+      SearchTemplatesAction.class,
       // utility classes
       PermissionChangeBuilder.class,
       SearchProjectPermissionsDataLoader.class,
+      SearchTemplatesDataLoader.class,
       PermissionDependenciesFinder.class,
       DefaultPermissionTemplateFinder.class);
   }

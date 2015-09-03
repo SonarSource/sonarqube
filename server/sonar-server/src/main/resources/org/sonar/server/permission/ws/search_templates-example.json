@@ -1,0 +1,84 @@
+{
+  "permissionTemplates": [
+    {
+      "id": "AU-TpxcA-iU5OvuD2FL0",
+      "name": "Default template for Developers",
+      "projectKeyPattern": ".*sonar.developer.*",
+      "createdAt": "2004-11-15T07:26:40+0100",
+      "updatedAt": "2004-11-19T22:33:20+0100",
+      "permissions": [
+        {
+          "key": "user",
+          "usersCount": 0,
+          "groupsCount": 1
+        }
+      ]
+    },
+    {
+      "id": "AU-Tpxb--iU5OvuD2FLy",
+      "name": "Default template for Projects",
+      "description": "Template for new projects",
+      "createdAt": "2001-09-09T03:46:40+0200",
+      "updatedAt": "2001-09-09T03:46:40+0200",
+      "permissions": [
+        {
+          "key": "admin",
+          "usersCount": 0,
+          "groupsCount": 1
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 1,
+          "groupsCount": 0
+        },
+        {
+          "key": "issueadmin",
+          "usersCount": 3,
+          "groupsCount": 0
+        }
+      ]
+    },
+    {
+      "id": "AU-TpxcA-iU5OvuD2FLz",
+      "name": "Default template for Views",
+      "description": "Template for new views",
+      "projectKeyPattern": ".*sonar.views.*",
+      "createdAt": "2001-09-09T03:46:40+0200",
+      "updatedAt": "2004-11-09T12:33:20+0100",
+      "permissions": [
+        {
+          "key": "issueadmin",
+          "usersCount": 0,
+          "groupsCount": 3
+        },
+        {
+          "key": "user",
+          "usersCount": 2,
+          "groupsCount": 0
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    {
+      "key": "user",
+      "name": "Browse",
+      "description": "Ability to access a project, browse its measures, and create/edit issues for it."
+    },
+    {
+      "key": "admin",
+      "name": "Administer",
+      "description": "Ability to access project settings and perform administration tasks. (Users will also need \"Browse\" permission)"
+    },
+    {
+      "key": "issueadmin",
+      "name": "Administer Issues",
+      "description": "Grants the permission to perform advanced editing on issues: marking an issue False Positive / Won\u0027t Fix or changing an Issue\u0027s severity. (Users will also need \"Browse\" permission)"
+    },
+    {
+      "key": "codeviewer",
+      "name": "See Source Code",
+      "description": "Ability to view the project\u0027s source code. (Users will also need \"Browse\" permission)"
+    }
+  ]
+}

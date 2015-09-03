@@ -21,6 +21,17 @@ package org.sonar.core.util;
 
 public class Uuids {
 
+  public static final String UUID_EXAMPLE_01 = "AU-Tpxb--iU5OvuD2FLy";
+  public static final String UUID_EXAMPLE_02 = "AU-TpxcA-iU5OvuD2FLz";
+  public static final String UUID_EXAMPLE_03 = "AU-TpxcA-iU5OvuD2FL0";
+  public static final String UUID_EXAMPLE_04 = "AU-TpxcA-iU5OvuD2FL1";
+  public static final String UUID_EXAMPLE_05 = "AU-TpxcA-iU5OvuD2FL2";
+  public static final String UUID_EXAMPLE_06 = "AU-TpxcA-iU5OvuD2FL3";
+  public static final String UUID_EXAMPLE_07 = "AU-TpxcA-iU5OvuD2FL4";
+  public static final String UUID_EXAMPLE_08 = "AU-TpxcA-iU5OvuD2FL5";
+  public static final String UUID_EXAMPLE_09 = "AU-TpxcB-iU5OvuD2FL6";
+  public static final String UUID_EXAMPLE_10 = "AU-TpxcB-iU5OvuD2FL7";
+
   private Uuids() {
     // only static fields
   }

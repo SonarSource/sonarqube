@@ -85,9 +85,10 @@ public class SearchProjectPermissionsActionTest {
     resourceTypes = mock(ResourceTypes.class);
     when(resourceTypes.getRoots()).thenReturn(rootResourceTypes());
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
-    initI18nMessages();
+    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, componentFinder);
+    i18n.setProjectPermissions();
 
-    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, componentFinder, resourceTypes);
+    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, finder, resourceTypes);
     underTest = new SearchProjectPermissionsAction(dbClient, userSession, i18n, dataLoader);
 
     ws = new WsActionTester(underTest);
@@ -224,7 +225,7 @@ public class SearchProjectPermissionsActionTest {
     insertComponent(newDeveloper("developer-name"));
     insertComponent(newProjectDto("project-uuid"));
     commit();
-    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, new ComponentFinder(dbClient), resourceTypes);
+    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient)), resourceTypes);
     underTest = new SearchProjectPermissionsAction(dbClient, userSession, i18n, dataLoader);
     ws = new WsActionTester(underTest);
 
@@ -316,18 +317,5 @@ public class SearchProjectPermissionsActionTest {
     ResourceType dev = ResourceType.builder("DEV").build();
 
     return asList(project, view, dev);
-  }
-
-  private void initI18nMessages() {
-    i18n.put("projects_role.admin", "Administer");
-    i18n.put("projects_role.admin.desc", "Ability to access project settings and perform administration tasks. " +
-      "(Users will also need \"Browse\" permission)");
-    i18n.put("projects_role.issueadmin", "Administer Issues");
-    i18n.put("projects_role.issueadmin.desc", "Grants the permission to perform advanced editing on issues: marking an issue " +
-      "False Positive / Won't Fix or changing an Issue's severity. (Users will also need \"Browse\" permission)");
-    i18n.put("projects_role.user", "Browse");
-    i18n.put("projects_role.user.desc", "Ability to access a project, browse its measures, and create/edit issues for it.");
-    i18n.put("projects_role.codeviewer", "See Source Code");
-    i18n.put("projects_role.codeviewer.desc", "Ability to view the project's source code. (Users will also need \"Browse\" permission)");
   }
 }

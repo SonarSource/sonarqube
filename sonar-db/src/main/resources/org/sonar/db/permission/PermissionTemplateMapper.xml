@@ -177,10 +177,26 @@
     WHERE kee=#{uuid}
   </select>
 
-  <select id="selectAllPermissionTemplates" resultType="PermissionTemplate">
+  <select id="selectAll" parameterType="map" resultType="PermissionTemplate">
     SELECT
     <include refid="templateColumns"/>
     FROM permission_templates
+    <where>
+      <if test="nameMatch!=null">
+        AND (UPPER(name) LIKE #{nameMatch} ESCAPE '/')
+      </if>
+    </where>
+    ORDER BY UPPER(name), name
+  </select>
+
+  <select id="countAll" parameterType="String" resultType="int">
+    SELECT count(id)
+    FROM permission_templates
+    <where>
+      <if test="nameMatch!=null">
+        AND (UPPER(name) LIKE #{nameMatch} ESCAPE '/')
+      </if>
+    </where>
   </select>
 
   <select id="selectByName" parameterType="String" resultType="PermissionTemplate">
@@ -224,6 +240,45 @@
     LEFT OUTER JOIN groups g ON g.id = ptg.group_id
     WHERE pt.kee = #{templateKey}
     AND (g.name IS NOT NULL OR ptg.group_id IS NULL)
+  </select>
+
+  <select id="usersCountByTemplateIdAndPermission" parameterType="map"
+          resultType="org.sonar.db.permission.CountByTemplateAndPermissionDto">
+    SELECT ptu.template_id as templateId, ptu.permission_reference as permission, count(u.login) as count
+    FROM users u
+    INNER JOIN perm_templates_users ptu ON ptu.user_id=u.id
+    AND ptu.template_id in
+    <foreach collection="templateIds" open="(" close=")" item="id" separator=",">
+      #{id}
+    </foreach>
+    <where>
+      AND u.active = ${_true}
+    </where>
+    GROUP BY ptu.template_id, ptu.permission_reference
+  </select>
+
+  <select id="groupsCountByTemplateIdAndPermission" parameterType="map"
+          resultType="org.sonar.db.permission.CountByTemplateAndPermissionDto">
+    SELECT count(name) as count, permission, templateId
+    FROM
+    (SELECT g.name as name, ptg.permission_reference as permission, ptg.template_id as templateId
+    FROM groups g
+    INNER JOIN perm_templates_groups ptg ON ptg.group_id=g.id
+    UNION
+    -- Add Anyone group permission
+    SELECT #{anyoneGroup} as name, ptg.permission_reference as permission, ptg.template_id as templateId
+    FROM perm_templates_groups ptg
+    <where>
+      AND ptg.group_id IS NULL
+    </where>
+    ) groups
+    <where>
+      AND groups.templateId in
+      <foreach collection="templateIds" open="(" close=")" item="id" separator=",">
+        #{id}
+      </foreach>
+    </where>
+    GROUP BY groups.permission, groups.templateId
   </select>
 
   <resultMap id="fullPermissionsTemplateResult" type="PermissionTemplate">

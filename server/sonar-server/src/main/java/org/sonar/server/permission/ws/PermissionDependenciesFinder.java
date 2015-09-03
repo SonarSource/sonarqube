@@ -56,7 +56,7 @@ public class PermissionDependenciesFinder {
     return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, wsProjectRef.uuid(), wsProjectRef.key()));
   }
 
-  public ComponentDto getProject(DbSession dbSession, WsProjectRef projectRef) {
+  ComponentDto getProject(DbSession dbSession, WsProjectRef projectRef) {
     return componentFinder.getProjectByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
   }
 

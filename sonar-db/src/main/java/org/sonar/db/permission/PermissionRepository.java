@@ -166,7 +166,7 @@ public class PermissionRepository {
    * permission template for the resource qualifier.
    */
   private String getApplicablePermissionTemplateKey(DbSession session, final String componentKey, String qualifier) {
-    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAllPermissionTemplates(session);
+    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(session);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();

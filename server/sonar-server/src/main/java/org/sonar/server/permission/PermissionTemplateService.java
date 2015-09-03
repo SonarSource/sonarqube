@@ -86,7 +86,7 @@ public class PermissionTemplateService {
   public List<PermissionTemplate> selectAllPermissionTemplates(@Nullable String componentKey) {
     checkProjectAdminUserByComponentKey(userSession, componentKey);
     List<PermissionTemplate> permissionTemplates = Lists.newArrayList();
-    List<PermissionTemplateDto> permissionTemplateDtos = permissionTemplateDao.selectAllPermissionTemplates();
+    List<PermissionTemplateDto> permissionTemplateDtos = permissionTemplateDao.selectAll();
     if (permissionTemplateDtos != null) {
       for (PermissionTemplateDto permissionTemplateDto : permissionTemplateDtos) {
         permissionTemplates.add(PermissionTemplate.create(permissionTemplateDto));

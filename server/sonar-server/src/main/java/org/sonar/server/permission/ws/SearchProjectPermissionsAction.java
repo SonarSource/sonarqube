@@ -79,7 +79,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchProjectPermissionsData data = dataLoader.load(wsRequest);
-      SearchProjectPermissionsResponse response = buildReponse(data);
+      SearchProjectPermissionsResponse response = buildResponse(data);
       writeProtobuf(response, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
@@ -101,7 +101,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     }
   }
 
-  private SearchProjectPermissionsResponse buildReponse(SearchProjectPermissionsData data) {
+  private SearchProjectPermissionsResponse buildResponse(SearchProjectPermissionsData data) {
     SearchProjectPermissionsResponse.Builder response = SearchProjectPermissionsResponse.newBuilder();
     Permission.Builder permissionResponse = Permission.newBuilder();
 

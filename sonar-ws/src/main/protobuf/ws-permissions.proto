@@ -91,6 +91,8 @@ message PermissionTemplate {
   optional string createdAt = 5;
   // ex: 2015-08-25T16:18:48+0200
   optional string updatedAt = 6;
+  optional bool permissionsPresentIfEmpty = 7;
+  repeated Permission permissions = 8;
 }
 
 message CreatePermissionTemplateResponse {
@@ -99,4 +101,9 @@ message CreatePermissionTemplateResponse {
 
 message UpdatePermissionTemplateResponse {
   optional PermissionTemplate permissionTemplate = 1;
+}
+
+message SearchTemplatesResponse {
+  repeated PermissionTemplate permissionTemplates = 2;
+  repeated Permission permissions = 3;
 }

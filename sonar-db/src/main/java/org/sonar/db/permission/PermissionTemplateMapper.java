@@ -22,6 +22,8 @@ package org.sonar.db.permission;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
@@ -64,4 +66,12 @@ public interface PermissionTemplateMapper {
   int countUsers(Map<String, Object> params);
 
   int countGroups(Map<String, Object> parameters);
+
+  List<PermissionTemplateDto> selectAll(@Param("nameMatch") String nameMatch);
+
+  int countAll(@Param("nameMatch") String nameMatch);
+
+  void usersCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
+
+  void groupsCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 }

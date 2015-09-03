@@ -38,7 +38,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.CountByProjectAndPermissionDto;
-import org.sonar.server.component.ComponentFinder;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -50,12 +49,12 @@ import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBui
 
 public class SearchProjectPermissionsDataLoader {
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
+  private final PermissionDependenciesFinder finder;
   private final Collection<String> rootQualifiers;
 
-  public SearchProjectPermissionsDataLoader(DbClient dbClient, ComponentFinder componentFinder, ResourceTypes resourceTypes) {
+  public SearchProjectPermissionsDataLoader(DbClient dbClient, PermissionDependenciesFinder finder, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
+    this.finder = finder;
     this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER);
   }
 
@@ -93,7 +92,7 @@ public class SearchProjectPermissionsDataLoader {
     Optional<WsProjectRef> project = WsProjectRef.optionalFromRequest(wsRequest);
 
     if (project.isPresent()) {
-      return singletonList(componentFinder.getProjectByUuidOrKey(dbSession, project.get().uuid(), project.get().key()));
+      return singletonList(finder.getProject(dbSession, project.get()));
     }
 
     return dbClient.componentDao().selectComponents(dbSession, rootQualifiers, paging.offset(), paging.pageSize(), query);

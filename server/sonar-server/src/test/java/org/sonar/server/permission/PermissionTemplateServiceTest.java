@@ -195,7 +195,7 @@ public class PermissionTemplateServiceTest {
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
-    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+    when(permissionTemplateDao.selectAll()).thenReturn(Lists.newArrayList(template1, template2));
 
     List<PermissionTemplate> templates = underTest.selectAllPermissionTemplates();
 
@@ -213,7 +213,7 @@ public class PermissionTemplateServiceTest {
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
-    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+    when(permissionTemplateDao.selectAll()).thenReturn(Lists.newArrayList(template1, template2));
 
     List<PermissionTemplate> templates = underTest.selectAllPermissionTemplates("org.sample.Sample");
 
@@ -249,7 +249,7 @@ public class PermissionTemplateServiceTest {
     expected.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
     PermissionTemplateDto template1 = new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
-    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1));
+    when(permissionTemplateDao.selectAll()).thenReturn(Lists.newArrayList(template1));
 
     underTest.updatePermissionTemplate(1L, "template1", "template1", "[azerty");
   }
@@ -260,7 +260,7 @@ public class PermissionTemplateServiceTest {
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
-    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+    when(permissionTemplateDao.selectAll()).thenReturn(Lists.newArrayList(template1, template2));
 
     underTest.updatePermissionTemplate(1L, "template1", "new_description", null);
 
