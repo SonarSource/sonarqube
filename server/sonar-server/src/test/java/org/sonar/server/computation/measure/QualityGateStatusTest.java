@@ -59,4 +59,21 @@ public class QualityGateStatusTest {
   public void two_args_constructor_supports_null_text_arg() {
     assertThat(new QualityGateStatus(Measure.Level.OK, null).getText()).isNull();
   }
+
+  @Test
+  public void verify_equals() {
+    for (Measure.Level level : Measure.Level.values()) {
+      QualityGateStatus status = new QualityGateStatus(level, null);
+      assertThat(status).isEqualTo(status);
+      assertThat(status).isEqualTo(new QualityGateStatus(level, null));
+      assertThat(status).isNotEqualTo(new QualityGateStatus(level, "bar"));
+      assertThat(status).isNotEqualTo(new QualityGateStatus(level, ""));
+      assertThat(status).isNotEqualTo(null);
+    }
+  }
+
+  @Test
+  public void verify_toString() {
+    assertThat(new QualityGateStatus(Measure.Level.OK, "foo").toString()).isEqualTo("QualityGateStatus{status=OK, text=foo}");
+  }
 }
