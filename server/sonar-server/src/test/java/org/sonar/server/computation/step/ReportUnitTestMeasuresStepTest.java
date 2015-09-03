@@ -109,7 +109,7 @@ public class ReportUnitTestMeasuresStepTest {
 
   @Test
   public void aggregate_tests_execution_time() {
-    checkMeasuresAggregation(TEST_EXECUTION_TIME_KEY, 100, 400, 500);
+    checkMeasuresAggregation(TEST_EXECUTION_TIME_KEY, 100L, 400L, 500L);
   }
 
   @Test
@@ -272,4 +272,17 @@ public class ReportUnitTestMeasuresStepTest {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
   }
 
+  private void checkMeasuresAggregation(String metricKey, long file1Value, long file2Value, long expectedValue) {
+    measureRepository.addRawMeasure(FILE_1_REF, metricKey, newMeasureBuilder().create(file1Value));
+    measureRepository.addRawMeasure(FILE_2_REF, metricKey, newMeasureBuilder().create(file2Value));
+
+    underTest.execute();
+
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, metricKey)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, metricKey)).isAbsent();
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(expectedValue)));
+  }
 }

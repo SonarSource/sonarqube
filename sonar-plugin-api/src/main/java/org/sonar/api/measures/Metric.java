@@ -58,7 +58,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     PERCENT(Double.class),
     BOOL(Boolean.class),
     STRING(String.class),
-    MILLISEC(Integer.class),
+    MILLISEC(Long.class),
     DATA(String.class),
     LEVEL(Metric.Level.class),
     DISTRIB(String.class),

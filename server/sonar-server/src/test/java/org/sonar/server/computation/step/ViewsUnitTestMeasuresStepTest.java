@@ -102,7 +102,7 @@ public class ViewsUnitTestMeasuresStepTest {
 
   @Test
   public void aggregate_tests_execution_time() {
-    checkMeasuresAggregation(TEST_EXECUTION_TIME_KEY, 100, 400, 500);
+    checkMeasuresAggregation(TEST_EXECUTION_TIME_KEY, 100L, 400L, 500L);
   }
 
   @Test
@@ -257,11 +257,29 @@ public class ViewsUnitTestMeasuresStepTest {
     assertAddedRawMeasureValue(ROOT_REF, metricKey, expectedValue);
   }
 
+  private void checkMeasuresAggregation(String metricKey, long file1Value, long file2Value, long expectedValue) {
+    measureRepository.addRawMeasure(PROJECT_VIEW_1_REF, metricKey, newMeasureBuilder().create(file1Value));
+    measureRepository.addRawMeasure(PROJECT_VIEW_2_REF, metricKey, newMeasureBuilder().create(file2Value));
+
+    underTest.execute();
+
+    assertNoAddedRawMeasureOnProjectViews();
+    assertAddedRawMeasureValue(SUB_SUBVIEW_1_REF, metricKey, expectedValue);
+    assertNoAddedRawMeasure(SUB_SUBVIEW_2_REF, TEST_SUCCESS_DENSITY_KEY);
+    assertAddedRawMeasureValue(SUBVIEW_REF, metricKey, expectedValue);
+    assertAddedRawMeasureValue(ROOT_REF, metricKey, expectedValue);
+  }
+
   private void addedRawMeasure(int componentRef, String metricKey, int value) {
     measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
   }
 
   private void assertAddedRawMeasureValue(int componentRef, String metricKey, double value) {
+    assertThat(entryOf(metricKey, measureRepository.getAddedRawMeasure(componentRef, metricKey).get()))
+      .isEqualTo(entryOf(metricKey, newMeasureBuilder().create(value)));
+  }
+
+  private void assertAddedRawMeasureValue(int componentRef, String metricKey, long value) {
     assertThat(entryOf(metricKey, measureRepository.getAddedRawMeasure(componentRef, metricKey).get()))
       .isEqualTo(entryOf(metricKey, newMeasureBuilder().create(value)));
   }
