@@ -132,7 +132,7 @@ public final class Measure {
     /**
      * Sets the rule this measure is associated to.
      *
-     * @throws UnsupportedOperationException if the characteristicId as already been set
+     * @throws UnsupportedOperationException if the characteristicId has already been set
      *
      * @see #forCharacteristic(int)
      */
@@ -147,7 +147,7 @@ public final class Measure {
     /**
      * Sets the characteristic this measure is associated to.
      *
-     * @throws UnsupportedOperationException if the ruleId as already been set
+     * @throws UnsupportedOperationException if the ruleId has already been set
      *
      * @see #forCharacteristic(int)
      */

@@ -32,12 +32,18 @@ import static org.sonar.server.computation.measure.Measure.Level.toLevel;
 public class MeasureDtoToMeasure {
 
   public Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric) {
+    return toMeasure(measureDto, metric, false);
+  }
+
+  public Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric, boolean acceptRuleAndCharacteristicMeasure){
     requireNonNull(metric);
     if (measureDto == null) {
       return Optional.absent();
     }
-    checkArgument(measureDto.getCharacteristicId() == null, "Measures with characteristicId are not supported");
-    checkArgument(measureDto.getRuleId() == null, "Measures with ruleId are not supported");
+    if (!acceptRuleAndCharacteristicMeasure) {
+      checkArgument(measureDto.getCharacteristicId() == null, "Measures with characteristicId are not supported");
+      checkArgument(measureDto.getRuleId() == null, "Measures with ruleId are not supported");
+    }
 
     Double value = measureDto.getValue();
     String data = measureDto.getData();
@@ -120,6 +126,14 @@ public class MeasureDtoToMeasure {
     }
     if (hasAnyVariation(measureDto)) {
       builder.setVariations(createVariations(measureDto));
+    }
+    Integer ruleId = measureDto.getRuleId();
+    if (ruleId != null) {
+      builder.forRule(ruleId);
+    }
+    Integer characteristicId = measureDto.getCharacteristicId();
+    if (characteristicId != null) {
+      builder.forCharacteristic(characteristicId);
     }
 
     return builder;

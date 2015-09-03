@@ -48,7 +48,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final MetricRepository metricRepository;
   private final ReportMetricValidator reportMetricValidator;
 
-  private final MeasureDtoToMeasure measureDtoToMeasure = new MeasureDtoToMeasure();
+  private MeasureDtoToMeasure underTest = new MeasureDtoToMeasure();
   private final Set<Integer> loadedComponents = new HashSet<>();
 
   public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository, ReportMetricValidator reportMetricValidator) {
@@ -67,7 +67,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       MeasureDto measureDto = dbClient.measureDao().selectByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey());
-      return measureDtoToMeasure.toMeasure(measureDto, metric);
+      return underTest.toMeasure(measureDto, metric);
     }
   }
 

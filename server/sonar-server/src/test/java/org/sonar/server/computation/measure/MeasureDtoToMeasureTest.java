@@ -58,6 +58,20 @@ public class MeasureDtoToMeasureTest {
     assertThat(underTest.toMeasure(null, SOME_INT_METRIC)).isAbsent();
   }
 
+  @Test
+  public void toMeasure_returns_rule_measure() {
+    Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setRuleId(10), SOME_INT_METRIC, true);
+    assertThat(measure).isPresent();
+    assertThat(measure.get().getRuleId()).isEqualTo(10);
+  }
+
+  @Test
+  public void toMeasure_returns_characteristic_measure() {
+    Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setCharacteristicId(30), SOME_INT_METRIC, true);
+    assertThat(measure).isPresent();
+    assertThat(measure.get().getCharacteristicId()).isEqualTo(30);
+  }
+
   @Test(expected = NullPointerException.class)
   public void toMeasure_throws_NPE_if_metric_argument_is_null() {
     underTest.toMeasure(EMPTY_MEASURE_DTO, null);
@@ -303,12 +317,12 @@ public class MeasureDtoToMeasureTest {
   @DataProvider
   public static Object[][] all_types_MeasureDtos() {
     return new Object[][] {
-        {new MeasureDto().setValue(1d), SOME_BOOLEAN_METRIC},
-        {new MeasureDto().setValue(1d), SOME_INT_METRIC},
-        {new MeasureDto().setValue(1d), SOME_LONG_METRIC},
-        {new MeasureDto().setValue(1d), SOME_DOUBLE_METRIC},
-        {new MeasureDto().setData("1"), SOME_STRING_METRIC},
-        {new MeasureDto().setData(Measure.Level.OK.name()), SOME_LEVEL_METRIC}
+      {new MeasureDto().setValue(1d), SOME_BOOLEAN_METRIC},
+      {new MeasureDto().setValue(1d), SOME_INT_METRIC},
+      {new MeasureDto().setValue(1d), SOME_LONG_METRIC},
+      {new MeasureDto().setValue(1d), SOME_DOUBLE_METRIC},
+      {new MeasureDto().setData("1"), SOME_STRING_METRIC},
+      {new MeasureDto().setData(Measure.Level.OK.name()), SOME_LEVEL_METRIC}
     };
   }
 
@@ -331,8 +345,8 @@ public class MeasureDtoToMeasureTest {
   @Test
   public void toMeasure_creates_MeasureVariation_and_maps_the_right_one() {
     MeasureDto measureDto = new MeasureDto()
-        .setData("1")
-        .setVariation(2, 2d).setVariation(3, 3d).setVariation(5, 5d);
+      .setData("1")
+      .setVariation(2, 2d).setVariation(3, 3d).setVariation(5, 5d);
 
     Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_STRING_METRIC);
 
