@@ -24,9 +24,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.junit.Test;
+import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 public class CloseableIteratorTest {
 
@@ -136,6 +139,35 @@ public class CloseableIteratorTest {
   @Test(expected = IllegalArgumentException.class)
   public void from_iterator_throws_IAE_if_arg_is_a_AutoCloseable() {
     CloseableIterator.from(new CloseableIt());
+  }
+
+  @Test
+  public void wrap_closeables() throws Exception {
+    AutoCloseable closeable1 = mock(AutoCloseable.class);
+    AutoCloseable closeable2 = mock(AutoCloseable.class);
+    CloseableIterator iterator = new SimpleCloseableIterator();
+
+    CloseableIterator wrapper = CloseableIterator.wrap(iterator, closeable1, closeable2);
+
+    assertThat(wrapper.next()).isEqualTo(1);
+    assertThat(wrapper.next()).isEqualTo(2);
+    assertThat(wrapper.hasNext()).isFalse();
+    assertThat(wrapper.isClosed).isTrue();
+    assertThat(iterator.isClosed).isTrue();
+    InOrder order = inOrder(closeable1, closeable2);
+    order.verify(closeable1).close();
+    order.verify(closeable2).close();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void wrap_fails_if_iterator_declared_in_other_closeables() throws Exception {
+    CloseableIterator iterator = new SimpleCloseableIterator();
+    CloseableIterator.wrap(iterator, iterator);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void wrap_fails_if_null_closeable() throws Exception {
+    CloseableIterator.wrap(new SimpleCloseableIterator(), null);
   }
 
   private static class CloseableIt implements Iterator<String>, AutoCloseable {

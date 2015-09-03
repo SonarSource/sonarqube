@@ -20,9 +20,12 @@
 package org.sonar.core.util;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
+import org.apache.commons.lang.ArrayUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -56,11 +59,21 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
    *
    * @throws IllegalArgumentException if the specified {@link Iterator} is a CloseableIterator
    */
-  public static <T> CloseableIterator<T> from(final Iterator<T> iterator) {
+  public static <T> CloseableIterator<T> from(Iterator<T> iterator) {
     // early fail
     requireNonNull(iterator);
     checkArgument(!(iterator instanceof AutoCloseable), "This method does not support creating a CloseableIterator from an Iterator which is Closeable");
     return new RegularIteratorWrapper<>(iterator);
+  }
+
+  /**
+   * Wraps a {@code CloseableIterator} and optionally other instances of {@code AutoCloseable} that must be closed
+   * at the same time. The wrapped iterator is closed first then the other {@code AutoCloseable} in the defined order.
+   * 
+   * @throws IllegalArgumentException if the parameter {@code otherCloseables} contains the wrapped iterator
+   */
+  public static <T> CloseableIterator<T> wrap(CloseableIterator<T> iterator, AutoCloseable... otherCloseables) {
+    return new CloseablesIteratorWrapper<>(iterator, otherCloseables);
   }
 
   private O nextObject = null;
@@ -90,7 +103,7 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
   }
 
   /**
-   * Reads next item and returns null if no more items.
+   * Reads next item and returns {@code null} if no more items.
    */
   @CheckForNull
   protected abstract O doNext();
@@ -163,6 +176,36 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
     @Override
     protected void doClose() throws Exception {
       // do nothing
+    }
+  }
+
+  private static class CloseablesIteratorWrapper<T> extends CloseableIterator<T> {
+    private final CloseableIterator<T> iterator;
+    private final List<AutoCloseable> otherCloseables;
+
+    private CloseablesIteratorWrapper(CloseableIterator<T> iterator, AutoCloseable... otherCloseables) {
+      requireNonNull(iterator);
+      checkArgument(!ArrayUtils.contains(otherCloseables, iterator));
+      this.iterator = iterator;
+      // the advantage of using ImmutableList is that it does not accept null elements, so it fails fast, during
+      // construction of the wrapper, but not in close()
+      this.otherCloseables = ImmutableList.copyOf(otherCloseables);
+    }
+
+    @Override
+    protected T doNext() {
+      return iterator.hasNext() ? iterator.next() : null;
+    }
+
+    @Override
+    protected void doClose() throws Exception {
+      // iterator can be already closed by doNext(), but closing here ensures
+      // that iterator is closed when it is not fully traversed.
+      iterator.close();
+
+      for (AutoCloseable otherCloseable : otherCloseables) {
+        otherCloseable.close();
+      }
     }
   }
 }
