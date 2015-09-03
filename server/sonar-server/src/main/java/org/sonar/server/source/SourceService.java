@@ -115,7 +115,7 @@ public class SourceService {
 
   }
 
-  private class IsGreaterOrEqualThanLine implements Predicate<DbFileSources.Line> {
+  private static class IsGreaterOrEqualThanLine implements Predicate<DbFileSources.Line> {
     private final int from;
 
     IsGreaterOrEqualThanLine(int from) {

@@ -86,8 +86,8 @@ public class CustomMeasuresCopyStep implements ComputationStep {
     switch (metric.getType()) {
       case INT:
       case RATING:
-      case MILLISEC:
         return Measure.newMeasureBuilder().create((int) dto.getValue());
+      case MILLISEC:
       case WORK_DUR:
         return Measure.newMeasureBuilder().create((long) dto.getValue());
       case FLOAT:

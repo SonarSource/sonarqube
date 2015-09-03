@@ -43,6 +43,7 @@ import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
 import static org.sonar.server.computation.formula.SumFormula.createIntSumFormula;
+import static org.sonar.server.computation.formula.SumFormula.createLongSumFormula;
 
 /**
  * Computes unit test measures on files and then aggregates them on higher components.
@@ -52,7 +53,7 @@ public class UnitTestMeasuresStep implements ComputationStep {
   private static final String[] METRICS = new String[] {TESTS_KEY, TEST_ERRORS_KEY, TEST_FAILURES_KEY, TEST_SUCCESS_DENSITY_KEY};
 
   private static final ImmutableList<Formula> FORMULAS = ImmutableList.<Formula>of(
-    createIntSumFormula(TEST_EXECUTION_TIME_KEY),
+    createLongSumFormula(TEST_EXECUTION_TIME_KEY),
     createIntSumFormula(SKIPPED_TESTS_KEY),
     new UnitTestsFormula());
 

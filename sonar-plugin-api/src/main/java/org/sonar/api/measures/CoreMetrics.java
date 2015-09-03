@@ -413,7 +413,7 @@ public final class CoreMetrics {
     .create();
 
   public static final String TEST_EXECUTION_TIME_KEY = "test_execution_time";
-  public static final Metric<Integer> TEST_EXECUTION_TIME = new Metric.Builder(TEST_EXECUTION_TIME_KEY, "Unit tests duration", Metric.ValueType.MILLISEC)
+  public static final Metric<Long> TEST_EXECUTION_TIME = new Metric.Builder(TEST_EXECUTION_TIME_KEY, "Unit tests duration", Metric.ValueType.MILLISEC)
     .setDescription("Execution duration of unit tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)

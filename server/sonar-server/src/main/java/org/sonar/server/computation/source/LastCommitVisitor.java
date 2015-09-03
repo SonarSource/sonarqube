@@ -106,11 +106,10 @@ public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor
 
   @Override
   public void visitProjectView(Component projectView, Path<LastCommit> path) {
-    if (!path.isRoot()) {
-      Optional<Measure> rawMeasure = measureRepository.getRawMeasure(projectView, lastCommitDateMetric);
-      if (rawMeasure.isPresent()) {
-        path.parent().addDate(rawMeasure.get().getLongValue());
-      }
+    Optional<Measure> rawMeasure = measureRepository.getRawMeasure(projectView, lastCommitDateMetric);
+    if (rawMeasure.isPresent()) {
+      // path.parent() should never fail as a project view must never be a root component
+      path.parent().addDate(rawMeasure.get().getLongValue());
     }
   }
 

@@ -86,13 +86,13 @@ public class MeasuresPublisher implements ReportPublisherStep {
         builder.setBooleanValue((Boolean) value);
         break;
       case DOUBLE:
-        builder.setDoubleValue((Double) value);
+        builder.setDoubleValue(((Number) value).doubleValue());
         break;
       case INT:
-        builder.setIntValue((Integer) value);
+        builder.setIntValue(((Number) value).intValue());
         break;
       case LONG:
-        builder.setLongValue((Long) value);
+        builder.setLongValue(((Number) value).longValue());
         break;
       case STRING:
         builder.setStringValue((String) value);
@@ -105,7 +105,6 @@ public class MeasuresPublisher implements ReportPublisherStep {
   private MeasureValueType getMeasureValueType(ValueType type) {
     switch (type) {
       case INT:
-      case MILLISEC:
       case RATING:
         return MeasureValueType.INT;
       case FLOAT:
@@ -119,6 +118,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
       case DISTRIB:
         return MeasureValueType.STRING;
       case WORK_DUR:
+      case MILLISEC:
         return MeasureValueType.LONG;
       default:
         throw new IllegalStateException("Unknown value type: " + type);

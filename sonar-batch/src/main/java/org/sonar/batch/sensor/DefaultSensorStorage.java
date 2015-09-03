@@ -160,21 +160,17 @@ public class DefaultSensorStorage implements SensorStorage {
         break;
       case INT:
       case MILLISEC:
-        measureToSave.setValue(Double.valueOf((Integer) measure.value()));
-        break;
+      case WORK_DUR:
       case FLOAT:
       case PERCENT:
       case RATING:
-        measureToSave.setValue((Double) measure.value());
+        measureToSave.setValue(((Number) measure.value()).doubleValue());
         break;
       case STRING:
       case LEVEL:
       case DATA:
       case DISTRIB:
         measureToSave.setData((String) measure.value());
-        break;
-      case WORK_DUR:
-        measureToSave.setValue(Double.valueOf((Long) measure.value()));
         break;
       default:
         throw new UnsupportedOperationException("Unsupported type :" + m.getType());
