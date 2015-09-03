@@ -111,7 +111,7 @@ public class WSLoader {
     try {
       cache.put(client.getURI(id).toString(), value);
     } catch (IOException e) {
-      LOG.warn("Error saving to WS cache", e);
+      throw new IllegalStateException("Error saving to WS cache", e);
     }
   }
 
