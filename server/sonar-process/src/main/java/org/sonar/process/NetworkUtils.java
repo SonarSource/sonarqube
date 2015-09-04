@@ -39,7 +39,7 @@ public class NetworkUtils {
     try  {
       socket = new ServerSocket();
       socket.setReuseAddress(true);
-      socket.bind(new InetSocketAddress(0));
+      socket.bind(new InetSocketAddress("localhost", 0));
       return socket.getLocalPort();
 
     } catch (IOException e) {
