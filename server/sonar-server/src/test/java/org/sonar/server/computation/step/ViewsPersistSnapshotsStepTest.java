@@ -111,7 +111,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
   public void persist_snapshots() {
     ComponentDto projectDto = save(newProjectDto("proj"));
     ComponentDto viewDto = save(newView("ABCD").setKey(valueOf(PROJECT_KEY)).setName("Project"));
-    ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("2"));
+    ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "key").setKey("2"));
     ComponentDto projectViewDto = save(newProjectCopy("DEFG", projectDto, subViewDto).setKey("3"));
     dbTester.getSession().commit();
 
@@ -181,7 +181,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
   @Test
   public void persist_snapshots_with_periods() {
     ComponentDto viewDto = save(newView("ABCD").setKey(valueOf(PROJECT_KEY)).setName("Project"));
-    ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("2"));
+    ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "key").setKey("2"));
     SnapshotDto viewSnapshotDto = save(createForProject(viewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
     SnapshotDto subViewSnapshotDto = save(createForProject(subViewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
     dbTester.getSession().commit();

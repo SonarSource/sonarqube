@@ -134,7 +134,7 @@ public class ViewsFillMeasuresWithVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.getId(), period1ViewSnapshot.getId(), 60d));
 
     // SubView
-    ComponentDto subviewDto = ComponentTesting.newSubView(VIEW_DTO, "dir", "who cares?");
+    ComponentDto subviewDto = ComponentTesting.newSubView(VIEW_DTO, "dir", "key");
     dbClient.componentDao().insert(session, subviewDto);
     SnapshotDto period1SubviewSnapshot = createForComponent(subviewDto, period1ViewSnapshot);
     dbClient.snapshotDao().insert(session, period1SubviewSnapshot);

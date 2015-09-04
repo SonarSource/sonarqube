@@ -55,12 +55,11 @@ public class ComponentTesting {
         .setQualifier(Qualifiers.DIRECTORY);
   }
 
-  public static ComponentDto newSubView(ComponentDto viewOrSubView, String uuid, String path) {
+  public static ComponentDto newSubView(ComponentDto viewOrSubView, String uuid, String key) {
     return newChildComponent(uuid, viewOrSubView)
-        .setKey(!path.equals("/") ? viewOrSubView.getKey() + ":" + path : viewOrSubView.getKey() + ":/")
-        .setName(path)
-        .setLongName(path)
-        .setPath(path)
+        .setKey(key)
+        .setName(key)
+        .setLongName(key)
         .setScope(Scopes.PROJECT)
         .setQualifier(Qualifiers.SUBVIEW);
   }
