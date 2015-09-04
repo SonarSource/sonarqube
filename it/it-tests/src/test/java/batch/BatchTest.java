@@ -5,19 +5,14 @@
  */
 package batch;
 
-import util.ItUtils;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Assume;
 import org.junit.Before;
@@ -32,6 +27,9 @@ import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import util.ItUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchTest {
 
@@ -41,11 +39,11 @@ public class BatchTest {
     .addPlugin(ItUtils.xooPlugin())
     .setContext("/")
 
-    .addPlugin(ItUtils.pluginArtifact("batch-plugin"))
+  .addPlugin(ItUtils.pluginArtifact("batch-plugin"))
     // Java is only used in convert_library_into_module test
     .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
 
-    .build();
+  .build();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -110,7 +108,7 @@ public class BatchTest {
   public void module_should_load_own_settings_from_database() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
-    
+
     Sonar sonar = orchestrator.getServer().getAdminWsClient();
     String propKey = "myFakeProperty";
     String rootModuleKey = "com.sonarsource.it.samples:multi-modules-sample";
@@ -118,7 +116,7 @@ public class BatchTest {
     sonar.delete(new PropertyDeleteQuery(propKey, rootModuleKey));
     sonar.delete(new PropertyDeleteQuery(propKey, moduleBKey));
 
-    BuildResult result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", "true");
+    BuildResult result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", propKey);
 
     assertThat(result.getLogs()).doesNotContain(rootModuleKey + ":" + propKey);
     assertThat(result.getLogs()).doesNotContain(moduleBKey + ":" + propKey);
@@ -126,7 +124,7 @@ public class BatchTest {
     // Set property only on root project
     sonar.update(new PropertyUpdateQuery(propKey, "project", rootModuleKey));
 
-    result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", "true");
+    result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", propKey);
 
     assertThat(result.getLogs()).contains(rootModuleKey + ":" + propKey + " = project");
     assertThat(result.getLogs()).contains(moduleBKey + ":" + propKey + " = project");
@@ -134,7 +132,7 @@ public class BatchTest {
     // Override property on moduleB
     sonar.update(new PropertyUpdateQuery(propKey, "moduleB", moduleBKey));
 
-    result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", "true");
+    result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", propKey);
 
     assertThat(result.getLogs()).contains(rootModuleKey + ":" + propKey + " = project");
     assertThat(result.getLogs()).contains(moduleBKey + ":" + propKey + " = moduleB");
@@ -147,7 +145,7 @@ public class BatchTest {
   public void should_not_exclude_root_module() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
-    
+
     thrown.expect(BuildFailureException.class);
     scan("shared/xoo-multi-modules-sample",
       "sonar.skippedModules", "multi-modules-sample");
@@ -176,7 +174,7 @@ public class BatchTest {
   public void should_display_explicit_message_when_no_plugin_language_available() {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    
+
     BuildResult buildResult = scanQuietly("shared/xoo-sample",
       "sonar.language", "foo",
       "sonar.profile", "");
@@ -189,7 +187,7 @@ public class BatchTest {
   public void should_display_explicit_message_when_wrong_profile() {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    
+
     BuildResult buildResult = scanQuietly("shared/xoo-sample",
       "sonar.profile", "unknow");
     assertThat(buildResult.getStatus()).isEqualTo(1);
@@ -202,7 +200,7 @@ public class BatchTest {
     try {
       orchestrator.getServer().provisionProject("sample", "xoo-sample");
       orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-      
+
       orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
 
       BuildResult buildResult = scanQuietly("shared/xoo-sample",
@@ -238,7 +236,7 @@ public class BatchTest {
     try {
       orchestrator.getServer().provisionProject("sample", "xoo-sample");
       orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-      
+
       orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
 
       BuildResult buildResult = scanQuietly("shared/xoo-sample");
@@ -319,7 +317,7 @@ public class BatchTest {
   public void should_display_explicit_message_when_invalid_project_key_or_branch() {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    
+
     BuildResult buildResult = scanQuietly("shared/xoo-sample",
       "sonar.projectKey", "ar g$l:");
     assertThat(buildResult.getStatus()).isEqualTo(1);
@@ -353,7 +351,7 @@ public class BatchTest {
       // message
       .contains("Error message from plugin")
 
-      // but not stacktrace
+    // but not stacktrace
       .doesNotContain("at com.sonarsource.RaiseMessageException");
   }
 
@@ -394,7 +392,7 @@ public class BatchTest {
     scan("batch/prevent-common-module/projectAB");
     assertThat(getResource("com.sonarsource.it.samples:moduleA")).isNotNull();
     assertThat(getResource("com.sonarsource.it.samples:moduleB")).isNotNull();
-    
+
     orchestrator.getServer().provisionProject("projectAC", "project AC");
     orchestrator.getServer().associateProjectToQualityProfile("projectAC", "xoo", "one-issue-per-line");
 
@@ -408,11 +406,11 @@ public class BatchTest {
    */
   @Test
   public void test_project_creation_date() {
-    long before = new Date().getTime()-2000l;
+    long before = new Date().getTime() - 2000l;
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     orchestrator.executeBuild(SonarRunner.create(ItUtils.projectDir("shared/xoo-sample")));
-    long after = new Date().getTime()+2000l;
+    long after = new Date().getTime() + 2000l;
     Resource xooSample = orchestrator.getServer().getWsClient().find(new ResourceQuery().setResourceKeyOrId("sample"));
     assertThat(xooSample.getCreationDate().getTime()).isGreaterThan(before).isLessThan(after);
   }

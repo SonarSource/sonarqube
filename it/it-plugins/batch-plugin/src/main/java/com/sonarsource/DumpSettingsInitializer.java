@@ -1,5 +1,10 @@
 package com.sonarsource;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
@@ -7,15 +12,13 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
 @Properties({
   @Property(
     key = DumpSettingsInitializer.SONAR_SHOW_SETTINGS,
-    type = PropertyType.BOOLEAN,
+    type = PropertyType.STRING,
     name = "Property to decide if it should output settings",
-    defaultValue = "false")
+    multiValues = true,
+    defaultValue = "")
 })
 public class DumpSettingsInitializer extends Initializer {
 
@@ -33,10 +36,13 @@ public class DumpSettingsInitializer extends Initializer {
 
   @Override
   public void execute(Project project) {
-    if (settings.getBoolean(SONAR_SHOW_SETTINGS)) {
+    Set<String> settingsToDump = new HashSet<>(Arrays.asList(settings.getStringArray(SONAR_SHOW_SETTINGS)));
+    if (!settingsToDump.isEmpty()) {
       TreeMap<String, String> treemap = new TreeMap<String, String>(settings.getProperties());
       for (Entry<String, String> prop : treemap.entrySet()) {
-        System.out.println("  o " + project.getKey() + ":" + prop.getKey() + " = " + prop.getValue());
+        if (settingsToDump.contains(prop.getKey())) {
+          System.out.println("  o " + project.getKey() + ":" + prop.getKey() + " = " + prop.getValue());
+        }
       }
     }
   }
