@@ -10,18 +10,43 @@
     <tbody>
     <tr>
         <td>open</td>
+        <td>/sonar/sessions/logout</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>open</td>
+        <td>/sonar/sessions/new</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=login</td>
+        <td>admin</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=password</td>
+        <td>admin</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>name=commit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>open</td>
         <td>/sonar/measures</td>
         <td></td>
     </tr>
     <tr>
-      <td>waitForElementPresent</td>
-      <td>name=qualifiers[]</td>
-      <td></td>
+        <td>click</td>
+        <td>css=.navigator-filter[title='Components: Any']</td>
+        <td></td>
     </tr>
     <tr>
-        <td>select</td>
-        <td>name=qualifiers[]</td>
-        <td>Files</td>
+        <td>click</td>
+        <td>css=label[title='Files']</td>
+        <td></td>
     </tr>
     <tr>
         <td>clickAndWait</td>
@@ -34,9 +59,19 @@
         <td></td>
     </tr>
     <tr>
-        <td>select</td>
-        <td>select-metric</td>
+        <td>click</td>
+        <td>class=select2-choice</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>css=.select2-with-searchbox .select2-input</td>
         <td>Complexity</td>
+    </tr>
+    <tr>
+        <td>keyPressAndWait</td>
+        <td>css=.select2-with-searchbox .select2-input</td>
+        <td>\13</td>
     </tr>
     <tr>
         <td>clickAndWait</td>
@@ -49,9 +84,19 @@
         <td>*Name*Cmpx*</td>
     </tr>
     <tr>
-        <td>select</td>
-        <td>select-metric</td>
+        <td>click</td>
+        <td>class=select2-choice</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>css=.select2-with-searchbox .select2-input</td>
         <td>Comment lines</td>
+    </tr>
+    <tr>
+        <td>keyPressAndWait</td>
+        <td>css=.select2-with-searchbox .select2-input</td>
+        <td>\13</td>
     </tr>
     <tr>
         <td>select</td>

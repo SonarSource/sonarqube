@@ -26,6 +26,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NotFoundException;
 import org.openqa.selenium.WebElement;
 
 import java.io.File;
@@ -93,6 +94,9 @@ public class SeleneseTest {
       case "type":
         type(param1, param2);
         return this;
+      case "keyPressAndWait":
+        keyPressAndWait(param1, param2);
+        return this;
       case "select":
         select(param1, param2);
         return this;
@@ -117,6 +121,9 @@ public class SeleneseTest {
         return this;
       case "storeEval":
         storeEval(param1, param2);
+        return this;
+      case "store":
+        store(param1, param2);
         return this;
       case "assertText":
       case "waitForText":
@@ -168,6 +175,8 @@ public class SeleneseTest {
 
   private void goTo(String url) {
     requireNonNull(url, "The url cannot be null");
+
+    url = replacePlaceholders(url);
 
     URI uri = URI.create(url.replace(" ", "%20"));
     if (!uri.isAbsolute()) {
@@ -232,6 +241,13 @@ public class SeleneseTest {
     find(selector).fill(replacePlaceholders(text));
   }
 
+  private void keyPressAndWait(String selector, String key) {
+    if (!key.equals("\\13")) {
+      throw new IllegalArgumentException("Invalid key: " + key);
+    }
+    find(selector).pressEnter();
+  }
+
   private void select(String selector, String text) {
     if (text.startsWith("label=")) {
       find(selector).select(text.substring(6));
@@ -252,8 +268,27 @@ public class SeleneseTest {
     find(selector).execute(new ExtractVariable(name));
   }
 
-  private void storeEval(String expression, String name) {
-    variables.put(name, driver.executeScript("return " + expression).toString());
+  private void storeEval(final String expression, final String name) {
+    // Retry until it's not null and doesn't fail
+    _30_SECONDS.execute(new Runnable() {
+      @Override
+      public void run() {
+        Object result = driver.executeScript("return " + expression);
+        if (result == null) {
+          throw new NotFoundException(expression);
+        }
+        String value = result.toString();
+        variables.put(name, value);
+      }
+    });
+  }
+
+  private void store(String expression, String name) {
+    if (expression.startsWith("javascript{") && expression.endsWith("}")) {
+      storeEval(expression.substring(11, expression.length() - 1), name);
+    } else {
+      throw new IllegalArgumentException("Invalid store expression: " + expression);
+    }
   }
 
   private class ExtractVariable implements Consumer<WebElement> {
@@ -312,12 +347,12 @@ public class SeleneseTest {
     regexp = regexp.replaceAll("([\\]\\[\\\\{\\}$\\(\\)\\|\\^\\+.])", "\\\\$1");
     regexp = regexp.replaceAll("\\*", ".*");
     regexp = regexp.replaceAll("\\?", ".");
-    return Pattern.compile(regexp, DOTALL);
+    return Pattern.compile(regexp, DOTALL | Pattern.CASE_INSENSITIVE);
   }
 
   private static Pattern regex(String pattern) {
     String regexp = pattern.replaceFirst("regexp:", ".*") + ".*";
-    return Pattern.compile(regexp, DOTALL);
+    return Pattern.compile(regexp, DOTALL | Pattern.CASE_INSENSITIVE);
   }
 
   private void assertTextPresent(String text) {

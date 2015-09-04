@@ -68,11 +68,16 @@
 	<td>class=navigator-filters</td>
 	<td>*More Criteria*</td>
 </tr>
-<tr>
-	<td>select</td>
-	<td>name=qualifiers[]</td>
-	<td>Files</td>
-</tr>
+    <tr>
+        <td>click</td>
+        <td>css=.navigator-filter[title='Components: Any']</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>css=label[title='Files']</td>
+        <td></td>
+    </tr>
 <tr>
 	<td>clickAndWait</td>
 	<td>class=navigator-filter-submit</td>
@@ -100,7 +105,7 @@
 </tr>
 <tr>
 	<td>storeEval</td>
-	<td>window.location.pathname.split('/').last()</td>
+	<td>window.location.pathname.split('/')[4]</td>
 	<td>FILTER_ID</td>
 </tr>
 <tr>

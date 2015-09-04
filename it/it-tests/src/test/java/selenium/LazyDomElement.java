@@ -24,6 +24,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
@@ -80,6 +81,15 @@ class LazyDomElement {
       public void accept(WebElement element) {
         element.clear();
         element.sendKeys(text);
+      }
+    });
+  }
+
+  public void pressEnter() {
+    execute("pressEnter", new Consumer<WebElement>() {
+      @Override
+      public void accept(WebElement element) {
+        element.sendKeys(Keys.ENTER);
       }
     });
   }
