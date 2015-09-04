@@ -58,7 +58,7 @@ public class FileIndexer {
   private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);
 
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
-  private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
+  private static final IOFileFilter FILE_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar_lock")));
 
   private final List<InputFileFilter> filters;
   private final boolean isAggregator;
