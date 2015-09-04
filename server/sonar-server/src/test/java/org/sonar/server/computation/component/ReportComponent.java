@@ -50,7 +50,11 @@ public class ReportComponent implements Component {
     this.key = builder.key;
     this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
     this.uuid = builder.uuid;
-    this.reportAttributes = new ReportAttributes(builder.ref, builder.version);
+    this.reportAttributes = ReportAttributes.newBuilder(builder.ref)
+        .setVersion(builder.version)
+        .setDescription(builder.description)
+        .setPath(builder.path)
+        .build();
     this.fileAttributes = builder.fileAttributes == null ? DEFAULT_FILE_ATTRIBUTES : builder.fileAttributes;
     this.children = ImmutableList.copyOf(builder.children);
   }
@@ -139,6 +143,8 @@ public class ReportComponent implements Component {
     private String key;
     private String name;
     private String version;
+    private String description;
+    private String path;
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
 
@@ -171,6 +177,16 @@ public class ReportComponent implements Component {
     public Builder setFileAttributes(FileAttributes fileAttributes){
       checkState(type == Type.FILE, "Only Component of type File can have File attributes");
       this.fileAttributes = fileAttributes;
+      return this;
+    }
+
+    public Builder setDescription(@Nullable String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder setPath(@Nullable String path) {
+      this.path = path;
       return this;
     }
 

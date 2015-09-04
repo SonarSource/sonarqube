@@ -23,14 +23,61 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+/**
+ * Component properties which are specific to the Batch Report.
+ */
 @Immutable
 public class ReportAttributes {
   private final int ref;
+  @CheckForNull
   private final String version;
+  @CheckForNull
+  private final String description;
+  @CheckForNull
+  private final String path;
 
-  public ReportAttributes(int ref, @Nullable String version) {
-    this.ref = ref;
-    this.version = version;
+  private ReportAttributes(Builder builder) {
+    this.ref = builder.ref;
+    this.version = builder.version;
+    this.description = builder.description;
+    this.path = builder.path;
+  }
+
+  public static Builder newBuilder(int ref) {
+    return new Builder(ref);
+  }
+
+  public static class Builder {
+    private final int ref;
+    @CheckForNull
+    private String version;
+    @CheckForNull
+    private String description;
+    @CheckForNull
+    private String path;
+
+    private Builder(int ref) {
+      this.ref = ref;
+    }
+
+    public Builder setVersion(@Nullable String version) {
+      this.version = version;
+      return this;
+    }
+
+    public Builder setDescription(@Nullable String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder setPath(@Nullable String path) {
+      this.path = path;
+      return this;
+    }
+
+    public ReportAttributes build() {
+      return new ReportAttributes(this);
+    }
   }
 
   /**
@@ -48,11 +95,29 @@ public class ReportAttributes {
     return this.version;
   }
 
+  /**
+   * The description of the report component, if available.
+   */
+  @CheckForNull
+  public String getDescription() {
+    return description;
+  }
+
+  /**
+   * The path of the report component, must be non null for module, directories and files.
+   */
+  @CheckForNull
+  public String getPath() {
+    return path;
+  }
+
   @Override
   public String toString() {
     return "ReportAttributes{" +
       "ref=" + ref +
       ", version='" + version + '\'' +
+      ", description='" + description + '\'' +
+      ", path='" + path + '\'' +
       '}';
   }
 }

@@ -54,7 +54,11 @@ public class ComponentImpl implements Component {
   }
 
   private static ReportAttributes createBatchAttributes(BatchReport.Component component) {
-    return new ReportAttributes(component.getRef(), component.hasVersion() ? component.getVersion() : null);
+    return ReportAttributes.newBuilder(component.getRef())
+      .setVersion(component.hasVersion() ? component.getVersion() : null)
+      .setDescription(component.hasDescription() ? component.getDescription() : null)
+      .setPath(component.hasPath() ? component.getPath() : null)
+      .build();
   }
 
   @CheckForNull
