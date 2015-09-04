@@ -59,9 +59,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 /**
- * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used
+ * This class should be call using @ClassRule in order to create the schema once (if @Rule is used
  * the schema will be recreated before each test).
- * Data will be truncated each time you call prepareDbUnit().
+ * Data will be truncated each time you call {@link #truncateTables()}.
  * <p>
  * File using {@link DbTester} must be annotated with {@link org.sonar.test.DbTests} so
  * that they can be executed on all supported DBs (Oracle, MySQL, ...).
