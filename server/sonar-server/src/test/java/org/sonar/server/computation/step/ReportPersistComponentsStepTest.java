@@ -35,8 +35,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.FileAttributes;
+import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +49,7 @@ import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
 @Category(DbTests.class)
-public class PersistComponentsStepTest extends BaseStepTest {
+public class ReportPersistComponentsStepTest extends BaseStepTest {
 
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -59,8 +59,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
-  DbIdsRepositoryImpl dbIdsRepository;
+  @Rule
+  public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
 
   System2 system2 = mock(System2.class);
 
@@ -73,7 +73,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
   @Before
   public void setup() throws Exception {
     dbTester.truncateTables();
-    dbIdsRepository = new DbIdsRepositoryImpl();
 
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
@@ -110,7 +109,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     underTest.execute();
-    dbTester.getSession().commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 

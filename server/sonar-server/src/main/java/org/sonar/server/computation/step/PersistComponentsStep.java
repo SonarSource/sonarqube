@@ -44,6 +44,7 @@ import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.db.component.ComponentDto.MODULE_UUID_PATH_SEP;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
@@ -103,18 +104,27 @@ public class PersistComponentsStep implements ComputationStep {
     private final DbSession dbSession;
 
     public PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByKey, DbSession dbSession) {
-      super(CrawlerDepthLimit.FILE, PRE_ORDER, new SimpleStackElementFactory<ComponentDtoHolder>() {
-        @Override
-        public ComponentDtoHolder createForAny(Component component) {
-          return new ComponentDtoHolder();
-        }
+      super(
+        CrawlerDepthLimit.LEAVES,
+        PRE_ORDER,
+        new SimpleStackElementFactory<ComponentDtoHolder>() {
+          @Override
+          public ComponentDtoHolder createForAny(Component component) {
+            return new ComponentDtoHolder();
+          }
 
-        @Override
-        public ComponentDtoHolder createForFile(Component file) {
-          // no need to create holder for file since they are leaves of the Component tree
-          return null;
-        }
-      });
+          @Override
+          public ComponentDtoHolder createForFile(Component file) {
+            // no need to create holder for file since they are always leaves of the Component tree
+            return null;
+          }
+
+          @Override
+          public ComponentDtoHolder createForProjectView(Component projectView) {
+            // no need to create holder for file since they are always leaves of the Component tree
+            return null;
+          }
+        });
       this.existingComponentDtosByKey = existingComponentDtosByKey;
       this.dbSession = dbSession;
     }
@@ -141,6 +151,24 @@ public class PersistComponentsStep implements ComputationStep {
     public void visitFile(Component file, Path<ComponentDtoHolder> path) {
       ComponentDto dto = createForFile(file, path);
       persistAndPopulateCache(file, dto);
+    }
+
+    @Override
+    public void visitView(Component view, Path<ComponentDtoHolder> path) {
+      ComponentDto dto = createForView(view);
+      path.current().setDto(persistAndPopulateCache(view, dto));
+    }
+
+    @Override
+    public void visitSubView(Component subView, Path<ComponentDtoHolder> path) {
+      ComponentDto dto = createForSubView(subView, path);
+      path.current().setDto(persistAndPopulateCache(subView, dto));
+    }
+
+    @Override
+    public void visitProjectView(Component projectView, Path<ComponentDtoHolder> path) {
+      ComponentDto dto = createForProjectView(projectView, path);
+      persistAndPopulateCache(projectView, dto);
     }
 
     private ComponentDto persistAndPopulateCache(Component component, ComponentDto dto) {
@@ -172,7 +200,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setLongName(res.name());
     res.setDescription(project.getReportAttributes().getDescription());
     res.setProjectUuid(res.uuid());
-    res.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + res.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
+    res.setModuleUuidPath(MODULE_UUID_PATH_SEP + res.uuid() + MODULE_UUID_PATH_SEP);
 
     return res;
   }
@@ -187,13 +215,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setPath(module.getReportAttributes().getPath());
     res.setDescription(module.getReportAttributes().getDescription());
 
-    ComponentDto projectDto = from(path.getCurrentPath()).last().get().getElement().getDto();
-    res.setParentProjectId(projectDto.getId());
-
-    ComponentDto parentModule = path.parent().getDto();
-    res.setProjectUuid(parentModule.projectUuid());
-    res.setModuleUuid(parentModule.uuid());
-    res.setModuleUuidPath(parentModule.moduleUuidPath() + res.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
+    setRootAndParentModule(res, path);
 
     return res;
   }
@@ -207,7 +229,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setLongName(directory.getReportAttributes().getPath());
     res.setPath(directory.getReportAttributes().getPath());
 
-    setParentProperties(res, path);
+    setParentModuleProperties(res, path);
 
     return res;
   }
@@ -222,7 +244,47 @@ public class PersistComponentsStep implements ComputationStep {
     res.setPath(file.getReportAttributes().getPath());
     res.setLanguage(file.getFileAttributes().getLanguageKey());
 
-    setParentProperties(res, path);
+    setParentModuleProperties(res, path);
+
+    return res;
+  }
+
+  private ComponentDto createForView(Component view) {
+    ComponentDto res = createBase(view);
+
+    res.setScope(Scopes.PROJECT);
+    res.setQualifier(Qualifiers.VIEW);
+    res.setName(view.getName());
+    res.setLongName(res.name());
+    res.setProjectUuid(res.uuid());
+    res.setModuleUuidPath(MODULE_UUID_PATH_SEP + res.uuid() + MODULE_UUID_PATH_SEP);
+
+    return res;
+  }
+
+  private ComponentDto createForSubView(Component subView, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+    ComponentDto res = createBase(subView);
+
+    res.setScope(Scopes.PROJECT);
+    res.setQualifier(Qualifiers.SUBVIEW);
+    res.setName(subView.getName());
+    res.setLongName(res.name());
+
+    setRootAndParentModule(res, path);
+
+    return res;
+  }
+
+  private ComponentDto createForProjectView(Component projectView, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+    ComponentDto res = createBase(projectView);
+
+    res.setScope(Scopes.FILE);
+    res.setQualifier(Qualifiers.PROJECT);
+    res.setName(projectView.getName());
+    res.setLongName(res.name());
+    res.setCopyResourceId(projectView.getProjectViewAttributes().getProjectId());
+
+    setRootAndParentModule(res, path);
 
     return res;
   }
@@ -240,7 +302,23 @@ public class PersistComponentsStep implements ComputationStep {
     return componentDto;
   }
 
-  private static void setParentProperties(ComponentDto componentDto, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+  /**
+   * Applies to a node of type either MODULE, SUBVIEW, PROJECT_VIEW
+   */
+  private static void setRootAndParentModule(ComponentDto res, PathAwareVisitor.Path<ComponentDtoHolder> path) {
+    ComponentDto projectDto = from(path.getCurrentPath()).last().get().getElement().getDto();
+    res.setParentProjectId(projectDto.getId());
+    res.setProjectUuid(projectDto.uuid());
+
+    ComponentDto parentModule = path.parent().getDto();
+    res.setModuleUuid(parentModule.uuid());
+    res.setModuleUuidPath(parentModule.moduleUuidPath() + res.uuid() + MODULE_UUID_PATH_SEP);
+  }
+
+  /**
+   * Applies to a node of type either DIRECTORY or FILE
+   */
+  private static void setParentModuleProperties(ComponentDto componentDto, PathAwareVisitor.Path<ComponentDtoHolder> path) {
     ComponentDto parentModule = from(path.getCurrentPath())
       .filter(ParentModulePathElement.INSTANCE)
       .first()
