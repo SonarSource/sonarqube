@@ -33,8 +33,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Permissions.Permission;
-import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse;
-import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project;
+import org.sonarqube.ws.Permissions.WsSearchProjectPermissionsResponse;
+import org.sonarqube.ws.Permissions.WsSearchProjectPermissionsResponse.Project;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
@@ -79,7 +79,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchProjectPermissionsData data = dataLoader.load(wsRequest);
-      SearchProjectPermissionsResponse response = buildResponse(data);
+      WsSearchProjectPermissionsResponse response = buildResponse(data);
       writeProtobuf(response, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
@@ -101,8 +101,8 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     }
   }
 
-  private SearchProjectPermissionsResponse buildResponse(SearchProjectPermissionsData data) {
-    SearchProjectPermissionsResponse.Builder response = SearchProjectPermissionsResponse.newBuilder();
+  private WsSearchProjectPermissionsResponse buildResponse(SearchProjectPermissionsData data) {
+    WsSearchProjectPermissionsResponse.Builder response = WsSearchProjectPermissionsResponse.newBuilder();
     Permission.Builder permissionResponse = Permission.newBuilder();
 
     Project.Builder rootComponentBuilder = Project.newBuilder();

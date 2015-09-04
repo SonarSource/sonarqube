@@ -28,8 +28,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
+import org.sonarqube.ws.Permissions.WsCreatePermissionTemplateResponse;
 
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
@@ -90,7 +90,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
       PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, name, description, projectPattern);
 
-      Permissions.CreatePermissionTemplateResponse response = buildResponse(permissionTemplate);
+      WsCreatePermissionTemplateResponse response = buildResponse(permissionTemplate);
       writeProtobuf(response, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
@@ -114,8 +114,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
     return template;
   }
 
-  private static Permissions.CreatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
+  private static WsCreatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
     PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplateDto);
-    return Permissions.CreatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
+    return WsCreatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 }

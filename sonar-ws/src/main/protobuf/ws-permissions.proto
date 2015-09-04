@@ -29,7 +29,7 @@ option java_outer_classname = "Permissions";
 option optimize_for = SPEED;
 
 // WS api/permissions/users for internal use only
-message UsersResponse {
+message WsUsersResponse {
 
   message User {
     optional string login = 1;
@@ -43,7 +43,7 @@ message UsersResponse {
 }
 
 // WS api/permissions/groups for internal use only
-message GroupsResponse {
+message WsGroupsResponse {
 
   message Group {
     optional string id = 1;
@@ -64,11 +64,11 @@ message Permission {
   optional int32 groupsCount = 5;
 }
 
-message SearchGlobalPermissionsResponse {
+message WsSearchGlobalPermissionsResponse {
   repeated Permission permissions = 1;
 }
 
-message SearchProjectPermissionsResponse {
+message WsSearchProjectPermissionsResponse {
   message Project {
     optional string id = 1;
     optional string key = 2;
@@ -95,15 +95,15 @@ message PermissionTemplate {
   repeated Permission permissions = 8;
 }
 
-message CreatePermissionTemplateResponse {
+message WsCreatePermissionTemplateResponse {
   optional PermissionTemplate permissionTemplate = 1;
 }
 
-message UpdatePermissionTemplateResponse {
+message WsUpdatePermissionTemplateResponse {
   optional PermissionTemplate permissionTemplate = 1;
 }
 
-message SearchTemplatesResponse {
+message WsSearchTemplatesResponse {
   repeated PermissionTemplate permissionTemplates = 2;
   repeated Permission permissions = 3;
 }

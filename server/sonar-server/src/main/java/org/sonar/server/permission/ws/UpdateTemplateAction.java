@@ -31,7 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
-import org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse;
+import org.sonarqube.ws.Permissions.WsUpdatePermissionTemplateResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static java.lang.String.format;
@@ -98,7 +98,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
       validateTemplate(dbSession, templateToUpdate);
       PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
 
-      UpdatePermissionTemplateResponse response = buildResponse(updatedTemplate);
+      WsUpdatePermissionTemplateResponse response = buildResponse(updatedTemplate);
       writeProtobuf(response, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
@@ -125,9 +125,9 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     return dbClient.permissionTemplateDao().update(dbSession, templateToUpdate);
   }
 
-  private static UpdatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplate) {
+  private static WsUpdatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplate) {
     PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplate);
-    return UpdatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
+    return WsUpdatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 
   private void validateTemplateNameForUpdate(DbSession dbSession, String name, long id) {

@@ -37,7 +37,7 @@ import org.sonar.server.permission.UserWithPermissionQueryResult;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common.Paging;
-import org.sonarqube.ws.Permissions.UsersResponse;
+import org.sonarqube.ws.Permissions.WsUsersResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -89,20 +89,20 @@ public class UsersAction implements PermissionsWsAction {
       Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request);
       checkProjectAdminUserByComponentDto(userSession, project);
       PermissionQuery permissionQuery = buildPermissionQuery(request, project);
-      UsersResponse usersResponse = usersResponse(permissionQuery, request.page(), request.pageSize());
+      WsUsersResponse wsUsersResponse = wsUsersResponse(permissionQuery, request.page(), request.pageSize());
 
-      writeProtobuf(usersResponse, wsRequest, wsResponse);
+      writeProtobuf(wsUsersResponse, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private UsersResponse usersResponse(PermissionQuery permissionQuery, int page, int pageSize) {
+  private WsUsersResponse wsUsersResponse(PermissionQuery permissionQuery, int page, int pageSize) {
     UserWithPermissionQueryResult usersResult = permissionFinder.findUsersWithPermission(permissionQuery);
     List<UserWithPermission> usersWithPermission = usersResult.users();
 
-    UsersResponse.Builder userResponse = UsersResponse.newBuilder();
-    UsersResponse.User.Builder user = UsersResponse.User.newBuilder();
+    WsUsersResponse.Builder userResponse = WsUsersResponse.newBuilder();
+    WsUsersResponse.User.Builder user = WsUsersResponse.User.newBuilder();
     for (UserWithPermission userWithPermission : usersWithPermission) {
       userResponse.addUsers(
         user

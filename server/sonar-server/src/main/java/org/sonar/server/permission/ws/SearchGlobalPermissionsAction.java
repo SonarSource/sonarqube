@@ -31,7 +31,7 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.Permission;
-import org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse;
+import org.sonarqube.ws.Permissions.WsSearchGlobalPermissionsResponse;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -67,15 +67,15 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      SearchGlobalPermissionsResponse response = buildResponse(dbSession);
+      WsSearchGlobalPermissionsResponse response = buildResponse(dbSession);
       writeProtobuf(response, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private SearchGlobalPermissionsResponse buildResponse(DbSession dbSession) {
-    SearchGlobalPermissionsResponse.Builder response = SearchGlobalPermissionsResponse.newBuilder();
+  private WsSearchGlobalPermissionsResponse buildResponse(DbSession dbSession) {
+    WsSearchGlobalPermissionsResponse.Builder response = WsSearchGlobalPermissionsResponse.newBuilder();
     Permission.Builder permission = newBuilder();
 
     for (String permissionKey : GlobalPermissions.ALL) {

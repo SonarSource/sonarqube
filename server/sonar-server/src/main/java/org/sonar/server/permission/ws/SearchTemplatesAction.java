@@ -31,7 +31,7 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
-import org.sonarqube.ws.Permissions.SearchTemplatesResponse;
+import org.sonarqube.ws.Permissions.WsSearchTemplatesResponse;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
@@ -71,15 +71,15 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchTemplatesData data = dataLoader.load(wsRequest);
-      SearchTemplatesResponse response = buildResponse(data);
+      WsSearchTemplatesResponse response = buildResponse(data);
       writeProtobuf(response, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private SearchTemplatesResponse buildResponse(SearchTemplatesData data) {
-    SearchTemplatesResponse.Builder response = SearchTemplatesResponse.newBuilder();
+  private WsSearchTemplatesResponse buildResponse(SearchTemplatesData data) {
+    WsSearchTemplatesResponse.Builder response = WsSearchTemplatesResponse.newBuilder();
     Permission.Builder permissionResponse = Permission.newBuilder();
 
     PermissionTemplate.Builder templateBuilder = PermissionTemplate.newBuilder();

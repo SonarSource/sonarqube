@@ -38,7 +38,7 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Permissions;
+import org.sonarqube.ws.Permissions.WsGroupsResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
@@ -89,7 +89,7 @@ public class GroupsAction implements PermissionsWsAction {
       checkProjectAdminUserByComponentDto(userSession, project);
 
       PermissionQuery permissionQuery = buildPermissionQuery(request, project);
-      Permissions.GroupsResponse groupsResponse = buildResponse(permissionQuery, request);
+      WsGroupsResponse groupsResponse = buildResponse(permissionQuery, request);
 
       writeProtobuf(groupsResponse, wsRequest, wsResponse);
     } finally {
@@ -97,12 +97,12 @@ public class GroupsAction implements PermissionsWsAction {
     }
   }
 
-  private Permissions.GroupsResponse buildResponse(PermissionQuery permissionQuery, PermissionRequest permissionRequest) {
+  private WsGroupsResponse buildResponse(PermissionQuery permissionQuery, PermissionRequest permissionRequest) {
     GroupWithPermissionQueryResult groupsResult = permissionFinder.findGroupsWithPermission(permissionQuery);
     List<GroupWithPermission> groupsWithPermission = groupsResult.groups();
 
-    Permissions.GroupsResponse.Builder groupsResponse = Permissions.GroupsResponse.newBuilder();
-    Permissions.GroupsResponse.Group.Builder group = Permissions.GroupsResponse.Group.newBuilder();
+    WsGroupsResponse.Builder groupsResponse = WsGroupsResponse.newBuilder();
+    WsGroupsResponse.Group.Builder group = WsGroupsResponse.Group.newBuilder();
     Common.Paging.Builder paging = Common.Paging.newBuilder();
 
     for (GroupWithPermission groupWithPermission : groupsWithPermission) {
