@@ -25,8 +25,9 @@ cache:
     - 'server/sonar-web/node_modules'
 
 before_cache:
-  - 'rm -rf $HOME/.m2/repository/org/codehaus/sonar'
-  - 'rm -f server/sonar-web/npm-debug.log'
+  - 'find ~/.m2/repository -type d -name \*-SNAPSHOT -exec rm -rf {} \;'
+  - 'find ~/.m2/repository -name maven-metadata-\* -exec rm {} \;'
+  - 'find ~/.m2/repository -name resolver-status.properties -exec rm {} \;'
 
 notifications:
   email: false
