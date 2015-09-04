@@ -31,7 +31,6 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.DosFileAttributeView;
 
 public class ProjectLock implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectLock.class);
@@ -51,7 +50,6 @@ public class ProjectLock implements Startable {
     try {
       lockRandomAccessFile = new RandomAccessFile(lockFilePath.toFile(), "rw");
       lockChannel = lockRandomAccessFile.getChannel();
-      hideLockFileWindows(lockFilePath);
       lockFile = lockChannel.tryLock(0, 1024, false);
 
       if (lockFile == null) {
@@ -62,17 +60,6 @@ public class ProjectLock implements Startable {
       failAlreadyInProgress(e);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create project lock in " + lockFilePath.toString(), e);
-    }
-  }
-
-  private static void hideLockFileWindows(Path p) {
-    try {
-      DosFileAttributeView fileAttrView = Files.getFileAttributeView(p, DosFileAttributeView.class);
-      if (fileAttrView != null) {
-        fileAttrView.setHidden(true);
-      }
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to hide file: " + p.toString(), e);
     }
   }
 
