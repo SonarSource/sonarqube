@@ -5,6 +5,8 @@
   <sql id="measureColumns">
     pm.id,
     pm.metric_id as metricId,
+    pm.rule_id as ruleId,
+    pm.characteristic_id as characteristicId,
     pm.snapshot_id as snapshotId,
     pm.value as value,
     pm.text_value as textValue,
@@ -69,8 +71,6 @@
       <foreach item="metricKey" index="index" collection="metricKeys" open="(" separator=" or " close=")">
         metric.name=#{metricKey}
       </foreach>
-      AND pm.rule_id IS NULL
-      AND pm.characteristic_id IS NULL
       AND pm.person_id IS NULL
     </where>
   </select>

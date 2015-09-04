@@ -1,0 +1,17 @@
+<dataset>
+
+  <metrics id="10" name="authors_by_line"/>
+  <metrics id="11" name="coverage_line_hits_data"/>
+  <metrics id="12" name="ncloc"/>
+
+  <projects id="1" kee="org.struts:struts-core:src/org/struts/RequestContext.java" enabled="[true]"/>
+
+  <snapshots id="5" project_id="1" islast="[true]" />
+
+  <project_measures id="1" VALUE="60" METRIC_ID="12" SNAPSHOT_ID="5" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
+
+  <project_measures id="2" VALUE="20" METRIC_ID="12" SNAPSHOT_ID="5" RULE_ID="[null]" characteristic_id="10" person_id="[null]"/>
+
+  <project_measures id="3" VALUE="40" METRIC_ID="12" SNAPSHOT_ID="5" RULE_ID="[null]" characteristic_id="11" person_id="[null]"/>
+
+</dataset>

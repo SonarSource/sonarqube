@@ -202,6 +202,7 @@ public class MeasureDto {
     return this;
   }
 
+  @CheckForNull
   public Integer getCharacteristicId() {
     return characteristicId;
   }

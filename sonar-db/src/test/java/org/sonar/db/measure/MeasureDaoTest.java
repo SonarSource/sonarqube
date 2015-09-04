@@ -25,6 +25,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -36,6 +37,7 @@ import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
@@ -268,6 +270,55 @@ public class MeasureDaoTest {
   }
 
   @Test
+  public void select_by_snapshot_and_metric_keys() throws Exception {
+    db.prepareDbUnit(getClass(), "select_by_snapshot_and_metric_keys.xml");
+
+    List<MeasureDto> results = underTest.selectBySnapshotIdAndMetricKeys(5, newHashSet("ncloc", "authors_by_line"), db.getSession());
+    assertThat(results).hasSize(2);
+
+    results = underTest.selectBySnapshotIdAndMetricKeys(5, newHashSet("ncloc"), db.getSession());
+    assertThat(results).hasSize(1);
+
+    MeasureDto result = results.get(0);
+    assertThat(result.getId()).isEqualTo(22);
+    assertThat(result.getValue()).isEqualTo(10d);
+    assertThat(result.getVariation(1)).isEqualTo(1d);
+    assertThat(result.getVariation(2)).isEqualTo(2d);
+    assertThat(result.getVariation(3)).isEqualTo(3d);
+    assertThat(result.getVariation(4)).isEqualTo(4d);
+    assertThat(result.getVariation(5)).isEqualTo(-5d);
+
+    assertThat(underTest.selectBySnapshotIdAndMetricKeys(123, newHashSet("ncloc"), db.getSession())).isEmpty();
+    assertThat(underTest.selectBySnapshotIdAndMetricKeys(5, Collections.<String>emptySet(), db.getSession())).isEmpty();
+  }
+
+  @Test
+  public void select_by_snapshot_and_metric_keys_return_measures_with_rule_id() throws Exception {
+    db.prepareDbUnit(getClass(), "select_by_snapshot_and_metric_keys_with_rule_id.xml");
+
+    List<MeasureDto> results = underTest.selectBySnapshotIdAndMetricKeys(5, newHashSet("ncloc"), db.getSession());
+    assertThat(results).hasSize(3);
+
+    Map<Long, MeasureDto> measuresById = measuresById(results);
+    assertThat(measuresById.get(1L).getRuleId()).isNull();
+    assertThat(measuresById.get(2L).getRuleId()).isEqualTo(30);
+    assertThat(measuresById.get(3L).getRuleId()).isEqualTo(31);
+  }
+
+  @Test
+  public void select_by_snapshot_and_metric_keys_return_measures_with_characteristic_id() throws Exception {
+    db.prepareDbUnit(getClass(), "select_by_snapshot_and_metric_keys_with_characteristic_id.xml");
+
+    List<MeasureDto> results = underTest.selectBySnapshotIdAndMetricKeys(5, newHashSet("ncloc"), db.getSession());
+    assertThat(results).hasSize(3);
+
+    Map<Long, MeasureDto> measuresById = measuresById(results);
+    assertThat(measuresById.get(1L).getCharacteristicId()).isNull();
+    assertThat(measuresById.get(2L).getCharacteristicId()).isEqualTo(10);
+    assertThat(measuresById.get(3L).getCharacteristicId()).isEqualTo(11);
+  }
+
+  @Test
   public void insert() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
@@ -291,7 +342,7 @@ public class MeasureDaoTest {
     );
     db.getSession().commit();
 
-    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "project_measures");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "project_measures");
   }
 
   @Test
@@ -319,6 +370,16 @@ public class MeasureDaoTest {
       @Nullable
       @Override
       public Long apply(PastMeasureDto input) {
+        return input.getId();
+      }
+    });
+  }
+
+  private static Map<Long, MeasureDto> measuresById(List<MeasureDto> pastMeasures) {
+    return FluentIterable.from(pastMeasures).uniqueIndex(new Function<MeasureDto, Long>() {
+      @Nullable
+      @Override
+      public Long apply(MeasureDto input) {
         return input.getId();
       }
     });
