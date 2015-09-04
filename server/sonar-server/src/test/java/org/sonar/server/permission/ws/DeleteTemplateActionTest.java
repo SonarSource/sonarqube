@@ -52,7 +52,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.util.collections.Sets.newSet;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 
 public class DeleteTemplateActionTest {
 
@@ -68,7 +69,7 @@ public class DeleteTemplateActionTest {
   WsActionTester ws;
   DbClient dbClient;
   DbSession dbSession;
-  DefaultPermissionTemplateFinder defautTemplatePermissionFinder;
+  DefaultPermissionTemplateFinder defaultTemplatePermissionFinder;
 
   PermissionTemplateDto permissionTemplate;
 
@@ -78,10 +79,10 @@ public class DeleteTemplateActionTest {
 
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    defautTemplatePermissionFinder = mock(DefaultPermissionTemplateFinder.class);
-    when(defautTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(Collections.<String>emptySet());
+    defaultTemplatePermissionFinder = mock(DefaultPermissionTemplateFinder.class);
+    when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(Collections.<String>emptySet());
     PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient));
-    ws = new WsActionTester(new DeleteTemplateAction(dbClient, userSession, finder, defautTemplatePermissionFinder));
+    ws = new WsActionTester(new DeleteTemplateAction(dbClient, userSession, finder, defaultTemplatePermissionFinder));
 
     permissionTemplate = insertTemplateAndAssociatedPermissions(newPermissionTemplateDto().setKee(TEMPLATE_UUID));
     PermissionTemplateDto permissionTemplateInDatabase = dbClient.permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(dbSession, TEMPLATE_UUID);
@@ -99,6 +100,16 @@ public class DeleteTemplateActionTest {
   }
 
   @Test
+  public void delete_template_by_name_case_insensitive() {
+    ws.newRequest()
+      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .execute();
+    commit();
+
+    assertThat(dbClient.permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(dbSession, TEMPLATE_UUID)).isNull();
+  }
+
+  @Test
   public void fail_if_uuid_is_not_known() {
     expectedException.expect(NotFoundException.class);
 
@@ -109,7 +120,7 @@ public class DeleteTemplateActionTest {
   public void fail_if_template_is_default() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("It is not possible to delete a default template");
-    when(defautTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(newSet(TEMPLATE_UUID));
+    when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(newSet(TEMPLATE_UUID));
 
     newRequest(TEMPLATE_UUID);
   }
@@ -132,7 +143,7 @@ public class DeleteTemplateActionTest {
 
   @Test
   public void fail_if_uuid_is_not_provided() {
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(BadRequestException.class);
 
     newRequest(null);
   }
@@ -155,7 +166,7 @@ public class DeleteTemplateActionTest {
   private TestResponse newRequest(@Nullable String id) {
     TestRequest request = ws.newRequest();
     if (id != null) {
-      request.setParam(PARAM_ID, id);
+      request.setParam(PARAM_TEMPLATE_ID, id);
     }
 
     TestResponse result = executeRequest(request);

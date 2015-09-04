@@ -99,8 +99,13 @@ public class PermissionDependenciesFinder {
       format("User with login '%s' is not found'", userLogin));
   }
 
-  PermissionTemplateDto getTemplate(DbSession dbSession, String uuid) {
-    return checkFound(dbClient.permissionTemplateDao().selectByUuid(dbSession, uuid),
-      format("Permission template with id '%s' is not found", uuid));
+  PermissionTemplateDto getTemplate(DbSession dbSession, WsTemplateRef template) {
+    if (template.uuid() != null) {
+      return checkFound(dbClient.permissionTemplateDao().selectByUuid(dbSession, template.uuid()),
+        format("Permission template with id '%s' is not found", template.uuid()));
+    } else {
+      return checkFound(dbClient.permissionTemplateDao().selectByName(dbSession, template.name()),
+        format("Permission template with name '%s' is not found (case insensitive)", template.name()));
+    }
   }
 }

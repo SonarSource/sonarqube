@@ -21,15 +21,15 @@
 package org.sonar.server.permission.ws;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 
-import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Ordering.natural;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.ws.ResourceTypeToQualifier.RESOURCE_TYPE_TO_QUALIFIER;
@@ -44,14 +44,10 @@ public class DefaultPermissionTemplateFinder {
   }
 
   Set<String> getDefaultTemplateUuids() {
-    return ImmutableSet.<String>builder()
-      .addAll(
-        from(resourceTypes.getRoots())
-          .transform(RESOURCE_TYPE_TO_QUALIFIER)
-          .transform(new QualifierToDefaultTemplate(settings))
-          .toSet())
-      .add(settings.getString(DEFAULT_TEMPLATE_PROPERTY))
-      .build();
+    return from(resourceTypes.getRoots())
+      .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .transform(new QualifierToDefaultTemplate(settings))
+      .toSortedSet(natural());
   }
 
   List<TemplateUuidQualifier> getDefaultTemplatesByQualifier() {
@@ -88,8 +84,8 @@ public class DefaultPermissionTemplateFinder {
 
     @Override
     public String apply(@Nonnull String qualifier) {
-      String qualifierProperty = settings.getString(defaultRootQualifierTemplateProperty(qualifier));
-      return firstNonNull(qualifierProperty, settings.getString(DEFAULT_TEMPLATE_PROPERTY));
+      String effectiveTemplateUuid = effectiveTemplateUuid(settings, qualifier);
+      return effectiveTemplateUuid;
     }
   }
 
@@ -102,11 +98,23 @@ public class DefaultPermissionTemplateFinder {
 
     @Override
     public TemplateUuidQualifier apply(@Nonnull String qualifier) {
-      String qualifierTemplateUuid = firstNonNull(
-        settings.getString(defaultRootQualifierTemplateProperty(qualifier)),
-        settings.getString(DEFAULT_TEMPLATE_PROPERTY));
+      String effectiveTemplateUuid = effectiveTemplateUuid(settings, qualifier);
 
-      return new TemplateUuidQualifier(qualifierTemplateUuid, qualifier);
+      return new TemplateUuidQualifier(effectiveTemplateUuid, qualifier);
+    }
+  }
+
+  private static String effectiveTemplateUuid(Settings settings, String qualifier) {
+    String qualifierTemplateUuid = settings.getString(defaultRootQualifierTemplateProperty(qualifier));
+    String projectTemplateUuid = settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT));
+    String defaultTemplateUuid = settings.getString(DEFAULT_TEMPLATE_PROPERTY);
+
+    if (qualifierTemplateUuid != null) {
+      return qualifierTemplateUuid;
+    } else if (projectTemplateUuid != null) {
+      return projectTemplateUuid;
+    } else {
+      return defaultTemplateUuid;
     }
   }
 

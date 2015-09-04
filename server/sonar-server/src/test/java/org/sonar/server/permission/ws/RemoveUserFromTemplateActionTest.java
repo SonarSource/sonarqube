@@ -55,6 +55,9 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 
 @Category(DbTests.class)
 public class RemoveUserFromTemplateActionTest {
@@ -92,6 +95,18 @@ public class RemoveUserFromTemplateActionTest {
   @Test
   public void remove_user_from_template() {
     newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).isEmpty();
+  }
+
+  @Test
+  public void remove_user_from_template_by_name_case_insensitive() {
+    ws.newRequest()
+      .setParam(PARAM_USER_LOGIN, USER_LOGIN)
+      .setParam(PARAM_PERMISSION, DEFAULT_PERMISSION)
+      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .execute();
+    commit();
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).isEmpty();
   }
@@ -164,8 +179,8 @@ public class RemoveUserFromTemplateActionTest {
   }
 
   @Test
-  public void fail_if_template_key_missing() {
-    expectedException.expect(IllegalArgumentException.class);
+  public void fail_if_template_missing() {
+    expectedException.expect(BadRequestException.class);
 
     newRequest(USER_LOGIN, null, DEFAULT_PERMISSION);
   }
@@ -189,7 +204,7 @@ public class RemoveUserFromTemplateActionTest {
   private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = ws.newRequest();
     if (userLogin != null) {
-      request.setParam(Parameters.PARAM_USER_LOGIN, userLogin);
+      request.setParam(PARAM_USER_LOGIN, userLogin);
     }
     if (templateKey != null) {
       request.setParam(Parameters.PARAM_TEMPLATE_ID, templateKey);

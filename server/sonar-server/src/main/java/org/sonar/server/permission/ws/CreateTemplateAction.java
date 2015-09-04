@@ -33,9 +33,9 @@ import org.sonarqube.ws.Permissions.WsCreatePermissionTemplateResponse;
 
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
+import static org.sonar.server.permission.ws.Parameters.PARAM_DESCRIPTION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_NAME;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PATTERN;
 import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
@@ -67,7 +67,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_TEMPLATE_NAME)
+    action.createParam(PARAM_NAME)
       .setRequired(true)
       .setDescription("Name")
       .setExampleValue("Financial Service Permissions");
@@ -78,9 +78,9 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    String name = wsRequest.mandatoryParam(PARAM_TEMPLATE_NAME);
-    String description = wsRequest.param(PARAM_TEMPLATE_DESCRIPTION);
-    String projectPattern = wsRequest.param(PARAM_TEMPLATE_PATTERN);
+    String name = wsRequest.mandatoryParam(PARAM_NAME);
+    String description = wsRequest.param(PARAM_DESCRIPTION);
+    String projectPattern = wsRequest.param(PARAM_PATTERN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

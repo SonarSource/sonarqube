@@ -30,13 +30,12 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 import static org.sonar.server.permission.ws.Parameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.Parameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateIdParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 
 public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -60,7 +59,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
         "It requires administration permissions to access.")
       .setHandler(this);
 
-    createTemplateIdParameter(action);
+    createTemplateParameters(action);
     createProjectPermissionParameter(action);
     createGroupIdParameter(action);
     createGroupNameParameter(action);
@@ -70,7 +69,6 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     WsGroupRef group = WsGroupRef.fromRequest(wsRequest);
 
@@ -78,7 +76,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
     try {
       validateProjectPermission(permission);
 
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateUuid);
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
       GroupDto groupDto = dependenciesFinder.getGroup(dbSession, group);
 
       Long groupId = groupDto == null ? null : groupDto.getId();

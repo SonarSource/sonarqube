@@ -30,8 +30,8 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
-import static org.sonar.server.permission.ws.Parameters.createIdParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsTemplateRef.fromRequest;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class DeleteTemplateAction implements PermissionsWsAction {
@@ -56,30 +56,24 @@ public class DeleteTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    createIdParameter(action);
+    createTemplateParameters(action);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String uuid = wsRequest.mandatoryParam(PARAM_ID);
-    checkTemplateUuidIsNotDefault(uuid);
-
-    deleteTemplate(uuid);
-
-    wsResponse.noContent();
-  }
-
-  private void deleteTemplate(String uuid) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionTemplateDto template = finder.getTemplate(dbSession, uuid);
+      PermissionTemplateDto template = finder.getTemplate(dbSession, fromRequest(wsRequest));
+      checkTemplateUuidIsNotDefault(template.getUuid());
       dbClient.permissionTemplateDao().deleteById(dbSession, template.getId());
       dbSession.commit();
     } finally {
       dbClient.closeSession(dbSession);
     }
+
+    wsResponse.noContent();
   }
 
   private void checkTemplateUuidIsNotDefault(String key) {

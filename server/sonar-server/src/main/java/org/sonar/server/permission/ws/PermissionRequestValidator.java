@@ -34,7 +34,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_QUALIFIER;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PATTERN;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionRequestValidator {
@@ -77,7 +77,7 @@ public class PermissionRequestValidator {
     try {
       Pattern.compile(projectPattern);
     } catch (PatternSyntaxException e) {
-      throw new BadRequestException(format("The '%s' parameter must be a valid Java regular expression. '%s' was passed", PARAM_TEMPLATE_PATTERN, projectPattern));
+      throw new BadRequestException(format("The '%s' parameter must be a valid Java regular expression. '%s' was passed", PARAM_PATTERN, projectPattern));
     }
   }
 }

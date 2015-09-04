@@ -23,6 +23,7 @@ package org.sonar.server.permission.ws;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
+import org.sonar.core.util.Uuids;
 
 import static java.lang.String.format;
 
@@ -35,11 +36,12 @@ class Parameters {
   static final String PARAM_PROJECT_KEY = "projectKey";
   static final String PARAM_USER_LOGIN = "login";
   static final String PARAM_TEMPLATE_ID = "templateId";
+  static final String PARAM_TEMPLATE_NAME = "templateName";
 
   static final String PARAM_ID = "id";
-  static final String PARAM_TEMPLATE_NAME = "name";
-  static final String PARAM_TEMPLATE_DESCRIPTION = "description";
-  static final String PARAM_TEMPLATE_PATTERN = "projectKeyPattern";
+  static final String PARAM_NAME = "name";
+  static final String PARAM_DESCRIPTION = "description";
+  static final String PARAM_PATTERN = "projectKeyPattern";
 
   static final String PARAM_QUALIFIER = "qualifier";
 
@@ -108,21 +110,31 @@ class Parameters {
       .setExampleValue("g.hopper");
   }
 
-  static void createTemplateIdParameter(NewAction action) {
+  static void createTemplateParameters(NewAction action) {
+    createTemplateIdParameter(action);
+    createTemplateNameParameter(action);
+  }
+
+  private static void createTemplateIdParameter(NewAction action) {
     action.createParam(PARAM_TEMPLATE_ID)
-      .setRequired(true)
       .setDescription("Template id")
-      .setExampleValue("617f3501-3d32-41bd-a7ac-18315d2e3c7a");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+  }
+
+  private static void createTemplateNameParameter(NewAction action) {
+    action.createParam(PARAM_TEMPLATE_NAME)
+      .setDescription("Template name")
+      .setExampleValue("Default Permission Template for Projects");
   }
 
   static void createTemplateProjectKeyPatternParameter(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_PATTERN)
+    action.createParam(PARAM_PATTERN)
       .setDescription("Project key pattern. Must be a valid Java regular expression")
       .setExampleValue(".*\\.finance\\..*");
   }
 
   static void createTemplateDescriptionParameter(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_DESCRIPTION)
+    action.createParam(PARAM_DESCRIPTION)
       .setDescription("Description")
       .setExampleValue("Permissions for all projects related to the financial service");
   }

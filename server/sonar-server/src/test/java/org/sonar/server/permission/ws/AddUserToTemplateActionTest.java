@@ -55,6 +55,9 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 
 @Category(DbTests.class)
 public class AddUserToTemplateActionTest {
@@ -90,6 +93,18 @@ public class AddUserToTemplateActionTest {
   @Test
   public void add_user_to_template() {
     newRequest(USER_LOGIN, permissionTemplate.getKee(), CODEVIEWER);
+
+    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(USER_LOGIN);
+  }
+
+  @Test
+  public void add_user_to_template_by_name() {
+    ws.newRequest()
+      .setParam(PARAM_USER_LOGIN, USER_LOGIN)
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .execute();
+    commit();
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(USER_LOGIN);
   }
@@ -140,8 +155,8 @@ public class AddUserToTemplateActionTest {
   }
 
   @Test
-  public void fail_if_template_key_missing() {
-    expectedException.expect(IllegalArgumentException.class);
+  public void fail_if_template_uuid_and_name_are_missing() {
+    expectedException.expect(BadRequestException.class);
 
     newRequest(USER_LOGIN, null, CODEVIEWER);
   }
@@ -165,7 +180,7 @@ public class AddUserToTemplateActionTest {
   private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = ws.newRequest();
     if (userLogin != null) {
-      request.setParam(Parameters.PARAM_USER_LOGIN, userLogin);
+      request.setParam(PARAM_USER_LOGIN, userLogin);
     }
     if (templateKey != null) {
       request.setParam(Parameters.PARAM_TEMPLATE_ID, templateKey);

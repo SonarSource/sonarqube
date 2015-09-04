@@ -71,6 +71,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
 public class ApplyTemplateActionTest {
@@ -149,6 +150,17 @@ public class ApplyTemplateActionTest {
   }
 
   @Test
+  public void apply_template_with_project_uuid_by_template_name() {
+    ws.newRequest()
+      .setParam(PARAM_TEMPLATE_NAME, template1.getName().toUpperCase())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .execute();
+    commit();
+
+    assertTemplate1AppliedToProject();
+  }
+
+  @Test
   public void apply_template_with_project_key() {
     newRequest(template1.getUuid(), null, project.key());
 
@@ -181,7 +193,7 @@ public class ApplyTemplateActionTest {
 
   @Test
   public void fail_when_template_is_not_provided() {
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(BadRequestException.class);
 
     newRequest(null, project.uuid(), null);
   }

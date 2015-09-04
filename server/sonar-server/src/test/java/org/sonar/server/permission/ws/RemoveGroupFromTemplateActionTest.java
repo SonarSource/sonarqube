@@ -56,8 +56,10 @@ import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTem
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
 public class RemoveGroupFromTemplateActionTest {
@@ -98,6 +100,21 @@ public class RemoveGroupFromTemplateActionTest {
     commit();
 
     newRequest(GROUP_NAME, permissionTemplate.getKee(), PERMISSION);
+
+    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), PERMISSION)).isEmpty();
+  }
+
+  @Test
+  public void remove_group_from_template_by_name_case_insensitive() {
+    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), PERMISSION)).containsExactly(GROUP_NAME);
+    commit();
+
+    ws.newRequest()
+      .setParam(PARAM_GROUP_NAME, GROUP_NAME)
+      .setParam(PARAM_PERMISSION, PERMISSION)
+      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .execute();
+    commit();
 
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), PERMISSION)).isEmpty();
   }
@@ -172,8 +189,8 @@ public class RemoveGroupFromTemplateActionTest {
   }
 
   @Test
-  public void fail_if_template_key_missing() {
-    expectedException.expect(IllegalArgumentException.class);
+  public void fail_if_template_missing() {
+    expectedException.expect(BadRequestException.class);
 
     newRequest(GROUP_NAME, null, PERMISSION);
   }

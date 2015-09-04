@@ -59,8 +59,10 @@ import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTem
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
 public class AddGroupToTemplateActionTest {
@@ -96,6 +98,18 @@ public class AddGroupToTemplateActionTest {
   @Test
   public void add_group_to_template() {
     newRequest(GROUP_NAME, permissionTemplate.getKee(), CODEVIEWER);
+
+    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(GROUP_NAME);
+  }
+
+  @Test
+  public void add_group_to_template_by_name() {
+    ws.newRequest()
+      .setParam(PARAM_GROUP_NAME, GROUP_NAME)
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_TEMPLATE_NAME, permissionTemplate.getName().toUpperCase())
+      .execute();
+    commit();
 
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(GROUP_NAME);
   }
@@ -172,8 +186,8 @@ public class AddGroupToTemplateActionTest {
   }
 
   @Test
-  public void fail_if_template_key_missing() {
-    expectedException.expect(IllegalArgumentException.class);
+  public void fail_if_template_uuid_and_name_missing() {
+    expectedException.expect(BadRequestException.class);
 
     newRequest(GROUP_NAME, null, CODEVIEWER);
   }

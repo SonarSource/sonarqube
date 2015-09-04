@@ -31,9 +31,8 @@ import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
-import static org.sonar.server.permission.ws.Parameters.createTemplateIdParameter;
 import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
 
 public class ApplyTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -56,17 +55,15 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       .setSince("5.2")
       .setHandler(this);
 
-    createTemplateIdParameter(action);
+    createTemplateParameters(action);
     createProjectParameter(action);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
-
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionTemplateDto template = finder.getTemplate(dbSession, templateUuid);
+      PermissionTemplateDto template = finder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
       ComponentDto project = finder.getProject(dbSession, WsProjectRef.fromRequest(wsRequest));
 
       ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.create(

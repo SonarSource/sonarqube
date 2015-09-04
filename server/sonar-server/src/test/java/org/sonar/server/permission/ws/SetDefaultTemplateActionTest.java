@@ -62,6 +62,7 @@ import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEM
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.ws.Parameters.PARAM_QUALIFIER;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
 public class SetDefaultTemplateActionTest {
@@ -101,11 +102,24 @@ public class SetDefaultTemplateActionTest {
   }
 
   @Test
-  public void update_settings_of_default_and_qualifier_default_for_project_qualifier() {
+  public void update_settings_for_project_qualifier() {
     // default value is project qualifier's value
     String result = newRequest(template.getUuid(), null);
 
     assertThat(result).isEmpty();
+    assertThat(persistentSettings.getString(DEFAULT_TEMPLATE_PROPERTY)).isEqualTo("any-template-uuid");
+    assertThat(persistentSettings.getString(defaultRootQualifierTemplateProperty(PROJECT))).isEqualTo(template.getUuid());
+    assertThat(persistentSettings.getString(defaultRootQualifierTemplateProperty(VIEW))).isEqualTo("any-view-template-uuid");
+    assertThat(persistentSettings.getString(defaultRootQualifierTemplateProperty("DEV"))).isEqualTo("any-dev-template-uuid");
+  }
+
+  @Test
+  public void update_settings_for_project_qualifier_by_template_name() {
+    ws.newRequest()
+      .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
+      .execute();
+    db.getSession().commit();
+
     assertThat(persistentSettings.getString(DEFAULT_TEMPLATE_PROPERTY)).isEqualTo("any-template-uuid");
     assertThat(persistentSettings.getString(defaultRootQualifierTemplateProperty(PROJECT))).isEqualTo(template.getUuid());
     assertThat(persistentSettings.getString(defaultRootQualifierTemplateProperty(VIEW))).isEqualTo("any-view-template-uuid");
@@ -140,7 +154,7 @@ public class SetDefaultTemplateActionTest {
 
   @Test
   public void fail_if_template_not_provided() {
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(BadRequestException.class);
 
     newRequest(null, PROJECT);
   }

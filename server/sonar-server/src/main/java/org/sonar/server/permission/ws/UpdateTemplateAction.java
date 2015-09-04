@@ -36,12 +36,12 @@ import org.sonarqube.ws.Permissions.WsUpdatePermissionTemplateResponse;
 import static com.google.common.base.Objects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
-import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
+import static org.sonar.server.permission.ws.Parameters.PARAM_DESCRIPTION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_NAME;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PATTERN;
 import static org.sonar.server.permission.ws.Parameters.createIdParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
@@ -75,7 +75,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
 
     createIdParameter(action);
 
-    action.createParam(PARAM_TEMPLATE_NAME)
+    action.createParam(PARAM_NAME)
       .setDescription("Name")
       .setExampleValue("Financial Service Permissions");
 
@@ -87,14 +87,14 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String key = wsRequest.mandatoryParam(PARAM_ID);
-    String nameParam = wsRequest.param(PARAM_TEMPLATE_NAME);
-    String descriptionParam = wsRequest.param(PARAM_TEMPLATE_DESCRIPTION);
-    String projectPatternParam = wsRequest.param(PARAM_TEMPLATE_PATTERN);
+    String uuid = wsRequest.mandatoryParam(PARAM_ID);
+    String nameParam = wsRequest.param(PARAM_NAME);
+    String descriptionParam = wsRequest.param(PARAM_DESCRIPTION);
+    String projectPatternParam = wsRequest.param(PARAM_PATTERN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionTemplateDto templateToUpdate = getAndBuildTemplateToUpdate(dbSession, key, nameParam, descriptionParam, projectPatternParam);
+      PermissionTemplateDto templateToUpdate = getAndBuildTemplateToUpdate(dbSession, uuid, nameParam, descriptionParam, projectPatternParam);
       validateTemplate(dbSession, templateToUpdate);
       PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
 
@@ -110,9 +110,9 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     validateProjectPattern(templateToUpdate.getKeyPattern());
   }
 
-  private PermissionTemplateDto getAndBuildTemplateToUpdate(DbSession dbSession, String key, @Nullable String newName, @Nullable String newDescription,
+  private PermissionTemplateDto getAndBuildTemplateToUpdate(DbSession dbSession, String uuid, @Nullable String newName, @Nullable String newDescription,
     @Nullable String newProjectKeyPattern) {
-    PermissionTemplateDto templateToUpdate = finder.getTemplate(dbSession, key);
+    PermissionTemplateDto templateToUpdate = finder.getTemplate(dbSession, WsTemplateRef.newTemplateRef(uuid, null));
     templateToUpdate.setName(firstNonNull(newName, templateToUpdate.getName()));
     templateToUpdate.setDescription(firstNonNull(newDescription, templateToUpdate.getDescription()));
     templateToUpdate.setKeyPattern(firstNonNull(newProjectKeyPattern, templateToUpdate.getKeyPattern()));

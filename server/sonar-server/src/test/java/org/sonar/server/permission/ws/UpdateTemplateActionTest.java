@@ -47,10 +47,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_DESCRIPTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
+import static org.sonar.server.permission.ws.Parameters.PARAM_NAME;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PATTERN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpdateTemplateActionTest {
@@ -223,13 +223,13 @@ public class UpdateTemplateActionTest {
       request.setParam(PARAM_ID, key);
     }
     if (name != null) {
-      request.setParam(PARAM_TEMPLATE_NAME, name);
+      request.setParam(PARAM_NAME, name);
     }
     if (description != null) {
-      request.setParam(PARAM_TEMPLATE_DESCRIPTION, description);
+      request.setParam(PARAM_DESCRIPTION, description);
     }
     if (projectPattern != null) {
-      request.setParam(PARAM_TEMPLATE_PATTERN, projectPattern);
+      request.setParam(PARAM_PATTERN, projectPattern);
     }
 
     return request.execute();

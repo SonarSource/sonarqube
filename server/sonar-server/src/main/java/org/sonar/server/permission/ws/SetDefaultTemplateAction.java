@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
 
@@ -38,8 +39,7 @@ import static java.lang.String.format;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.Parameters.PARAM_QUALIFIER;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
-import static org.sonar.server.permission.ws.Parameters.createTemplateIdParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.ResourceTypeToQualifier.RESOURCE_TYPE_TO_QUALIFIER;
 
@@ -70,7 +70,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
       .setSince("5.2")
       .setHandler(this);
 
-    createTemplateIdParameter(action);
+    createTemplateParameters(action);
 
     action.createParam(PARAM_QUALIFIER)
       .setDescription("Project qualifier. Possible values are:" + buildRootQualifiersDescription())
@@ -82,12 +82,11 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
     String qualifier = wsRequest.mandatoryParam(PARAM_QUALIFIER);
 
-    checkTemplateExists(templateUuid);
+    PermissionTemplateDto template = getTemplate(wsRequest);
     validateQualifier(qualifier, getRootQualifiers());
-    setDefaultTemplateUuid(templateUuid, qualifier);
+    setDefaultTemplateUuid(template.getUuid(), qualifier);
     wsResponse.noContent();
   }
 
@@ -114,10 +113,10 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     return i18n.message(userSession.locale(), qualifiersPropertyPrefix + qualifier, "");
   }
 
-  private void checkTemplateExists(String templateUuid) {
+  private PermissionTemplateDto getTemplate(Request wsRequest) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      finder.getTemplate(dbSession, templateUuid);
+      return finder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
     } finally {
       dbClient.closeSession(dbSession);
     }

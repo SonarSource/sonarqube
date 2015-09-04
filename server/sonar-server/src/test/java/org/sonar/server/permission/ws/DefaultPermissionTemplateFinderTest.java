@@ -20,7 +20,6 @@
 
 package org.sonar.server.permission.ws;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -59,16 +58,7 @@ public class DefaultPermissionTemplateFinderTest {
   public void get_default_template_uuids_in_settings() {
     Set<String> result = underTest.getDefaultTemplateUuids();
 
-    assertThat(result).containsOnly("default-template-uuid", "default-project-template-uuid", "default-view-template-uuid", "default-dev-template-uuid");
-  }
-
-  @Test
-  public void get_default_template_uuid_if_no_root_resource() {
-    when(resourceTypes.getRoots()).thenReturn(Collections.<ResourceType>emptySet());
-
-    Set<String> result = underTest.getDefaultTemplateUuids();
-
-    assertThat(result).containsOnly("default-template-uuid");
+    assertThat(result).containsOnly("default-project-template-uuid", "default-view-template-uuid", "default-dev-template-uuid");
   }
 
   @Test

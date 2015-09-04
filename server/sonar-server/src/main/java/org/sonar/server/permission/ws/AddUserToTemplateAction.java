@@ -36,13 +36,12 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateIdParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.Parameters.createUserLoginParameter;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 
 public class AddUserToTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -65,7 +64,7 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
         "It requires administration permissions to access.")
       .setHandler(this);
 
-    createTemplateIdParameter(action);
+    createTemplateParameters(action);
     createProjectPermissionParameter(action);
     createUserLoginParameter(action);
   }
@@ -74,14 +73,13 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateUuid = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     final String userLogin = wsRequest.mandatoryParam(PARAM_USER_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateUuid);
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
       UserDto user = dependenciesFinder.getUser(dbSession, userLogin);
 
       if (!isUserAlreadyAdded(dbSession, template.getId(), userLogin, permission)) {
