@@ -35,7 +35,6 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
-import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.Parameters.PARAM_QUALIFIER;
@@ -126,8 +125,5 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
 
   private void setDefaultTemplateUuid(String templateUuid, String qualifier) {
     settings.saveProperty(defaultRootQualifierTemplateProperty(qualifier), templateUuid);
-    if (Qualifiers.PROJECT.equals(qualifier)) {
-      settings.saveProperty(DEFAULT_TEMPLATE_PROPERTY, templateUuid);
-    }
   }
 }

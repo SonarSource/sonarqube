@@ -106,7 +106,7 @@ public class SetDefaultTemplateActionTest {
     String result = newRequest(template.getUuid(), null);
 
     assertThat(result).isEmpty();
-    assertThat(persistentSettings.getString(DEFAULT_TEMPLATE_PROPERTY)).isEqualTo(template.getUuid());
+    assertThat(persistentSettings.getString(DEFAULT_TEMPLATE_PROPERTY)).isEqualTo("any-template-uuid");
     assertThat(persistentSettings.getString(defaultRootQualifierTemplateProperty(PROJECT))).isEqualTo(template.getUuid());
     assertThat(persistentSettings.getString(defaultRootQualifierTemplateProperty(VIEW))).isEqualTo("any-view-template-uuid");
     assertThat(persistentSettings.getString(defaultRootQualifierTemplateProperty("DEV"))).isEqualTo("any-dev-template-uuid");

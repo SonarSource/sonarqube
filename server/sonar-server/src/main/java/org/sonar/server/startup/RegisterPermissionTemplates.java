@@ -50,17 +50,21 @@ public class RegisterPermissionTemplates {
 
   public void start() {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register permission templates");
+    boolean shouldRegister = shouldRegister();
 
-    if (shouldRegister()) {
-      if (hasExistingPermissionsConfig()) {
-        String projectsPermissionsKey = settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT));
-        setDefaultProperty(projectsPermissionsKey);
-      } else {
-        insertDefaultTemplate();
-        setDefaultProperty(PermissionTemplateDto.DEFAULT.getKee());
-      }
+    if (hasExistingPermissionsConfig()) {
+      // needs to be done at each startup in the case a plugin has just been installed. The default property must be the project one
+      String defaultProjectPermissionTemplateUuid = settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT));
+      setDefaultProperty(defaultProjectPermissionTemplateUuid);
+    } else if (shouldRegister) {
+      insertDefaultTemplate();
+      setDefaultProperty(PermissionTemplateDto.DEFAULT.getKee());
+    }
+
+    if (shouldRegister) {
       registerInitialization();
     }
+
     profiler.stopDebug();
   }
 
@@ -113,9 +117,6 @@ public class RegisterPermissionTemplates {
   }
 
   private void setDefaultProperty(String defaultTemplate) {
-    if (settings.getString(DEFAULT_TEMPLATE_PROPERTY) == null) {
-      LOG.info("Set default permission template: " + defaultTemplate);
-      settings.saveProperty(DEFAULT_TEMPLATE_PROPERTY, defaultTemplate);
-    }
+    settings.saveProperty(DEFAULT_TEMPLATE_PROPERTY, defaultTemplate);
   }
 }

@@ -108,7 +108,7 @@ public class RegisterPermissionTemplatesTest {
     RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
     initializer.start();
 
-    verifyZeroInteractions(permissionTemplateDao, settings);
+    verifyZeroInteractions(permissionTemplateDao);
     verify(loadedTemplateDao, never()).insert(any(LoadedTemplateDto.class));
   }
 
