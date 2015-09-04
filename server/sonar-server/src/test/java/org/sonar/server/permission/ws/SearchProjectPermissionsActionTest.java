@@ -75,7 +75,7 @@ public class SearchProjectPermissionsActionTest {
   I18nRule i18n = new I18nRule();
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
-  ResourceTypes resourceTypes;
+  ResourceTypes resourceTypes = mock(ResourceTypes.class);
   SearchProjectPermissionsDataLoader dataLoader;
 
   SearchProjectPermissionsAction underTest;

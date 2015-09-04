@@ -21,14 +21,15 @@
 package org.sonar.server.permission.ws;
 
 import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.ResourceTypes;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.ws.ResourceTypeToQualifier.RESOURCE_TYPE_TO_QUALIFIER;
@@ -42,15 +43,40 @@ public class DefaultPermissionTemplateFinder {
     this.resourceTypes = resourceTypes;
   }
 
-  public Set<String> getDefaultTemplateUuids() {
+  Set<String> getDefaultTemplateUuids() {
     return ImmutableSet.<String>builder()
       .addAll(
-        FluentIterable.from(resourceTypes.getRoots())
+        from(resourceTypes.getRoots())
           .transform(RESOURCE_TYPE_TO_QUALIFIER)
           .transform(new QualifierToDefaultTemplate(settings))
           .toSet())
       .add(settings.getString(DEFAULT_TEMPLATE_PROPERTY))
       .build();
+  }
+
+  List<TemplateUuidQualifier> getDefaultTemplatesByQualifier() {
+    return from(resourceTypes.getRoots())
+      .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .transform(new QualifierToTemplateUuidQualifier(settings))
+      .toList();
+  }
+
+  static class TemplateUuidQualifier {
+    private final String templateUuid;
+    private final String qualifier;
+
+    TemplateUuidQualifier(String templateUuid, String qualifier) {
+      this.templateUuid = templateUuid;
+      this.qualifier = qualifier;
+    }
+
+    public String getTemplateUuid() {
+      return templateUuid;
+    }
+
+    public String getQualifier() {
+      return qualifier;
+    }
   }
 
   private static class QualifierToDefaultTemplate implements Function<String, String> {
@@ -64,6 +90,23 @@ public class DefaultPermissionTemplateFinder {
     public String apply(@Nonnull String qualifier) {
       String qualifierProperty = settings.getString(defaultRootQualifierTemplateProperty(qualifier));
       return firstNonNull(qualifierProperty, settings.getString(DEFAULT_TEMPLATE_PROPERTY));
+    }
+  }
+
+  private static class QualifierToTemplateUuidQualifier implements Function<String, TemplateUuidQualifier> {
+    private final Settings settings;
+
+    QualifierToTemplateUuidQualifier(Settings settings) {
+      this.settings = settings;
+    }
+
+    @Override
+    public TemplateUuidQualifier apply(@Nonnull String qualifier) {
+      String qualifierTemplateUuid = firstNonNull(
+        settings.getString(defaultRootQualifierTemplateProperty(qualifier)),
+        settings.getString(DEFAULT_TEMPLATE_PROPERTY));
+
+      return new TemplateUuidQualifier(qualifierTemplateUuid, qualifier);
     }
   }
 

@@ -26,6 +26,7 @@ import com.google.common.collect.Table;
 import java.util.List;
 import java.util.Set;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.server.permission.ws.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -34,12 +35,14 @@ import static com.google.common.collect.ImmutableTable.copyOf;
 import static com.google.common.collect.Ordering.natural;
 
 class SearchTemplatesData {
-  private final List<PermissionTemplateDto> paginatedTemplates;
+  private final List<PermissionTemplateDto> templates;
+  private final List<TemplateUuidQualifier> defaultTemplates;
   private final Table<Long, String, Integer> userCountByTemplateIdAndPermission;
   private final Table<Long, String, Integer> groupCountByTemplateIdAndPermission;
 
   private SearchTemplatesData(Builder builder) {
-    this.paginatedTemplates = copyOf(builder.templates);
+    this.templates = copyOf(builder.templates);
+    this.defaultTemplates = copyOf(builder.defaultTemplates);
     this.userCountByTemplateIdAndPermission = copyOf(builder.userCountByTemplateIdAndPermission);
     this.groupCountByTemplateIdAndPermission = copyOf(builder.groupCountByTemplateIdAndPermission);
   }
@@ -49,7 +52,11 @@ class SearchTemplatesData {
   }
 
   public List<PermissionTemplateDto> templates() {
-    return paginatedTemplates;
+    return templates;
+  }
+
+  public List<TemplateUuidQualifier> defaultTempltes() {
+    return defaultTemplates;
   }
 
   public int userCount(long templateId, String permission) {
@@ -71,6 +78,7 @@ class SearchTemplatesData {
 
   public static class Builder {
     private List<PermissionTemplateDto> templates;
+    private List<TemplateUuidQualifier> defaultTemplates;
     private Table<Long, String, Integer> userCountByTemplateIdAndPermission;
     private Table<Long, String, Integer> groupCountByTemplateIdAndPermission;
 
@@ -80,6 +88,7 @@ class SearchTemplatesData {
 
     public SearchTemplatesData build() {
       checkState(templates != null);
+      checkState(defaultTemplates != null);
       checkState(userCountByTemplateIdAndPermission != null);
       checkState(groupCountByTemplateIdAndPermission != null);
 
@@ -88,6 +97,11 @@ class SearchTemplatesData {
 
     public Builder templates(List<PermissionTemplateDto> templates) {
       this.templates = templates;
+      return this;
+    }
+
+    public Builder defaultTemplates(List<TemplateUuidQualifier> defaultTemplates) {
+      this.defaultTemplates = defaultTemplates;
       return this;
     }
 

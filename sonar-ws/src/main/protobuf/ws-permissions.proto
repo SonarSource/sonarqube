@@ -104,6 +104,12 @@ message WsUpdatePermissionTemplateResponse {
 }
 
 message WsSearchTemplatesResponse {
-  repeated PermissionTemplate permissionTemplates = 2;
+  message TemplateIdQualifier {
+    optional string templateId = 1;
+    optional string qualifier = 2;
+  }
+
+  repeated PermissionTemplate permissionTemplates = 1;
+  repeated TemplateIdQualifier defaultTemplates = 2;
   repeated Permission permissions = 3;
 }

@@ -10469,27 +10469,51 @@ public final class Permissions {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     java.util.List<org.sonarqube.ws.Permissions.PermissionTemplate> 
         getPermissionTemplatesList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     org.sonarqube.ws.Permissions.PermissionTemplate getPermissionTemplates(int index);
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     int getPermissionTemplatesCount();
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder> 
         getPermissionTemplatesOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder getPermissionTemplatesOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    java.util.List<org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier> 
+        getDefaultTemplatesList();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier getDefaultTemplates(int index);
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    int getDefaultTemplatesCount();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder> 
+        getDefaultTemplatesOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder getDefaultTemplatesOrBuilder(
         int index);
 
     /**
@@ -10568,7 +10592,7 @@ public final class Permissions {
               }
               break;
             }
-            case 18: {
+            case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
                 permissionTemplates_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.PermissionTemplate>();
                 mutable_bitField0_ |= 0x00000001;
@@ -10576,10 +10600,18 @@ public final class Permissions {
               permissionTemplates_.add(input.readMessage(org.sonarqube.ws.Permissions.PermissionTemplate.PARSER, extensionRegistry));
               break;
             }
-            case 26: {
+            case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                permissions_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.Permission>();
+                defaultTemplates_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier>();
                 mutable_bitField0_ |= 0x00000002;
+              }
+              defaultTemplates_.add(input.readMessage(org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.PARSER, extensionRegistry));
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                permissions_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.Permission>();
+                mutable_bitField0_ |= 0x00000004;
               }
               permissions_.add(input.readMessage(org.sonarqube.ws.Permissions.Permission.PARSER, extensionRegistry));
               break;
@@ -10596,6 +10628,9 @@ public final class Permissions {
           permissionTemplates_ = java.util.Collections.unmodifiableList(permissionTemplates_);
         }
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          defaultTemplates_ = java.util.Collections.unmodifiableList(defaultTemplates_);
+        }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
           permissions_ = java.util.Collections.unmodifiableList(permissions_);
         }
         this.unknownFields = unknownFields.build();
@@ -10629,39 +10664,707 @@ public final class Permissions {
       return PARSER;
     }
 
-    public static final int PERMISSIONTEMPLATES_FIELD_NUMBER = 2;
+    public interface TemplateIdQualifierOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier)
+        com.google.protobuf.MessageOrBuilder {
+
+      /**
+       * <code>optional string templateId = 1;</code>
+       */
+      boolean hasTemplateId();
+      /**
+       * <code>optional string templateId = 1;</code>
+       */
+      java.lang.String getTemplateId();
+      /**
+       * <code>optional string templateId = 1;</code>
+       */
+      com.google.protobuf.ByteString
+          getTemplateIdBytes();
+
+      /**
+       * <code>optional string qualifier = 2;</code>
+       */
+      boolean hasQualifier();
+      /**
+       * <code>optional string qualifier = 2;</code>
+       */
+      java.lang.String getQualifier();
+      /**
+       * <code>optional string qualifier = 2;</code>
+       */
+      com.google.protobuf.ByteString
+          getQualifierBytes();
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier}
+     */
+    public static final class TemplateIdQualifier extends
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier)
+        TemplateIdQualifierOrBuilder {
+      // Use TemplateIdQualifier.newBuilder() to construct.
+      private TemplateIdQualifier(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+        super(builder);
+        this.unknownFields = builder.getUnknownFields();
+      }
+      private TemplateIdQualifier(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+      private static final TemplateIdQualifier defaultInstance;
+      public static TemplateIdQualifier getDefaultInstance() {
+        return defaultInstance;
+      }
+
+      public TemplateIdQualifier getDefaultInstanceForType() {
+        return defaultInstance;
+      }
+
+      private final com.google.protobuf.UnknownFieldSet unknownFields;
+      @java.lang.Override
+      public final com.google.protobuf.UnknownFieldSet
+          getUnknownFields() {
+        return this.unknownFields;
+      }
+      private TemplateIdQualifier(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        initFields();
+        int mutable_bitField0_ = 0;
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+            com.google.protobuf.UnknownFieldSet.newBuilder();
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!parseUnknownField(input, unknownFields,
+                                       extensionRegistry, tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000001;
+                templateId_ = bs;
+                break;
+              }
+              case 18: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000002;
+                qualifier_ = bs;
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e.getMessage()).setUnfinishedMessage(this);
+        } finally {
+          this.unknownFields = unknownFields.build();
+          makeExtensionsImmutable();
+        }
+      }
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.class, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder.class);
+      }
+
+      public static com.google.protobuf.Parser<TemplateIdQualifier> PARSER =
+          new com.google.protobuf.AbstractParser<TemplateIdQualifier>() {
+        public TemplateIdQualifier parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          return new TemplateIdQualifier(input, extensionRegistry);
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<TemplateIdQualifier> getParserForType() {
+        return PARSER;
+      }
+
+      private int bitField0_;
+      public static final int TEMPLATEID_FIELD_NUMBER = 1;
+      private java.lang.Object templateId_;
+      /**
+       * <code>optional string templateId = 1;</code>
+       */
+      public boolean hasTemplateId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string templateId = 1;</code>
+       */
+      public java.lang.String getTemplateId() {
+        java.lang.Object ref = templateId_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            templateId_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string templateId = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTemplateIdBytes() {
+        java.lang.Object ref = templateId_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          templateId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int QUALIFIER_FIELD_NUMBER = 2;
+      private java.lang.Object qualifier_;
+      /**
+       * <code>optional string qualifier = 2;</code>
+       */
+      public boolean hasQualifier() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string qualifier = 2;</code>
+       */
+      public java.lang.String getQualifier() {
+        java.lang.Object ref = qualifier_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            qualifier_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string qualifier = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getQualifierBytes() {
+        java.lang.Object ref = qualifier_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          qualifier_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      private void initFields() {
+        templateId_ = "";
+        qualifier_ = "";
+      }
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        getSerializedSize();
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          output.writeBytes(1, getTemplateIdBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          output.writeBytes(2, getQualifierBytes());
+        }
+        getUnknownFields().writeTo(output);
+      }
+
+      private int memoizedSerializedSize = -1;
+      public int getSerializedSize() {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(1, getTemplateIdBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(2, getQualifierBytes());
+        }
+        size += getUnknownFields().getSerializedSize();
+        memoizedSerializedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      protected java.lang.Object writeReplace()
+          throws java.io.ObjectStreamException {
+        return super.writeReplace();
+      }
+
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+
+      public static Builder newBuilder() { return Builder.create(); }
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder(org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier prototype) {
+        return newBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() { return newBuilder(this); }
+
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+      }
+      /**
+       * Protobuf type {@code sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier)
+          org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                  org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.class, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder.class);
+        }
+
+        // Construct using org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private Builder(
+            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          super(parent);
+          maybeForceBuilderInitialization();
+        }
+        private void maybeForceBuilderInitialization() {
+          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          }
+        }
+        private static Builder create() {
+          return new Builder();
+        }
+
+        public Builder clear() {
+          super.clear();
+          templateId_ = "";
+          bitField0_ = (bitField0_ & ~0x00000001);
+          qualifier_ = "";
+          bitField0_ = (bitField0_ & ~0x00000002);
+          return this;
+        }
+
+        public Builder clone() {
+          return create().mergeFrom(buildPartial());
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_descriptor;
+        }
+
+        public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier getDefaultInstanceForType() {
+          return org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.getDefaultInstance();
+        }
+
+        public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier build() {
+          org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier buildPartial() {
+          org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier result = new org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier(this);
+          int from_bitField0_ = bitField0_;
+          int to_bitField0_ = 0;
+          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+            to_bitField0_ |= 0x00000001;
+          }
+          result.templateId_ = templateId_;
+          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+            to_bitField0_ |= 0x00000002;
+          }
+          result.qualifier_ = qualifier_;
+          result.bitField0_ = to_bitField0_;
+          onBuilt();
+          return result;
+        }
+
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier) {
+            return mergeFrom((org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+
+        public Builder mergeFrom(org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier other) {
+          if (other == org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.getDefaultInstance()) return this;
+          if (other.hasTemplateId()) {
+            bitField0_ |= 0x00000001;
+            templateId_ = other.templateId_;
+            onChanged();
+          }
+          if (other.hasQualifier()) {
+            bitField0_ |= 0x00000002;
+            qualifier_ = other.qualifier_;
+            onChanged();
+          }
+          this.mergeUnknownFields(other.getUnknownFields());
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier) e.getUnfinishedMessage();
+            throw e;
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+        private int bitField0_;
+
+        private java.lang.Object templateId_ = "";
+        /**
+         * <code>optional string templateId = 1;</code>
+         */
+        public boolean hasTemplateId() {
+          return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+        /**
+         * <code>optional string templateId = 1;</code>
+         */
+        public java.lang.String getTemplateId() {
+          java.lang.Object ref = templateId_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              templateId_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string templateId = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+            getTemplateIdBytes() {
+          java.lang.Object ref = templateId_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            templateId_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string templateId = 1;</code>
+         */
+        public Builder setTemplateId(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          templateId_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string templateId = 1;</code>
+         */
+        public Builder clearTemplateId() {
+          bitField0_ = (bitField0_ & ~0x00000001);
+          templateId_ = getDefaultInstance().getTemplateId();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string templateId = 1;</code>
+         */
+        public Builder setTemplateIdBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          templateId_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object qualifier_ = "";
+        /**
+         * <code>optional string qualifier = 2;</code>
+         */
+        public boolean hasQualifier() {
+          return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+        /**
+         * <code>optional string qualifier = 2;</code>
+         */
+        public java.lang.String getQualifier() {
+          java.lang.Object ref = qualifier_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              qualifier_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string qualifier = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+            getQualifierBytes() {
+          java.lang.Object ref = qualifier_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            qualifier_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string qualifier = 2;</code>
+         */
+        public Builder setQualifier(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          qualifier_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string qualifier = 2;</code>
+         */
+        public Builder clearQualifier() {
+          bitField0_ = (bitField0_ & ~0x00000002);
+          qualifier_ = getDefaultInstance().getQualifier();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string qualifier = 2;</code>
+         */
+        public Builder setQualifierBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          qualifier_ = value;
+          onChanged();
+          return this;
+        }
+
+        // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier)
+      }
+
+      static {
+        defaultInstance = new TemplateIdQualifier(true);
+        defaultInstance.initFields();
+      }
+
+      // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier)
+    }
+
+    public static final int PERMISSIONTEMPLATES_FIELD_NUMBER = 1;
     private java.util.List<org.sonarqube.ws.Permissions.PermissionTemplate> permissionTemplates_;
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     public java.util.List<org.sonarqube.ws.Permissions.PermissionTemplate> getPermissionTemplatesList() {
       return permissionTemplates_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder> 
         getPermissionTemplatesOrBuilderList() {
       return permissionTemplates_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     public int getPermissionTemplatesCount() {
       return permissionTemplates_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     public org.sonarqube.ws.Permissions.PermissionTemplate getPermissionTemplates(int index) {
       return permissionTemplates_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
      */
     public org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder getPermissionTemplatesOrBuilder(
         int index) {
       return permissionTemplates_.get(index);
+    }
+
+    public static final int DEFAULTTEMPLATES_FIELD_NUMBER = 2;
+    private java.util.List<org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier> defaultTemplates_;
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier> getDefaultTemplatesList() {
+      return defaultTemplates_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder> 
+        getDefaultTemplatesOrBuilderList() {
+      return defaultTemplates_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    public int getDefaultTemplatesCount() {
+      return defaultTemplates_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier getDefaultTemplates(int index) {
+      return defaultTemplates_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+     */
+    public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder getDefaultTemplatesOrBuilder(
+        int index) {
+      return defaultTemplates_.get(index);
     }
 
     public static final int PERMISSIONS_FIELD_NUMBER = 3;
@@ -10701,6 +11404,7 @@ public final class Permissions {
 
     private void initFields() {
       permissionTemplates_ = java.util.Collections.emptyList();
+      defaultTemplates_ = java.util.Collections.emptyList();
       permissions_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
@@ -10717,7 +11421,10 @@ public final class Permissions {
                         throws java.io.IOException {
       getSerializedSize();
       for (int i = 0; i < permissionTemplates_.size(); i++) {
-        output.writeMessage(2, permissionTemplates_.get(i));
+        output.writeMessage(1, permissionTemplates_.get(i));
+      }
+      for (int i = 0; i < defaultTemplates_.size(); i++) {
+        output.writeMessage(2, defaultTemplates_.get(i));
       }
       for (int i = 0; i < permissions_.size(); i++) {
         output.writeMessage(3, permissions_.get(i));
@@ -10733,7 +11440,11 @@ public final class Permissions {
       size = 0;
       for (int i = 0; i < permissionTemplates_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, permissionTemplates_.get(i));
+          .computeMessageSize(1, permissionTemplates_.get(i));
+      }
+      for (int i = 0; i < defaultTemplates_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, defaultTemplates_.get(i));
       }
       for (int i = 0; i < permissions_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -10849,6 +11560,7 @@ public final class Permissions {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getPermissionTemplatesFieldBuilder();
+          getDefaultTemplatesFieldBuilder();
           getPermissionsFieldBuilder();
         }
       }
@@ -10864,9 +11576,15 @@ public final class Permissions {
         } else {
           permissionTemplatesBuilder_.clear();
         }
+        if (defaultTemplatesBuilder_ == null) {
+          defaultTemplates_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          defaultTemplatesBuilder_.clear();
+        }
         if (permissionsBuilder_ == null) {
           permissions_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000004);
         } else {
           permissionsBuilder_.clear();
         }
@@ -10906,10 +11624,19 @@ public final class Permissions {
         } else {
           result.permissionTemplates_ = permissionTemplatesBuilder_.build();
         }
-        if (permissionsBuilder_ == null) {
+        if (defaultTemplatesBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            permissions_ = java.util.Collections.unmodifiableList(permissions_);
+            defaultTemplates_ = java.util.Collections.unmodifiableList(defaultTemplates_);
             bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.defaultTemplates_ = defaultTemplates_;
+        } else {
+          result.defaultTemplates_ = defaultTemplatesBuilder_.build();
+        }
+        if (permissionsBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            permissions_ = java.util.Collections.unmodifiableList(permissions_);
+            bitField0_ = (bitField0_ & ~0x00000004);
           }
           result.permissions_ = permissions_;
         } else {
@@ -10956,11 +11683,37 @@ public final class Permissions {
             }
           }
         }
+        if (defaultTemplatesBuilder_ == null) {
+          if (!other.defaultTemplates_.isEmpty()) {
+            if (defaultTemplates_.isEmpty()) {
+              defaultTemplates_ = other.defaultTemplates_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+            } else {
+              ensureDefaultTemplatesIsMutable();
+              defaultTemplates_.addAll(other.defaultTemplates_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.defaultTemplates_.isEmpty()) {
+            if (defaultTemplatesBuilder_.isEmpty()) {
+              defaultTemplatesBuilder_.dispose();
+              defaultTemplatesBuilder_ = null;
+              defaultTemplates_ = other.defaultTemplates_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              defaultTemplatesBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getDefaultTemplatesFieldBuilder() : null;
+            } else {
+              defaultTemplatesBuilder_.addAllMessages(other.defaultTemplates_);
+            }
+          }
+        }
         if (permissionsBuilder_ == null) {
           if (!other.permissions_.isEmpty()) {
             if (permissions_.isEmpty()) {
               permissions_ = other.permissions_;
-              bitField0_ = (bitField0_ & ~0x00000002);
+              bitField0_ = (bitField0_ & ~0x00000004);
             } else {
               ensurePermissionsIsMutable();
               permissions_.addAll(other.permissions_);
@@ -10973,7 +11726,7 @@ public final class Permissions {
               permissionsBuilder_.dispose();
               permissionsBuilder_ = null;
               permissions_ = other.permissions_;
-              bitField0_ = (bitField0_ & ~0x00000002);
+              bitField0_ = (bitField0_ & ~0x00000004);
               permissionsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getPermissionsFieldBuilder() : null;
@@ -11022,7 +11775,7 @@ public final class Permissions {
           org.sonarqube.ws.Permissions.PermissionTemplate, org.sonarqube.ws.Permissions.PermissionTemplate.Builder, org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder> permissionTemplatesBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.PermissionTemplate> getPermissionTemplatesList() {
         if (permissionTemplatesBuilder_ == null) {
@@ -11032,7 +11785,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public int getPermissionTemplatesCount() {
         if (permissionTemplatesBuilder_ == null) {
@@ -11042,7 +11795,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public org.sonarqube.ws.Permissions.PermissionTemplate getPermissionTemplates(int index) {
         if (permissionTemplatesBuilder_ == null) {
@@ -11052,7 +11805,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder setPermissionTemplates(
           int index, org.sonarqube.ws.Permissions.PermissionTemplate value) {
@@ -11069,7 +11822,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder setPermissionTemplates(
           int index, org.sonarqube.ws.Permissions.PermissionTemplate.Builder builderForValue) {
@@ -11083,7 +11836,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder addPermissionTemplates(org.sonarqube.ws.Permissions.PermissionTemplate value) {
         if (permissionTemplatesBuilder_ == null) {
@@ -11099,7 +11852,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder addPermissionTemplates(
           int index, org.sonarqube.ws.Permissions.PermissionTemplate value) {
@@ -11116,7 +11869,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder addPermissionTemplates(
           org.sonarqube.ws.Permissions.PermissionTemplate.Builder builderForValue) {
@@ -11130,7 +11883,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder addPermissionTemplates(
           int index, org.sonarqube.ws.Permissions.PermissionTemplate.Builder builderForValue) {
@@ -11144,7 +11897,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder addAllPermissionTemplates(
           java.lang.Iterable<? extends org.sonarqube.ws.Permissions.PermissionTemplate> values) {
@@ -11159,7 +11912,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder clearPermissionTemplates() {
         if (permissionTemplatesBuilder_ == null) {
@@ -11172,7 +11925,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public Builder removePermissionTemplates(int index) {
         if (permissionTemplatesBuilder_ == null) {
@@ -11185,14 +11938,14 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public org.sonarqube.ws.Permissions.PermissionTemplate.Builder getPermissionTemplatesBuilder(
           int index) {
         return getPermissionTemplatesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder getPermissionTemplatesOrBuilder(
           int index) {
@@ -11202,7 +11955,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder> 
            getPermissionTemplatesOrBuilderList() {
@@ -11213,14 +11966,14 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public org.sonarqube.ws.Permissions.PermissionTemplate.Builder addPermissionTemplatesBuilder() {
         return getPermissionTemplatesFieldBuilder().addBuilder(
             org.sonarqube.ws.Permissions.PermissionTemplate.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public org.sonarqube.ws.Permissions.PermissionTemplate.Builder addPermissionTemplatesBuilder(
           int index) {
@@ -11228,7 +11981,7 @@ public final class Permissions {
             index, org.sonarqube.ws.Permissions.PermissionTemplate.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.PermissionTemplate permissionTemplates = 1;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.PermissionTemplate.Builder> 
            getPermissionTemplatesBuilderList() {
@@ -11249,12 +12002,252 @@ public final class Permissions {
         return permissionTemplatesBuilder_;
       }
 
+      private java.util.List<org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier> defaultTemplates_ =
+        java.util.Collections.emptyList();
+      private void ensureDefaultTemplatesIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          defaultTemplates_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier>(defaultTemplates_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder> defaultTemplatesBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier> getDefaultTemplatesList() {
+        if (defaultTemplatesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(defaultTemplates_);
+        } else {
+          return defaultTemplatesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public int getDefaultTemplatesCount() {
+        if (defaultTemplatesBuilder_ == null) {
+          return defaultTemplates_.size();
+        } else {
+          return defaultTemplatesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier getDefaultTemplates(int index) {
+        if (defaultTemplatesBuilder_ == null) {
+          return defaultTemplates_.get(index);
+        } else {
+          return defaultTemplatesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder setDefaultTemplates(
+          int index, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier value) {
+        if (defaultTemplatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureDefaultTemplatesIsMutable();
+          defaultTemplates_.set(index, value);
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder setDefaultTemplates(
+          int index, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder builderForValue) {
+        if (defaultTemplatesBuilder_ == null) {
+          ensureDefaultTemplatesIsMutable();
+          defaultTemplates_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder addDefaultTemplates(org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier value) {
+        if (defaultTemplatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureDefaultTemplatesIsMutable();
+          defaultTemplates_.add(value);
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder addDefaultTemplates(
+          int index, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier value) {
+        if (defaultTemplatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureDefaultTemplatesIsMutable();
+          defaultTemplates_.add(index, value);
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder addDefaultTemplates(
+          org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder builderForValue) {
+        if (defaultTemplatesBuilder_ == null) {
+          ensureDefaultTemplatesIsMutable();
+          defaultTemplates_.add(builderForValue.build());
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder addDefaultTemplates(
+          int index, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder builderForValue) {
+        if (defaultTemplatesBuilder_ == null) {
+          ensureDefaultTemplatesIsMutable();
+          defaultTemplates_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder addAllDefaultTemplates(
+          java.lang.Iterable<? extends org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier> values) {
+        if (defaultTemplatesBuilder_ == null) {
+          ensureDefaultTemplatesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, defaultTemplates_);
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder clearDefaultTemplates() {
+        if (defaultTemplatesBuilder_ == null) {
+          defaultTemplates_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public Builder removeDefaultTemplates(int index) {
+        if (defaultTemplatesBuilder_ == null) {
+          ensureDefaultTemplatesIsMutable();
+          defaultTemplates_.remove(index);
+          onChanged();
+        } else {
+          defaultTemplatesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder getDefaultTemplatesBuilder(
+          int index) {
+        return getDefaultTemplatesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder getDefaultTemplatesOrBuilder(
+          int index) {
+        if (defaultTemplatesBuilder_ == null) {
+          return defaultTemplates_.get(index);  } else {
+          return defaultTemplatesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder> 
+           getDefaultTemplatesOrBuilderList() {
+        if (defaultTemplatesBuilder_ != null) {
+          return defaultTemplatesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(defaultTemplates_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder addDefaultTemplatesBuilder() {
+        return getDefaultTemplatesFieldBuilder().addBuilder(
+            org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder addDefaultTemplatesBuilder(
+          int index) {
+        return getDefaultTemplatesFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.WsSearchTemplatesResponse.TemplateIdQualifier defaultTemplates = 2;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder> 
+           getDefaultTemplatesBuilderList() {
+        return getDefaultTemplatesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder> 
+          getDefaultTemplatesFieldBuilder() {
+        if (defaultTemplatesBuilder_ == null) {
+          defaultTemplatesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier.Builder, org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifierOrBuilder>(
+                  defaultTemplates_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  getParentForChildren(),
+                  isClean());
+          defaultTemplates_ = null;
+        }
+        return defaultTemplatesBuilder_;
+      }
+
       private java.util.List<org.sonarqube.ws.Permissions.Permission> permissions_ =
         java.util.Collections.emptyList();
       private void ensurePermissionsIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
           permissions_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.Permission>(permissions_);
-          bitField0_ |= 0x00000002;
+          bitField0_ |= 0x00000004;
          }
       }
 
@@ -11404,7 +12397,7 @@ public final class Permissions {
       public Builder clearPermissions() {
         if (permissionsBuilder_ == null) {
           permissions_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000004);
           onChanged();
         } else {
           permissionsBuilder_.clear();
@@ -11481,7 +12474,7 @@ public final class Permissions {
           permissionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Permissions.Permission, org.sonarqube.ws.Permissions.Permission.Builder, org.sonarqube.ws.Permissions.PermissionOrBuilder>(
                   permissions_,
-                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  ((bitField0_ & 0x00000004) == 0x00000004),
                   getParentForChildren(),
                   isClean());
           permissions_ = null;
@@ -11560,6 +12553,11 @@ public final class Permissions {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -11606,12 +12604,16 @@ public final class Permissions {
       "sionTemplate\"n\n\"WsUpdatePermissionTempla" +
       "teResponse\022H\n\022permissionTemplate\030\001 \001(\0132," +
       ".sonarqube.ws.permissions.PermissionTemp" +
-      "late\"\241\001\n\031WsSearchTemplatesResponse\022I\n\023pe" +
-      "rmissionTemplates\030\002 \003(\0132,.sonarqube.ws.p" +
-      "ermissions.PermissionTemplate\0229\n\013permiss",
-      "ions\030\003 \003(\0132$.sonarqube.ws.permissions.Pe" +
-      "rmissionB!\n\020org.sonarqube.wsB\013Permission" +
-      "sH\001"
+      "late\"\302\002\n\031WsSearchTemplatesResponse\022I\n\023pe" +
+      "rmissionTemplates\030\001 \003(\0132,.sonarqube.ws.p" +
+      "ermissions.PermissionTemplate\022a\n\020default",
+      "Templates\030\002 \003(\0132G.sonarqube.ws.permissio" +
+      "ns.WsSearchTemplatesResponse.TemplateIdQ" +
+      "ualifier\0229\n\013permissions\030\003 \003(\0132$.sonarqub" +
+      "e.ws.permissions.Permission\032<\n\023TemplateI" +
+      "dQualifier\022\022\n\ntemplateId\030\001 \001(\t\022\021\n\tqualif" +
+      "ier\030\002 \001(\tB!\n\020org.sonarqube.wsB\013Permissio" +
+      "nsH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -11697,7 +12699,13 @@ public final class Permissions {
     internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_descriptor,
-        new java.lang.String[] { "PermissionTemplates", "Permissions", });
+        new java.lang.String[] { "PermissionTemplates", "DefaultTemplates", "Permissions", });
+    internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_descriptor =
+      internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_descriptor.getNestedTypes().get(0);
+    internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_permissions_WsSearchTemplatesResponse_TemplateIdQualifier_descriptor,
+        new java.lang.String[] { "TemplateId", "Qualifier", });
     org.sonarqube.ws.Common.getDescriptor();
   }
 

@@ -59,6 +59,20 @@
       ]
     }
   ],
+  "defaultTemplates": [
+    {
+      "templateId": "AU-Tpxb--iU5OvuD2FLy",
+      "qualifier": "TRK"
+    },
+    {
+      "templateId": "AU-TpxcA-iU5OvuD2FLz",
+      "qualifier": "VW"
+    },
+    {
+      "templateId": "AU-TpxcA-iU5OvuD2FL0",
+      "qualifier": "DEV"
+    }
+  ],
   "permissions": [
     {
       "key": "user",

@@ -33,15 +33,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.CountByTemplateAndPermissionDto;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.server.permission.ws.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
 
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.permission.ws.SearchTemplatesData.newBuilder;
 
 public class SearchTemplatesDataLoader {
   private final DbClient dbClient;
+  private final DefaultPermissionTemplateFinder defaultPermissionTemplateFinder;
 
-  public SearchTemplatesDataLoader(DbClient dbClient) {
+  public SearchTemplatesDataLoader(DbClient dbClient, DefaultPermissionTemplateFinder defaultPermissionTemplateFinder) {
     this.dbClient = dbClient;
+    this.defaultPermissionTemplateFinder = defaultPermissionTemplateFinder;
   }
 
   public SearchTemplatesData load(Request wsRequest) {
@@ -50,8 +53,10 @@ public class SearchTemplatesDataLoader {
       SearchTemplatesData.Builder data = newBuilder();
       List<PermissionTemplateDto> templates = searchTemplates(dbSession, wsRequest);
       List<Long> templateIds = Lists.transform(templates, TemplateToIdFunction.INSTANCE);
+      List<TemplateUuidQualifier> defaultTemplates = defaultPermissionTemplateFinder.getDefaultTemplatesByQualifier();
 
       data.templates(templates)
+        .defaultTemplates(defaultTemplates)
         .userCountByTemplateIdAndPermission(userCountByTemplateIdAndPermission(dbSession, templateIds))
         .groupCountByTemplateIdAndPermission(groupCountByTemplateIdAndPermission(dbSession, templateIds));
 
