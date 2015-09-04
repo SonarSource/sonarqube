@@ -29,17 +29,13 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
-import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.test.DbTests;
 
@@ -47,6 +43,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
+import static org.sonar.server.computation.component.Component.Type.FILE;
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 
 @Category(DbTests.class)
 public class PersistComponentsStepTest extends BaseStepTest {
@@ -57,12 +57,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
-  @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbIdsRepositoryImpl dbIdsRepository;
 
@@ -82,7 +78,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, reportReader, dbIdsRepository, system2);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2);
   }
 
   @Override
@@ -92,40 +88,25 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_components() {
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .setDescription("Project description")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
+    Component file = builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+      .setPath("src/main/java/dir/Foo.java")
+      .setFileAttributes(new FileAttributes(false, "java"))
+      .build();
+    Component directory = builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
+      .setPath("src/main/java/dir")
+      .addChildren(file)
+      .build();
+    Component module = builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
       .setPath("module")
       .setName("Module")
       .setDescription("Module description")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/main/java/dir")
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("src/main/java/dir/Foo.java")
-      .setLanguage("java")
-      .build());
-
-    Component file = ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
-    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
-    Component module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(directory).build();
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
+      .addChildren(directory)
+      .build();
+    Component project = builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+      .setName("Project")
+      .setDescription("Project description")
+      .addChildren(module)
+      .build();
     treeRootHolder.setRoot(project);
 
     underTest.execute();
@@ -194,30 +175,15 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_file_directly_attached_on_root_directory() {
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("/")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("pom.xml")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":/").addChildren(
-        ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":pom.xml").build()
-      ).build()
-    ).build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setName("Project")
+        .addChildren(
+          builder(DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":/").setPath("/")
+            .addChildren(
+              builder(FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":pom.xml").setPath("pom.xml")
+                .build())
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -232,31 +198,19 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_unit_test() {
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/test/java/dir")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("src/test/java/dir/FooTest.java")
-      .setIsTest(true)
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/test/java/dir").addChildren(
-        ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/test/java/dir/FooTest.java").setFileAttributes(new FileAttributes(true, null)).build())
-        .build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/test/java/dir")
+            .setPath("src/test/java/dir")
+            .addChildren(
+              builder(FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/test/java/dir/FooTest.java")
+                .setPath("src/test/java/dir/FooTest.java")
+                .setFileAttributes(new FileAttributes(true, null))
+                .build())
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -276,39 +230,22 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setName("Module")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/main/java/dir")
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("src/main/java/dir/Foo.java")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
-          ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
-          .build())
-        .build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
+            .setName("Module")
+            .addChildren(
+              builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
+                .setPath("src/main/java/dir")
+                .addChildren(
+                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+                    .setPath("src/main/java/dir/Foo.java")
+                    .build())
+                .build())
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -341,49 +278,26 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void compute_parent_project_id() {
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setName("Module")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("SUB_MODULE_1_KEY")
-      .setName("Sub Module 1")
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("SUB_MODULE_2_KEY")
-      .setName("Sub Module 2")
-      .addChildRef(5)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(5)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/main/java/dir")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_1_KEY").addChildren(
-          ReportComponent.builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("SUB_MODULE_2_KEY").addChildren(
-            ReportComponent.builder(Component.Type.DIRECTORY, 5).setUuid("EFGH").setKey("SUB_MODULE_2_KEY:src/main/java/dir").build())
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
+            .setName("Module")
+            .addChildren(
+              builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_1_KEY")
+                .setName("Sub Module 1")
+                .addChildren(
+                  builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("SUB_MODULE_2_KEY")
+                    .setName("Sub Module 2")
+                    .addChildren(
+                      builder(DIRECTORY, 5).setUuid("EFGH").setKey("SUB_MODULE_2_KEY:src/main/java/dir")
+                        .setPath("src/main/java/dir")
+                        .build())
+                    .build())
+                .build())
             .build())
-          .build())
-        .build())
-      .build());
+        .build());
 
     underTest.execute();
 
@@ -412,39 +326,21 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_multi_modules() {
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_A")
-      .setName("Module A")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("SUB_MODULE_A")
-      .setName("Sub Module A")
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_B")
-      .setName("Module B")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_A").addChildren(
-        ReportComponent.builder(Component.Type.MODULE, 3).setUuid("DEFG").setKey("SUB_MODULE_A").build()).build(),
-      ReportComponent.builder(Component.Type.MODULE, 4).setUuid("CDEF").setKey("MODULE_B").build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_A")
+            .setName("Module A")
+            .addChildren(
+              builder(Component.Type.MODULE, 3).setUuid("DEFG").setKey("SUB_MODULE_A")
+                .setName("Sub Module A")
+                .build())
+            .build(),
+          builder(Component.Type.MODULE, 4).setUuid("CDEF").setKey("MODULE_B")
+            .setName("Module B")
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -482,39 +378,22 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), directory, file);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setName("Module")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/main/java/dir")
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("src/main/java/dir/Foo.java")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
-          ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
-          .build())
-        .build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
+            .setName("Module")
+            .addChildren(
+              builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
+                .setPath("src/main/java/dir")
+                .addChildren(
+                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+                    .setPath("src/main/java/dir/Foo.java")
+                    .build())
+                .build())
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -567,24 +446,15 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("New project name")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setName("New module name")
-      .setPath("New path")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("New project name")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
+            .setName("New module name")
+            .setPath("New path")
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -603,25 +473,16 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .setDescription("New project description")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setName("Module")
-      .setDescription("New module description")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .setDescription("New project description")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
+            .setName("Module")
+            .setDescription("New module description")
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -640,24 +501,15 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setName("Module")
-      .setPath("New path")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
+            .setName("Module")
+            .setPath("New path")
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -677,49 +529,26 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), directory, file);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_A")
-      .setName("Module A")
-      .addChildRef(3)
-      .build());
-    // Module B is now a sub module of module A
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_B")
-      .setName("Module B")
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/main/java/dir")
-      .addChildRef(5)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(5)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("src/main/java/dir/Foo.java")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("EDCB").setKey("MODULE_A").addChildren(
-        ReportComponent.builder(Component.Type.MODULE, 3).setUuid("BCDE").setKey("MODULE_B").addChildren(
-          ReportComponent.builder(Component.Type.DIRECTORY, 4).setUuid("CDEF").setKey("MODULE_B:src/main/java/dir").addChildren(
-            ReportComponent.builder(Component.Type.FILE, 5).setUuid("DEFG").setKey("MODULE_B:src/main/java/dir/Foo.java").build())
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("EDCB").setKey("MODULE_A")
+            .setName("Module A")
+            .addChildren(
+              builder(Component.Type.MODULE, 3).setUuid("BCDE").setKey("MODULE_B")
+                .setName("Module B")
+                .addChildren(
+                  builder(DIRECTORY, 4).setUuid("CDEF").setKey("MODULE_B:src/main/java/dir")
+                    .setPath("src/main/java/dir")
+                    .addChildren(
+                      builder(FILE, 5).setUuid("DEFG").setKey("MODULE_B:src/main/java/dir/Foo.java")
+                        .setPath("src/main/java/dir/Foo.java")
+                        .build())
+                    .build())
+                .build())
             .build())
-          .build())
-        .build())
-      .build());
+        .build());
 
     underTest.execute();
 
@@ -761,15 +590,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("New project name")
-      .addChildRef(2)
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("New project name")
+        .build());
 
     underTest.execute();
 
@@ -785,43 +609,27 @@ public class PersistComponentsStepTest extends BaseStepTest {
     ComponentDto removedModule = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module").setEnabled(false);
     dbClient.componentDao().insert(dbTester.getSession(), removedModule);
     ComponentDto removedDirectory = ComponentTesting.newDirectory(removedModule, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").setEnabled(false);
-    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
+    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
+      .setKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
     dbClient.componentDao().insert(dbTester.getSession(), removedDirectory, removedFile);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setName("Module")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/main/java/dir")
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("src/main/java/dir/Foo.java")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
-          ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
-          .build())
-        .build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
+            .setName("Module")
+            .addChildren(
+              builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
+                .setPath("src/main/java/dir")
+                .addChildren(
+                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+                    .setPath("src/main/java/dir/Foo.java")
+                    .build())
+                .build())
+            .build())
+        .build());
 
     underTest.execute();
 
@@ -881,43 +689,27 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module, removedModule);
     ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir");
     // The file was attached to another module
-    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
+    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java")
+      .setKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
     dbClient.componentDao().insert(dbTester.getSession(), directory, removedFile);
     dbTester.getSession().commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setName("Module")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/main/java/dir")
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("src/main/java/dir/Foo.java")
-      .build());
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
-          ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
-          .build())
-        .build())
-      .build());
+    treeRootHolder.setRoot(
+      builder(PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildren(
+          builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY")
+            .setName("Module")
+            .addChildren(
+              builder(DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir")
+                .setPath("src/main/java/dir")
+                .addChildren(
+                  builder(FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java")
+                    .setPath("src/main/java/dir/Foo.java")
+                    .build())
+                .build())
+            .build())
+        .build());
 
     underTest.execute();
 
