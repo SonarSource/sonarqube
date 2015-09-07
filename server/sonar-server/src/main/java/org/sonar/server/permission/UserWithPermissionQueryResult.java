@@ -27,12 +27,10 @@ public class UserWithPermissionQueryResult {
 
   private final List<UserWithPermission> users;
   private final int total;
-  private final boolean hasMoreResults;
 
   public UserWithPermissionQueryResult(List<UserWithPermission> users, int total) {
     this.users = users;
     this.total = total;
-    this.hasMoreResults = total > users.size();
   }
 
   public List<UserWithPermission> users() {
@@ -41,10 +39,5 @@ public class UserWithPermissionQueryResult {
 
   public int total() {
     return total;
-  }
-
-  // called by Ruby Code
-  public boolean hasMoreResults() {
-    return hasMoreResults;
   }
 }

@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.permissions.PermissionParameters;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
@@ -106,22 +105,25 @@ public class ProjectAdministrationTest {
   @Test
   public void project_deletion() {
     String projectAdminUser = "project-deletion-with-admin-permission-on-project";
-    SonarClient adminClient = orchestrator.getServer().adminWsClient();
+    SonarClient wsClient = orchestrator.getServer().adminWsClient();
     try {
       SonarRunner scan = SonarRunner.create(projectDir("shared/xoo-sample"));
       orchestrator.executeBuild(scan);
 
       // Create user having admin permission on previously analysed project
-      adminClient.userClient().create(
+      wsClient.userClient().create(
         UserParameters.create().login(projectAdminUser).name(projectAdminUser).password("password").passwordConfirmation("password"));
-      adminClient.permissionClient().addPermission(
-        PermissionParameters.create().user(projectAdminUser).component("sample").permission("admin"));
+
+      wsClient.post("api/permissions/add_user",
+        "login", projectAdminUser,
+        "projectKey", "sample",
+        "permission", "admin");
 
       new SeleneseTest(
         Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/administration/suite/ProjectAdministrationTest/project-deletion/project-deletion.html").build()
       ).runOn(orchestrator);
     } finally {
-      adminClient.userClient().deactivate(projectAdminUser);
+      wsClient.userClient().deactivate(projectAdminUser);
     }
   }
 

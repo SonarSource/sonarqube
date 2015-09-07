@@ -42,7 +42,7 @@ import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
-import static org.sonar.server.permission.PermissionQueryParser.toMembership;
+import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
 import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -136,7 +136,7 @@ public class GroupsAction implements PermissionsWsAction {
       .permission(request.permission())
       .pageIndex(request.page())
       .pageSize(request.pageSize())
-      .membership(toMembership(firstNonNull(request.selected(), SelectionMode.SELECTED.value())))
+      .membership(fromSelectionModeToMembership(firstNonNull(request.selected(), SelectionMode.SELECTED.value())))
       .search(request.query());
     if (project.isPresent()) {
       permissionQuery.component(project.get().getKey());

@@ -28,7 +28,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
-import org.sonar.wsclient.permissions.PermissionParameters;
 import org.sonar.wsclient.user.UserParameters;
 import selenium.SeleneseTest;
 
@@ -150,7 +149,9 @@ public class MeasureFiltersTest {
     client.userClient().create(userCreationParameters);
 
     if (permission != null) {
-      client.permissionClient().addPermission(PermissionParameters.create().user(login).permission(permission));
+      client.post("api/permissions/add_user",
+        "login", login,
+        "permission", permission);
     }
   }
 

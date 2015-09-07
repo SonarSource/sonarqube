@@ -18,33 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission;
+package org.sonar.server.permission.ws;
 
-import java.util.Map;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupMembershipQuery;
-import org.sonar.server.util.RubyUtils;
 
-public class PermissionQueryParser {
+class PermissionQueryParser {
 
   private PermissionQueryParser() {
     // Utility class
   }
 
-  static PermissionQuery toQuery(Map<String, Object> params) {
-    PermissionQuery.Builder builder = PermissionQuery.builder();
-    builder.permission((String) params.get("permission"));
-    builder.component((String) params.get("component"));
-    builder.template((String) params.get("template"));
-    builder.membership(toMembership((String) params.get("selected")));
-    builder.search((String) params.get("query"));
-    builder.pageIndex(RubyUtils.toInteger(params.get("page")));
-    builder.pageSize(RubyUtils.toInteger(params.get("pageSize")));
-    return builder.build();
-  }
-
-  public static String toMembership(String selectionModeString) {
+  static String fromSelectionModeToMembership(String selectionModeString) {
     SelectionMode selectionMode = SelectionMode.fromParam(selectionModeString);
     if (SelectionMode.SELECTED == selectionMode) {
       return GroupMembershipQuery.IN;

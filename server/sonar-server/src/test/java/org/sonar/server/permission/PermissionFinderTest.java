@@ -161,7 +161,6 @@ public class PermissionFinderTest {
       PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build());
 
     assertThat(result.groups()).hasSize(1);
-    assertThat(result.hasMoreResults()).isFalse();
   }
 
   @Test
@@ -181,18 +180,10 @@ public class PermissionFinderTest {
         .pageIndex(2)
         .build());
 
-    assertThat(result.hasMoreResults()).isTrue();
     List<GroupWithPermission> groups = result.groups();
     assertThat(groups).hasSize(2);
     assertThat(groups.get(0).name()).isEqualTo("Users");
     assertThat(groups.get(1).name()).isEqualTo("Reviewers");
-
-    assertThat(underTest.findGroupsWithPermission(
-      PermissionQuery.builder()
-        .permission("user")
-        .pageSize(2)
-        .pageIndex(3)
-        .build()).hasMoreResults()).isTrue();
   }
 
   @Test
@@ -300,7 +291,6 @@ public class PermissionFinderTest {
     GroupWithPermissionQueryResult result = underTest.findGroupsWithPermissionTemplate(
       PermissionQuery.builder().permission("user").template("my_template").membership(PermissionQuery.OUT).build());
     assertThat(result.groups()).hasSize(1);
-    assertThat(result.hasMoreResults()).isFalse();
   }
 
   @Test

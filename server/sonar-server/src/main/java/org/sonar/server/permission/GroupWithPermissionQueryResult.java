@@ -26,20 +26,14 @@ public class GroupWithPermissionQueryResult {
 
   private final List<GroupWithPermission> groups;
   private final int total;
-  private final boolean hasMoreResults;
 
   public GroupWithPermissionQueryResult(List<GroupWithPermission> groups, int total) {
     this.groups = groups;
     this.total = total;
-    this.hasMoreResults = total > groups.size();
   }
 
   public List<GroupWithPermission> groups() {
     return groups;
-  }
-
-  public boolean hasMoreResults() {
-    return hasMoreResults;
   }
 
   public int total() {
