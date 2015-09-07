@@ -28,12 +28,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-import org.sonar.core.permission.GroupWithPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
-import org.sonar.server.permission.GroupWithPermissionQueryResult;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
@@ -89,8 +88,10 @@ public class GroupsAction implements PermissionsWsAction {
       checkProjectAdminUserByComponentDto(userSession, project);
 
       PermissionQuery permissionQuery = buildPermissionQuery(request, project);
-      GroupWithPermissionQueryResult groupsResult = permissionFinder.findGroupsWithPermission(dbSession, permissionQuery);
-      WsGroupsResponse groupsResponse = buildResponse(groupsResult, request);
+      Long projectIdIfPresent = project.isPresent() ? project.get().getId() : null;
+      int total = dbClient.permissionDao().countGroups(dbSession, permissionQuery.permission(), projectIdIfPresent);
+      List<GroupWithPermissionDto> groupsWithPermission = permissionFinder.findGroupsWithPermission(dbSession, permissionQuery);
+      WsGroupsResponse groupsResponse = buildResponse(groupsWithPermission, request, total);
 
       writeProtobuf(groupsResponse, wsRequest, wsResponse);
     } finally {
@@ -98,24 +99,22 @@ public class GroupsAction implements PermissionsWsAction {
     }
   }
 
-  private WsGroupsResponse buildResponse(GroupWithPermissionQueryResult groupsResult, PermissionRequest permissionRequest) {
-    List<GroupWithPermission> groupsWithPermission = groupsResult.groups();
-
+  private WsGroupsResponse buildResponse(List<GroupWithPermissionDto> groupsWithPermission, PermissionRequest permissionRequest, int total) {
     WsGroupsResponse.Builder groupsResponse = WsGroupsResponse.newBuilder();
     WsGroupsResponse.Group.Builder group = WsGroupsResponse.Group.newBuilder();
     Common.Paging.Builder paging = Common.Paging.newBuilder();
 
-    for (GroupWithPermission groupWithPermission : groupsWithPermission) {
+    for (GroupWithPermissionDto groupWithPermission : groupsWithPermission) {
       group
         .clear()
-        .setName(groupWithPermission.name())
-        .setSelected(groupWithPermission.hasPermission());
+        .setName(groupWithPermission.getName())
+        .setSelected(groupWithPermission.getPermission() != null);
       // anyone group return with id = 0
-      if (groupWithPermission.id() != 0) {
-        group.setId(String.valueOf(groupWithPermission.id()));
+      if (groupWithPermission.getId() != 0) {
+        group.setId(String.valueOf(groupWithPermission.getId()));
       }
-      if (groupWithPermission.description() != null) {
-        group.setDescription(groupWithPermission.description());
+      if (groupWithPermission.getDescription() != null) {
+        group.setDescription(groupWithPermission.getDescription());
       }
 
       groupsResponse.addGroups(group);
@@ -125,7 +124,7 @@ public class GroupsAction implements PermissionsWsAction {
       paging
         .setPageIndex(permissionRequest.page())
         .setPageSize(permissionRequest.pageSize())
-        .setTotal(groupsResult.total())
+        .setTotal(total)
       );
 
     return groupsResponse.build();

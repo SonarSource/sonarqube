@@ -22,7 +22,6 @@ package org.sonar.db.permission;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.permission.UserWithPermission;
 
 public class UserWithPermissionDto {
 
@@ -66,13 +65,5 @@ public class UserWithPermissionDto {
   public UserWithPermissionDto setPermission(@Nullable String permission) {
     this.permission = permission;
     return this;
-  }
-
-  public UserWithPermission toUserWithPermission() {
-    return new UserWithPermission()
-      .setLogin(login)
-      .setName(name)
-      .setEmail(email)
-      .hasPermission(permission != null);
   }
 }

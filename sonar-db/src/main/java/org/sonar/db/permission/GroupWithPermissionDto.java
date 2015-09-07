@@ -22,7 +22,6 @@ package org.sonar.db.permission;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.permission.GroupWithPermission;
 
 public class GroupWithPermissionDto {
 
@@ -66,13 +65,5 @@ public class GroupWithPermissionDto {
   public GroupWithPermissionDto setDescription(@Nullable String description) {
     this.description = description;
     return this;
-  }
-
-  public GroupWithPermission toGroupWithPermission() {
-    return new GroupWithPermission()
-      .setId(id)
-      .setName(name)
-      .setDescription(description)
-      .hasPermission(permission != null);
   }
 }
