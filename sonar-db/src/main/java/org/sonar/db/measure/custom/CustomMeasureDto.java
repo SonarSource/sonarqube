@@ -20,7 +20,11 @@
 
 package org.sonar.db.measure.custom;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class CustomMeasureDto {
+
   private long id;
   private int metricId;
   private String componentUuid;
@@ -49,11 +53,12 @@ public class CustomMeasureDto {
     return this;
   }
 
+  @CheckForNull
   public String getTextValue() {
     return textValue;
   }
 
-  public CustomMeasureDto setTextValue(String textValue) {
+  public CustomMeasureDto setTextValue(@Nullable String textValue) {
     this.textValue = textValue;
     return this;
   }

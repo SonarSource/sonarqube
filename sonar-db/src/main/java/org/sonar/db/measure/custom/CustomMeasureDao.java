@@ -84,6 +84,13 @@ public class CustomMeasureDao implements Dao {
     return mapper(session).selectByComponentUuid(componentUuid);
   }
 
+  /**
+   * Used by Views plugin
+   */
+  public List<CustomMeasureDto> selectByMetricKeyAndTextValue(DbSession session, String metricKey, String textValue) {
+    return mapper(session).selectByMetricKeyAndTextValue(metricKey, textValue);
+  }
+
   private CustomMeasureMapper mapper(DbSession session) {
     return session.getMapper(CustomMeasureMapper.class);
   }

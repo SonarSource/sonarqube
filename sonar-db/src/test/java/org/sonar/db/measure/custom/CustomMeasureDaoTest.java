@@ -157,4 +157,15 @@ public class CustomMeasureDaoTest {
     underTest.selectOrFail(session, 42L);
   }
 
+  @Test
+  public void select_by_metric_key_and_text_value() throws Exception {
+    db.prepareDbUnit(getClass(), "select_by_metric_key_and_text_value.xml");
+
+    List<CustomMeasureDto> result = underTest.selectByMetricKeyAndTextValue(session, "customKey", "value1");
+
+    assertThat(result).extracting("id").containsOnly(20L, 21L);
+
+    assertThat(underTest.selectByMetricKeyAndTextValue(session, "customKey", "unknown")).isEmpty();
+    assertThat(underTest.selectByMetricKeyAndTextValue(session, "unknown", "value1")).isEmpty();
+  }
 }

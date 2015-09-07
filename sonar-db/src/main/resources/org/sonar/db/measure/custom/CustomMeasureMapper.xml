@@ -35,6 +35,16 @@
     where m.component_uuid=#{componentUuid}
   </select>
 
+  <select id="selectByMetricKeyAndTextValue" resultType="CustomMeasure">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM manual_measures m
+    INNER JOIN metrics metric ON metric.id=m.metric_id AND metric.name=#{metricKey}
+    <where>
+      m.text_value=#{textValue}
+    </where>
+  </select>
+
   <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO manual_measures (
     metric_id, component_uuid, value, text_value, user_login, description, created_at, updated_at

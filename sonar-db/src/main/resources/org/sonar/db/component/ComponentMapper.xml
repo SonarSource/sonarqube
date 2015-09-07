@@ -79,18 +79,6 @@
     </where>
   </select>
 
-  <select id="selectResourcesByCustomerMeasure" parameterType="String" resultType="Component">
-    SELECT
-    <include refid="componentColumns"/>
-    FROM projects p, metric m, manual_measures mm
-    <where>
-      m.name=#{metricKey}
-      and mm.metric_id = m.id
-      and mm.text_value=#{metricValue}
-      and p.id=mm.resourceId
-    </where>
-  </select>
-
   <select id="countById" parameterType="long" resultType="long">
     SELECT count(p.id)
     FROM projects p

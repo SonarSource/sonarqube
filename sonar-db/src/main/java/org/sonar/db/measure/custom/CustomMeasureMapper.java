@@ -41,6 +41,8 @@ public interface CustomMeasureMapper {
 
   List<CustomMeasureDto> selectByComponentUuid(String s, RowBounds rowBounds);
 
+  List<CustomMeasureDto> selectByMetricKeyAndTextValue(@Param("metricKey") String metricKey, @Param("textValue") String textValue);
+
   int countByComponentUuid(String componentUuid);
 
   int countByComponentIdAndMetricId(@Param("componentUuid") String componentUuid, @Param("metricId") int metricId);
