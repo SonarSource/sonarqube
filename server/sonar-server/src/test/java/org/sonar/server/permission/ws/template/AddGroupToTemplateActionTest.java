@@ -99,7 +99,7 @@ public class AddGroupToTemplateActionTest {
 
   @Test
   public void add_group_to_template() {
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), CODEVIEWER);
 
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(GROUP_NAME);
   }
@@ -119,7 +119,7 @@ public class AddGroupToTemplateActionTest {
   @Test
   public void add_with_group_id() {
     ws.newRequest()
-      .setParam(PARAM_TEMPLATE_ID, permissionTemplate.getKee())
+      .setParam(PARAM_TEMPLATE_ID, permissionTemplate.getUuid())
       .setParam(PARAM_PERMISSION, CODEVIEWER)
       .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
       .execute();
@@ -129,15 +129,15 @@ public class AddGroupToTemplateActionTest {
 
   @Test
   public void does_not_add_a_group_twice() {
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), ISSUE_ADMIN);
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), ISSUE_ADMIN);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), ISSUE_ADMIN);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), ISSUE_ADMIN);
 
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), ISSUE_ADMIN)).containsExactly(GROUP_NAME);
   }
 
   @Test
   public void add_anyone_group_to_template() {
-    newRequest(ANYONE, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(ANYONE, permissionTemplate.getUuid(), CODEVIEWER);
 
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(ANYONE);
   }
@@ -147,14 +147,14 @@ public class AddGroupToTemplateActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(String.format("It is not possible to add the '%s' permission to the '%s' group.", UserRole.ADMIN, ANYONE));
 
-    newRequest(ANYONE, permissionTemplate.getKee(), ADMIN);
+    newRequest(ANYONE, permissionTemplate.getUuid(), ADMIN);
   }
 
   @Test
   public void fail_if_not_a_project_permission() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), GlobalPermissions.PREVIEW_EXECUTION);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), GlobalPermissions.PREVIEW_EXECUTION);
   }
 
   @Test
@@ -162,7 +162,7 @@ public class AddGroupToTemplateActionTest {
     expectedException.expect(ForbiddenException.class);
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test
@@ -170,21 +170,21 @@ public class AddGroupToTemplateActionTest {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test
   public void fail_if_group_params_missing() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(null, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(null, permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test
   public void fail_if_permission_missing() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), null);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), null);
   }
 
   @Test
@@ -199,7 +199,7 @@ public class AddGroupToTemplateActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Group with name 'unknown-group-name' is not found");
 
-    newRequest("unknown-group-name", permissionTemplate.getKee(), CODEVIEWER);
+    newRequest("unknown-group-name", permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test

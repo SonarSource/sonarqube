@@ -36,6 +36,7 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDao;
+import org.sonar.server.permission.DefaultPermissionTemplates;
 import org.sonar.server.platform.PersistentSettings;
 
 import static org.mockito.Matchers.any;
@@ -76,13 +77,13 @@ public class RegisterPermissionTemplatesTest {
 
   @Test
   public void should_insert_and_register_default_permission_template() {
-    LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(PermissionTemplateDto.DEFAULT.getKee())
+    LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid())
       .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
-    PermissionTemplateDto permissionTemplate = PermissionTemplateDto.DEFAULT.setId(1L);
+    PermissionTemplateDto permissionTemplate = DefaultPermissionTemplates.DEFAULT_TEMPLATE.setId(1L);
 
-    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()))
+    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid()))
       .thenReturn(0);
-    when(permissionTemplateDao.insert(any(DbSession.class), eq(PermissionTemplateDto.DEFAULT)))
+    when(permissionTemplateDao.insert(any(DbSession.class), eq(DefaultPermissionTemplates.DEFAULT_TEMPLATE)))
       .thenReturn(permissionTemplate);
     when(groupDao.selectByName(any(DbSession.class), eq(DefaultGroups.ADMINISTRATORS))).thenReturn(new GroupDto().setId(1L));
     when(groupDao.selectByName(any(DbSession.class), eq(DefaultGroups.USERS))).thenReturn(new GroupDto().setId(2L));
@@ -91,18 +92,18 @@ public class RegisterPermissionTemplatesTest {
     initializer.start();
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
-    verify(permissionTemplateDao).insert(any(DbSession.class), eq(PermissionTemplateDto.DEFAULT));
+    verify(permissionTemplateDao).insert(any(DbSession.class), eq(DefaultPermissionTemplates.DEFAULT_TEMPLATE));
     verify(permissionTemplateDao).insertGroupPermission(1L, 1L, UserRole.ADMIN);
     verify(permissionTemplateDao).insertGroupPermission(1L, 1L, UserRole.ISSUE_ADMIN);
     verify(permissionTemplateDao).insertGroupPermission(1L, null, UserRole.USER);
     verify(permissionTemplateDao).insertGroupPermission(1L, null, UserRole.CODEVIEWER);
     verifyNoMoreInteractions(permissionTemplateDao);
-    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, PermissionTemplateDto.DEFAULT.getKee());
+    verify(settings).saveProperty(DEFAULT_TEMPLATE_PROPERTY, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid());
   }
 
   @Test
   public void should_skip_insertion_and_registration() {
-    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()))
+    when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid()))
       .thenReturn(1);
 
     RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
@@ -116,7 +117,7 @@ public class RegisterPermissionTemplatesTest {
   public void should_reference_TRK_template_as_default_when_present() {
     when(settings.getString(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT))).thenReturn("my_projects_template");
 
-    LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(PermissionTemplateDto.DEFAULT.getKee())
+    LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid())
       .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
 
     RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);

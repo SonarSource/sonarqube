@@ -255,7 +255,7 @@ public class PermissionFinderTest {
 
   @Test
   public void find_users_from_permission_template() {
-    when(permissionTemplateDao.selectByUuid(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setKee("my_template"));
+    when(permissionTemplateDao.selectByUuid(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setUuid("my_template"));
 
     when(permissionTemplateDao.selectUsers(any(DbSession.class), any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
       newArrayList(new UserWithPermissionDto().setName("user1").setPermission("user"))
@@ -282,7 +282,7 @@ public class PermissionFinderTest {
 
   @Test
   public void find_groups_from_permission_template() {
-    when(permissionTemplateDao.selectByUuid(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setKee("my_template"));
+    when(permissionTemplateDao.selectByUuid(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setUuid("my_template"));
 
     when(permissionTemplateDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))

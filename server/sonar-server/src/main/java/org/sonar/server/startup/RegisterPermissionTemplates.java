@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.permission.DefaultPermissionTemplates;
 import org.sonar.server.platform.PersistentSettings;
 
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
@@ -58,7 +59,7 @@ public class RegisterPermissionTemplates {
       setDefaultProperty(defaultProjectPermissionTemplateUuid);
     } else if (shouldRegister) {
       insertDefaultTemplate();
-      setDefaultProperty(PermissionTemplateDto.DEFAULT.getKee());
+      setDefaultProperty(DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid());
     }
 
     if (shouldRegister) {
@@ -73,14 +74,14 @@ public class RegisterPermissionTemplates {
   }
 
   private boolean shouldRegister() {
-    return dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()) == 0;
+    return dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid()) == 0;
   }
 
   private void insertDefaultTemplate() {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionTemplateDto defaultPermissionTemplate =
-        dbClient.permissionTemplateDao().insert(dbSession, PermissionTemplateDto.DEFAULT);
+        dbClient.permissionTemplateDao().insert(dbSession, DefaultPermissionTemplates.DEFAULT_TEMPLATE);
       addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
       addGroupPermission(defaultPermissionTemplate, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
       addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);
@@ -111,7 +112,7 @@ public class RegisterPermissionTemplates {
   }
 
   private void registerInitialization() {
-    LoadedTemplateDto loadedTemplate = new LoadedTemplateDto(PermissionTemplateDto.DEFAULT.getKee(),
+    LoadedTemplateDto loadedTemplate = new LoadedTemplateDto(DefaultPermissionTemplates.DEFAULT_TEMPLATE.getUuid(),
       LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
     dbClient.loadedTemplateDao().insert(loadedTemplate);
   }

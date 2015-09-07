@@ -45,7 +45,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.WsPermissionParameters;
-import org.sonar.server.permission.ws.template.AddUserToTemplateAction;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -95,7 +94,7 @@ public class AddUserToTemplateActionTest {
 
   @Test
   public void add_user_to_template() {
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), CODEVIEWER);
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(USER_LOGIN);
   }
@@ -114,8 +113,8 @@ public class AddUserToTemplateActionTest {
 
   @Test
   public void does_not_add_a_user_twice() {
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), ISSUE_ADMIN);
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), ISSUE_ADMIN);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), ISSUE_ADMIN);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), ISSUE_ADMIN);
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), ISSUE_ADMIN)).containsExactly(USER_LOGIN);
   }
@@ -124,7 +123,7 @@ public class AddUserToTemplateActionTest {
   public void fail_if_not_a_project_permission() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), GlobalPermissions.PREVIEW_EXECUTION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), GlobalPermissions.PREVIEW_EXECUTION);
   }
 
   @Test
@@ -132,7 +131,7 @@ public class AddUserToTemplateActionTest {
     expectedException.expect(ForbiddenException.class);
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test
@@ -140,21 +139,21 @@ public class AddUserToTemplateActionTest {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test
   public void fail_if_user_missing() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(null, permissionTemplate.getKee(), CODEVIEWER);
+    newRequest(null, permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test
   public void fail_if_permission_missing() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), null);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), null);
   }
 
   @Test
@@ -169,7 +168,7 @@ public class AddUserToTemplateActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' is not found");
 
-    newRequest("unknown-login", permissionTemplate.getKee(), CODEVIEWER);
+    newRequest("unknown-login", permissionTemplate.getUuid(), CODEVIEWER);
   }
 
   @Test

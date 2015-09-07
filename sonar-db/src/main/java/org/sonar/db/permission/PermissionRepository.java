@@ -176,7 +176,7 @@ public class PermissionRepository {
     }
     checkAtMostOneMatchForComponentKey(componentKey, matchingTemplates);
     if (matchingTemplates.size() == 1) {
-      return matchingTemplates.get(0).getKee();
+      return matchingTemplates.get(0).getUuid();
     }
     String qualifierTemplateKey = settings.getString("sonar.permission.template." + qualifier + ".default");
     if (!StringUtils.isBlank(qualifierTemplateKey)) {

@@ -92,7 +92,7 @@ public class UpdateTemplateActionTest {
 
   @Test
   public void update_all_permission_template_fields() {
-    TestResponse result = newRequest(templateDto.getKee(), "Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
+    TestResponse result = newRequest(templateDto.getUuid(), "Finance", "Permissions for financially related projects", ".*\\.finance\\..*");
 
     assertJson(result.getInput())
       .ignoreFields("id")
@@ -101,16 +101,16 @@ public class UpdateTemplateActionTest {
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");
     assertThat(finance.getKeyPattern()).isEqualTo(".*\\.finance\\..*");
-    assertThat(finance.getKee()).isEqualTo(templateDto.getKee());
+    assertThat(finance.getUuid()).isEqualTo(templateDto.getUuid());
     assertThat(finance.getCreatedAt()).isEqualTo(templateDto.getCreatedAt());
     assertThat(finance.getUpdatedAt().getTime()).isEqualTo(1440512328743L);
   }
 
   @Test
   public void update_with_the_same_values() {
-    newRequest(templateDto.getKee(), templateDto.getName(), templateDto.getDescription(), templateDto.getKeyPattern());
+    newRequest(templateDto.getUuid(), templateDto.getName(), templateDto.getDescription(), templateDto.getKeyPattern());
 
-    PermissionTemplateDto updatedTemplate = dbClient.permissionTemplateDao().selectByUuid(dbSession, templateDto.getKee());
+    PermissionTemplateDto updatedTemplate = dbClient.permissionTemplateDao().selectByUuid(dbSession, templateDto.getUuid());
     assertThat(updatedTemplate.getName()).isEqualTo(templateDto.getName());
     assertThat(updatedTemplate.getDescription()).isEqualTo(templateDto.getDescription());
     assertThat(updatedTemplate.getKeyPattern()).isEqualTo(templateDto.getKeyPattern());
@@ -118,7 +118,7 @@ public class UpdateTemplateActionTest {
 
   @Test
   public void update_name_only() {
-    newRequest(templateDto.getKee(), "Finance", null, null);
+    newRequest(templateDto.getUuid(), "Finance", null, null);
 
     PermissionTemplateDto finance = dbClient.permissionTemplateDao().selectByName(dbSession, "Finance");
     assertThat(finance.getName()).isEqualTo("Finance");
@@ -141,12 +141,12 @@ public class UpdateTemplateActionTest {
 
     insertTemplate(newPermissionTemplateDto()
       .setName("My Template")
-      .setKee("my-key")
+      .setUuid("my-key")
       .setCreatedAt(new Date(12345789L))
       .setUpdatedAt(new Date(12345789L)));
     commit();
 
-    newRequest(templateDto.getKee(), "My Template", null, null);
+    newRequest(templateDto.getUuid(), "My Template", null, null);
   }
 
   @Test
@@ -161,7 +161,7 @@ public class UpdateTemplateActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
 
-    newRequest(templateDto.getKee(), "", null, null);
+    newRequest(templateDto.getUuid(), "", null, null);
   }
 
   @Test
@@ -169,7 +169,7 @@ public class UpdateTemplateActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The template name must not be blank");
 
-    newRequest(templateDto.getKee(), "  \r\n", null, null);
+    newRequest(templateDto.getUuid(), "  \r\n", null, null);
   }
 
   @Test
@@ -177,7 +177,7 @@ public class UpdateTemplateActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
-    newRequest(templateDto.getKee(), "Finance", null, "[azerty");
+    newRequest(templateDto.getUuid(), "Finance", null, "[azerty");
   }
 
   @Test
@@ -187,7 +187,7 @@ public class UpdateTemplateActionTest {
     insertTemplate(newPermissionTemplateDto().setName("finance"));
     commit();
 
-    newRequest(templateDto.getKee(), "Finance", null, null);
+    newRequest(templateDto.getUuid(), "Finance", null, null);
   }
 
   @Test
@@ -195,7 +195,7 @@ public class UpdateTemplateActionTest {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(templateDto.getKee(), "Finance", null, null);
+    newRequest(templateDto.getUuid(), "Finance", null, null);
   }
 
   @Test
@@ -203,7 +203,7 @@ public class UpdateTemplateActionTest {
     expectedException.expect(ForbiddenException.class);
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(templateDto.getKee(), "Finance", null, null);
+    newRequest(templateDto.getUuid(), "Finance", null, null);
   }
 
   private PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {

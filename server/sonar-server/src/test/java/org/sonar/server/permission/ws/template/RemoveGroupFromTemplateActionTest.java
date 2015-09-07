@@ -101,7 +101,7 @@ public class RemoveGroupFromTemplateActionTest {
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), PERMISSION)).containsExactly(GROUP_NAME);
     commit();
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), PERMISSION);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), PERMISSION);
 
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), PERMISSION)).isEmpty();
   }
@@ -127,7 +127,7 @@ public class RemoveGroupFromTemplateActionTest {
     commit();
 
     ws.newRequest()
-      .setParam(PARAM_TEMPLATE_ID, permissionTemplate.getKee())
+      .setParam(PARAM_TEMPLATE_ID, permissionTemplate.getUuid())
       .setParam(PARAM_PERMISSION, PERMISSION)
       .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
       .execute();
@@ -137,8 +137,8 @@ public class RemoveGroupFromTemplateActionTest {
 
   @Test
   public void remove_group_twice_without_error() {
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), PERMISSION);
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), PERMISSION);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), PERMISSION);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), PERMISSION);
 
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), PERMISSION)).isEmpty();
   }
@@ -148,7 +148,7 @@ public class RemoveGroupFromTemplateActionTest {
     addGroupToPermissionTemplate(permissionTemplate.getId(), null, PERMISSION);
     commit();
 
-    newRequest(ANYONE, permissionTemplate.getKee(), PERMISSION);
+    newRequest(ANYONE, permissionTemplate.getUuid(), PERMISSION);
 
     assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), PERMISSION)).containsExactly(GROUP_NAME);
   }
@@ -157,7 +157,7 @@ public class RemoveGroupFromTemplateActionTest {
   public void fail_if_not_a_project_permission() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), GlobalPermissions.PREVIEW_EXECUTION);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), GlobalPermissions.PREVIEW_EXECUTION);
   }
 
   @Test
@@ -165,7 +165,7 @@ public class RemoveGroupFromTemplateActionTest {
     expectedException.expect(ForbiddenException.class);
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), PERMISSION);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), PERMISSION);
   }
 
   @Test
@@ -173,21 +173,21 @@ public class RemoveGroupFromTemplateActionTest {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), PERMISSION);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), PERMISSION);
   }
 
   @Test
   public void fail_if_group_params_missing() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(null, permissionTemplate.getKee(), PERMISSION);
+    newRequest(null, permissionTemplate.getUuid(), PERMISSION);
   }
 
   @Test
   public void fail_if_permission_missing() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(GROUP_NAME, permissionTemplate.getKee(), null);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), null);
   }
 
   @Test
@@ -202,7 +202,7 @@ public class RemoveGroupFromTemplateActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Group with name 'unknown-group-name' is not found");
 
-    newRequest("unknown-group-name", permissionTemplate.getKee(), PERMISSION);
+    newRequest("unknown-group-name", permissionTemplate.getUuid(), PERMISSION);
   }
 
   @Test

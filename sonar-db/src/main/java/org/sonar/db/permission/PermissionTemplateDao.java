@@ -384,7 +384,7 @@ public class PermissionTemplateDao implements Dao {
     if (permissionTemplateDto == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with uuid " + templateUuid);
     }
-    PermissionTemplateDto templateWithPermissions = selectByUuidWithUserAndGroupPermissions(session, permissionTemplateDto.getKee());
+    PermissionTemplateDto templateWithPermissions = selectByUuidWithUserAndGroupPermissions(session, permissionTemplateDto.getUuid());
     if (templateWithPermissions == null) {
       throw new IllegalArgumentException("Could not retrieve permissions for template with uuid " + templateUuid);
     }

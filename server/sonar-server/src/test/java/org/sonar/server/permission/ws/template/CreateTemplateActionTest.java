@@ -83,7 +83,7 @@ public class CreateTemplateActionTest {
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isEqualTo("Permissions for financially related projects");
     assertThat(finance.getKeyPattern()).isEqualTo(".*\\.finance\\..*");
-    assertThat(finance.getKee()).isNotEmpty();
+    assertThat(finance.getUuid()).isNotEmpty();
     assertThat(finance.getCreatedAt().getTime()).isEqualTo(1440512328743L);
     assertThat(finance.getUpdatedAt().getTime()).isEqualTo(1440512328743L);
   }
@@ -96,7 +96,7 @@ public class CreateTemplateActionTest {
     assertThat(finance.getName()).isEqualTo("Finance");
     assertThat(finance.getDescription()).isNullOrEmpty();
     assertThat(finance.getKeyPattern()).isNullOrEmpty();
-    assertThat(finance.getKee()).isNotEmpty();
+    assertThat(finance.getUuid()).isNotEmpty();
     assertThat(finance.getCreatedAt().getTime()).isEqualTo(1440512328743L);
     assertThat(finance.getUpdatedAt().getTime()).isEqualTo(1440512328743L);
   }

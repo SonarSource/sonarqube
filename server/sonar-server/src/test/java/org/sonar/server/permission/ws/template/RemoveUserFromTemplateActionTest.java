@@ -45,7 +45,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.WsPermissionParameters;
-import org.sonar.server.permission.ws.template.RemoveUserFromTemplateAction;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -97,7 +96,7 @@ public class RemoveUserFromTemplateActionTest {
 
   @Test
   public void remove_user_from_template() {
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).isEmpty();
   }
@@ -116,8 +115,8 @@ public class RemoveUserFromTemplateActionTest {
 
   @Test
   public void remove_user_from_template_twice_without_failing() {
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), DEFAULT_PERMISSION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).isEmpty();
   }
@@ -127,7 +126,7 @@ public class RemoveUserFromTemplateActionTest {
     addUserToTemplate(user, permissionTemplate, ISSUE_ADMIN);
     commit();
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).isEmpty();
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), ISSUE_ADMIN)).containsExactly(user.getLogin());
@@ -139,7 +138,7 @@ public class RemoveUserFromTemplateActionTest {
     addUserToTemplate(newUser, permissionTemplate, DEFAULT_PERMISSION);
     commit();
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).containsExactly("new-login");
   }
@@ -148,7 +147,7 @@ public class RemoveUserFromTemplateActionTest {
   public void fail_if_not_a_project_permission() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), GlobalPermissions.PREVIEW_EXECUTION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), GlobalPermissions.PREVIEW_EXECUTION);
   }
 
   @Test
@@ -156,7 +155,7 @@ public class RemoveUserFromTemplateActionTest {
     expectedException.expect(ForbiddenException.class);
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), DEFAULT_PERMISSION);
   }
 
   @Test
@@ -164,21 +163,21 @@ public class RemoveUserFromTemplateActionTest {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), DEFAULT_PERMISSION);
   }
 
   @Test
   public void fail_if_user_missing() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(null, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(null, permissionTemplate.getUuid(), DEFAULT_PERMISSION);
   }
 
   @Test
   public void fail_if_permission_missing() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), null);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), null);
   }
 
   @Test
@@ -193,7 +192,7 @@ public class RemoveUserFromTemplateActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' is not found");
 
-    newRequest("unknown-login", permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest("unknown-login", permissionTemplate.getUuid(), DEFAULT_PERMISSION);
   }
 
   @Test

@@ -60,7 +60,7 @@ public class PermissionTemplateDtoBuilder {
       .setName(name)
       .setDescription(description)
       .setKeyPattern(projectKeyPattern)
-      .setKee(Uuids.create())
+      .setUuid(Uuids.create())
       .setCreatedAt(new Date(now))
       .setUpdatedAt(new Date(now));
   }

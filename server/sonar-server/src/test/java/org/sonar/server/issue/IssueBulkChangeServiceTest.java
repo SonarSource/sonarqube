@@ -142,8 +142,8 @@ public class IssueBulkChangeServiceTest {
 //
 //  @Test
 //  public void should_execute_bulk_change_with_comment_only_on_changed_issues() {
-//    IssueDto issueDto1 = IssueTesting.newDto(RuleTesting.newDto(rule.ruleKey()).setId(50), file, project).setKee("ABCD");
-//    IssueDto issueDto2 = IssueTesting.newDto(RuleTesting.newDto(rule.ruleKey()).setId(50), file, project).setKee("EFGH");
+//    IssueDto issueDto1 = IssueTesting.newDto(RuleTesting.newDto(rule.ruleKey()).setId(50), file, project).setUuid("ABCD");
+//    IssueDto issueDto2 = IssueTesting.newDto(RuleTesting.newDto(rule.ruleKey()).setId(50), file, project).setUuid("EFGH");
 //
 //    org.sonar.server.search.Result<Issue> resultIssues = mock(org.sonar.server.search.Result.class);
 //    when(resultIssues.getHits()).thenReturn(Lists.<Issue>newArrayList(issueDto1.toDefaultIssue(), issueDto2.toDefaultIssue()));

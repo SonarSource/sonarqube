@@ -37,14 +37,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.MyBatis;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
@@ -87,27 +85,6 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_skip_key_normalization_on_default_template() {
-    db.truncateTables();
-
-    PermissionTemplateMapper mapper = mock(PermissionTemplateMapper.class);
-
-    DbSession session = mock(DbSession.class);
-    when(session.getMapper(PermissionTemplateMapper.class)).thenReturn(mapper);
-
-    MyBatis myBatis = mock(MyBatis.class);
-    when(myBatis.openSession(false)).thenReturn(session);
-
-    underTest = new PermissionTemplateDao(myBatis, system);
-    PermissionTemplateDto permissionTemplate = underTest.insert(session, PermissionTemplateDto.DEFAULT);
-
-    verify(mapper).insert(permissionTemplate);
-    verify(session).commit();
-
-    assertThat(permissionTemplate.getKee()).isEqualTo(PermissionTemplateDto.DEFAULT.getKee());
-  }
-
-  @Test
   public void should_select_permission_template() {
     db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
@@ -115,7 +92,7 @@ public class PermissionTemplateDaoTest {
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
-    assertThat(permissionTemplate.getKee()).isEqualTo("my_template_20130102_030405");
+    assertThat(permissionTemplate.getUuid()).isEqualTo("my_template_20130102_030405");
     assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
     assertThat(permissionTemplate.getUsersPermissions()).hasSize(3);
     assertThat(permissionTemplate.getUsersPermissions()).extracting("userId").containsOnly(1L, 2L, 1L);
@@ -150,7 +127,7 @@ public class PermissionTemplateDaoTest {
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
-    assertThat(permissionTemplate.getKee()).isEqualTo("my_template_20130102_030405");
+    assertThat(permissionTemplate.getUuid()).isEqualTo("my_template_20130102_030405");
     assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
   }
 
@@ -255,8 +232,8 @@ public class PermissionTemplateDaoTest {
   public void should_retrieve_permission_template() {
     db.truncateTables();
 
-    PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setKee("test_template");
-    PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
+    PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setUuid("test_template");
+    PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setUuid("test_template");
     underTest = mock(PermissionTemplateDao.class);
     when(underTest.selectByUuid(db.getSession(), "test_template")).thenReturn(permissionTemplateDto);
     when(underTest.selectByUuidWithUserAndGroupPermissions(db.getSession(), "test_template")).thenReturn(templateWithPermissions);

@@ -37,7 +37,7 @@ public class PermissionTemplateDtoToPermissionTemplateResponse {
     @Override
     public PermissionTemplate apply(@Nonnull PermissionTemplateDto permissionTemplate) {
       PermissionTemplate.Builder permissionTemplateBuilder = PermissionTemplate.newBuilder()
-        .setId(permissionTemplate.getKee())
+        .setId(permissionTemplate.getUuid())
         .setName(permissionTemplate.getName())
         .setCreatedAt(DateUtils.formatDateTime(permissionTemplate.getCreatedAt()))
         .setUpdatedAt(DateUtils.formatDateTime(permissionTemplate.getUpdatedAt()));

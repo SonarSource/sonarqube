@@ -27,16 +27,9 @@ import javax.annotation.Nullable;
 
 public class PermissionTemplateDto {
 
-  public static final PermissionTemplateDto DEFAULT = new PermissionTemplateDto()
-    .setName("Default template")
-    .setKee("default_template")
-    .setDescription("This permission template will be used as default when no other permission configuration is available")
-    .setCreatedAt(new Date())
-    .setUpdatedAt(new Date());
-
   private Long id;
   private String name;
-  private String kee;
+  private String uuid;
   private String description;
   private String keyPattern;
   private List<PermissionTemplateUserDto> usersPermissions;
@@ -62,27 +55,35 @@ public class PermissionTemplateDto {
     return this;
   }
 
+  /**
+   * @deprecated since 5.2 use {@link #getUuid()}
+   */
+  @Deprecated
   public String getKee() {
-    return kee;
+    return uuid;
+  }
+
+  /**
+   * @deprecated since 5.2 use {@link #setUuid(String)}
+   */
+  @Deprecated
+  public PermissionTemplateDto setKee(String kee) {
+    this.uuid = kee;
+    return this;
   }
 
   /**
    * @since 5.2 the kee column is a proper uuid. Before that it was build on the name + timestamp
    */
   public String getUuid() {
-    return kee;
-  }
-
-  public PermissionTemplateDto setKee(String kee) {
-    this.kee = kee;
-    return this;
+    return uuid;
   }
 
   /**
    * @since 5.2 the kee column is a proper uuid. Before it was build on the name + timestamp
    */
   public PermissionTemplateDto setUuid(String uuid) {
-    this.kee = uuid;
+    this.uuid = uuid;
     return this;
   }
 

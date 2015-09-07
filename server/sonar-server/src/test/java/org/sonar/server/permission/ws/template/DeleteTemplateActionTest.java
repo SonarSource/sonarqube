@@ -44,7 +44,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.DeleteTemplateAction;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -87,9 +86,9 @@ public class DeleteTemplateActionTest {
     PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient));
     ws = new WsActionTester(new DeleteTemplateAction(dbClient, userSession, finder, defaultTemplatePermissionFinder));
 
-    permissionTemplate = insertTemplateAndAssociatedPermissions(newPermissionTemplateDto().setKee(TEMPLATE_UUID));
+    permissionTemplate = insertTemplateAndAssociatedPermissions(newPermissionTemplateDto().setUuid(TEMPLATE_UUID));
     PermissionTemplateDto permissionTemplateInDatabase = dbClient.permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(dbSession, TEMPLATE_UUID);
-    assertThat(permissionTemplateInDatabase.getKee()).isEqualTo(TEMPLATE_UUID);
+    assertThat(permissionTemplateInDatabase.getUuid()).isEqualTo(TEMPLATE_UUID);
     assertThat(permissionTemplateInDatabase.getGroupsPermissions()).isNotEmpty();
     assertThat(permissionTemplateInDatabase.getUsersPermissions()).isNotEmpty();
   }
