@@ -31,8 +31,8 @@ import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
 
 public class ApplyTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;

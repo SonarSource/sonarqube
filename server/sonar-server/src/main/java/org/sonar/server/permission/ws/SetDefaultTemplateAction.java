@@ -38,8 +38,8 @@ import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.PARAM_QUALIFIER;
-import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_QUALIFIER;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.ResourceTypeToQualifier.RESOURCE_TYPE_TO_QUALIFIER;
 

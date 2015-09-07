@@ -49,11 +49,11 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
 
 @Category(DbTests.class)

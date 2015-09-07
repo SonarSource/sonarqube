@@ -39,7 +39,7 @@ import org.sonarqube.ws.WsPermissions.WsSearchProjectPermissionsResponse.Project
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
-import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchProjectPermissionsAction implements PermissionsWsAction {

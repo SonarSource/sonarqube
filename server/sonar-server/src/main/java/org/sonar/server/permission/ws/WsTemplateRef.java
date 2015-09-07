@@ -24,8 +24,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**

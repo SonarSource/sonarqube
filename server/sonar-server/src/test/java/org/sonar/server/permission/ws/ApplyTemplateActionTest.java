@@ -68,10 +68,10 @@ import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTem
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
 public class ApplyTemplateActionTest {

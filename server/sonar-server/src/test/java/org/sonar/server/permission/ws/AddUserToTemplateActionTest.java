@@ -55,9 +55,9 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
-import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_USER_LOGIN;
 
 @Category(DbTests.class)
 public class AddUserToTemplateActionTest {
@@ -183,10 +183,10 @@ public class AddUserToTemplateActionTest {
       request.setParam(PARAM_USER_LOGIN, userLogin);
     }
     if (templateKey != null) {
-      request.setParam(Parameters.PARAM_TEMPLATE_ID, templateKey);
+      request.setParam(WsPermissionParameters.PARAM_TEMPLATE_ID, templateKey);
     }
     if (permission != null) {
-      request.setParam(Parameters.PARAM_PERMISSION, permission);
+      request.setParam(WsPermissionParameters.PARAM_PERMISSION, permission);
     }
 
     request.execute();

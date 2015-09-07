@@ -30,11 +30,11 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.createGroupIdParameter;
-import static org.sonar.server.permission.ws.Parameters.createGroupNameParameter;
-import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createGroupIdParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createGroupNameParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectPermissionParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 
 public class RemoveGroupFromTemplateAction implements PermissionsWsAction {

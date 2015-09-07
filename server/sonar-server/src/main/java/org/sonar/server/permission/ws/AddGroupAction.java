@@ -29,10 +29,10 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 
-import static org.sonar.server.permission.ws.Parameters.createGroupIdParameter;
-import static org.sonar.server.permission.ws.Parameters.createGroupNameParameter;
-import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createGroupIdParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createGroupNameParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createPermissionParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectParameter;
 
 public class AddGroupAction implements PermissionsWsAction {
 

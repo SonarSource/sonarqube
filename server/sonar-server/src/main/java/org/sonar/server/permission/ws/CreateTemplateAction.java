@@ -33,11 +33,11 @@ import org.sonarqube.ws.WsPermissions.WsCreatePermissionTemplateResponse;
 
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.PARAM_DESCRIPTION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_NAME;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PATTERN;
-import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateProjectKeyPatternParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_DESCRIPTION;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PATTERN;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateDescriptionParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;

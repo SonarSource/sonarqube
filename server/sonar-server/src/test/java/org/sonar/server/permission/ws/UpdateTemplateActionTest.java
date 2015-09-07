@@ -47,10 +47,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_DESCRIPTION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_NAME;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PATTERN;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_DESCRIPTION;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PATTERN;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpdateTemplateActionTest {

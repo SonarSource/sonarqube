@@ -29,9 +29,9 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 
-import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createProjectParameter;
-import static org.sonar.server.permission.ws.Parameters.createUserLoginParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createPermissionParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createUserLoginParameter;
 
 public class AddUserAction implements PermissionsWsAction {
 

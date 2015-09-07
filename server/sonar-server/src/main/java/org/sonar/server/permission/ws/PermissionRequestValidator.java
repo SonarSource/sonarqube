@@ -32,9 +32,9 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_QUALIFIER;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PATTERN;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_QUALIFIER;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PATTERN;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionRequestValidator {

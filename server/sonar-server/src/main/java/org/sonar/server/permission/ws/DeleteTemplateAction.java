@@ -30,7 +30,7 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.WsTemplateRef.fromRequest;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 

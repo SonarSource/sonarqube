@@ -52,8 +52,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.util.collections.Sets.newSet;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_NAME;
 
 public class DeleteTemplateActionTest {
 

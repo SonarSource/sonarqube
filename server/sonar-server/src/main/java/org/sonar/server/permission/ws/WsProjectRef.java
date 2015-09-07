@@ -24,8 +24,8 @@ import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.ws.Request;
 
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**

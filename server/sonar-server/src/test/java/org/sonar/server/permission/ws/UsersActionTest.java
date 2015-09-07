@@ -50,9 +50,9 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @Category(DbTests.class)
