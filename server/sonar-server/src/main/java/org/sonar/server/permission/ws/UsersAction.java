@@ -89,7 +89,8 @@ public class UsersAction implements PermissionsWsAction {
       Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request);
       checkProjectAdminUserByComponentDto(userSession, project);
       PermissionQuery permissionQuery = buildPermissionQuery(request, project);
-      WsUsersResponse wsUsersResponse = wsUsersResponse(permissionQuery, request.page(), request.pageSize());
+      UserWithPermissionQueryResult usersResult = permissionFinder.findUsersWithPermission(dbSession, permissionQuery);
+      WsUsersResponse wsUsersResponse = buildResponse(usersResult, request.page(), request.pageSize());
 
       writeProtobuf(wsUsersResponse, wsRequest, wsResponse);
     } finally {
@@ -97,8 +98,7 @@ public class UsersAction implements PermissionsWsAction {
     }
   }
 
-  private WsUsersResponse wsUsersResponse(PermissionQuery permissionQuery, int page, int pageSize) {
-    UserWithPermissionQueryResult usersResult = permissionFinder.findUsersWithPermission(permissionQuery);
+  private WsUsersResponse buildResponse(UserWithPermissionQueryResult usersResult, int page, int pageSize) {
     List<UserWithPermission> usersWithPermission = usersResult.users();
 
     WsUsersResponse.Builder userResponse = WsUsersResponse.newBuilder();

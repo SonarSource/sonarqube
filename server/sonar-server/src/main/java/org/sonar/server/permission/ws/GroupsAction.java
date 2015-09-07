@@ -89,7 +89,8 @@ public class GroupsAction implements PermissionsWsAction {
       checkProjectAdminUserByComponentDto(userSession, project);
 
       PermissionQuery permissionQuery = buildPermissionQuery(request, project);
-      WsGroupsResponse groupsResponse = buildResponse(permissionQuery, request);
+      GroupWithPermissionQueryResult groupsResult = permissionFinder.findGroupsWithPermission(dbSession, permissionQuery);
+      WsGroupsResponse groupsResponse = buildResponse(groupsResult, request);
 
       writeProtobuf(groupsResponse, wsRequest, wsResponse);
     } finally {
@@ -97,8 +98,7 @@ public class GroupsAction implements PermissionsWsAction {
     }
   }
 
-  private WsGroupsResponse buildResponse(PermissionQuery permissionQuery, PermissionRequest permissionRequest) {
-    GroupWithPermissionQueryResult groupsResult = permissionFinder.findGroupsWithPermission(permissionQuery);
+  private WsGroupsResponse buildResponse(GroupWithPermissionQueryResult groupsResult, PermissionRequest permissionRequest) {
     List<GroupWithPermission> groupsWithPermission = groupsResult.groups();
 
     WsGroupsResponse.Builder groupsResponse = WsGroupsResponse.newBuilder();

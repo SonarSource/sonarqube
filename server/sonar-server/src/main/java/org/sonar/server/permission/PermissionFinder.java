@@ -51,67 +51,44 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 @ServerSide
 public class PermissionFinder {
 
-  private final DbClient dbClient;
-
   private final PermissionDao permissionDao;
   private final ResourceDao resourceDao;
   private final PermissionTemplateDao permissionTemplateDao;
 
   public PermissionFinder(DbClient dbClient) {
-    this.dbClient = dbClient;
     this.resourceDao = dbClient.resourceDao();
     this.permissionDao = dbClient.permissionDao();
     this.permissionTemplateDao = dbClient.permissionTemplateDao();
   }
 
-  public UserWithPermissionQueryResult findUsersWithPermission(PermissionQuery query) {
+  public UserWithPermissionQueryResult findUsersWithPermission(DbSession dbSession, PermissionQuery query) {
     Long componentId = componentId(query.component());
     int limit = query.pageSize();
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      int total = permissionDao.countUsers(dbSession, query, componentId);
-      return toUserQueryResult(permissionDao.selectUsers(dbSession, query, componentId, offset(query), limit), total);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+    int total = permissionDao.countUsers(dbSession, query, componentId);
+    return toUserQueryResult(permissionDao.selectUsers(dbSession, query, componentId, offset(query), limit), total);
   }
 
-  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(PermissionQuery query) {
+  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(DbSession dbSession, PermissionQuery query) {
     Long permissionTemplateId = templateId(query.template());
     int limit = query.pageSize();
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      int total = permissionTemplateDao.countUsers(dbSession, query, permissionTemplateId);
-      return toUserQueryResult(permissionTemplateDao.selectUsers(dbSession, query, permissionTemplateId, offset(query), limit), total);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+    int total = permissionTemplateDao.countUsers(dbSession, query, permissionTemplateId);
+    return toUserQueryResult(permissionTemplateDao.selectUsers(dbSession, query, permissionTemplateId, offset(query), limit), total);
   }
 
   /**
    * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
    */
-  public GroupWithPermissionQueryResult findGroupsWithPermission(PermissionQuery query) {
+  public GroupWithPermissionQueryResult findGroupsWithPermission(DbSession dbSession, PermissionQuery query) {
     Long componentId = componentId(query.component());
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return toGroupQueryResult(permissionDao.selectGroups(dbSession, query, componentId), query);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+    return toGroupQueryResult(permissionDao.selectGroups(dbSession, query, componentId), query);
   }
 
   /**
    * Paging for groups search is done in Java in order to correctly handle the 'Anyone' group
    */
-  public GroupWithPermissionQueryResult findGroupsWithPermissionTemplate(PermissionQuery query) {
+  public GroupWithPermissionQueryResult findGroupsWithPermissionTemplate(DbSession dbSession, PermissionQuery query) {
     Long permissionTemplateId = templateId(query.template());
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return toGroupQueryResult(permissionTemplateDao.selectGroups(dbSession, query, permissionTemplateId), query);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
+    return toGroupQueryResult(permissionTemplateDao.selectGroups(dbSession, query, permissionTemplateId), query);
   }
 
   private static UserWithPermissionQueryResult toUserQueryResult(List<UserWithPermissionDto> dtos, int total) {
