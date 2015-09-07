@@ -207,19 +207,16 @@ public class SearchResponseFormat {
   private void completeIssueLocations(IssueDto dto, Issues.Issue.Builder issueBuilder) {
     DbIssues.Locations locations = dto.parseLocations();
     if (locations != null) {
-      if (locations.hasPrimary()) {
-        DbCommons.TextRange primary = locations.getPrimary();
-        issueBuilder.setTextRange(convertTextRange(primary));
+      if (locations.hasTextRange()) {
+        DbCommons.TextRange textRange = locations.getTextRange();
+        issueBuilder.setTextRange(convertTextRange(textRange));
       }
-      for (DbIssues.Location secondary : locations.getSecondaryList()) {
-        issueBuilder.addSecondaryLocations(convertLocation(secondary));
-      }
-      for (DbIssues.ExecutionFlow flow : locations.getExecutionFlowList()) {
-        Issues.ExecutionFlow.Builder targetFlow = Issues.ExecutionFlow.newBuilder();
+      for (DbIssues.Flow flow : locations.getFlowList()) {
+        Issues.Flow.Builder targetFlow = Issues.Flow.newBuilder();
         for (DbIssues.Location flowLocation : flow.getLocationList()) {
           targetFlow.addLocations(convertLocation(flowLocation));
         }
-        issueBuilder.addExecutionFlows(targetFlow);
+        issueBuilder.addFlows(targetFlow);
       }
     }
   }

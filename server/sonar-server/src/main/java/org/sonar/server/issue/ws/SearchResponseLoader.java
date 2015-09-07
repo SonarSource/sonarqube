@@ -189,12 +189,7 @@ public class SearchResponseLoader {
     private void collectComponentsFromIssueLocations(IssueDto issue) {
       DbIssues.Locations locations = issue.parseLocations();
       if (locations != null) {
-        for (DbIssues.Location location : locations.getSecondaryList()) {
-          if (location.hasComponentId()) {
-            componentUuids.add(location.getComponentId());
-          }
-        }
-        for (DbIssues.ExecutionFlow flow : locations.getExecutionFlowList()) {
+        for (DbIssues.Flow flow : locations.getFlowList()) {
           for (DbIssues.Location location : flow.getLocationList()) {
             if (location.hasComponentId()) {
               componentUuids.add(location.getComponentId());

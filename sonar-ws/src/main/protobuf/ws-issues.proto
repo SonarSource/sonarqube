@@ -70,39 +70,38 @@ message Issue {
   optional string subProject = 7;
   optional int32 line = 8;
   optional sonarqube.ws.commons.TextRange textRange = 9;
-  repeated Location secondaryLocations = 10;
-  repeated ExecutionFlow executionFlows = 11;
-  optional string resolution = 12;
-  optional string status = 13;
-  optional string message = 14;
-  optional string debt = 15;
-  optional string assignee = 16;
-  optional string reporter = 17;
+  repeated Flow flows = 10;
+  optional string resolution = 11;
+  optional string status = 12;
+  optional string message = 13;
+  optional string debt = 14;
+  optional string assignee = 15;
+  optional string reporter = 16;
 
   // SCM login of the committer who introduced the issue
-  optional string author = 18;
+  optional string author = 17;
 
-  optional string actionPlan = 19;
-  optional bool tagsPresentIfEmpty = 20;
-  repeated string tags = 21;
+  optional string actionPlan = 18;
+  optional bool tagsPresentIfEmpty = 19;
+  repeated string tags = 20;
 
   // the transitions allowed for the requesting user.
-  optional bool transitionsPresentIfEmpty = 22;
-  repeated string transitions = 23;
+  optional bool transitionsPresentIfEmpty = 21;
+  repeated string transitions = 22;
 
   // the actions allowed for the requesting user.
-  optional bool actionsPresentIfEmpty = 24;
-  repeated string actions = 25;
+  optional bool actionsPresentIfEmpty = 23;
+  repeated string actions = 24;
 
-  optional bool commentsPresentIfEmpty = 26;
-  repeated Comment comments = 27;
-  optional string creationDate = 28;
-  optional string updateDate = 29;
-  optional string fUpdateAge = 30;
-  optional string closeDate = 31;
+  optional bool commentsPresentIfEmpty = 25;
+  repeated Comment comments = 26;
+  optional string creationDate = 27;
+  optional string updateDate = 28;
+  optional string fUpdateAge = 29;
+  optional string closeDate = 30;
 }
 
-message ExecutionFlow {
+message Flow {
   repeated Location locations = 1;
 }
 

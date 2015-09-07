@@ -129,21 +129,15 @@ public class TrackerRawInputFactory {
         issue.setAttributes(KeyValueFormat.parse(reportIssue.getAttributes()));
       }
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
-      if (reportIssue.hasPrimaryLocation()) {
-        BatchReport.IssueLocation location = reportIssue.getPrimaryLocation();
-        if (location.hasTextRange()) {
-          dbLocationsBuilder.setPrimary(convertTextRange(location.getTextRange()));
-        }
+      if (reportIssue.hasTextRange()) {
+        dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));
       }
-      for (BatchReport.IssueLocation location : reportIssue.getAdditionalLocationList()) {
-        dbLocationsBuilder.addSecondary(convertLocation(location));
-      }
-      for (BatchReport.ExecutionFlow flow : reportIssue.getExecutionFlowList()) {
-        DbIssues.ExecutionFlow.Builder dbFlowBuilder = DbIssues.ExecutionFlow.newBuilder();
+      for (BatchReport.Flow flow : reportIssue.getFlowList()) {
+        DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
         for (BatchReport.IssueLocation location : flow.getLocationList()) {
           dbFlowBuilder.addLocation(convertLocation(location));
         }
-        dbLocationsBuilder.addExecutionFlow(dbFlowBuilder);
+        dbLocationsBuilder.addFlow(dbFlowBuilder);
       }
       issue.setLocations(dbLocationsBuilder.build());
       return issue;
