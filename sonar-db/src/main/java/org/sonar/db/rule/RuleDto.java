@@ -38,7 +38,7 @@ import org.sonar.db.Dto;
 
 public class RuleDto extends Dto<RuleKey> {
 
-  public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
+  public static final int DISABLED_CHARACTERISTIC_ID = -1;
 
   public enum Format {
     HTML, MARKDOWN
@@ -259,6 +259,15 @@ public class RuleDto extends Dto<RuleKey> {
   }
 
   @CheckForNull
+  public Integer getEffectiveSubCharacteristicId() {
+    Integer effective = subCharacteristicId == null ? defaultSubCharacteristicId : subCharacteristicId;
+    if (effective != null && effective != DISABLED_CHARACTERISTIC_ID) {
+      return effective;
+    }
+    return null;
+  }
+
+  @CheckForNull
   public String getRemediationFunction() {
     return remediationFunction;
   }
@@ -329,15 +338,11 @@ public class RuleDto extends Dto<RuleKey> {
   }
 
   public Set<String> getTags() {
-    return tags == null ?
-      new HashSet<String>() :
-      new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
+    return tags == null ? new HashSet<String>() : new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
   }
 
   public Set<String> getSystemTags() {
-    return systemTags == null ?
-      new HashSet<String>() :
-      new TreeSet<>(Arrays.asList(StringUtils.split(systemTags, ',')));
+    return systemTags == null ? new HashSet<String>() : new TreeSet<>(Arrays.asList(StringUtils.split(systemTags, ',')));
   }
 
   private String getTagsField() {

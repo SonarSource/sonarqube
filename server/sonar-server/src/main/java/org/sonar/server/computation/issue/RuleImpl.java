@@ -48,7 +48,7 @@ public class RuleImpl implements Rule {
     this.key = dto.getKey();
     this.name = dto.getName();
     this.status = dto.getStatus();
-    this.subCharacteristicId = effectiveCharacteristicId(dto);
+    this.subCharacteristicId = dto.getEffectiveSubCharacteristicId();
     this.tags = union(dto.getSystemTags(), dto.getTags());
     this.remediationFunction = effectiveRemediationFunction(dto);
   }
@@ -115,21 +115,6 @@ public class RuleImpl implements Rule {
       .add("subCharacteristicId", subCharacteristicId)
       .add("tags", tags)
       .toString();
-  }
-
-  @CheckForNull
-  private static Integer effectiveCharacteristicId(RuleDto dto) {
-    if (isEnabledCharacteristicId(dto.getSubCharacteristicId())) {
-      return dto.getSubCharacteristicId();
-    }
-    if (isEnabledCharacteristicId(dto.getDefaultSubCharacteristicId())) {
-      return dto.getDefaultSubCharacteristicId();
-    }
-    return null;
-  }
-
-  private static boolean isEnabledCharacteristicId(@Nullable Integer id) {
-    return (id != null) && (id.intValue() != RuleDto.DISABLED_CHARACTERISTIC_ID);
   }
 
   @CheckForNull
