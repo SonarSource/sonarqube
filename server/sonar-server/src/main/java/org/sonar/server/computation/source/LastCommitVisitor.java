@@ -36,7 +36,7 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.POST
 
 public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor.LastCommit> {
 
-  private static final long MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+  private static final long MILLISECONDS_PER_DAY = 1000L * 60 * 60 * 24;
 
   private final BatchReportReader reportReader;
   private final MeasureRepository measureRepository;
