@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import java.util.Date;
 import java.util.Map;
@@ -45,6 +44,7 @@ import org.sonar.server.computation.component.TreeRootHolder;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.component.ComponentDto.MODULE_UUID_PATH_SEP;
+import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
@@ -52,7 +52,6 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_
  * Also feed the components cache {@link DbIdsRepositoryImpl} with component ids
  */
 public class PersistComponentsStep implements ComputationStep {
-
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final MutableDbIdsRepository dbIdsRepository;
@@ -84,18 +83,8 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private Map<String, ComponentDto> indexExistingDtosByKey(DbSession session) {
-    return from(dbClient.componentDao()
-      .selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey()))
-        .uniqueIndex(ComponentKey.INSTANCE);
-  }
-
-  private enum ComponentKey implements Function<ComponentDto, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull ComponentDto input) {
-      return input.key();
-    }
+    return from(dbClient.componentDao().selectAllComponentsFromProjectKey(session, treeRootHolder.getRoot().getKey()))
+      .uniqueIndex(toKey());
   }
 
   private class PersistComponentStepsVisitor extends PathAwareVisitorAdapter<ComponentDtoHolder> {

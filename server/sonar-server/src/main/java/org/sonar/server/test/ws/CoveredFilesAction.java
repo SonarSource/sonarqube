@@ -35,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
@@ -104,20 +105,13 @@ public class CoveredFilesAction implements TestsWsAction {
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
-    return Maps.uniqueIndex(components, new ComponentToUuidFunction());
+    return Maps.uniqueIndex(components, ComponentDtoFunctions.toUuid());
   }
 
   private static class CoveredFileToFileUuidFunction implements Function<CoveredFileDoc, String> {
     @Override
     public String apply(CoveredFileDoc coveredFile) {
       return coveredFile.fileUuid();
-    }
-  }
-
-  private static class ComponentToUuidFunction implements Function<ComponentDto, String> {
-    @Override
-    public String apply(ComponentDto component) {
-      return component.uuid();
     }
   }
 

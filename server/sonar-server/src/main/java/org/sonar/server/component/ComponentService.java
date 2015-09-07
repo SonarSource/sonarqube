@@ -20,7 +20,6 @@
 
 package org.sonar.server.component;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
@@ -37,10 +36,10 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.Uuids;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -49,6 +48,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 
 @ServerSide
 public class ComponentService {
@@ -196,12 +196,7 @@ public class ComponentService {
       List<ComponentDto> components = dbClient.componentDao().selectByKeys(session, componentKeys);
 
       if (!ignoreMissingComponents && components.size() < componentKeys.size()) {
-        Collection<String> foundKeys = Collections2.transform(components, new Function<ComponentDto, String>() {
-          @Override
-          public String apply(ComponentDto component) {
-            return component.key();
-          }
-        });
+        Collection<String> foundKeys = Collections2.transform(components, toKey());
         Set<String> missingKeys = Sets.newHashSet(componentKeys);
         missingKeys.removeAll(foundKeys);
         throw new NotFoundException("The following component keys do not match any component:\n" +

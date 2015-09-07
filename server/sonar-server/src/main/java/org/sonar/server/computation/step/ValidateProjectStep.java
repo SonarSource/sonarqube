@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
@@ -29,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
@@ -49,6 +47,7 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 
 /**
  * Validate project and modules. It will fail in the following cases :
@@ -82,7 +81,7 @@ public class ValidateProjectStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(session, treeRootHolder.getRoot().getKey());
-      Map<String, ComponentDto> baseModulesByKey = FluentIterable.from(baseModules).uniqueIndex(ComponentDtoToKey.INSTANCE);
+      Map<String, ComponentDto> baseModulesByKey = FluentIterable.from(baseModules).uniqueIndex(toKey());
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(),
         settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
@@ -221,12 +220,4 @@ public class ValidateProjectStep implements ComputationStep {
     }
   }
 
-  private enum ComponentDtoToKey implements Function<ComponentDto, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull ComponentDto input) {
-      return input.key();
-    }
-  }
 }

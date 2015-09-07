@@ -37,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -169,20 +170,13 @@ public class ListAction implements TestsWsAction {
     List<String> fileUuids = Lists.transform(tests, new TestToFileUuidFunction());
     List<ComponentDto> components = dbClient.componentDao().selectByUuids(dbSession, fileUuids);
 
-    return Maps.uniqueIndex(components, new ComponentToUuidFunction());
+    return Maps.uniqueIndex(components, ComponentDtoFunctions.toUuid());
   }
 
   private static class TestToFileUuidFunction implements Function<TestDoc, String> {
     @Override
     public String apply(@Nonnull TestDoc testDoc) {
       return testDoc.fileUuid();
-    }
-  }
-
-  private static class ComponentToUuidFunction implements Function<ComponentDto, String> {
-    @Override
-    public String apply(@Nonnull ComponentDto componentDto) {
-      return componentDto.uuid();
     }
   }
 

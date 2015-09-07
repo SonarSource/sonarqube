@@ -21,7 +21,6 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -58,6 +57,9 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.db.component.ComponentDtoFunctions.toCopyResourceId;
+import static org.sonar.db.component.ComponentDtoFunctions.toProjectUuid;
+import static org.sonar.db.component.ComponentDtoFunctions.toUuid;
 
 /**
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
@@ -120,9 +122,7 @@ public class IssueQueryService {
         RubyUtils.toStrings(
           ObjectUtils.defaultIfNull(
             params.get(IssueFilterParameters.PROJECT_KEYS),
-            params.get(IssueFilterParameters.PROJECTS)
-          )
-        ),
+            params.get(IssueFilterParameters.PROJECTS))),
         RubyUtils.toStrings(params.get(IssueFilterParameters.MODULE_UUIDS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.DIRECTORIES)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.FILE_UUIDS)),
@@ -226,12 +226,12 @@ public class IssueQueryService {
   }
 
   private boolean mergeDeprecatedComponentParameters(DbSession session, Boolean onComponentOnly,
-                                                     @Nullable Collection<String> components,
-                                                     @Nullable Collection<String> componentUuids,
-                                                     @Nullable Collection<String> componentKeys,
-                                                     @Nullable Collection<String> componentRootUuids,
-                                                     @Nullable Collection<String> componentRoots,
-                                                     Set<String> allComponentUuids) {
+    @Nullable Collection<String> components,
+    @Nullable Collection<String> componentUuids,
+    @Nullable Collection<String> componentKeys,
+    @Nullable Collection<String> componentRootUuids,
+    @Nullable Collection<String> componentRoots,
+    Set<String> allComponentUuids) {
     boolean effectiveOnComponentOnly = false;
 
     failIfBothParametersSet(componentRootUuids, componentRoots, "componentRoots and componentRootUuids cannot be set simultaneously");
@@ -264,13 +264,13 @@ public class IssueQueryService {
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
-                                      boolean onComponentOnly,
-                                      Collection<String> componentUuids,
-                                      @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
-                                      @Nullable Collection<String> moduleUuids,
-                                      @Nullable Collection<String> directories,
-                                      @Nullable Collection<String> fileUuids,
-                                      @Nullable Collection<String> authors) {
+    boolean onComponentOnly,
+    Collection<String> componentUuids,
+    @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
+    @Nullable Collection<String> moduleUuids,
+    @Nullable Collection<String> directories,
+    @Nullable Collection<String> fileUuids,
+    @Nullable Collection<String> authors) {
 
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
@@ -353,27 +353,12 @@ public class IssueQueryService {
 
   private void addDeveloperTechnicalProjects(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids, Collection<String> authors) {
     Collection<ComponentDto> technicalProjects = dbClient.componentDao().selectByUuids(session, componentUuids);
-    Collection<String> developerUuids = Collections2.transform(technicalProjects, new Function<ComponentDto, String>() {
-      @Override
-      public String apply(ComponentDto input) {
-        return input.projectUuid();
-      }
-    });
+    Collection<String> developerUuids = Collections2.transform(technicalProjects, toProjectUuid());
     Collection<String> authorsFromProjects = authorsFromParamsOrFromDeveloper(session, developerUuids, authors);
     builder.authors(authorsFromProjects);
-    Collection<Long> projectIds = Collections2.transform(technicalProjects, new Function<ComponentDto, Long>() {
-      @Override
-      public Long apply(ComponentDto input) {
-        return input.getCopyResourceId();
-      }
-    });
+    Collection<Long> projectIds = Collections2.transform(technicalProjects, toCopyResourceId());
     List<ComponentDto> originalProjects = dbClient.componentDao().selectByIds(session, projectIds);
-    Collection<String> projectUuids = Collections2.transform(originalProjects, new Function<ComponentDto, String>() {
-      @Override
-      public String apply(ComponentDto input) {
-        return input.uuid();
-      }
-    });
+    Collection<String> projectUuids = Collections2.transform(originalProjects, toUuid());
     builder.projectUuids(projectUuids);
   }
 
