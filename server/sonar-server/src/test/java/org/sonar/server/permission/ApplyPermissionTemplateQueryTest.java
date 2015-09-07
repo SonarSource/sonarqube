@@ -20,30 +20,24 @@
 
 package org.sonar.server.permission;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Collections;
-import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.permission.ApplyPermissionTemplateQuery.create;
 
 public class ApplyPermissionTemplateQueryTest {
 
   @Rule
-  public ExpectedException throwable = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void should_populate_with_params() {
-
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("template_key", "my_template_key");
-    params.put("components", Lists.newArrayList("1", "2", "3"));
-
-    ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.createFromMap(params);
+    ApplyPermissionTemplateQuery query = create("my_template_key", newArrayList("1", "2", "3"));
 
     assertThat(query.getTemplateUuid()).isEqualTo("my_template_key");
     assertThat(query.getComponentKeys()).containsOnly("1", "2", "3");
@@ -51,27 +45,17 @@ public class ApplyPermissionTemplateQueryTest {
 
   @Test
   public void should_invalidate_query_with_empty_name() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Permission template is mandatory");
 
-    throwable.expect(BadRequestException.class);
-    throwable.expectMessage("Permission template is mandatory");
-
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("template_key", "");
-    params.put("components", Lists.newArrayList("1", "2", "3"));
-
-    ApplyPermissionTemplateQuery.createFromMap(params);
+    ApplyPermissionTemplateQuery.create("", newArrayList("1", "2", "3"));
   }
 
   @Test
   public void should_invalidate_query_with_no_components() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("No project provided. Please provide at least one project.");
 
-    throwable.expect(BadRequestException.class);
-    throwable.expectMessage("No project provided. Please provide at least one project.");
-
-    Map<String, Object> params = Maps.newHashMap();
-    params.put("template_key", "my_template_key");
-    params.put("components", Collections.EMPTY_LIST);
-
-    ApplyPermissionTemplateQuery.createFromMap(params);
+    ApplyPermissionTemplateQuery.create("my_template_key", Collections.<String>emptyList());
   }
 }

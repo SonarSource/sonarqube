@@ -21,16 +21,11 @@
 package org.sonar.server.permission;
 
 import java.util.List;
-import java.util.Map;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.util.RubyUtils;
 
 import static com.google.common.base.CharMatcher.WHITESPACE;
 
 public class ApplyPermissionTemplateQuery {
-
-  private static final String TEMPLATE_KEY = "template_key";
-  private static final String COMPONENTS_KEY = "components";
 
   private final String templateUuid;
   private List<String> componentKeys;
@@ -39,12 +34,6 @@ public class ApplyPermissionTemplateQuery {
     this.templateUuid = templateUuid;
     this.componentKeys = componentKeys;
     validate();
-  }
-
-  public static ApplyPermissionTemplateQuery createFromMap(Map<String, Object> params) {
-    String templateUuid = (String) params.get(TEMPLATE_KEY);
-    List<String> componentKeys = RubyUtils.toStrings(params.get(COMPONENTS_KEY));
-    return new ApplyPermissionTemplateQuery(templateUuid, componentKeys);
   }
 
   public static ApplyPermissionTemplateQuery create(String templateUuid, List<String> componentKeys) {

@@ -105,7 +105,7 @@ public class ApplyTemplateActionTest {
     PermissionRepository repository = new PermissionRepository(dbClient, new Settings());
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
-    PermissionService permissionService = new PermissionService(dbClient, repository, permissionFinder, issueAuthorizationIndexer, userSession, componentFinder);
+    PermissionService permissionService = new PermissionService(dbClient, repository, issueAuthorizationIndexer, userSession, componentFinder);
     PermissionDependenciesFinder permissionDependenciesFinder = new PermissionDependenciesFinder(dbClient, componentFinder);
 
     ApplyTemplateAction underTest = new ApplyTemplateAction(dbClient, permissionService, permissionDependenciesFinder);

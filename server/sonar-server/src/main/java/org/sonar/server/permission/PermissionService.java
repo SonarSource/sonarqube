@@ -21,10 +21,7 @@
 package org.sonar.server.permission;
 
 import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -33,10 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
@@ -44,32 +38,19 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 
-/**
- * Used by ruby code <pre>Internal.permissions</pre>
- */
 @ServerSide
 public class PermissionService {
 
-  private enum Operation {
-    ADD, REMOVE;
-  }
-
-  private static final String OBJECT_TYPE_USER = "User";
-  private static final String OBJECT_TYPE_GROUP = "Group";
-  private static final String NOT_FOUND_FORMAT = "%s %s does not exist";
-
   private final DbClient dbClient;
   private final PermissionRepository permissionRepository;
-  private final PermissionFinder finder;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionFinder finder,
-    IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
+  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession,
+    ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.permissionRepository = permissionRepository;
-    this.finder = finder;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
@@ -79,73 +60,6 @@ public class PermissionService {
     return GlobalPermissions.ALL;
   }
 
-  public UserWithPermissionQueryResult findUsersWithPermission(Map<String, Object> params) {
-    return finder.findUsersWithPermission(PermissionQueryParser.toQuery(params));
-  }
-
-  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(Map<String, Object> params) {
-    return finder.findUsersWithPermissionTemplate(PermissionQueryParser.toQuery(params));
-  }
-
-  public GroupWithPermissionQueryResult findGroupsWithPermission(Map<String, Object> params) {
-    return finder.findGroupsWithPermission(PermissionQueryParser.toQuery(params));
-  }
-
-  /**
-   * To be used only by jruby webapp
-   */
-  public void addPermission(Map<String, Object> params) {
-    PermissionChange change = PermissionChange.buildFromParams(params);
-    DbSession session = dbClient.openSession(false);
-    try {
-      applyChange(Operation.ADD, change, session);
-    } finally {
-      dbClient.closeSession(session);
-    }
-  }
-
-  /**
-   * @deprecated since 5.2 use PermissionUpdate.addPermission instead
-   */
-  @Deprecated
-  public void addPermission(PermissionChange change) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      applyChange(Operation.ADD, change, session);
-    } finally {
-      dbClient.closeSession(session);
-    }
-  }
-
-  /**
-   * To be used only by jruby webapp
-   */
-  public void removePermission(Map<String, Object> params) {
-    PermissionChange change = PermissionChange.buildFromParams(params);
-    DbSession session = dbClient.openSession(false);
-    try {
-      applyChange(Operation.REMOVE, change, session);
-    } finally {
-      session.close();
-    }
-  }
-
-  /**
-   * @deprecated since 5.2. Use PermissionUpdater.removePermission
-   */
-  @Deprecated
-  public void removePermission(PermissionChange change) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      applyChange(Operation.REMOVE, change, session);
-    } finally {
-      session.close();
-    }
-  }
-
-  /**
-   * Important - this method checks caller permissions
-   */
   public void applyDefaultPermissionTemplate(final String componentKey) {
     DbSession session = dbClient.openSession(false);
     try {
@@ -162,15 +76,6 @@ public class PermissionService {
       session.close();
     }
     indexProjectPermissions();
-  }
-
-  /**
-   * @deprecated since 5.2 – to be deleted once Permission Template page does not rely on Ruby
-   */
-  @Deprecated
-  public void applyPermissionTemplate(Map<String, Object> params) {
-    ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.createFromMap(params);
-    applyPermissionTemplate(query);
   }
 
   /**
@@ -195,123 +100,6 @@ public class PermissionService {
     }
 
     indexProjectPermissions();
-  }
-
-  private void applyChange(Operation operation, PermissionChange change, DbSession session) {
-    userSession.checkLoggedIn();
-    change.validate();
-    boolean changed;
-    if (change.userLogin() != null) {
-      changed = applyChangeOnUser(session, operation, change);
-    } else {
-      changed = applyChangeOnGroup(session, operation, change);
-    }
-    if (changed) {
-      session.commit();
-      if (change.componentKey() != null) {
-        indexProjectPermissions();
-      }
-    }
-  }
-
-  private boolean applyChangeOnGroup(DbSession session, Operation operation, PermissionChange permissionChange) {
-    Long componentId = getComponentId(session, permissionChange.componentKey());
-    checkProjectAdminPermission(permissionChange.componentKey());
-
-    List<String> existingPermissions = dbClient.roleDao().selectGroupPermissions(session, permissionChange.groupName(), componentId);
-    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
-      return false;
-    }
-
-    Long targetedGroup = getTargetedGroup(session, permissionChange.groupName());
-    String permission = permissionChange.permission();
-    if (Operation.ADD == operation) {
-      checkNotAnyoneAndAdmin(permission, permissionChange.groupName());
-      permissionRepository.insertGroupPermission(componentId, targetedGroup, permission, session);
-    } else {
-      checkAdminUsersExistOutsideTheRemovedGroup(session, permissionChange, targetedGroup);
-      permissionRepository.deleteGroupPermission(componentId, targetedGroup, permission, session);
-    }
-    return true;
-  }
-
-  private static void checkNotAnyoneAndAdmin(String permission, String group) {
-    if (GlobalPermissions.SYSTEM_ADMIN.equals(permission)
-      && DefaultGroups.isAnyone(group)) {
-      throw new BadRequestException(String.format("It is not possible to add the '%s' permission to the '%s' group.", permission, group));
-    }
-  }
-
-  private boolean applyChangeOnUser(DbSession session, Operation operation, PermissionChange permissionChange) {
-    Long componentId = getComponentId(session, permissionChange.componentKey());
-    checkProjectAdminPermission(permissionChange.componentKey());
-
-    List<String> existingPermissions = dbClient.roleDao().selectUserPermissions(session, permissionChange.userLogin(), componentId);
-    if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
-      return false;
-    }
-
-    Long targetedUser = getTargetedUser(session, permissionChange.userLogin());
-    if (Operation.ADD == operation) {
-      permissionRepository.insertUserPermission(componentId, targetedUser, permissionChange.permission(), session);
-    } else {
-      checkOtherAdminUsersExist(session, permissionChange);
-      permissionRepository.deleteUserPermission(componentId, targetedUser, permissionChange.permission(), session);
-    }
-    return true;
-
-  }
-
-  private void checkOtherAdminUsersExist(DbSession session, PermissionChange permissionChange) {
-    if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
-      && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), null) <= 1) {
-      throw new BadRequestException(String.format("Last user with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
-    }
-  }
-
-  private void checkAdminUsersExistOutsideTheRemovedGroup(DbSession session, PermissionChange permissionChange, @Nullable Long groupIdToExclude) {
-    if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
-      && groupIdToExclude != null
-      && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), groupIdToExclude) <= 0) {
-      throw new BadRequestException(String.format("Last group with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
-    }
-  }
-
-  private Long getTargetedUser(DbSession session, String userLogin) {
-    UserDto user = dbClient.userDao().selectActiveUserByLogin(session, userLogin);
-    return badRequestIfNullResult(user, OBJECT_TYPE_USER, userLogin).getId();
-  }
-
-  @Nullable
-  private Long getTargetedGroup(DbSession session, String group) {
-    if (DefaultGroups.isAnyone(group)) {
-      return null;
-    } else {
-      GroupDto groupDto = dbClient.groupDao().selectByName(session, group);
-      return badRequestIfNullResult(groupDto, OBJECT_TYPE_GROUP, group).getId();
-    }
-  }
-
-  private boolean shouldSkipPermissionChange(Operation operation, List<String> existingPermissions, PermissionChange permissionChange) {
-    return (Operation.ADD == operation && existingPermissions.contains(permissionChange.permission())) ||
-      (Operation.REMOVE == operation && !existingPermissions.contains(permissionChange.permission()));
-  }
-
-  @CheckForNull
-  private Long getComponentId(DbSession session, @Nullable String componentKey) {
-    if (componentKey == null) {
-      return null;
-    } else {
-      ComponentDto component = componentFinder.getByKey(session, componentKey);
-      return component.getId();
-    }
-  }
-
-  private static <T> T badRequestIfNullResult(@Nullable T component, String objectType, String objectKey) {
-    if (component == null) {
-      throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
-    }
-    return component;
   }
 
   private void checkProjectAdminPermission(@Nullable String projectKey) {
