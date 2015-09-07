@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -54,6 +54,8 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.ws.template.ApplyTemplateAction;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;

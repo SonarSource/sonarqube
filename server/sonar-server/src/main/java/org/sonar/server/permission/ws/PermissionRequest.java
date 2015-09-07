@@ -54,7 +54,7 @@ class PermissionRequest {
     query = builder.query;
   }
 
-  static class Builder {
+  public static class Builder {
 
     private final Request request;
 
@@ -72,7 +72,7 @@ class PermissionRequest {
     private String selected;
     private String query;
 
-    Builder(Request request) {
+    public Builder(Request request) {
       this.request = request;
     }
 
@@ -89,17 +89,17 @@ class PermissionRequest {
       return new PermissionRequest(this);
     }
 
-    Builder withUser() {
+    public Builder withUser() {
       this.withUser = true;
       return this;
     }
 
-    Builder withGroup() {
+    public Builder withGroup() {
       this.withGroup = true;
       return this;
     }
 
-    Builder withPagination() {
+    public Builder withPagination() {
       this.withPagination = true;
       return this;
     }
@@ -151,35 +151,35 @@ class PermissionRequest {
     }
   }
 
-  String permission() {
+  public String permission() {
     return permission;
   }
 
-  String userLogin() {
+  public String userLogin() {
     return userLogin;
   }
 
-  WsGroupRef group() {
+  public WsGroupRef group() {
     return group;
   }
 
-  Optional<WsProjectRef> project() {
+  public Optional<WsProjectRef> project() {
     return project;
   }
 
-  Integer page() {
+  public Integer page() {
     return page;
   }
 
-  Integer pageSize() {
+  public Integer pageSize() {
     return pageSize;
   }
 
-  String selected() {
+  public String selected() {
     return selected;
   }
 
-  String query() {
+  public String query() {
     return query;
   }
 }

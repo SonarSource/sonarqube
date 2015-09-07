@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
@@ -26,9 +26,9 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonarqube.ws.WsPermissions.PermissionTemplate;
 
-class PermissionTemplateDtoToPermissionTemplateResponse {
+public class PermissionTemplateDtoToPermissionTemplateResponse {
 
-  static PermissionTemplate toPermissionTemplateResponse(PermissionTemplateDto dto) {
+  public static PermissionTemplate toPermissionTemplateResponse(PermissionTemplateDto dto) {
     return Singleton.INSTANCE.apply(dto);
   }
 

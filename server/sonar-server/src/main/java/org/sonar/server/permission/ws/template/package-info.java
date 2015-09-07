@@ -18,22 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.permission.ws.template;
 
-import com.google.common.base.Function;
-import javax.annotation.Nonnull;
-import org.sonar.api.resources.ResourceType;
-
-public class ResourceTypeToQualifier {
-
-  public static final Function<ResourceType, String> RESOURCE_TYPE_TO_QUALIFIER = Singleton.INSTANCE;
-
-  private enum Singleton implements Function<ResourceType, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull ResourceType resourceType) {
-      return resourceType.getQualifier();
-    }
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

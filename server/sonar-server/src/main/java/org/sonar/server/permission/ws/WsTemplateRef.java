@@ -31,7 +31,7 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 /**
  * Template from a WS request. Guaranties the template id or the template name is provided, not both.
  */
-class WsTemplateRef {
+public class WsTemplateRef {
 
   private final String uuid;
   private final String name;
@@ -43,24 +43,24 @@ class WsTemplateRef {
     this.name = name;
   }
 
-  static WsTemplateRef fromRequest(Request wsRequest) {
+  public static WsTemplateRef fromRequest(Request wsRequest) {
     String uuid = wsRequest.param(PARAM_TEMPLATE_ID);
     String name = wsRequest.param(PARAM_TEMPLATE_NAME);
 
     return new WsTemplateRef(uuid, name);
   }
 
-  static WsTemplateRef newTemplateRef(@Nullable String uuid, @Nullable String name) {
+  public static WsTemplateRef newTemplateRef(@Nullable String uuid, @Nullable String name) {
     return new WsTemplateRef(uuid, name);
   }
 
   @CheckForNull
-  String uuid() {
+  public String uuid() {
     return this.uuid;
   }
 
   @CheckForNull
-  String name() {
+  public String name() {
     return this.name;
   }
 }

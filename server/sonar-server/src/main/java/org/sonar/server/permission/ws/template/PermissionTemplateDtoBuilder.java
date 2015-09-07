@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.permission.PermissionTemplateDto;
 
-class PermissionTemplateDtoBuilder {
+public class PermissionTemplateDtoBuilder {
   private final System2 system;
   private String name;
   private String description;
@@ -35,26 +35,26 @@ class PermissionTemplateDtoBuilder {
     this.system = system;
   }
 
-  static PermissionTemplateDtoBuilder create(System2 system) {
+  public static PermissionTemplateDtoBuilder create(System2 system) {
     return new PermissionTemplateDtoBuilder(system);
   }
 
-  PermissionTemplateDtoBuilder setName(String name) {
+  public PermissionTemplateDtoBuilder setName(String name) {
     this.name = name;
     return this;
   }
 
-  PermissionTemplateDtoBuilder setDescription(String description) {
+  public PermissionTemplateDtoBuilder setDescription(String description) {
     this.description = description;
     return this;
   }
 
-  PermissionTemplateDtoBuilder setProjectKeyPattern(String projectKeyPattern) {
+  public PermissionTemplateDtoBuilder setProjectKeyPattern(String projectKeyPattern) {
     this.projectKeyPattern = projectKeyPattern;
     return this;
   }
 
-  PermissionTemplateDto toDto() {
+  public PermissionTemplateDto toDto() {
     long now = system.now();
     return new PermissionTemplateDto()
       .setName(name)

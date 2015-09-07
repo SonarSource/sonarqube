@@ -27,23 +27,23 @@ import org.sonar.core.util.Uuids;
 
 import static java.lang.String.format;
 
-class WsPermissionParameters {
+public class WsPermissionParameters {
 
-  static final String PARAM_PERMISSION = "permission";
-  static final String PARAM_GROUP_NAME = "groupName";
-  static final String PARAM_GROUP_ID = "groupId";
-  static final String PARAM_PROJECT_ID = "projectId";
-  static final String PARAM_PROJECT_KEY = "projectKey";
-  static final String PARAM_USER_LOGIN = "login";
-  static final String PARAM_TEMPLATE_ID = "templateId";
-  static final String PARAM_TEMPLATE_NAME = "templateName";
+  public static final String PARAM_PERMISSION = "permission";
+  public static final String PARAM_GROUP_NAME = "groupName";
+  public static final String PARAM_GROUP_ID = "groupId";
+  public static final String PARAM_PROJECT_ID = "projectId";
+  public static final String PARAM_PROJECT_KEY = "projectKey";
+  public static final String PARAM_USER_LOGIN = "login";
+  public static final String PARAM_TEMPLATE_ID = "templateId";
+  public static final String PARAM_TEMPLATE_NAME = "templateName";
 
-  static final String PARAM_ID = "id";
-  static final String PARAM_NAME = "name";
-  static final String PARAM_DESCRIPTION = "description";
-  static final String PARAM_PATTERN = "projectKeyPattern";
+  public static final String PARAM_ID = "id";
+  public static final String PARAM_NAME = "name";
+  public static final String PARAM_DESCRIPTION = "description";
+  public static final String PARAM_PATTERN = "projectKeyPattern";
 
-  static final String PARAM_QUALIFIER = "qualifier";
+  public static final String PARAM_QUALIFIER = "qualifier";
 
   private static final String PERMISSION_PARAM_DESCRIPTION = format("Permission" +
     "<ul>" +
@@ -62,31 +62,31 @@ class WsPermissionParameters {
     // static methods only
   }
 
-  static void createPermissionParameter(NewAction action) {
+  public static void createPermissionParameter(NewAction action) {
     action.createParam(PARAM_PERMISSION)
       .setDescription(PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true);
   }
 
-  static void createProjectPermissionParameter(NewAction action) {
+  public static void createProjectPermissionParameter(NewAction action) {
     action.createParam(PARAM_PERMISSION)
       .setDescription(PROJECT_PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true);
   }
 
-  static void createGroupNameParameter(NewAction action) {
+  public static void createGroupNameParameter(NewAction action) {
     action.createParam(PARAM_GROUP_NAME)
       .setDescription("Group name or 'anyone' (case insensitive)")
       .setExampleValue("sonar-administrators");
   }
 
-  static void createGroupIdParameter(NewAction action) {
+  public static void createGroupIdParameter(NewAction action) {
     action.createParam(PARAM_GROUP_ID)
       .setDescription("Group id")
       .setExampleValue("42");
   }
 
-  static void createProjectParameter(NewAction action) {
+  public static void createProjectParameter(NewAction action) {
     createProjectIdParameter(action);
     createProjectKeyParameter(action);
   }
@@ -103,14 +103,14 @@ class WsPermissionParameters {
       .setExampleValue("org.apache.hbas:hbase");
   }
 
-  static void createUserLoginParameter(NewAction action) {
+  public static void createUserLoginParameter(NewAction action) {
     action.createParam(PARAM_USER_LOGIN)
       .setRequired(true)
       .setDescription("User login")
       .setExampleValue("g.hopper");
   }
 
-  static void createTemplateParameters(NewAction action) {
+  public static void createTemplateParameters(NewAction action) {
     createTemplateIdParameter(action);
     createTemplateNameParameter(action);
   }
@@ -127,19 +127,19 @@ class WsPermissionParameters {
       .setExampleValue("Default Permission Template for Projects");
   }
 
-  static void createTemplateProjectKeyPatternParameter(NewAction action) {
+  public static void createTemplateProjectKeyPatternParameter(NewAction action) {
     action.createParam(PARAM_PATTERN)
       .setDescription("Project key pattern. Must be a valid Java regular expression")
       .setExampleValue(".*\\.finance\\..*");
   }
 
-  static void createTemplateDescriptionParameter(NewAction action) {
+  public static void createTemplateDescriptionParameter(NewAction action) {
     action.createParam(PARAM_DESCRIPTION)
       .setDescription("Description")
       .setExampleValue("Permissions for all projects related to the financial service");
   }
 
-  static void createIdParameter(NewAction action) {
+  public static void createIdParameter(NewAction action) {
     action.createParam(PARAM_ID)
       .setRequired(true)
       .setDescription("Id")

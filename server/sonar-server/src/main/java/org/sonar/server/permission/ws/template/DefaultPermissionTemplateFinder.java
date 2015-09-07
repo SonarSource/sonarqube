@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import com.google.common.base.Function;
 import java.util.List;
@@ -43,21 +43,21 @@ public class DefaultPermissionTemplateFinder {
     this.resourceTypes = resourceTypes;
   }
 
-  Set<String> getDefaultTemplateUuids() {
+  public Set<String> getDefaultTemplateUuids() {
     return from(resourceTypes.getRoots())
       .transform(RESOURCE_TYPE_TO_QUALIFIER)
       .transform(new QualifierToDefaultTemplate(settings))
       .toSortedSet(natural());
   }
 
-  List<TemplateUuidQualifier> getDefaultTemplatesByQualifier() {
+  public List<TemplateUuidQualifier> getDefaultTemplatesByQualifier() {
     return from(resourceTypes.getRoots())
       .transform(RESOURCE_TYPE_TO_QUALIFIER)
       .transform(new QualifierToTemplateUuidQualifier(settings))
       .toList();
   }
 
-  static class TemplateUuidQualifier {
+  public static class TemplateUuidQualifier {
     private final String templateUuid;
     private final String qualifier;
 

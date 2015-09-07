@@ -21,6 +21,17 @@
 package org.sonar.server.permission.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.permission.ws.template.AddGroupToTemplateAction;
+import org.sonar.server.permission.ws.template.AddUserToTemplateAction;
+import org.sonar.server.permission.ws.template.ApplyTemplateAction;
+import org.sonar.server.permission.ws.template.CreateTemplateAction;
+import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder;
+import org.sonar.server.permission.ws.template.RemoveGroupFromTemplateAction;
+import org.sonar.server.permission.ws.template.RemoveUserFromTemplateAction;
+import org.sonar.server.permission.ws.template.SearchTemplatesAction;
+import org.sonar.server.permission.ws.template.SearchTemplatesDataLoader;
+import org.sonar.server.permission.ws.template.SetDefaultTemplateAction;
+import org.sonar.server.permission.ws.template.UpdateTemplateAction;
 
 public class PermissionsWsModule extends Module {
   @Override

@@ -58,7 +58,7 @@ public class SearchProjectPermissionsDataLoader {
     this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER);
   }
 
-  public SearchProjectPermissionsData load(Request wsRequest) {
+  SearchProjectPermissionsData load(Request wsRequest) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchProjectPermissionsData.Builder data = newBuilder();

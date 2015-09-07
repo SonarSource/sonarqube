@@ -31,7 +31,7 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 /**
  * Group from a WS request. Guaranties the group id or the group name is provided, not both.
  */
-class WsGroupRef {
+public class WsGroupRef {
 
   private final Long id;
   private final String name;
@@ -43,7 +43,7 @@ class WsGroupRef {
     this.name = name;
   }
 
-  static WsGroupRef fromRequest(Request wsRequest) {
+  public static WsGroupRef fromRequest(Request wsRequest) {
     Long id = wsRequest.paramAsLong(PARAM_GROUP_ID);
     String name = wsRequest.param(PARAM_GROUP_NAME);
 
@@ -51,12 +51,12 @@ class WsGroupRef {
   }
 
   @CheckForNull
-  Long id() {
+  public Long id() {
     return this.id;
   }
 
   @CheckForNull
-  String name() {
+  public String name() {
     return this.name;
   }
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import java.util.Set;
 import org.sonar.api.i18n.I18n;
@@ -30,6 +30,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
 

@@ -31,7 +31,7 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 /**
  * Project identifiers from a WS request. Guaranties the project id and project key are not provided at the same time.
  */
-class WsProjectRef {
+public class WsProjectRef {
   private final String uuid;
   private final String key;
 
@@ -41,7 +41,7 @@ class WsProjectRef {
     checkRequest(uuid != null ^ key != null, "Project id or project key can be provided, not both.");
   }
 
-  static Optional<WsProjectRef> optionalFromRequest(Request wsRequest) {
+  public static Optional<WsProjectRef> optionalFromRequest(Request wsRequest) {
     if (!hasProjectParam(wsRequest)) {
       return Optional.absent();
     }
@@ -49,19 +49,19 @@ class WsProjectRef {
     return Optional.of(new WsProjectRef(wsRequest));
   }
 
-  static WsProjectRef fromRequest(Request wsRequest) {
+  public static WsProjectRef fromRequest(Request wsRequest) {
     checkRequest(hasProjectParam(wsRequest), "Project id or project key must be provided, not both.");
 
     return new WsProjectRef(wsRequest);
   }
 
   @CheckForNull
-  String uuid() {
+  public String uuid() {
     return this.uuid;
   }
 
   @CheckForNull
-  String key() {
+  public String key() {
     return this.key;
   }
 

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.server.permission.ws.template;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -26,23 +26,26 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
-import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.permission.ws.PermissionDependenciesFinder;
+import org.sonar.server.permission.ws.PermissionsWsAction;
+import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createGroupIdParameter;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createGroupNameParameter;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsPermissionParameters.createUserLoginParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 
-public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
+public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final PermissionDependenciesFinder dependenciesFinder;
   private final UserSession userSession;
 
-  public RemoveGroupFromTemplateAction(DbClient dbClient, PermissionDependenciesFinder dependenciesFinder, UserSession userSession) {
+  public RemoveUserFromTemplateAction(DbClient dbClient, PermissionDependenciesFinder dependenciesFinder, UserSession userSession) {
     this.dbClient = dbClient;
     this.dependenciesFinder = dependenciesFinder;
     this.userSession = userSession;
@@ -51,18 +54,16 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
-      .createAction("remove_group_from_template")
+      .createAction("remove_user_from_template")
       .setPost(true)
       .setSince("5.2")
-      .setDescription("Remove a group from a permission template.<br /> " +
-        "The group id or group name must be provided. <br />" +
+      .setDescription("Remove a user from a permission template.<br /> " +
         "It requires administration permissions to access.")
       .setHandler(this);
 
     createTemplateParameters(action);
     createProjectPermissionParameter(action);
-    createGroupIdParameter(action);
-    createGroupNameParameter(action);
+    createUserLoginParameter(action);
   }
 
   @Override
@@ -70,17 +71,16 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
     checkGlobalAdminUser(userSession);
 
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    WsGroupRef group = WsGroupRef.fromRequest(wsRequest);
+    String userLogin = wsRequest.mandatoryParam(PARAM_USER_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
-
       PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
-      GroupDto groupDto = dependenciesFinder.getGroup(dbSession, group);
+      UserDto user = dependenciesFinder.getUser(dbSession, userLogin);
 
-      Long groupId = groupDto == null ? null : groupDto.getId();
-      dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getId(), groupId, permission);
+      dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);
+      dbSession.commit();
     } finally {
       dbClient.closeSession(dbSession);
     }

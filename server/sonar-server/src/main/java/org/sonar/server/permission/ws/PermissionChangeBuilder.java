@@ -33,7 +33,7 @@ public class PermissionChangeBuilder {
     this.dependenciesFinder = dependenciesFinder;
   }
 
-  PermissionChange buildUserPermissionChange(DbSession dbSession, PermissionRequest request) {
+  public PermissionChange buildUserPermissionChange(DbSession dbSession, PermissionRequest request) {
     PermissionChange permissionChange = new PermissionChange()
       .setPermission(request.permission())
       .setUserLogin(request.userLogin());
@@ -42,7 +42,7 @@ public class PermissionChangeBuilder {
     return permissionChange;
   }
 
-  PermissionChange buildGroupPermissionChange(DbSession dbSession, PermissionRequest request) {
+  public PermissionChange buildGroupPermissionChange(DbSession dbSession, PermissionRequest request) {
     String groupName = dependenciesFinder.getGroupName(dbSession, request);
 
     PermissionChange permissionChange = new PermissionChange()

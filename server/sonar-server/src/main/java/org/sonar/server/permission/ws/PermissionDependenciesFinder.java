@@ -47,7 +47,7 @@ public class PermissionDependenciesFinder {
   /**
    * @throws org.sonar.server.exceptions.NotFoundException if a project identifier is provided but it's not found
    */
-  Optional<ComponentDto> searchProject(DbSession dbSession, PermissionRequest request) {
+  public Optional<ComponentDto> searchProject(DbSession dbSession, PermissionRequest request) {
     if (!request.project().isPresent()) {
       return Optional.absent();
     }
@@ -56,11 +56,11 @@ public class PermissionDependenciesFinder {
     return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, wsProjectRef.uuid(), wsProjectRef.key()));
   }
 
-  ComponentDto getProject(DbSession dbSession, WsProjectRef projectRef) {
+  public ComponentDto getProject(DbSession dbSession, WsProjectRef projectRef) {
     return componentFinder.getProjectByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
   }
 
-  String getGroupName(DbSession dbSession, PermissionRequest request) {
+  public String getGroupName(DbSession dbSession, PermissionRequest request) {
     GroupDto group = getGroup(dbSession, request.group());
 
     return group == null ? ANYONE : group.getName();
@@ -71,7 +71,7 @@ public class PermissionDependenciesFinder {
    * @return null if it's the anyone group
    */
   @CheckForNull
-  GroupDto getGroup(DbSession dbSession, WsGroupRef group) {
+  public GroupDto getGroup(DbSession dbSession, WsGroupRef group) {
     Long groupId = group.id();
     String groupName = group.name();
 
@@ -94,12 +94,12 @@ public class PermissionDependenciesFinder {
     return groupDto;
   }
 
-  UserDto getUser(DbSession dbSession, String userLogin) {
+  public UserDto getUser(DbSession dbSession, String userLogin) {
     return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin),
       format("User with login '%s' is not found'", userLogin));
   }
 
-  PermissionTemplateDto getTemplate(DbSession dbSession, WsTemplateRef template) {
+  public PermissionTemplateDto getTemplate(DbSession dbSession, WsTemplateRef template) {
     if (template.uuid() != null) {
       return checkFound(dbClient.permissionTemplateDao().selectByUuid(dbSession, template.uuid()),
         format("Permission template with id '%s' is not found", template.uuid()));

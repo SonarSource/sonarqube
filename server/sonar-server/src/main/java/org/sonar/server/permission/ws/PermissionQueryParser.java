@@ -29,7 +29,7 @@ class PermissionQueryParser {
     // Utility class
   }
 
-  static String fromSelectionModeToMembership(String selectionModeString) {
+  public static String fromSelectionModeToMembership(String selectionModeString) {
     SelectionMode selectionMode = SelectionMode.fromParam(selectionModeString);
     if (SelectionMode.SELECTED == selectionMode) {
       return GroupMembershipQuery.IN;
