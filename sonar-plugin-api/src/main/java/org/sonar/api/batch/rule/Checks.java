@@ -110,10 +110,18 @@ public class Checks<C> {
   }
 
   public Checks<C> addAnnotatedChecks(Object... checkClassesOrObjects) {
-    return addAnnotatedChecks(Arrays.asList(checkClassesOrObjects));
+    return addAnnotatedChecks((Iterable) Arrays.asList(checkClassesOrObjects));
   }
 
+  /**
+   * @deprecated since 5.2 use {@link #addAnnotatedChecks(Iterable)}
+   */
+  @Deprecated
   public Checks<C> addAnnotatedChecks(Collection checkClassesOrObjects) {
+    return addAnnotatedChecks((Iterable) checkClassesOrObjects);
+  }
+
+  public Checks<C> addAnnotatedChecks(Iterable checkClassesOrObjects) {
     Map<String, Object> checksByEngineKey = Maps.newHashMap();
     for (Object checkClassesOrObject : checkClassesOrObjects) {
       String engineKey = annotatedEngineKey(checkClassesOrObject);
