@@ -21,6 +21,13 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -28,21 +35,15 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.core.util.NonNullInputFunction;
+import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements QProfileWsAction {
 
@@ -56,12 +57,16 @@ public class SearchAction implements QProfileWsAction {
   private static final String FIELD_PARENT_NAME = "parentName";
   private static final String FIELD_ACTIVE_RULE_COUNT = "activeRuleCount";
   private static final String FIELD_PROJECT_COUNT = "projectCount";
+  private static final String FIELD_RULES_UPDATED_AT = "rulesUpdatedAt";
 
   private static final Set<String> ALL_FIELDS = ImmutableSet.of(
     FIELD_KEY, FIELD_NAME, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_IS_INHERITED, FIELD_PARENT_KEY, FIELD_PARENT_NAME, FIELD_IS_DEFAULT, FIELD_ACTIVE_RULE_COUNT,
-    FIELD_PROJECT_COUNT);
+    FIELD_PROJECT_COUNT, FIELD_RULES_UPDATED_AT);
 
   private static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
+  private static final String PARAM_COMPONENT_KEY = "componentKey";
+  private static final String PARAM_DEFAULT = "default";
+  private static final String PARAM_PROFILE_NAME = "profileName";
 
   private final Languages languages;
   private final QProfileLookup profileLookup;
@@ -77,16 +82,28 @@ public class SearchAction implements QProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction search = controller.createAction("search")
+    NewAction action = controller.createAction("search")
       .setSince("5.2")
       .setDescription("List quality profiles.")
       .setHandler(this)
       .addFieldsParam(ALL_FIELDS)
       .setResponseExample(getClass().getResource("example-search.json"));
 
-    search.createParam(PARAM_LANGUAGE)
+    action.createParam(PARAM_LANGUAGE)
       .setDescription("The key of a language supported by the platform. If specified, only profiles for the given language are returned.")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+
+    action.createParam(PARAM_COMPONENT_KEY)
+      .setDescription("Project or module key")
+      .setExampleValue("org.codehaus.sonar:sonar");
+
+    action.createParam(PARAM_DEFAULT)
+      .setDescription("Return default quality profiles")
+      .setBooleanPossibleValues();
+
+    action.createParam(PARAM_PROFILE_NAME)
+      .setDescription("Profile name")
+      .setExampleValue("SonarQube Way");
   }
 
   @Override
@@ -95,7 +112,7 @@ public class SearchAction implements QProfileWsAction {
 
     String language = request.param(PARAM_LANGUAGE);
 
-    List<QProfile> profiles = null;
+    List<QProfile> profiles;
     if (language == null) {
       profiles = profileLookup.allProfiles();
     } else {
@@ -111,13 +128,12 @@ public class SearchAction implements QProfileWsAction {
           .toComparison();
       }
     });
+    WsSearchResponse protobufResponse = buildResponse(profiles, fields);
 
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeProfiles(json, profiles, fields);
-    json.endObject().close();
+    writeProtobuf(protobufResponse, request, response);
   }
 
-  private void writeProfiles(JsonWriter json, List<QProfile> profiles, List<String> fields) {
+  private WsSearchResponse buildResponse(List<QProfile> profiles, List<String> fields) {
     Map<String, QProfile> profilesByKey = Maps.uniqueIndex(profiles, new NonNullInputFunction<QProfile, String>() {
       @Override
       protected String doApply(QProfile input) {
@@ -127,8 +143,9 @@ public class SearchAction implements QProfileWsAction {
     Map<String, Long> activeRuleCountByKey = profileLoader.countAllActiveRules();
     Map<String, Long> projectCountByKey = qualityProfileDao.countProjectsByProfileKey();
 
-    json.name("profiles")
-      .beginArray();
+    WsSearchResponse.Builder response = WsSearchResponse.newBuilder();
+    QualityProfile.Builder profileBuilder = QualityProfile.newBuilder();
+
     for (QProfile profile : profiles) {
       if (languages.get(profile.language()) == null) {
         // Hide profiles on an unsupported language
@@ -138,47 +155,68 @@ public class SearchAction implements QProfileWsAction {
       String key = profile.key();
       Long activeRuleCount = activeRuleCountByKey.containsKey(key) ? activeRuleCountByKey.get(key) : 0L;
       Long projectCount = projectCountByKey.containsKey(key) ? projectCountByKey.get(key) : 0L;
-      json.beginObject()
-        .prop(FIELD_KEY, nullUnlessNeeded(FIELD_KEY, key, fields))
-        .prop(FIELD_NAME, nullUnlessNeeded(FIELD_NAME, profile.name(), fields))
-        .prop(FIELD_ACTIVE_RULE_COUNT, nullUnlessNeeded(FIELD_ACTIVE_RULE_COUNT, activeRuleCount, fields));
+      profileBuilder.clear();
 
-      if (!profile.isDefault()) {
-        json.prop(FIELD_PROJECT_COUNT, nullUnlessNeeded(FIELD_PROJECT_COUNT, projectCount, fields));
+      if (shouldSetValue(FIELD_KEY, profile.key(), fields)) {
+        profileBuilder.setKey(profile.key());
       }
-      writeLanguageFields(json, profile, fields);
-      writeParentFields(json, profile, fields, profilesByKey);
+      if (shouldSetValue(FIELD_NAME, profile.name(), fields)) {
+        profileBuilder.setName(profile.name());
+      }
+      if (shouldSetValue(FIELD_ACTIVE_RULE_COUNT, activeRuleCount, fields)) {
+        profileBuilder.setActiveRuleCount(activeRuleCount);
+      }
+      if (!profile.isDefault() && shouldSetValue(FIELD_PROJECT_COUNT, projectCount, fields)) {
+        profileBuilder.setProjectCount(projectCount);
+      }
+
+      writeLanguageFields(profileBuilder, profile, fields);
+      writeParentFields(profileBuilder, profile, fields, profilesByKey);
       // Special case for booleans
       if (fieldIsNeeded(FIELD_IS_INHERITED, fields)) {
-        json.prop(FIELD_IS_INHERITED, profile.isInherited());
+        profileBuilder.setIsInherited(profile.isInherited());
       }
       if (fieldIsNeeded(FIELD_IS_DEFAULT, fields)) {
-        json.prop(FIELD_IS_DEFAULT, profile.isDefault());
+        profileBuilder.setIsDefault(profile.isDefault());
       }
-      json.endObject();
+      response.addProfiles(profileBuilder);
     }
-    json.endArray();
+
+    return response.build();
   }
 
-  private void writeLanguageFields(JsonWriter json, QProfile profile, List<String> fields) {
+  private void writeLanguageFields(QualityProfile.Builder profileBuilder, QProfile profile, List<String> fields) {
     String languageKey = profile.language();
-    json.prop(FIELD_LANGUAGE, nullUnlessNeeded(FIELD_LANGUAGE, languageKey, fields))
-      .prop(FIELD_LANGUAGE_NAME, nullUnlessNeeded(FIELD_LANGUAGE_NAME, languages.get(languageKey).getName(), fields));
+    if (shouldSetValue(FIELD_LANGUAGE, languageKey, fields)) {
+      profileBuilder.setLanguage(languageKey);
+    }
+    String languageName = languages.get(languageKey).getName();
+    if (shouldSetValue(FIELD_LANGUAGE_NAME, languageName, fields)) {
+      profileBuilder.setLanguageName(languageName);
+    }
   }
 
-  private void writeParentFields(JsonWriter json, QProfile profile, List<String> fields, Map<String, QProfile> profilesByKey) {
+  private static void writeParentFields(QualityProfile.Builder profileBuilder, QProfile profile, List<String> fields, Map<String, QProfile> profilesByKey) {
     String parentKey = profile.parent();
     QProfile parent = parentKey == null ? null : profilesByKey.get(parentKey);
-    json.prop(FIELD_PARENT_KEY, nullUnlessNeeded(FIELD_PARENT_KEY, parentKey, fields))
-      .prop(FIELD_PARENT_NAME, nullUnlessNeeded(FIELD_PARENT_NAME, parent == null ? parentKey : parent.name(), fields));
+    if (shouldSetValue(FIELD_PARENT_KEY, parentKey, fields)) {
+      profileBuilder.setParentKey(parentKey);
+    }
+    if (parent != null && shouldSetValue(FIELD_PARENT_NAME, parent.name(), fields)) {
+      profileBuilder.setParentName(parent.name());
+    }
   }
 
   @CheckForNull
-  private <T> T nullUnlessNeeded(String field, T value, @Nullable List<String> fields) {
+  private static <T> T valueIfFieldNeeded(String field, T value, @Nullable List<String> fields) {
     return fieldIsNeeded(field, fields) ? value : null;
   }
 
-  private boolean fieldIsNeeded(String field, @Nullable List<String> fields) {
+  private static <T> boolean shouldSetValue(String field, T value, List<String> fields) {
+    return valueIfFieldNeeded(field, value, fields) != null;
+  }
+
+  private static boolean fieldIsNeeded(String field, @Nullable List<String> fields) {
     return fields == null || fields.contains(field);
   }
 }
