@@ -26,6 +26,7 @@ import com.google.common.base.Predicates;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import org.sonar.server.computation.measure.MutableMeasureComputersHolder;
 import org.sonar.server.computation.measure.api.MeasureComputerDefinitionImpl;
 import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinitionContext;
@@ -110,7 +112,7 @@ public class FeedMeasureComputers implements ComputationStep {
   }
 
   private static void feedComputersByMetric(List<MeasureComputerWrapper> wrappers, Map<String, MeasureComputerWrapper> computersByOutputMetric,
-    Map<String, MeasureComputerWrapper> computersByInputMetric) {
+                                            Map<String, MeasureComputerWrapper> computersByInputMetric) {
     for (MeasureComputerWrapper computer : wrappers) {
       for (String outputMetric : computer.getDefinition().getOutputMetrics()) {
         computersByOutputMetric.put(outputMetric, computer);
@@ -124,6 +126,7 @@ public class FeedMeasureComputers implements ComputationStep {
   private void validateMetrics(List<MeasureComputerWrapper> wrappers) {
     from(wrappers).transformAndConcat(ToInputMetrics.INSTANCE).filter(new ValidateInputMetric()).size();
     from(wrappers).transformAndConcat(ToOutputMetrics.INSTANCE).filter(new ValidateOutputMetric()).size();
+    from(wrappers).filter(new ValidateUniqueOutputMetric()).size();
   }
 
   private static Iterable<MeasureComputerWrapper> getDependencies(MeasureComputerWrapper measureComputer, ToComputerByKey toComputerByOutputMetricKey) {
@@ -203,10 +206,9 @@ public class FeedMeasureComputers implements ComputationStep {
 
   private class ValidateInputMetric implements Predicate<String> {
     @Override
-    public boolean apply(@Nullable String metric) {
-      if (!pluginMetricKeys.contains(metric) && !CORE_METRIC_KEYS.contains(metric)) {
-        throw new IllegalStateException(String.format("Metric '%s' cannot be used as an input metric as it's not a core metric and no plugin declare this metric", metric));
-      }
+    public boolean apply(@Nonnull String metric) {
+      checkState(pluginMetricKeys.contains(metric) || CORE_METRIC_KEYS.contains(metric),
+        String.format("Metric '%s' cannot be used as an input metric as it's not a core metric and no plugin declare this metric", metric));
       return true;
     }
   }
@@ -222,12 +224,22 @@ public class FeedMeasureComputers implements ComputationStep {
 
   private class ValidateOutputMetric implements Predicate<String> {
     @Override
-    public boolean apply(@Nullable String metric) {
-      if (CORE_METRIC_KEYS.contains(metric)) {
-        throw new IllegalStateException(String.format("Metric '%s' cannot be used as an output metric as it's a core metric", metric));
-      }
-      if (!pluginMetricKeys.contains(metric)) {
-        throw new IllegalStateException(String.format("Metric '%s' cannot be used as an output metric as no plugin declare this metric", metric));
+    public boolean apply(@Nonnull String metric) {
+      checkState(!CORE_METRIC_KEYS.contains(metric), String.format("Metric '%s' cannot be used as an output metric as it's a core metric", metric));
+      checkState(pluginMetricKeys.contains(metric), String.format("Metric '%s' cannot be used as an output metric as no plugin declare this metric", metric));
+      return true;
+    }
+  }
+
+  private static class ValidateUniqueOutputMetric implements Predicate<MeasureComputerWrapper> {
+    private Set<String> allOutputMetrics = new HashSet<>();
+
+    @Override
+    public boolean apply(@Nonnull MeasureComputerWrapper wrapper ) {
+      for (String outputMetric : wrapper.getDefinition().getOutputMetrics()) {
+        checkState(!allOutputMetrics.contains(outputMetric),
+          String.format("Output metric '%s' is already defined by another measure computer '%s'", outputMetric, wrapper.getComputer()));
+        allOutputMetrics.add(outputMetric);
       }
       return true;
     }

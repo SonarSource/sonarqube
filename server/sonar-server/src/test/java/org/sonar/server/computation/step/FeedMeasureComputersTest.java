@@ -37,6 +37,7 @@ import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Arrays.array;
+import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
@@ -179,6 +180,16 @@ public class FeedMeasureComputersTest {
   }
 
   @Test
+  public void fail_with_ISE_when_two_measure_computers_generate_the_same_output_metric() throws Exception {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Output metric 'metric1' is already defined by another measure computer 'TestMeasureComputer'");
+
+    MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1)), newMeasureComputer(array(CLASSES_KEY), array(NEW_METRIC_1))};
+    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    underTest.execute();
+  }
+
+  @Test
   public void fail_with_IAE_when_creating_measure_computer_definition_without_using_the_builder_and_with_invalid_output_metrics() throws Exception {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("At least one output metric must be defined");
@@ -225,6 +236,11 @@ public class FeedMeasureComputersTest {
       @Override
       public void compute(MeasureComputerContext context) {
         // Nothing needs to be done as we're only testing metada
+      }
+
+      @Override
+      public String toString() {
+        return "TestMeasureComputer";
       }
     };
   }
