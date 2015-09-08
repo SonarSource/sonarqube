@@ -64,11 +64,8 @@ public class SearchAction implements QProfileWsAction {
   private static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
 
   private final Languages languages;
-
   private final QProfileLookup profileLookup;
-
   private final QProfileLoader profileLoader;
-
   private final QualityProfileDao qualityProfileDao;
 
   public SearchAction(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QualityProfileDao qualityProfileDao) {
@@ -84,17 +81,12 @@ public class SearchAction implements QProfileWsAction {
       .setSince("5.2")
       .setDescription("List quality profiles.")
       .setHandler(this)
+      .addFieldsParam(ALL_FIELDS)
       .setResponseExample(getClass().getResource("example-search.json"));
 
     search.createParam(PARAM_LANGUAGE)
       .setDescription("The key of a language supported by the platform. If specified, only profiles for the given language are returned.")
-      .setExampleValue("js")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
-
-    search.createParam(Param.FIELDS)
-      .setDescription("Use to restrict returned fields.")
-      .setExampleValue("key,language")
-      .setPossibleValues(ALL_FIELDS);
   }
 
   @Override

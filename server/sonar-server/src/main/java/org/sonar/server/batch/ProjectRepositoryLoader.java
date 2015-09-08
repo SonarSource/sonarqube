@@ -220,7 +220,7 @@ public class ProjectRepositoryLoader {
    * If no profile found, try to find the quality profile set on the project (if provided)
    * If still no profile found, try to find the default profile of the language
    * <p/>
-   * Never return null because a default profile should always be set on ech language
+   * Never return null because a default profile should always be set on each language
    */
   private QualityProfileDto getProfile(String languageKey, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
     QualityProfileDto qualityProfileDto = profileName != null ? qProfileFactory.getByNameAndLanguage(session, profileName, languageKey) : null;
