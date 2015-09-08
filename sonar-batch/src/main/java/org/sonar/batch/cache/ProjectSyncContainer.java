@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.repository.ProjectRepositoriesFactoryProvider;
+import javax.annotation.Nullable;
 
+import org.sonar.batch.repository.ProjectRepositoriesFactoryProvider;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.api.CoreProperties;
 import com.google.common.collect.ImmutableMap;
@@ -47,7 +48,7 @@ public class ProjectSyncContainer extends ComponentContainer {
   private final boolean force;
   private final String projectKey;
 
-  public ProjectSyncContainer(ComponentContainer globalContainer, String projectKey, boolean force) {
+  public ProjectSyncContainer(ComponentContainer globalContainer, @Nullable String projectKey, boolean force) {
     super(globalContainer);
     this.projectKey = projectKey;
     this.force = force;
@@ -67,7 +68,7 @@ public class ProjectSyncContainer extends ComponentContainer {
     }
   }
 
-  private static DefaultAnalysisMode createIssuesAnalisysMode() {
+  private static DefaultAnalysisMode createIssuesAnalysisMode() {
     Map<String, String> props = ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
     GlobalProperties globalProps = new GlobalProperties(props);
     AnalysisProperties analysisProps = new AnalysisProperties(props);
@@ -79,7 +80,7 @@ public class ProjectSyncContainer extends ComponentContainer {
       projectKey != null ? ProjectCacheSynchronizer.class : NonAssociatedCacheSynchronizer.class,
       UserRepositoryLoader.class,
       new ProjectRepositoriesFactoryProvider(projectKey),
-      createIssuesAnalisysMode());
+      createIssuesAnalysisMode());
 
     addIfMissing(DefaultProjectCacheStatus.class, ProjectCacheStatus.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);

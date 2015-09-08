@@ -84,7 +84,7 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
       LOG.info("Medium test mode");
     }
     if (notAssociated) {
-      LOG.info("Project is not associated with the server");
+      LOG.info("Local analysis");
     }
   }
 

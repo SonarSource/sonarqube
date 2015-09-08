@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
+import org.sonar.batch.issue.tracking.LocalIssueTracking;
 
+import org.sonar.batch.issue.tracking.IssueTransition;
+import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
 import org.sonar.batch.repository.QualityProfileProvider;
 import org.sonar.batch.repository.DefaultQualityProfileLoader;
 import org.sonar.batch.repository.QualityProfileLoader;
@@ -65,7 +67,6 @@ import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.issue.tracking.LocalIssueTracking;
 import org.sonar.batch.issue.tracking.ServerIssueRepository;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.PhasesTimeProfiler;
@@ -118,6 +119,9 @@ public class ProjectScanContainer extends ComponentContainer {
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       add(PhasesSumUpTimeProfiler.class);
     }
+    if (isTherePreviousAnalysis()) {
+      addIssueTrackingComponents();
+    }
   }
 
   private void addBatchComponents() {
@@ -164,8 +168,7 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueWorkflow.class,
       IssueCache.class,
       DefaultProjectIssues.class,
-      ServerIssueRepository.class,
-      LocalIssueTracking.class,
+      IssueTransition.class,
 
       // metrics
       DefaultMetricFinder.class,
@@ -201,16 +204,26 @@ public class ProjectScanContainer extends ComponentContainer {
       ScanTaskObservers.class,
       UserRepositoryLoader.class);
 
-    addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
-    addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
     addIfMissing(DefaultProjectSettingsLoader.class, ProjectSettingsLoader.class);
   }
 
-  private boolean isProjectAssociated() {
-    return !getComponentByType(DefaultAnalysisMode.class).isNotAssociated();
+  private void addIssueTrackingComponents() {
+    add(
+      LocalIssueTracking.class,
+      ServerIssueRepository.class);
+    addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
+    addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
+  }
+
+  private boolean isTherePreviousAnalysis() {
+    if (getComponentByType(DefaultAnalysisMode.class).isNotAssociated()) {
+      return false;
+    }
+
+    return getComponentByType(DefaultProjectRepositoriesFactory.class).create().lastAnalysisDate() != null;
   }
 
   private void addBatchExtensions() {

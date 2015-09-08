@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import javax.annotation.CheckForNull;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.cache.PersistentCacheProvider;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.analysis.AnalysisProperties;
@@ -32,6 +33,7 @@ import org.sonar.batch.rule.RulesProvider;
 
 import java.util.List;
 import java.util.Map;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.utils.System2;
@@ -129,6 +131,7 @@ public class GlobalContainer extends ComponentContainer {
     new ProjectScanContainer(this, props, components).execute();
   }
 
+  @CheckForNull
   private static String getProjectKeyWithBranch(AnalysisProperties props) {
     String projectKey = props.property(CoreProperties.PROJECT_KEY_PROPERTY);
     if (projectKey != null && props.property(CoreProperties.PROJECT_BRANCH_PROPERTY) != null) {
