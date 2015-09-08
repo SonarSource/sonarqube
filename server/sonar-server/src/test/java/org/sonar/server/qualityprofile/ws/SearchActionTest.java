@@ -20,70 +20,61 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
+  // TODO remove mock
+  private QProfileLoader profileLoader = mock(QProfileLoader.class);
   private DbClient dbClient;
-
   private QualityProfileDao qualityProfileDao;
-
   private Language xoo1;
   private Language xoo2;
-
-  private WsTester tester;
-
-  private DbSession session;
-
-  private QProfileLoader profileLoader;
+  private DbSession dbSession;
+  private WsActionTester ws;
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-    qualityProfileDao = new QualityProfileDao(dbTester.myBatis(), mock(System2.class));
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), qualityProfileDao);
-    session = dbClient.openSession(false);
-
-    // TODO Replace with actual implementation after removal of DaoV2...
-    profileLoader = mock(QProfileLoader.class);
+    db.truncateTables();
+    dbClient = db.getDbClient();
+    qualityProfileDao = dbClient.qualityProfileDao();
+    dbSession = db.getSession();
 
     xoo1 = LanguageTesting.newLanguage("xoo1");
     xoo2 = LanguageTesting.newLanguage("xoo2");
 
-    tester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class),
-      mock(BulkRuleActivationActions.class),
-      mock(ProjectAssociationActions.class),
-      new SearchAction(new Languages(xoo1, xoo2), new QProfileLookup(dbClient), profileLoader, qualityProfileDao)));
-  }
-
-  @After
-  public void teadDown() {
-    session.close();
+    ws = new WsActionTester(new SearchAction(
+      new Languages(xoo1, xoo2),
+      new QProfileLookup(dbClient),
+      profileLoader,
+      qualityProfileDao));
   }
 
   @Test
@@ -91,48 +82,53 @@ public class SearchActionTest {
     when(profileLoader.countAllActiveRules()).thenReturn(ImmutableMap.of(
       "sonar-way-xoo1-12345", 11L,
       "my-sonar-way-xoo2-34567", 33L
-    ));
+      ));
 
-    qualityProfileDao.insert(session,
+    qualityProfileDao.insert(dbSession,
       QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1.getKey()).setName("Sonar way").setDefault(true),
       QualityProfileDto.createFor("sonar-way-xoo2-23456").setLanguage(xoo2.getKey()).setName("Sonar way"),
       QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2.getKey()).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456"),
       QualityProfileDto.createFor("sonar-way-other-666").setLanguage("other").setName("Sonar way").setDefault(true)
-    );
-    new ComponentDao().insert(session,
+      );
+    new ComponentDao().insert(dbSession,
       ComponentTesting.newProjectDto("project-uuid1"),
       ComponentTesting.newProjectDto("project-uuid2"));
-    qualityProfileDao.insertProjectProfileAssociation("project-uuid1", "sonar-way-xoo2-23456", session);
-    qualityProfileDao.insertProjectProfileAssociation("project-uuid2", "sonar-way-xoo2-23456", session);
-    session.commit();
+    qualityProfileDao.insertProjectProfileAssociation("project-uuid1", "sonar-way-xoo2-23456", dbSession);
+    qualityProfileDao.insertProjectProfileAssociation("project-uuid2", "sonar-way-xoo2-23456", dbSession);
+    commit();
 
-    tester.newGetRequest("api/qualityprofiles", "search").execute().assertJson(this.getClass(), "search.json");
+    String result = ws.newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo(getClass().getResource("SearchActionTest/search.json"));
   }
 
   @Test
   public void search_with_fields() throws Exception {
-    qualityProfileDao.insert(session,
+    qualityProfileDao.insert(dbSession,
       QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1.getKey()).setName("Sonar way").setDefault(true),
       QualityProfileDto.createFor("sonar-way-xoo2-23456").setLanguage(xoo2.getKey()).setName("Sonar way"),
       QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2.getKey()).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456")
-    );
-    session.commit();
+      );
+    commit();
 
-    tester.newGetRequest("api/qualityprofiles", "search").setParam(Param.FIELDS, "key,language").execute().assertJson(this.getClass(), "search_fields.json");
-  }
+    String result = ws.newRequest().setParam(Param.FIELDS, "key,language").execute().getInput();
 
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_on_unknown_fields() throws Exception {
-    tester.newGetRequest("api/qualityprofiles", "search").setParam(Param.FIELDS, "polop").execute();
+    assertJson(result).isSimilarTo(getClass().getResource("SearchActionTest/search_fields.json"));
   }
 
   @Test
   public void search_for_language() throws Exception {
-    qualityProfileDao.insert(session,
+    qualityProfileDao.insert(dbSession,
       QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1.getKey()).setName("Sonar way")
     );
-    session.commit();
+    commit();
 
-    tester.newGetRequest("api/qualityprofiles", "search").setParam("language", xoo1.getKey()).execute().assertJson(this.getClass(), "search_xoo1.json");
+    String result = ws.newRequest().setParam("language", xoo1.getKey()).execute().getInput();
+
+    assertJson(result).isSimilarTo(getClass().getResource("SearchActionTest/search_xoo1.json"));
+  }
+
+  private void commit() {
+    dbSession.commit();
   }
 }

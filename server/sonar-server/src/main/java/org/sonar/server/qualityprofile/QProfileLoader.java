@@ -46,12 +46,12 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class QProfileLoader {
 
-  private final DbClient db;
+  private final DbClient dbClient;
   private final IndexClient index;
   private final UserSession userSession;
 
-  public QProfileLoader(DbClient db, IndexClient index, UserSession userSession) {
-    this.db = db;
+  public QProfileLoader(DbClient dbClient, IndexClient index, UserSession userSession) {
+    this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
   }
@@ -61,9 +61,9 @@ public class QProfileLoader {
    * profiles are not indexed and declared as a business object
    */
   public List<QualityProfileDto> findAll() {
-    DbSession dbSession = db.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      return db.qualityProfileDao().selectAll(dbSession);
+      return dbClient.qualityProfileDao().selectAll(dbSession);
     } finally {
       dbSession.close();
     }
@@ -71,9 +71,9 @@ public class QProfileLoader {
 
   @CheckForNull
   public QualityProfileDto getByKey(String key) {
-    DbSession dbSession = db.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      return db.qualityProfileDao().selectByKey(dbSession, key);
+      return dbClient.qualityProfileDao().selectByKey(dbSession, key);
     } finally {
       dbSession.close();
     }
@@ -81,9 +81,9 @@ public class QProfileLoader {
 
   @CheckForNull
   public QualityProfileDto getByLangAndName(String lang, String name) {
-    DbSession dbSession = db.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      return db.qualityProfileDao().selectByNameAndLanguage(name, lang, dbSession);
+      return dbClient.qualityProfileDao().selectByNameAndLanguage(name, lang, dbSession);
     } finally {
       dbSession.close();
     }

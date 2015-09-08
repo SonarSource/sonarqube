@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-db</artifactId>
+      <artifactId>sonar-dbClient</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
