@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.debt.Characteristic;
@@ -33,10 +34,10 @@ import org.sonar.server.computation.debt.MutableDebtModelHolder;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
-import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 
 public class DebtAggregatorTest {
@@ -61,13 +62,13 @@ public class DebtAggregatorTest {
    */
   public static final int RELIABILITY_ID = 1003;
 
-  Component file = ReportComponent.builder(Component.Type.FILE, 1).build();
-  Component project = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(file).build();
+  static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).build();
+  static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();
 
-  DumbRule rule = new DumbRule(RuleTesting.XOO_X1).setId(100).setSubCharacteristicId(PORTABILITY_SOFT_ID);
+  static final DumbRule RULE = new DumbRule(RuleTesting.XOO_X1).setId(100).setSubCharacteristicId(PORTABILITY_SOFT_ID);
 
   @org.junit.Rule
-  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(rule);
+  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(RULE);
 
   MutableDebtModelHolder debtModelHolder = new DebtModelHolderImpl()
     .addCharacteristics(new Characteristic(PORTABILITY_ID, "PORTABILITY", null),
@@ -86,54 +87,79 @@ public class DebtAggregatorTest {
 
   @Test
   public void sum_debt_of_unresolved_issues() {
-    DefaultIssue unresolved1 = new DefaultIssue().setDebt(Duration.create(10)).setRuleKey(rule.getKey());
-    DefaultIssue unresolved2 = new DefaultIssue().setDebt(Duration.create(30)).setRuleKey(rule.getKey());
-    DefaultIssue unresolvedWithoutDebt = new DefaultIssue().setRuleKey(rule.getKey());
-    DefaultIssue resolved = new DefaultIssue().setDebt(Duration.create(50)).setResolution(RESOLUTION_FIXED).setRuleKey(rule.getKey());
+    DefaultIssue unresolved1 = newIssue(10);
+    DefaultIssue unresolved2 = newIssue(30);
+    DefaultIssue unresolvedWithoutDebt = newIssue();
+    DefaultIssue resolved = newIssue(50).setResolution(RESOLUTION_FIXED);
 
-    underTest.beforeComponent(file);
-    underTest.onIssue(file, unresolved1);
-    underTest.onIssue(file, unresolved2);
-    underTest.onIssue(file, unresolvedWithoutDebt);
-    underTest.onIssue(file, resolved);
-    underTest.afterComponent(file);
+    underTest.beforeComponent(FILE);
+    underTest.onIssue(FILE, unresolved1);
+    underTest.onIssue(FILE, unresolved2);
+    underTest.onIssue(FILE, unresolvedWithoutDebt);
+    underTest.onIssue(FILE, resolved);
+    underTest.afterComponent(FILE);
 
     // total debt
-    assertThat(debtMeasure(file).get().getLongValue()).isEqualTo(10 + 30);
+    assertThat(debtMeasure(FILE).get().getLongValue()).isEqualTo(10 + 30);
 
     // debt by rule
-    assertThat(debtRuleMeasure(file, rule.getId()).get().getLongValue()).isEqualTo(10 + 30);
+    assertThat(debtRuleMeasure(FILE, RULE.getId()).get().getLongValue()).isEqualTo(10 + 30);
 
     // debt by characteristic. Root characteristics with zero values are not saved for files.
-    assertThat(debtCharacteristicMeasure(file, PORTABILITY_ID).get().getLongValue()).isEqualTo(10 + 30);
-    assertThat(debtCharacteristicMeasure(file, PORTABILITY_SOFT_ID).get().getLongValue()).isEqualTo(10 + 30);
-    assertThat(debtCharacteristicMeasure(file, PORTABILITY_HARD_ID).isPresent()).isFalse();
-    assertThat(debtCharacteristicMeasure(file, RELIABILITY_ID).isPresent()).isFalse();
+    assertThat(debtCharacteristicMeasure(FILE, PORTABILITY_ID).get().getLongValue()).isEqualTo(10 + 30);
+    assertThat(debtCharacteristicMeasure(FILE, PORTABILITY_SOFT_ID).get().getLongValue()).isEqualTo(10 + 30);
+    assertThat(debtCharacteristicMeasure(FILE, PORTABILITY_HARD_ID)).isAbsent();
+    assertThat(debtCharacteristicMeasure(FILE, RELIABILITY_ID)).isAbsent();
   }
 
   @Test
   public void aggregate_debt_of_children() {
-    DefaultIssue fileIssue = new DefaultIssue().setDebt(Duration.create(10)).setRuleKey(rule.getKey());
-    DefaultIssue projectIssue = new DefaultIssue().setDebt(Duration.create(30)).setRuleKey(rule.getKey());
+    DefaultIssue fileIssue = newIssue(10);
+    DefaultIssue projectIssue = newIssue(30);
 
-    underTest.beforeComponent(file);
-    underTest.onIssue(file, fileIssue);
-    underTest.afterComponent(file);
-    underTest.beforeComponent(project);
-    underTest.onIssue(project, projectIssue);
-    underTest.afterComponent(project);
+    underTest.beforeComponent(FILE);
+    underTest.onIssue(FILE, fileIssue);
+    underTest.afterComponent(FILE);
+    underTest.beforeComponent(PROJECT);
+    underTest.onIssue(PROJECT, projectIssue);
+    underTest.afterComponent(PROJECT);
 
     // total debt of project
-    assertThat(debtMeasure(project).get().getLongValue()).isEqualTo(10 + 30);
+    assertThat(debtMeasure(PROJECT).get().getLongValue()).isEqualTo(10 + 30);
 
     // debt by rule
-    assertThat(debtRuleMeasure(project, rule.getId()).get().getLongValue()).isEqualTo(10 + 30);
+    assertThat(debtRuleMeasure(PROJECT, RULE.getId()).get().getLongValue()).isEqualTo(10 + 30);
 
     // debt by characteristic. Root characteristics with zero values are stored for modules and projects.
-    assertThat(debtCharacteristicMeasure(project, PORTABILITY_ID).get().getLongValue()).isEqualTo(10 + 30);
-    assertThat(debtCharacteristicMeasure(project, PORTABILITY_SOFT_ID).get().getLongValue()).isEqualTo(10 + 30);
-    assertThat(debtCharacteristicMeasure(project, PORTABILITY_HARD_ID).isPresent()).isFalse();
-    assertThat(debtCharacteristicMeasure(project, RELIABILITY_ID).get().getLongValue()).isZero();
+    assertThat(debtCharacteristicMeasure(PROJECT, PORTABILITY_ID).get().getLongValue()).isEqualTo(10 + 30);
+    assertThat(debtCharacteristicMeasure(PROJECT, PORTABILITY_SOFT_ID).get().getLongValue()).isEqualTo(10 + 30);
+    assertThat(debtCharacteristicMeasure(PROJECT, PORTABILITY_HARD_ID)).isAbsent();
+    assertThat(debtCharacteristicMeasure(PROJECT, RELIABILITY_ID).get().getLongValue()).isZero();
+  }
+
+  @Test
+  public void sum_debt_of_issues_without_debt() {
+    DefaultIssue fileIssue = newIssue();
+    DefaultIssue projectIssue = newIssue();
+
+    underTest.beforeComponent(FILE);
+    underTest.onIssue(FILE, fileIssue);
+    underTest.afterComponent(FILE);
+    underTest.beforeComponent(PROJECT);
+    underTest.onIssue(PROJECT, projectIssue);
+    underTest.afterComponent(PROJECT);
+
+    // total debt of project
+    assertThat(debtMeasure(PROJECT).get().getLongValue()).isZero();
+
+    // debt by rule
+    assertThat(debtRuleMeasure(PROJECT, RULE.getId())).isAbsent();
+
+    // debt by characteristic. Root characteristics with zero values are stored for modules and projects.
+    assertThat(debtCharacteristicMeasure(PROJECT, PORTABILITY_ID).get().getLongValue()).isZero();
+    assertThat(debtCharacteristicMeasure(PROJECT, PORTABILITY_SOFT_ID)).isAbsent();
+    assertThat(debtCharacteristicMeasure(PROJECT, PORTABILITY_HARD_ID)).isAbsent();
+    assertThat(debtCharacteristicMeasure(PROJECT, RELIABILITY_ID).get().getLongValue()).isZero();
   }
 
   @CheckForNull
@@ -149,5 +175,13 @@ public class DebtAggregatorTest {
   @CheckForNull
   private Optional<Measure> debtCharacteristicMeasure(Component component, int characteristicId) {
     return measureRepository.getRawCharacteristicMeasure(component, metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY), characteristicId);
+  }
+
+  private static DefaultIssue newIssue(long debt){
+    return newIssue().setDebt(Duration.create(debt));
+  }
+
+  private static DefaultIssue newIssue(){
+    return new DefaultIssue().setRuleKey(RULE.getKey());
   }
 }
