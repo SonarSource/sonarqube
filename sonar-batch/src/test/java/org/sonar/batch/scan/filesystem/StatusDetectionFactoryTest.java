@@ -19,16 +19,16 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.junit.Test;
-import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.batch.repository.ProjectSettingsRepo;
 
+import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class StatusDetectionFactoryTest {
   @Test
   public void testCreate() throws Exception {
-    StatusDetectionFactory factory = new StatusDetectionFactory(mock(ProjectRepositories.class));
+    StatusDetectionFactory factory = new StatusDetectionFactory(mock(ProjectSettingsRepo.class));
     StatusDetection detection = factory.create();
     assertThat(detection).isNotNull();
   }

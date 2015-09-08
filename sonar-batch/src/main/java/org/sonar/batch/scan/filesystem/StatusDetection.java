@@ -19,21 +19,22 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.batch.repository.ProjectSettingsRepo;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 
 class StatusDetection {
 
-  private final ProjectRepositories projectReferentials;
+  private final ProjectSettingsRepo projectSettings;
 
-  StatusDetection(ProjectRepositories projectReferentials) {
-    this.projectReferentials = projectReferentials;
+  StatusDetection(ProjectSettingsRepo projectSettings) {
+    this.projectSettings = projectSettings;
   }
 
   InputFile.Status status(String projectKey, String relativePath, String hash) {
-    FileData fileDataPerPath = projectReferentials.fileData(projectKey, relativePath);
+    FileData fileDataPerPath = projectSettings.fileData(projectKey, relativePath);
     if (fileDataPerPath == null) {
       return InputFile.Status.ADDED;
     }

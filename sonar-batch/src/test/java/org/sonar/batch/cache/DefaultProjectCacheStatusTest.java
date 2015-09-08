@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.sonar.home.cache.PersistentCacheLoader;
 
-import org.junit.internal.runners.statements.ExpectException;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
@@ -58,6 +57,7 @@ public class DefaultProjectCacheStatusTest {
   public void setUp() {
     cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), null);
     client = mock(ServerClient.class);
+    when(client.getServerVersion()).thenReturn("5.2");
     when(client.getURL()).thenReturn("localhost");
     cacheStatus = new DefaultProjectCacheStatus(cache, client);
   }
@@ -82,6 +82,17 @@ public class DefaultProjectCacheStatusTest {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Failed to write cache sync status");
     cacheStatus.save(PROJ_KEY);
+  }
+  
+  @Test
+  public void useServerVersionAsKey() {
+    cacheStatus.save(PROJ_KEY);
+    assertThat(cacheStatus.getSyncStatus(PROJ_KEY)).isNotNull();
+    assertThat(age(cacheStatus.getSyncStatus(PROJ_KEY))).isLessThan(2000);
+    
+    when(client.getServerVersion()).thenReturn("5.1");
+    
+    assertThat(cacheStatus.getSyncStatus(PROJ_KEY)).isNull();
   }
   
   @Test

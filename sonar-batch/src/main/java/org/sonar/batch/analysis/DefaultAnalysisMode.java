@@ -38,6 +38,7 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
   private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
 
   private boolean mediumTestMode;
+  private boolean notAssociated;
 
   public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props) {
     init(globalProps.properties(), props.properties());
@@ -45,6 +46,10 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
 
   public boolean isMediumTest() {
     return mediumTestMode;
+  }
+
+  public boolean isNotAssociated() {
+    return notAssociated;
   }
 
   private void init(Map<String, String> globalProps, Map<String, String> analysisProps) {
@@ -64,6 +69,7 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     validate(mode);
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
+    notAssociated = issues && rootProjectKeyMissing(analysisProps);
   }
 
   public void printMode() {
@@ -76,6 +82,9 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     }
     if (mediumTestMode) {
       LOG.info("Medium test mode");
+    }
+    if (notAssociated) {
+      LOG.info("Project is not associated with the server");
     }
   }
 
@@ -91,6 +100,11 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     String mode = props.get(CoreProperties.ANALYSIS_MODE);
 
     return CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
+  }
+
+  private static boolean rootProjectKeyMissing(Map<String, String> props) {
+    // ProjectReactorBuilder depends on this class, so it will only create this property later
+    return !props.containsKey(CoreProperties.PROJECT_KEY_PROPERTY);
   }
 
 }

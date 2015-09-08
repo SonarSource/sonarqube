@@ -28,7 +28,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.SonarException;
 import org.sonar.core.component.ComponentKeys;
 
 /**
@@ -58,7 +57,7 @@ public class ProjectReactorValidator {
     validateBranch(validationMessages, branch);
 
     if (!validationMessages.isEmpty()) {
-      throw new SonarException("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
+      throw new IllegalStateException("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
     }
   }
 

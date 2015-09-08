@@ -19,59 +19,73 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.batch.repository.ProjectRepositoriesFactoryProvider;
+
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.cache.WSLoader.LoadStrategy;
+import org.sonar.api.CoreProperties;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
 import org.sonar.batch.analysis.AnalysisProperties;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.batch.bootstrap.GlobalProperties;
+import org.sonar.batch.repository.ProjectSettingsLoader;
+import org.sonar.batch.repository.DefaultProjectSettingsLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
+import org.sonar.batch.rule.DefaultActiveRulesLoader;
+import org.sonar.batch.repository.QualityProfileLoader;
+import org.sonar.batch.repository.DefaultQualityProfileLoader;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
-import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.core.platform.ComponentContainer;
 
 public class ProjectSyncContainer extends ComponentContainer {
   private final boolean force;
-  private final AnalysisProperties properties;
+  private final String projectKey;
 
-  public ProjectSyncContainer(ComponentContainer globalContainer, AnalysisProperties analysisProperties, boolean force) {
+  public ProjectSyncContainer(ComponentContainer globalContainer, String projectKey, boolean force) {
     super(globalContainer);
-    this.properties = analysisProperties;
+    this.projectKey = projectKey;
     this.force = force;
   }
 
   @Override
   public void doBeforeStart() {
-    ProjectReactor projectReactor = createProjectReactor();
-    add(projectReactor);
     addComponents();
-  }
-
-  private ProjectReactor createProjectReactor() {
-    ProjectDefinition rootProjectDefinition = ProjectDefinition.create();
-    rootProjectDefinition.setProperties(properties.properties());
-    return new ProjectReactor(rootProjectDefinition);
   }
 
   @Override
   public void doAfterStart() {
-    getComponentByType(ProjectCacheSynchronizer.class).load(force);
+    if (projectKey != null) {
+      getComponentByType(ProjectCacheSynchronizer.class).load(projectKey, force);
+    } else {
+      getComponentByType(NonAssociatedCacheSynchronizer.class).execute(force);
+    }
+  }
+
+  private static DefaultAnalysisMode createIssuesAnalisysMode() {
+    Map<String, String> props = ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
+    GlobalProperties globalProps = new GlobalProperties(props);
+    AnalysisProperties analysisProps = new AnalysisProperties(props);
+    return new DefaultAnalysisMode(globalProps, analysisProps);
   }
 
   private void addComponents() {
-    add(new StrategyWSLoaderProvider(LoadStrategy.SERVER_FIRST),
-      properties,
-      DefaultAnalysisMode.class,
-      ProjectCacheSynchronizer.class,
-      UserRepositoryLoader.class);
+    add(new StrategyWSLoaderProvider(LoadStrategy.SERVER_ONLY),
+      projectKey != null ? ProjectCacheSynchronizer.class : NonAssociatedCacheSynchronizer.class,
+      UserRepositoryLoader.class,
+      new ProjectRepositoriesFactoryProvider(projectKey),
+      createIssuesAnalisysMode());
 
     addIfMissing(DefaultProjectCacheStatus.class, ProjectCacheStatus.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
     addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
-    addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
+    addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
+    addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
+    addIfMissing(DefaultProjectSettingsLoader.class, ProjectSettingsLoader.class);
   }
-
 }

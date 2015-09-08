@@ -123,14 +123,22 @@ public class GlobalContainer extends ComponentContainer {
   public void executeAnalysis(Map<String, String> analysisProperties, Object... components) {
     AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(GlobalProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     if (isIssuesMode(props)) {
-      new ProjectSyncContainer(this, props, false).execute();
+      String projectKey = getProjectKeyWithBranch(props);
+      new ProjectSyncContainer(this, projectKey, false).execute();
     }
     new ProjectScanContainer(this, props, components).execute();
   }
 
-  public void syncProject(Map<String, String> analysisProperties, boolean force) {
-    AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(GlobalProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
-    new ProjectSyncContainer(this, props, force).execute();
+  private static String getProjectKeyWithBranch(AnalysisProperties props) {
+    String projectKey = props.property(CoreProperties.PROJECT_KEY_PROPERTY);
+    if (projectKey != null && props.property(CoreProperties.PROJECT_BRANCH_PROPERTY) != null) {
+      projectKey = projectKey + ":" + props.property(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    }
+    return projectKey;
+  }
+
+  public void syncProject(String projectKey, boolean force) {
+    new ProjectSyncContainer(this, projectKey, force).execute();
   }
 
   private boolean isIssuesMode(AnalysisProperties props) {

@@ -148,7 +148,6 @@ public class ModuleScanContainer extends ComponentContainer {
       CoverageExclusions.class,
 
     // rules
-      ModuleQProfiles.class,
       new RulesProfileProvider(),
       QProfileSensor.class,
       CheckFactory.class,

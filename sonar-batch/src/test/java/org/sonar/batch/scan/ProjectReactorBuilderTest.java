@@ -20,7 +20,8 @@
 package org.sonar.batch.scan;
 
 import org.apache.commons.lang.StringUtils;
-
+import org.junit.Before;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.batch.analysis.AnalysisProperties;
 import com.google.common.collect.Maps;
 import org.junit.Rule;
@@ -38,6 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.mockito.Mockito.when;
+
+import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectReactorBuilderTest {
@@ -45,6 +49,13 @@ public class ProjectReactorBuilderTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private AnalysisMode mode;
+  
+  @Before
+  public void setUp() {
+    mode = mock(AnalysisMode.class);
+  }
+  
   @Test
   public void shouldDefineSimpleProject() {
     ProjectDefinition projectDefinition = loadProjectDefinition("simple-project");
@@ -78,12 +89,11 @@ public class ProjectReactorBuilderTest {
   public void shouldNotFailIfBlankSourceDirectory() {
     loadProjectDefinition("simple-project-with-blank-source-dir");
   }
-  
+
   @Test
   public void modulesRepeatedIds() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Two modules have the same id: module1");
-    
     loadProjectDefinition("multi-module-repeated-id");
   }
 
@@ -101,8 +111,8 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.getTestDirs().contains("tests")).isFalse();
     assertThat(rootProject.getBinaries().contains("target/classes")).isFalse();
     // and module properties must have been cleaned
-    assertThat(rootProject.getProperties().getProperty("module1.sonar.projectKey")).isNull();
-    assertThat(rootProject.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
+    assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(rootProject.getBaseDir().getCanonicalFile())
       .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"));
@@ -125,8 +135,8 @@ public class ProjectReactorBuilderTest {
     assertThat(module1.getTestDirs()).contains("tests");
     assertThat(module1.getBinaries()).contains("target/classes");
     // and module properties must have been cleaned
-    assertThat(module1.getProperties().getProperty("module1.sonar.projectKey")).isNull();
-    assertThat(module1.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    assertThat(module1.properties().get("module1.sonar.projectKey")).isNull();
+    assertThat(module1.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module1.getBaseDir().getCanonicalFile())
       .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
@@ -144,8 +154,8 @@ public class ProjectReactorBuilderTest {
     assertThat(module2.getTestDirs()).contains("tests");
     assertThat(module2.getBinaries()).contains("target/classes");
     // and module properties must have been cleaned
-    assertThat(module2.getProperties().getProperty("module1.sonar.projectKey")).isNull();
-    assertThat(module2.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    assertThat(module2.properties().get("module1.sonar.projectKey")).isNull();
+    assertThat(module2.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module2.getBaseDir().getCanonicalFile())
       .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
@@ -160,8 +170,8 @@ public class ProjectReactorBuilderTest {
 
     // CHECK ROOT
     // module properties must have been cleaned
-    assertThat(rootProject.getProperties().getProperty("module1.sonar.moduleKey")).isNull();
-    assertThat(rootProject.getProperties().getProperty("module2.sonar.moduleKey")).isNull();
+    assertThat(rootProject.properties().get("module1.sonar.moduleKey")).isNull();
+    assertThat(rootProject.properties().get("module2.sonar.moduleKey")).isNull();
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
@@ -301,8 +311,8 @@ public class ProjectReactorBuilderTest {
   public void multiModuleProperties() {
     ProjectDefinition projectDefinition = loadProjectDefinition("big-multi-module-definitions-all-in-root");
 
-    assertThat(projectDefinition.getProperties().getProperty("module11.property")).isNull();
-    assertThat(projectDefinition.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
+    assertThat(projectDefinition.properties().get("module11.property")).isNull();
+    assertThat(projectDefinition.properties().get("sonar.profile")).isEqualTo("Foo");
     ProjectDefinition module1 = null;
     ProjectDefinition module2 = null;
     for (ProjectDefinition prj : projectDefinition.getSubProjects()) {
@@ -312,12 +322,12 @@ public class ProjectReactorBuilderTest {
         module2 = prj;
       }
     }
-    assertThat(module1.getProperties().getProperty("module11.property")).isNull();
-    assertThat(module1.getProperties().getProperty("property")).isNull();
-    assertThat(module1.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
-    assertThat(module2.getProperties().getProperty("module11.property")).isNull();
-    assertThat(module2.getProperties().getProperty("property")).isNull();
-    assertThat(module2.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
+    assertThat(module1.properties().get("module11.property")).isNull();
+    assertThat(module1.properties().get("property")).isNull();
+    assertThat(module1.properties().get("sonar.profile")).isEqualTo("Foo");
+    assertThat(module2.properties().get("module11.property")).isNull();
+    assertThat(module2.properties().get("property")).isNull();
+    assertThat(module2.properties().get("sonar.profile")).isEqualTo("Foo");
 
     ProjectDefinition module11 = null;
     ProjectDefinition module12 = null;
@@ -328,13 +338,13 @@ public class ProjectReactorBuilderTest {
         module12 = prj;
       }
     }
-    assertThat(module11.getProperties().getProperty("module1.module11.property")).isNull();
-    assertThat(module11.getProperties().getProperty("module11.property")).isNull();
-    assertThat(module11.getProperties().getProperty("property")).isEqualTo("My module11 property");
-    assertThat(module11.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
-    assertThat(module12.getProperties().getProperty("module11.property")).isNull();
-    assertThat(module12.getProperties().getProperty("property")).isNull();
-    assertThat(module12.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
+    assertThat(module11.properties().get("module1.module11.property")).isNull();
+    assertThat(module11.properties().get("module11.property")).isNull();
+    assertThat(module11.properties().get("property")).isEqualTo("My module11 property");
+    assertThat(module11.properties().get("sonar.profile")).isEqualTo("Foo");
+    assertThat(module12.properties().get("module11.property")).isNull();
+    assertThat(module12.properties().get("property")).isNull();
+    assertThat(module12.properties().get("sonar.profile")).isEqualTo("Foo");
   }
 
   @Test
@@ -344,7 +354,7 @@ public class ProjectReactorBuilderTest {
     AnalysisProperties taskProperties = new AnalysisProperties(props, null);
     assertThat(taskProperties.property("module1.module11.property")).isEqualTo("My module11 property");
 
-    new ProjectReactorBuilder(taskProperties).execute();
+    new ProjectReactorBuilder(taskProperties, mode).execute();
 
     assertThat(taskProperties.property("module1.module11.property")).isNull();
   }
@@ -443,19 +453,27 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(Maps.<String, String>newHashMap(), null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(Maps.<String, String>newHashMap(), null), mode);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, Maps.<String, String>newHashMap());
 
     assertThat(workDir).isEqualTo(new File(baseDir, ".sonar"));
   }
+  
+  @Test
+  public void nonAssociatedMode() {
+    when(mode.isIssues()).thenReturn(true);
+    ProjectDefinition project = loadProjectDefinition("multi-module-with-basedir-not-associated");
+    
+    assertThat(project.getKey()).isEqualTo("project");
+  }
 
   @Test
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null), mode);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -467,7 +485,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null), mode);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -477,16 +495,16 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIf2ModulesWithSameKey() {
-    Properties props = new Properties();
+    Map<String, String> props = new HashMap<>();
     props.put("sonar.projectKey", "root");
     ProjectDefinition root = ProjectDefinition.create().setProperties(props);
 
-    Properties props1 = new Properties();
+    Map<String, String> props1 = new HashMap<>();
     props1.put("sonar.projectKey", "mod1");
     root.addSubProject(ProjectDefinition.create().setProperties(props1));
 
     // Check uniqueness of a new module: OK
-    Properties props2 = new Properties();
+    Map<String, String> props2 = new HashMap<>();
     props2.put("sonar.projectKey", "mod2");
     ProjectDefinition mod2 = ProjectDefinition.create().setProperties(props2);
     ProjectReactorBuilder.checkUniquenessOfChildKey(mod2, root);
@@ -519,7 +537,7 @@ public class ProjectReactorBuilderTest {
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
     AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
-    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
+    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps,mode).execute();
     return projectReactor.getRoot();
   }
   
@@ -594,8 +612,8 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.getTestDirs().contains("tests")).isFalse();
     assertThat(rootProject.getBinaries().contains("target/classes")).isFalse();
     // and module properties must have been cleaned
-    assertThat(rootProject.getProperties().getProperty("module1.sonar.projectKey")).isNull();
-    assertThat(rootProject.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
+    assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(rootProject.getBaseDir().getCanonicalFile())
       .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"));
@@ -618,8 +636,8 @@ public class ProjectReactorBuilderTest {
     assertThat(module1.getTestDirs()).contains("tests");
     assertThat(module1.getBinaries()).contains("target/classes");
     // and module properties must have been cleaned
-    assertThat(module1.getProperties().getProperty("module1.sonar.projectKey")).isNull();
-    assertThat(module1.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    assertThat(module1.properties().get("module1.sonar.projectKey")).isNull();
+    assertThat(module1.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module1.getBaseDir().getCanonicalFile())
       .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1"));
@@ -637,8 +655,8 @@ public class ProjectReactorBuilderTest {
     assertThat(module1Feature.getTestDirs()).contains("tests");
     assertThat(module1Feature.getBinaries()).contains("target/classes");
     // and module properties must have been cleaned
-    assertThat(module1Feature.getProperties().getProperty("module1.sonar.projectKey")).isNull();
-    assertThat(module1Feature.getProperties().getProperty("module2.sonar.projectKey")).isNull();
+    assertThat(module1Feature.properties().get("module1.sonar.projectKey")).isNull();
+    assertThat(module1Feature.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module1Feature.getBaseDir().getCanonicalFile())
       .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));

@@ -19,16 +19,22 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+
+import org.sonar.batch.repository.ProjectSettingsRepo;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
 import javax.annotation.CheckForNull;
+
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -41,7 +47,6 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
@@ -72,7 +77,7 @@ public class LocalIssueTracking {
   public LocalIssueTracking(BatchComponentCache resourceCache, IssueCache issueCache, IssueTracking tracking,
     ServerLineHashesLoader lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
     ActiveRules activeRules, ServerIssueRepository serverIssueRepository,
-    ProjectRepositories projectRepositories, ReportPublisher reportPublisher) {
+    ProjectSettingsRepo projectRepositories, ReportPublisher reportPublisher, DefaultAnalysisMode mode) {
     this.componentCache = resourceCache;
     this.issueCache = issueCache;
     this.tracking = tracking;
@@ -84,7 +89,7 @@ public class LocalIssueTracking {
     this.analysisDate = ((Project) resourceCache.getRoot().resource()).getAnalysisDate();
     this.changeContext = IssueChangeContext.createScan(analysisDate);
     this.activeRules = activeRules;
-    this.hasServerAnalysis = projectRepositories.lastAnalysisDate() != null;
+    this.hasServerAnalysis = !mode.isNotAssociated() && projectRepositories.lastAnalysisDate() != null;
   }
 
   public void execute() {

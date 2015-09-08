@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.repository.ProjectSettingsRepo;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -30,20 +31,19 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 
 /**
  * @since 2.12
  */
 public class ModuleSettings extends Settings {
 
-  private final ProjectRepositories projectReferentials;
+  private final ProjectSettingsRepo projectSettingsRepo;
   private DefaultAnalysisMode analysisMode;
 
-  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectReferentials,
+  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectSettingsRepo projectSettingsRepo,
     DefaultAnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
-    this.projectReferentials = projectReferentials;
+    this.projectSettingsRepo = projectSettingsRepo;
     this.analysisMode = analysisMode;
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
@@ -58,13 +58,13 @@ public class ModuleSettings extends Settings {
 
   private void addProjectProperties(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
     addProperties(batchSettings.getProperties());
-    addProperties(projectReferentials.settings(moduleDefinition.getKeyWithBranch()));
+    addProperties(projectSettingsRepo.settings(moduleDefinition.getKeyWithBranch()));
   }
 
   private void addBuildProperties(ProjectDefinition project) {
     List<ProjectDefinition> orderedProjects = getTopDownParentProjects(project);
     for (ProjectDefinition p : orderedProjects) {
-      addProperties(p.getProperties());
+      addProperties(p.properties());
     }
   }
 

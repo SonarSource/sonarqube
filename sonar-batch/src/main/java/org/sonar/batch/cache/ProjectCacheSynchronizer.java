@@ -19,100 +19,98 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.analysis.AnalysisProperties;
+import com.google.common.base.Function;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Loggers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import com.google.common.base.Function;
-import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.protocol.input.QProfile;
+import org.sonar.batch.repository.ProjectSettingsLoader;
+import org.sonar.batch.repository.ProjectSettingsRepo;
+import org.sonar.batch.repository.QualityProfileLoader;
+import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.repository.user.UserRepositoryLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.repository.user.UserRepositoryLoader;
-import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
-import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.batch.repository.ProjectRepositoriesLoader;
 
 public class ProjectCacheSynchronizer {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectCacheSynchronizer.class);
-  private static final int NUM_THREAD = 2;
 
-  private final ProjectDefinition project;
-  private final AnalysisProperties properties;
-  private final ProjectRepositoriesLoader projectRepositoryLoader;
   private final ServerIssuesLoader issuesLoader;
-  private final ServerLineHashesLoader lineHashesLoader;
   private final UserRepositoryLoader userRepository;
   private final ProjectCacheStatus cacheStatus;
+  private final QualityProfileLoader qualityProfileLoader;
+  private final ProjectSettingsLoader projectSettingsLoader;
+  private final ActiveRulesLoader activeRulesLoader;
 
-  public ProjectCacheSynchronizer(ProjectReactor project, ProjectRepositoriesLoader projectRepositoryLoader, AnalysisProperties properties,
-    ServerIssuesLoader issuesLoader, ServerLineHashesLoader lineHashesLoader, UserRepositoryLoader userRepository, ProjectCacheStatus cacheStatus) {
-    this.project = project.getRoot();
-    this.projectRepositoryLoader = projectRepositoryLoader;
-    this.properties = properties;
+  public ProjectCacheSynchronizer(QualityProfileLoader qualityProfileLoader, ProjectSettingsLoader projectSettingsLoader,
+    ActiveRulesLoader activeRulesLoader, ServerIssuesLoader issuesLoader,
+    UserRepositoryLoader userRepository, ProjectCacheStatus cacheStatus) {
+    this.qualityProfileLoader = qualityProfileLoader;
+    this.projectSettingsLoader = projectSettingsLoader;
+    this.activeRulesLoader = activeRulesLoader;
     this.issuesLoader = issuesLoader;
-    this.lineHashesLoader = lineHashesLoader;
     this.userRepository = userRepository;
     this.cacheStatus = cacheStatus;
   }
 
-  public void load(boolean force) {
-    Date lastSync = cacheStatus.getSyncStatus(project.getKeyWithBranch());
+  public void load(String projectKey, boolean force) {
+    Date lastSync = cacheStatus.getSyncStatus(projectKey);
 
     if (lastSync != null) {
       if (!force) {
-        LOG.info("Found project [{}] cache [{}]", project.getKeyWithBranch(), lastSync);
+        LOG.info("Found project [{}] cache [{}]", projectKey, lastSync);
         return;
       } else {
-        LOG.info("-- Found project [{}] cache [{}], synchronizing data..", project.getKeyWithBranch(), lastSync);
+        LOG.info("-- Found project [{}] cache [{}], synchronizing data..", projectKey, lastSync);
       }
-      cacheStatus.delete(project.getKeyWithBranch());
+      cacheStatus.delete(projectKey);
     } else {
-      LOG.info("-- Cache for project [{}] not found, synchronizing data..", project.getKeyWithBranch());
+      LOG.info("-- Cache for project [{}] not found, synchronizing data..", projectKey);
     }
 
-    loadData();
-    saveStatus();
+    loadData(projectKey);
+    saveStatus(projectKey);
   }
 
-  private void saveStatus() {
-    cacheStatus.save(project.getKeyWithBranch());
+  private void saveStatus(String projectKey) {
+    cacheStatus.save(projectKey);
     LOG.info("-- Succesfully synchronized project cache");
   }
 
-  private static String getComponentKey(String moduleKey, String filePath) {
-    return moduleKey + ":" + filePath;
-  }
-
-  private void loadData() {
+  private void loadData(String projectKey) {
     Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
 
-    profiler.startInfo("Load project repository");
-    ProjectRepositories projectRepo = projectRepositoryLoader.load(project, properties, null);
+    profiler.startInfo("Load project settings");
+    ProjectSettingsRepo settings = projectSettingsLoader.load(projectKey, null);
     profiler.stopInfo();
 
-    if (projectRepo.lastAnalysisDate() == null) {
+    if (settings.lastAnalysisDate() == null) {
       LOG.debug("No previous analysis found");
       return;
     }
 
+    profiler.startInfo("Load project quality profiles");
+    Collection<QProfile> qProfiles = qualityProfileLoader.load(projectKey, null);
+    profiler.stopInfo();
+
+    Collection<String> profileKeys = getKeys(qProfiles);
+    
+    profiler.startInfo("Load project active rules");
+    activeRulesLoader.load(profileKeys, projectKey);
+    profiler.stopInfo();
+
     profiler.startInfo("Load server issues");
     UserLoginAccumulator consumer = new UserLoginAccumulator();
-    issuesLoader.load(project.getKeyWithBranch(), consumer);
+    issuesLoader.load(projectKey, consumer);
     profiler.stopInfo();
 
     profiler.startInfo("Load user information (" + consumer.loginSet.size() + " users)");
@@ -120,56 +118,15 @@ public class ProjectCacheSynchronizer {
       userRepository.load(login, null);
     }
     profiler.stopInfo("Load user information");
-
-    loadLineHashes(projectRepo.fileDataByModuleAndPath(), profiler);
   }
 
-  private void loadLineHashes(Map<String, Map<String, FileData>> fileDataByModuleAndPath, Profiler profiler) {
-    ExecutorService executor = Executors.newFixedThreadPool(NUM_THREAD);
-    int numFiles = 0;
-
-    for (Map<String, FileData> fileDataByPath : fileDataByModuleAndPath.values()) {
-      numFiles += fileDataByPath.size();
-    }
-    profiler.startInfo("Load line file hashes (" + numFiles + " files)");
-
-    for (Entry<String, Map<String, FileData>> e1 : fileDataByModuleAndPath.entrySet()) {
-      String moduleKey = e1.getKey();
-
-      for (Entry<String, FileData> e2 : e1.getValue().entrySet()) {
-        String filePath = e2.getKey();
-        executor.submit(new LineHashLoadWorker(getComponentKey(moduleKey, filePath)));
-      }
+  private static Collection<String> getKeys(Collection<QProfile> qProfiles) {
+    List<String> list = new ArrayList<>(qProfiles.size());
+    for (QProfile qp : qProfiles) {
+      list.add(qp.key());
     }
 
-    executor.shutdown();
-
-    try {
-      boolean done = executor.awaitTermination(30, TimeUnit.MINUTES);
-      if (!done) {
-        executor.shutdownNow();
-        throw new IllegalStateException("Timeout while fetching line hashes");
-      }
-    } catch (InterruptedException e) {
-      executor.shutdownNow();
-      throw new IllegalStateException("Interrupted while fetching line hashes", e);
-    }
-
-    profiler.stopInfo("Load line file hashes (done)");
-  }
-
-  private class LineHashLoadWorker implements Callable<Void> {
-    private String fileKey;
-
-    LineHashLoadWorker(String fileKey) {
-      this.fileKey = fileKey;
-    }
-
-    @Override
-    public Void call() throws Exception {
-      lineHashesLoader.getLineHashes(fileKey, null);
-      return null;
-    }
+    return list;
   }
 
   private static class UserLoginAccumulator implements Function<ServerIssue, Void> {

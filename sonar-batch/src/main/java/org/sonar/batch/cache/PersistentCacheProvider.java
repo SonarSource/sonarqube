@@ -49,14 +49,14 @@ public class PersistentCacheProvider extends ProviderAdapter {
         builder.setSonarHome(Paths.get(home));
       }
 
-      builder.setVersion(getVersion());
+      builder.setVersion(getServerVersion());
       cache = builder.build();
     }
 
     return cache;
   }
 
-  private String getVersion() {
+  private String getServerVersion() {
     InputStream is = this.getClass().getClassLoader().getResourceAsStream("sq-version.txt");
     if (is == null) {
       LOG.warn("Failed to get SQ version");

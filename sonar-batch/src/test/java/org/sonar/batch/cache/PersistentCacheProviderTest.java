@@ -19,10 +19,12 @@
  */
 package org.sonar.batch.cache;
 
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.cache.PersistentCacheProvider;
 
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.Collections;
 
 import org.junit.Before;
@@ -30,6 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 public class PersistentCacheProviderTest {
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+  
   private PersistentCacheProvider provider = null;
   private GlobalProperties props = null;
 
@@ -51,7 +56,8 @@ public class PersistentCacheProviderTest {
 
   @Test
   public void test_home() {
-    props.properties().put("sonar.userHome", "myhome");
-    assertThat(provider.provide(props).getBaseDirectory()).isEqualTo(Paths.get("myhome/ws_cache"));
+    File f = temp.getRoot();
+    props.properties().put("sonar.userHome", f.getAbsolutePath());
+    assertThat(provider.provide(props).getBaseDirectory()).isEqualTo(f.toPath().resolve("ws_cache"));
   }
 }

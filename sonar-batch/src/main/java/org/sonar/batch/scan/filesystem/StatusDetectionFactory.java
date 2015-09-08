@@ -19,15 +19,16 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.batch.repository.ProjectSettingsRepo;
+
 import org.sonar.api.batch.BatchSide;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 
 @BatchSide
 public class StatusDetectionFactory {
 
-  private final ProjectRepositories projectReferentials;
+  private final ProjectSettingsRepo projectReferentials;
 
-  public StatusDetectionFactory(ProjectRepositories projectReferentials) {
+  public StatusDetectionFactory(ProjectSettingsRepo projectReferentials) {
     this.projectReferentials = projectReferentials;
   }
 

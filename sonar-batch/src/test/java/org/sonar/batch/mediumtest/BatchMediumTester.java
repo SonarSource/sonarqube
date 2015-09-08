@@ -19,27 +19,26 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.batch.analysis.AnalysisProperties;
-
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 
 import javax.annotation.Nullable;
 
 import org.sonar.batch.cache.ProjectCacheStatus;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.batch.rule.RulesLoader;
 import com.google.common.base.Function;
-import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -75,12 +74,41 @@ public class BatchMediumTester {
 
   public static final String MEDIUM_TEST_ENABLED = "sonar.mediumTest.enabled";
   private Batch batch;
+  private static Path workingDir = null;
+  private static Path globalWorkingDir = null;
+  
+  private static void createWorkingDirs() throws IOException {
+    destroyWorkingDirs();
+    
+    workingDir = java.nio.file.Files.createTempDirectory("mediumtest-working-dir");
+    globalWorkingDir = java.nio.file.Files.createTempDirectory("mediumtest-global-working-dir");
+  }
+  
+  private static void destroyWorkingDirs() throws IOException {
+    if(workingDir != null) {
+      FileUtils.deleteDirectory(workingDir.toFile());
+      workingDir = null;
+    }
+    
+    if(globalWorkingDir != null) {
+      FileUtils.deleteDirectory(globalWorkingDir.toFile());
+      globalWorkingDir = null;
+    }
+    
+  }
 
   public static BatchMediumTesterBuilder builder() {
+    try {
+      createWorkingDirs();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    
     BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
     builder.bootstrapProperties.put(MEDIUM_TEST_ENABLED, "true");
     builder.bootstrapProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
-    builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, Files.createTempDir().getAbsolutePath());
+    builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, workingDir.toString());
+    builder.bootstrapProperties.put(CoreProperties.GLOBAL_WORKING_DIRECTORY, globalWorkingDir.toString());
     return builder;
   }
 
@@ -93,10 +121,16 @@ public class BatchMediumTester {
     private final Map<String, String> bootstrapProperties = new HashMap<>();
     private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
     private final FakeProjectCacheStatus projectCacheStatus = new FakeProjectCacheStatus();
+    private boolean associated = true;
     private LogOutput logOutput = null;
 
     public BatchMediumTester build() {
       return new BatchMediumTester(this);
+    }
+
+    public BatchMediumTesterBuilder setAssociated(boolean associated) {
+      this.associated = associated;
+      return this;
     }
 
     public BatchMediumTesterBuilder setLogOutput(LogOutput logOutput) {
@@ -210,6 +244,11 @@ public class BatchMediumTester {
 
   public void stop() {
     batch.stop();
+    try {
+      destroyWorkingDirs();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public void syncProject(String projectKey) {
@@ -217,21 +256,24 @@ public class BatchMediumTester {
   }
 
   private BatchMediumTester(BatchMediumTesterBuilder builder) {
-    batch = Batch.builder()
+    Batch.Builder batchBuilder = Batch.builder()
       .setEnableLoggingConfiguration(true)
       .addComponents(
         new EnvironmentInformation("mediumTest", "1.0"),
         builder.pluginInstaller,
         builder.globalRefProvider,
-        builder.projectRefProvider,
-        builder.serverIssues,
-        builder.serverLineHashes,
         builder.rulesLoader,
         builder.projectCacheStatus,
+        builder.projectRefProvider,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
-      .setLogOutput(builder.logOutput)
-      .build();
+      .setLogOutput(builder.logOutput);
+
+    if (builder.associated) {
+      batchBuilder.addComponents(
+        builder.serverIssues);
+    }
+    batch = batchBuilder.build();
   }
 
   public TaskBuilder newTask() {
@@ -343,7 +385,7 @@ public class BatchMediumTester {
     private ProjectRepositories ref = new ProjectRepositories();
 
     @Override
-    public ProjectRepositories load(ProjectDefinition projDefinition, AnalysisProperties taskProperties, @Nullable MutableBoolean fromCache) {
+    public ProjectRepositories load(String projectKey, @Nullable String sonarProfile, @Nullable MutableBoolean fromCache) {
       return ref;
     }
 
@@ -385,7 +427,6 @@ public class BatchMediumTester {
       }
       return true;
     }
-
   }
 
   private static class FakeProjectCacheStatus implements ProjectCacheStatus {

@@ -55,7 +55,6 @@ public class ProjectLock implements Startable {
       if (lockFile == null) {
         failAlreadyInProgress(null);
       }
-      
     } catch (OverlappingFileLockException e) {
       failAlreadyInProgress(e);
     } catch (IOException e) {

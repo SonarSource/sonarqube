@@ -45,6 +45,10 @@ public class ProjectRepositories {
   public Map<String, String> settings(String moduleKey) {
     return settingsByModule.containsKey(moduleKey) ? settingsByModule.get(moduleKey) : Collections.<String, String>emptyMap();
   }
+  
+  public Map<String, Map<String, String>> settings() {
+    return settingsByModule;
+  }
 
   public ProjectRepositories addSettings(String moduleKey, Map<String, String> settings) {
     Map<String, String> existingSettings = settingsByModule.get(moduleKey);

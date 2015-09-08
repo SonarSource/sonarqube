@@ -69,26 +69,43 @@ public class IssuesModeTest {
   }
 
   @Test
-  public void issuesAnalysisOnNewProject() throws IOException {
+  public void issues_analysis_on_new_project() throws IOException {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     SonarRunner runner = configureRunnerIssues("shared/xoo-sample");
-    orchestrator.executeBuild(runner);
+    BuildResult result = orchestrator.executeBuild(runner);
+    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
   }
-  
+
   @Test
-  public void invalidIncrementalMode() throws IOException {
+  public void invalid_incremental_mode() throws IOException {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     SonarRunner runner = configureRunner("shared/xoo-sample");
     runner.setProperty("sonar.analysis.mode", "incremental");
-    
+
     thrown.expect(BuildFailureException.class);
     BuildResult res = orchestrator.executeBuild(runner);
-    
+
     assertThat(res.getLogs()).contains("Invalid analysis mode: incremental. This mode was removed in SonarQube 5.2");
+  }
+
+  @Test
+  public void non_associated_mode() throws IOException {
+    restoreProfile("one-issue-per-line.xml");
+    setDefaultQualityProfile("xoo", "one-issue-per-line");
+    SonarRunner runner = configureRunnerIssues("shared/xoo-sample-non-associated");
+    BuildResult result = orchestrator.executeBuild(runner);
+    
+    assertThat(result.getLogs()).contains("is not associated");
+    assertThat(result.getLogs()).contains("Cache not found, synchronizing data");
+    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
+    
+    result = orchestrator.executeBuild(runner);
+    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
+    assertThat(result.getLogs()).contains("Found cache");
   }
 
   // SONAR-5715
@@ -329,16 +346,16 @@ public class IssuesModeTest {
     boolean expectedError = false;
     for (Future<BuildResult> result : executorService.invokeAll(tasks)) {
       try {
-      result.get();
-      } catch(ExecutionException e) {
-        if(e.getCause() instanceof BuildFailureException) {
+        result.get();
+      } catch (ExecutionException e) {
+        if (e.getCause() instanceof BuildFailureException) {
           BuildFailureException bfe = (BuildFailureException) e.getCause();
           assertThat(bfe.getResult().getLogs()).contains("Another SonarQube analysis is already in progress for this project");
           expectedError = true;
         }
       }
     }
-    if(!expectedError) {
+    if (!expectedError) {
       fail("At least one of the threads should have failed");
     }
   }
@@ -368,6 +385,12 @@ public class IssuesModeTest {
       "sonar.userHome", temp.newFolder().getAbsolutePath());
     runner.setProperties(props);
     return runner;
+  }
+
+  private void setDefaultQualityProfile(String languageKey, String profileName) {
+    orchestrator.getServer().adminWsClient().post("api/qualityprofiles/set_default",
+      "language", languageKey,
+      "profileName", profileName);
   }
 
 }

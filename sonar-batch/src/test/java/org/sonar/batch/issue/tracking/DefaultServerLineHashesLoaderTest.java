@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.cache.WSLoaderResult;
-
 import org.sonar.batch.cache.WSLoader;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
@@ -31,6 +31,8 @@ import org.sonar.api.utils.HttpDownloader;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static org.mockito.Matchers.any;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -50,19 +52,19 @@ public class DefaultServerLineHashesLoaderTest {
   @Test
   public void should_download_source_from_ws_if_preview_mode() {
     WSLoader wsLoader = mock(WSLoader.class);
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>("ae12\n\n43fb", true));
+    when(wsLoader.loadString(anyString(), any(LoadStrategy.class))).thenReturn(new WSLoaderResult<>("ae12\n\n43fb", true));
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(wsLoader);
 
     String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Bar.c", null);
     assertThat(hashes).containsOnly("ae12", "", "43fb");
-    verify(wsLoader).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FBar.c");
+    verify(wsLoader).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FBar.c", LoadStrategy.CACHE_FIRST);
   }
 
   @Test
   public void should_download_source_with_space_from_ws_if_preview_mode() {
     WSLoader server = mock(WSLoader.class);
-    when(server.loadString(anyString())).thenReturn(new WSLoaderResult<>("ae12\n\n43fb", true));
+    when(server.loadString(anyString(), any(LoadStrategy.class))).thenReturn(new WSLoaderResult<>("ae12\n\n43fb", true));
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 
@@ -70,13 +72,13 @@ public class DefaultServerLineHashesLoaderTest {
     String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Foo Bar.c", fromCache);
     assertThat(fromCache.booleanValue()).isTrue();
     assertThat(hashes).containsOnly("ae12", "", "43fb");
-    verify(server).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FFoo+Bar.c");
+    verify(server).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FFoo+Bar.c", LoadStrategy.CACHE_FIRST);
   }
 
   @Test
   public void should_fail_to_download_source_from_ws() throws URISyntaxException {
     WSLoader server = mock(WSLoader.class);
-    when(server.loadString(anyString())).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
+    when(server.loadString(anyString(), any(LoadStrategy.class))).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 

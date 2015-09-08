@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 import org.apache.commons.lang.mutable.MutableBoolean;
 
@@ -50,7 +51,7 @@ public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
     Profiler profiler = Profiler.createIfDebug(Loggers.get(getClass()))
       .addContext("file", fileKey)
       .startDebug("Load line hashes");
-    WSLoaderResult<String> result = wsLoader.loadString("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey));
+    WSLoaderResult<String> result = wsLoader.loadString("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey), LoadStrategy.CACHE_FIRST);
     try {
       if (fromCache != null) {
         fromCache.setValue(result.isFromCache());

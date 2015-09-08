@@ -56,7 +56,7 @@ public class FileHashes {
     }
   }
 
-  private byte[] digest(InputStream input, MessageDigest digest) throws IOException {
+  private static byte[] digest(InputStream input, MessageDigest digest) throws IOException {
     final byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
     int read = input.read(buffer, 0, STREAM_BUFFER_LENGTH);
     while (read > -1) {

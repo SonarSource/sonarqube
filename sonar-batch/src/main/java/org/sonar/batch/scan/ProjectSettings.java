@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.repository.ProjectSettingsRepo;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
@@ -32,7 +33,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.DroppedPropertyChecker;
 import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectSettings extends Settings {
 
@@ -45,11 +45,11 @@ public class ProjectSettings extends Settings {
     );
 
   private final GlobalSettings globalSettings;
-  private final ProjectRepositories projectRepositories;
+  private final ProjectSettingsRepo projectRepositories;
   private final DefaultAnalysisMode mode;
 
   public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
-    ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
+    ProjectSettingsRepo projectRepositories, DefaultAnalysisMode mode) {
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));

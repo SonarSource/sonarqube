@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.cache;
 
+import javax.annotation.Nullable;
+
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.home.cache.PersistentCache;
 
@@ -40,7 +42,7 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
   }
 
   @Override
-  public void save(String projectKey) {
+  public void save(@Nullable String projectKey) {
     Date now = new Date();
 
     try {
@@ -55,7 +57,7 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
   }
 
   @Override
-  public void delete(String projectKey) {
+  public void delete(@Nullable String projectKey) {
     try {
       cache.put(getKey(projectKey), new byte[0]);
     } catch (IOException e) {
@@ -64,7 +66,7 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
   }
 
   @Override
-  public Date getSyncStatus(String projectKey) {
+  public Date getSyncStatus(@Nullable String projectKey) {
     try {
       byte[] status = cache.get(getKey(projectKey), null);
       if (status == null || status.length == 0) {
@@ -79,7 +81,11 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
     }
   }
 
-  private String getKey(String projectKey) {
-    return STATUS_PREFIX + client.getURL() + "-" + projectKey;
+  private String getKey(@Nullable String projectKey) {
+    if (projectKey != null) {
+      return STATUS_PREFIX + client.getURL() + "-" + client.getServerVersion() + "-" + projectKey;
+    } else {
+      return STATUS_PREFIX + client.getURL() + "-" + client.getServerVersion();
+    }
   }
 }

@@ -23,12 +23,10 @@ import org.sonar.batch.cache.WSLoaderResult;
 
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.analysis.AnalysisProperties;
 
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
@@ -50,13 +48,12 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   }
 
   @Override
-  public ProjectRepositories load(ProjectDefinition projectDefinition, AnalysisProperties taskProperties, @Nullable MutableBoolean fromCache) {
-    String projectKey = projectDefinition.getKeyWithBranch();
-    String url = BATCH_PROJECT_URL + "?key=" + BatchUtils.encodeForUrl(projectKey);
-    if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
+  public ProjectRepositories load(String projectKeyWithBranch, @Nullable String sonarProfile, @Nullable MutableBoolean fromCache) {
+    String url = BATCH_PROJECT_URL + "?key=" + BatchUtils.encodeForUrl(projectKeyWithBranch);
+    if (sonarProfile != null) {
       LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
-      url += "&profile=" + BatchUtils.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
+      url += "&profile=" + BatchUtils.encodeForUrl(sonarProfile);
     }
     url += "&preview=" + analysisMode.isIssues();
 

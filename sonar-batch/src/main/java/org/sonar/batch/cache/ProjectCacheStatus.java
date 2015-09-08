@@ -19,12 +19,14 @@
  */
 package org.sonar.batch.cache;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public interface ProjectCacheStatus {
-  void save(String projectKey);
+  void save(@Nullable String projectKey);
 
-  void delete(String projectKey);
+  void delete(@Nullable String projectKey);
 
-  Date getSyncStatus(String projectKey);
+  Date getSyncStatus(@Nullable String projectKey);
 }

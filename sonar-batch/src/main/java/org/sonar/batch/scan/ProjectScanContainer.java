@@ -19,6 +19,16 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
+
+import org.sonar.batch.repository.QualityProfileProvider;
+import org.sonar.batch.repository.DefaultQualityProfileLoader;
+import org.sonar.batch.repository.QualityProfileLoader;
+import org.sonar.batch.repository.ProjectSettingsLoader;
+import org.sonar.batch.repository.DefaultProjectSettingsLoader;
+import org.sonar.batch.repository.ProjectSettingsProvider;
+import org.sonar.batch.rule.DefaultActiveRulesLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.analysis.AnalysisWSLoaderProvider;
 import org.sonar.batch.analysis.AnalysisTempFolderProvider;
@@ -69,7 +79,6 @@ import org.sonar.batch.report.MetadataPublisher;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.report.SourcePublisher;
 import org.sonar.batch.report.TestExecutionAndCoveragePublisher;
-import org.sonar.batch.repository.ProjectRepositoriesProvider;
 import org.sonar.batch.repository.language.DefaultLanguagesRepository;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -116,6 +125,7 @@ public class ProjectScanContainer extends ComponentContainer {
       props,
       DefaultAnalysisMode.class,
       ProjectReactorBuilder.class,
+      DefaultProjectRepositoriesFactory.class,
       new MutableProjectReactorProvider(),
       new ImmutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
@@ -126,7 +136,6 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultProjectTree.class,
       ProjectExclusions.class,
       ProjectReactorValidator.class,
-      new ProjectRepositoriesProvider(),
       new AnalysisWSLoaderProvider(),
       CodeColorizers.class,
       MetricProvider.class,
@@ -136,6 +145,7 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
       BatchComponentCache.class,
       DefaultIssueCallback.class,
+      new ProjectSettingsProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -146,6 +156,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // rules
       new ActiveRulesProvider(),
+      new QualityProfileProvider(),
 
       // issues
       IssueUpdater.class,
@@ -153,8 +164,8 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueWorkflow.class,
       IssueCache.class,
       DefaultProjectIssues.class,
-      LocalIssueTracking.class,
       ServerIssueRepository.class,
+      LocalIssueTracking.class,
 
       // metrics
       DefaultMetricFinder.class,
@@ -190,9 +201,16 @@ public class ProjectScanContainer extends ComponentContainer {
       ScanTaskObservers.class,
       UserRepositoryLoader.class);
 
-    addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
     addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
     addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
+    addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
+    addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
+    addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
+    addIfMissing(DefaultProjectSettingsLoader.class, ProjectSettingsLoader.class);
+  }
+
+  private boolean isProjectAssociated() {
+    return !getComponentByType(DefaultAnalysisMode.class).isNotAssociated();
   }
 
   private void addBatchExtensions() {

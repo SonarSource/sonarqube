@@ -117,7 +117,7 @@ public class FileCache {
     return new File(dir, hash);
   }
 
-  private void mkdirQuietly(File hashDir) {
+  private static void mkdirQuietly(File hashDir) {
     try {
       Files.createDirectories(hashDir.toPath());
     } catch (IOException e) {

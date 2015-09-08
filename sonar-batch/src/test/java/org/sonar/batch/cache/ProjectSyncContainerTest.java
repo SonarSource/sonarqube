@@ -19,16 +19,13 @@
  */
 package org.sonar.batch.cache;
 
+import org.sonar.batch.protocol.input.ProjectRepositories;
+
 import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.home.cache.PersistentCache;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.analysis.AnalysisProperties;
 
 import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.mockito.Mockito.mock;
 import org.sonar.core.platform.ComponentContainer;
@@ -47,24 +44,11 @@ public class ProjectSyncContainerTest {
     return parent;
   }
 
-  public AnalysisProperties createProjectProperties() {
-    Map<String, String> properties = new HashMap<>();
-    properties.put("sonar.branch", "branch");
-    properties.put("sonar.projectKey", "my:project");
-    properties.put("sonar.projectName", "My project");
-    properties.put("sonar.projectVersion", "1.0");
-    properties.put("sonar.sources", ".");
-    properties.put("sonar.projectBaseDir", ".");
-    return new AnalysisProperties(properties);
-  }
-
   @Test
-  public void testProjectKeyWithBranch() {
-    ProjectSyncContainer container = new ProjectSyncContainer(createParentContainer(), createProjectProperties(), true);
+  public void testProjectRepository() {
+    ProjectSyncContainer container = new ProjectSyncContainer(createParentContainer(), "my:project", true);
     container.doBeforeStart();
     container.getPicoContainer().start();
-    
-    ProjectReactor projectReactor = container.getComponentByType(ProjectReactor.class);
-    assertThat(projectReactor.getRoot().getKeyWithBranch()).isEqualTo("my:project:branch");
+    container.getComponentByType(ProjectRepositories.class);
   }
 }

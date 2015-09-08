@@ -51,13 +51,13 @@ public class WSLoader {
     SERVER_FIRST, CACHE_FIRST, SERVER_ONLY, CACHE_ONLY;
   }
 
-  private final LoadStrategy loadStrategy;
+  private final LoadStrategy defautLoadStrategy;
   private ServerStatus serverStatus;
   private final ServerClient client;
   private final PersistentCache cache;
 
   public WSLoader(LoadStrategy strategy, PersistentCache cache, ServerClient client) {
-    this.loadStrategy = strategy;
+    this.defautLoadStrategy = strategy;
     this.serverStatus = UNKNOWN;
     this.cache = cache;
     this.client = client;
@@ -65,19 +65,28 @@ public class WSLoader {
 
   @Nonnull
   public WSLoaderResult<ByteSource> loadSource(String id) {
-    WSLoaderResult<byte[]> byteResult = load(id);
+    WSLoaderResult<byte[]> byteResult = load(id, defautLoadStrategy);
     return new WSLoaderResult<ByteSource>(ByteSource.wrap(byteResult.get()), byteResult.isFromCache());
   }
 
   @Nonnull
   public WSLoaderResult<String> loadString(String id) {
-    WSLoaderResult<byte[]> byteResult = load(id);
+    return loadString(id, defautLoadStrategy);
+  }
+  @Nonnull
+  public WSLoaderResult<String> loadString(String id, WSLoader.LoadStrategy strategy) {
+    WSLoaderResult<byte[]> byteResult = load(id, strategy);
     return new WSLoaderResult<String>(new String(byteResult.get(), StandardCharsets.UTF_8), byteResult.isFromCache());
   }
 
   @Nonnull
   public WSLoaderResult<byte[]> load(String id) {
-    switch (loadStrategy) {
+    return load(id, defautLoadStrategy);
+  }
+  
+  @Nonnull
+  public WSLoaderResult<byte[]> load(String id, WSLoader.LoadStrategy strategy) {
+    switch (strategy) {
       case CACHE_FIRST:
         return loadFromCacheFirst(id, true);
       case CACHE_ONLY:
@@ -91,7 +100,7 @@ public class WSLoader {
   }
 
   public LoadStrategy getStrategy() {
-    return this.loadStrategy;
+    return this.defautLoadStrategy;
   }
 
   private void switchToOffline() {

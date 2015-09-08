@@ -19,7 +19,9 @@
  */
 package org.sonar.home.cache;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -28,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -77,7 +80,7 @@ public class PersistentCache {
   @CheckForNull
   public synchronized String getString(@Nonnull String obj, @Nullable final PersistentCacheLoader<String> valueLoader) throws IOException {
     ValueLoaderDecoder decoder = valueLoader != null ? new ValueLoaderDecoder(valueLoader) : null;
-    
+
     byte[] cached = get(obj, decoder);
 
     if (cached == null) {
@@ -85,6 +88,20 @@ public class PersistentCache {
     }
 
     return new String(cached, ENCODING);
+  }
+
+  @CheckForNull
+  public synchronized InputStream getStream(@Nonnull String obj) throws IOException {
+    String key = getKey(obj);
+
+    try {
+      lock();
+      Path path = getCacheCopy(key);
+      return new DeleteOnCloseInputStream(new FileInputStream(path.toFile()), path);
+
+    } finally {
+      unlock();
+    }
   }
 
   @CheckForNull
@@ -115,6 +132,16 @@ public class PersistentCache {
     }
 
     return null;
+  }
+  
+  public synchronized void put(@Nonnull String obj, @Nonnull InputStream stream) throws IOException {
+    String key = getKey(obj);
+    try {
+      lock();
+      putCache(key, stream);
+    } finally {
+      unlock();
+    }
   }
 
   public synchronized void put(@Nonnull String obj, @Nonnull byte[] value) throws IOException {
@@ -266,6 +293,11 @@ public class PersistentCache {
     Path cachePath = getCacheEntryPath(key);
     Files.write(cachePath, value, CREATE, WRITE, TRUNCATE_EXISTING);
   }
+  
+  private void putCache(String key, InputStream stream) throws IOException {
+    Path cachePath = getCacheEntryPath(key);
+    Files.copy(stream,  cachePath, StandardCopyOption.REPLACE_EXISTING);
+  }
 
   private byte[] getCache(String key) throws IOException {
     Path cachePath = getCacheEntryPath(key);
@@ -275,6 +307,39 @@ public class PersistentCache {
     }
 
     return Files.readAllBytes(cachePath);
+  }
+
+  private Path getCacheCopy(String key) throws IOException {
+    Path cachePath = getCacheEntryPath(key);
+
+    if (!validateCacheEntry(cachePath, this.defaultDurationToExpireMs)) {
+      return null;
+    }
+
+    Path temp = Files.createTempFile("sonar_cache", null);
+    Files.copy(cachePath, temp, StandardCopyOption.REPLACE_EXISTING);
+    return temp;
+  }
+
+  private static class DeleteOnCloseInputStream extends InputStream {
+    private final InputStream stream;
+    private final Path p;
+
+    private DeleteOnCloseInputStream(InputStream stream, Path p) {
+      this.stream = stream;
+      this.p = p;
+    }
+
+    @Override
+    public int read() throws IOException {
+      return stream.read();
+    }
+
+    @Override
+    public void close() throws IOException {
+      stream.close();
+      Files.delete(p);
+    }
   }
 
   private boolean validateCacheEntry(Path cacheEntryPath, long durationToExpireMs) throws IOException {

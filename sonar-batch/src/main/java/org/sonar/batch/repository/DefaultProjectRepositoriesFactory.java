@@ -19,29 +19,42 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.analysis.AnalysisProperties;
-
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+
+import org.sonar.batch.rule.ModuleQProfiles;
+import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
-public class ProjectRepositoriesProvider extends ProviderAdapter {
-
+public class DefaultProjectRepositoriesFactory implements ProjectRepositoriesFactory {
   private static final String LOG_MSG = "Load project repositories";
-  private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
+  private static final Logger LOG = Loggers.get(DefaultProjectRepositoriesFactory.class);
+  private static final String NON_EXISTING = "non1-existing2-project3-key";
+
+  private final DefaultAnalysisMode analysisMode;
+  private final ProjectRepositoriesLoader loader;
+  private final AnalysisProperties props;
+  private final ProjectReactor projectReactor;
 
   private ProjectRepositories projectReferentials;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, AnalysisProperties taskProps, AnalysisMode analysisMode) {
+  public DefaultProjectRepositoriesFactory(ProjectReactor projectReactor, DefaultAnalysisMode analysisMode, ProjectRepositoriesLoader loader, AnalysisProperties props) {
+    this.projectReactor = projectReactor;
+    this.analysisMode = analysisMode;
+    this.loader = loader;
+    this.props = props;
+  }
+
+  @Override
+  public ProjectRepositories create() {
     if (projectReferentials == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       MutableBoolean fromCache = new MutableBoolean();
-      projectReferentials = loader.load(reactor.getRoot(), taskProps, fromCache);
+      projectReferentials = loader.load(getProjectKey(), getSonarProfile(), fromCache);
       profiler.stopInfo(fromCache.booleanValue());
 
       if (analysisMode.isIssues() && projectReferentials.lastAnalysisDate() == null) {
@@ -49,5 +62,20 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
       }
     }
     return projectReferentials;
+  }
+
+  private String getProjectKey() {
+    if (analysisMode.isNotAssociated()) {
+      return NON_EXISTING;
+    }
+    return projectReactor.getRoot().getKeyWithBranch();
+  }
+
+  private String getSonarProfile() {
+    String profile = null;
+    if (!analysisMode.isIssues()) {
+      profile = props.property(ModuleQProfiles.SONAR_PROFILE_PROP);
+    }
+    return profile;
   }
 }

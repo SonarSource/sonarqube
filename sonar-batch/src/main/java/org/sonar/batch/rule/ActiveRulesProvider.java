@@ -19,14 +19,17 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map.Entry;
 
 /**
@@ -37,16 +40,16 @@ public class ActiveRulesProvider extends ProviderAdapter {
 
   private ActiveRules singleton = null;
 
-  public ActiveRules provide(ProjectRepositories ref) {
+  public ActiveRules provide(ActiveRulesLoader ref, ModuleQProfiles qProfiles, ProjectReactor projectReactor) {
     if (singleton == null) {
-      singleton = load(ref);
+      singleton = load(ref, qProfiles, projectReactor);
     }
     return singleton;
   }
 
-  private static ActiveRules load(ProjectRepositories ref) {
+  private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles, ProjectReactor projectReactor) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    for (ActiveRule activeRule : ref.activeRules()) {
+    for (ActiveRule activeRule : loader.load(getKeys(qProfiles), projectReactor.getRoot().getKeyWithBranch())) {
       NewActiveRule newActiveRule = builder.create(RuleKey.of(activeRule.repositoryKey(), activeRule.ruleKey()));
       newActiveRule.setName(activeRule.name());
       newActiveRule.setSeverity(activeRule.severity());
@@ -62,5 +65,15 @@ public class ActiveRulesProvider extends ProviderAdapter {
       newActiveRule.activate();
     }
     return builder.build();
+  }
+
+  private static Collection<String> getKeys(ModuleQProfiles qProfiles) {
+    List<String> keys = new ArrayList<>(qProfiles.findAll().size());
+
+    for (QProfile qp : qProfiles.findAll()) {
+      keys.add(qp.getKey());
+    }
+
+    return keys;
   }
 }

@@ -19,9 +19,6 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import com.google.common.collect.ImmutableMap;
-
-import org.sonar.api.CoreProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -134,8 +131,7 @@ public final class Batch {
    */
   public Batch syncProject(String projectKey) {
     checkStarted();
-    Map<String, String> props = ImmutableMap.of(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
-    bootstrapContainer.syncProject(props, true);
+    bootstrapContainer.syncProject(projectKey, true);
     return this;
   }
 

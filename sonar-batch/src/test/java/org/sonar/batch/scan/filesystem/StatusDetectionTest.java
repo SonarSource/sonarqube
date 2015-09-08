@@ -19,23 +19,35 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.collect.ImmutableTable;
+
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+
+import org.sonar.batch.repository.ProjectSettingsRepo;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectRepositories;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatusDetectionTest {
   @Test
   public void detect_status() {
-    ProjectRepositories ref = new ProjectRepositories();
-    ref.addFileData("foo", "src/Foo.java", new FileData("ABCDE", true));
-    ref.addFileData("foo", "src/Bar.java", new FileData("FGHIJ", true));
+    Table<String, String, String> t = ImmutableTable.of();
+    ProjectSettingsRepo ref = new ProjectSettingsRepo(t, createTable(), null);
     StatusDetection statusDetection = new StatusDetection(ref);
 
     assertThat(statusDetection.status("foo", "src/Foo.java", "ABCDE")).isEqualTo(InputFile.Status.SAME);
     assertThat(statusDetection.status("foo", "src/Foo.java", "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
     assertThat(statusDetection.status("foo", "src/Other.java", "QWERT")).isEqualTo(InputFile.Status.ADDED);
+  }
+
+  private static Table<String, String, FileData> createTable() {
+    Table<String, String, FileData> t = HashBasedTable.create();
+
+    t.put("foo", "src/Foo.java", new FileData("ABCDE", true));
+    t.put("foo", "src/Bar.java", new FileData("FGHIJ", true));
+
+    return t;
   }
 }

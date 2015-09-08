@@ -19,9 +19,11 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import com.google.common.collect.HashBasedTable;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,10 +31,13 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.repository.ProjectSettingsRepo;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,13 +48,21 @@ public class ModuleSettingsTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  ProjectRepositories projectRef;
   private DefaultAnalysisMode mode;
 
   @Before
   public void before() {
-    projectRef = new ProjectRepositories();
     mode = mock(DefaultAnalysisMode.class);
+  }
+
+  private ProjectSettingsRepo createSettings(String module, Map<String, String> settingsMap) {
+    Table<String, String, FileData> fileData = ImmutableTable.of();
+    Table<String, String, String> settings = HashBasedTable.create();
+
+    for (Map.Entry<String, String> e : settingsMap.entrySet()) {
+      settings.put(module, e.getKey(), e.getValue());
+    }
+    return new ProjectSettingsRepo(settings, fileData, null);
   }
 
   @Test
@@ -74,11 +87,12 @@ public class ModuleSettingsTest {
       "overridding", "batch",
       "on-batch", "true"
       ));
-    projectRef.addSettings("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
+
+    ProjectSettingsRepo projSettingsRepo = createSettings("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode);
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -93,11 +107,12 @@ public class ModuleSettingsTest {
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "sonar.foo.secured", "bar"
       ));
-    projectRef.addSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
+
+    ProjectSettingsRepo projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -110,13 +125,14 @@ public class ModuleSettingsTest {
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "sonar.foo.secured", "bar"
       ));
-    projectRef.addSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
+
+    ProjectSettingsRepo projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     when(mode.isIssues()).thenReturn(true);
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 

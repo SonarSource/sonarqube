@@ -23,10 +23,8 @@ import org.sonar.batch.cache.WSLoaderResult;
 
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.analysis.AnalysisProperties;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.io.IOUtils;
-import com.google.common.collect.Maps;
 
 import java.io.IOException;
 import java.util.Date;
@@ -40,7 +38,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.QProfile;
-import org.sonar.batch.rule.ModuleQProfiles;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -56,7 +53,6 @@ public class DefaultProjectRepositoriesLoaderTest {
   private WSLoader wsLoader;
   private DefaultAnalysisMode analysisMode;
   private ProjectDefinition project;
-  private AnalysisProperties taskProperties;
 
   @Before
   public void prepare() {
@@ -65,7 +61,6 @@ public class DefaultProjectRepositoriesLoaderTest {
     loader = new DefaultProjectRepositoriesLoader(wsLoader, analysisMode);
     loader = spy(loader);
     when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>("{}", true));
-    taskProperties = new AnalysisProperties(Maps.<String, String>newHashMap(), "");
   }
 
   @Test
@@ -73,11 +68,11 @@ public class DefaultProjectRepositoriesLoaderTest {
     addQualityProfile();
     project = ProjectDefinition.create().setKey("foo");
     when(analysisMode.isIssues()).thenReturn(false);
-    loader.load(project, taskProperties, null);
+    loader.load(project.getKeyWithBranch(), null, null);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=false");
 
     when(analysisMode.isIssues()).thenReturn(true);
-    loader.load(project, taskProperties, null);
+    loader.load(project.getKeyWithBranch(), null, null);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=true");
   }
 
@@ -88,7 +83,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(response, true));
     project = ProjectDefinition.create().setKey("foo");
     MutableBoolean fromCache = new MutableBoolean();
-    ProjectRepositories projectRepo = loader.load(project, taskProperties, fromCache);
+    ProjectRepositories projectRepo = loader.load(project.getKeyWithBranch(), null, fromCache);
 
     assertThat(fromCache.booleanValue()).isTrue();
     assertThat(projectRepo.activeRules().size()).isEqualTo(221);
@@ -100,7 +95,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void passAndEncodeProjectKeyParameter() {
     addQualityProfile();
     project = ProjectDefinition.create().setKey("foo bàr");
-    loader.load(project, taskProperties, null);
+    loader.load(project.getKeyWithBranch(), null, null);
     verify(wsLoader).loadString("/batch/project?key=foo+b%C3%A0r&preview=false");
   }
 
@@ -108,8 +103,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void passAndEncodeProfileParameter() {
     addQualityProfile();
     project = ProjectDefinition.create().setKey("foo");
-    taskProperties.properties().put(ModuleQProfiles.SONAR_PROFILE_PROP, "my-profile#2");
-    loader.load(project, taskProperties, null);
+    loader.load(project.getKeyWithBranch(), "my-profile#2", null);
     verify(wsLoader).loadString("/batch/project?key=foo&profile=my-profile%232&preview=false");
   }
 
@@ -121,7 +115,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     project = ProjectDefinition.create().setKey("foo");
     when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(new ProjectRepositories().toJson(), true));
 
-    loader.load(project, taskProperties, null);
+    loader.load(project.getKeyWithBranch(), null, null);
   }
 
   private void addQualityProfile() {
