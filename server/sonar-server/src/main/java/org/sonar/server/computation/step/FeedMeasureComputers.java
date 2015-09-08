@@ -72,7 +72,7 @@ public class FeedMeasureComputers implements ComputationStep {
    * Constructor override used by Pico to instantiate the class when no plugin is defining measure computers
    */
   public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories) {
-    this(measureComputersHolder, metricsRepositories, new MeasureComputer[]{});
+    this(measureComputersHolder, metricsRepositories, new MeasureComputer[] {});
   }
 
   /**
@@ -175,14 +175,20 @@ public class FeedMeasureComputers implements ComputationStep {
     @Override
     public MeasureComputerWrapper apply(@Nonnull MeasureComputer measureComputer) {
       MeasureComputerDefinition def = measureComputer.define(context);
+      return new MeasureComputerWrapper(measureComputer, validateDef(def));
+    }
+
+    private static MeasureComputerDefinition validateDef(MeasureComputerDefinition def) {
+      if (def instanceof MeasureComputerDefinitionImpl) {
+        return def;
+      }
       // If the computer has not been created by the builder, we recreate it to make sure it's valid
       Set<String> inputMetrics = def.getInputMetrics();
       Set<String> outputMetrics = def.getOutputMetrics();
-      MeasureComputerDefinition validateDef = new MeasureComputerDefinitionImpl.BuilderImpl()
+      return new MeasureComputerDefinitionImpl.BuilderImpl()
         .setInputMetrics(from(inputMetrics).toArray(String.class))
         .setOutputMetrics(from(outputMetrics).toArray(String.class))
         .build();
-      return new MeasureComputerWrapper(measureComputer, validateDef);
     }
   }
 
