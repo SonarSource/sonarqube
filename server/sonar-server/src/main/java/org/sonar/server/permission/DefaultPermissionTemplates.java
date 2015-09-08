@@ -26,6 +26,10 @@ public class DefaultPermissionTemplates {
   public static final String DEFAULT_TEMPLATE_PROPERTY = "sonar.permission.template.default";
   private static final String DEFAULT_ROOT_QUALIFIER_TEMPLATE_PATTERN = "sonar.permission.template.%s.default";
 
+  private DefaultPermissionTemplates() {
+    // utility class
+  }
+
   public static String defaultRootQualifierTemplateProperty(String qualifier) {
     return format(DEFAULT_ROOT_QUALIFIER_TEMPLATE_PATTERN, qualifier);
   }

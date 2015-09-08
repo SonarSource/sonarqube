@@ -89,7 +89,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     return response.build();
   }
 
-  private void buildDefaultTemplatesResponse(WsSearchTemplatesResponse.Builder response, SearchTemplatesData data) {
+  private static void buildDefaultTemplatesResponse(WsSearchTemplatesResponse.Builder response, SearchTemplatesData data) {
     TemplateIdQualifier.Builder templateUuidQualifierBuilder = TemplateIdQualifier.newBuilder();
     for (DefaultPermissionTemplateFinder.TemplateUuidQualifier templateUuidQualifier : data.defaultTempltes()) {
       response.addDefaultTemplates(templateUuidQualifierBuilder
@@ -99,7 +99,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     }
   }
 
-  private void buildTemplatesResponse(WsSearchTemplatesResponse.Builder response, SearchTemplatesData data) {
+  private static void buildTemplatesResponse(WsSearchTemplatesResponse.Builder response, SearchTemplatesData data) {
     Permission.Builder permissionResponse = Permission.newBuilder();
     PermissionTemplate.Builder templateBuilder = PermissionTemplate.newBuilder();
 
