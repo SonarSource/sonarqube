@@ -99,4 +99,12 @@ public class DebtModelHolderImplTest {
 
     underTest.getRootCharacteristics();
   }
+
+  @Test
+  public void has_characteristic() throws Exception {
+    underTest.addCharacteristics(PORTABILITY, Arrays.asList(COMPILER_RELATED_PORTABILITY, READABILITY));
+
+    assertThat(underTest.hasCharacteristicById(PORTABILITY.getId())).isTrue();
+    assertThat(underTest.hasCharacteristicById(123)).isFalse();
+  }
 }

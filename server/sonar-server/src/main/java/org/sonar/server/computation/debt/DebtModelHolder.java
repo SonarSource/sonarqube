@@ -32,5 +32,17 @@ public interface DebtModelHolder {
    */
   Characteristic getCharacteristicById(int id);
 
+  /**
+   * Check if a characteristic exists by its id
+   *
+   * @throws IllegalStateException if the holder is not initialized yet
+   */
+  boolean hasCharacteristicById(int id);
+
+  /**
+   * Return list of root characteristics
+   *
+   * @throws IllegalStateException if the holder is not initialized yet
+   */
   List<Characteristic> getRootCharacteristics();
 }

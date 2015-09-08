@@ -59,6 +59,11 @@ public class DebtModelHolderImpl implements MutableDebtModelHolder {
   }
 
   @Override
+  public boolean hasCharacteristicById(int id) {
+    return characteristicById.get(id) != null;
+  }
+
+  @Override
   public List<Characteristic> getRootCharacteristics() {
     checkInitialized();
     return rootCharacteristics;
