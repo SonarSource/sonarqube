@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 import org.sonar.api.ce.measure.test.TestMeasureComputerDefinition.MeasureComputerDefinitionBuilderImpl;
+import org.sonar.api.measures.CoreMetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -116,6 +117,17 @@ public class TestMeasureComputerDefinitionTest {
     new MeasureComputerDefinitionBuilderImpl()
       .setInputMetrics("INPUT_1", "INPUT_2")
       .setOutputMetrics()
+      .build();
+  }
+
+  @Test
+  public void fail_with_IAE_when_building_definition_with_core_metrics_in_output_metrics() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Core metrics are not allowed");
+
+    new MeasureComputerDefinitionBuilderImpl()
+      .setInputMetrics("INPUT_1", "INPUT_2")
+      .setOutputMetrics(CoreMetrics.NCLOC_KEY)
       .build();
   }
 }

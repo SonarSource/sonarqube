@@ -20,10 +20,18 @@
 
 package org.sonar.api.ce.measure.test;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.measure.MeasureComputer;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -81,6 +89,7 @@ public class TestMeasureComputerDefinition implements MeasureComputer.MeasureCom
     private static String[] validateOutputMetricKeys(@Nullable String[] outputMetrics) {
       requireNonNull(outputMetrics, "Output metrics cannot be null");
       checkArgument(outputMetrics.length > 0, "At least one output metric must be defined");
+      FluentIterable.from(CoreMetrics.getMetrics()).transform(MetricToKey.INSTANCE).filter(new MatchMetricKey(outputMetrics)).size();
       checkNotNull(outputMetrics);
       return outputMetrics;
     }
@@ -89,6 +98,30 @@ public class TestMeasureComputerDefinition implements MeasureComputer.MeasureCom
   private static void checkNotNull(String[] metrics) {
     for (String metric : metrics) {
       requireNonNull(metric, "Null metric is not allowed");
+    }
+  }
+
+  private enum MetricToKey implements Function<Metric, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull Metric input) {
+      return input.getKey();
+    }
+  }
+
+  private static class MatchMetricKey implements Predicate<String> {
+
+    private final List<String> metrics;
+
+    public MatchMetricKey(String[] metrics) {
+      this.metrics = Arrays.asList(metrics);
+    }
+
+    @Override
+    public boolean apply(@Nonnull String metric) {
+      checkArgument(!metrics.contains(metric), "Core metrics are not allowed");
+      return true;
     }
   }
 }
