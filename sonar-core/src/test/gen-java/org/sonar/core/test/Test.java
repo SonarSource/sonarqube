@@ -41,7 +41,9 @@ public final class Test {
     public static final int GREEN_VALUE = 2;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static FakeEnum valueOf(int value) {
       switch (value) {
@@ -129,37 +131,28 @@ public final class Test {
   /**
    * Protobuf type {@code Fake}
    */
-  public static final class Fake extends
+  public  static final class Fake extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Fake)
       FakeOrBuilder {
     // Use Fake.newBuilder() to construct.
-    private Fake(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Fake(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Fake(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Fake defaultInstance;
-    public static Fake getDefaultInstance() {
-      return defaultInstance;
+    private Fake() {
+      label_ = "";
+      line_ = 0;
     }
 
-    public Fake getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Fake(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -192,10 +185,11 @@ public final class Test {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -213,24 +207,9 @@ public final class Test {
               org.sonar.core.test.Test.Fake.class, org.sonar.core.test.Test.Fake.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Fake> PARSER =
-        new com.google.protobuf.AbstractParser<Fake>() {
-      public Fake parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Fake(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Fake> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int LABEL_FIELD_NUMBER = 1;
-    private java.lang.Object label_;
+    private volatile java.lang.Object label_;
     /**
      * <code>optional string label = 1;</code>
      */
@@ -286,10 +265,6 @@ public final class Test {
       return line_;
     }
 
-    private void initFields() {
-      label_ = "";
-      line_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -302,14 +277,13 @@ public final class Test {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getLabelBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt32(2, line_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -326,18 +300,12 @@ public final class Test {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, line_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.core.test.Test.Fake parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -391,12 +359,17 @@ public final class Test {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.core.test.Test.Fake prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.core.test.Test.Fake prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -437,10 +410,6 @@ public final class Test {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         label_ = "";
@@ -448,10 +417,6 @@ public final class Test {
         line_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -507,7 +472,8 @@ public final class Test {
         if (other.hasLine()) {
           setLine(other.getLine());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -645,16 +611,48 @@ public final class Test {
       // @@protoc_insertion_point(builder_scope:Fake)
     }
 
+    // @@protoc_insertion_point(class_scope:Fake)
+    private static final org.sonar.core.test.Test.Fake DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Fake(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.Fake();
     }
 
-    // @@protoc_insertion_point(class_scope:Fake)
+    public static org.sonar.core.test.Test.Fake getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Fake> PARSER =
+        new com.google.protobuf.AbstractParser<Fake>() {
+      public Fake parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Fake(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Fake> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.Fake getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface JsonTestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:JsonTest)
+  public interface PrimitiveTypeMsgOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:PrimitiveTypeMsg)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -726,71 +724,48 @@ public final class Test {
     com.google.protobuf.ByteString getBytesField();
 
     /**
-     * <code>optional .NestedJsonTest nested = 8;</code>
+     * <code>optional .NestedMsg nested = 8;</code>
      */
     boolean hasNested();
     /**
-     * <code>optional .NestedJsonTest nested = 8;</code>
+     * <code>optional .NestedMsg nested = 8;</code>
      */
-    org.sonar.core.test.Test.NestedJsonTest getNested();
+    org.sonar.core.test.Test.NestedMsg getNested();
     /**
-     * <code>optional .NestedJsonTest nested = 8;</code>
+     * <code>optional .NestedMsg nested = 8;</code>
      */
-    org.sonar.core.test.Test.NestedJsonTestOrBuilder getNestedOrBuilder();
-
-    /**
-     * <code>repeated string anArray = 9;</code>
-     */
-    com.google.protobuf.ProtocolStringList
-        getAnArrayList();
-    /**
-     * <code>repeated string anArray = 9;</code>
-     */
-    int getAnArrayCount();
-    /**
-     * <code>repeated string anArray = 9;</code>
-     */
-    java.lang.String getAnArray(int index);
-    /**
-     * <code>repeated string anArray = 9;</code>
-     */
-    com.google.protobuf.ByteString
-        getAnArrayBytes(int index);
+    org.sonar.core.test.Test.NestedMsgOrBuilder getNestedOrBuilder();
   }
   /**
-   * Protobuf type {@code JsonTest}
+   * Protobuf type {@code PrimitiveTypeMsg}
    */
-  public static final class JsonTest extends
+  public  static final class PrimitiveTypeMsg extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:JsonTest)
-      JsonTestOrBuilder {
-    // Use JsonTest.newBuilder() to construct.
-    private JsonTest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:PrimitiveTypeMsg)
+      PrimitiveTypeMsgOrBuilder {
+    // Use PrimitiveTypeMsg.newBuilder() to construct.
+    private PrimitiveTypeMsg(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private JsonTest(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final JsonTest defaultInstance;
-    public static JsonTest getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public JsonTest getDefaultInstanceForType() {
-      return defaultInstance;
+    private PrimitiveTypeMsg() {
+      stringField_ = "";
+      intField_ = 0;
+      longField_ = 0L;
+      doubleField_ = 0D;
+      booleanField_ = false;
+      enumField_ = 0;
+      bytesField_ = com.google.protobuf.ByteString.EMPTY;
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
-    private JsonTest(
+    private PrimitiveTypeMsg(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -842,7 +817,7 @@ public final class Test {
                 unknownFields.mergeVarintField(6, rawValue);
               } else {
                 bitField0_ |= 0x00000020;
-                enumField_ = value;
+                enumField_ = rawValue;
               }
               break;
             }
@@ -852,11 +827,11 @@ public final class Test {
               break;
             }
             case 66: {
-              org.sonar.core.test.Test.NestedJsonTest.Builder subBuilder = null;
+              org.sonar.core.test.Test.NestedMsg.Builder subBuilder = null;
               if (((bitField0_ & 0x00000080) == 0x00000080)) {
                 subBuilder = nested_.toBuilder();
               }
-              nested_ = input.readMessage(org.sonar.core.test.Test.NestedJsonTest.PARSER, extensionRegistry);
+              nested_ = input.readMessage(org.sonar.core.test.Test.NestedMsg.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(nested_);
                 nested_ = subBuilder.buildPartial();
@@ -864,60 +839,34 @@ public final class Test {
               bitField0_ |= 0x00000080;
               break;
             }
-            case 74: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
-                anArray_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000100;
-              }
-              anArray_.add(bs);
-              break;
-            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
-          anArray_ = anArray_.getUnmodifiableView();
-        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.sonar.core.test.Test.internal_static_JsonTest_descriptor;
+      return org.sonar.core.test.Test.internal_static_PrimitiveTypeMsg_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.sonar.core.test.Test.internal_static_JsonTest_fieldAccessorTable
+      return org.sonar.core.test.Test.internal_static_PrimitiveTypeMsg_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.sonar.core.test.Test.JsonTest.class, org.sonar.core.test.Test.JsonTest.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<JsonTest> PARSER =
-        new com.google.protobuf.AbstractParser<JsonTest>() {
-      public JsonTest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new JsonTest(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<JsonTest> getParserForType() {
-      return PARSER;
+              org.sonar.core.test.Test.PrimitiveTypeMsg.class, org.sonar.core.test.Test.PrimitiveTypeMsg.Builder.class);
     }
 
     private int bitField0_;
     public static final int STRINGFIELD_FIELD_NUMBER = 1;
-    private java.lang.Object stringField_;
+    private volatile java.lang.Object stringField_;
     /**
      * <code>optional string stringField = 1;</code>
      */
@@ -1019,7 +968,7 @@ public final class Test {
     }
 
     public static final int ENUMFIELD_FIELD_NUMBER = 6;
-    private org.sonar.core.test.Test.FakeEnum enumField_;
+    private int enumField_;
     /**
      * <code>optional .FakeEnum enumField = 6;</code>
      */
@@ -1030,7 +979,8 @@ public final class Test {
      * <code>optional .FakeEnum enumField = 6;</code>
      */
     public org.sonar.core.test.Test.FakeEnum getEnumField() {
-      return enumField_;
+      org.sonar.core.test.Test.FakeEnum result = org.sonar.core.test.Test.FakeEnum.valueOf(enumField_);
+      return result == null ? org.sonar.core.test.Test.FakeEnum.BLUE : result;
     }
 
     public static final int BYTESFIELD_FIELD_NUMBER = 7;
@@ -1049,66 +999,26 @@ public final class Test {
     }
 
     public static final int NESTED_FIELD_NUMBER = 8;
-    private org.sonar.core.test.Test.NestedJsonTest nested_;
+    private org.sonar.core.test.Test.NestedMsg nested_;
     /**
-     * <code>optional .NestedJsonTest nested = 8;</code>
+     * <code>optional .NestedMsg nested = 8;</code>
      */
     public boolean hasNested() {
       return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
-     * <code>optional .NestedJsonTest nested = 8;</code>
+     * <code>optional .NestedMsg nested = 8;</code>
      */
-    public org.sonar.core.test.Test.NestedJsonTest getNested() {
-      return nested_;
+    public org.sonar.core.test.Test.NestedMsg getNested() {
+      return nested_ == null ? org.sonar.core.test.Test.NestedMsg.getDefaultInstance() : nested_;
     }
     /**
-     * <code>optional .NestedJsonTest nested = 8;</code>
+     * <code>optional .NestedMsg nested = 8;</code>
      */
-    public org.sonar.core.test.Test.NestedJsonTestOrBuilder getNestedOrBuilder() {
-      return nested_;
+    public org.sonar.core.test.Test.NestedMsgOrBuilder getNestedOrBuilder() {
+      return nested_ == null ? org.sonar.core.test.Test.NestedMsg.getDefaultInstance() : nested_;
     }
 
-    public static final int ANARRAY_FIELD_NUMBER = 9;
-    private com.google.protobuf.LazyStringList anArray_;
-    /**
-     * <code>repeated string anArray = 9;</code>
-     */
-    public com.google.protobuf.ProtocolStringList
-        getAnArrayList() {
-      return anArray_;
-    }
-    /**
-     * <code>repeated string anArray = 9;</code>
-     */
-    public int getAnArrayCount() {
-      return anArray_.size();
-    }
-    /**
-     * <code>repeated string anArray = 9;</code>
-     */
-    public java.lang.String getAnArray(int index) {
-      return anArray_.get(index);
-    }
-    /**
-     * <code>repeated string anArray = 9;</code>
-     */
-    public com.google.protobuf.ByteString
-        getAnArrayBytes(int index) {
-      return anArray_.getByteString(index);
-    }
-
-    private void initFields() {
-      stringField_ = "";
-      intField_ = 0;
-      longField_ = 0L;
-      doubleField_ = 0D;
-      booleanField_ = false;
-      enumField_ = org.sonar.core.test.Test.FakeEnum.BLUE;
-      bytesField_ = com.google.protobuf.ByteString.EMPTY;
-      nested_ = org.sonar.core.test.Test.NestedJsonTest.getDefaultInstance();
-      anArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1121,7 +1031,6 @@ public final class Test {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getStringFieldBytes());
       }
@@ -1138,18 +1047,15 @@ public final class Test {
         output.writeBool(5, booleanField_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeEnum(6, enumField_.getNumber());
+        output.writeEnum(6, enumField_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(7, bytesField_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeMessage(8, nested_);
+        output.writeMessage(8, getNested());
       }
-      for (int i = 0; i < anArray_.size(); i++) {
-        output.writeBytes(9, anArray_.getByteString(i));
-      }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -1180,7 +1086,7 @@ public final class Test {
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(6, enumField_.getNumber());
+          .computeEnumSize(6, enumField_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
@@ -1188,88 +1094,78 @@ public final class Test {
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(8, nested_);
+          .computeMessageSize(8, getNested());
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < anArray_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(anArray_.getByteString(i));
-        }
-        size += dataSize;
-        size += 1 * getAnArrayList().size();
-      }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
-    public static org.sonar.core.test.Test.JsonTest parseFrom(
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.JsonTest parseFrom(
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.JsonTest parseFrom(byte[] data)
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.JsonTest parseFrom(
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.JsonTest parseFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.JsonTest parseFrom(
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.JsonTest parseDelimitedFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static org.sonar.core.test.Test.JsonTest parseDelimitedFrom(
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.JsonTest parseFrom(
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.JsonTest parseFrom(
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.core.test.Test.JsonTest prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.core.test.Test.PrimitiveTypeMsg prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1278,25 +1174,25 @@ public final class Test {
       return builder;
     }
     /**
-     * Protobuf type {@code JsonTest}
+     * Protobuf type {@code PrimitiveTypeMsg}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:JsonTest)
-        org.sonar.core.test.Test.JsonTestOrBuilder {
+        // @@protoc_insertion_point(builder_implements:PrimitiveTypeMsg)
+        org.sonar.core.test.Test.PrimitiveTypeMsgOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonar.core.test.Test.internal_static_JsonTest_descriptor;
+        return org.sonar.core.test.Test.internal_static_PrimitiveTypeMsg_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonar.core.test.Test.internal_static_JsonTest_fieldAccessorTable
+        return org.sonar.core.test.Test.internal_static_PrimitiveTypeMsg_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.sonar.core.test.Test.JsonTest.class, org.sonar.core.test.Test.JsonTest.Builder.class);
+                org.sonar.core.test.Test.PrimitiveTypeMsg.class, org.sonar.core.test.Test.PrimitiveTypeMsg.Builder.class);
       }
 
-      // Construct using org.sonar.core.test.Test.JsonTest.newBuilder()
+      // Construct using org.sonar.core.test.Test.PrimitiveTypeMsg.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -1311,10 +1207,6 @@ public final class Test {
           getNestedFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         stringField_ = "";
@@ -1327,44 +1219,38 @@ public final class Test {
         bitField0_ = (bitField0_ & ~0x00000008);
         booleanField_ = false;
         bitField0_ = (bitField0_ & ~0x00000010);
-        enumField_ = org.sonar.core.test.Test.FakeEnum.BLUE;
+        enumField_ = 0;
         bitField0_ = (bitField0_ & ~0x00000020);
         bytesField_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000040);
         if (nestedBuilder_ == null) {
-          nested_ = org.sonar.core.test.Test.NestedJsonTest.getDefaultInstance();
+          nested_ = null;
         } else {
           nestedBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000080);
-        anArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.sonar.core.test.Test.internal_static_JsonTest_descriptor;
+        return org.sonar.core.test.Test.internal_static_PrimitiveTypeMsg_descriptor;
       }
 
-      public org.sonar.core.test.Test.JsonTest getDefaultInstanceForType() {
-        return org.sonar.core.test.Test.JsonTest.getDefaultInstance();
+      public org.sonar.core.test.Test.PrimitiveTypeMsg getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.PrimitiveTypeMsg.getDefaultInstance();
       }
 
-      public org.sonar.core.test.Test.JsonTest build() {
-        org.sonar.core.test.Test.JsonTest result = buildPartial();
+      public org.sonar.core.test.Test.PrimitiveTypeMsg build() {
+        org.sonar.core.test.Test.PrimitiveTypeMsg result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.sonar.core.test.Test.JsonTest buildPartial() {
-        org.sonar.core.test.Test.JsonTest result = new org.sonar.core.test.Test.JsonTest(this);
+      public org.sonar.core.test.Test.PrimitiveTypeMsg buildPartial() {
+        org.sonar.core.test.Test.PrimitiveTypeMsg result = new org.sonar.core.test.Test.PrimitiveTypeMsg(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -1403,27 +1289,22 @@ public final class Test {
         } else {
           result.nested_ = nestedBuilder_.build();
         }
-        if (((bitField0_ & 0x00000100) == 0x00000100)) {
-          anArray_ = anArray_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000100);
-        }
-        result.anArray_ = anArray_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.sonar.core.test.Test.JsonTest) {
-          return mergeFrom((org.sonar.core.test.Test.JsonTest)other);
+        if (other instanceof org.sonar.core.test.Test.PrimitiveTypeMsg) {
+          return mergeFrom((org.sonar.core.test.Test.PrimitiveTypeMsg)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.sonar.core.test.Test.JsonTest other) {
-        if (other == org.sonar.core.test.Test.JsonTest.getDefaultInstance()) return this;
+      public Builder mergeFrom(org.sonar.core.test.Test.PrimitiveTypeMsg other) {
+        if (other == org.sonar.core.test.Test.PrimitiveTypeMsg.getDefaultInstance()) return this;
         if (other.hasStringField()) {
           bitField0_ |= 0x00000001;
           stringField_ = other.stringField_;
@@ -1450,17 +1331,8 @@ public final class Test {
         if (other.hasNested()) {
           mergeNested(other.getNested());
         }
-        if (!other.anArray_.isEmpty()) {
-          if (anArray_.isEmpty()) {
-            anArray_ = other.anArray_;
-            bitField0_ = (bitField0_ & ~0x00000100);
-          } else {
-            ensureAnArrayIsMutable();
-            anArray_.addAll(other.anArray_);
-          }
-          onChanged();
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -1472,11 +1344,11 @@ public final class Test {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.sonar.core.test.Test.JsonTest parsedMessage = null;
+        org.sonar.core.test.Test.PrimitiveTypeMsg parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.sonar.core.test.Test.JsonTest) e.getUnfinishedMessage();
+          parsedMessage = (org.sonar.core.test.Test.PrimitiveTypeMsg) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -1691,7 +1563,7 @@ public final class Test {
         return this;
       }
 
-      private org.sonar.core.test.Test.FakeEnum enumField_ = org.sonar.core.test.Test.FakeEnum.BLUE;
+      private int enumField_ = 0;
       /**
        * <code>optional .FakeEnum enumField = 6;</code>
        */
@@ -1702,7 +1574,8 @@ public final class Test {
        * <code>optional .FakeEnum enumField = 6;</code>
        */
       public org.sonar.core.test.Test.FakeEnum getEnumField() {
-        return enumField_;
+        org.sonar.core.test.Test.FakeEnum result = org.sonar.core.test.Test.FakeEnum.valueOf(enumField_);
+        return result == null ? org.sonar.core.test.Test.FakeEnum.BLUE : result;
       }
       /**
        * <code>optional .FakeEnum enumField = 6;</code>
@@ -1712,7 +1585,7 @@ public final class Test {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000020;
-        enumField_ = value;
+        enumField_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -1721,7 +1594,7 @@ public final class Test {
        */
       public Builder clearEnumField() {
         bitField0_ = (bitField0_ & ~0x00000020);
-        enumField_ = org.sonar.core.test.Test.FakeEnum.BLUE;
+        enumField_ = 0;
         onChanged();
         return this;
       }
@@ -1761,29 +1634,29 @@ public final class Test {
         return this;
       }
 
-      private org.sonar.core.test.Test.NestedJsonTest nested_ = org.sonar.core.test.Test.NestedJsonTest.getDefaultInstance();
+      private org.sonar.core.test.Test.NestedMsg nested_ = null;
       private com.google.protobuf.SingleFieldBuilder<
-          org.sonar.core.test.Test.NestedJsonTest, org.sonar.core.test.Test.NestedJsonTest.Builder, org.sonar.core.test.Test.NestedJsonTestOrBuilder> nestedBuilder_;
+          org.sonar.core.test.Test.NestedMsg, org.sonar.core.test.Test.NestedMsg.Builder, org.sonar.core.test.Test.NestedMsgOrBuilder> nestedBuilder_;
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
       public boolean hasNested() {
         return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
-      public org.sonar.core.test.Test.NestedJsonTest getNested() {
+      public org.sonar.core.test.Test.NestedMsg getNested() {
         if (nestedBuilder_ == null) {
-          return nested_;
+          return nested_ == null ? org.sonar.core.test.Test.NestedMsg.getDefaultInstance() : nested_;
         } else {
           return nestedBuilder_.getMessage();
         }
       }
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
-      public Builder setNested(org.sonar.core.test.Test.NestedJsonTest value) {
+      public Builder setNested(org.sonar.core.test.Test.NestedMsg value) {
         if (nestedBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -1797,10 +1670,10 @@ public final class Test {
         return this;
       }
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
       public Builder setNested(
-          org.sonar.core.test.Test.NestedJsonTest.Builder builderForValue) {
+          org.sonar.core.test.Test.NestedMsg.Builder builderForValue) {
         if (nestedBuilder_ == null) {
           nested_ = builderForValue.build();
           onChanged();
@@ -1811,14 +1684,15 @@ public final class Test {
         return this;
       }
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
-      public Builder mergeNested(org.sonar.core.test.Test.NestedJsonTest value) {
+      public Builder mergeNested(org.sonar.core.test.Test.NestedMsg value) {
         if (nestedBuilder_ == null) {
           if (((bitField0_ & 0x00000080) == 0x00000080) &&
-              nested_ != org.sonar.core.test.Test.NestedJsonTest.getDefaultInstance()) {
+              nested_ != null &&
+              nested_ != org.sonar.core.test.Test.NestedMsg.getDefaultInstance()) {
             nested_ =
-              org.sonar.core.test.Test.NestedJsonTest.newBuilder(nested_).mergeFrom(value).buildPartial();
+              org.sonar.core.test.Test.NestedMsg.newBuilder(nested_).mergeFrom(value).buildPartial();
           } else {
             nested_ = value;
           }
@@ -1830,11 +1704,11 @@ public final class Test {
         return this;
       }
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
       public Builder clearNested() {
         if (nestedBuilder_ == null) {
-          nested_ = org.sonar.core.test.Test.NestedJsonTest.getDefaultInstance();
+          nested_ = null;
           onChanged();
         } else {
           nestedBuilder_.clear();
@@ -1843,32 +1717,33 @@ public final class Test {
         return this;
       }
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
-      public org.sonar.core.test.Test.NestedJsonTest.Builder getNestedBuilder() {
+      public org.sonar.core.test.Test.NestedMsg.Builder getNestedBuilder() {
         bitField0_ |= 0x00000080;
         onChanged();
         return getNestedFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
-      public org.sonar.core.test.Test.NestedJsonTestOrBuilder getNestedOrBuilder() {
+      public org.sonar.core.test.Test.NestedMsgOrBuilder getNestedOrBuilder() {
         if (nestedBuilder_ != null) {
           return nestedBuilder_.getMessageOrBuilder();
         } else {
-          return nested_;
+          return nested_ == null ?
+              org.sonar.core.test.Test.NestedMsg.getDefaultInstance() : nested_;
         }
       }
       /**
-       * <code>optional .NestedJsonTest nested = 8;</code>
+       * <code>optional .NestedMsg nested = 8;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          org.sonar.core.test.Test.NestedJsonTest, org.sonar.core.test.Test.NestedJsonTest.Builder, org.sonar.core.test.Test.NestedJsonTestOrBuilder> 
+          org.sonar.core.test.Test.NestedMsg, org.sonar.core.test.Test.NestedMsg.Builder, org.sonar.core.test.Test.NestedMsgOrBuilder> 
           getNestedFieldBuilder() {
         if (nestedBuilder_ == null) {
           nestedBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonar.core.test.Test.NestedJsonTest, org.sonar.core.test.Test.NestedJsonTest.Builder, org.sonar.core.test.Test.NestedJsonTestOrBuilder>(
+              org.sonar.core.test.Test.NestedMsg, org.sonar.core.test.Test.NestedMsg.Builder, org.sonar.core.test.Test.NestedMsgOrBuilder>(
                   getNested(),
                   getParentForChildren(),
                   isClean());
@@ -1877,186 +1752,161 @@ public final class Test {
         return nestedBuilder_;
       }
 
-      private com.google.protobuf.LazyStringList anArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureAnArrayIsMutable() {
-        if (!((bitField0_ & 0x00000100) == 0x00000100)) {
-          anArray_ = new com.google.protobuf.LazyStringArrayList(anArray_);
-          bitField0_ |= 0x00000100;
-         }
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public com.google.protobuf.ProtocolStringList
-          getAnArrayList() {
-        return anArray_.getUnmodifiableView();
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public int getAnArrayCount() {
-        return anArray_.size();
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public java.lang.String getAnArray(int index) {
-        return anArray_.get(index);
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public com.google.protobuf.ByteString
-          getAnArrayBytes(int index) {
-        return anArray_.getByteString(index);
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public Builder setAnArray(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureAnArrayIsMutable();
-        anArray_.set(index, value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public Builder addAnArray(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureAnArrayIsMutable();
-        anArray_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public Builder addAllAnArray(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureAnArrayIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, anArray_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public Builder clearAnArray() {
-        anArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000100);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string anArray = 9;</code>
-       */
-      public Builder addAnArrayBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureAnArrayIsMutable();
-        anArray_.add(value);
-        onChanged();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:JsonTest)
+      // @@protoc_insertion_point(builder_scope:PrimitiveTypeMsg)
     }
 
+    // @@protoc_insertion_point(class_scope:PrimitiveTypeMsg)
+    private static final org.sonar.core.test.Test.PrimitiveTypeMsg DEFAULT_INSTANCE;
     static {
-      defaultInstance = new JsonTest(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.PrimitiveTypeMsg();
     }
 
-    // @@protoc_insertion_point(class_scope:JsonTest)
+    public static org.sonar.core.test.Test.PrimitiveTypeMsg getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<PrimitiveTypeMsg> PARSER =
+        new com.google.protobuf.AbstractParser<PrimitiveTypeMsg>() {
+      public PrimitiveTypeMsg parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new PrimitiveTypeMsg(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<PrimitiveTypeMsg> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.PrimitiveTypeMsg getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface JsonArrayTestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:JsonArrayTest)
+  public interface ArrayFieldMsgOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:ArrayFieldMsg)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional bool aNullableArrayPresentIfEmpty = 1;</code>
-     *
-     * <pre>
-     * naming convention. A boolean field is used
-     * to know if the array field is present.
-     * </pre>
-     */
-    boolean hasANullableArrayPresentIfEmpty();
-    /**
-     * <code>optional bool aNullableArrayPresentIfEmpty = 1;</code>
-     *
-     * <pre>
-     * naming convention. A boolean field is used
-     * to know if the array field is present.
-     * </pre>
-     */
-    boolean getANullableArrayPresentIfEmpty();
-
-    /**
-     * <code>repeated string aNullableArray = 2;</code>
+     * <code>repeated string strings = 1;</code>
      */
     com.google.protobuf.ProtocolStringList
-        getANullableArrayList();
+        getStringsList();
     /**
-     * <code>repeated string aNullableArray = 2;</code>
+     * <code>repeated string strings = 1;</code>
      */
-    int getANullableArrayCount();
+    int getStringsCount();
     /**
-     * <code>repeated string aNullableArray = 2;</code>
+     * <code>repeated string strings = 1;</code>
      */
-    java.lang.String getANullableArray(int index);
+    java.lang.String getStrings(int index);
     /**
-     * <code>repeated string aNullableArray = 2;</code>
+     * <code>repeated string strings = 1;</code>
      */
     com.google.protobuf.ByteString
-        getANullableArrayBytes(int index);
+        getStringsBytes(int index);
+
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    java.util.List<org.sonar.core.test.Test.NestedMsg> 
+        getNestedsList();
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    org.sonar.core.test.Test.NestedMsg getNesteds(int index);
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    int getNestedsCount();
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    java.util.List<? extends org.sonar.core.test.Test.NestedMsgOrBuilder> 
+        getNestedsOrBuilderList();
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    org.sonar.core.test.Test.NestedMsgOrBuilder getNestedsOrBuilder(
+        int index);
+
+    /**
+     * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
+     *
+     * <pre>
+     * naming convention. A boolean field is used
+     * to know if the repeated field is present.
+     * </pre>
+     */
+    boolean hasNullableArrayPresentIfEmpty();
+    /**
+     * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
+     *
+     * <pre>
+     * naming convention. A boolean field is used
+     * to know if the repeated field is present.
+     * </pre>
+     */
+    boolean getNullableArrayPresentIfEmpty();
+
+    /**
+     * <code>repeated string nullableArray = 4;</code>
+     */
+    com.google.protobuf.ProtocolStringList
+        getNullableArrayList();
+    /**
+     * <code>repeated string nullableArray = 4;</code>
+     */
+    int getNullableArrayCount();
+    /**
+     * <code>repeated string nullableArray = 4;</code>
+     */
+    java.lang.String getNullableArray(int index);
+    /**
+     * <code>repeated string nullableArray = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getNullableArrayBytes(int index);
   }
   /**
-   * Protobuf type {@code JsonArrayTest}
+   * Protobuf type {@code ArrayFieldMsg}
    */
-  public static final class JsonArrayTest extends
+  public  static final class ArrayFieldMsg extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:JsonArrayTest)
-      JsonArrayTestOrBuilder {
-    // Use JsonArrayTest.newBuilder() to construct.
-    private JsonArrayTest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:ArrayFieldMsg)
+      ArrayFieldMsgOrBuilder {
+    // Use ArrayFieldMsg.newBuilder() to construct.
+    private ArrayFieldMsg(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private JsonArrayTest(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final JsonArrayTest defaultInstance;
-    public static JsonArrayTest getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public JsonArrayTest getDefaultInstanceForType() {
-      return defaultInstance;
+    private ArrayFieldMsg() {
+      strings_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      nesteds_ = java.util.Collections.emptyList();
+      nullableArrayPresentIfEmpty_ = false;
+      nullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
-    private JsonArrayTest(
+    private ArrayFieldMsg(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2075,30 +1925,54 @@ public final class Test {
               }
               break;
             }
-            case 8: {
-              bitField0_ |= 0x00000001;
-              aNullableArrayPresentIfEmpty_ = input.readBool();
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                strings_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              strings_.add(bs);
               break;
             }
             case 18: {
-              com.google.protobuf.ByteString bs = input.readBytes();
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                aNullableArray_ = new com.google.protobuf.LazyStringArrayList();
+                nesteds_ = new java.util.ArrayList<org.sonar.core.test.Test.NestedMsg>();
                 mutable_bitField0_ |= 0x00000002;
               }
-              aNullableArray_.add(bs);
+              nesteds_.add(input.readMessage(org.sonar.core.test.Test.NestedMsg.PARSER, extensionRegistry));
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000001;
+              nullableArrayPresentIfEmpty_ = input.readBool();
+              break;
+            }
+            case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                nullableArray_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              nullableArray_.add(bs);
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          strings_ = strings_.getUnmodifiableView();
+        }
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          aNullableArray_ = aNullableArray_.getUnmodifiableView();
+          nesteds_ = java.util.Collections.unmodifiableList(nesteds_);
+        }
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+          nullableArray_ = nullableArray_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2106,90 +1980,135 @@ public final class Test {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.sonar.core.test.Test.internal_static_JsonArrayTest_descriptor;
+      return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.sonar.core.test.Test.internal_static_JsonArrayTest_fieldAccessorTable
+      return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.sonar.core.test.Test.JsonArrayTest.class, org.sonar.core.test.Test.JsonArrayTest.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<JsonArrayTest> PARSER =
-        new com.google.protobuf.AbstractParser<JsonArrayTest>() {
-      public JsonArrayTest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new JsonArrayTest(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<JsonArrayTest> getParserForType() {
-      return PARSER;
+              org.sonar.core.test.Test.ArrayFieldMsg.class, org.sonar.core.test.Test.ArrayFieldMsg.Builder.class);
     }
 
     private int bitField0_;
-    public static final int ANULLABLEARRAYPRESENTIFEMPTY_FIELD_NUMBER = 1;
-    private boolean aNullableArrayPresentIfEmpty_;
+    public static final int STRINGS_FIELD_NUMBER = 1;
+    private com.google.protobuf.LazyStringList strings_;
     /**
-     * <code>optional bool aNullableArrayPresentIfEmpty = 1;</code>
+     * <code>repeated string strings = 1;</code>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getStringsList() {
+      return strings_;
+    }
+    /**
+     * <code>repeated string strings = 1;</code>
+     */
+    public int getStringsCount() {
+      return strings_.size();
+    }
+    /**
+     * <code>repeated string strings = 1;</code>
+     */
+    public java.lang.String getStrings(int index) {
+      return strings_.get(index);
+    }
+    /**
+     * <code>repeated string strings = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getStringsBytes(int index) {
+      return strings_.getByteString(index);
+    }
+
+    public static final int NESTEDS_FIELD_NUMBER = 2;
+    private java.util.List<org.sonar.core.test.Test.NestedMsg> nesteds_;
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    public java.util.List<org.sonar.core.test.Test.NestedMsg> getNestedsList() {
+      return nesteds_;
+    }
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    public java.util.List<? extends org.sonar.core.test.Test.NestedMsgOrBuilder> 
+        getNestedsOrBuilderList() {
+      return nesteds_;
+    }
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    public int getNestedsCount() {
+      return nesteds_.size();
+    }
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    public org.sonar.core.test.Test.NestedMsg getNesteds(int index) {
+      return nesteds_.get(index);
+    }
+    /**
+     * <code>repeated .NestedMsg nesteds = 2;</code>
+     */
+    public org.sonar.core.test.Test.NestedMsgOrBuilder getNestedsOrBuilder(
+        int index) {
+      return nesteds_.get(index);
+    }
+
+    public static final int NULLABLEARRAYPRESENTIFEMPTY_FIELD_NUMBER = 3;
+    private boolean nullableArrayPresentIfEmpty_;
+    /**
+     * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
      *
      * <pre>
      * naming convention. A boolean field is used
-     * to know if the array field is present.
+     * to know if the repeated field is present.
      * </pre>
      */
-    public boolean hasANullableArrayPresentIfEmpty() {
+    public boolean hasNullableArrayPresentIfEmpty() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional bool aNullableArrayPresentIfEmpty = 1;</code>
+     * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
      *
      * <pre>
      * naming convention. A boolean field is used
-     * to know if the array field is present.
+     * to know if the repeated field is present.
      * </pre>
      */
-    public boolean getANullableArrayPresentIfEmpty() {
-      return aNullableArrayPresentIfEmpty_;
+    public boolean getNullableArrayPresentIfEmpty() {
+      return nullableArrayPresentIfEmpty_;
     }
 
-    public static final int ANULLABLEARRAY_FIELD_NUMBER = 2;
-    private com.google.protobuf.LazyStringList aNullableArray_;
+    public static final int NULLABLEARRAY_FIELD_NUMBER = 4;
+    private com.google.protobuf.LazyStringList nullableArray_;
     /**
-     * <code>repeated string aNullableArray = 2;</code>
+     * <code>repeated string nullableArray = 4;</code>
      */
     public com.google.protobuf.ProtocolStringList
-        getANullableArrayList() {
-      return aNullableArray_;
+        getNullableArrayList() {
+      return nullableArray_;
     }
     /**
-     * <code>repeated string aNullableArray = 2;</code>
+     * <code>repeated string nullableArray = 4;</code>
      */
-    public int getANullableArrayCount() {
-      return aNullableArray_.size();
+    public int getNullableArrayCount() {
+      return nullableArray_.size();
     }
     /**
-     * <code>repeated string aNullableArray = 2;</code>
+     * <code>repeated string nullableArray = 4;</code>
      */
-    public java.lang.String getANullableArray(int index) {
-      return aNullableArray_.get(index);
+    public java.lang.String getNullableArray(int index) {
+      return nullableArray_.get(index);
     }
     /**
-     * <code>repeated string aNullableArray = 2;</code>
+     * <code>repeated string nullableArray = 4;</code>
      */
     public com.google.protobuf.ByteString
-        getANullableArrayBytes(int index) {
-      return aNullableArray_.getByteString(index);
+        getNullableArrayBytes(int index) {
+      return nullableArray_.getByteString(index);
     }
 
-    private void initFields() {
-      aNullableArrayPresentIfEmpty_ = false;
-      aNullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -2202,14 +2121,19 @@ public final class Test {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
+      for (int i = 0; i < strings_.size(); i++) {
+        output.writeBytes(1, strings_.getByteString(i));
+      }
+      for (int i = 0; i < nesteds_.size(); i++) {
+        output.writeMessage(2, nesteds_.get(i));
+      }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBool(1, aNullableArrayPresentIfEmpty_);
+        output.writeBool(3, nullableArrayPresentIfEmpty_);
       }
-      for (int i = 0; i < aNullableArray_.size(); i++) {
-        output.writeBytes(2, aNullableArray_.getByteString(i));
+      for (int i = 0; i < nullableArray_.size(); i++) {
+        output.writeBytes(4, nullableArray_.getByteString(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -2218,90 +2142,102 @@ public final class Test {
       if (size != -1) return size;
 
       size = 0;
+      {
+        int dataSize = 0;
+        for (int i = 0; i < strings_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(strings_.getByteString(i));
+        }
+        size += dataSize;
+        size += 1 * getStringsList().size();
+      }
+      for (int i = 0; i < nesteds_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, nesteds_.get(i));
+      }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(1, aNullableArrayPresentIfEmpty_);
+          .computeBoolSize(3, nullableArrayPresentIfEmpty_);
       }
       {
         int dataSize = 0;
-        for (int i = 0; i < aNullableArray_.size(); i++) {
+        for (int i = 0; i < nullableArray_.size(); i++) {
           dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(aNullableArray_.getByteString(i));
+            .computeBytesSizeNoTag(nullableArray_.getByteString(i));
         }
         size += dataSize;
-        size += 1 * getANullableArrayList().size();
+        size += 1 * getNullableArrayList().size();
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
-    public static org.sonar.core.test.Test.JsonArrayTest parseFrom(
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseFrom(
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseFrom(byte[] data)
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseFrom(
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseFrom(
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseDelimitedFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseDelimitedFrom(
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseFrom(
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.JsonArrayTest parseFrom(
+    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.core.test.Test.JsonArrayTest prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.core.test.Test.ArrayFieldMsg prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2310,25 +2246,25 @@ public final class Test {
       return builder;
     }
     /**
-     * Protobuf type {@code JsonArrayTest}
+     * Protobuf type {@code ArrayFieldMsg}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:JsonArrayTest)
-        org.sonar.core.test.Test.JsonArrayTestOrBuilder {
+        // @@protoc_insertion_point(builder_implements:ArrayFieldMsg)
+        org.sonar.core.test.Test.ArrayFieldMsgOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonar.core.test.Test.internal_static_JsonArrayTest_descriptor;
+        return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonar.core.test.Test.internal_static_JsonArrayTest_fieldAccessorTable
+        return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.sonar.core.test.Test.JsonArrayTest.class, org.sonar.core.test.Test.JsonArrayTest.Builder.class);
+                org.sonar.core.test.Test.ArrayFieldMsg.class, org.sonar.core.test.Test.ArrayFieldMsg.Builder.class);
       }
 
-      // Construct using org.sonar.core.test.Test.JsonArrayTest.newBuilder()
+      // Construct using org.sonar.core.test.Test.ArrayFieldMsg.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -2340,85 +2276,137 @@ public final class Test {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getNestedsFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
-        aNullableArrayPresentIfEmpty_ = false;
+        strings_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
-        aNullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000002);
+        if (nestedsBuilder_ == null) {
+          nesteds_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          nestedsBuilder_.clear();
+        }
+        nullableArrayPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        nullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.sonar.core.test.Test.internal_static_JsonArrayTest_descriptor;
+        return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_descriptor;
       }
 
-      public org.sonar.core.test.Test.JsonArrayTest getDefaultInstanceForType() {
-        return org.sonar.core.test.Test.JsonArrayTest.getDefaultInstance();
+      public org.sonar.core.test.Test.ArrayFieldMsg getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.ArrayFieldMsg.getDefaultInstance();
       }
 
-      public org.sonar.core.test.Test.JsonArrayTest build() {
-        org.sonar.core.test.Test.JsonArrayTest result = buildPartial();
+      public org.sonar.core.test.Test.ArrayFieldMsg build() {
+        org.sonar.core.test.Test.ArrayFieldMsg result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.sonar.core.test.Test.JsonArrayTest buildPartial() {
-        org.sonar.core.test.Test.JsonArrayTest result = new org.sonar.core.test.Test.JsonArrayTest(this);
+      public org.sonar.core.test.Test.ArrayFieldMsg buildPartial() {
+        org.sonar.core.test.Test.ArrayFieldMsg result = new org.sonar.core.test.Test.ArrayFieldMsg(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          strings_ = strings_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.strings_ = strings_;
+        if (nestedsBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            nesteds_ = java.util.Collections.unmodifiableList(nesteds_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.nesteds_ = nesteds_;
+        } else {
+          result.nesteds_ = nestedsBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.aNullableArrayPresentIfEmpty_ = aNullableArrayPresentIfEmpty_;
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          aNullableArray_ = aNullableArray_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000002);
+        result.nullableArrayPresentIfEmpty_ = nullableArrayPresentIfEmpty_;
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          nullableArray_ = nullableArray_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000008);
         }
-        result.aNullableArray_ = aNullableArray_;
+        result.nullableArray_ = nullableArray_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.sonar.core.test.Test.JsonArrayTest) {
-          return mergeFrom((org.sonar.core.test.Test.JsonArrayTest)other);
+        if (other instanceof org.sonar.core.test.Test.ArrayFieldMsg) {
+          return mergeFrom((org.sonar.core.test.Test.ArrayFieldMsg)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.sonar.core.test.Test.JsonArrayTest other) {
-        if (other == org.sonar.core.test.Test.JsonArrayTest.getDefaultInstance()) return this;
-        if (other.hasANullableArrayPresentIfEmpty()) {
-          setANullableArrayPresentIfEmpty(other.getANullableArrayPresentIfEmpty());
-        }
-        if (!other.aNullableArray_.isEmpty()) {
-          if (aNullableArray_.isEmpty()) {
-            aNullableArray_ = other.aNullableArray_;
-            bitField0_ = (bitField0_ & ~0x00000002);
+      public Builder mergeFrom(org.sonar.core.test.Test.ArrayFieldMsg other) {
+        if (other == org.sonar.core.test.Test.ArrayFieldMsg.getDefaultInstance()) return this;
+        if (!other.strings_.isEmpty()) {
+          if (strings_.isEmpty()) {
+            strings_ = other.strings_;
+            bitField0_ = (bitField0_ & ~0x00000001);
           } else {
-            ensureANullableArrayIsMutable();
-            aNullableArray_.addAll(other.aNullableArray_);
+            ensureStringsIsMutable();
+            strings_.addAll(other.strings_);
           }
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        if (nestedsBuilder_ == null) {
+          if (!other.nesteds_.isEmpty()) {
+            if (nesteds_.isEmpty()) {
+              nesteds_ = other.nesteds_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+            } else {
+              ensureNestedsIsMutable();
+              nesteds_.addAll(other.nesteds_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.nesteds_.isEmpty()) {
+            if (nestedsBuilder_.isEmpty()) {
+              nestedsBuilder_.dispose();
+              nestedsBuilder_ = null;
+              nesteds_ = other.nesteds_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              nestedsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getNestedsFieldBuilder() : null;
+            } else {
+              nestedsBuilder_.addAllMessages(other.nesteds_);
+            }
+          }
+        }
+        if (other.hasNullableArrayPresentIfEmpty()) {
+          setNullableArrayPresentIfEmpty(other.getNullableArrayPresentIfEmpty());
+        }
+        if (!other.nullableArray_.isEmpty()) {
+          if (nullableArray_.isEmpty()) {
+            nullableArray_ = other.nullableArray_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+          } else {
+            ensureNullableArrayIsMutable();
+            nullableArray_.addAll(other.nullableArray_);
+          }
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2430,11 +2418,11 @@ public final class Test {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.sonar.core.test.Test.JsonArrayTest parsedMessage = null;
+        org.sonar.core.test.Test.ArrayFieldMsg parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.sonar.core.test.Test.JsonArrayTest) e.getUnfinishedMessage();
+          parsedMessage = (org.sonar.core.test.Test.ArrayFieldMsg) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -2445,164 +2433,529 @@ public final class Test {
       }
       private int bitField0_;
 
-      private boolean aNullableArrayPresentIfEmpty_ ;
-      /**
-       * <code>optional bool aNullableArrayPresentIfEmpty = 1;</code>
-       *
-       * <pre>
-       * naming convention. A boolean field is used
-       * to know if the array field is present.
-       * </pre>
-       */
-      public boolean hasANullableArrayPresentIfEmpty() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>optional bool aNullableArrayPresentIfEmpty = 1;</code>
-       *
-       * <pre>
-       * naming convention. A boolean field is used
-       * to know if the array field is present.
-       * </pre>
-       */
-      public boolean getANullableArrayPresentIfEmpty() {
-        return aNullableArrayPresentIfEmpty_;
-      }
-      /**
-       * <code>optional bool aNullableArrayPresentIfEmpty = 1;</code>
-       *
-       * <pre>
-       * naming convention. A boolean field is used
-       * to know if the array field is present.
-       * </pre>
-       */
-      public Builder setANullableArrayPresentIfEmpty(boolean value) {
-        bitField0_ |= 0x00000001;
-        aNullableArrayPresentIfEmpty_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bool aNullableArrayPresentIfEmpty = 1;</code>
-       *
-       * <pre>
-       * naming convention. A boolean field is used
-       * to know if the array field is present.
-       * </pre>
-       */
-      public Builder clearANullableArrayPresentIfEmpty() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        aNullableArrayPresentIfEmpty_ = false;
-        onChanged();
-        return this;
-      }
-
-      private com.google.protobuf.LazyStringList aNullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureANullableArrayIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          aNullableArray_ = new com.google.protobuf.LazyStringArrayList(aNullableArray_);
-          bitField0_ |= 0x00000002;
+      private com.google.protobuf.LazyStringList strings_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureStringsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          strings_ = new com.google.protobuf.LazyStringArrayList(strings_);
+          bitField0_ |= 0x00000001;
          }
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
       public com.google.protobuf.ProtocolStringList
-          getANullableArrayList() {
-        return aNullableArray_.getUnmodifiableView();
+          getStringsList() {
+        return strings_.getUnmodifiableView();
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
-      public int getANullableArrayCount() {
-        return aNullableArray_.size();
+      public int getStringsCount() {
+        return strings_.size();
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
-      public java.lang.String getANullableArray(int index) {
-        return aNullableArray_.get(index);
+      public java.lang.String getStrings(int index) {
+        return strings_.get(index);
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getANullableArrayBytes(int index) {
-        return aNullableArray_.getByteString(index);
+          getStringsBytes(int index) {
+        return strings_.getByteString(index);
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
-      public Builder setANullableArray(
+      public Builder setStrings(
           int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureANullableArrayIsMutable();
-        aNullableArray_.set(index, value);
+  ensureStringsIsMutable();
+        strings_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
-      public Builder addANullableArray(
+      public Builder addStrings(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureANullableArrayIsMutable();
-        aNullableArray_.add(value);
+  ensureStringsIsMutable();
+        strings_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
-      public Builder addAllANullableArray(
+      public Builder addAllStrings(
           java.lang.Iterable<java.lang.String> values) {
-        ensureANullableArrayIsMutable();
+        ensureStringsIsMutable();
         com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, aNullableArray_);
+            values, strings_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
-      public Builder clearANullableArray() {
-        aNullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000002);
+      public Builder clearStrings() {
+        strings_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string aNullableArray = 2;</code>
+       * <code>repeated string strings = 1;</code>
        */
-      public Builder addANullableArrayBytes(
+      public Builder addStringsBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureANullableArrayIsMutable();
-        aNullableArray_.add(value);
+  ensureStringsIsMutable();
+        strings_.add(value);
         onChanged();
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:JsonArrayTest)
+      private java.util.List<org.sonar.core.test.Test.NestedMsg> nesteds_ =
+        java.util.Collections.emptyList();
+      private void ensureNestedsIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          nesteds_ = new java.util.ArrayList<org.sonar.core.test.Test.NestedMsg>(nesteds_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.core.test.Test.NestedMsg, org.sonar.core.test.Test.NestedMsg.Builder, org.sonar.core.test.Test.NestedMsgOrBuilder> nestedsBuilder_;
+
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public java.util.List<org.sonar.core.test.Test.NestedMsg> getNestedsList() {
+        if (nestedsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(nesteds_);
+        } else {
+          return nestedsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public int getNestedsCount() {
+        if (nestedsBuilder_ == null) {
+          return nesteds_.size();
+        } else {
+          return nestedsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public org.sonar.core.test.Test.NestedMsg getNesteds(int index) {
+        if (nestedsBuilder_ == null) {
+          return nesteds_.get(index);
+        } else {
+          return nestedsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder setNesteds(
+          int index, org.sonar.core.test.Test.NestedMsg value) {
+        if (nestedsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureNestedsIsMutable();
+          nesteds_.set(index, value);
+          onChanged();
+        } else {
+          nestedsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder setNesteds(
+          int index, org.sonar.core.test.Test.NestedMsg.Builder builderForValue) {
+        if (nestedsBuilder_ == null) {
+          ensureNestedsIsMutable();
+          nesteds_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          nestedsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder addNesteds(org.sonar.core.test.Test.NestedMsg value) {
+        if (nestedsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureNestedsIsMutable();
+          nesteds_.add(value);
+          onChanged();
+        } else {
+          nestedsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder addNesteds(
+          int index, org.sonar.core.test.Test.NestedMsg value) {
+        if (nestedsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureNestedsIsMutable();
+          nesteds_.add(index, value);
+          onChanged();
+        } else {
+          nestedsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder addNesteds(
+          org.sonar.core.test.Test.NestedMsg.Builder builderForValue) {
+        if (nestedsBuilder_ == null) {
+          ensureNestedsIsMutable();
+          nesteds_.add(builderForValue.build());
+          onChanged();
+        } else {
+          nestedsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder addNesteds(
+          int index, org.sonar.core.test.Test.NestedMsg.Builder builderForValue) {
+        if (nestedsBuilder_ == null) {
+          ensureNestedsIsMutable();
+          nesteds_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          nestedsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder addAllNesteds(
+          java.lang.Iterable<? extends org.sonar.core.test.Test.NestedMsg> values) {
+        if (nestedsBuilder_ == null) {
+          ensureNestedsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, nesteds_);
+          onChanged();
+        } else {
+          nestedsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder clearNesteds() {
+        if (nestedsBuilder_ == null) {
+          nesteds_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+        } else {
+          nestedsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public Builder removeNesteds(int index) {
+        if (nestedsBuilder_ == null) {
+          ensureNestedsIsMutable();
+          nesteds_.remove(index);
+          onChanged();
+        } else {
+          nestedsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public org.sonar.core.test.Test.NestedMsg.Builder getNestedsBuilder(
+          int index) {
+        return getNestedsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public org.sonar.core.test.Test.NestedMsgOrBuilder getNestedsOrBuilder(
+          int index) {
+        if (nestedsBuilder_ == null) {
+          return nesteds_.get(index);  } else {
+          return nestedsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public java.util.List<? extends org.sonar.core.test.Test.NestedMsgOrBuilder> 
+           getNestedsOrBuilderList() {
+        if (nestedsBuilder_ != null) {
+          return nestedsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(nesteds_);
+        }
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public org.sonar.core.test.Test.NestedMsg.Builder addNestedsBuilder() {
+        return getNestedsFieldBuilder().addBuilder(
+            org.sonar.core.test.Test.NestedMsg.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public org.sonar.core.test.Test.NestedMsg.Builder addNestedsBuilder(
+          int index) {
+        return getNestedsFieldBuilder().addBuilder(
+            index, org.sonar.core.test.Test.NestedMsg.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .NestedMsg nesteds = 2;</code>
+       */
+      public java.util.List<org.sonar.core.test.Test.NestedMsg.Builder> 
+           getNestedsBuilderList() {
+        return getNestedsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.core.test.Test.NestedMsg, org.sonar.core.test.Test.NestedMsg.Builder, org.sonar.core.test.Test.NestedMsgOrBuilder> 
+          getNestedsFieldBuilder() {
+        if (nestedsBuilder_ == null) {
+          nestedsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonar.core.test.Test.NestedMsg, org.sonar.core.test.Test.NestedMsg.Builder, org.sonar.core.test.Test.NestedMsgOrBuilder>(
+                  nesteds_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  getParentForChildren(),
+                  isClean());
+          nesteds_ = null;
+        }
+        return nestedsBuilder_;
+      }
+
+      private boolean nullableArrayPresentIfEmpty_ ;
+      /**
+       * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
+       *
+       * <pre>
+       * naming convention. A boolean field is used
+       * to know if the repeated field is present.
+       * </pre>
+       */
+      public boolean hasNullableArrayPresentIfEmpty() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
+       *
+       * <pre>
+       * naming convention. A boolean field is used
+       * to know if the repeated field is present.
+       * </pre>
+       */
+      public boolean getNullableArrayPresentIfEmpty() {
+        return nullableArrayPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
+       *
+       * <pre>
+       * naming convention. A boolean field is used
+       * to know if the repeated field is present.
+       * </pre>
+       */
+      public Builder setNullableArrayPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00000004;
+        nullableArrayPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
+       *
+       * <pre>
+       * naming convention. A boolean field is used
+       * to know if the repeated field is present.
+       * </pre>
+       */
+      public Builder clearNullableArrayPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        nullableArrayPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList nullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureNullableArrayIsMutable() {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+          nullableArray_ = new com.google.protobuf.LazyStringArrayList(nullableArray_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getNullableArrayList() {
+        return nullableArray_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public int getNullableArrayCount() {
+        return nullableArray_.size();
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public java.lang.String getNullableArray(int index) {
+        return nullableArray_.get(index);
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNullableArrayBytes(int index) {
+        return nullableArray_.getByteString(index);
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public Builder setNullableArray(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureNullableArrayIsMutable();
+        nullableArray_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public Builder addNullableArray(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureNullableArrayIsMutable();
+        nullableArray_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public Builder addAllNullableArray(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureNullableArrayIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, nullableArray_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public Builder clearNullableArray() {
+        nullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string nullableArray = 4;</code>
+       */
+      public Builder addNullableArrayBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureNullableArrayIsMutable();
+        nullableArray_.add(value);
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:ArrayFieldMsg)
     }
 
+    // @@protoc_insertion_point(class_scope:ArrayFieldMsg)
+    private static final org.sonar.core.test.Test.ArrayFieldMsg DEFAULT_INSTANCE;
     static {
-      defaultInstance = new JsonArrayTest(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.ArrayFieldMsg();
     }
 
-    // @@protoc_insertion_point(class_scope:JsonArrayTest)
+    public static org.sonar.core.test.Test.ArrayFieldMsg getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<ArrayFieldMsg> PARSER =
+        new com.google.protobuf.AbstractParser<ArrayFieldMsg>() {
+      public ArrayFieldMsg parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ArrayFieldMsg(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ArrayFieldMsg> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.ArrayFieldMsg getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  public interface NestedJsonTestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:NestedJsonTest)
+  public interface NestedMsgOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:NestedMsg)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -2620,39 +2973,29 @@ public final class Test {
         getLabelBytes();
   }
   /**
-   * Protobuf type {@code NestedJsonTest}
+   * Protobuf type {@code NestedMsg}
    */
-  public static final class NestedJsonTest extends
+  public  static final class NestedMsg extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:NestedJsonTest)
-      NestedJsonTestOrBuilder {
-    // Use NestedJsonTest.newBuilder() to construct.
-    private NestedJsonTest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:NestedMsg)
+      NestedMsgOrBuilder {
+    // Use NestedMsg.newBuilder() to construct.
+    private NestedMsg(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private NestedJsonTest(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final NestedJsonTest defaultInstance;
-    public static NestedJsonTest getDefaultInstance() {
-      return defaultInstance;
+    private NestedMsg() {
+      label_ = "";
     }
 
-    public NestedJsonTest getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
-    private NestedJsonTest(
+    private NestedMsg(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2680,10 +3023,11 @@ public final class Test {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2691,34 +3035,19 @@ public final class Test {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.sonar.core.test.Test.internal_static_NestedJsonTest_descriptor;
+      return org.sonar.core.test.Test.internal_static_NestedMsg_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.sonar.core.test.Test.internal_static_NestedJsonTest_fieldAccessorTable
+      return org.sonar.core.test.Test.internal_static_NestedMsg_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.sonar.core.test.Test.NestedJsonTest.class, org.sonar.core.test.Test.NestedJsonTest.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<NestedJsonTest> PARSER =
-        new com.google.protobuf.AbstractParser<NestedJsonTest>() {
-      public NestedJsonTest parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new NestedJsonTest(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<NestedJsonTest> getParserForType() {
-      return PARSER;
+              org.sonar.core.test.Test.NestedMsg.class, org.sonar.core.test.Test.NestedMsg.Builder.class);
     }
 
     private int bitField0_;
     public static final int LABEL_FIELD_NUMBER = 1;
-    private java.lang.Object label_;
+    private volatile java.lang.Object label_;
     /**
      * <code>optional string label = 1;</code>
      */
@@ -2759,9 +3088,6 @@ public final class Test {
       }
     }
 
-    private void initFields() {
-      label_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -2774,11 +3100,10 @@ public final class Test {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getLabelBytes());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -2791,77 +3116,76 @@ public final class Test {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(1, getLabelBytes());
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
-    public static org.sonar.core.test.Test.NestedJsonTest parseFrom(
+    public static org.sonar.core.test.Test.NestedMsg parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseFrom(
+    public static org.sonar.core.test.Test.NestedMsg parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseFrom(byte[] data)
+    public static org.sonar.core.test.Test.NestedMsg parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseFrom(
+    public static org.sonar.core.test.Test.NestedMsg parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.NestedMsg parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseFrom(
+    public static org.sonar.core.test.Test.NestedMsg parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseDelimitedFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.NestedMsg parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseDelimitedFrom(
+    public static org.sonar.core.test.Test.NestedMsg parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseFrom(
+    public static org.sonar.core.test.Test.NestedMsg parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.NestedJsonTest parseFrom(
+    public static org.sonar.core.test.Test.NestedMsg parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.core.test.Test.NestedJsonTest prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.core.test.Test.NestedMsg prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2870,25 +3194,25 @@ public final class Test {
       return builder;
     }
     /**
-     * Protobuf type {@code NestedJsonTest}
+     * Protobuf type {@code NestedMsg}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:NestedJsonTest)
-        org.sonar.core.test.Test.NestedJsonTestOrBuilder {
+        // @@protoc_insertion_point(builder_implements:NestedMsg)
+        org.sonar.core.test.Test.NestedMsgOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonar.core.test.Test.internal_static_NestedJsonTest_descriptor;
+        return org.sonar.core.test.Test.internal_static_NestedMsg_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonar.core.test.Test.internal_static_NestedJsonTest_fieldAccessorTable
+        return org.sonar.core.test.Test.internal_static_NestedMsg_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.sonar.core.test.Test.NestedJsonTest.class, org.sonar.core.test.Test.NestedJsonTest.Builder.class);
+                org.sonar.core.test.Test.NestedMsg.class, org.sonar.core.test.Test.NestedMsg.Builder.class);
       }
 
-      // Construct using org.sonar.core.test.Test.NestedJsonTest.newBuilder()
+      // Construct using org.sonar.core.test.Test.NestedMsg.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -2902,10 +3226,6 @@ public final class Test {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         label_ = "";
@@ -2913,29 +3233,25 @@ public final class Test {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.sonar.core.test.Test.internal_static_NestedJsonTest_descriptor;
+        return org.sonar.core.test.Test.internal_static_NestedMsg_descriptor;
       }
 
-      public org.sonar.core.test.Test.NestedJsonTest getDefaultInstanceForType() {
-        return org.sonar.core.test.Test.NestedJsonTest.getDefaultInstance();
+      public org.sonar.core.test.Test.NestedMsg getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.NestedMsg.getDefaultInstance();
       }
 
-      public org.sonar.core.test.Test.NestedJsonTest build() {
-        org.sonar.core.test.Test.NestedJsonTest result = buildPartial();
+      public org.sonar.core.test.Test.NestedMsg build() {
+        org.sonar.core.test.Test.NestedMsg result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.sonar.core.test.Test.NestedJsonTest buildPartial() {
-        org.sonar.core.test.Test.NestedJsonTest result = new org.sonar.core.test.Test.NestedJsonTest(this);
+      public org.sonar.core.test.Test.NestedMsg buildPartial() {
+        org.sonar.core.test.Test.NestedMsg result = new org.sonar.core.test.Test.NestedMsg(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -2948,22 +3264,23 @@ public final class Test {
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.sonar.core.test.Test.NestedJsonTest) {
-          return mergeFrom((org.sonar.core.test.Test.NestedJsonTest)other);
+        if (other instanceof org.sonar.core.test.Test.NestedMsg) {
+          return mergeFrom((org.sonar.core.test.Test.NestedMsg)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.sonar.core.test.Test.NestedJsonTest other) {
-        if (other == org.sonar.core.test.Test.NestedJsonTest.getDefaultInstance()) return this;
+      public Builder mergeFrom(org.sonar.core.test.Test.NestedMsg other) {
+        if (other == org.sonar.core.test.Test.NestedMsg.getDefaultInstance()) return this;
         if (other.hasLabel()) {
           bitField0_ |= 0x00000001;
           label_ = other.label_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2975,11 +3292,11 @@ public final class Test {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.sonar.core.test.Test.NestedJsonTest parsedMessage = null;
+        org.sonar.core.test.Test.NestedMsg parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.sonar.core.test.Test.NestedJsonTest) e.getUnfinishedMessage();
+          parsedMessage = (org.sonar.core.test.Test.NestedMsg) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -3066,37 +3383,851 @@ public final class Test {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:NestedJsonTest)
+      // @@protoc_insertion_point(builder_scope:NestedMsg)
     }
 
+    // @@protoc_insertion_point(class_scope:NestedMsg)
+    private static final org.sonar.core.test.Test.NestedMsg DEFAULT_INSTANCE;
     static {
-      defaultInstance = new NestedJsonTest(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.NestedMsg();
     }
 
-    // @@protoc_insertion_point(class_scope:NestedJsonTest)
+    public static org.sonar.core.test.Test.NestedMsg getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<NestedMsg> PARSER =
+        new com.google.protobuf.AbstractParser<NestedMsg>() {
+      public NestedMsg parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new NestedMsg(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<NestedMsg> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.NestedMsg getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  public interface MapMsgOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:MapMsg)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>map&lt;string, string&gt; stringMap = 1;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getStringMap();
+
+    /**
+     * <code>map&lt;string, .NestedMsg&gt; nestedMap = 2;</code>
+     */
+    java.util.Map<java.lang.String, org.sonar.core.test.Test.NestedMsg>
+    getNestedMap();
+
+    /**
+     * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
+     */
+    boolean hasNullableStringMapPresentIfEmpty();
+    /**
+     * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
+     */
+    boolean getNullableStringMapPresentIfEmpty();
+
+    /**
+     * <code>map&lt;string, string&gt; nullableStringMap = 4;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getNullableStringMap();
+  }
+  /**
+   * Protobuf type {@code MapMsg}
+   */
+  public  static final class MapMsg extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:MapMsg)
+      MapMsgOrBuilder {
+    // Use MapMsg.newBuilder() to construct.
+    private MapMsg(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private MapMsg() {
+      nullableStringMapPresentIfEmpty_ = false;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private MapMsg(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                stringMap_ = com.google.protobuf.MapField.newMapField(
+                    StringMapDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000001;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              stringMap = input.readMessage(
+                  StringMapDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              stringMap_.getMutableMap().put(stringMap.getKey(), stringMap.getValue());
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                nestedMap_ = com.google.protobuf.MapField.newMapField(
+                    NestedMapDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000002;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.NestedMsg>
+              nestedMap = input.readMessage(
+                  NestedMapDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              nestedMap_.getMutableMap().put(nestedMap.getKey(), nestedMap.getValue());
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000001;
+              nullableStringMapPresentIfEmpty_ = input.readBool();
+              break;
+            }
+            case 34: {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                nullableStringMap_ = com.google.protobuf.MapField.newMapField(
+                    NullableStringMapDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000008;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              nullableStringMap = input.readMessage(
+                  NullableStringMapDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              nullableStringMap_.getMutableMap().put(nullableStringMap.getKey(), nullableStringMap.getValue());
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_MapMsg_descriptor;
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 1:
+          return internalGetStringMap();
+        case 2:
+          return internalGetNestedMap();
+        case 4:
+          return internalGetNullableStringMap();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_MapMsg_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.MapMsg.class, org.sonar.core.test.Test.MapMsg.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int STRINGMAP_FIELD_NUMBER = 1;
+    private static final class StringMapDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  org.sonar.core.test.Test.internal_static_MapMsg_StringMapEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> stringMap_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetStringMap() {
+      if (stringMap_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            StringMapDefaultEntryHolder.defaultEntry);
+     }
+      return stringMap_;
+    }
+    /**
+     * <code>map&lt;string, string&gt; stringMap = 1;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.String> getStringMap() {
+      return internalGetStringMap().getMap();
+    }
+
+    public static final int NESTEDMAP_FIELD_NUMBER = 2;
+    private static final class NestedMapDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, org.sonar.core.test.Test.NestedMsg> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, org.sonar.core.test.Test.NestedMsg>newDefaultInstance(
+                  org.sonar.core.test.Test.internal_static_MapMsg_NestedMapEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.MESSAGE,
+                  org.sonar.core.test.Test.NestedMsg.getDefaultInstance());
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, org.sonar.core.test.Test.NestedMsg> nestedMap_;
+    private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.NestedMsg>
+    internalGetNestedMap() {
+      if (nestedMap_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            NestedMapDefaultEntryHolder.defaultEntry);
+     }
+      return nestedMap_;
+    }
+    /**
+     * <code>map&lt;string, .NestedMsg&gt; nestedMap = 2;</code>
+     */
+
+    public java.util.Map<java.lang.String, org.sonar.core.test.Test.NestedMsg> getNestedMap() {
+      return internalGetNestedMap().getMap();
+    }
+
+    public static final int NULLABLESTRINGMAPPRESENTIFEMPTY_FIELD_NUMBER = 3;
+    private boolean nullableStringMapPresentIfEmpty_;
+    /**
+     * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
+     */
+    public boolean hasNullableStringMapPresentIfEmpty() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
+     */
+    public boolean getNullableStringMapPresentIfEmpty() {
+      return nullableStringMapPresentIfEmpty_;
+    }
+
+    public static final int NULLABLESTRINGMAP_FIELD_NUMBER = 4;
+    private static final class NullableStringMapDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  org.sonar.core.test.Test.internal_static_MapMsg_NullableStringMapEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> nullableStringMap_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetNullableStringMap() {
+      if (nullableStringMap_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            NullableStringMapDefaultEntryHolder.defaultEntry);
+     }
+      return nullableStringMap_;
+    }
+    /**
+     * <code>map&lt;string, string&gt; nullableStringMap = 4;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.String> getNullableStringMap() {
+      return internalGetNullableStringMap().getMap();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetStringMap().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        stringMap = StringMapDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(1, stringMap);
+      }
+      for (java.util.Map.Entry<java.lang.String, org.sonar.core.test.Test.NestedMsg> entry
+           : internalGetNestedMap().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.NestedMsg>
+        nestedMap = NestedMapDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(2, nestedMap);
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBool(3, nullableStringMapPresentIfEmpty_);
+      }
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetNullableStringMap().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        nullableStringMap = NullableStringMapDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(4, nullableStringMap);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetStringMap().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        stringMap = StringMapDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(1, stringMap);
+      }
+      for (java.util.Map.Entry<java.lang.String, org.sonar.core.test.Test.NestedMsg> entry
+           : internalGetNestedMap().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.NestedMsg>
+        nestedMap = NestedMapDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(2, nestedMap);
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, nullableStringMapPresentIfEmpty_);
+      }
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetNullableStringMap().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        nullableStringMap = NullableStringMapDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(4, nullableStringMap);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonar.core.test.Test.MapMsg parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.MapMsg parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonar.core.test.Test.MapMsg prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code MapMsg}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:MapMsg)
+        org.sonar.core.test.Test.MapMsgOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_MapMsg_descriptor;
+      }
+
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetStringMap();
+          case 2:
+            return internalGetNestedMap();
+          case 4:
+            return internalGetNullableStringMap();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetMutableStringMap();
+          case 2:
+            return internalGetMutableNestedMap();
+          case 4:
+            return internalGetMutableNullableStringMap();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_MapMsg_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.MapMsg.class, org.sonar.core.test.Test.MapMsg.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.MapMsg.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        internalGetMutableStringMap().clear();
+        internalGetMutableNestedMap().clear();
+        nullableStringMapPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        internalGetMutableNullableStringMap().clear();
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_MapMsg_descriptor;
+      }
+
+      public org.sonar.core.test.Test.MapMsg getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.MapMsg.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.MapMsg build() {
+        org.sonar.core.test.Test.MapMsg result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.MapMsg buildPartial() {
+        org.sonar.core.test.Test.MapMsg result = new org.sonar.core.test.Test.MapMsg(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        result.stringMap_ = internalGetStringMap();
+        result.stringMap_.makeImmutable();
+        result.nestedMap_ = internalGetNestedMap();
+        result.nestedMap_.makeImmutable();
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.nullableStringMapPresentIfEmpty_ = nullableStringMapPresentIfEmpty_;
+        result.nullableStringMap_ = internalGetNullableStringMap();
+        result.nullableStringMap_.makeImmutable();
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.MapMsg) {
+          return mergeFrom((org.sonar.core.test.Test.MapMsg)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.MapMsg other) {
+        if (other == org.sonar.core.test.Test.MapMsg.getDefaultInstance()) return this;
+        internalGetMutableStringMap().mergeFrom(
+            other.internalGetStringMap());
+        internalGetMutableNestedMap().mergeFrom(
+            other.internalGetNestedMap());
+        if (other.hasNullableStringMapPresentIfEmpty()) {
+          setNullableStringMapPresentIfEmpty(other.getNullableStringMapPresentIfEmpty());
+        }
+        internalGetMutableNullableStringMap().mergeFrom(
+            other.internalGetNullableStringMap());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.MapMsg parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.MapMsg) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.String> stringMap_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetStringMap() {
+        if (stringMap_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              StringMapDefaultEntryHolder.defaultEntry);
+       }
+        return stringMap_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetMutableStringMap() {
+        onChanged();;
+        if (stringMap_ == null) {
+          stringMap_ = com.google.protobuf.MapField.newMapField(
+              StringMapDefaultEntryHolder.defaultEntry);
+        }
+        if (!stringMap_.isMutable()) {
+          stringMap_ = stringMap_.copy();
+        }
+        return stringMap_;
+      }
+      /**
+       * <code>map&lt;string, string&gt; stringMap = 1;</code>
+       */
+      public java.util.Map<java.lang.String, java.lang.String> getStringMap() {
+        return internalGetStringMap().getMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; stringMap = 1;</code>
+       */
+      public java.util.Map<java.lang.String, java.lang.String>
+      getMutableStringMap() {
+        return internalGetMutableStringMap().getMutableMap();
+      }
+
+      private com.google.protobuf.MapField<
+          java.lang.String, org.sonar.core.test.Test.NestedMsg> nestedMap_;
+      private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.NestedMsg>
+      internalGetNestedMap() {
+        if (nestedMap_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              NestedMapDefaultEntryHolder.defaultEntry);
+       }
+        return nestedMap_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.NestedMsg>
+      internalGetMutableNestedMap() {
+        onChanged();;
+        if (nestedMap_ == null) {
+          nestedMap_ = com.google.protobuf.MapField.newMapField(
+              NestedMapDefaultEntryHolder.defaultEntry);
+        }
+        if (!nestedMap_.isMutable()) {
+          nestedMap_ = nestedMap_.copy();
+        }
+        return nestedMap_;
+      }
+      /**
+       * <code>map&lt;string, .NestedMsg&gt; nestedMap = 2;</code>
+       */
+      public java.util.Map<java.lang.String, org.sonar.core.test.Test.NestedMsg> getNestedMap() {
+        return internalGetNestedMap().getMap();
+      }
+      /**
+       * <code>map&lt;string, .NestedMsg&gt; nestedMap = 2;</code>
+       */
+      public java.util.Map<java.lang.String, org.sonar.core.test.Test.NestedMsg>
+      getMutableNestedMap() {
+        return internalGetMutableNestedMap().getMutableMap();
+      }
+
+      private boolean nullableStringMapPresentIfEmpty_ ;
+      /**
+       * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
+       */
+      public boolean hasNullableStringMapPresentIfEmpty() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
+       */
+      public boolean getNullableStringMapPresentIfEmpty() {
+        return nullableStringMapPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
+       */
+      public Builder setNullableStringMapPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00000004;
+        nullableStringMapPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
+       */
+      public Builder clearNullableStringMapPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        nullableStringMapPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.String> nullableStringMap_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetNullableStringMap() {
+        if (nullableStringMap_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              NullableStringMapDefaultEntryHolder.defaultEntry);
+       }
+        return nullableStringMap_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetMutableNullableStringMap() {
+        onChanged();;
+        if (nullableStringMap_ == null) {
+          nullableStringMap_ = com.google.protobuf.MapField.newMapField(
+              NullableStringMapDefaultEntryHolder.defaultEntry);
+        }
+        if (!nullableStringMap_.isMutable()) {
+          nullableStringMap_ = nullableStringMap_.copy();
+        }
+        return nullableStringMap_;
+      }
+      /**
+       * <code>map&lt;string, string&gt; nullableStringMap = 4;</code>
+       */
+      public java.util.Map<java.lang.String, java.lang.String> getNullableStringMap() {
+        return internalGetNullableStringMap().getMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; nullableStringMap = 4;</code>
+       */
+      public java.util.Map<java.lang.String, java.lang.String>
+      getMutableNullableStringMap() {
+        return internalGetMutableNullableStringMap().getMutableMap();
+      }
+
+      // @@protoc_insertion_point(builder_scope:MapMsg)
+    }
+
+    // @@protoc_insertion_point(class_scope:MapMsg)
+    private static final org.sonar.core.test.Test.MapMsg DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.MapMsg();
+    }
+
+    public static org.sonar.core.test.Test.MapMsg getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<MapMsg> PARSER =
+        new com.google.protobuf.AbstractParser<MapMsg>() {
+      public MapMsg parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new MapMsg(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MapMsg> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.MapMsg getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Fake_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Fake_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_JsonTest_descriptor;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_PrimitiveTypeMsg_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_JsonTest_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_JsonArrayTest_descriptor;
+      internal_static_PrimitiveTypeMsg_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_ArrayFieldMsg_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_JsonArrayTest_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_NestedJsonTest_descriptor;
+      internal_static_ArrayFieldMsg_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_NestedMsg_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_NestedJsonTest_fieldAccessorTable;
+      internal_static_NestedMsg_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_MapMsg_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_MapMsg_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_MapMsg_StringMapEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_MapMsg_StringMapEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_MapMsg_NestedMapEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_MapMsg_NestedMapEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_MapMsg_NullableStringMapEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_MapMsg_NullableStringMapEntry_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -3107,17 +4238,26 @@ public final class Test {
   static {
     java.lang.String[] descriptorData = {
       "\n\ntest.proto\"#\n\004Fake\022\r\n\005label\030\001 \001(\t\022\014\n\004l" +
-      "ine\030\002 \001(\005\"\323\001\n\010JsonTest\022\023\n\013stringField\030\001 " +
-      "\001(\t\022\020\n\010intField\030\002 \001(\005\022\021\n\tlongField\030\003 \001(\003" +
-      "\022\023\n\013doubleField\030\004 \001(\001\022\024\n\014booleanField\030\005 " +
-      "\001(\010\022\034\n\tenumField\030\006 \001(\0162\t.FakeEnum\022\022\n\nbyt" +
-      "esField\030\007 \001(\014\022\037\n\006nested\030\010 \001(\0132\017.NestedJs" +
-      "onTest\022\017\n\007anArray\030\t \003(\t\"M\n\rJsonArrayTest" +
-      "\022$\n\034aNullableArrayPresentIfEmpty\030\001 \001(\010\022\026" +
-      "\n\016aNullableArray\030\002 \003(\t\"\037\n\016NestedJsonTest" +
-      "\022\r\n\005label\030\001 \001(\t*(\n\010FakeEnum\022\010\n\004BLUE\020\000\022\007\n",
-      "\003RED\020\001\022\t\n\005GREEN\020\002B\027\n\023org.sonar.core.test" +
-      "H\001"
+      "ine\030\002 \001(\005\"\305\001\n\020PrimitiveTypeMsg\022\023\n\013string" +
+      "Field\030\001 \001(\t\022\020\n\010intField\030\002 \001(\005\022\021\n\tlongFie" +
+      "ld\030\003 \001(\003\022\023\n\013doubleField\030\004 \001(\001\022\024\n\014boolean" +
+      "Field\030\005 \001(\010\022\034\n\tenumField\030\006 \001(\0162\t.FakeEnu" +
+      "m\022\022\n\nbytesField\030\007 \001(\014\022\032\n\006nested\030\010 \001(\0132\n." +
+      "NestedMsg\"y\n\rArrayFieldMsg\022\017\n\007strings\030\001 " +
+      "\003(\t\022\033\n\007nesteds\030\002 \003(\0132\n.NestedMsg\022#\n\033null" +
+      "ableArrayPresentIfEmpty\030\003 \001(\010\022\025\n\rnullabl" +
+      "eArray\030\004 \003(\t\"\032\n\tNestedMsg\022\r\n\005label\030\001 \001(\t",
+      "\"\354\002\n\006MapMsg\022)\n\tstringMap\030\001 \003(\0132\026.MapMsg." +
+      "StringMapEntry\022)\n\tnestedMap\030\002 \003(\0132\026.MapM" +
+      "sg.NestedMapEntry\022\'\n\037nullableStringMapPr" +
+      "esentIfEmpty\030\003 \001(\010\0229\n\021nullableStringMap\030" +
+      "\004 \003(\0132\036.MapMsg.NullableStringMapEntry\0320\n" +
+      "\016StringMapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 " +
+      "\001(\t:\0028\001\032<\n\016NestedMapEntry\022\013\n\003key\030\001 \001(\t\022\031" +
+      "\n\005value\030\002 \001(\0132\n.NestedMsg:\0028\001\0328\n\026Nullabl" +
+      "eStringMapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 " +
+      "\001(\t:\0028\001*(\n\010FakeEnum\022\010\n\004BLUE\020\000\022\007\n\003RED\020\001\022\t",
+      "\n\005GREEN\020\002B\027\n\023org.sonar.core.testH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3137,24 +4277,48 @@ public final class Test {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Fake_descriptor,
         new java.lang.String[] { "Label", "Line", });
-    internal_static_JsonTest_descriptor =
+    internal_static_PrimitiveTypeMsg_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_JsonTest_fieldAccessorTable = new
+    internal_static_PrimitiveTypeMsg_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_JsonTest_descriptor,
-        new java.lang.String[] { "StringField", "IntField", "LongField", "DoubleField", "BooleanField", "EnumField", "BytesField", "Nested", "AnArray", });
-    internal_static_JsonArrayTest_descriptor =
+        internal_static_PrimitiveTypeMsg_descriptor,
+        new java.lang.String[] { "StringField", "IntField", "LongField", "DoubleField", "BooleanField", "EnumField", "BytesField", "Nested", });
+    internal_static_ArrayFieldMsg_descriptor =
       getDescriptor().getMessageTypes().get(2);
-    internal_static_JsonArrayTest_fieldAccessorTable = new
+    internal_static_ArrayFieldMsg_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_JsonArrayTest_descriptor,
-        new java.lang.String[] { "ANullableArrayPresentIfEmpty", "ANullableArray", });
-    internal_static_NestedJsonTest_descriptor =
+        internal_static_ArrayFieldMsg_descriptor,
+        new java.lang.String[] { "Strings", "Nesteds", "NullableArrayPresentIfEmpty", "NullableArray", });
+    internal_static_NestedMsg_descriptor =
       getDescriptor().getMessageTypes().get(3);
-    internal_static_NestedJsonTest_fieldAccessorTable = new
+    internal_static_NestedMsg_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_NestedJsonTest_descriptor,
+        internal_static_NestedMsg_descriptor,
         new java.lang.String[] { "Label", });
+    internal_static_MapMsg_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_MapMsg_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_MapMsg_descriptor,
+        new java.lang.String[] { "StringMap", "NestedMap", "NullableStringMapPresentIfEmpty", "NullableStringMap", });
+    internal_static_MapMsg_StringMapEntry_descriptor =
+      internal_static_MapMsg_descriptor.getNestedTypes().get(0);
+    internal_static_MapMsg_StringMapEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_MapMsg_StringMapEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_MapMsg_NestedMapEntry_descriptor =
+      internal_static_MapMsg_descriptor.getNestedTypes().get(1);
+    internal_static_MapMsg_NestedMapEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_MapMsg_NestedMapEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_MapMsg_NullableStringMapEntry_descriptor =
+      internal_static_MapMsg_descriptor.getNestedTypes().get(2);
+    internal_static_MapMsg_NullableStringMapEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_MapMsg_NullableStringMapEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

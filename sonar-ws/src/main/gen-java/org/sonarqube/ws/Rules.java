@@ -43,37 +43,27 @@ public final class Rules {
    * WS api/rules/list for internal use only
    * </pre>
    */
-  public static final class ListResponse extends
+  public  static final class ListResponse extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:sonarqube.ws.rules.ListResponse)
       ListResponseOrBuilder {
     // Use ListResponse.newBuilder() to construct.
-    private ListResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private ListResponse(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ListResponse(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ListResponse defaultInstance;
-    public static ListResponse getDefaultInstance() {
-      return defaultInstance;
+    private ListResponse() {
+      rules_ = java.util.Collections.emptyList();
     }
 
-    public ListResponse getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ListResponse(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -103,10 +93,11 @@ public final class Rules {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           rules_ = java.util.Collections.unmodifiableList(rules_);
@@ -125,21 +116,6 @@ public final class Rules {
       return org.sonarqube.ws.Rules.internal_static_sonarqube_ws_rules_ListResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonarqube.ws.Rules.ListResponse.class, org.sonarqube.ws.Rules.ListResponse.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<ListResponse> PARSER =
-        new com.google.protobuf.AbstractParser<ListResponse>() {
-      public ListResponse parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ListResponse(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ListResponse> getParserForType() {
-      return PARSER;
     }
 
     public interface RuleOrBuilder extends
@@ -205,37 +181,30 @@ public final class Rules {
     /**
      * Protobuf type {@code sonarqube.ws.rules.ListResponse.Rule}
      */
-    public static final class Rule extends
+    public  static final class Rule extends
         com.google.protobuf.GeneratedMessage implements
         // @@protoc_insertion_point(message_implements:sonarqube.ws.rules.ListResponse.Rule)
         RuleOrBuilder {
       // Use Rule.newBuilder() to construct.
-      private Rule(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      private Rule(com.google.protobuf.GeneratedMessage.Builder builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private Rule(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final Rule defaultInstance;
-      public static Rule getDefaultInstance() {
-        return defaultInstance;
-      }
-
-      public Rule getDefaultInstanceForType() {
-        return defaultInstance;
+      private Rule() {
+        repository_ = "";
+        key_ = "";
+        internalKey_ = "";
+        name_ = "";
       }
 
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private Rule(
           com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+        this();
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -281,10 +250,11 @@ public final class Rules {
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
+          throw new RuntimeException(e.setUnfinishedMessage(this));
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+          throw new RuntimeException(
+              new com.google.protobuf.InvalidProtocolBufferException(
+                  e.getMessage()).setUnfinishedMessage(this));
         } finally {
           this.unknownFields = unknownFields.build();
           makeExtensionsImmutable();
@@ -302,24 +272,9 @@ public final class Rules {
                 org.sonarqube.ws.Rules.ListResponse.Rule.class, org.sonarqube.ws.Rules.ListResponse.Rule.Builder.class);
       }
 
-      public static com.google.protobuf.Parser<Rule> PARSER =
-          new com.google.protobuf.AbstractParser<Rule>() {
-        public Rule parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Rule(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<Rule> getParserForType() {
-        return PARSER;
-      }
-
       private int bitField0_;
       public static final int REPOSITORY_FIELD_NUMBER = 1;
-      private java.lang.Object repository_;
+      private volatile java.lang.Object repository_;
       /**
        * <code>optional string repository = 1;</code>
        */
@@ -361,7 +316,7 @@ public final class Rules {
       }
 
       public static final int KEY_FIELD_NUMBER = 2;
-      private java.lang.Object key_;
+      private volatile java.lang.Object key_;
       /**
        * <code>optional string key = 2;</code>
        */
@@ -403,7 +358,7 @@ public final class Rules {
       }
 
       public static final int INTERNAL_KEY_FIELD_NUMBER = 3;
-      private java.lang.Object internalKey_;
+      private volatile java.lang.Object internalKey_;
       /**
        * <code>optional string internal_key = 3;</code>
        */
@@ -445,7 +400,7 @@ public final class Rules {
       }
 
       public static final int NAME_FIELD_NUMBER = 4;
-      private java.lang.Object name_;
+      private volatile java.lang.Object name_;
       /**
        * <code>optional string name = 4;</code>
        */
@@ -486,12 +441,6 @@ public final class Rules {
         }
       }
 
-      private void initFields() {
-        repository_ = "";
-        key_ = "";
-        internalKey_ = "";
-        name_ = "";
-      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -504,7 +453,6 @@ public final class Rules {
 
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           output.writeBytes(1, getRepositoryBytes());
         }
@@ -517,7 +465,7 @@ public final class Rules {
         if (((bitField0_ & 0x00000008) == 0x00000008)) {
           output.writeBytes(4, getNameBytes());
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
       private int memoizedSerializedSize = -1;
@@ -542,18 +490,12 @@ public final class Rules {
           size += com.google.protobuf.CodedOutputStream
             .computeBytesSize(4, getNameBytes());
         }
-        size += getUnknownFields().getSerializedSize();
+        size += unknownFields.getSerializedSize();
         memoizedSerializedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
       public static org.sonarqube.ws.Rules.ListResponse.Rule parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -607,12 +549,17 @@ public final class Rules {
         return PARSER.parseFrom(input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(org.sonarqube.ws.Rules.ListResponse.Rule prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(org.sonarqube.ws.Rules.ListResponse.Rule prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
@@ -653,10 +600,6 @@ public final class Rules {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
         public Builder clear() {
           super.clear();
           repository_ = "";
@@ -668,10 +611,6 @@ public final class Rules {
           name_ = "";
           bitField0_ = (bitField0_ & ~0x00000008);
           return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
         }
 
         public com.google.protobuf.Descriptors.Descriptor
@@ -747,7 +686,8 @@ public final class Rules {
             name_ = other.name_;
             onChanged();
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
@@ -1081,12 +1021,44 @@ public final class Rules {
         // @@protoc_insertion_point(builder_scope:sonarqube.ws.rules.ListResponse.Rule)
       }
 
+      // @@protoc_insertion_point(class_scope:sonarqube.ws.rules.ListResponse.Rule)
+      private static final org.sonarqube.ws.Rules.ListResponse.Rule DEFAULT_INSTANCE;
       static {
-        defaultInstance = new Rule(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new org.sonarqube.ws.Rules.ListResponse.Rule();
       }
 
-      // @@protoc_insertion_point(class_scope:sonarqube.ws.rules.ListResponse.Rule)
+      public static org.sonarqube.ws.Rules.ListResponse.Rule getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      public static final com.google.protobuf.Parser<Rule> PARSER =
+          new com.google.protobuf.AbstractParser<Rule>() {
+        public Rule parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          try {
+            return new Rule(input, extensionRegistry);
+          } catch (RuntimeException e) {
+            if (e.getCause() instanceof
+                com.google.protobuf.InvalidProtocolBufferException) {
+              throw (com.google.protobuf.InvalidProtocolBufferException)
+                  e.getCause();
+            }
+            throw e;
+          }
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<Rule> getParserForType() {
+        return PARSER;
+      }
+
+      public org.sonarqube.ws.Rules.ListResponse.Rule getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     public static final int RULES_FIELD_NUMBER = 1;
@@ -1124,9 +1096,6 @@ public final class Rules {
       return rules_.get(index);
     }
 
-    private void initFields() {
-      rules_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1139,11 +1108,10 @@ public final class Rules {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       for (int i = 0; i < rules_.size(); i++) {
         output.writeMessage(1, rules_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -1156,18 +1124,12 @@ public final class Rules {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, rules_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonarqube.ws.Rules.ListResponse parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1221,12 +1183,17 @@ public final class Rules {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonarqube.ws.Rules.ListResponse prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonarqube.ws.Rules.ListResponse prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1272,10 +1239,6 @@ public final class Rules {
           getRulesFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         if (rulesBuilder_ == null) {
@@ -1285,10 +1248,6 @@ public final class Rules {
           rulesBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1361,7 +1320,8 @@ public final class Rules {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -1631,20 +1591,52 @@ public final class Rules {
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.rules.ListResponse)
     }
 
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.rules.ListResponse)
+    private static final org.sonarqube.ws.Rules.ListResponse DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ListResponse(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Rules.ListResponse();
     }
 
-    // @@protoc_insertion_point(class_scope:sonarqube.ws.rules.ListResponse)
+    public static org.sonarqube.ws.Rules.ListResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<ListResponse> PARSER =
+        new com.google.protobuf.AbstractParser<ListResponse>() {
+      public ListResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ListResponse(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ListResponse> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Rules.ListResponse getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_rules_ListResponse_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_rules_ListResponse_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_rules_ListResponse_Rule_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable

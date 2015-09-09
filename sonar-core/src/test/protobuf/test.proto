@@ -34,7 +34,7 @@ enum FakeEnum {
   GREEN = 2;
 }
 
-message JsonTest {
+message PrimitiveTypeMsg {
   optional string stringField = 1;
   optional int32 intField = 2;
   optional int64 longField = 3;
@@ -42,17 +42,27 @@ message JsonTest {
   optional bool booleanField = 5;
   optional FakeEnum enumField = 6;
   optional bytes bytesField = 7;
-  optional NestedJsonTest nested = 8;
-  repeated string anArray = 9;
+  optional NestedMsg nested = 8;
 }
 
-message JsonArrayTest {
-// naming convention. A boolean field is used
-  // to know if the array field is present.
-  optional bool aNullableArrayPresentIfEmpty = 1;
-  repeated string aNullableArray = 2;
+message ArrayFieldMsg {
+  repeated string strings = 1;
+  repeated NestedMsg nesteds = 2;
+
+  // naming convention. A boolean field is used
+  // to know if the repeated field is present.
+  optional bool nullableArrayPresentIfEmpty = 3;
+  repeated string nullableArray = 4;
 }
 
-message NestedJsonTest {
+message NestedMsg {
   optional string label = 1;
+}
+
+message MapMsg {
+  map<string,string> stringMap = 1;
+  map<string,NestedMsg> nestedMap = 2;
+
+  optional bool nullableStringMapPresentIfEmpty = 3;
+  map<string,string> nullableStringMap = 4;
 }
