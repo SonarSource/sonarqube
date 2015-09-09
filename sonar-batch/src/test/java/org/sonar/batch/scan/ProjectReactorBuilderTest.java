@@ -91,14 +91,6 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void modulesRepeatedNames() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Two modules have the same name: module1");
-    
-    loadProjectDefinition("multi-module-repeated-names");
-  }
-
-  @Test
   public void shouldDefineMultiModuleProjectWithDefinitionsAllInRootProject() throws IOException {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-all-in-root");
 
