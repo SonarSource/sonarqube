@@ -346,9 +346,9 @@ public class DebtModelBackup {
   @CheckForNull
   private static RuleDebt toRuleDebt(RuleDto rule, DebtModel debtModel) {
     RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()));
-    Integer effectiveSubCharacteristicId = rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId();
-    DebtCharacteristic subCharacteristic = (effectiveSubCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(effectiveSubCharacteristicId)) ?
-      debtModel.characteristicById(effectiveSubCharacteristicId) : null;
+    Integer effectiveSubCharacteristicId = rule.getEffectiveSubCharacteristicId();
+    DebtCharacteristic subCharacteristic = (effectiveSubCharacteristicId != null ?
+      debtModel.characteristicById(effectiveSubCharacteristicId) : null);
     if (subCharacteristic != null) {
       ruleDebt.setSubCharacteristicKey(subCharacteristic.key());
 

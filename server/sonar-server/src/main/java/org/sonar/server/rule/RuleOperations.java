@@ -111,7 +111,7 @@ public class RuleOperations {
       // No sub-characteristic is given -> disable rule debt if not already disabled
     } else {
       // Rule characteristic is not already disabled -> update it
-      if (ruleDto.getSubCharacteristicId() == null || !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(ruleDto.getSubCharacteristicId())) {
+      if (ruleDto.getSubCharacteristicId() == null || RuleDto.DISABLED_CHARACTERISTIC_ID != ruleDto.getSubCharacteristicId()) {
         // If default characteristic is not defined, set the overridden characteristic to null in order to be able to track debt plugin
         // update
         ruleDto.setSubCharacteristicId(ruleDto.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
