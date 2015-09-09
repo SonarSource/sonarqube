@@ -28,6 +28,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.After;
@@ -224,7 +225,7 @@ public class MeasureRepositoryImplTest {
       @Nullable
       @Override
       public Object[] apply(Measure input) {
-        return new Measure[] {input};
+        return new Measure[]{input};
       }
     }).toArray(Object[].class);
   }
@@ -402,7 +403,7 @@ public class MeasureRepositoryImplTest {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-      ));
+    ));
 
     Optional<Measure> measure = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
@@ -410,64 +411,41 @@ public class MeasureRepositoryImplTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void getRawMeasure_for_rule_throws_NPE_if_Component_arg_is_null() {
-    underTest.getRawMeasure(null, metric1, SOME_RULE);
+  public void getRawMeasures_for_metric_throws_NPE_if_Component_arg_is_null() {
+    underTest.getRawMeasures(null, metric1);
   }
 
   @Test(expected = NullPointerException.class)
-  public void getRawMeasure_for_rule_throws_NPE_if_Metric_arg_is_null() {
-    underTest.getRawMeasure(FILE_COMPONENT, null, SOME_RULE);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void getRawMeasure_for_rule_throws_NPE_if_Characteristic_arg_is_null() {
-    underTest.getRawMeasure(FILE_COMPONENT, metric1, (RuleDto) null);
+  public void getRawMeasures_for_metric_throws_NPE_if_Metric_arg_is_null() {
+    underTest.getRawMeasures(FILE_COMPONENT, null);
   }
 
   @Test
-  public void getRawMeasure_for_rule_returns_absent_if_repository_is_empty() {
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_RULE)).isAbsent();
+  public void getRawMeasures_for_metric_returns_empty_if_repository_is_empty() {
+    assertThat(underTest.getRawMeasures(FILE_COMPONENT, metric1)).isEmpty();
   }
 
   @Test
-  public void getRawMeasure_for_rule_returns_measure_for_specified_rule() {
+  public void getRawMeasures_for_metric_returns_rule_measure() {
     Measure measure = Measure.newMeasureBuilder().forRule(SOME_RULE.getId()).createNoValue();
 
     underTest.add(FILE_COMPONENT, metric1, measure);
-    underTest.add(FILE_COMPONENT, metric1, Measure.newMeasureBuilder().forRule(222).createNoValue());
 
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_RULE).get()).isSameAs(measure);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void getRawMeasure_for_characteristic_throws_NPE_if_Component_arg_is_null() {
-    underTest.getRawMeasure(null, metric1, SOME_CHARACTERISTIC);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void getRawMeasure_for_characteristic_throws_NPE_if_Metric_arg_is_null() {
-    underTest.getRawMeasure(FILE_COMPONENT, null, SOME_CHARACTERISTIC);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void getRawMeasure_for_characteristic_throws_NPE_if_Characteristic_arg_is_null() {
-    underTest.getRawMeasure(FILE_COMPONENT, metric1, (Characteristic) null);
+    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
+    assertThat(measures).hasSize(1);
+    assertThat(measures.iterator().next()).isSameAs(measure);
   }
 
   @Test
-  public void getRawMeasure_for_characteristic_returns_absent_if_repository_is_empty() {
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_CHARACTERISTIC)).isAbsent();
-  }
-
-  @Test
-  public void getRawMeasure_for_characteristic_returns_measure_for_specified_rule() {
+  public void getRawMeasures_for_measures_returns_characteristic_measure() {
     when(reportMetricValidator.validate(metric1.getKey())).thenReturn(true);
     Measure measure = Measure.newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
 
     underTest.add(FILE_COMPONENT, metric1, measure);
-    underTest.add(FILE_COMPONENT, metric1, Measure.newMeasureBuilder().forCharacteristic(333).createNoValue());
 
-    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_CHARACTERISTIC).get()).isSameAs(measure);
+    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
+    assertThat(measures).hasSize(1);
+    assertThat(measures.iterator().next()).isSameAs(measure);
   }
 
   @Test

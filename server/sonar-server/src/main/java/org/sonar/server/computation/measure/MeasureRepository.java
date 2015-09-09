@@ -21,9 +21,8 @@ package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.SetMultimap;
-import org.sonar.db.rule.RuleDto;
+import java.util.Set;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 
@@ -53,18 +52,13 @@ public interface MeasureRepository {
   Optional<Measure> getRawMeasure(Component component, Metric metric);
 
   /**
-   * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified
-   * {@link Metric} if it exists (ie. one created by the Compute Engine) and which is associated to the
-   * specified rule.
+   * Returns the {@link Measure}s for the specified {@link Component} and the specified {@link Metric}.
+   * <p>
+   * Their will be one measure not associated to rules or characteristics, the other ones will be associated to rules or to characteristics
+   * (see {@link Measure#equals(Object)}.
+   * </p>
    */
-  Optional<Measure> getRawMeasure(Component component, Metric metric, RuleDto rule);
-
-  /**
-   * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified
-   * {@link Metric} if it exists (ie. one created by the Compute Engine) and which is associated to the
-   * specified Characteristic.
-   */
-  Optional<Measure> getRawMeasure(Component component, Metric metric, Characteristic characteristic);
+  Set<Measure> getRawMeasures(Component component, Metric metric);
 
   /**
    * Returns the {@link Measure}s for the specified {@link Component} mapped by their metric key.

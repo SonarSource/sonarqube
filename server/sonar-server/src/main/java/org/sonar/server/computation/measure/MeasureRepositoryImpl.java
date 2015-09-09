@@ -28,10 +28,8 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.measure.MapBasedRawMeasureRepository.OverridePolicy;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -72,7 +70,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   @Override
-  public Optional<Measure> getRawMeasure(final Component component, final Metric metric) {
+  public Optional<Measure> getRawMeasure(Component component, Metric metric) {
     Optional<Measure> local = delegate.getRawMeasure(component, metric);
     if (local.isPresent()) {
       return local;
@@ -84,16 +82,6 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   @Override
-  public Optional<Measure> getRawMeasure(Component component, Metric metric, RuleDto rule) {
-    return delegate.getRawMeasure(component, metric, rule);
-  }
-
-  @Override
-  public Optional<Measure> getRawMeasure(Component component, Metric metric, Characteristic characteristic) {
-    return delegate.getRawMeasure(component, metric, characteristic);
-  }
-
-  @Override
   public void add(Component component, Metric metric, Measure measure) {
     delegate.add(component, metric, measure);
   }
@@ -101,6 +89,12 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   @Override
   public void update(Component component, Metric metric, Measure measure) {
     delegate.update(component, metric, measure);
+  }
+
+  @Override
+  public Set<Measure> getRawMeasures(Component component, Metric metric) {
+    loadBatchMeasuresForComponent(component);
+    return delegate.getRawMeasures(component, metric);
   }
 
   @Override

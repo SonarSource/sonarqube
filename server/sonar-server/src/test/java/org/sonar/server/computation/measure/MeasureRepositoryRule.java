@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.measure;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
@@ -31,13 +32,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentProvider;
 import org.sonar.server.computation.component.TreeComponentProvider;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolderComponentProvider;
-import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
@@ -195,22 +194,17 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric)));
   }
 
-  @Override
-  public Optional<Measure> getRawMeasure(Component component, Metric metric, RuleDto rule) {
-    return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, rule.getId(), null)));
-  }
-
   public Optional<Measure> getRawRuleMeasure(Component component, Metric metric, int ruleId) {
     return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, ruleId, null)));
   }
 
-  @Override
-  public Optional<Measure> getRawMeasure(Component component, Metric metric, Characteristic characteristic) {
-    return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, null, characteristic.getId())));
-  }
-
   public Optional<Measure> getRawCharacteristicMeasure(Component component, Metric metric, int characteristicId) {
     return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, null, characteristicId)));
+  }
+
+  @Override
+  public Set<Measure> getRawMeasures(Component component, Metric metric) {
+    return from(filterKeys(rawMeasures, hasComponentRef(component)).entrySet()).filter(new MatchMetric(metric)).transform(ToMeasure.INSTANCE).toSet();
   }
 
   @Override
@@ -350,6 +344,29 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
   private static String getRef(Component component) {
     return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getKey();
+  }
+
+  private static class MatchMetric implements Predicate<Map.Entry<InternalKey, Measure>> {
+    private final Metric metric;
+
+    public MatchMetric(Metric metric) {
+      this.metric = metric;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Map.Entry<InternalKey, Measure> input) {
+      return input.getKey().getMetricKey().equals(metric.getKey());
+    }
+  }
+
+  private enum ToMeasure implements Function<Map.Entry<InternalKey,Measure>, Measure> {
+    INSTANCE;
+
+    @Nullable
+    @Override
+    public Measure apply(@Nonnull Map.Entry<InternalKey,Measure> input) {
+      return input.getValue();
+    }
   }
 
 }
