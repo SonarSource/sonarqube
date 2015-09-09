@@ -29,8 +29,7 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.debt.CharacteristicImpl;
-import org.sonar.server.computation.debt.DebtModelHolderImpl;
-import org.sonar.server.computation.debt.MutableDebtModelHolder;
+import org.sonar.server.computation.debt.DebtModelHolderRule;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -45,22 +44,27 @@ public class DebtAggregatorTest {
   /**
    * Root characteristic
    */
-  public static final int PORTABILITY_ID = 1000;
+  static final int PORTABILITY_ID = 1000;
 
   /**
    * Sub-characteristic of {@link #PORTABILITY_ID}
    */
-  public static final int PORTABILITY_SOFT_ID = 1001;
+  static final int PORTABILITY_SOFT_ID = 1001;
 
   /**
    * Sub-characteristic of {@link #PORTABILITY_ID}
    */
-  public static final int PORTABILITY_HARD_ID = 1002;
+  static final int PORTABILITY_HARD_ID = 1002;
 
   /**
    * Root characteristic
    */
-  public static final int RELIABILITY_ID = 1003;
+  static final int RELIABILITY_ID = 1003;
+
+  /**
+   * Sub-characteristic of {@link #RELIABILITY_ID}
+   */
+  static final int DATA_RELIABILITY_ID = 1004;
 
   static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).build();
   static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();
@@ -70,11 +74,14 @@ public class DebtAggregatorTest {
   @org.junit.Rule
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(RULE);
 
-  MutableDebtModelHolder debtModelHolder = new DebtModelHolderImpl()
-    .addCharacteristics(new CharacteristicImpl(PORTABILITY_ID, "PORTABILITY", null),
-      asList(new CharacteristicImpl(PORTABILITY_SOFT_ID, "PORTABILITY_HARDWARE", PORTABILITY_ID), new CharacteristicImpl(PORTABILITY_HARD_ID, "PORTABILITY_SOFTWARE", PORTABILITY_ID)))
+  @org.junit.Rule
+  public DebtModelHolderRule debtModelHolder = new DebtModelHolderRule()
+    .addCharacteristics(
+      new CharacteristicImpl(PORTABILITY_ID, "PORTABILITY", null),
+      asList(new CharacteristicImpl(PORTABILITY_SOFT_ID, "PORTABILITY_HARDWARE", PORTABILITY_ID),
+        new CharacteristicImpl(PORTABILITY_HARD_ID, "PORTABILITY_SOFTWARE", PORTABILITY_ID)))
     .addCharacteristics(new CharacteristicImpl(RELIABILITY_ID, "RELIABILITY", null),
-      asList(new CharacteristicImpl(1004, "DATA_RELIABILITY", RELIABILITY_ID))
+      asList(new CharacteristicImpl(DATA_RELIABILITY_ID, "DATA_RELIABILITY", RELIABILITY_ID))
     );
 
   @org.junit.Rule
