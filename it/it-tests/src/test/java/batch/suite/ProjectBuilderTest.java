@@ -55,7 +55,7 @@ public class ProjectBuilderTest {
     try {
       orchestrator.executeBuild(build);
     } catch (BuildFailureException e) {
-      assertThat(e.getResult().getLogs()).contains("Two modules have the same id: module1");
+      assertThat(e.getResult().getLogs()).contains("Two modules have the same name: module1");
     }
   }
 
