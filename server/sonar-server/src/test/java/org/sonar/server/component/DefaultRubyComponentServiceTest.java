@@ -87,8 +87,9 @@ public class DefaultRubyComponentServiceTest {
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
-    when(resourceDao.selectByKey(componentKey)).thenReturn(ComponentTesting.newProjectDto());
-    when(componentService.create(any(NewComponent.class))).thenReturn(componentKey);
+    ComponentDto projectDto = ComponentTesting.newProjectDto().setKey(componentKey);
+    when(resourceDao.selectByKey(componentKey)).thenReturn(projectDto);
+    when(componentService.create(any(NewComponent.class))).thenReturn(projectDto);
 
     service.createComponent(componentKey, componentName, qualifier);
 

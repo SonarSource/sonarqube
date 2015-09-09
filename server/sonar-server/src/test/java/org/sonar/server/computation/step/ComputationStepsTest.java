@@ -27,7 +27,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.CeTask;
 import org.sonar.server.computation.container.ComputeEngineContainerImpl;
 import org.sonar.server.computation.container.ReportComputeEngineContainerPopulator;
 import org.sonar.server.computation.container.StepsExplorer;
@@ -51,7 +51,7 @@ public class ComputationStepsTest {
 
   @Test
   public void all_steps_from_package_step_are_present_in_container() {
-    ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(new ComponentContainer(), new ReportComputeEngineContainerPopulator(mock(ReportQueue.Item.class)));
+    ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(new ComponentContainer(), new ReportComputeEngineContainerPopulator(mock(CeTask.class)));
 
     Set<String> stepsCanonicalNames = StepsExplorer.retrieveStepPackageStepsCanonicalNames();
 

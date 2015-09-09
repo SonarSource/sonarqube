@@ -24,13 +24,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.core.platform.Module;
 import org.sonar.db.activity.ActivityDao;
+import org.sonar.db.ce.CeActivityDao;
+import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.ResourceKeyUpdaterDao;
 import org.sonar.db.component.SnapshotDao;
-import org.sonar.db.compute.AnalysisReportDao;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.WidgetDao;
@@ -74,9 +75,10 @@ public class DaoModule extends Module {
     ActionPlanStatsDao.class,
     ActiveDashboardDao.class,
     ActivityDao.class,
-    AnalysisReportDao.class,
     AuthorDao.class,
     AuthorizationDao.class,
+    CeActivityDao.class,
+    CeQueueDao.class,
     ComponentDao.class,
     ComponentLinkDao.class,
     CustomMeasureDao.class,

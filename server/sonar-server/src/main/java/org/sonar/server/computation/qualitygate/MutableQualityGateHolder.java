@@ -19,12 +19,11 @@
  */
 package org.sonar.server.computation.qualitygate;
 
-import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.component.Component;
 
 public interface MutableQualityGateHolder extends QualityGateHolder {
   /**
-   * Sets the quality gate for the project of the currently processed {@link ReportQueue.Item}.
+   * Sets the quality gate.
    * Settings a quality gate more than once is not allowed and it can never be set to {@code null}.
    *
    * @param qualityGate a {@link Component}, can not be {@code null}

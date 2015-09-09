@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.platform.Server;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -38,66 +37,41 @@ import static org.mockito.Mockito.when;
 
 public class ReportProcessingSchedulerTest {
 
-  private ReportProcessingSchedulerExecutorService batchExecutorService = mock(ReportProcessingSchedulerExecutorService.class);
-  private SimpleComputeEngineProcessingQueue processingQueue = new SimpleComputeEngineProcessingQueue();
-  private ReportQueue queue = mock(ReportQueue.class);
-  private ComponentContainer componentContainer = mock(ComponentContainer.class);
-
-  private ReportProcessingScheduler underTest = new ReportProcessingScheduler(batchExecutorService, processingQueue, queue, componentContainer);
+  ReportProcessingSchedulerExecutorService batchExecutorService = mock(ReportProcessingSchedulerExecutorService.class);
+  SimpleComputeEngineProcessingQueue processingQueue = new SimpleComputeEngineProcessingQueue();
+  CeWorker worker = mock(CeWorker.class);
+  ReportProcessingScheduler underTest = new ReportProcessingScheduler(batchExecutorService, processingQueue, worker);
 
   @Test
-  public void schedule_at_fixed_rate_adding_a_ReportProcessingTask_to_the_queue_if_there_is_item_in_ReportQueue() {
-    ReportQueue.Item item = mock(ReportQueue.Item.class);
-    when(batchExecutorService.scheduleAtFixedRate(any(Runnable.class), eq(0L), eq(10L), eq(TimeUnit.SECONDS)))
-      .thenAnswer(new ExecuteFirstArgAsRunnable());
-    when(queue.pop()).thenReturn(item);
-
-    underTest.onServerStart(mock(Server.class));
-
-    assertThat(processingQueue.getTasks()).hasSize(1);
-    assertThat(processingQueue.getTasks().iterator().next()).isInstanceOf(ReportProcessingTask.class);
-  }
-
-  @Test
-  public void schedule_at_fixed_rate_does_not_add_ReportProcessingTask_to_the_queue_if_there_is_no_item_in_ReportQueue() {
+  public void schedule_at_fixed_rate_adding_a_ReportProcessingTask_to_the_queue() throws Exception {
     when(batchExecutorService.scheduleAtFixedRate(any(Runnable.class), eq(0L), eq(10L), eq(TimeUnit.SECONDS)))
       .thenAnswer(new ExecuteFirstArgAsRunnable());
 
     underTest.onServerStart(mock(Server.class));
 
-    assertThat(processingQueue.getTasks()).isEmpty();
+    assertThat(processingQueue.getTasks()).hasSize(1);
+    assertThat(processingQueue.getTasks().iterator().next()).isInstanceOf(CeWorker.class);
   }
 
   @Test
-  public void adds_immediately_a_ReportProcessingTask_to_the_queue_if_there_is_item_in_ReportQueue() {
-    ReportQueue.Item item = mock(ReportQueue.Item.class);
+  public void adds_immediately_a_ReportProcessingTask_to_the_queue() throws Exception {
     doAnswer(new ExecuteFirstArgAsRunnable()).when(batchExecutorService).execute(any(Runnable.class));
-    when(queue.pop()).thenReturn(item);
 
     underTest.startAnalysisTaskNow();
 
     assertThat(processingQueue.getTasks()).hasSize(1);
-    assertThat(processingQueue.getTasks().iterator().next()).isInstanceOf(ReportProcessingTask.class);
-  }
-
-  @Test
-  public void adds_immediately_does_not_add_ReportProcessingTask_to_the_queue_if_there_is_item_in_ReportQueue() {
-    doAnswer(new ExecuteFirstArgAsRunnable()).when(batchExecutorService).execute(any(Runnable.class));
-
-    underTest.startAnalysisTaskNow();
-
-    assertThat(processingQueue.getTasks()).isEmpty();
+    assertThat(processingQueue.getTasks().iterator().next()).isInstanceOf(CeWorker.class);
   }
 
   private static class SimpleComputeEngineProcessingQueue implements ComputeEngineProcessingQueue {
-    private final List<ComputeEngineTask> tasks = new ArrayList<>();
+    private final List<CeWorker> tasks = new ArrayList<>();
 
     @Override
-    public void addTask(ComputeEngineTask task) {
+    public void addTask(CeWorker task) {
       tasks.add(task);
     }
 
-    public List<ComputeEngineTask> getTasks() {
+    public List<CeWorker> getTasks() {
       return tasks;
     }
   }

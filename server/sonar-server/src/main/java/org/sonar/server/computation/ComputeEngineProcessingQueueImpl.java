@@ -33,7 +33,7 @@ public class ComputeEngineProcessingQueueImpl implements ComputeEngineProcessing
   private static final Logger LOG = Loggers.get(ComputeEngineProcessingQueueImpl.class);
 
   private final ComputeEngineProcessingExecutorService processingService;
-  private final ConcurrentLinkedQueue<ComputeEngineTask> queue = Queues.newConcurrentLinkedQueue();
+  private final ConcurrentLinkedQueue<CeWorker> queue = Queues.newConcurrentLinkedQueue();
 
   private final long delayBetweenTasks;
   private final long delayForFirstStart;
@@ -48,7 +48,7 @@ public class ComputeEngineProcessingQueueImpl implements ComputeEngineProcessing
   }
 
   @Override
-  public void addTask(ComputeEngineTask task) {
+  public void addTask(CeWorker task) {
     requireNonNull(task, "a ComputeEngineTask can not be null");
 
     queue.add(task);
@@ -62,7 +62,7 @@ public class ComputeEngineProcessingQueueImpl implements ComputeEngineProcessing
   private class ProcessHeadOfQueueRunnable implements Runnable {
     @Override
     public void run() {
-      ComputeEngineTask task = queue.poll();
+      CeWorker task = queue.poll();
       if (task != null) {
         try {
           task.run();

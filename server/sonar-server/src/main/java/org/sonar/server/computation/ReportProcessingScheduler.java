@@ -23,23 +23,14 @@ package org.sonar.server.computation;
 import java.util.concurrent.TimeUnit;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.container.ContainerFactory;
-import org.sonar.server.computation.container.ContainerFactoryImpl;
 
 /**
  * Adds tasks to the Compute Engine to process batch reports.
  */
 public class ReportProcessingScheduler implements ServerStartHandler {
-  private static final Logger LOG = Loggers.get(ReportProcessingScheduler.class);
-
   private final ReportProcessingSchedulerExecutorService reportProcessingSchedulerExecutorService;
   private final ComputeEngineProcessingQueue processingQueue;
-  private final ReportQueue queue;
-  private final ComponentContainer sqContainer;
-  private final ContainerFactory containerFactory;
+  private final CeWorker worker;
 
   private final long delayBetweenTasks;
   private final long delayForFirstStart;
@@ -47,12 +38,10 @@ public class ReportProcessingScheduler implements ServerStartHandler {
 
   public ReportProcessingScheduler(ReportProcessingSchedulerExecutorService reportProcessingSchedulerExecutorService,
     ComputeEngineProcessingQueue processingQueue,
-    ReportQueue queue, ComponentContainer sqContainer) {
+    CeWorker worker) {
     this.reportProcessingSchedulerExecutorService = reportProcessingSchedulerExecutorService;
     this.processingQueue = processingQueue;
-    this.queue = queue;
-    this.sqContainer = sqContainer;
-    this.containerFactory = new ContainerFactoryImpl();
+    this.worker = worker;
 
     this.delayBetweenTasks = 10;
     this.delayForFirstStart = 0;
@@ -71,14 +60,7 @@ public class ReportProcessingScheduler implements ServerStartHandler {
   private class AddReportProcessingToCEProcessingQueue implements Runnable {
     @Override
     public void run() {
-      try {
-        ReportQueue.Item item = queue.pop();
-        if (item != null) {
-          processingQueue.addTask(new ReportProcessingTask(queue, item, sqContainer, containerFactory));
-        }
-      } catch (Exception e) {
-        LOG.error("Failed to pop the queue of analysis reports", e);
-      }
+      processingQueue.addTask(worker);
     }
   }
 }

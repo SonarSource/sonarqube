@@ -22,7 +22,7 @@ package org.sonar.server.computation;
 import org.sonar.server.util.StoppableScheduledExecutorService;
 
 /**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link ComputeEngineTask}.
+ * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorker}.
  */
 public interface ComputeEngineProcessingExecutorService extends StoppableScheduledExecutorService {
 }

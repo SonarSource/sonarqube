@@ -73,12 +73,15 @@ public class DefaultRubyComponentService implements RubyComponentService {
   public Long createComponent(String key, @Nullable String branch, String name, @Nullable String qualifier) {
     // Sub view should not be created with provisioning. Will be fixed by http://jira.sonarsource.com/browse/VIEWS-296
     if (!Qualifiers.SUBVIEW.equals(qualifier)) {
-      String createdKey = componentService.create(NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
-      ComponentDto component = (ComponentDto) resourceDao.selectByKey(createdKey);
-      if (component == null) {
-        throw new BadRequestException(String.format("Component not created: %s", createdKey));
+      ComponentDto componentDto = componentService.create(NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
+      if (componentDto == null) {
+        throw new BadRequestException(String.format("Component not created: %s", key));
       }
-      permissionService.applyDefaultPermissionTemplate(createdKey);
+      ComponentDto component = (ComponentDto) resourceDao.selectByKey(componentDto.getKey());
+      if (component == null) {
+        throw new BadRequestException(String.format("Component not created: %s", key));
+      }
+      permissionService.applyDefaultPermissionTemplate(component.getKey());
       return component.getId();
     }
     return null;

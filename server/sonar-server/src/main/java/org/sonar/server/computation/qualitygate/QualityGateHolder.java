@@ -20,11 +20,10 @@
 package org.sonar.server.computation.qualitygate;
 
 import com.google.common.base.Optional;
-import org.sonar.server.computation.ReportQueue;
 
 public interface QualityGateHolder {
   /**
-   * The QualityGate for the project of the current {@link ReportQueue.Item} if there is any.
+   * The QualityGate for the project if there is any.
    *
    * @throws IllegalStateException if the holder has not been initialized (ie. we don't know yet what is the QualityGate)
    */

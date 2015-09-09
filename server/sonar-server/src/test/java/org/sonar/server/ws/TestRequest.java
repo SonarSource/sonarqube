@@ -23,6 +23,7 @@ import com.google.common.base.Throwables;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -40,7 +41,11 @@ public class TestRequest extends ValidatingRequest {
 
   @Override
   protected InputStream readInputStreamParam(String key) {
-    throw new UnsupportedOperationException("Not supported in test yet");
+    String value = readParam(key);
+    if (value == null) {
+      return null;
+    }
+    return IOUtils.toInputStream(value);
   }
 
   @Override

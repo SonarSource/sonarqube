@@ -20,11 +20,16 @@
 package org.sonar.server.computation;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.computation.container.ContainerFactoryImpl;
 
 public class ComputeEngineProcessingModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      CeWorkerImpl.class,
+      ContainerFactoryImpl.class,
+      ComputationStepExecutor.class,
+      ReportTaskProcessor.class,
       ReportProcessingScheduler.class,
       ReportProcessingSchedulerExecutorServiceImpl.class,
       ComputeEngineProcessingExecutorServiceImpl.class,

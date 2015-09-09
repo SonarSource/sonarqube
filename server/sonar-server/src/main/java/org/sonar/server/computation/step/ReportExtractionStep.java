@@ -26,23 +26,26 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
-import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.ReportFiles;
 import org.sonar.server.computation.batch.MutableBatchReportDirectoryHolder;
 
 /**
- * Extracts the content zip file of the {@link ReportQueue.Item} to a temp directory and adds a {@link File}
+ * Extracts the content zip file of the {@link org.sonar.server.computation.CeTask} to a temp directory and adds a {@link File}
  * representing that temp directory to the {@link MutableBatchReportDirectoryHolder}.
  */
 public class ReportExtractionStep implements ComputationStep {
   private static final Logger LOG = Loggers.get(ReportExtractionStep.class);
 
-  private final ReportQueue.Item item;
+  private final ReportFiles reportFiles;
+  private final CeTask task;
   private final TempFolder tempFolder;
   private final MutableBatchReportDirectoryHolder reportDirectoryHolder;
 
-  public ReportExtractionStep(ReportQueue.Item item, TempFolder tempFolder, MutableBatchReportDirectoryHolder reportDirectoryHolder) {
-    this.item = item;
+  public ReportExtractionStep(ReportFiles reportFiles, CeTask task, TempFolder tempFolder,
+    MutableBatchReportDirectoryHolder reportDirectoryHolder) {
+    this.reportFiles = reportFiles;
+    this.task = task;
     this.tempFolder = tempFolder;
     this.reportDirectoryHolder = reportDirectoryHolder;
   }
@@ -50,23 +53,20 @@ public class ReportExtractionStep implements ComputationStep {
   @Override
   public void execute() {
     File dir = tempFolder.newDir();
+    File zip = reportFiles.fileForUuid(task.getUuid());
     try {
-      Profiler profiler = Profiler.createIfDebug(LOG).start();
-      ZipUtils.unzip(item.zipFile, dir);
-      if (profiler.isDebugEnabled()) {
-        String message = String.format("Report extracted | size=%s | project=%s",
-            FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(dir)), item.dto.getProjectKey());
-        profiler.stopDebug(message);
-      }
+      ZipUtils.unzip(zip, dir);
       reportDirectoryHolder.setDirectory(dir);
+      LOG.info("Analysis report extracted | size={} | compressed={}",
+        FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(dir)), FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(zip)));
     } catch (IOException e) {
-      throw new IllegalStateException(String.format("Fail to unzip %s into %s", item.zipFile, dir), e);
+      throw new IllegalStateException(String.format("Fail to unzip %s into %s", zip, dir), e);
     }
   }
 
   @Override
   public String getDescription() {
-    return "Extracting batch report to temp directory";
+    return "Uncompress report";
   }
 
 }

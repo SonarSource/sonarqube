@@ -19,5 +19,8 @@
  */
 package org.sonar.db;
 
+/**
+ * All implementations must be declared in {@link DaoModule}
+ */
 public interface Dao {
 }

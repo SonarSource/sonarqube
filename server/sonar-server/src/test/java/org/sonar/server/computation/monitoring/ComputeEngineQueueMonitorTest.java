@@ -20,7 +20,7 @@
 package org.sonar.server.computation.monitoring;
 
 import org.junit.Test;
-import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.CeQueue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -34,7 +34,7 @@ public class ComputeEngineQueueMonitorTest {
   private static final long SUCCESS_COUNT = 13;
   private static final long PROCESSING_TIME = 987;
 
-  private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus(), mock(ReportQueue.class));
+  private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus(), mock(CeQueue.class));
 
   @Test
   public void name_is_ComputeEngineQueue() {

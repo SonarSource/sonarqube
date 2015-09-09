@@ -23,5 +23,5 @@ public interface ComputeEngineProcessingQueue {
   /**
    * Adds a task to the Compute Engine processing queue.
    */
-  void addTask(ComputeEngineTask task);
+  void addTask(CeWorker task);
 }

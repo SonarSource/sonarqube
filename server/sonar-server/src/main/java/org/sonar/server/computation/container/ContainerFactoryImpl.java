@@ -20,11 +20,11 @@
 package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.CeTask;
 
 public class ContainerFactoryImpl implements ContainerFactory {
   @Override
-  public ComputeEngineContainer create(ComponentContainer parent, ReportQueue.Item item) {
-    return new ComputeEngineContainerImpl(parent, new ReportComputeEngineContainerPopulator(item));
+  public ComputeEngineContainer create(ComponentContainer parent, CeTask task) {
+    return new ComputeEngineContainerImpl(parent, new ReportComputeEngineContainerPopulator(task));
   }
 }

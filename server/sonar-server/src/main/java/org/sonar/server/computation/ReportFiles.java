@@ -1,0 +1,95 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.computation;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.config.Settings;
+import org.sonar.api.server.ServerSide;
+import org.sonar.process.ProcessProperties;
+
+import static java.lang.String.format;
+
+// TODO deal with temporary unzipped files
+@ServerSide
+public class ReportFiles {
+
+  private static final String ZIP_EXTENSION = "zip";
+
+  private final Settings settings;
+
+  public ReportFiles(Settings settings) {
+    this.settings = settings;
+  }
+
+  public void save(CeTaskSubmit taskSubmit, InputStream reportInput) {
+    File file = fileForUuid(taskSubmit.getUuid());
+    try {
+      FileUtils.copyInputStreamToFile(reportInput, file);
+    } catch (Exception e) {
+      FileUtils.deleteQuietly(file);
+      IOUtils.closeQuietly(reportInput);
+      throw new IllegalStateException(format("Fail to copy report to file: %s", file.getAbsolutePath()), e);
+    }
+  }
+
+  public void deleteIfExists(String taskUuid) {
+    FileUtils.deleteQuietly(fileForUuid(taskUuid));
+  }
+
+  public void deleteAll() {
+    File dir = reportDir();
+    try {
+      FileUtils.deleteDirectory(dir);
+    } catch (Exception e) {
+      throw new IllegalStateException(format("Fail to delete directory: %s", dir.getAbsolutePath()), e);
+    }
+  }
+
+  private File reportDir() {
+    return new File(settings.getString(ProcessProperties.PATH_DATA), "ce/reports");
+  }
+
+  /**
+   * The analysis report to be processed. Can't be null
+   * but may no exist on file system.
+   */
+  public File fileForUuid(String taskUuid) {
+    return new File(reportDir(), format("%s.%s", taskUuid, ZIP_EXTENSION));
+  }
+
+  public List<String> listUuids() {
+    List<String> uuids = new ArrayList<>();
+    File dir = reportDir();
+    if (dir.exists()) {
+      Collection<File> files = FileUtils.listFiles(dir, new String[]{ZIP_EXTENSION}, false);
+      for (File file : files) {
+        uuids.add(FilenameUtils.getBaseName(file.getName()));
+      }
+    }
+    return uuids;
+  }
+}

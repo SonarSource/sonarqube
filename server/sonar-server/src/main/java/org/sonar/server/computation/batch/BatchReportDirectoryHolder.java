@@ -20,11 +20,10 @@
 package org.sonar.server.computation.batch;
 
 import java.io.File;
-import org.sonar.server.computation.ReportQueue;
 
 public interface BatchReportDirectoryHolder {
   /**
-   * The File of the directory where the Batch report files for the current {@link ReportQueue.Item} are stored.
+   * The File of the directory where the Batch report files for the current {@link org.sonar.server.computation.CeTask} are stored.
    *
    * @throws IllegalStateException if the holder is empty (ie. there is no directory yet)
    */

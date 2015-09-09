@@ -27,7 +27,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.CeTask;
 import org.sonar.server.computation.step.ComputationStep;
 
 import static com.google.common.base.Predicates.notNull;
@@ -36,15 +36,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ReportComputeEngineContainerPopulatorTest {
-  private ReportQueue.Item item = mock(ReportQueue.Item.class);
-  private ReportComputeEngineContainerPopulator underTest = new ReportComputeEngineContainerPopulator(item);
+  private CeTask task = mock(CeTask.class);
+  private ReportComputeEngineContainerPopulator underTest = new ReportComputeEngineContainerPopulator(task);
 
   @Test
   public void item_is_added_to_the_container() {
     AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
     underTest.populateContainer(container);
 
-    assertThat(container.added).contains(item);
+    assertThat(container.added).contains(task);
   }
 
   @Test

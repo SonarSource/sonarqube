@@ -64,14 +64,19 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ResourcesWs;
+import org.sonar.server.computation.CeQueue;
+import org.sonar.server.computation.CeQueueInitializer;
+import org.sonar.server.computation.CleanReportQueueListener;
 import org.sonar.server.computation.ComputeEngineProcessingModule;
-import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.ReportFiles;
+import org.sonar.server.computation.ReportSubmitter;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
-import org.sonar.server.computation.ws.ComputationWs;
-import org.sonar.server.computation.ws.HistoryAction;
+import org.sonar.server.computation.ws.CeSubmitWsAction;
+import org.sonar.server.computation.ws.CeTaskWsAction;
+import org.sonar.server.computation.ws.CeWs;
+import org.sonar.server.computation.ws.CeWsTaskFormatter;
 import org.sonar.server.computation.ws.IsQueueEmptyWs;
-import org.sonar.server.computation.ws.QueueAction;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
 import org.sonar.server.dashboard.template.ProjectDefaultDashboard;
@@ -711,17 +716,21 @@ public class PlatformLevel4 extends PlatformLevel {
       // Compute engine
       CEQueueStatusImpl.class,
       ComputeEngineQueueMonitor.class,
-      ReportQueue.class,
+      CeQueue.class,
+      CleanReportQueueListener.class,
+      ReportFiles.class,
       ComputeEngineProcessingModule.class,
-      ComputationWs.class,
+      CeWs.class,
+      CeWsTaskFormatter.class,
+      CeTaskWsAction.class,
+      CeSubmitWsAction.class,
       IsQueueEmptyWs.class,
-      QueueAction.class,
-      HistoryAction.class,
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,
       ProjectSettingsFactory.class,
       IndexPurgeListener.class,
-
+      ReportSubmitter.class,
+      CeQueueInitializer.class,
       // Views plugin
       ViewsBootstrap.class,
       ViewsStopper.class,

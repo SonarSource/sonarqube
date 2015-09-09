@@ -54,7 +54,7 @@ public class ComputeEngineProcessingQueueImplTest {
   @Test
   public void task_in_queue_is_called_run_only_once() {
     ComputeEngineProcessingExecutorServiceAdapter processingExecutorService = new SimulateFixedRateCallsProcessingExecutorService(10);
-    CallCounterComputeEngineTask task = new CallCounterComputeEngineTask();
+    CallCounterCeWorker task = new CallCounterCeWorker();
 
     ComputeEngineProcessingQueueImpl underTest = new ComputeEngineProcessingQueueImpl(processingExecutorService);
     underTest.addTask(task);
@@ -70,25 +70,25 @@ public class ComputeEngineProcessingQueueImplTest {
     final List<Integer> nameList = new ArrayList<>();
 
     ComputeEngineProcessingQueueImpl underTest = new ComputeEngineProcessingQueueImpl(processingExecutorService);
-    underTest.addTask(new ComputeEngineTask() {
+    underTest.addTask(new CeWorker() {
       @Override
       public void run() {
         nameList.add(1);
       }
     });
-    underTest.addTask(new ComputeEngineTask() {
+    underTest.addTask(new CeWorker() {
       @Override
       public void run() {
         nameList.add(2);
       }
     });
-    underTest.addTask(new ComputeEngineTask() {
+    underTest.addTask(new CeWorker() {
       @Override
       public void run() {
         nameList.add(3);
       }
     });
-    underTest.addTask(new ComputeEngineTask() {
+    underTest.addTask(new CeWorker() {
       @Override
       public void run() {
         nameList.add(4);
@@ -105,7 +105,7 @@ public class ComputeEngineProcessingQueueImplTest {
     ComputeEngineProcessingExecutorServiceAdapter processingExecutorService = new SimulateFixedRateCallsProcessingExecutorService(1);
 
     ComputeEngineProcessingQueueImpl underTest = new ComputeEngineProcessingQueueImpl(processingExecutorService);
-    underTest.addTask(new ComputeEngineTask() {
+    underTest.addTask(new CeWorker() {
       @Override
       public void run() {
         throw new RuntimeException("This should be caught by the processing queue");
@@ -115,7 +115,7 @@ public class ComputeEngineProcessingQueueImplTest {
     underTest.onServerStart(mock(Server.class));
   }
 
-  private static class CallCounterComputeEngineTask implements ComputeEngineTask {
+  private static class CallCounterCeWorker implements CeWorker {
     int calls = 0;
 
     @Override

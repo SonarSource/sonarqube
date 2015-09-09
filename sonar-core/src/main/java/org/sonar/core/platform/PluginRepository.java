@@ -36,7 +36,7 @@ public interface PluginRepository {
   PluginInfo getPluginInfo(String key);
 
   /**
-   * @return the instance of {@link Plugin} for the given plugin key. Never return null.
+   * @return the instance of {@link SonarPlugin} for the given plugin key. Never return null.
    */
   SonarPlugin getPluginInstance(String key);
 

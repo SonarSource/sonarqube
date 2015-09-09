@@ -56,6 +56,16 @@ public class Protobuf {
     }
   }
 
+  public static <MSG extends Message> MSG read(InputStream input, Parser<MSG> parser) {
+    try {
+      return parser.parseFrom(input);
+    } catch (Exception e) {
+      throw ContextException.of("Unable to read message", e);
+    } finally {
+      IOUtils.closeQuietly(input);
+    }
+  }
+
   /**
    * Writes a single message to {@code file}. Existing content is replaced, the message is not
    * appended.

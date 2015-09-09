@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
@@ -38,7 +37,7 @@ import org.sonar.server.computation.qualitygate.QualityGateService;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
- * This step retrieves the QualityGate for the current {@link ReportQueue.Item} and stores it in
+ * This step retrieves the QualityGate and stores it in
  * {@link MutableQualityGateHolder}.
  */
 public class QualityGateLoadingStep implements ComputationStep {

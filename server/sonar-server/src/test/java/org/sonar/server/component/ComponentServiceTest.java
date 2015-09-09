@@ -270,7 +270,7 @@ public class ComponentServiceTest {
   public void create_project() {
     userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
-    String key = service.create(NewComponent.create("struts", "Struts project"));
+    String key = service.create(NewComponent.create("struts", "Struts project")).getKey();
 
     ComponentDto project = service.getNullableByKey(key);
     assertThat(project.key()).isEqualTo("struts");
@@ -290,7 +290,7 @@ public class ComponentServiceTest {
   public void create_new_project_with_branch() {
     userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
-    String key = service.create(NewComponent.create("struts", "Struts project").setBranch("origin/branch"));
+    String key = service.create(NewComponent.create("struts", "Struts project").setBranch("origin/branch")).getKey();
 
     ComponentDto project = service.getNullableByKey(key);
     assertThat(project.key()).isEqualTo("struts:origin/branch");
@@ -301,7 +301,7 @@ public class ComponentServiceTest {
   public void create_view() {
     userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
-    String key = service.create(NewComponent.create("all-project", "All Projects").setQualifier(Qualifiers.VIEW));
+    String key = service.create(NewComponent.create("all-project", "All Projects").setQualifier(Qualifiers.VIEW)).getKey();
 
     ComponentDto project = service.getNullableByKey(key);
     assertThat(project.key()).isEqualTo("all-project");

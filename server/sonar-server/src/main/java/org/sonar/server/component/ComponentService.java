@@ -144,7 +144,7 @@ public class ComponentService {
     }
   }
 
-  public String create(NewComponent newComponent) {
+  public ComponentDto create(NewComponent newComponent) {
     userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
 
     DbSession session = dbClient.openSession(false);
@@ -175,9 +175,9 @@ public class ComponentService {
       dbClient.componentIndexDao().indexResource(session, component.getId());
       session.commit();
 
-      return component.key();
+      return component;
     } finally {
-      session.close();
+      dbClient.closeSession(session);
     }
   }
 

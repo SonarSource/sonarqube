@@ -23,13 +23,14 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.db.activity.ActivityDao;
+import org.sonar.db.ce.CeActivityDao;
+import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.ResourceKeyUpdaterDao;
 import org.sonar.db.component.SnapshotDao;
-import org.sonar.db.compute.AnalysisReportDao;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.WidgetDao;
@@ -95,7 +96,8 @@ public class DbClient {
   private final IssueChangeDao issueChangeDao;
   private final ActionPlanDao actionPlanDao;
   private final ActionPlanStatsDao actionPlanStatsDao;
-  private final AnalysisReportDao analysisReportDao;
+  private final CeQueueDao ceQueueDao;
+  private final CeActivityDao ceActivityDao;
   private final DashboardDao dashboardDao;
   private final ActiveDashboardDao activeDashboardDao;
   private final WidgetDao widgetDao;
@@ -148,7 +150,8 @@ public class DbClient {
     issueChangeDao = getDao(map, IssueChangeDao.class);
     actionPlanDao = getDao(map, ActionPlanDao.class);
     actionPlanStatsDao = getDao(map, ActionPlanStatsDao.class);
-    analysisReportDao = getDao(map, AnalysisReportDao.class);
+    ceQueueDao = getDao(map, CeQueueDao.class);
+    ceActivityDao = getDao(map, CeActivityDao.class);
     dashboardDao = getDao(map, DashboardDao.class);
     activeDashboardDao = getDao(map, ActiveDashboardDao.class);
     widgetDao = getDao(map, WidgetDao.class);
@@ -280,8 +283,12 @@ public class DbClient {
     return actionPlanDao;
   }
 
-  public AnalysisReportDao analysisReportDao() {
-    return analysisReportDao;
+  public CeQueueDao ceQueueDao() {
+    return ceQueueDao;
+  }
+
+  public CeActivityDao ceActivityDao() {
+    return ceActivityDao;
   }
 
   public DashboardDao dashboardDao() {

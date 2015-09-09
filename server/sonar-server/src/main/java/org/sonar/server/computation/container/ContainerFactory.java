@@ -20,12 +20,12 @@
 package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.CeTask;
 
 /**
  * Compute
  */
 public interface ContainerFactory {
 
-  ComputeEngineContainer create(ComponentContainer parent, ReportQueue.Item item);
+  ComputeEngineContainer create(ComponentContainer parent, CeTask task);
 }

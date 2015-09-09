@@ -39,6 +39,10 @@ class AddScanAndDryRunPermissions < ActiveRecord::Migration
     # -- Role dryRunScan --
     # Anyone
     GroupRole.create(:group_id => nil, :role => 'dryRunScan', :resource_id => nil)
+
+    # -- Role provisioning --
+    # Anyone
+    GroupRole.create(:group_id => nil, :role => 'provisioning', :resource_id => nil)
   end
 
 end

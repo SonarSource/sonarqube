@@ -21,17 +21,16 @@ package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.ReportQueue.Item;
 
 /**
- * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link Item}.
+ * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link org.sonar.server.computation.CeTask}.
  */
 public interface ComputeEngineContainer extends ContainerPopulator.Container {
 
   ComponentContainer getParent();
 
   /**
-   * Clean's up resources after process has been called and has returned.
+   * Cleans up resources after process has been called and has returned.
    */
   void cleanup();
 

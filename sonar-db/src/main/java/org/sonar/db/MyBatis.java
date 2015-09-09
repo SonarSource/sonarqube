@@ -32,6 +32,8 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.activity.ActivityDto;
 import org.sonar.db.activity.ActivityMapper;
+import org.sonar.db.ce.CeActivityMapper;
+import org.sonar.db.ce.CeQueueMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentLinkMapper;
@@ -46,8 +48,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithProjectUuidDto;
 import org.sonar.db.component.ViewsSnapshotDto;
-import org.sonar.db.compute.AnalysisReportDto;
-import org.sonar.db.compute.AnalysisReportMapper;
 import org.sonar.db.dashboard.ActiveDashboardDto;
 import org.sonar.db.dashboard.ActiveDashboardMapper;
 import org.sonar.db.dashboard.DashboardDto;
@@ -95,6 +95,7 @@ import org.sonar.db.permission.PermissionTemplateUserDto;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.db.purge.PurgeableSnapshotDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
@@ -204,7 +205,7 @@ public class MyBatis {
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
     confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
     confBuilder.loadAlias("Activity", ActivityDto.class);
-    confBuilder.loadAlias("AnalysisReport", AnalysisReportDto.class);
+    confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
     confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
@@ -230,7 +231,7 @@ public class MyBatis {
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
       MeasureMapper.class, MetricMapper.class, CustomMeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
       ProjectQgateAssociationMapper.class, EventMapper.class,
-      AnalysisReportMapper.class, ComponentLinkMapper.class,
+      CeQueueMapper.class, CeActivityMapper.class, ComponentLinkMapper.class,
       Migration45Mapper.class, Migration50Mapper.class
     };
     confBuilder.loadMappers(mappers);

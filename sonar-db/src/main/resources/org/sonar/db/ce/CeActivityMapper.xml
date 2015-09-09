@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.ce.CeActivityMapper">
+
+  <sql id="columns">
+    ca.uuid,
+    ca.task_type as taskType,
+    ca.component_uuid as componentUuid,
+    ca.status as status,
+    ca.submitter_login as submitterLogin,
+    ca.submitted_at as submittedAt,
+    ca.started_at as startedAt,
+    ca.finished_at as finishedAt,
+    ca.created_at as createdAt,
+    ca.updated_at as updatedAt,
+    ca.is_last as isLast,
+    ca.is_last_key as isLastKey,
+    ca.execution_time_ms as executionTimeMs
+  </sql>
+
+  <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeActivityDto">
+    select
+    <include refid="columns"/>
+    from ce_activity ca
+    where ca.uuid=#{uuid}
+  </select>
+
+  <select id="selectByComponentUuid" parameterType="String" resultType="org.sonar.db.ce.CeActivityDto">
+    select
+    <include refid="columns"/>
+    from ce_activity ca
+    where ca.component_uuid=#{componentUuid}
+    order by ca.id asc
+  </select>
+
+  <select id="selectUuidsOfRecentlyCreatedByIsLastKey" parameterType="String" resultType="String">
+    select uuid
+    from ce_activity
+    where is_last_key=#{isLastKey}
+    order by id desc
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
+    select
+    <include refid="columns"/>
+    from ce_activity ca
+    <where>
+      <if test="query.onlyCurrents">
+        ca.is_last=${_true}
+      </if>
+      <if test="query.componentUuid != null">
+        ca.component_uuid=#{query.componentUuid}
+      </if>
+      <if test="query.status != null">
+        ca.status=#{query.status}
+      </if>
+      <if test="query.type != null">
+        ca.task_type=#{query.type}
+      </if>
+    </where>
+    order by ca.id desc
+  </select>
+
+  <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
+    insert into ce_activity
+    (uuid, component_uuid, status, task_type, is_last, is_last_key, submitter_login, submitted_at, started_at,
+    finished_at, created_at, updated_at, execution_time_ms)
+    values (
+    #{uuid,jdbcType=VARCHAR},
+    #{componentUuid,jdbcType=VARCHAR},
+    #{status,jdbcType=VARCHAR},
+    #{taskType,jdbcType=VARCHAR},
+    #{isLast,jdbcType=BOOLEAN},
+    #{isLastKey,jdbcType=VARCHAR},
+    #{submitterLogin,jdbcType=VARCHAR},
+    #{submittedAt,jdbcType=BIGINT},
+    #{startedAt,jdbcType=BIGINT},
+    #{finishedAt,jdbcType=BIGINT},
+    #{createdAt,jdbcType=BIGINT},
+    #{updatedAt,jdbcType=BIGINT},
+    #{executionTimeMs,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="updateIsLastToFalseForLastKey" parameterType="map">
+    update ce_activity
+    set is_last=${_false},
+    updated_at=#{updatedAt,jdbcType=BIGINT}
+    where is_last=${_true} and is_last_key=#{isLastKey}
+  </update>
+
+  <update id="updateIsLastToTrueForUuid" parameterType="map">
+    update ce_activity
+    set is_last=${_true},
+    updated_at=#{updatedAt,jdbcType=BIGINT}
+    where uuid=#{uuid}
+  </update>
+
+</mapper>

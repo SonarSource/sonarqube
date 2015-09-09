@@ -23,10 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.server.computation.CeTask;
 import org.sonar.server.computation.ComputationTempFolderProvider;
-import org.sonar.server.computation.ReportProcessor;
-import org.sonar.server.computation.ReportQueue;
-import org.sonar.server.computation.activity.ActivityManager;
+import org.sonar.server.computation.ComputationStepExecutor;
 import org.sonar.server.computation.analysis.ReportAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
@@ -85,16 +84,16 @@ import org.sonar.server.computation.step.ReportComputationSteps;
 import org.sonar.server.view.index.ViewIndex;
 
 public final class ReportComputeEngineContainerPopulator implements ContainerPopulator<ComputeEngineContainer> {
-  private final ReportQueue.Item item;
+  private final CeTask task;
 
-  public ReportComputeEngineContainerPopulator(ReportQueue.Item item) {
-    this.item = item;
+  public ReportComputeEngineContainerPopulator(CeTask task) {
+    this.task = task;
   }
 
   @Override
   public void populateContainer(ComputeEngineContainer container) {
     ComputationSteps steps = new ReportComputationSteps(container);
-    container.add(item);
+    container.add(task);
     container.add(steps);
     container.addSingletons(componentClasses());
     container.addSingletons(steps.orderedStepClasses());
@@ -106,85 +105,80 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
    */
   private static List componentClasses() {
     return Arrays.asList(
-        new ComputationTempFolderProvider(),
+      ComputationStepExecutor.class,
+      new ComputationTempFolderProvider(),
 
-        ActivityManager.class,
+    MetricModule.class,
 
-        MetricModule.class,
+    // holders
+      ReportAnalysisMetadataHolder.class,
+      BatchReportDirectoryHolderImpl.class,
+      ReportTreeRootHolderImpl.class,
+      PeriodsHolderImpl.class,
+      QualityGateHolderImpl.class,
+      DebtModelHolderImpl.class,
+      SqaleRatingSettings.class,
+      ActiveRulesHolderImpl.class,
+      MeasureComputersHolderImpl.class,
 
-        // holders
-        ReportAnalysisMetadataHolder.class,
-        BatchReportDirectoryHolderImpl.class,
-        ReportTreeRootHolderImpl.class,
-        PeriodsHolderImpl.class,
-        QualityGateHolderImpl.class,
-        DebtModelHolderImpl.class,
-        SqaleRatingSettings.class,
-        ActiveRulesHolderImpl.class,
-        MeasureComputersHolderImpl.class,
+    BatchReportReaderImpl.class,
 
-        BatchReportReaderImpl.class,
+    // repositories
+      LanguageRepositoryImpl.class,
+      MeasureRepositoryImpl.class,
+      EventRepositoryImpl.class,
+      SettingsRepositoryImpl.class,
+      DbIdsRepositoryImpl.class,
+      QualityGateServiceImpl.class,
+      EvaluationResultTextConverterImpl.class,
 
-        // repositories
-        LanguageRepositoryImpl.class,
-        MeasureRepositoryImpl.class,
-        EventRepositoryImpl.class,
-        SettingsRepositoryImpl.class,
-        DbIdsRepositoryImpl.class,
-        QualityGateServiceImpl.class,
-        EvaluationResultTextConverterImpl.class,
+    // issues
+      RuleCacheLoader.class,
+      RuleRepositoryImpl.class,
+      ScmAccountToUserLoader.class,
+      ScmAccountToUser.class,
+      IssueCache.class,
+      DefaultAssignee.class,
+      IssueVisitors.class,
+      IssueLifecycle.class,
+      ComponentsWithUnprocessedIssues.class,
+      ComponentIssuesRepositoryImpl.class,
 
-        // issues
-        RuleCacheLoader.class,
-        RuleRepositoryImpl.class,
-        ScmAccountToUserLoader.class,
-        ScmAccountToUser.class,
-        IssueCache.class,
-        DefaultAssignee.class,
-        IssueVisitors.class,
-        IssueLifecycle.class,
-        ComponentsWithUnprocessedIssues.class,
-        ComponentIssuesRepositoryImpl.class,
+    // common rules
+      CommonRuleEngineImpl.class,
+      BranchCoverageRule.class,
+      LineCoverageRule.class,
+      CommentDensityRule.class,
+      DuplicatedBlockRule.class,
+      TestErrorRule.class,
+      SkippedTestRule.class,
 
-        // common rules
-        CommonRuleEngineImpl.class,
-        BranchCoverageRule.class,
-        LineCoverageRule.class,
-        CommentDensityRule.class,
-        DuplicatedBlockRule.class,
-        TestErrorRule.class,
-        SkippedTestRule.class,
+    // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
+      DebtCalculator.class,
+      DebtAggregator.class,
+      NewDebtCalculator.class,
+      NewDebtAggregator.class,
+      IssueAssigner.class,
+      RuleTagsCopier.class,
+      IssueCounter.class,
 
-        // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
-        DebtCalculator.class,
-        DebtAggregator.class,
-        NewDebtCalculator.class,
-        NewDebtAggregator.class,
-        IssueAssigner.class,
-        RuleTagsCopier.class,
-        IssueCounter.class,
+    // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
+      LoadComponentUuidsHavingOpenIssuesVisitor.class,
+      IntegrateIssuesVisitor.class,
+      CloseIssuesOnRemovedComponentsVisitor.class,
+      SqaleMeasuresVisitor.class,
+      LastCommitVisitor.class,
+      MeasureComputersVisitor.class,
 
-        // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
-        LoadComponentUuidsHavingOpenIssuesVisitor.class,
-        IntegrateIssuesVisitor.class,
-        CloseIssuesOnRemovedComponentsVisitor.class,
-        SqaleMeasuresVisitor.class,
-        LastCommitVisitor.class,
-        MeasureComputersVisitor.class,
+    UpdateConflictResolver.class,
+      TrackerBaseInputFactory.class,
+      TrackerRawInputFactory.class,
+      Tracker.class,
+      TrackerExecution.class,
+      BaseIssuesLoader.class,
 
-        UpdateConflictResolver.class,
-        TrackerBaseInputFactory.class,
-        TrackerRawInputFactory.class,
-        Tracker.class,
-        TrackerExecution.class,
-        BaseIssuesLoader.class,
-
-        // views
-        ViewIndex.class,
-
-        // ReportProcessor
-        ReportProcessor.class);
+    // views
+      ViewIndex.class);
   }
-
 
 }

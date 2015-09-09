@@ -25,10 +25,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.compute.AnalysisReportDto;
-import org.sonar.server.computation.ReportQueue;
-
-import java.util.List;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 
 /**
  * Internal WebService with one action
@@ -38,8 +36,8 @@ public class IsQueueEmptyWs implements WebService {
 
   private final IsQueueEmptyAction action;
 
-  public IsQueueEmptyWs(ReportQueue queue) {
-    this.action = new IsQueueEmptyAction(queue);
+  public IsQueueEmptyWs(DbClient dbClient) {
+    this.action = new IsQueueEmptyAction(dbClient);
   }
 
   @Override
@@ -52,26 +50,29 @@ public class IsQueueEmptyWs implements WebService {
   }
 
   static class IsQueueEmptyAction implements RequestHandler {
-    private final ReportQueue queue;
+    private final DbClient dbClient;
 
-    public IsQueueEmptyAction(ReportQueue queue) {
-      this.queue = queue;
+    public IsQueueEmptyAction(DbClient dbClient) {
+      this.dbClient = dbClient;
     }
 
     public void define(WebService.NewController controller) {
       controller
         .createAction("is_queue_empty")
-        .setDescription("Check if the analysis report queue is empty")
+        .setDescription("Check if the queue of Compute Engine is empty")
         .setInternal(true)
         .setHandler(this);
     }
 
     @Override
     public void handle(Request request, Response response) throws Exception {
-      List<AnalysisReportDto> reports = queue.all();
-      boolean isQueueEmpty = reports.isEmpty();
-
-      IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());
+      DbSession dbSession = dbClient.openSession(false);
+      try {
+        boolean isQueueEmpty = dbClient.ceQueueDao().selectAllInAscOrder(dbSession).isEmpty();
+        IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());
+      } finally {
+        dbClient.closeSession(dbSession);
+      }
     }
   }
 }

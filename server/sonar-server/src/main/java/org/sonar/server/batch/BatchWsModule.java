@@ -20,7 +20,6 @@
 package org.sonar.server.batch;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.computation.ws.SubmitReportAction;
 
 public class BatchWsModule extends Module {
   @Override
@@ -30,7 +29,6 @@ public class BatchWsModule extends Module {
       GlobalAction.class,
       ProjectAction.class,
       ProjectRepositoryLoader.class,
-      SubmitReportAction.class,
       IssuesAction.class,
       UsersAction.class,
       BatchWs.class);
