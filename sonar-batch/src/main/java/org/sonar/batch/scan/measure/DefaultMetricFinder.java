@@ -20,19 +20,19 @@
 package org.sonar.batch.scan.measure;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DefaultMetricFinder implements MetricFinder {
 
-  private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
+  private Map<String, Metric> metricsByKey = new LinkedHashMap<>();
 
   public DefaultMetricFinder(GlobalRepositories globalReferentials) {
     for (org.sonar.batch.protocol.input.Metric metric : globalReferentials.metrics()) {

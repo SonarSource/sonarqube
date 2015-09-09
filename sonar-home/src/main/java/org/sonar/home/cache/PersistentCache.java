@@ -44,7 +44,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 
 public class PersistentCache {
-
+  private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
   private static final Charset ENCODING = StandardCharsets.UTF_8;
   private static final String DIGEST_ALGO = "MD5";
   private static final String LOCK_FNAME = ".lock";
@@ -133,7 +133,7 @@ public class PersistentCache {
 
     return null;
   }
-  
+
   public synchronized void put(@Nonnull String obj, @Nonnull InputStream stream) throws IOException {
     String key = getKey(obj);
     try {
@@ -293,10 +293,10 @@ public class PersistentCache {
     Path cachePath = getCacheEntryPath(key);
     Files.write(cachePath, value, CREATE, WRITE, TRUNCATE_EXISTING);
   }
-  
+
   private void putCache(String key, InputStream stream) throws IOException {
     Path cachePath = getCacheEntryPath(key);
-    Files.copy(stream,  cachePath, StandardCopyOption.REPLACE_EXISTING);
+    Files.copy(stream, cachePath, StandardCopyOption.REPLACE_EXISTING);
   }
 
   private byte[] getCache(String key) throws IOException {
@@ -377,11 +377,13 @@ public class PersistentCache {
     return baseDir.resolve(key);
   }
 
-  private static String byteArrayToHex(byte[] a) {
-    StringBuilder sb = new StringBuilder(a.length * 2);
-    for (byte b : a) {
-      sb.append(String.format("%02x", b & 0xff));
+  public static String byteArrayToHex(byte[] bytes) {
+    char[] hexChars = new char[bytes.length * 2];
+    for (int j = 0; j < bytes.length; j++) {
+      int v = bytes[j] & 0xFF;
+      hexChars[j * 2] = hexArray[v >>> 4];
+      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
     }
-    return sb.toString();
+    return new String(hexChars);
   }
 }

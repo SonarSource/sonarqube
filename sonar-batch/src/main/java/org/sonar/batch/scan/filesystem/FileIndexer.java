@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
@@ -89,7 +91,8 @@ public class FileIndexer {
     Progress progress = new Progress();
 
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
-    executorService = Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
+    int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+    executorService = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("FileIndexer-%d").build());
     tasks = new ArrayList<>();
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.tests(), InputFile.Type.TEST);

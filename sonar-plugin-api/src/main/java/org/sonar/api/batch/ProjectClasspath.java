@@ -78,13 +78,13 @@ public class ProjectClasspath implements BatchComponent {
   }
 
   protected List<File> createElements() {
-    List<File> elements = Lists.newArrayList();
+    List<File> e = Lists.newArrayList();
     for (String path : def.getBinaries()) {
-      elements.add(projectFileSystem.resolvePath(path));
+      e.add(projectFileSystem.resolvePath(path));
     }
     for (String path : def.getLibraries()) {
-      elements.add(projectFileSystem.resolvePath(path));
+      e.add(projectFileSystem.resolvePath(path));
     }
-    return elements;
+    return e;
   }
 }
