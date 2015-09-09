@@ -5,18 +5,15 @@
  */
 package batch;
 
-import com.sonar.orchestrator.build.BuildFailureException;
-
-import util.ItUtils;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildFailureException;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.build.SonarRunnerInstaller;
 import com.sonar.orchestrator.config.FileSystem;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.version.Version;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +23,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import static org.junit.Assert.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.lang.ObjectUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -45,6 +39,10 @@ import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
+import util.ItUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class IssuesModeTest {
 
@@ -54,7 +52,7 @@ public class IssuesModeTest {
     .addPlugin(ItUtils.xooPlugin())
     .setContext("/")
 
-    .addPlugin(ItUtils.pluginArtifact("access-secured-props-plugin"))
+  .addPlugin(ItUtils.pluginArtifact("access-secured-props-plugin"))
     .build();
 
   @Rule
@@ -98,11 +96,11 @@ public class IssuesModeTest {
     setDefaultQualityProfile("xoo", "one-issue-per-line");
     SonarRunner runner = configureRunnerIssues("shared/xoo-sample-non-associated");
     BuildResult result = orchestrator.executeBuild(runner);
-    
-    assertThat(result.getLogs()).contains("is not associated");
+
+    assertThat(result.getLogs()).contains("Local analysis");
     assertThat(result.getLogs()).contains("Cache not found, synchronizing data");
     assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
-    
+
     result = orchestrator.executeBuild(runner);
     assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
     assertThat(result.getLogs()).contains("Found cache");
