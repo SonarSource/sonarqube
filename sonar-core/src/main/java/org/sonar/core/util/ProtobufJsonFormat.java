@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.MapEntry;
 import com.google.protobuf.Message;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -81,19 +82,15 @@ public class ProtobufJsonFormat {
       this.descriptor = descriptor;
     }
 
-    public String getName() {
-      return descriptor.getName();
+    public Descriptors.FieldDescriptor getDescriptor() {
+      return descriptor;
     }
-
-    public Descriptors.FieldDescriptor.JavaType getJavaType() {
-      return descriptor.getJavaType();
-    }
-
-    public abstract boolean isRepeated();
 
     public abstract boolean hasValue(Message message);
 
-    public abstract Object getValue(Message message);
+    public Object getValue(Message message) {
+      return message.getField(descriptor);
+    }
   }
 
   private static class MessageNonRepeatedField extends MessageField {
@@ -103,18 +100,8 @@ public class ProtobufJsonFormat {
     }
 
     @Override
-    public boolean isRepeated() {
-      return false;
-    }
-
-    @Override
     public boolean hasValue(Message message) {
       return message.hasField(descriptor);
-    }
-
-    @Override
-    public Object getValue(Message message) {
-      return message.getField(descriptor);
     }
   }
 
@@ -125,18 +112,8 @@ public class ProtobufJsonFormat {
     }
 
     @Override
-    public boolean isRepeated() {
-      return true;
-    }
-
-    @Override
     public boolean hasValue(Message message) {
       return true;
-    }
-
-    @Override
-    public Object getValue(Message message) {
-      return message.getField(descriptor);
     }
   }
 
@@ -151,21 +128,11 @@ public class ProtobufJsonFormat {
     }
 
     @Override
-    public boolean isRepeated() {
-      return true;
-    }
-
-    @Override
     public boolean hasValue(Message message) {
       if (((Collection) message.getField(descriptor)).isEmpty()) {
         return message.hasField(booleanDesc) && (boolean) message.getField(booleanDesc);
       }
       return true;
-    }
-
-    @Override
-    public Object getValue(Message message) {
-      return message.getField(descriptor);
     }
   }
 
@@ -236,22 +203,32 @@ public class ProtobufJsonFormat {
     MessageJsonDescriptor fields = MessageJsonDescriptor.of(message);
     for (MessageField field : fields.getFields()) {
       if (field.hasValue(message)) {
-        writer.name(field.getName());
-        if (field.isRepeated()) {
+        writer.name(field.getDescriptor().getName());
+        if (field.getDescriptor().isMapField()) {
+          writer.beginObject();
+          for (Object o : (Collection) field.getValue(message)) {
+            MapEntry mapEntry = (MapEntry)o;
+            // Key fields are always double-quoted in json
+            writer.name(mapEntry.getKey().toString());
+            Descriptors.FieldDescriptor valueDescriptor = mapEntry.getDescriptorForType().findFieldByName("value");
+            writeFieldValue(valueDescriptor, mapEntry.getValue(), writer);
+          }
+          writer.endObject();
+        } else if (field.getDescriptor().isRepeated()) {
           writer.beginArray();
           for (Object o : (Collection) field.getValue(message)) {
-            writeFieldValue(field, o, writer);
+            writeFieldValue(field.getDescriptor(), o, writer);
           }
           writer.endArray();
         } else {
-          writeFieldValue(field, field.getValue(message), writer);
+          writeFieldValue(field.getDescriptor(), field.getValue(message), writer);
         }
       }
     }
   }
 
-  private static void writeFieldValue(MessageField field, Object value, JsonWriter writer) {
-    switch (field.getJavaType()) {
+  private static void writeFieldValue(Descriptors.FieldDescriptor fieldDescriptor, Object value, JsonWriter writer) {
+    switch (fieldDescriptor.getJavaType()) {
       case INT:
         writer.value((Integer) value);
         break;
@@ -276,7 +253,7 @@ public class ProtobufJsonFormat {
         writer.endObject();
         break;
       default:
-        throw new IllegalStateException(String.format("JSON format does not support type '%s' of field '%s'", field.getJavaType(), field.getName()));
+        throw new IllegalStateException(String.format("JSON format does not support type '%s' of field '%s'", fieldDescriptor.getJavaType(), fieldDescriptor.getName()));
     }
   }
 }

@@ -57,7 +57,9 @@ public final class Constants {
     public static final int BLOCKER_VALUE = 4;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static Severity valueOf(int value) {
       switch (value) {
@@ -158,7 +160,9 @@ public final class Constants {
     public static final int FILE_VALUE = 3;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static ComponentType valueOf(int value) {
       switch (value) {
@@ -266,7 +270,9 @@ public final class Constants {
     public static final int STRING_VALUE = 4;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static MeasureValueType valueOf(int value) {
       switch (value) {
@@ -355,7 +361,9 @@ public final class Constants {
     public static final int PROFILE_VALUE = 1;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static EventCategory valueOf(int value) {
       switch (value) {
@@ -461,7 +469,9 @@ public final class Constants {
     public static final int CI_VALUE = 4;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static ComponentLinkType valueOf(int value) {
       switch (value) {
@@ -602,7 +612,9 @@ public final class Constants {
     public static final int PREPROCESS_DIRECTIVE_VALUE = 8;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static HighlightingType valueOf(int value) {
       switch (value) {
@@ -707,7 +719,9 @@ public final class Constants {
     public static final int SKIPPED_VALUE = 4;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static TestStatus valueOf(int value) {
       switch (value) {
