@@ -143,16 +143,76 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
    * Return a measure that were added by the step (using {@link #add(Component, Metric, Measure)}).
    * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
    */
+  public Optional<Measure> getAddedRawMeasure(Component component, String metricKey) {
+    return getAddedRawMeasure(component.getReportAttributes().getRef(), metricKey);
+  }
+
+  /**
+   * Return a measure that were added by the step (using {@link #add(Component, Metric, Measure)}).
+   * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
+   */
   public Optional<Measure> getAddedRawMeasure(int componentRef, String metricKey) {
     checkAndInitProvidersState();
 
-    Set<Measure> measures = getAddedRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey);
+    Set<Measure> measures = from(getAddedRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey))
+      .filter(IsNotRuleOrCharacteristicMeasure.INSTANCE)
+      .toSet();
     if (measures.isEmpty()) {
       return Optional.absent();
-    } else if (measures.size() != 1) {
-      throw new IllegalArgumentException(String.format("There is more than one measure on metric '%s' for component '%s'", metricKey, componentRef));
     }
+    checkArgument(measures.size() == 1, String.format("There is more than one measure on metric '%s' for component '%s'", metricKey, componentRef));
     return Optional.of(measures.iterator().next());
+  }
+
+  /**
+   * Return a measure that were added by the step (using {@link #add(Component, Metric, Measure)}).
+   * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
+   */
+  public Optional<Measure> getAddedRawRuleMeasure(int componentRef, String metricKey, int ruleId) {
+    checkAndInitProvidersState();
+
+    Set<Measure> measures = from(getAddedRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey))
+      .filter(new MatchRuleId(ruleId))
+      .toSet();
+    if (measures.isEmpty()) {
+      return Optional.absent();
+    }
+    checkArgument(measures.size() == 1, String.format("There is more than one measure on metric '%s' for rule '%s' for component '%s'", metricKey, ruleId, componentRef));
+    return Optional.of(measures.iterator().next());
+  }
+
+  /**
+   * Return a measure that were added by the step (using {@link #add(Component, Metric, Measure)}).
+   * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
+   */
+  public Optional<Measure> getAddedRawRuleMeasure(Component component, String metricKey, int ruleId) {
+    return getAddedRawRuleMeasure(component.getReportAttributes().getRef(), metricKey, ruleId);
+  }
+
+  /**
+   * Return a measure that were added by the step (using {@link #add(Component, Metric, Measure)}).
+   * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
+   */
+  public Optional<Measure> getAddedRawCharacteristicMeasure(int componentRef, String metricKey, int characteristicId) {
+    checkAndInitProvidersState();
+
+    Set<Measure> measures = from(getAddedRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey))
+      .filter(new MatchCharacteristicId(characteristicId))
+      .toSet();
+    if (measures.isEmpty()) {
+      return Optional.absent();
+    }
+    checkArgument(measures.size() == 1, String.format("There is more than one measure on metric '%s' for characteristic '%s' for component '%s'", metricKey, characteristicId,
+      componentRef));
+    return Optional.of(measures.iterator().next());
+  }
+
+  /**
+   * Return a measure that were added by the step (using {@link #add(Component, Metric, Measure)}).
+   * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
+   */
+  public Optional<Measure> getAddedRawCharacteristicMeasure(Component component, String metricKey, int characteristicId) {
+    return getAddedRawCharacteristicMeasure(component.getReportAttributes().getRef(), metricKey, characteristicId);
   }
 
   /**
@@ -339,6 +399,43 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     @Override
     public boolean apply(@Nonnull InternalKey input) {
       return input.getComponentRef().equals(this.componentRef);
+    }
+  }
+
+  private enum IsNotRuleOrCharacteristicMeasure implements Predicate<Measure> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull Measure input) {
+      return input.getRuleId() == null && input.getCharacteristicId() == null;
+    }
+  }
+
+  private static class MatchRuleId implements Predicate<Measure> {
+    private final int ruleId;
+
+    public MatchRuleId(int ruleId) {
+      this.ruleId = ruleId;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Measure input) {
+      Integer ruleId = input.getRuleId();
+      return ruleId != null && ruleId.equals(this.ruleId);
+    }
+  }
+
+  private static class MatchCharacteristicId implements Predicate<Measure> {
+    private final int characteristicId;
+
+    public MatchCharacteristicId(int characteristicId) {
+      this.characteristicId = characteristicId;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Measure input) {
+      Integer characteristicId = input.getCharacteristicId();
+      return characteristicId != null && characteristicId.equals(this.characteristicId);
     }
   }
 

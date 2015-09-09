@@ -38,6 +38,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 
 public class DebtAggregatorTest {
 
@@ -88,7 +89,7 @@ public class DebtAggregatorTest {
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule().add(200, CoreMetrics.TECHNICAL_DEBT);
 
   @org.junit.Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create();
+  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(PROJECT, metricRepository);
 
   DebtAggregator underTest = new DebtAggregator(ruleRepository, debtModelHolder, metricRepository, measureRepository);
 
@@ -171,17 +172,17 @@ public class DebtAggregatorTest {
 
   @CheckForNull
   private Optional<Measure> debtMeasure(Component component) {
-    return measureRepository.getRawMeasure(component, metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY));
+    return measureRepository.getAddedRawMeasure(component, TECHNICAL_DEBT_KEY);
   }
 
   @CheckForNull
   private Optional<Measure> debtRuleMeasure(Component component, int ruleId) {
-    return measureRepository.getRawRuleMeasure(component, metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY), ruleId);
+    return measureRepository.getAddedRawRuleMeasure(component, TECHNICAL_DEBT_KEY, ruleId);
   }
 
   @CheckForNull
   private Optional<Measure> debtCharacteristicMeasure(Component component, int characteristicId) {
-    return measureRepository.getRawCharacteristicMeasure(component, metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY), characteristicId);
+    return measureRepository.getAddedRawCharacteristicMeasure(component, TECHNICAL_DEBT_KEY, characteristicId);
   }
 
   private static DefaultIssue newIssue(long debt){
