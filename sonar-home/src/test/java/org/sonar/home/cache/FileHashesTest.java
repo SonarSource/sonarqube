@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,8 +62,15 @@ public class FileHashesTest {
       String random = randomString();
       assertThat(hash(random)).as(random).isEqualTo(
         DigestUtils.md5Hex(random).toLowerCase()
-      );
+        );
     }
+  }
+
+  @Test
+  public void test_hash_file() throws IOException {
+    File f = temp.newFile();
+    Files.write(f.toPath(), "sonar".getBytes(StandardCharsets.UTF_8));
+    assertThat(hashFile(f)).isEqualTo("d85e336d61f5344395c42126fac239bc");
   }
 
   @Test
@@ -74,7 +83,7 @@ public class FileHashesTest {
       String random = randomString();
       assertThat(FileHashes.toHex(random.getBytes())).as(random).isEqualTo(
         Hex.encodeHexString(random.getBytes()).toLowerCase()
-      );
+        );
     }
   }
 
@@ -85,7 +94,6 @@ public class FileHashesTest {
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Fail to compute hash of: " + file.getAbsolutePath());
-
 
     new FileHashes().of(file);
   }
@@ -111,5 +119,9 @@ public class FileHashesTest {
     } finally {
       IOUtils.closeQuietly(in);
     }
+  }
+
+  private String hashFile(File f) {
+    return new FileHashes().of(f);
   }
 }
