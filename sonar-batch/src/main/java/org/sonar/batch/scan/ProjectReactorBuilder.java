@@ -156,10 +156,10 @@ public class ProjectReactorBuilder {
     // Sort module by reverse lexicographic order to avoid issue when one module id is a prefix of another one
     Collections.sort(moduleIds);
     Collections.reverse(moduleIds);
-
+    
     Map<String, Map<String, String>> result = new HashMap<>();
     result.put(currentModuleId, currentModuleProperties);
-
+    
     for (String moduleId : moduleIds) {
       Map<String, Map<String, String>> subModuleProps = extractPropertiesByModule(moduleId, currentModuleProperties);
       checkRepeatedModuleNames(result.keySet(), subModuleProps.keySet());
@@ -173,8 +173,8 @@ public class ProjectReactorBuilder {
     union.addAll(currentModules);
     union.retainAll(modulesToMerge);
     if (!union.isEmpty()) {
-      if (union.size() > 1) {
-        throw new IllegalStateException(String.format("Modules have the following repeated names: %s. Each module must have a unique name.", union));
+      if(union.size() > 1) {
+      throw new IllegalStateException(String.format("Modules have the following repeated names: %s. Each module must have a unique name.", union));
       } else {
         throw new IllegalStateException(String.format("Two modules have the same name: %s. Each module must have a unique name.", union.iterator().next()));
       }
