@@ -27,11 +27,12 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.server.computation.debt.Characteristic;
+import org.sonar.server.computation.debt.CharacteristicImpl;
 import org.sonar.server.computation.debt.MutableDebtModelHolder;
-import org.sonar.db.DbClient;
 
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
@@ -77,7 +78,7 @@ public class FeedDebtModelStep implements ComputationStep {
   }
 
   private static Characteristic toCharacteristic(CharacteristicDto dto) {
-    return new Characteristic(dto.getId(), dto.getKey(), dto.getParentId());
+    return new CharacteristicImpl(dto.getId(), dto.getKey(), dto.getParentId());
   }
 
   private enum CharacteristicDtoToId implements Function<CharacteristicDto, Integer> {

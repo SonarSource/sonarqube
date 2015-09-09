@@ -33,12 +33,12 @@ public class DebtModelHolderImplTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private static final Characteristic PORTABILITY = new Characteristic(1, "PORTABILITY", null);
-  private static final Characteristic COMPILER_RELATED_PORTABILITY = new Characteristic(2, "COMPILER_RELATED_PORTABILITY", 1);
-  private static final Characteristic HARDWARE_RELATED_PORTABILITY = new Characteristic(3, "HARDWARE_RELATED_PORTABILITY", 1);
+  private static final Characteristic PORTABILITY = new CharacteristicImpl(1, "PORTABILITY", null);
+  private static final Characteristic COMPILER_RELATED_PORTABILITY = new CharacteristicImpl(2, "COMPILER_RELATED_PORTABILITY", 1);
+  private static final Characteristic HARDWARE_RELATED_PORTABILITY = new CharacteristicImpl(3, "HARDWARE_RELATED_PORTABILITY", 1);
 
-  private static final Characteristic MAINTAINABILITY = new Characteristic(4, "MAINTAINABILITY", null);
-  private static final Characteristic READABILITY = new Characteristic(5, "READABILITY", null);
+  private static final Characteristic MAINTAINABILITY = new CharacteristicImpl(4, "MAINTAINABILITY", null);
+  private static final Characteristic READABILITY = new CharacteristicImpl(5, "READABILITY", null);
 
   DebtModelHolderImpl underTest = new DebtModelHolderImpl();
 

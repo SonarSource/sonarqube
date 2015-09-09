@@ -49,6 +49,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.debt.Characteristic;
+import org.sonar.server.computation.debt.CharacteristicImpl;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -86,7 +87,7 @@ public class MeasureRepositoryImplTest {
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
   private static final String SOME_DATA = "some data";
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
-  private static final Characteristic SOME_CHARACTERISTIC = new Characteristic(741, "key", null);
+  private static final Characteristic SOME_CHARACTERISTIC = new CharacteristicImpl(741, "key", null);
 
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
 
@@ -225,7 +226,7 @@ public class MeasureRepositoryImplTest {
       @Nullable
       @Override
       public Object[] apply(Measure input) {
-        return new Measure[]{input};
+        return new Measure[] {input};
       }
     }).toArray(Object[].class);
   }
@@ -403,7 +404,7 @@ public class MeasureRepositoryImplTest {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-    ));
+      ));
 
     Optional<Measure> measure = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 

@@ -21,64 +21,12 @@
 package org.sonar.server.computation.debt;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 
-import static java.util.Objects.requireNonNull;
+public interface Characteristic {
+  int getId();
 
-@Immutable
-public class Characteristic {
-  private final int id;
-  private final String key;
-  private final Integer parentId;
-
-  public Characteristic(int id, String key, @Nullable Integer parentId) {
-    requireNonNull(key, "key cannot be null");
-    this.id = id;
-    this.key = key;
-    this.parentId = parentId;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public String getKey() {
-    return key;
-  }
+  String getKey();
 
   @CheckForNull
-  public Integer getParentId() {
-    return parentId;
-  }
-
-  @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    Characteristic that = (Characteristic) o;
-    return id == that.id && key.equals(that.key);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = id;
-    result = 31 * result + key.hashCode();
-    return result;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder("Characteristic{");
-    sb.append("id=").append(id);
-    sb.append(", key='").append(key).append('\'');
-    sb.append(", parentId=").append(parentId);
-    sb.append('}');
-    return sb.toString();
-  }
+  Integer getParentId();
 }

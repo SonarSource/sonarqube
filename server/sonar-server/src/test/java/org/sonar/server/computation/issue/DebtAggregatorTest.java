@@ -28,7 +28,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.server.computation.debt.Characteristic;
+import org.sonar.server.computation.debt.CharacteristicImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.debt.MutableDebtModelHolder;
 import org.sonar.server.computation.measure.Measure;
@@ -71,10 +71,10 @@ public class DebtAggregatorTest {
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(RULE);
 
   MutableDebtModelHolder debtModelHolder = new DebtModelHolderImpl()
-    .addCharacteristics(new Characteristic(PORTABILITY_ID, "PORTABILITY", null),
-      asList(new Characteristic(PORTABILITY_SOFT_ID, "PORTABILITY_HARDWARE", PORTABILITY_ID), new Characteristic(PORTABILITY_HARD_ID, "PORTABILITY_SOFTWARE", PORTABILITY_ID)))
-    .addCharacteristics(new Characteristic(RELIABILITY_ID, "RELIABILITY", null),
-      asList(new Characteristic(1004, "DATA_RELIABILITY", RELIABILITY_ID))
+    .addCharacteristics(new CharacteristicImpl(PORTABILITY_ID, "PORTABILITY", null),
+      asList(new CharacteristicImpl(PORTABILITY_SOFT_ID, "PORTABILITY_HARDWARE", PORTABILITY_ID), new CharacteristicImpl(PORTABILITY_HARD_ID, "PORTABILITY_SOFTWARE", PORTABILITY_ID)))
+    .addCharacteristics(new CharacteristicImpl(RELIABILITY_ID, "RELIABILITY", null),
+      asList(new CharacteristicImpl(1004, "DATA_RELIABILITY", RELIABILITY_ID))
     );
 
   @org.junit.Rule

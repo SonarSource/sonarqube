@@ -44,6 +44,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.debt.Characteristic;
+import org.sonar.server.computation.debt.CharacteristicImpl;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -74,7 +75,7 @@ public class MapBasedRawMeasureRepositoryTest {
   private final Metric metric2 = mock(Metric.class);
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
-  private static final Characteristic SOME_CHARACTERISTIC = new Characteristic(741, "key", null);
+  private static final Characteristic SOME_CHARACTERISTIC = new CharacteristicImpl(741, "key", null);
 
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
 
@@ -160,7 +161,7 @@ public class MapBasedRawMeasureRepositoryTest {
       @Nullable
       @Override
       public Object[] apply(Measure input) {
-        return new Measure[]{input};
+        return new Measure[] {input};
       }
     }).toArray(Object[].class);
   }
