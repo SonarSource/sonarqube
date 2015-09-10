@@ -20,19 +20,19 @@
 
 package org.sonar.server.measure.custom.ws;
 
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
@@ -140,7 +140,7 @@ public class CreateAction implements CustomMeasuresWsAction {
   }
 
   private static void checkIsProjectOrModule(ComponentDto component) {
-    if (!Qualifiers.PROJECT.equals(component.qualifier()) && !Qualifiers.MODULE.equals(component.qualifier())) {
+    if (!Scopes.PROJECT.equals(component.scope())) {
       throw new BadRequestException(String.format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
     }
   }
