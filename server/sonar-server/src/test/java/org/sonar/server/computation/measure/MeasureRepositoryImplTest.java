@@ -29,12 +29,11 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
@@ -67,6 +66,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureRepositoryImplTest {
+
+  @Rule
+  public final ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
@@ -99,8 +102,7 @@ public class MeasureRepositoryImplTest {
   private BatchReportReader mockBatchReportReader = mock(BatchReportReader.class);
   private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository, reportMetricValidator);
 
-  @CheckForNull
-  private DbSession dbSession;
+  private DbSession dbSession = dbTester.getSession();
 
   @Before
   public void setUp() {
@@ -112,13 +114,6 @@ public class MeasureRepositoryImplTest {
     // references to metrics are consistent with DB by design
     when(metricRepository.getByKey(METRIC_KEY_1)).thenReturn(metric1);
     when(metricRepository.getByKey(METRIC_KEY_2)).thenReturn(metric2);
-  }
-
-  @After
-  public void tearDown() {
-    if (dbSession != null) {
-      dbSession.close();
-    }
   }
 
   @Test
@@ -151,7 +146,6 @@ public class MeasureRepositoryImplTest {
   @Test
   public void getBaseMeasure_returns_Measure_if_measure_of_last_snapshot_only_in_DB() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    dbSession = dbClient.openSession(false);
     dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, LAST_SNAPSHOT_ID));
     dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_2, OTHER_SNAPSHOT_ID));
     dbSession.commit();
@@ -168,44 +162,71 @@ public class MeasureRepositoryImplTest {
     assertThat(res).isAbsent();
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
+  public void getBaseMeasure_does_not_return_measure_with_rule() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, LAST_SNAPSHOT_ID).setRuleId(10));
+    dbSession.commit();
+
+    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metric1)).isAbsent();
+  }
+
+  @Test
+  public void getBaseMeasure_does_not_return_measure_with_characteristic() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, LAST_SNAPSHOT_ID).setCharacteristicId(100));
+    dbSession.commit();
+
+    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metric1)).isAbsent();
+  }
+
+  @Test
   public void add_throws_NPE_if_Component_argument_is_null() {
+    expectedException.expect(NullPointerException.class);
     underTest.add(null, metric1, SOME_MEASURE);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void add_throws_NPE_if_Component_metric_is_null() {
+    expectedException.expect(NullPointerException.class);
     underTest.add(FILE_COMPONENT, null, SOME_MEASURE);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void add_throws_NPE_if_Component_measure_is_null() {
+    expectedException.expect(NullPointerException.class);
     underTest.add(FILE_COMPONENT, metric1, null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void add_throws_UOE_if_measure_already_exists() {
+    expectedException.expect(UnsupportedOperationException.class);
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void update_throws_NPE_if_Component_argument_is_null() {
+    expectedException.expect(NullPointerException.class);
     underTest.update(null, metric1, SOME_MEASURE);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void update_throws_NPE_if_Component_metric_is_null() {
+    expectedException.expect(NullPointerException.class);
     underTest.update(FILE_COMPONENT, null, SOME_MEASURE);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void update_throws_NPE_if_Component_measure_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expect(NullPointerException.class);
     underTest.update(FILE_COMPONENT, metric1, null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void update_throws_UOE_if_measure_does_not_exists() {
+    expectedException.expect(UnsupportedOperationException.class);
     underTest.update(FILE_COMPONENT, metric1, SOME_MEASURE);
   }
 
@@ -411,13 +432,15 @@ public class MeasureRepositoryImplTest {
     underTest.update(FILE_COMPONENT, metric1, Measure.updatedMeasureBuilder(measure.get()).create());
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void getRawMeasures_for_metric_throws_NPE_if_Component_arg_is_null() {
+    expectedException.expect(NullPointerException.class);
     underTest.getRawMeasures(null, metric1);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void getRawMeasures_for_metric_throws_NPE_if_Metric_arg_is_null() {
+    expectedException.expect(NullPointerException.class);
     underTest.getRawMeasures(FILE_COMPONENT, null);
   }
 

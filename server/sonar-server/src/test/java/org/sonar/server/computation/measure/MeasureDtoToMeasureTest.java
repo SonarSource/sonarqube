@@ -60,14 +60,14 @@ public class MeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_returns_rule_measure() {
-    Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setRuleId(10), SOME_INT_METRIC, true);
+    Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setRuleId(10), SOME_INT_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().getRuleId()).isEqualTo(10);
   }
 
   @Test
   public void toMeasure_returns_characteristic_measure() {
-    Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setCharacteristicId(30), SOME_INT_METRIC, true);
+    Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setCharacteristicId(30), SOME_INT_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().getCharacteristicId()).isEqualTo(30);
   }
@@ -80,22 +80,6 @@ public class MeasureDtoToMeasureTest {
   @Test(expected = NullPointerException.class)
   public void toMeasure_throws_NPE_if_both_arguments_are_null() {
     underTest.toMeasure(null, null);
-  }
-
-  @Test
-  public void toMeasure_throws_IAE_if_MeasureDto_has_non_null_ruleId() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Measures with ruleId are not supported");
-
-    underTest.toMeasure(new MeasureDto().setRuleId(12), SOME_STRING_METRIC);
-  }
-
-  @Test
-  public void toMeasure_throws_IAE_if_MeasureDto_has_non_null_characteristicId() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Measures with characteristicId are not supported");
-
-    underTest.toMeasure(new MeasureDto().setCharacteristicId(12), SOME_STRING_METRIC);
   }
 
   @Test

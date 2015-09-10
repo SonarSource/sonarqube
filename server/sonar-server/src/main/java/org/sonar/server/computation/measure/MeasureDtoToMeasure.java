@@ -25,26 +25,16 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.metric.Metric;
 
 import static com.google.common.base.Optional.of;
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.measure.Measure.Level.toLevel;
 
 public class MeasureDtoToMeasure {
 
   public Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric) {
-    return toMeasure(measureDto, metric, false);
-  }
-
-  public Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric, boolean acceptRuleAndCharacteristicMeasure){
     requireNonNull(metric);
     if (measureDto == null) {
       return Optional.absent();
     }
-    if (!acceptRuleAndCharacteristicMeasure) {
-      checkArgument(measureDto.getCharacteristicId() == null, "Measures with characteristicId are not supported");
-      checkArgument(measureDto.getRuleId() == null, "Measures with ruleId are not supported");
-    }
-
     Double value = measureDto.getValue();
     String data = measureDto.getData();
     switch (metric.getType().getValueType()) {
@@ -150,12 +140,11 @@ public class MeasureDtoToMeasure {
 
   private static MeasureVariations createVariations(MeasureDto measureDto) {
     return new MeasureVariations(
-        measureDto.getVariation(1),
-        measureDto.getVariation(2),
-        measureDto.getVariation(3),
-        measureDto.getVariation(4),
-        measureDto.getVariation(5)
-    );
+      measureDto.getVariation(1),
+      measureDto.getVariation(2),
+      measureDto.getVariation(3),
+      measureDto.getVariation(4),
+      measureDto.getVariation(5));
   }
 
 }
