@@ -8,11 +8,6 @@ function installTravisTools {
   source ~/.local/bin/install
 }
 
-function prepareIts {
-  installTravisTools
-  start_xvfb
-}
-
 case "$JOB" in
 
 H2)
@@ -39,11 +34,13 @@ MYSQL)
   ;;
 
 WEB)
-  prepareIts
+  installTravisTools
+
   /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
   wget http://selenium-release.storage.googleapis.com/2.46/selenium-server-standalone-2.46.0.jar
   nohup java -jar selenium-server-standalone-2.46.0.jar &
   sleep 3
+
   cd server/sonar-web && npm install && npm test
   ;;
 
@@ -66,7 +63,8 @@ ITS)
   if [ "$IT_CATEGORY" == "plugins" ] && [ "$TRAVIS_PULL_REQUEST" == "true" ]; then
     echo "Ignore this job since it needs access to private test licenses."
   else
-    prepareIts
+    installTravisTools
+    start_xvfb
 
     CATEGORIES=($(echo "$IT_CATEGORY" | tr '_' '\n'))
     CATEGORY1=${CATEGORIES[0]:-'NONE'}
