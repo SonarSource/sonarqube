@@ -175,8 +175,7 @@ public class EsClient implements Startable {
   public OptimizeRequestBuilder prepareOptimize(String indexName) {
     // TODO add proxy for profiling
     return nativeClient().admin().indices().prepareOptimize(indexName)
-      .setMaxNumSegments(1)
-      .setWaitForMerge(true);
+      .setMaxNumSegments(1);
   }
 
   public ClearIndicesCacheRequestBuilder prepareClearCache(String... indices) {
