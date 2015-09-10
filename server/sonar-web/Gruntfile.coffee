@@ -301,19 +301,6 @@ module.exports = (grunt) ->
           useBrowserStack: useBrowserStack
 
 
-    jshint:
-      dev:
-        src: [
-          '<%= SOURCE_PATH %>/js/**/*.js'
-          '!<%= SOURCE_PATH %>/js/third-party/underscore.js'
-          '!<%= SOURCE_PATH %>/js/third-party/**/*.js'
-          '!<%= SOURCE_PATH %>/js/tests/**/*.js'
-          '!<%= SOURCE_PATH %>/js/require.js'
-        ]
-        options:
-          jshintrc: true
-
-
     watch:
       options:
         spawn: false
