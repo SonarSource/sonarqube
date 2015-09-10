@@ -24,19 +24,17 @@ define(['intern'], function (intern) {
       'test/unit/csv.spec'
     ],
 
-    // FIXME enable functional tests
-    // TODO fix FP
     functionalSuites: [
-      //'test/medium/users.spec',
-      //'test/medium/issues.spec',
-      //'test/medium/update-center.spec',
-      //'test/medium/computation.spec',
-      //'test/medium/coding-rules.spec',
-      //'test/medium/custom-measures.spec',
-      //'test/medium/quality-profiles.spec',
-      //'test/medium/source-viewer.spec',
-      //'test/medium/global-permissions.spec',
-      //'test/medium/project-permissions.spec'
+      'test/medium/users.spec',
+      'test/medium/issues.spec',
+      'test/medium/update-center.spec',
+      'test/medium/computation.spec',
+      'test/medium/coding-rules.spec',
+      'test/medium/custom-measures.spec',
+      'test/medium/quality-profiles.spec',
+      'test/medium/source-viewer.spec',
+      'test/medium/global-permissions.spec',
+      'test/medium/project-permissions.spec'
     ],
 
     tunnel: tunnel,
