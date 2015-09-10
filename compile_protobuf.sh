@@ -4,7 +4,7 @@
 # Local installation of protobuf compiler is NOT needed.
 
 # Available versions listed at http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.os72%22%20AND%20a%3A%22protoc-jar%22
-PROTOBUF_VERSION="2.6.1.4"
+PROTOBUF_VERSION="3.0.0-a3"
 
 mvn org.apache.maven.plugins:maven-dependency-plugin::copy -Dartifact=com.github.os72:protoc-jar:$PROTOBUF_VERSION -DoutputDirectory=target
 

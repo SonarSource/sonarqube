@@ -57,7 +57,9 @@ public final class Common {
     public static final int BLOCKER_VALUE = 4;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static Severity valueOf(int value) {
       switch (value) {
@@ -158,7 +160,9 @@ public final class Common {
     public static final int REMOVED_VALUE = 3;
 
 
-    public final int getNumber() { return value; }
+    public final int getNumber() {
+      return value;
+    }
 
     public static RuleStatus valueOf(int value) {
       switch (value) {
@@ -251,37 +255,29 @@ public final class Common {
   /**
    * Protobuf type {@code sonarqube.ws.commons.Paging}
    */
-  public static final class Paging extends
+  public  static final class Paging extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.Paging)
       PagingOrBuilder {
     // Use Paging.newBuilder() to construct.
-    private Paging(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Paging(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Paging(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Paging defaultInstance;
-    public static Paging getDefaultInstance() {
-      return defaultInstance;
+    private Paging() {
+      pageIndex_ = 0;
+      pageSize_ = 0;
+      total_ = 0;
     }
 
-    public Paging getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Paging(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -318,10 +314,11 @@ public final class Common {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -337,21 +334,6 @@ public final class Common {
       return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Paging_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonarqube.ws.Common.Paging.class, org.sonarqube.ws.Common.Paging.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Paging> PARSER =
-        new com.google.protobuf.AbstractParser<Paging>() {
-      public Paging parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Paging(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Paging> getParserForType() {
-      return PARSER;
     }
 
     private int bitField0_;
@@ -400,11 +382,6 @@ public final class Common {
       return total_;
     }
 
-    private void initFields() {
-      pageIndex_ = 0;
-      pageSize_ = 0;
-      total_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -417,7 +394,6 @@ public final class Common {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, pageIndex_);
       }
@@ -427,7 +403,7 @@ public final class Common {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(3, total_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -448,18 +424,12 @@ public final class Common {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, total_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonarqube.ws.Common.Paging parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -513,12 +483,17 @@ public final class Common {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonarqube.ws.Common.Paging prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonarqube.ws.Common.Paging prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -559,10 +534,6 @@ public final class Common {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         pageIndex_ = 0;
@@ -572,10 +543,6 @@ public final class Common {
         total_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -636,7 +603,8 @@ public final class Common {
         if (other.hasTotal()) {
           setTotal(other.getTotal());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -762,12 +730,44 @@ public final class Common {
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.Paging)
     }
 
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Paging)
+    private static final org.sonarqube.ws.Common.Paging DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Paging(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.Paging();
     }
 
-    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Paging)
+    public static org.sonarqube.ws.Common.Paging getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Paging> PARSER =
+        new com.google.protobuf.AbstractParser<Paging>() {
+      public Paging parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Paging(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Paging> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.Paging getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface FacetOrBuilder extends
@@ -827,37 +827,28 @@ public final class Common {
   /**
    * Protobuf type {@code sonarqube.ws.commons.Facet}
    */
-  public static final class Facet extends
+  public  static final class Facet extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.Facet)
       FacetOrBuilder {
     // Use Facet.newBuilder() to construct.
-    private Facet(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Facet(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Facet(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Facet defaultInstance;
-    public static Facet getDefaultInstance() {
-      return defaultInstance;
+    private Facet() {
+      property_ = "";
+      values_ = java.util.Collections.emptyList();
     }
 
-    public Facet getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Facet(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -893,10 +884,11 @@ public final class Common {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           values_ = java.util.Collections.unmodifiableList(values_);
@@ -917,24 +909,9 @@ public final class Common {
               org.sonarqube.ws.Common.Facet.class, org.sonarqube.ws.Common.Facet.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Facet> PARSER =
-        new com.google.protobuf.AbstractParser<Facet>() {
-      public Facet parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Facet(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Facet> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int PROPERTY_FIELD_NUMBER = 1;
-    private java.lang.Object property_;
+    private volatile java.lang.Object property_;
     /**
      * <code>optional string property = 1;</code>
      *
@@ -1022,10 +999,6 @@ public final class Common {
       return values_.get(index);
     }
 
-    private void initFields() {
-      property_ = "";
-      values_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1038,14 +1011,13 @@ public final class Common {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getPropertyBytes());
       }
       for (int i = 0; i < values_.size(); i++) {
         output.writeMessage(2, values_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -1062,18 +1034,12 @@ public final class Common {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, values_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonarqube.ws.Common.Facet parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1127,12 +1093,17 @@ public final class Common {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonarqube.ws.Common.Facet prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonarqube.ws.Common.Facet prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1174,10 +1145,6 @@ public final class Common {
           getValuesFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         property_ = "";
@@ -1189,10 +1156,6 @@ public final class Common {
           valuesBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1276,7 +1239,8 @@ public final class Common {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -1646,12 +1610,44 @@ public final class Common {
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.Facet)
     }
 
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Facet)
+    private static final org.sonarqube.ws.Common.Facet DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Facet(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.Facet();
     }
 
-    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Facet)
+    public static org.sonarqube.ws.Common.Facet getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Facet> PARSER =
+        new com.google.protobuf.AbstractParser<Facet>() {
+      public Facet parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Facet(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Facet> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.Facet getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface FacetValueOrBuilder extends
@@ -1684,37 +1680,28 @@ public final class Common {
   /**
    * Protobuf type {@code sonarqube.ws.commons.FacetValue}
    */
-  public static final class FacetValue extends
+  public  static final class FacetValue extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.FacetValue)
       FacetValueOrBuilder {
     // Use FacetValue.newBuilder() to construct.
-    private FacetValue(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private FacetValue(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private FacetValue(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final FacetValue defaultInstance;
-    public static FacetValue getDefaultInstance() {
-      return defaultInstance;
+    private FacetValue() {
+      val_ = "";
+      count_ = 0L;
     }
 
-    public FacetValue getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private FacetValue(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1747,10 +1734,11 @@ public final class Common {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1768,24 +1756,9 @@ public final class Common {
               org.sonarqube.ws.Common.FacetValue.class, org.sonarqube.ws.Common.FacetValue.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<FacetValue> PARSER =
-        new com.google.protobuf.AbstractParser<FacetValue>() {
-      public FacetValue parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new FacetValue(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<FacetValue> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int VAL_FIELD_NUMBER = 1;
-    private java.lang.Object val_;
+    private volatile java.lang.Object val_;
     /**
      * <code>optional string val = 1;</code>
      */
@@ -1841,10 +1814,6 @@ public final class Common {
       return count_;
     }
 
-    private void initFields() {
-      val_ = "";
-      count_ = 0L;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1857,14 +1826,13 @@ public final class Common {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getValBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt64(2, count_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -1881,18 +1849,12 @@ public final class Common {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(2, count_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonarqube.ws.Common.FacetValue parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1946,12 +1908,17 @@ public final class Common {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonarqube.ws.Common.FacetValue prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonarqube.ws.Common.FacetValue prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1992,10 +1959,6 @@ public final class Common {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         val_ = "";
@@ -2003,10 +1966,6 @@ public final class Common {
         count_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2062,7 +2021,8 @@ public final class Common {
         if (other.hasCount()) {
           setCount(other.getCount());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2200,12 +2160,44 @@ public final class Common {
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.FacetValue)
     }
 
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.FacetValue)
+    private static final org.sonarqube.ws.Common.FacetValue DEFAULT_INSTANCE;
     static {
-      defaultInstance = new FacetValue(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.FacetValue();
     }
 
-    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.FacetValue)
+    public static org.sonarqube.ws.Common.FacetValue getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<FacetValue> PARSER =
+        new com.google.protobuf.AbstractParser<FacetValue>() {
+      public FacetValue parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new FacetValue(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<FacetValue> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.FacetValue getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface RuleOrBuilder extends
@@ -2280,37 +2272,31 @@ public final class Common {
   /**
    * Protobuf type {@code sonarqube.ws.commons.Rule}
    */
-  public static final class Rule extends
+  public  static final class Rule extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.Rule)
       RuleOrBuilder {
     // Use Rule.newBuilder() to construct.
-    private Rule(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Rule(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Rule(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Rule defaultInstance;
-    public static Rule getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public Rule getDefaultInstanceForType() {
-      return defaultInstance;
+    private Rule() {
+      key_ = "";
+      name_ = "";
+      lang_ = "";
+      status_ = 0;
+      langName_ = "";
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Rule(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2354,7 +2340,7 @@ public final class Common {
                 unknownFields.mergeVarintField(4, rawValue);
               } else {
                 bitField0_ |= 0x00000008;
-                status_ = value;
+                status_ = rawValue;
               }
               break;
             }
@@ -2367,10 +2353,11 @@ public final class Common {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2388,24 +2375,9 @@ public final class Common {
               org.sonarqube.ws.Common.Rule.class, org.sonarqube.ws.Common.Rule.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Rule> PARSER =
-        new com.google.protobuf.AbstractParser<Rule>() {
-      public Rule parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Rule(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Rule> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int KEY_FIELD_NUMBER = 1;
-    private java.lang.Object key_;
+    private volatile java.lang.Object key_;
     /**
      * <code>optional string key = 1;</code>
      */
@@ -2447,7 +2419,7 @@ public final class Common {
     }
 
     public static final int NAME_FIELD_NUMBER = 2;
-    private java.lang.Object name_;
+    private volatile java.lang.Object name_;
     /**
      * <code>optional string name = 2;</code>
      */
@@ -2489,7 +2461,7 @@ public final class Common {
     }
 
     public static final int LANG_FIELD_NUMBER = 3;
-    private java.lang.Object lang_;
+    private volatile java.lang.Object lang_;
     /**
      * <code>optional string lang = 3;</code>
      */
@@ -2531,7 +2503,7 @@ public final class Common {
     }
 
     public static final int STATUS_FIELD_NUMBER = 4;
-    private org.sonarqube.ws.Common.RuleStatus status_;
+    private int status_;
     /**
      * <code>optional .sonarqube.ws.commons.RuleStatus status = 4;</code>
      */
@@ -2542,11 +2514,12 @@ public final class Common {
      * <code>optional .sonarqube.ws.commons.RuleStatus status = 4;</code>
      */
     public org.sonarqube.ws.Common.RuleStatus getStatus() {
-      return status_;
+      org.sonarqube.ws.Common.RuleStatus result = org.sonarqube.ws.Common.RuleStatus.valueOf(status_);
+      return result == null ? org.sonarqube.ws.Common.RuleStatus.BETA : result;
     }
 
     public static final int LANGNAME_FIELD_NUMBER = 5;
-    private java.lang.Object langName_;
+    private volatile java.lang.Object langName_;
     /**
      * <code>optional string langName = 5;</code>
      */
@@ -2587,13 +2560,6 @@ public final class Common {
       }
     }
 
-    private void initFields() {
-      key_ = "";
-      name_ = "";
-      lang_ = "";
-      status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
-      langName_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -2606,7 +2572,6 @@ public final class Common {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getKeyBytes());
       }
@@ -2617,12 +2582,12 @@ public final class Common {
         output.writeBytes(3, getLangBytes());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeEnum(4, status_.getNumber());
+        output.writeEnum(4, status_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeBytes(5, getLangNameBytes());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -2645,24 +2610,18 @@ public final class Common {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(4, status_.getNumber());
+          .computeEnumSize(4, status_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(5, getLangNameBytes());
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonarqube.ws.Common.Rule parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2716,12 +2675,17 @@ public final class Common {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonarqube.ws.Common.Rule prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonarqube.ws.Common.Rule prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2762,10 +2726,6 @@ public final class Common {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         key_ = "";
@@ -2774,15 +2734,11 @@ public final class Common {
         bitField0_ = (bitField0_ & ~0x00000002);
         lang_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
-        status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
+        status_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
         langName_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2865,7 +2821,8 @@ public final class Common {
           langName_ = other.langName_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -3120,7 +3077,7 @@ public final class Common {
         return this;
       }
 
-      private org.sonarqube.ws.Common.RuleStatus status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
+      private int status_ = 0;
       /**
        * <code>optional .sonarqube.ws.commons.RuleStatus status = 4;</code>
        */
@@ -3131,7 +3088,8 @@ public final class Common {
        * <code>optional .sonarqube.ws.commons.RuleStatus status = 4;</code>
        */
       public org.sonarqube.ws.Common.RuleStatus getStatus() {
-        return status_;
+        org.sonarqube.ws.Common.RuleStatus result = org.sonarqube.ws.Common.RuleStatus.valueOf(status_);
+        return result == null ? org.sonarqube.ws.Common.RuleStatus.BETA : result;
       }
       /**
        * <code>optional .sonarqube.ws.commons.RuleStatus status = 4;</code>
@@ -3141,7 +3099,7 @@ public final class Common {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000008;
-        status_ = value;
+        status_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -3150,7 +3108,7 @@ public final class Common {
        */
       public Builder clearStatus() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
+        status_ = 0;
         onChanged();
         return this;
       }
@@ -3234,12 +3192,44 @@ public final class Common {
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.Rule)
     }
 
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Rule)
+    private static final org.sonarqube.ws.Common.Rule DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Rule(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.Rule();
     }
 
-    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Rule)
+    public static org.sonarqube.ws.Common.Rule getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Rule> PARSER =
+        new com.google.protobuf.AbstractParser<Rule>() {
+      public Rule parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Rule(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Rule> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.Rule getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface UserOrBuilder extends
@@ -3300,37 +3290,30 @@ public final class Common {
   /**
    * Protobuf type {@code sonarqube.ws.commons.User}
    */
-  public static final class User extends
+  public  static final class User extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.User)
       UserOrBuilder {
     // Use User.newBuilder() to construct.
-    private User(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private User(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private User(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final User defaultInstance;
-    public static User getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public User getDefaultInstanceForType() {
-      return defaultInstance;
+    private User() {
+      login_ = "";
+      name_ = "";
+      email_ = "";
+      active_ = false;
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private User(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -3375,10 +3358,11 @@ public final class Common {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -3396,24 +3380,9 @@ public final class Common {
               org.sonarqube.ws.Common.User.class, org.sonarqube.ws.Common.User.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<User> PARSER =
-        new com.google.protobuf.AbstractParser<User>() {
-      public User parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new User(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<User> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int LOGIN_FIELD_NUMBER = 1;
-    private java.lang.Object login_;
+    private volatile java.lang.Object login_;
     /**
      * <code>optional string login = 1;</code>
      */
@@ -3455,7 +3424,7 @@ public final class Common {
     }
 
     public static final int NAME_FIELD_NUMBER = 2;
-    private java.lang.Object name_;
+    private volatile java.lang.Object name_;
     /**
      * <code>optional string name = 2;</code>
      */
@@ -3497,7 +3466,7 @@ public final class Common {
     }
 
     public static final int EMAIL_FIELD_NUMBER = 3;
-    private java.lang.Object email_;
+    private volatile java.lang.Object email_;
     /**
      * <code>optional string email = 3;</code>
      */
@@ -3553,12 +3522,6 @@ public final class Common {
       return active_;
     }
 
-    private void initFields() {
-      login_ = "";
-      name_ = "";
-      email_ = "";
-      active_ = false;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -3571,7 +3534,6 @@ public final class Common {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getLoginBytes());
       }
@@ -3584,7 +3546,7 @@ public final class Common {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeBool(4, active_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -3609,18 +3571,12 @@ public final class Common {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(4, active_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonarqube.ws.Common.User parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -3674,12 +3630,17 @@ public final class Common {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonarqube.ws.Common.User prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonarqube.ws.Common.User prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -3720,10 +3681,6 @@ public final class Common {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         login_ = "";
@@ -3735,10 +3692,6 @@ public final class Common {
         active_ = false;
         bitField0_ = (bitField0_ & ~0x00000008);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -3812,7 +3765,8 @@ public final class Common {
         if (other.hasActive()) {
           setActive(other.getActive());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -4102,12 +4056,44 @@ public final class Common {
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.User)
     }
 
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.User)
+    private static final org.sonarqube.ws.Common.User DEFAULT_INSTANCE;
     static {
-      defaultInstance = new User(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.User();
     }
 
-    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.User)
+    public static org.sonarqube.ws.Common.User getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<User> PARSER =
+        new com.google.protobuf.AbstractParser<User>() {
+      public User parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new User(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<User> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.User getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface TextRangeOrBuilder extends
@@ -4189,37 +4175,30 @@ public final class Common {
    * Lines start at 1 and line offsets start at 0
    * </pre>
    */
-  public static final class TextRange extends
+  public  static final class TextRange extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.TextRange)
       TextRangeOrBuilder {
     // Use TextRange.newBuilder() to construct.
-    private TextRange(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private TextRange(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private TextRange(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final TextRange defaultInstance;
-    public static TextRange getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public TextRange getDefaultInstanceForType() {
-      return defaultInstance;
+    private TextRange() {
+      startLine_ = 0;
+      endLine_ = 0;
+      startOffset_ = 0;
+      endOffset_ = 0;
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private TextRange(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -4261,10 +4240,11 @@ public final class Common {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -4280,21 +4260,6 @@ public final class Common {
       return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_TextRange_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonarqube.ws.Common.TextRange.class, org.sonarqube.ws.Common.TextRange.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<TextRange> PARSER =
-        new com.google.protobuf.AbstractParser<TextRange>() {
-      public TextRange parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new TextRange(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<TextRange> getParserForType() {
-      return PARSER;
     }
 
     private int bitField0_;
@@ -4390,12 +4355,6 @@ public final class Common {
       return endOffset_;
     }
 
-    private void initFields() {
-      startLine_ = 0;
-      endLine_ = 0;
-      startOffset_ = 0;
-      endOffset_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -4408,7 +4367,6 @@ public final class Common {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, startLine_);
       }
@@ -4421,7 +4379,7 @@ public final class Common {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, endOffset_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -4446,18 +4404,12 @@ public final class Common {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, endOffset_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonarqube.ws.Common.TextRange parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4511,12 +4463,17 @@ public final class Common {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonarqube.ws.Common.TextRange prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonarqube.ws.Common.TextRange prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -4561,10 +4518,6 @@ public final class Common {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         startLine_ = 0;
@@ -4576,10 +4529,6 @@ public final class Common {
         endOffset_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -4647,7 +4596,8 @@ public final class Common {
         if (other.hasEndOffset()) {
           setEndOffset(other.getEndOffset());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -4869,40 +4819,72 @@ public final class Common {
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.TextRange)
     }
 
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.TextRange)
+    private static final org.sonarqube.ws.Common.TextRange DEFAULT_INSTANCE;
     static {
-      defaultInstance = new TextRange(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.TextRange();
     }
 
-    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.TextRange)
+    public static org.sonarqube.ws.Common.TextRange getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<TextRange> PARSER =
+        new com.google.protobuf.AbstractParser<TextRange>() {
+      public TextRange parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new TextRange(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<TextRange> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.TextRange getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_Paging_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_commons_Paging_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_Facet_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_commons_Facet_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_FacetValue_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_commons_FacetValue_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_Rule_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_commons_Rule_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_User_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_commons_User_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_TextRange_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable

@@ -233,37 +233,43 @@ public final class DbFileSources {
   /**
    * Protobuf type {@code org.sonar.server.source.db.Line}
    */
-  public static final class Line extends
+  public  static final class Line extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:org.sonar.server.source.db.Line)
       LineOrBuilder {
     // Use Line.newBuilder() to construct.
-    private Line(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Line(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Line(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Line defaultInstance;
-    public static Line getDefaultInstance() {
-      return defaultInstance;
+    private Line() {
+      line_ = 0;
+      source_ = "";
+      scmRevision_ = "";
+      scmAuthor_ = "";
+      scmDate_ = 0L;
+      utLineHits_ = 0;
+      utConditions_ = 0;
+      utCoveredConditions_ = 0;
+      itLineHits_ = 0;
+      itConditions_ = 0;
+      itCoveredConditions_ = 0;
+      overallLineHits_ = 0;
+      overallConditions_ = 0;
+      overallCoveredConditions_ = 0;
+      highlighting_ = "";
+      symbols_ = "";
+      duplication_ = java.util.Collections.emptyList();
     }
 
-    public Line getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Line(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -391,10 +397,11 @@ public final class DbFileSources {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00010000) == 0x00010000)) {
           duplication_ = java.util.Collections.unmodifiableList(duplication_);
@@ -415,21 +422,6 @@ public final class DbFileSources {
               org.sonar.db.protobuf.DbFileSources.Line.class, org.sonar.db.protobuf.DbFileSources.Line.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Line> PARSER =
-        new com.google.protobuf.AbstractParser<Line>() {
-      public Line parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Line(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Line> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int LINE_FIELD_NUMBER = 1;
     private int line_;
@@ -447,7 +439,7 @@ public final class DbFileSources {
     }
 
     public static final int SOURCE_FIELD_NUMBER = 2;
-    private java.lang.Object source_;
+    private volatile java.lang.Object source_;
     /**
      * <code>optional string source = 2;</code>
      */
@@ -489,7 +481,7 @@ public final class DbFileSources {
     }
 
     public static final int SCM_REVISION_FIELD_NUMBER = 3;
-    private java.lang.Object scmRevision_;
+    private volatile java.lang.Object scmRevision_;
     /**
      * <code>optional string scm_revision = 3;</code>
      *
@@ -543,7 +535,7 @@ public final class DbFileSources {
     }
 
     public static final int SCM_AUTHOR_FIELD_NUMBER = 4;
-    private java.lang.Object scmAuthor_;
+    private volatile java.lang.Object scmAuthor_;
     /**
      * <code>optional string scm_author = 4;</code>
      */
@@ -759,7 +751,7 @@ public final class DbFileSources {
     }
 
     public static final int HIGHLIGHTING_FIELD_NUMBER = 15;
-    private java.lang.Object highlighting_;
+    private volatile java.lang.Object highlighting_;
     /**
      * <code>optional string highlighting = 15;</code>
      */
@@ -801,7 +793,7 @@ public final class DbFileSources {
     }
 
     public static final int SYMBOLS_FIELD_NUMBER = 16;
-    private java.lang.Object symbols_;
+    private volatile java.lang.Object symbols_;
     /**
      * <code>optional string symbols = 16;</code>
      */
@@ -865,25 +857,6 @@ public final class DbFileSources {
     }
     private int duplicationMemoizedSerializedSize = -1;
 
-    private void initFields() {
-      line_ = 0;
-      source_ = "";
-      scmRevision_ = "";
-      scmAuthor_ = "";
-      scmDate_ = 0L;
-      utLineHits_ = 0;
-      utConditions_ = 0;
-      utCoveredConditions_ = 0;
-      itLineHits_ = 0;
-      itConditions_ = 0;
-      itCoveredConditions_ = 0;
-      overallLineHits_ = 0;
-      overallConditions_ = 0;
-      overallCoveredConditions_ = 0;
-      highlighting_ = "";
-      symbols_ = "";
-      duplication_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -952,7 +925,7 @@ public final class DbFileSources {
       for (int i = 0; i < duplication_.size(); i++) {
         output.writeInt32NoTag(duplication_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -1039,18 +1012,12 @@ public final class DbFileSources {
         }
         duplicationMemoizedSerializedSize = dataSize;
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.db.protobuf.DbFileSources.Line parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1104,12 +1071,17 @@ public final class DbFileSources {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.db.protobuf.DbFileSources.Line prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.db.protobuf.DbFileSources.Line prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1150,10 +1122,6 @@ public final class DbFileSources {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         line_ = 0;
@@ -1191,10 +1159,6 @@ public final class DbFileSources {
         duplication_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00010000);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1371,7 +1335,8 @@ public final class DbFileSources {
           }
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2271,12 +2236,44 @@ public final class DbFileSources {
       // @@protoc_insertion_point(builder_scope:org.sonar.server.source.db.Line)
     }
 
+    // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Line)
+    private static final org.sonar.db.protobuf.DbFileSources.Line DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Line(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.db.protobuf.DbFileSources.Line();
     }
 
-    // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Line)
+    public static org.sonar.db.protobuf.DbFileSources.Line getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Line> PARSER =
+        new com.google.protobuf.AbstractParser<Line>() {
+      public Line parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Line(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Line> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.db.protobuf.DbFileSources.Line getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface DataOrBuilder extends
@@ -2314,37 +2311,27 @@ public final class DbFileSources {
    * TODO should be dropped as it prevents streaming
    * </pre>
    */
-  public static final class Data extends
+  public  static final class Data extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:org.sonar.server.source.db.Data)
       DataOrBuilder {
     // Use Data.newBuilder() to construct.
-    private Data(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Data(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Data(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Data defaultInstance;
-    public static Data getDefaultInstance() {
-      return defaultInstance;
+    private Data() {
+      lines_ = java.util.Collections.emptyList();
     }
 
-    public Data getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Data(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2374,10 +2361,11 @@ public final class DbFileSources {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           lines_ = java.util.Collections.unmodifiableList(lines_);
@@ -2396,21 +2384,6 @@ public final class DbFileSources {
       return org.sonar.db.protobuf.DbFileSources.internal_static_org_sonar_server_source_db_Data_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.db.protobuf.DbFileSources.Data.class, org.sonar.db.protobuf.DbFileSources.Data.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Data> PARSER =
-        new com.google.protobuf.AbstractParser<Data>() {
-      public Data parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Data(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Data> getParserForType() {
-      return PARSER;
     }
 
     public static final int LINES_FIELD_NUMBER = 1;
@@ -2448,9 +2421,6 @@ public final class DbFileSources {
       return lines_.get(index);
     }
 
-    private void initFields() {
-      lines_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -2463,11 +2433,10 @@ public final class DbFileSources {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       for (int i = 0; i < lines_.size(); i++) {
         output.writeMessage(1, lines_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -2480,18 +2449,12 @@ public final class DbFileSources {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, lines_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.db.protobuf.DbFileSources.Data parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2545,12 +2508,17 @@ public final class DbFileSources {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.db.protobuf.DbFileSources.Data prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.db.protobuf.DbFileSources.Data prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2596,10 +2564,6 @@ public final class DbFileSources {
           getLinesFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         if (linesBuilder_ == null) {
@@ -2609,10 +2573,6 @@ public final class DbFileSources {
           linesBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2685,7 +2645,8 @@ public final class DbFileSources {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2955,12 +2916,44 @@ public final class DbFileSources {
       // @@protoc_insertion_point(builder_scope:org.sonar.server.source.db.Data)
     }
 
+    // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Data)
+    private static final org.sonar.db.protobuf.DbFileSources.Data DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Data(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.db.protobuf.DbFileSources.Data();
     }
 
-    // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Data)
+    public static org.sonar.db.protobuf.DbFileSources.Data getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Data> PARSER =
+        new com.google.protobuf.AbstractParser<Data>() {
+      public Data parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Data(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Data> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.db.protobuf.DbFileSources.Data getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface TestOrBuilder extends
@@ -3068,37 +3061,33 @@ public final class DbFileSources {
   /**
    * Protobuf type {@code org.sonar.server.source.db.Test}
    */
-  public static final class Test extends
+  public  static final class Test extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:org.sonar.server.source.db.Test)
       TestOrBuilder {
     // Use Test.newBuilder() to construct.
-    private Test(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Test(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Test(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Test defaultInstance;
-    public static Test getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public Test getDefaultInstanceForType() {
-      return defaultInstance;
+    private Test() {
+      uuid_ = "";
+      name_ = "";
+      status_ = 1;
+      executionTimeMs_ = 0L;
+      stacktrace_ = "";
+      msg_ = "";
+      coveredFile_ = java.util.Collections.emptyList();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Test(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -3136,7 +3125,7 @@ public final class DbFileSources {
                 unknownFields.mergeVarintField(3, rawValue);
               } else {
                 bitField0_ |= 0x00000004;
-                status_ = value;
+                status_ = rawValue;
               }
               break;
             }
@@ -3168,10 +3157,11 @@ public final class DbFileSources {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           coveredFile_ = java.util.Collections.unmodifiableList(coveredFile_);
@@ -3190,21 +3180,6 @@ public final class DbFileSources {
       return org.sonar.db.protobuf.DbFileSources.internal_static_org_sonar_server_source_db_Test_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.db.protobuf.DbFileSources.Test.class, org.sonar.db.protobuf.DbFileSources.Test.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Test> PARSER =
-        new com.google.protobuf.AbstractParser<Test>() {
-      public Test parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Test(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Test> getParserForType() {
-      return PARSER;
     }
 
     /**
@@ -3248,7 +3223,9 @@ public final class DbFileSources {
       public static final int SKIPPED_VALUE = 4;
 
 
-      public final int getNumber() { return value; }
+      public final int getNumber() {
+        return value;
+      }
 
       public static TestStatus valueOf(int value) {
         switch (value) {
@@ -3341,37 +3318,28 @@ public final class DbFileSources {
     /**
      * Protobuf type {@code org.sonar.server.source.db.Test.CoveredFile}
      */
-    public static final class CoveredFile extends
+    public  static final class CoveredFile extends
         com.google.protobuf.GeneratedMessage implements
         // @@protoc_insertion_point(message_implements:org.sonar.server.source.db.Test.CoveredFile)
         CoveredFileOrBuilder {
       // Use CoveredFile.newBuilder() to construct.
-      private CoveredFile(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      private CoveredFile(com.google.protobuf.GeneratedMessage.Builder builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private CoveredFile(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final CoveredFile defaultInstance;
-      public static CoveredFile getDefaultInstance() {
-        return defaultInstance;
+      private CoveredFile() {
+        fileUuid_ = "";
+        coveredLine_ = java.util.Collections.emptyList();
       }
 
-      public CoveredFile getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private CoveredFile(
           com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+        this();
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -3420,10 +3388,11 @@ public final class DbFileSources {
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
+          throw new RuntimeException(e.setUnfinishedMessage(this));
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+          throw new RuntimeException(
+              new com.google.protobuf.InvalidProtocolBufferException(
+                  e.getMessage()).setUnfinishedMessage(this));
         } finally {
           if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
             coveredLine_ = java.util.Collections.unmodifiableList(coveredLine_);
@@ -3444,24 +3413,9 @@ public final class DbFileSources {
                 org.sonar.db.protobuf.DbFileSources.Test.CoveredFile.class, org.sonar.db.protobuf.DbFileSources.Test.CoveredFile.Builder.class);
       }
 
-      public static com.google.protobuf.Parser<CoveredFile> PARSER =
-          new com.google.protobuf.AbstractParser<CoveredFile>() {
-        public CoveredFile parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new CoveredFile(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<CoveredFile> getParserForType() {
-        return PARSER;
-      }
-
       private int bitField0_;
       public static final int FILE_UUID_FIELD_NUMBER = 1;
-      private java.lang.Object fileUuid_;
+      private volatile java.lang.Object fileUuid_;
       /**
        * <code>optional string file_uuid = 1;</code>
        */
@@ -3525,10 +3479,6 @@ public final class DbFileSources {
       }
       private int coveredLineMemoizedSerializedSize = -1;
 
-      private void initFields() {
-        fileUuid_ = "";
-        coveredLine_ = java.util.Collections.emptyList();
-      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -3552,7 +3502,7 @@ public final class DbFileSources {
         for (int i = 0; i < coveredLine_.size(); i++) {
           output.writeInt32NoTag(coveredLine_.get(i));
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
       private int memoizedSerializedSize = -1;
@@ -3579,18 +3529,12 @@ public final class DbFileSources {
           }
           coveredLineMemoizedSerializedSize = dataSize;
         }
-        size += getUnknownFields().getSerializedSize();
+        size += unknownFields.getSerializedSize();
         memoizedSerializedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
       public static org.sonar.db.protobuf.DbFileSources.Test.CoveredFile parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -3644,12 +3588,17 @@ public final class DbFileSources {
         return PARSER.parseFrom(input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(org.sonar.db.protobuf.DbFileSources.Test.CoveredFile prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(org.sonar.db.protobuf.DbFileSources.Test.CoveredFile prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
@@ -3690,10 +3639,6 @@ public final class DbFileSources {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
         public Builder clear() {
           super.clear();
           fileUuid_ = "";
@@ -3701,10 +3646,6 @@ public final class DbFileSources {
           coveredLine_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000002);
           return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
         }
 
         public com.google.protobuf.Descriptors.Descriptor
@@ -3768,7 +3709,8 @@ public final class DbFileSources {
             }
             onChanged();
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
@@ -3940,17 +3882,49 @@ public final class DbFileSources {
         // @@protoc_insertion_point(builder_scope:org.sonar.server.source.db.Test.CoveredFile)
       }
 
+      // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Test.CoveredFile)
+      private static final org.sonar.db.protobuf.DbFileSources.Test.CoveredFile DEFAULT_INSTANCE;
       static {
-        defaultInstance = new CoveredFile(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new org.sonar.db.protobuf.DbFileSources.Test.CoveredFile();
       }
 
-      // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Test.CoveredFile)
+      public static org.sonar.db.protobuf.DbFileSources.Test.CoveredFile getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      public static final com.google.protobuf.Parser<CoveredFile> PARSER =
+          new com.google.protobuf.AbstractParser<CoveredFile>() {
+        public CoveredFile parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          try {
+            return new CoveredFile(input, extensionRegistry);
+          } catch (RuntimeException e) {
+            if (e.getCause() instanceof
+                com.google.protobuf.InvalidProtocolBufferException) {
+              throw (com.google.protobuf.InvalidProtocolBufferException)
+                  e.getCause();
+            }
+            throw e;
+          }
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<CoveredFile> getParserForType() {
+        return PARSER;
+      }
+
+      public org.sonar.db.protobuf.DbFileSources.Test.CoveredFile getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     private int bitField0_;
     public static final int UUID_FIELD_NUMBER = 1;
-    private java.lang.Object uuid_;
+    private volatile java.lang.Object uuid_;
     /**
      * <code>optional string uuid = 1;</code>
      */
@@ -3992,7 +3966,7 @@ public final class DbFileSources {
     }
 
     public static final int NAME_FIELD_NUMBER = 2;
-    private java.lang.Object name_;
+    private volatile java.lang.Object name_;
     /**
      * <code>optional string name = 2;</code>
      */
@@ -4034,7 +4008,7 @@ public final class DbFileSources {
     }
 
     public static final int STATUS_FIELD_NUMBER = 3;
-    private org.sonar.db.protobuf.DbFileSources.Test.TestStatus status_;
+    private int status_;
     /**
      * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
      */
@@ -4045,7 +4019,8 @@ public final class DbFileSources {
      * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
      */
     public org.sonar.db.protobuf.DbFileSources.Test.TestStatus getStatus() {
-      return status_;
+      org.sonar.db.protobuf.DbFileSources.Test.TestStatus result = org.sonar.db.protobuf.DbFileSources.Test.TestStatus.valueOf(status_);
+      return result == null ? org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK : result;
     }
 
     public static final int EXECUTION_TIME_MS_FIELD_NUMBER = 4;
@@ -4064,7 +4039,7 @@ public final class DbFileSources {
     }
 
     public static final int STACKTRACE_FIELD_NUMBER = 5;
-    private java.lang.Object stacktrace_;
+    private volatile java.lang.Object stacktrace_;
     /**
      * <code>optional string stacktrace = 5;</code>
      */
@@ -4106,7 +4081,7 @@ public final class DbFileSources {
     }
 
     public static final int MSG_FIELD_NUMBER = 6;
-    private java.lang.Object msg_;
+    private volatile java.lang.Object msg_;
     /**
      * <code>optional string msg = 6;</code>
      */
@@ -4182,15 +4157,6 @@ public final class DbFileSources {
       return coveredFile_.get(index);
     }
 
-    private void initFields() {
-      uuid_ = "";
-      name_ = "";
-      status_ = org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK;
-      executionTimeMs_ = 0L;
-      stacktrace_ = "";
-      msg_ = "";
-      coveredFile_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -4203,7 +4169,6 @@ public final class DbFileSources {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getUuidBytes());
       }
@@ -4211,7 +4176,7 @@ public final class DbFileSources {
         output.writeBytes(2, getNameBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeEnum(3, status_.getNumber());
+        output.writeEnum(3, status_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt64(4, executionTimeMs_);
@@ -4225,7 +4190,7 @@ public final class DbFileSources {
       for (int i = 0; i < coveredFile_.size(); i++) {
         output.writeMessage(7, coveredFile_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -4244,7 +4209,7 @@ public final class DbFileSources {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(3, status_.getNumber());
+          .computeEnumSize(3, status_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
@@ -4262,18 +4227,12 @@ public final class DbFileSources {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(7, coveredFile_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.db.protobuf.DbFileSources.Test parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4327,12 +4286,17 @@ public final class DbFileSources {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.db.protobuf.DbFileSources.Test prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.db.protobuf.DbFileSources.Test prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -4374,17 +4338,13 @@ public final class DbFileSources {
           getCoveredFileFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         uuid_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         name_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
-        status_ = org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK;
+        status_ = 1;
         bitField0_ = (bitField0_ & ~0x00000004);
         executionTimeMs_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -4399,10 +4359,6 @@ public final class DbFileSources {
           coveredFileBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -4527,7 +4483,8 @@ public final class DbFileSources {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -4706,7 +4663,7 @@ public final class DbFileSources {
         return this;
       }
 
-      private org.sonar.db.protobuf.DbFileSources.Test.TestStatus status_ = org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK;
+      private int status_ = 1;
       /**
        * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
        */
@@ -4717,7 +4674,8 @@ public final class DbFileSources {
        * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
        */
       public org.sonar.db.protobuf.DbFileSources.Test.TestStatus getStatus() {
-        return status_;
+        org.sonar.db.protobuf.DbFileSources.Test.TestStatus result = org.sonar.db.protobuf.DbFileSources.Test.TestStatus.valueOf(status_);
+        return result == null ? org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK : result;
       }
       /**
        * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
@@ -4727,7 +4685,7 @@ public final class DbFileSources {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000004;
-        status_ = value;
+        status_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -4736,7 +4694,7 @@ public final class DbFileSources {
        */
       public Builder clearStatus() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        status_ = org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK;
+        status_ = 1;
         onChanged();
         return this;
       }
@@ -5168,30 +5126,62 @@ public final class DbFileSources {
       // @@protoc_insertion_point(builder_scope:org.sonar.server.source.db.Test)
     }
 
+    // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Test)
+    private static final org.sonar.db.protobuf.DbFileSources.Test DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Test(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.db.protobuf.DbFileSources.Test();
     }
 
-    // @@protoc_insertion_point(class_scope:org.sonar.server.source.db.Test)
+    public static org.sonar.db.protobuf.DbFileSources.Test getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Test> PARSER =
+        new com.google.protobuf.AbstractParser<Test>() {
+      public Test parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Test(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Test> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.db.protobuf.DbFileSources.Test getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_org_sonar_server_source_db_Line_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_sonar_server_source_db_Line_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_org_sonar_server_source_db_Data_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_sonar_server_source_db_Data_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_org_sonar_server_source_db_Test_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_sonar_server_source_db_Test_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_org_sonar_server_source_db_Test_CoveredFile_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable

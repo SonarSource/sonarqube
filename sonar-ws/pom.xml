@@ -12,6 +12,10 @@
   <name>SonarQube :: Web Service</name>
   <description>Protocol Buffers specification of Web Services</description>
 
+  <properties>
+    <sonar.exclusions>src/main/gen-java/**/*</sonar.exclusions>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.protobuf</groupId>

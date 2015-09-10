@@ -14,6 +14,10 @@
   <name>SonarQube :: Database</name>
   <description>Create and request SonarQube schema</description>
 
+  <properties>
+    <sonar.exclusions>src/main/gen-java/**/*</sonar.exclusions>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

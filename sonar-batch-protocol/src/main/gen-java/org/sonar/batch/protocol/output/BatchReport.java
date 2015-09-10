@@ -73,37 +73,30 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Metadata}
    */
-  public static final class Metadata extends
+  public  static final class Metadata extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Metadata)
       MetadataOrBuilder {
     // Use Metadata.newBuilder() to construct.
-    private Metadata(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Metadata(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Metadata(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Metadata defaultInstance;
-    public static Metadata getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public Metadata getDefaultInstanceForType() {
-      return defaultInstance;
+    private Metadata() {
+      analysisDate_ = 0L;
+      projectKey_ = "";
+      branch_ = "";
+      rootComponentRef_ = 0;
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Metadata(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -147,10 +140,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -166,21 +160,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_Metadata_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.Metadata.class, org.sonar.batch.protocol.output.BatchReport.Metadata.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Metadata> PARSER =
-        new com.google.protobuf.AbstractParser<Metadata>() {
-      public Metadata parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Metadata(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Metadata> getParserForType() {
-      return PARSER;
     }
 
     private int bitField0_;
@@ -200,7 +179,7 @@ public final class BatchReport {
     }
 
     public static final int PROJECT_KEY_FIELD_NUMBER = 2;
-    private java.lang.Object projectKey_;
+    private volatile java.lang.Object projectKey_;
     /**
      * <code>optional string project_key = 2;</code>
      *
@@ -254,7 +233,7 @@ public final class BatchReport {
     }
 
     public static final int BRANCH_FIELD_NUMBER = 3;
-    private java.lang.Object branch_;
+    private volatile java.lang.Object branch_;
     /**
      * <code>optional string branch = 3;</code>
      */
@@ -310,12 +289,6 @@ public final class BatchReport {
       return rootComponentRef_;
     }
 
-    private void initFields() {
-      analysisDate_ = 0L;
-      projectKey_ = "";
-      branch_ = "";
-      rootComponentRef_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -328,7 +301,6 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt64(1, analysisDate_);
       }
@@ -341,7 +313,7 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, rootComponentRef_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -366,18 +338,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, rootComponentRef_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Metadata parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -431,12 +397,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Metadata prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Metadata prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -477,10 +448,6 @@ public final class BatchReport {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         analysisDate_ = 0L;
@@ -492,10 +459,6 @@ public final class BatchReport {
         rootComponentRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -567,7 +530,8 @@ public final class BatchReport {
         if (other.hasRootComponentRef()) {
           setRootComponentRef(other.getRootComponentRef());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -837,12 +801,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Metadata)
     }
 
+    // @@protoc_insertion_point(class_scope:Metadata)
+    private static final org.sonar.batch.protocol.output.BatchReport.Metadata DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Metadata(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Metadata();
     }
 
-    // @@protoc_insertion_point(class_scope:Metadata)
+    public static org.sonar.batch.protocol.output.BatchReport.Metadata getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Metadata> PARSER =
+        new com.google.protobuf.AbstractParser<Metadata>() {
+      public Metadata parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Metadata(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Metadata> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Metadata getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ActiveRuleOrBuilder extends
@@ -913,37 +909,30 @@ public final class BatchReport {
   /**
    * Protobuf type {@code ActiveRule}
    */
-  public static final class ActiveRule extends
+  public  static final class ActiveRule extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:ActiveRule)
       ActiveRuleOrBuilder {
     // Use ActiveRule.newBuilder() to construct.
-    private ActiveRule(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private ActiveRule(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ActiveRule(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ActiveRule defaultInstance;
-    public static ActiveRule getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public ActiveRule getDefaultInstanceForType() {
-      return defaultInstance;
+    private ActiveRule() {
+      ruleRepository_ = "";
+      ruleKey_ = "";
+      severity_ = 0;
+      param_ = java.util.Collections.emptyList();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ActiveRule(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -981,7 +970,7 @@ public final class BatchReport {
                 unknownFields.mergeVarintField(3, rawValue);
               } else {
                 bitField0_ |= 0x00000004;
-                severity_ = value;
+                severity_ = rawValue;
               }
               break;
             }
@@ -996,10 +985,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           param_ = java.util.Collections.unmodifiableList(param_);
@@ -1018,21 +1008,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_ActiveRule_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.ActiveRule.class, org.sonar.batch.protocol.output.BatchReport.ActiveRule.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<ActiveRule> PARSER =
-        new com.google.protobuf.AbstractParser<ActiveRule>() {
-      public ActiveRule parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ActiveRule(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ActiveRule> getParserForType() {
-      return PARSER;
     }
 
     public interface ActiveRuleParamOrBuilder extends
@@ -1074,37 +1049,28 @@ public final class BatchReport {
      * TODO replace by map
      * </pre>
      */
-    public static final class ActiveRuleParam extends
+    public  static final class ActiveRuleParam extends
         com.google.protobuf.GeneratedMessage implements
         // @@protoc_insertion_point(message_implements:ActiveRule.ActiveRuleParam)
         ActiveRuleParamOrBuilder {
       // Use ActiveRuleParam.newBuilder() to construct.
-      private ActiveRuleParam(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      private ActiveRuleParam(com.google.protobuf.GeneratedMessage.Builder builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private ActiveRuleParam(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final ActiveRuleParam defaultInstance;
-      public static ActiveRuleParam getDefaultInstance() {
-        return defaultInstance;
+      private ActiveRuleParam() {
+        key_ = "";
+        value_ = "";
       }
 
-      public ActiveRuleParam getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private ActiveRuleParam(
           com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+        this();
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1138,10 +1104,11 @@ public final class BatchReport {
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
+          throw new RuntimeException(e.setUnfinishedMessage(this));
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+          throw new RuntimeException(
+              new com.google.protobuf.InvalidProtocolBufferException(
+                  e.getMessage()).setUnfinishedMessage(this));
         } finally {
           this.unknownFields = unknownFields.build();
           makeExtensionsImmutable();
@@ -1159,24 +1126,9 @@ public final class BatchReport {
                 org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam.class, org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam.Builder.class);
       }
 
-      public static com.google.protobuf.Parser<ActiveRuleParam> PARSER =
-          new com.google.protobuf.AbstractParser<ActiveRuleParam>() {
-        public ActiveRuleParam parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new ActiveRuleParam(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<ActiveRuleParam> getParserForType() {
-        return PARSER;
-      }
-
       private int bitField0_;
       public static final int KEY_FIELD_NUMBER = 1;
-      private java.lang.Object key_;
+      private volatile java.lang.Object key_;
       /**
        * <code>optional string key = 1;</code>
        */
@@ -1218,7 +1170,7 @@ public final class BatchReport {
       }
 
       public static final int VALUE_FIELD_NUMBER = 2;
-      private java.lang.Object value_;
+      private volatile java.lang.Object value_;
       /**
        * <code>optional string value = 2;</code>
        */
@@ -1259,10 +1211,6 @@ public final class BatchReport {
         }
       }
 
-      private void initFields() {
-        key_ = "";
-        value_ = "";
-      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -1275,14 +1223,13 @@ public final class BatchReport {
 
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           output.writeBytes(1, getKeyBytes());
         }
         if (((bitField0_ & 0x00000002) == 0x00000002)) {
           output.writeBytes(2, getValueBytes());
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
       private int memoizedSerializedSize = -1;
@@ -1299,18 +1246,12 @@ public final class BatchReport {
           size += com.google.protobuf.CodedOutputStream
             .computeBytesSize(2, getValueBytes());
         }
-        size += getUnknownFields().getSerializedSize();
+        size += unknownFields.getSerializedSize();
         memoizedSerializedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
       public static org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1364,12 +1305,17 @@ public final class BatchReport {
         return PARSER.parseFrom(input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
@@ -1414,10 +1360,6 @@ public final class BatchReport {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
         public Builder clear() {
           super.clear();
           key_ = "";
@@ -1425,10 +1367,6 @@ public final class BatchReport {
           value_ = "";
           bitField0_ = (bitField0_ & ~0x00000002);
           return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
         }
 
         public com.google.protobuf.Descriptors.Descriptor
@@ -1486,7 +1424,8 @@ public final class BatchReport {
             value_ = other.value_;
             onChanged();
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
@@ -1668,17 +1607,49 @@ public final class BatchReport {
         // @@protoc_insertion_point(builder_scope:ActiveRule.ActiveRuleParam)
       }
 
+      // @@protoc_insertion_point(class_scope:ActiveRule.ActiveRuleParam)
+      private static final org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam DEFAULT_INSTANCE;
       static {
-        defaultInstance = new ActiveRuleParam(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam();
       }
 
-      // @@protoc_insertion_point(class_scope:ActiveRule.ActiveRuleParam)
+      public static org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      public static final com.google.protobuf.Parser<ActiveRuleParam> PARSER =
+          new com.google.protobuf.AbstractParser<ActiveRuleParam>() {
+        public ActiveRuleParam parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          try {
+            return new ActiveRuleParam(input, extensionRegistry);
+          } catch (RuntimeException e) {
+            if (e.getCause() instanceof
+                com.google.protobuf.InvalidProtocolBufferException) {
+              throw (com.google.protobuf.InvalidProtocolBufferException)
+                  e.getCause();
+            }
+            throw e;
+          }
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<ActiveRuleParam> getParserForType() {
+        return PARSER;
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.ActiveRule.ActiveRuleParam getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     private int bitField0_;
     public static final int RULE_REPOSITORY_FIELD_NUMBER = 1;
-    private java.lang.Object ruleRepository_;
+    private volatile java.lang.Object ruleRepository_;
     /**
      * <code>optional string rule_repository = 1;</code>
      */
@@ -1720,7 +1691,7 @@ public final class BatchReport {
     }
 
     public static final int RULE_KEY_FIELD_NUMBER = 2;
-    private java.lang.Object ruleKey_;
+    private volatile java.lang.Object ruleKey_;
     /**
      * <code>optional string rule_key = 2;</code>
      */
@@ -1762,7 +1733,7 @@ public final class BatchReport {
     }
 
     public static final int SEVERITY_FIELD_NUMBER = 3;
-    private org.sonar.batch.protocol.Constants.Severity severity_;
+    private int severity_;
     /**
      * <code>optional .Severity severity = 3;</code>
      */
@@ -1773,7 +1744,8 @@ public final class BatchReport {
      * <code>optional .Severity severity = 3;</code>
      */
     public org.sonar.batch.protocol.Constants.Severity getSeverity() {
-      return severity_;
+      org.sonar.batch.protocol.Constants.Severity result = org.sonar.batch.protocol.Constants.Severity.valueOf(severity_);
+      return result == null ? org.sonar.batch.protocol.Constants.Severity.INFO : result;
     }
 
     public static final int PARAM_FIELD_NUMBER = 4;
@@ -1811,12 +1783,6 @@ public final class BatchReport {
       return param_.get(index);
     }
 
-    private void initFields() {
-      ruleRepository_ = "";
-      ruleKey_ = "";
-      severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
-      param_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1829,7 +1795,6 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getRuleRepositoryBytes());
       }
@@ -1837,12 +1802,12 @@ public final class BatchReport {
         output.writeBytes(2, getRuleKeyBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeEnum(3, severity_.getNumber());
+        output.writeEnum(3, severity_);
       }
       for (int i = 0; i < param_.size(); i++) {
         output.writeMessage(4, param_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -1861,24 +1826,18 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(3, severity_.getNumber());
+          .computeEnumSize(3, severity_);
       }
       for (int i = 0; i < param_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(4, param_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.ActiveRule parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1932,12 +1891,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.ActiveRule prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.ActiveRule prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -1979,17 +1943,13 @@ public final class BatchReport {
           getParamFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         ruleRepository_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         ruleKey_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
-        severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
+        severity_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
         if (paramBuilder_ == null) {
           param_ = java.util.Collections.emptyList();
@@ -1998,10 +1958,6 @@ public final class BatchReport {
           paramBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2101,7 +2057,8 @@ public final class BatchReport {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2280,7 +2237,7 @@ public final class BatchReport {
         return this;
       }
 
-      private org.sonar.batch.protocol.Constants.Severity severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
+      private int severity_ = 0;
       /**
        * <code>optional .Severity severity = 3;</code>
        */
@@ -2291,7 +2248,8 @@ public final class BatchReport {
        * <code>optional .Severity severity = 3;</code>
        */
       public org.sonar.batch.protocol.Constants.Severity getSeverity() {
-        return severity_;
+        org.sonar.batch.protocol.Constants.Severity result = org.sonar.batch.protocol.Constants.Severity.valueOf(severity_);
+        return result == null ? org.sonar.batch.protocol.Constants.Severity.INFO : result;
       }
       /**
        * <code>optional .Severity severity = 3;</code>
@@ -2301,7 +2259,7 @@ public final class BatchReport {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000004;
-        severity_ = value;
+        severity_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -2310,7 +2268,7 @@ public final class BatchReport {
        */
       public Builder clearSeverity() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
+        severity_ = 0;
         onChanged();
         return this;
       }
@@ -2558,12 +2516,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:ActiveRule)
     }
 
+    // @@protoc_insertion_point(class_scope:ActiveRule)
+    private static final org.sonar.batch.protocol.output.BatchReport.ActiveRule DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ActiveRule(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.ActiveRule();
     }
 
-    // @@protoc_insertion_point(class_scope:ActiveRule)
+    public static org.sonar.batch.protocol.output.BatchReport.ActiveRule getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<ActiveRule> PARSER =
+        new com.google.protobuf.AbstractParser<ActiveRule>() {
+      public ActiveRule parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ActiveRule(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ActiveRule> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.ActiveRule getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ComponentLinkOrBuilder extends
@@ -2596,37 +2586,28 @@ public final class BatchReport {
   /**
    * Protobuf type {@code ComponentLink}
    */
-  public static final class ComponentLink extends
+  public  static final class ComponentLink extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:ComponentLink)
       ComponentLinkOrBuilder {
     // Use ComponentLink.newBuilder() to construct.
-    private ComponentLink(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private ComponentLink(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ComponentLink(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ComponentLink defaultInstance;
-    public static ComponentLink getDefaultInstance() {
-      return defaultInstance;
+    private ComponentLink() {
+      type_ = 0;
+      href_ = "";
     }
 
-    public ComponentLink getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ComponentLink(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2652,7 +2633,7 @@ public final class BatchReport {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
                 bitField0_ |= 0x00000001;
-                type_ = value;
+                type_ = rawValue;
               }
               break;
             }
@@ -2665,10 +2646,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -2686,24 +2668,9 @@ public final class BatchReport {
               org.sonar.batch.protocol.output.BatchReport.ComponentLink.class, org.sonar.batch.protocol.output.BatchReport.ComponentLink.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<ComponentLink> PARSER =
-        new com.google.protobuf.AbstractParser<ComponentLink>() {
-      public ComponentLink parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ComponentLink(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ComponentLink> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int TYPE_FIELD_NUMBER = 1;
-    private org.sonar.batch.protocol.Constants.ComponentLinkType type_;
+    private int type_;
     /**
      * <code>optional .ComponentLinkType type = 1;</code>
      */
@@ -2714,11 +2681,12 @@ public final class BatchReport {
      * <code>optional .ComponentLinkType type = 1;</code>
      */
     public org.sonar.batch.protocol.Constants.ComponentLinkType getType() {
-      return type_;
+      org.sonar.batch.protocol.Constants.ComponentLinkType result = org.sonar.batch.protocol.Constants.ComponentLinkType.valueOf(type_);
+      return result == null ? org.sonar.batch.protocol.Constants.ComponentLinkType.HOME : result;
     }
 
     public static final int HREF_FIELD_NUMBER = 2;
-    private java.lang.Object href_;
+    private volatile java.lang.Object href_;
     /**
      * <code>optional string href = 2;</code>
      */
@@ -2759,10 +2727,6 @@ public final class BatchReport {
       }
     }
 
-    private void initFields() {
-      type_ = org.sonar.batch.protocol.Constants.ComponentLinkType.HOME;
-      href_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -2775,14 +2739,13 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, type_.getNumber());
+        output.writeEnum(1, type_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getHrefBytes());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -2793,24 +2756,18 @@ public final class BatchReport {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, type_.getNumber());
+          .computeEnumSize(1, type_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, getHrefBytes());
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.ComponentLink parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2864,12 +2821,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.ComponentLink prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.ComponentLink prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2910,21 +2872,13 @@ public final class BatchReport {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
-        type_ = org.sonar.batch.protocol.Constants.ComponentLinkType.HOME;
+        type_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
         href_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -2980,7 +2934,8 @@ public final class BatchReport {
           href_ = other.href_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -3007,7 +2962,7 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      private org.sonar.batch.protocol.Constants.ComponentLinkType type_ = org.sonar.batch.protocol.Constants.ComponentLinkType.HOME;
+      private int type_ = 0;
       /**
        * <code>optional .ComponentLinkType type = 1;</code>
        */
@@ -3018,7 +2973,8 @@ public final class BatchReport {
        * <code>optional .ComponentLinkType type = 1;</code>
        */
       public org.sonar.batch.protocol.Constants.ComponentLinkType getType() {
-        return type_;
+        org.sonar.batch.protocol.Constants.ComponentLinkType result = org.sonar.batch.protocol.Constants.ComponentLinkType.valueOf(type_);
+        return result == null ? org.sonar.batch.protocol.Constants.ComponentLinkType.HOME : result;
       }
       /**
        * <code>optional .ComponentLinkType type = 1;</code>
@@ -3028,7 +2984,7 @@ public final class BatchReport {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000001;
-        type_ = value;
+        type_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -3037,7 +2993,7 @@ public final class BatchReport {
        */
       public Builder clearType() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        type_ = org.sonar.batch.protocol.Constants.ComponentLinkType.HOME;
+        type_ = 0;
         onChanged();
         return this;
       }
@@ -3121,12 +3077,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:ComponentLink)
     }
 
+    // @@protoc_insertion_point(class_scope:ComponentLink)
+    private static final org.sonar.batch.protocol.output.BatchReport.ComponentLink DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ComponentLink(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.ComponentLink();
     }
 
-    // @@protoc_insertion_point(class_scope:ComponentLink)
+    public static org.sonar.batch.protocol.output.BatchReport.ComponentLink getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<ComponentLink> PARSER =
+        new com.google.protobuf.AbstractParser<ComponentLink>() {
+      public ComponentLink parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ComponentLink(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ComponentLink> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.ComponentLink getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ComponentOrBuilder extends
@@ -3340,37 +3328,38 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Component}
    */
-  public static final class Component extends
+  public  static final class Component extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Component)
       ComponentOrBuilder {
     // Use Component.newBuilder() to construct.
-    private Component(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Component(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Component(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Component defaultInstance;
-    public static Component getDefaultInstance() {
-      return defaultInstance;
+    private Component() {
+      ref_ = 0;
+      path_ = "";
+      name_ = "";
+      type_ = 0;
+      isTest_ = false;
+      language_ = "";
+      childRef_ = java.util.Collections.emptyList();
+      link_ = java.util.Collections.emptyList();
+      version_ = "";
+      key_ = "";
+      lines_ = 0;
+      description_ = "";
     }
 
-    public Component getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Component(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -3413,7 +3402,7 @@ public final class BatchReport {
                 unknownFields.mergeVarintField(4, rawValue);
               } else {
                 bitField0_ |= 0x00000008;
-                type_ = value;
+                type_ = rawValue;
               }
               break;
             }
@@ -3483,10 +3472,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           childRef_ = java.util.Collections.unmodifiableList(childRef_);
@@ -3510,21 +3500,6 @@ public final class BatchReport {
               org.sonar.batch.protocol.output.BatchReport.Component.class, org.sonar.batch.protocol.output.BatchReport.Component.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Component> PARSER =
-        new com.google.protobuf.AbstractParser<Component>() {
-      public Component parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Component(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Component> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int REF_FIELD_NUMBER = 1;
     private int ref_;
@@ -3542,7 +3517,7 @@ public final class BatchReport {
     }
 
     public static final int PATH_FIELD_NUMBER = 2;
-    private java.lang.Object path_;
+    private volatile java.lang.Object path_;
     /**
      * <code>optional string path = 2;</code>
      */
@@ -3584,7 +3559,7 @@ public final class BatchReport {
     }
 
     public static final int NAME_FIELD_NUMBER = 3;
-    private java.lang.Object name_;
+    private volatile java.lang.Object name_;
     /**
      * <code>optional string name = 3;</code>
      */
@@ -3626,7 +3601,7 @@ public final class BatchReport {
     }
 
     public static final int TYPE_FIELD_NUMBER = 4;
-    private org.sonar.batch.protocol.Constants.ComponentType type_;
+    private int type_;
     /**
      * <code>optional .ComponentType type = 4;</code>
      */
@@ -3637,7 +3612,8 @@ public final class BatchReport {
      * <code>optional .ComponentType type = 4;</code>
      */
     public org.sonar.batch.protocol.Constants.ComponentType getType() {
-      return type_;
+      org.sonar.batch.protocol.Constants.ComponentType result = org.sonar.batch.protocol.Constants.ComponentType.valueOf(type_);
+      return result == null ? org.sonar.batch.protocol.Constants.ComponentType.PROJECT : result;
     }
 
     public static final int IS_TEST_FIELD_NUMBER = 5;
@@ -3656,7 +3632,7 @@ public final class BatchReport {
     }
 
     public static final int LANGUAGE_FIELD_NUMBER = 6;
-    private java.lang.Object language_;
+    private volatile java.lang.Object language_;
     /**
      * <code>optional string language = 6;</code>
      */
@@ -3756,7 +3732,7 @@ public final class BatchReport {
     }
 
     public static final int VERSION_FIELD_NUMBER = 9;
-    private java.lang.Object version_;
+    private volatile java.lang.Object version_;
     /**
      * <code>optional string version = 9;</code>
      *
@@ -3810,7 +3786,7 @@ public final class BatchReport {
     }
 
     public static final int KEY_FIELD_NUMBER = 10;
-    private java.lang.Object key_;
+    private volatile java.lang.Object key_;
     /**
      * <code>optional string key = 10;</code>
      *
@@ -3890,7 +3866,7 @@ public final class BatchReport {
     }
 
     public static final int DESCRIPTION_FIELD_NUMBER = 12;
-    private java.lang.Object description_;
+    private volatile java.lang.Object description_;
     /**
      * <code>optional string description = 12;</code>
      *
@@ -3943,20 +3919,6 @@ public final class BatchReport {
       }
     }
 
-    private void initFields() {
-      ref_ = 0;
-      path_ = "";
-      name_ = "";
-      type_ = org.sonar.batch.protocol.Constants.ComponentType.PROJECT;
-      isTest_ = false;
-      language_ = "";
-      childRef_ = java.util.Collections.emptyList();
-      link_ = java.util.Collections.emptyList();
-      version_ = "";
-      key_ = "";
-      lines_ = 0;
-      description_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -3980,7 +3942,7 @@ public final class BatchReport {
         output.writeBytes(3, getNameBytes());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeEnum(4, type_.getNumber());
+        output.writeEnum(4, type_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeBool(5, isTest_);
@@ -4010,7 +3972,7 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeBytes(12, getDescriptionBytes());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -4033,7 +3995,7 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(4, type_.getNumber());
+          .computeEnumSize(4, type_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
@@ -4077,18 +4039,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(12, getDescriptionBytes());
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Component parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4142,12 +4098,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Component prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Component prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -4189,10 +4150,6 @@ public final class BatchReport {
           getLinkFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         ref_ = 0;
@@ -4201,7 +4158,7 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000002);
         name_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
-        type_ = org.sonar.batch.protocol.Constants.ComponentType.PROJECT;
+        type_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
         isTest_ = false;
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -4224,10 +4181,6 @@ public final class BatchReport {
         description_ = "";
         bitField0_ = (bitField0_ & ~0x00000800);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -4399,7 +4352,8 @@ public final class BatchReport {
           description_ = other.description_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -4610,7 +4564,7 @@ public final class BatchReport {
         return this;
       }
 
-      private org.sonar.batch.protocol.Constants.ComponentType type_ = org.sonar.batch.protocol.Constants.ComponentType.PROJECT;
+      private int type_ = 0;
       /**
        * <code>optional .ComponentType type = 4;</code>
        */
@@ -4621,7 +4575,8 @@ public final class BatchReport {
        * <code>optional .ComponentType type = 4;</code>
        */
       public org.sonar.batch.protocol.Constants.ComponentType getType() {
-        return type_;
+        org.sonar.batch.protocol.Constants.ComponentType result = org.sonar.batch.protocol.Constants.ComponentType.valueOf(type_);
+        return result == null ? org.sonar.batch.protocol.Constants.ComponentType.PROJECT : result;
       }
       /**
        * <code>optional .ComponentType type = 4;</code>
@@ -4631,7 +4586,7 @@ public final class BatchReport {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000008;
-        type_ = value;
+        type_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -4640,7 +4595,7 @@ public final class BatchReport {
        */
       public Builder clearType() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        type_ = org.sonar.batch.protocol.Constants.ComponentType.PROJECT;
+        type_ = 0;
         onChanged();
         return this;
       }
@@ -5416,12 +5371,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Component)
     }
 
+    // @@protoc_insertion_point(class_scope:Component)
+    private static final org.sonar.batch.protocol.output.BatchReport.Component DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Component(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Component();
     }
 
-    // @@protoc_insertion_point(class_scope:Component)
+    public static org.sonar.batch.protocol.output.BatchReport.Component getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Component> PARSER =
+        new com.google.protobuf.AbstractParser<Component>() {
+      public Component parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Component(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Component> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Component getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface MeasureOrBuilder extends
@@ -5512,37 +5499,33 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Measure}
    */
-  public static final class Measure extends
+  public  static final class Measure extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Measure)
       MeasureOrBuilder {
     // Use Measure.newBuilder() to construct.
-    private Measure(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Measure(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Measure(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Measure defaultInstance;
-    public static Measure getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public Measure getDefaultInstanceForType() {
-      return defaultInstance;
+    private Measure() {
+      valueType_ = 0;
+      booleanValue_ = false;
+      intValue_ = 0;
+      longValue_ = 0L;
+      doubleValue_ = 0D;
+      stringValue_ = "";
+      metricKey_ = "";
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Measure(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -5568,7 +5551,7 @@ public final class BatchReport {
                 unknownFields.mergeVarintField(1, rawValue);
               } else {
                 bitField0_ |= 0x00000001;
-                valueType_ = value;
+                valueType_ = rawValue;
               }
               break;
             }
@@ -5607,10 +5590,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -5628,24 +5612,9 @@ public final class BatchReport {
               org.sonar.batch.protocol.output.BatchReport.Measure.class, org.sonar.batch.protocol.output.BatchReport.Measure.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Measure> PARSER =
-        new com.google.protobuf.AbstractParser<Measure>() {
-      public Measure parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Measure(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Measure> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int VALUE_TYPE_FIELD_NUMBER = 1;
-    private org.sonar.batch.protocol.Constants.MeasureValueType valueType_;
+    private int valueType_;
     /**
      * <code>optional .MeasureValueType value_type = 1;</code>
      */
@@ -5656,7 +5625,8 @@ public final class BatchReport {
      * <code>optional .MeasureValueType value_type = 1;</code>
      */
     public org.sonar.batch.protocol.Constants.MeasureValueType getValueType() {
-      return valueType_;
+      org.sonar.batch.protocol.Constants.MeasureValueType result = org.sonar.batch.protocol.Constants.MeasureValueType.valueOf(valueType_);
+      return result == null ? org.sonar.batch.protocol.Constants.MeasureValueType.INT : result;
     }
 
     public static final int BOOLEAN_VALUE_FIELD_NUMBER = 2;
@@ -5728,7 +5698,7 @@ public final class BatchReport {
     }
 
     public static final int STRING_VALUE_FIELD_NUMBER = 6;
-    private java.lang.Object stringValue_;
+    private volatile java.lang.Object stringValue_;
     /**
      * <code>optional string string_value = 6;</code>
      */
@@ -5770,7 +5740,7 @@ public final class BatchReport {
     }
 
     public static final int METRIC_KEY_FIELD_NUMBER = 7;
-    private java.lang.Object metricKey_;
+    private volatile java.lang.Object metricKey_;
     /**
      * <code>optional string metric_key = 7;</code>
      */
@@ -5811,15 +5781,6 @@ public final class BatchReport {
       }
     }
 
-    private void initFields() {
-      valueType_ = org.sonar.batch.protocol.Constants.MeasureValueType.INT;
-      booleanValue_ = false;
-      intValue_ = 0;
-      longValue_ = 0L;
-      doubleValue_ = 0D;
-      stringValue_ = "";
-      metricKey_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -5832,9 +5793,8 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, valueType_.getNumber());
+        output.writeEnum(1, valueType_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBool(2, booleanValue_);
@@ -5854,7 +5814,7 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(7, getMetricKeyBytes());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -5865,7 +5825,7 @@ public final class BatchReport {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, valueType_.getNumber());
+          .computeEnumSize(1, valueType_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -5891,18 +5851,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(7, getMetricKeyBytes());
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Measure parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -5956,12 +5910,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Measure prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Measure prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -6002,13 +5961,9 @@ public final class BatchReport {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
-        valueType_ = org.sonar.batch.protocol.Constants.MeasureValueType.INT;
+        valueType_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
         booleanValue_ = false;
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -6023,10 +5978,6 @@ public final class BatchReport {
         metricKey_ = "";
         bitField0_ = (bitField0_ & ~0x00000040);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -6119,7 +6070,8 @@ public final class BatchReport {
           metricKey_ = other.metricKey_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -6146,7 +6098,7 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      private org.sonar.batch.protocol.Constants.MeasureValueType valueType_ = org.sonar.batch.protocol.Constants.MeasureValueType.INT;
+      private int valueType_ = 0;
       /**
        * <code>optional .MeasureValueType value_type = 1;</code>
        */
@@ -6157,7 +6109,8 @@ public final class BatchReport {
        * <code>optional .MeasureValueType value_type = 1;</code>
        */
       public org.sonar.batch.protocol.Constants.MeasureValueType getValueType() {
-        return valueType_;
+        org.sonar.batch.protocol.Constants.MeasureValueType result = org.sonar.batch.protocol.Constants.MeasureValueType.valueOf(valueType_);
+        return result == null ? org.sonar.batch.protocol.Constants.MeasureValueType.INT : result;
       }
       /**
        * <code>optional .MeasureValueType value_type = 1;</code>
@@ -6167,7 +6120,7 @@ public final class BatchReport {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000001;
-        valueType_ = value;
+        valueType_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -6176,7 +6129,7 @@ public final class BatchReport {
        */
       public Builder clearValueType() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        valueType_ = org.sonar.batch.protocol.Constants.MeasureValueType.INT;
+        valueType_ = 0;
         onChanged();
         return this;
       }
@@ -6480,12 +6433,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Measure)
     }
 
+    // @@protoc_insertion_point(class_scope:Measure)
+    private static final org.sonar.batch.protocol.output.BatchReport.Measure DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Measure(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Measure();
     }
 
-    // @@protoc_insertion_point(class_scope:Measure)
+    public static org.sonar.batch.protocol.output.BatchReport.Measure getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Measure> PARSER =
+        new com.google.protobuf.AbstractParser<Measure>() {
+      public Measure parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Measure(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Measure> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Measure getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface IssueOrBuilder extends
@@ -6639,37 +6624,35 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Issue}
    */
-  public static final class Issue extends
+  public  static final class Issue extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Issue)
       IssueOrBuilder {
     // Use Issue.newBuilder() to construct.
-    private Issue(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Issue(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Issue(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Issue defaultInstance;
-    public static Issue getDefaultInstance() {
-      return defaultInstance;
+    private Issue() {
+      ruleRepository_ = "";
+      ruleKey_ = "";
+      line_ = 0;
+      msg_ = "";
+      severity_ = 0;
+      effortToFix_ = 0D;
+      attributes_ = "";
+      additionalLocation_ = java.util.Collections.emptyList();
+      executionFlow_ = java.util.Collections.emptyList();
     }
 
-    public Issue getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Issue(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -6718,7 +6701,7 @@ public final class BatchReport {
                 unknownFields.mergeVarintField(5, rawValue);
               } else {
                 bitField0_ |= 0x00000010;
-                severity_ = value;
+                severity_ = rawValue;
               }
               break;
             }
@@ -6765,10 +6748,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
           additionalLocation_ = java.util.Collections.unmodifiableList(additionalLocation_);
@@ -6792,24 +6776,9 @@ public final class BatchReport {
               org.sonar.batch.protocol.output.BatchReport.Issue.class, org.sonar.batch.protocol.output.BatchReport.Issue.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Issue> PARSER =
-        new com.google.protobuf.AbstractParser<Issue>() {
-      public Issue parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Issue(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Issue> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int RULE_REPOSITORY_FIELD_NUMBER = 1;
-    private java.lang.Object ruleRepository_;
+    private volatile java.lang.Object ruleRepository_;
     /**
      * <code>optional string rule_repository = 1;</code>
      */
@@ -6851,7 +6820,7 @@ public final class BatchReport {
     }
 
     public static final int RULE_KEY_FIELD_NUMBER = 2;
-    private java.lang.Object ruleKey_;
+    private volatile java.lang.Object ruleKey_;
     /**
      * <code>optional string rule_key = 2;</code>
      */
@@ -6908,7 +6877,7 @@ public final class BatchReport {
     }
 
     public static final int MSG_FIELD_NUMBER = 4;
-    private java.lang.Object msg_;
+    private volatile java.lang.Object msg_;
     /**
      * <code>optional string msg = 4;</code>
      */
@@ -6950,7 +6919,7 @@ public final class BatchReport {
     }
 
     public static final int SEVERITY_FIELD_NUMBER = 5;
-    private org.sonar.batch.protocol.Constants.Severity severity_;
+    private int severity_;
     /**
      * <code>optional .Severity severity = 5;</code>
      */
@@ -6961,7 +6930,8 @@ public final class BatchReport {
      * <code>optional .Severity severity = 5;</code>
      */
     public org.sonar.batch.protocol.Constants.Severity getSeverity() {
-      return severity_;
+      org.sonar.batch.protocol.Constants.Severity result = org.sonar.batch.protocol.Constants.Severity.valueOf(severity_);
+      return result == null ? org.sonar.batch.protocol.Constants.Severity.INFO : result;
     }
 
     public static final int EFFORT_TO_FIX_FIELD_NUMBER = 6;
@@ -6980,7 +6950,7 @@ public final class BatchReport {
     }
 
     public static final int ATTRIBUTES_FIELD_NUMBER = 7;
-    private java.lang.Object attributes_;
+    private volatile java.lang.Object attributes_;
     /**
      * <code>optional string attributes = 7;</code>
      */
@@ -7033,13 +7003,13 @@ public final class BatchReport {
      * <code>optional .IssueLocation primary_location = 9;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.IssueLocation getPrimaryLocation() {
-      return primaryLocation_;
+      return primaryLocation_ == null ? org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance() : primaryLocation_;
     }
     /**
      * <code>optional .IssueLocation primary_location = 9;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getPrimaryLocationOrBuilder() {
-      return primaryLocation_;
+      return primaryLocation_ == null ? org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance() : primaryLocation_;
     }
 
     public static final int ADDITIONAL_LOCATION_FIELD_NUMBER = 10;
@@ -7112,18 +7082,6 @@ public final class BatchReport {
       return executionFlow_.get(index);
     }
 
-    private void initFields() {
-      ruleRepository_ = "";
-      ruleKey_ = "";
-      line_ = 0;
-      msg_ = "";
-      severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
-      effortToFix_ = 0D;
-      attributes_ = "";
-      primaryLocation_ = org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance();
-      additionalLocation_ = java.util.Collections.emptyList();
-      executionFlow_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -7136,7 +7094,6 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getRuleRepositoryBytes());
       }
@@ -7150,7 +7107,7 @@ public final class BatchReport {
         output.writeBytes(4, getMsgBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeEnum(5, severity_.getNumber());
+        output.writeEnum(5, severity_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeDouble(6, effortToFix_);
@@ -7159,7 +7116,7 @@ public final class BatchReport {
         output.writeBytes(7, getAttributesBytes());
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeMessage(9, primaryLocation_);
+        output.writeMessage(9, getPrimaryLocation());
       }
       for (int i = 0; i < additionalLocation_.size(); i++) {
         output.writeMessage(10, additionalLocation_.get(i));
@@ -7167,7 +7124,7 @@ public final class BatchReport {
       for (int i = 0; i < executionFlow_.size(); i++) {
         output.writeMessage(11, executionFlow_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -7194,7 +7151,7 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(5, severity_.getNumber());
+          .computeEnumSize(5, severity_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
@@ -7206,7 +7163,7 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, primaryLocation_);
+          .computeMessageSize(9, getPrimaryLocation());
       }
       for (int i = 0; i < additionalLocation_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -7216,18 +7173,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(11, executionFlow_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Issue parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -7281,12 +7232,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Issue prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Issue prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -7330,10 +7286,6 @@ public final class BatchReport {
           getExecutionFlowFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         ruleRepository_ = "";
@@ -7344,14 +7296,14 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000004);
         msg_ = "";
         bitField0_ = (bitField0_ & ~0x00000008);
-        severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
+        severity_ = 0;
         bitField0_ = (bitField0_ & ~0x00000010);
         effortToFix_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000020);
         attributes_ = "";
         bitField0_ = (bitField0_ & ~0x00000040);
         if (primaryLocationBuilder_ == null) {
-          primaryLocation_ = org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance();
+          primaryLocation_ = null;
         } else {
           primaryLocationBuilder_.clear();
         }
@@ -7369,10 +7321,6 @@ public final class BatchReport {
           executionFlowBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -7550,7 +7498,8 @@ public final class BatchReport {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -7837,7 +7786,7 @@ public final class BatchReport {
         return this;
       }
 
-      private org.sonar.batch.protocol.Constants.Severity severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
+      private int severity_ = 0;
       /**
        * <code>optional .Severity severity = 5;</code>
        */
@@ -7848,7 +7797,8 @@ public final class BatchReport {
        * <code>optional .Severity severity = 5;</code>
        */
       public org.sonar.batch.protocol.Constants.Severity getSeverity() {
-        return severity_;
+        org.sonar.batch.protocol.Constants.Severity result = org.sonar.batch.protocol.Constants.Severity.valueOf(severity_);
+        return result == null ? org.sonar.batch.protocol.Constants.Severity.INFO : result;
       }
       /**
        * <code>optional .Severity severity = 5;</code>
@@ -7858,7 +7808,7 @@ public final class BatchReport {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000010;
-        severity_ = value;
+        severity_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -7867,7 +7817,7 @@ public final class BatchReport {
        */
       public Builder clearSeverity() {
         bitField0_ = (bitField0_ & ~0x00000010);
-        severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
+        severity_ = 0;
         onChanged();
         return this;
       }
@@ -7980,7 +7930,7 @@ public final class BatchReport {
         return this;
       }
 
-      private org.sonar.batch.protocol.output.BatchReport.IssueLocation primaryLocation_ = org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance();
+      private org.sonar.batch.protocol.output.BatchReport.IssueLocation primaryLocation_ = null;
       private com.google.protobuf.SingleFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> primaryLocationBuilder_;
       /**
@@ -7994,7 +7944,7 @@ public final class BatchReport {
        */
       public org.sonar.batch.protocol.output.BatchReport.IssueLocation getPrimaryLocation() {
         if (primaryLocationBuilder_ == null) {
-          return primaryLocation_;
+          return primaryLocation_ == null ? org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance() : primaryLocation_;
         } else {
           return primaryLocationBuilder_.getMessage();
         }
@@ -8035,6 +7985,7 @@ public final class BatchReport {
       public Builder mergePrimaryLocation(org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
         if (primaryLocationBuilder_ == null) {
           if (((bitField0_ & 0x00000080) == 0x00000080) &&
+              primaryLocation_ != null &&
               primaryLocation_ != org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance()) {
             primaryLocation_ =
               org.sonar.batch.protocol.output.BatchReport.IssueLocation.newBuilder(primaryLocation_).mergeFrom(value).buildPartial();
@@ -8053,7 +8004,7 @@ public final class BatchReport {
        */
       public Builder clearPrimaryLocation() {
         if (primaryLocationBuilder_ == null) {
-          primaryLocation_ = org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance();
+          primaryLocation_ = null;
           onChanged();
         } else {
           primaryLocationBuilder_.clear();
@@ -8076,7 +8027,8 @@ public final class BatchReport {
         if (primaryLocationBuilder_ != null) {
           return primaryLocationBuilder_.getMessageOrBuilder();
         } else {
-          return primaryLocation_;
+          return primaryLocation_ == null ?
+              org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance() : primaryLocation_;
         }
       }
       /**
@@ -8579,12 +8531,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Issue)
     }
 
+    // @@protoc_insertion_point(class_scope:Issue)
+    private static final org.sonar.batch.protocol.output.BatchReport.Issue DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Issue(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Issue();
     }
 
-    // @@protoc_insertion_point(class_scope:Issue)
+    public static org.sonar.batch.protocol.output.BatchReport.Issue getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Issue> PARSER =
+        new com.google.protobuf.AbstractParser<Issue>() {
+      public Issue parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Issue(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Issue> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Issue getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface IssueLocationOrBuilder extends
@@ -8642,37 +8626,28 @@ public final class BatchReport {
   /**
    * Protobuf type {@code IssueLocation}
    */
-  public static final class IssueLocation extends
+  public  static final class IssueLocation extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:IssueLocation)
       IssueLocationOrBuilder {
     // Use IssueLocation.newBuilder() to construct.
-    private IssueLocation(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private IssueLocation(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private IssueLocation(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final IssueLocation defaultInstance;
-    public static IssueLocation getDefaultInstance() {
-      return defaultInstance;
+    private IssueLocation() {
+      componentRef_ = 0;
+      msg_ = "";
     }
 
-    public IssueLocation getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private IssueLocation(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -8718,10 +8693,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -8737,21 +8713,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_IssueLocation_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.IssueLocation.class, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<IssueLocation> PARSER =
-        new com.google.protobuf.AbstractParser<IssueLocation>() {
-      public IssueLocation parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new IssueLocation(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<IssueLocation> getParserForType() {
-      return PARSER;
     }
 
     private int bitField0_;
@@ -8790,7 +8751,7 @@ public final class BatchReport {
      * </pre>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRange getTextRange() {
-      return textRange_;
+      return textRange_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : textRange_;
     }
     /**
      * <code>optional .TextRange text_range = 2;</code>
@@ -8800,11 +8761,11 @@ public final class BatchReport {
      * </pre>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder getTextRangeOrBuilder() {
-      return textRange_;
+      return textRange_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : textRange_;
     }
 
     public static final int MSG_FIELD_NUMBER = 3;
-    private java.lang.Object msg_;
+    private volatile java.lang.Object msg_;
     /**
      * <code>optional string msg = 3;</code>
      */
@@ -8845,11 +8806,6 @@ public final class BatchReport {
       }
     }
 
-    private void initFields() {
-      componentRef_ = 0;
-      textRange_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
-      msg_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -8862,17 +8818,16 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, componentRef_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeMessage(2, textRange_);
+        output.writeMessage(2, getTextRange());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeBytes(3, getMsgBytes());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -8887,24 +8842,18 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, textRange_);
+          .computeMessageSize(2, getTextRange());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(3, getMsgBytes());
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.IssueLocation parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -8958,12 +8907,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.IssueLocation prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.IssueLocation prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -9005,16 +8959,12 @@ public final class BatchReport {
           getTextRangeFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         componentRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
         if (textRangeBuilder_ == null) {
-          textRange_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          textRange_ = null;
         } else {
           textRangeBuilder_.clear();
         }
@@ -9022,10 +8972,6 @@ public final class BatchReport {
         msg_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -9092,7 +9038,8 @@ public final class BatchReport {
           msg_ = other.msg_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -9151,7 +9098,7 @@ public final class BatchReport {
         return this;
       }
 
-      private org.sonar.batch.protocol.output.BatchReport.TextRange textRange_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+      private org.sonar.batch.protocol.output.BatchReport.TextRange textRange_ = null;
       private com.google.protobuf.SingleFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.TextRange, org.sonar.batch.protocol.output.BatchReport.TextRange.Builder, org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder> textRangeBuilder_;
       /**
@@ -9173,7 +9120,7 @@ public final class BatchReport {
        */
       public org.sonar.batch.protocol.output.BatchReport.TextRange getTextRange() {
         if (textRangeBuilder_ == null) {
-          return textRange_;
+          return textRange_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : textRange_;
         } else {
           return textRangeBuilder_.getMessage();
         }
@@ -9226,6 +9173,7 @@ public final class BatchReport {
       public Builder mergeTextRange(org.sonar.batch.protocol.output.BatchReport.TextRange value) {
         if (textRangeBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              textRange_ != null &&
               textRange_ != org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance()) {
             textRange_ =
               org.sonar.batch.protocol.output.BatchReport.TextRange.newBuilder(textRange_).mergeFrom(value).buildPartial();
@@ -9248,7 +9196,7 @@ public final class BatchReport {
        */
       public Builder clearTextRange() {
         if (textRangeBuilder_ == null) {
-          textRange_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          textRange_ = null;
           onChanged();
         } else {
           textRangeBuilder_.clear();
@@ -9279,7 +9227,8 @@ public final class BatchReport {
         if (textRangeBuilder_ != null) {
           return textRangeBuilder_.getMessageOrBuilder();
         } else {
-          return textRange_;
+          return textRange_ == null ?
+              org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : textRange_;
         }
       }
       /**
@@ -9382,12 +9331,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:IssueLocation)
     }
 
+    // @@protoc_insertion_point(class_scope:IssueLocation)
+    private static final org.sonar.batch.protocol.output.BatchReport.IssueLocation DEFAULT_INSTANCE;
     static {
-      defaultInstance = new IssueLocation(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.IssueLocation();
     }
 
-    // @@protoc_insertion_point(class_scope:IssueLocation)
+    public static org.sonar.batch.protocol.output.BatchReport.IssueLocation getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<IssueLocation> PARSER =
+        new com.google.protobuf.AbstractParser<IssueLocation>() {
+      public IssueLocation parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new IssueLocation(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<IssueLocation> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.IssueLocation getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ExecutionFlowOrBuilder extends
@@ -9421,37 +9402,27 @@ public final class BatchReport {
   /**
    * Protobuf type {@code ExecutionFlow}
    */
-  public static final class ExecutionFlow extends
+  public  static final class ExecutionFlow extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:ExecutionFlow)
       ExecutionFlowOrBuilder {
     // Use ExecutionFlow.newBuilder() to construct.
-    private ExecutionFlow(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private ExecutionFlow(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private ExecutionFlow(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final ExecutionFlow defaultInstance;
-    public static ExecutionFlow getDefaultInstance() {
-      return defaultInstance;
+    private ExecutionFlow() {
+      location_ = java.util.Collections.emptyList();
     }
 
-    public ExecutionFlow getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private ExecutionFlow(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -9481,10 +9452,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           location_ = java.util.Collections.unmodifiableList(location_);
@@ -9503,21 +9475,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_ExecutionFlow_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.class, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<ExecutionFlow> PARSER =
-        new com.google.protobuf.AbstractParser<ExecutionFlow>() {
-      public ExecutionFlow parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new ExecutionFlow(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ExecutionFlow> getParserForType() {
-      return PARSER;
     }
 
     public static final int LOCATION_FIELD_NUMBER = 1;
@@ -9555,9 +9512,6 @@ public final class BatchReport {
       return location_.get(index);
     }
 
-    private void initFields() {
-      location_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -9570,11 +9524,10 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       for (int i = 0; i < location_.size(); i++) {
         output.writeMessage(1, location_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -9587,18 +9540,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, location_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.ExecutionFlow parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -9652,12 +9599,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.ExecutionFlow prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.ExecutionFlow prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -9699,10 +9651,6 @@ public final class BatchReport {
           getLocationFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         if (locationBuilder_ == null) {
@@ -9712,10 +9660,6 @@ public final class BatchReport {
           locationBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -9788,7 +9732,8 @@ public final class BatchReport {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -10058,12 +10003,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:ExecutionFlow)
     }
 
+    // @@protoc_insertion_point(class_scope:ExecutionFlow)
+    private static final org.sonar.batch.protocol.output.BatchReport.ExecutionFlow DEFAULT_INSTANCE;
     static {
-      defaultInstance = new ExecutionFlow(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.ExecutionFlow();
     }
 
-    // @@protoc_insertion_point(class_scope:ExecutionFlow)
+    public static org.sonar.batch.protocol.output.BatchReport.ExecutionFlow getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<ExecutionFlow> PARSER =
+        new com.google.protobuf.AbstractParser<ExecutionFlow>() {
+      public ExecutionFlow parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ExecutionFlow(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ExecutionFlow> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ChangesetsOrBuilder extends
@@ -10131,37 +10108,29 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Changesets}
    */
-  public static final class Changesets extends
+  public  static final class Changesets extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Changesets)
       ChangesetsOrBuilder {
     // Use Changesets.newBuilder() to construct.
-    private Changesets(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Changesets(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Changesets(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Changesets defaultInstance;
-    public static Changesets getDefaultInstance() {
-      return defaultInstance;
+    private Changesets() {
+      componentRef_ = 0;
+      changeset_ = java.util.Collections.emptyList();
+      changesetIndexByLine_ = java.util.Collections.emptyList();
     }
 
-    public Changesets getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Changesets(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -10217,10 +10186,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           changeset_ = java.util.Collections.unmodifiableList(changeset_);
@@ -10242,21 +10212,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.Changesets.class, org.sonar.batch.protocol.output.BatchReport.Changesets.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Changesets> PARSER =
-        new com.google.protobuf.AbstractParser<Changesets>() {
-      public Changesets parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Changesets(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Changesets> getParserForType() {
-      return PARSER;
     }
 
     public interface ChangesetOrBuilder extends
@@ -10303,37 +10258,29 @@ public final class BatchReport {
     /**
      * Protobuf type {@code Changesets.Changeset}
      */
-    public static final class Changeset extends
+    public  static final class Changeset extends
         com.google.protobuf.GeneratedMessage implements
         // @@protoc_insertion_point(message_implements:Changesets.Changeset)
         ChangesetOrBuilder {
       // Use Changeset.newBuilder() to construct.
-      private Changeset(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      private Changeset(com.google.protobuf.GeneratedMessage.Builder builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private Changeset(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final Changeset defaultInstance;
-      public static Changeset getDefaultInstance() {
-        return defaultInstance;
+      private Changeset() {
+        revision_ = "";
+        author_ = "";
+        date_ = 0L;
       }
 
-      public Changeset getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private Changeset(
           com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+        this();
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -10372,10 +10319,11 @@ public final class BatchReport {
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
+          throw new RuntimeException(e.setUnfinishedMessage(this));
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+          throw new RuntimeException(
+              new com.google.protobuf.InvalidProtocolBufferException(
+                  e.getMessage()).setUnfinishedMessage(this));
         } finally {
           this.unknownFields = unknownFields.build();
           makeExtensionsImmutable();
@@ -10393,24 +10341,9 @@ public final class BatchReport {
                 org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.class, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder.class);
       }
 
-      public static com.google.protobuf.Parser<Changeset> PARSER =
-          new com.google.protobuf.AbstractParser<Changeset>() {
-        public Changeset parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Changeset(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<Changeset> getParserForType() {
-        return PARSER;
-      }
-
       private int bitField0_;
       public static final int REVISION_FIELD_NUMBER = 1;
-      private java.lang.Object revision_;
+      private volatile java.lang.Object revision_;
       /**
        * <code>optional string revision = 1;</code>
        */
@@ -10452,7 +10385,7 @@ public final class BatchReport {
       }
 
       public static final int AUTHOR_FIELD_NUMBER = 2;
-      private java.lang.Object author_;
+      private volatile java.lang.Object author_;
       /**
        * <code>optional string author = 2;</code>
        */
@@ -10508,11 +10441,6 @@ public final class BatchReport {
         return date_;
       }
 
-      private void initFields() {
-        revision_ = "";
-        author_ = "";
-        date_ = 0L;
-      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -10525,7 +10453,6 @@ public final class BatchReport {
 
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           output.writeBytes(1, getRevisionBytes());
         }
@@ -10535,7 +10462,7 @@ public final class BatchReport {
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           output.writeInt64(3, date_);
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
       private int memoizedSerializedSize = -1;
@@ -10556,18 +10483,12 @@ public final class BatchReport {
           size += com.google.protobuf.CodedOutputStream
             .computeInt64Size(3, date_);
         }
-        size += getUnknownFields().getSerializedSize();
+        size += unknownFields.getSerializedSize();
         memoizedSerializedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
       public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -10621,12 +10542,17 @@ public final class BatchReport {
         return PARSER.parseFrom(input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
@@ -10667,10 +10593,6 @@ public final class BatchReport {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
         public Builder clear() {
           super.clear();
           revision_ = "";
@@ -10680,10 +10602,6 @@ public final class BatchReport {
           date_ = 0L;
           bitField0_ = (bitField0_ & ~0x00000004);
           return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
         }
 
         public com.google.protobuf.Descriptors.Descriptor
@@ -10748,7 +10666,8 @@ public final class BatchReport {
           if (other.hasDate()) {
             setDate(other.getDate());
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
@@ -10962,12 +10881,44 @@ public final class BatchReport {
         // @@protoc_insertion_point(builder_scope:Changesets.Changeset)
       }
 
+      // @@protoc_insertion_point(class_scope:Changesets.Changeset)
+      private static final org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset DEFAULT_INSTANCE;
       static {
-        defaultInstance = new Changeset(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset();
       }
 
-      // @@protoc_insertion_point(class_scope:Changesets.Changeset)
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      public static final com.google.protobuf.Parser<Changeset> PARSER =
+          new com.google.protobuf.AbstractParser<Changeset>() {
+        public Changeset parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          try {
+            return new Changeset(input, extensionRegistry);
+          } catch (RuntimeException e) {
+            if (e.getCause() instanceof
+                com.google.protobuf.InvalidProtocolBufferException) {
+              throw (com.google.protobuf.InvalidProtocolBufferException)
+                  e.getCause();
+            }
+            throw e;
+          }
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<Changeset> getParserForType() {
+        return PARSER;
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     private int bitField0_;
@@ -11056,11 +11007,6 @@ public final class BatchReport {
     }
     private int changesetIndexByLineMemoizedSerializedSize = -1;
 
-    private void initFields() {
-      componentRef_ = 0;
-      changeset_ = java.util.Collections.emptyList();
-      changesetIndexByLine_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -11087,7 +11033,7 @@ public final class BatchReport {
       for (int i = 0; i < changesetIndexByLine_.size(); i++) {
         output.writeInt32NoTag(changesetIndexByLine_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -11118,18 +11064,12 @@ public final class BatchReport {
         }
         changesetIndexByLineMemoizedSerializedSize = dataSize;
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -11183,12 +11123,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Changesets prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Changesets prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -11230,10 +11175,6 @@ public final class BatchReport {
           getChangesetFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         componentRef_ = 0;
@@ -11247,10 +11188,6 @@ public final class BatchReport {
         changesetIndexByLine_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -11347,7 +11284,8 @@ public final class BatchReport {
           }
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -11743,12 +11681,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Changesets)
     }
 
+    // @@protoc_insertion_point(class_scope:Changesets)
+    private static final org.sonar.batch.protocol.output.BatchReport.Changesets DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Changesets(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Changesets();
     }
 
-    // @@protoc_insertion_point(class_scope:Changesets)
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Changesets> PARSER =
+        new com.google.protobuf.AbstractParser<Changesets>() {
+      public Changesets parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Changesets(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Changesets> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Changesets getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface DuplicateOrBuilder extends
@@ -11814,37 +11784,28 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Duplicate}
    */
-  public static final class Duplicate extends
+  public  static final class Duplicate extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Duplicate)
       DuplicateOrBuilder {
     // Use Duplicate.newBuilder() to construct.
-    private Duplicate(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Duplicate(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Duplicate(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Duplicate defaultInstance;
-    public static Duplicate getDefaultInstance() {
-      return defaultInstance;
+    private Duplicate() {
+      otherFileRef_ = 0;
+      otherFileKey_ = "";
     }
 
-    public Duplicate getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Duplicate(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -11890,10 +11851,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -11909,21 +11871,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_Duplicate_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.Duplicate.class, org.sonar.batch.protocol.output.BatchReport.Duplicate.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Duplicate> PARSER =
-        new com.google.protobuf.AbstractParser<Duplicate>() {
-      public Duplicate parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Duplicate(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Duplicate> getParserForType() {
-      return PARSER;
     }
 
     private int bitField0_;
@@ -11962,17 +11909,17 @@ public final class BatchReport {
      * <code>optional .TextRange range = 2;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRange getRange() {
-      return range_;
+      return range_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : range_;
     }
     /**
      * <code>optional .TextRange range = 2;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder getRangeOrBuilder() {
-      return range_;
+      return range_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : range_;
     }
 
     public static final int OTHER_FILE_KEY_FIELD_NUMBER = 3;
-    private java.lang.Object otherFileKey_;
+    private volatile java.lang.Object otherFileKey_;
     /**
      * <code>optional string other_file_key = 3;</code>
      *
@@ -12025,11 +11972,6 @@ public final class BatchReport {
       }
     }
 
-    private void initFields() {
-      otherFileRef_ = 0;
-      range_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
-      otherFileKey_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -12042,17 +11984,16 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, otherFileRef_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeMessage(2, range_);
+        output.writeMessage(2, getRange());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeBytes(3, getOtherFileKeyBytes());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -12067,24 +12008,18 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, range_);
+          .computeMessageSize(2, getRange());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(3, getOtherFileKeyBytes());
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Duplicate parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -12138,12 +12073,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Duplicate prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Duplicate prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -12185,16 +12125,12 @@ public final class BatchReport {
           getRangeFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         otherFileRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
         if (rangeBuilder_ == null) {
-          range_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          range_ = null;
         } else {
           rangeBuilder_.clear();
         }
@@ -12202,10 +12138,6 @@ public final class BatchReport {
         otherFileKey_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -12272,7 +12204,8 @@ public final class BatchReport {
           otherFileKey_ = other.otherFileKey_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -12347,7 +12280,7 @@ public final class BatchReport {
         return this;
       }
 
-      private org.sonar.batch.protocol.output.BatchReport.TextRange range_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+      private org.sonar.batch.protocol.output.BatchReport.TextRange range_ = null;
       private com.google.protobuf.SingleFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.TextRange, org.sonar.batch.protocol.output.BatchReport.TextRange.Builder, org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder> rangeBuilder_;
       /**
@@ -12361,7 +12294,7 @@ public final class BatchReport {
        */
       public org.sonar.batch.protocol.output.BatchReport.TextRange getRange() {
         if (rangeBuilder_ == null) {
-          return range_;
+          return range_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : range_;
         } else {
           return rangeBuilder_.getMessage();
         }
@@ -12402,6 +12335,7 @@ public final class BatchReport {
       public Builder mergeRange(org.sonar.batch.protocol.output.BatchReport.TextRange value) {
         if (rangeBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              range_ != null &&
               range_ != org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance()) {
             range_ =
               org.sonar.batch.protocol.output.BatchReport.TextRange.newBuilder(range_).mergeFrom(value).buildPartial();
@@ -12420,7 +12354,7 @@ public final class BatchReport {
        */
       public Builder clearRange() {
         if (rangeBuilder_ == null) {
-          range_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          range_ = null;
           onChanged();
         } else {
           rangeBuilder_.clear();
@@ -12443,7 +12377,8 @@ public final class BatchReport {
         if (rangeBuilder_ != null) {
           return rangeBuilder_.getMessageOrBuilder();
         } else {
-          return range_;
+          return range_ == null ?
+              org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : range_;
         }
       }
       /**
@@ -12566,12 +12501,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Duplicate)
     }
 
+    // @@protoc_insertion_point(class_scope:Duplicate)
+    private static final org.sonar.batch.protocol.output.BatchReport.Duplicate DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Duplicate(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Duplicate();
     }
 
-    // @@protoc_insertion_point(class_scope:Duplicate)
+    public static org.sonar.batch.protocol.output.BatchReport.Duplicate getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Duplicate> PARSER =
+        new com.google.protobuf.AbstractParser<Duplicate>() {
+      public Duplicate parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Duplicate(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Duplicate> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Duplicate getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface DuplicationOrBuilder extends
@@ -12630,37 +12597,27 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Duplication}
    */
-  public static final class Duplication extends
+  public  static final class Duplication extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Duplication)
       DuplicationOrBuilder {
     // Use Duplication.newBuilder() to construct.
-    private Duplication(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Duplication(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Duplication(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Duplication defaultInstance;
-    public static Duplication getDefaultInstance() {
-      return defaultInstance;
+    private Duplication() {
+      duplicate_ = java.util.Collections.emptyList();
     }
 
-    public Duplication getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Duplication(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -12703,10 +12660,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           duplicate_ = java.util.Collections.unmodifiableList(duplicate_);
@@ -12725,21 +12683,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_Duplication_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.Duplication.class, org.sonar.batch.protocol.output.BatchReport.Duplication.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Duplication> PARSER =
-        new com.google.protobuf.AbstractParser<Duplication>() {
-      public Duplication parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Duplication(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Duplication> getParserForType() {
-      return PARSER;
     }
 
     private int bitField0_;
@@ -12763,7 +12706,7 @@ public final class BatchReport {
      * </pre>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRange getOriginPosition() {
-      return originPosition_;
+      return originPosition_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : originPosition_;
     }
     /**
      * <code>optional .TextRange origin_position = 1;</code>
@@ -12773,7 +12716,7 @@ public final class BatchReport {
      * </pre>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder getOriginPositionOrBuilder() {
-      return originPosition_;
+      return originPosition_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : originPosition_;
     }
 
     public static final int DUPLICATE_FIELD_NUMBER = 2;
@@ -12811,10 +12754,6 @@ public final class BatchReport {
       return duplicate_.get(index);
     }
 
-    private void initFields() {
-      originPosition_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
-      duplicate_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -12827,14 +12766,13 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(1, originPosition_);
+        output.writeMessage(1, getOriginPosition());
       }
       for (int i = 0; i < duplicate_.size(); i++) {
         output.writeMessage(2, duplicate_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -12845,24 +12783,18 @@ public final class BatchReport {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, originPosition_);
+          .computeMessageSize(1, getOriginPosition());
       }
       for (int i = 0; i < duplicate_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, duplicate_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Duplication parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -12916,12 +12848,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Duplication prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Duplication prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -12964,14 +12901,10 @@ public final class BatchReport {
           getDuplicateFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         if (originPositionBuilder_ == null) {
-          originPosition_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          originPosition_ = null;
         } else {
           originPositionBuilder_.clear();
         }
@@ -12983,10 +12916,6 @@ public final class BatchReport {
           duplicateBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -13072,7 +13001,8 @@ public final class BatchReport {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -13099,7 +13029,7 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      private org.sonar.batch.protocol.output.BatchReport.TextRange originPosition_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+      private org.sonar.batch.protocol.output.BatchReport.TextRange originPosition_ = null;
       private com.google.protobuf.SingleFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.TextRange, org.sonar.batch.protocol.output.BatchReport.TextRange.Builder, org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder> originPositionBuilder_;
       /**
@@ -13121,7 +13051,7 @@ public final class BatchReport {
        */
       public org.sonar.batch.protocol.output.BatchReport.TextRange getOriginPosition() {
         if (originPositionBuilder_ == null) {
-          return originPosition_;
+          return originPosition_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : originPosition_;
         } else {
           return originPositionBuilder_.getMessage();
         }
@@ -13174,6 +13104,7 @@ public final class BatchReport {
       public Builder mergeOriginPosition(org.sonar.batch.protocol.output.BatchReport.TextRange value) {
         if (originPositionBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              originPosition_ != null &&
               originPosition_ != org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance()) {
             originPosition_ =
               org.sonar.batch.protocol.output.BatchReport.TextRange.newBuilder(originPosition_).mergeFrom(value).buildPartial();
@@ -13196,7 +13127,7 @@ public final class BatchReport {
        */
       public Builder clearOriginPosition() {
         if (originPositionBuilder_ == null) {
-          originPosition_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          originPosition_ = null;
           onChanged();
         } else {
           originPositionBuilder_.clear();
@@ -13227,7 +13158,8 @@ public final class BatchReport {
         if (originPositionBuilder_ != null) {
           return originPositionBuilder_.getMessageOrBuilder();
         } else {
-          return originPosition_;
+          return originPosition_ == null ?
+              org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : originPosition_;
         }
       }
       /**
@@ -13494,12 +13426,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Duplication)
     }
 
+    // @@protoc_insertion_point(class_scope:Duplication)
+    private static final org.sonar.batch.protocol.output.BatchReport.Duplication DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Duplication(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Duplication();
     }
 
-    // @@protoc_insertion_point(class_scope:Duplication)
+    public static org.sonar.batch.protocol.output.BatchReport.Duplication getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Duplication> PARSER =
+        new com.google.protobuf.AbstractParser<Duplication>() {
+      public Duplication parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Duplication(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Duplication> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Duplication getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface TextRangeOrBuilder extends
@@ -13581,37 +13545,30 @@ public final class BatchReport {
    * Lines start at 1 and line offsets start at 0
    * </pre>
    */
-  public static final class TextRange extends
+  public  static final class TextRange extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:TextRange)
       TextRangeOrBuilder {
     // Use TextRange.newBuilder() to construct.
-    private TextRange(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private TextRange(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private TextRange(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final TextRange defaultInstance;
-    public static TextRange getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public TextRange getDefaultInstanceForType() {
-      return defaultInstance;
+    private TextRange() {
+      startLine_ = 0;
+      endLine_ = 0;
+      startOffset_ = 0;
+      endOffset_ = 0;
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private TextRange(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -13653,10 +13610,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -13672,21 +13630,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_TextRange_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.TextRange.class, org.sonar.batch.protocol.output.BatchReport.TextRange.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<TextRange> PARSER =
-        new com.google.protobuf.AbstractParser<TextRange>() {
-      public TextRange parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new TextRange(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<TextRange> getParserForType() {
-      return PARSER;
     }
 
     private int bitField0_;
@@ -13782,12 +13725,6 @@ public final class BatchReport {
       return endOffset_;
     }
 
-    private void initFields() {
-      startLine_ = 0;
-      endLine_ = 0;
-      startOffset_ = 0;
-      endOffset_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -13800,7 +13737,6 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, startLine_);
       }
@@ -13813,7 +13749,7 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, endOffset_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -13838,18 +13774,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, endOffset_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.TextRange parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -13903,12 +13833,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.TextRange prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.TextRange prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -13953,10 +13888,6 @@ public final class BatchReport {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         startLine_ = 0;
@@ -13968,10 +13899,6 @@ public final class BatchReport {
         endOffset_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -14039,7 +13966,8 @@ public final class BatchReport {
         if (other.hasEndOffset()) {
           setEndOffset(other.getEndOffset());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -14261,12 +14189,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:TextRange)
     }
 
+    // @@protoc_insertion_point(class_scope:TextRange)
+    private static final org.sonar.batch.protocol.output.BatchReport.TextRange DEFAULT_INSTANCE;
     static {
-      defaultInstance = new TextRange(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.TextRange();
     }
 
-    // @@protoc_insertion_point(class_scope:TextRange)
+    public static org.sonar.batch.protocol.output.BatchReport.TextRange getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<TextRange> PARSER =
+        new com.google.protobuf.AbstractParser<TextRange>() {
+      public TextRange parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new TextRange(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<TextRange> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.TextRange getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface SymbolOrBuilder extends
@@ -14313,37 +14273,27 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Symbol}
    */
-  public static final class Symbol extends
+  public  static final class Symbol extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Symbol)
       SymbolOrBuilder {
     // Use Symbol.newBuilder() to construct.
-    private Symbol(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Symbol(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Symbol(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Symbol defaultInstance;
-    public static Symbol getDefaultInstance() {
-      return defaultInstance;
+    private Symbol() {
+      reference_ = java.util.Collections.emptyList();
     }
 
-    public Symbol getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Symbol(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -14386,10 +14336,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           reference_ = java.util.Collections.unmodifiableList(reference_);
@@ -14410,21 +14361,6 @@ public final class BatchReport {
               org.sonar.batch.protocol.output.BatchReport.Symbol.class, org.sonar.batch.protocol.output.BatchReport.Symbol.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Symbol> PARSER =
-        new com.google.protobuf.AbstractParser<Symbol>() {
-      public Symbol parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Symbol(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Symbol> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int DECLARATION_FIELD_NUMBER = 1;
     private org.sonar.batch.protocol.output.BatchReport.TextRange declaration_;
@@ -14438,13 +14374,13 @@ public final class BatchReport {
      * <code>optional .TextRange declaration = 1;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRange getDeclaration() {
-      return declaration_;
+      return declaration_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : declaration_;
     }
     /**
      * <code>optional .TextRange declaration = 1;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder getDeclarationOrBuilder() {
-      return declaration_;
+      return declaration_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : declaration_;
     }
 
     public static final int REFERENCE_FIELD_NUMBER = 2;
@@ -14482,10 +14418,6 @@ public final class BatchReport {
       return reference_.get(index);
     }
 
-    private void initFields() {
-      declaration_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
-      reference_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -14498,14 +14430,13 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(1, declaration_);
+        output.writeMessage(1, getDeclaration());
       }
       for (int i = 0; i < reference_.size(); i++) {
         output.writeMessage(2, reference_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -14516,24 +14447,18 @@ public final class BatchReport {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, declaration_);
+          .computeMessageSize(1, getDeclaration());
       }
       for (int i = 0; i < reference_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, reference_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Symbol parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -14587,12 +14512,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Symbol prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Symbol prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -14635,14 +14565,10 @@ public final class BatchReport {
           getReferenceFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         if (declarationBuilder_ == null) {
-          declaration_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          declaration_ = null;
         } else {
           declarationBuilder_.clear();
         }
@@ -14654,10 +14580,6 @@ public final class BatchReport {
           referenceBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -14743,7 +14665,8 @@ public final class BatchReport {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -14770,7 +14693,7 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      private org.sonar.batch.protocol.output.BatchReport.TextRange declaration_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+      private org.sonar.batch.protocol.output.BatchReport.TextRange declaration_ = null;
       private com.google.protobuf.SingleFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.TextRange, org.sonar.batch.protocol.output.BatchReport.TextRange.Builder, org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder> declarationBuilder_;
       /**
@@ -14784,7 +14707,7 @@ public final class BatchReport {
        */
       public org.sonar.batch.protocol.output.BatchReport.TextRange getDeclaration() {
         if (declarationBuilder_ == null) {
-          return declaration_;
+          return declaration_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : declaration_;
         } else {
           return declarationBuilder_.getMessage();
         }
@@ -14825,6 +14748,7 @@ public final class BatchReport {
       public Builder mergeDeclaration(org.sonar.batch.protocol.output.BatchReport.TextRange value) {
         if (declarationBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              declaration_ != null &&
               declaration_ != org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance()) {
             declaration_ =
               org.sonar.batch.protocol.output.BatchReport.TextRange.newBuilder(declaration_).mergeFrom(value).buildPartial();
@@ -14843,7 +14767,7 @@ public final class BatchReport {
        */
       public Builder clearDeclaration() {
         if (declarationBuilder_ == null) {
-          declaration_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          declaration_ = null;
           onChanged();
         } else {
           declarationBuilder_.clear();
@@ -14866,7 +14790,8 @@ public final class BatchReport {
         if (declarationBuilder_ != null) {
           return declarationBuilder_.getMessageOrBuilder();
         } else {
-          return declaration_;
+          return declaration_ == null ?
+              org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : declaration_;
         }
       }
       /**
@@ -15129,12 +15054,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Symbol)
     }
 
+    // @@protoc_insertion_point(class_scope:Symbol)
+    private static final org.sonar.batch.protocol.output.BatchReport.Symbol DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Symbol(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Symbol();
     }
 
-    // @@protoc_insertion_point(class_scope:Symbol)
+    public static org.sonar.batch.protocol.output.BatchReport.Symbol getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Symbol> PARSER =
+        new com.google.protobuf.AbstractParser<Symbol>() {
+      public Symbol parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Symbol(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Symbol> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Symbol getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface CoverageOrBuilder extends
@@ -15260,37 +15217,33 @@ public final class BatchReport {
    * TODO rename it LineCoverage ?
    * </pre>
    */
-  public static final class Coverage extends
+  public  static final class Coverage extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Coverage)
       CoverageOrBuilder {
     // Use Coverage.newBuilder() to construct.
-    private Coverage(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Coverage(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Coverage(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Coverage defaultInstance;
-    public static Coverage getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public Coverage getDefaultInstanceForType() {
-      return defaultInstance;
+    private Coverage() {
+      line_ = 0;
+      conditions_ = 0;
+      utHits_ = false;
+      itHits_ = false;
+      utCoveredConditions_ = 0;
+      itCoveredConditions_ = 0;
+      overallCoveredConditions_ = 0;
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Coverage(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -15347,10 +15300,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -15366,21 +15320,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_Coverage_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.Coverage.class, org.sonar.batch.protocol.output.BatchReport.Coverage.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Coverage> PARSER =
-        new com.google.protobuf.AbstractParser<Coverage>() {
-      public Coverage parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Coverage(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Coverage> getParserForType() {
-      return PARSER;
     }
 
     private int bitField0_;
@@ -15537,15 +15476,6 @@ public final class BatchReport {
       return overallCoveredConditions_;
     }
 
-    private void initFields() {
-      line_ = 0;
-      conditions_ = 0;
-      utHits_ = false;
-      itHits_ = false;
-      utCoveredConditions_ = 0;
-      itCoveredConditions_ = 0;
-      overallCoveredConditions_ = 0;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -15558,7 +15488,6 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, line_);
       }
@@ -15580,7 +15509,7 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeInt32(7, overallCoveredConditions_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -15617,18 +15546,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(7, overallCoveredConditions_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Coverage parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -15682,12 +15605,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Coverage prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Coverage prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -15733,10 +15661,6 @@ public final class BatchReport {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         line_ = 0;
@@ -15754,10 +15678,6 @@ public final class BatchReport {
         overallCoveredConditions_ = 0;
         bitField0_ = (bitField0_ & ~0x00000040);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -15846,7 +15766,8 @@ public final class BatchReport {
         if (other.hasOverallCoveredConditions()) {
           setOverallCoveredConditions(other.getOverallCoveredConditions());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -16196,12 +16117,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Coverage)
     }
 
+    // @@protoc_insertion_point(class_scope:Coverage)
+    private static final org.sonar.batch.protocol.output.BatchReport.Coverage DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Coverage(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Coverage();
     }
 
-    // @@protoc_insertion_point(class_scope:Coverage)
+    public static org.sonar.batch.protocol.output.BatchReport.Coverage getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Coverage> PARSER =
+        new com.google.protobuf.AbstractParser<Coverage>() {
+      public Coverage parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Coverage(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Coverage> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Coverage getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface SyntaxHighlightingOrBuilder extends
@@ -16238,37 +16191,27 @@ public final class BatchReport {
    * TODO rename it SyntaxHighlightingRule ?
    * </pre>
    */
-  public static final class SyntaxHighlighting extends
+  public  static final class SyntaxHighlighting extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:SyntaxHighlighting)
       SyntaxHighlightingOrBuilder {
     // Use SyntaxHighlighting.newBuilder() to construct.
-    private SyntaxHighlighting(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private SyntaxHighlighting(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private SyntaxHighlighting(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final SyntaxHighlighting defaultInstance;
-    public static SyntaxHighlighting getDefaultInstance() {
-      return defaultInstance;
+    private SyntaxHighlighting() {
+      type_ = 0;
     }
 
-    public SyntaxHighlighting getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private SyntaxHighlighting(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -16307,17 +16250,18 @@ public final class BatchReport {
                 unknownFields.mergeVarintField(2, rawValue);
               } else {
                 bitField0_ |= 0x00000002;
-                type_ = value;
+                type_ = rawValue;
               }
               break;
             }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -16335,21 +16279,6 @@ public final class BatchReport {
               org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.class, org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<SyntaxHighlighting> PARSER =
-        new com.google.protobuf.AbstractParser<SyntaxHighlighting>() {
-      public SyntaxHighlighting parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new SyntaxHighlighting(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<SyntaxHighlighting> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int RANGE_FIELD_NUMBER = 1;
     private org.sonar.batch.protocol.output.BatchReport.TextRange range_;
@@ -16363,17 +16292,17 @@ public final class BatchReport {
      * <code>optional .TextRange range = 1;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRange getRange() {
-      return range_;
+      return range_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : range_;
     }
     /**
      * <code>optional .TextRange range = 1;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder getRangeOrBuilder() {
-      return range_;
+      return range_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : range_;
     }
 
     public static final int TYPE_FIELD_NUMBER = 2;
-    private org.sonar.batch.protocol.Constants.HighlightingType type_;
+    private int type_;
     /**
      * <code>optional .HighlightingType type = 2;</code>
      */
@@ -16384,13 +16313,10 @@ public final class BatchReport {
      * <code>optional .HighlightingType type = 2;</code>
      */
     public org.sonar.batch.protocol.Constants.HighlightingType getType() {
-      return type_;
+      org.sonar.batch.protocol.Constants.HighlightingType result = org.sonar.batch.protocol.Constants.HighlightingType.valueOf(type_);
+      return result == null ? org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION : result;
     }
 
-    private void initFields() {
-      range_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
-      type_ = org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -16403,14 +16329,13 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(1, range_);
+        output.writeMessage(1, getRange());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeEnum(2, type_.getNumber());
+        output.writeEnum(2, type_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -16421,24 +16346,18 @@ public final class BatchReport {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, range_);
+          .computeMessageSize(1, getRange());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(2, type_.getNumber());
+          .computeEnumSize(2, type_);
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -16492,12 +16411,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -16544,25 +16468,17 @@ public final class BatchReport {
           getRangeFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         if (rangeBuilder_ == null) {
-          range_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          range_ = null;
         } else {
           rangeBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000001);
-        type_ = org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
+        type_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -16620,7 +16536,8 @@ public final class BatchReport {
         if (other.hasType()) {
           setType(other.getType());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -16647,7 +16564,7 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      private org.sonar.batch.protocol.output.BatchReport.TextRange range_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+      private org.sonar.batch.protocol.output.BatchReport.TextRange range_ = null;
       private com.google.protobuf.SingleFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.TextRange, org.sonar.batch.protocol.output.BatchReport.TextRange.Builder, org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder> rangeBuilder_;
       /**
@@ -16661,7 +16578,7 @@ public final class BatchReport {
        */
       public org.sonar.batch.protocol.output.BatchReport.TextRange getRange() {
         if (rangeBuilder_ == null) {
-          return range_;
+          return range_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : range_;
         } else {
           return rangeBuilder_.getMessage();
         }
@@ -16702,6 +16619,7 @@ public final class BatchReport {
       public Builder mergeRange(org.sonar.batch.protocol.output.BatchReport.TextRange value) {
         if (rangeBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              range_ != null &&
               range_ != org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance()) {
             range_ =
               org.sonar.batch.protocol.output.BatchReport.TextRange.newBuilder(range_).mergeFrom(value).buildPartial();
@@ -16720,7 +16638,7 @@ public final class BatchReport {
        */
       public Builder clearRange() {
         if (rangeBuilder_ == null) {
-          range_ = org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance();
+          range_ = null;
           onChanged();
         } else {
           rangeBuilder_.clear();
@@ -16743,7 +16661,8 @@ public final class BatchReport {
         if (rangeBuilder_ != null) {
           return rangeBuilder_.getMessageOrBuilder();
         } else {
-          return range_;
+          return range_ == null ?
+              org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : range_;
         }
       }
       /**
@@ -16763,7 +16682,7 @@ public final class BatchReport {
         return rangeBuilder_;
       }
 
-      private org.sonar.batch.protocol.Constants.HighlightingType type_ = org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
+      private int type_ = 0;
       /**
        * <code>optional .HighlightingType type = 2;</code>
        */
@@ -16774,7 +16693,8 @@ public final class BatchReport {
        * <code>optional .HighlightingType type = 2;</code>
        */
       public org.sonar.batch.protocol.Constants.HighlightingType getType() {
-        return type_;
+        org.sonar.batch.protocol.Constants.HighlightingType result = org.sonar.batch.protocol.Constants.HighlightingType.valueOf(type_);
+        return result == null ? org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION : result;
       }
       /**
        * <code>optional .HighlightingType type = 2;</code>
@@ -16784,7 +16704,7 @@ public final class BatchReport {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000002;
-        type_ = value;
+        type_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -16793,7 +16713,7 @@ public final class BatchReport {
        */
       public Builder clearType() {
         bitField0_ = (bitField0_ & ~0x00000002);
-        type_ = org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
+        type_ = 0;
         onChanged();
         return this;
       }
@@ -16801,12 +16721,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:SyntaxHighlighting)
     }
 
+    // @@protoc_insertion_point(class_scope:SyntaxHighlighting)
+    private static final org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting DEFAULT_INSTANCE;
     static {
-      defaultInstance = new SyntaxHighlighting(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting();
     }
 
-    // @@protoc_insertion_point(class_scope:SyntaxHighlighting)
+    public static org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<SyntaxHighlighting> PARSER =
+        new com.google.protobuf.AbstractParser<SyntaxHighlighting>() {
+      public SyntaxHighlighting parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new SyntaxHighlighting(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<SyntaxHighlighting> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface TestOrBuilder extends
@@ -16876,37 +16828,31 @@ public final class BatchReport {
   /**
    * Protobuf type {@code Test}
    */
-  public static final class Test extends
+  public  static final class Test extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:Test)
       TestOrBuilder {
     // Use Test.newBuilder() to construct.
-    private Test(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Test(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Test(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Test defaultInstance;
-    public static Test getDefaultInstance() {
-      return defaultInstance;
-    }
-
-    public Test getDefaultInstanceForType() {
-      return defaultInstance;
+    private Test() {
+      name_ = "";
+      status_ = 1;
+      durationInMs_ = 0L;
+      stacktrace_ = "";
+      msg_ = "";
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Test(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -16938,7 +16884,7 @@ public final class BatchReport {
                 unknownFields.mergeVarintField(2, rawValue);
               } else {
                 bitField0_ |= 0x00000002;
-                status_ = value;
+                status_ = rawValue;
               }
               break;
             }
@@ -16962,10 +16908,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -16983,24 +16930,9 @@ public final class BatchReport {
               org.sonar.batch.protocol.output.BatchReport.Test.class, org.sonar.batch.protocol.output.BatchReport.Test.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Test> PARSER =
-        new com.google.protobuf.AbstractParser<Test>() {
-      public Test parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Test(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Test> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int NAME_FIELD_NUMBER = 1;
-    private java.lang.Object name_;
+    private volatile java.lang.Object name_;
     /**
      * <code>optional string name = 1;</code>
      */
@@ -17042,7 +16974,7 @@ public final class BatchReport {
     }
 
     public static final int STATUS_FIELD_NUMBER = 2;
-    private org.sonar.batch.protocol.Constants.TestStatus status_;
+    private int status_;
     /**
      * <code>optional .TestStatus status = 2;</code>
      */
@@ -17053,7 +16985,8 @@ public final class BatchReport {
      * <code>optional .TestStatus status = 2;</code>
      */
     public org.sonar.batch.protocol.Constants.TestStatus getStatus() {
-      return status_;
+      org.sonar.batch.protocol.Constants.TestStatus result = org.sonar.batch.protocol.Constants.TestStatus.valueOf(status_);
+      return result == null ? org.sonar.batch.protocol.Constants.TestStatus.OK : result;
     }
 
     public static final int DURATION_IN_MS_FIELD_NUMBER = 3;
@@ -17072,7 +17005,7 @@ public final class BatchReport {
     }
 
     public static final int STACKTRACE_FIELD_NUMBER = 4;
-    private java.lang.Object stacktrace_;
+    private volatile java.lang.Object stacktrace_;
     /**
      * <code>optional string stacktrace = 4;</code>
      */
@@ -17114,7 +17047,7 @@ public final class BatchReport {
     }
 
     public static final int MSG_FIELD_NUMBER = 5;
-    private java.lang.Object msg_;
+    private volatile java.lang.Object msg_;
     /**
      * <code>optional string msg = 5;</code>
      */
@@ -17155,13 +17088,6 @@ public final class BatchReport {
       }
     }
 
-    private void initFields() {
-      name_ = "";
-      status_ = org.sonar.batch.protocol.Constants.TestStatus.OK;
-      durationInMs_ = 0L;
-      stacktrace_ = "";
-      msg_ = "";
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -17174,12 +17100,11 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getNameBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeEnum(2, status_.getNumber());
+        output.writeEnum(2, status_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt64(3, durationInMs_);
@@ -17190,7 +17115,7 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeBytes(5, getMsgBytes());
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -17205,7 +17130,7 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(2, status_.getNumber());
+          .computeEnumSize(2, status_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
@@ -17219,18 +17144,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(5, getMsgBytes());
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.Test parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -17284,12 +17203,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Test prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Test prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -17330,15 +17254,11 @@ public final class BatchReport {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         name_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
-        status_ = org.sonar.batch.protocol.Constants.TestStatus.OK;
+        status_ = 1;
         bitField0_ = (bitField0_ & ~0x00000002);
         durationInMs_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -17347,10 +17267,6 @@ public final class BatchReport {
         msg_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -17431,7 +17347,8 @@ public final class BatchReport {
           msg_ = other.msg_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -17534,7 +17451,7 @@ public final class BatchReport {
         return this;
       }
 
-      private org.sonar.batch.protocol.Constants.TestStatus status_ = org.sonar.batch.protocol.Constants.TestStatus.OK;
+      private int status_ = 1;
       /**
        * <code>optional .TestStatus status = 2;</code>
        */
@@ -17545,7 +17462,8 @@ public final class BatchReport {
        * <code>optional .TestStatus status = 2;</code>
        */
       public org.sonar.batch.protocol.Constants.TestStatus getStatus() {
-        return status_;
+        org.sonar.batch.protocol.Constants.TestStatus result = org.sonar.batch.protocol.Constants.TestStatus.valueOf(status_);
+        return result == null ? org.sonar.batch.protocol.Constants.TestStatus.OK : result;
       }
       /**
        * <code>optional .TestStatus status = 2;</code>
@@ -17555,7 +17473,7 @@ public final class BatchReport {
           throw new NullPointerException();
         }
         bitField0_ |= 0x00000002;
-        status_ = value;
+        status_ = value.getNumber();
         onChanged();
         return this;
       }
@@ -17564,7 +17482,7 @@ public final class BatchReport {
        */
       public Builder clearStatus() {
         bitField0_ = (bitField0_ & ~0x00000002);
-        status_ = org.sonar.batch.protocol.Constants.TestStatus.OK;
+        status_ = 1;
         onChanged();
         return this;
       }
@@ -17756,12 +17674,44 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:Test)
     }
 
+    // @@protoc_insertion_point(class_scope:Test)
+    private static final org.sonar.batch.protocol.output.BatchReport.Test DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Test(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.Test();
     }
 
-    // @@protoc_insertion_point(class_scope:Test)
+    public static org.sonar.batch.protocol.output.BatchReport.Test getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Test> PARSER =
+        new com.google.protobuf.AbstractParser<Test>() {
+      public Test parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Test(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Test> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.Test getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface CoverageDetailOrBuilder extends
@@ -17809,37 +17759,28 @@ public final class BatchReport {
   /**
    * Protobuf type {@code CoverageDetail}
    */
-  public static final class CoverageDetail extends
+  public  static final class CoverageDetail extends
       com.google.protobuf.GeneratedMessage implements
       // @@protoc_insertion_point(message_implements:CoverageDetail)
       CoverageDetailOrBuilder {
     // Use CoverageDetail.newBuilder() to construct.
-    private CoverageDetail(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private CoverageDetail(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private CoverageDetail(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final CoverageDetail defaultInstance;
-    public static CoverageDetail getDefaultInstance() {
-      return defaultInstance;
+    private CoverageDetail() {
+      testName_ = "";
+      coveredFile_ = java.util.Collections.emptyList();
     }
 
-    public CoverageDetail getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private CoverageDetail(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -17875,10 +17816,11 @@ public final class BatchReport {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           coveredFile_ = java.util.Collections.unmodifiableList(coveredFile_);
@@ -17897,21 +17839,6 @@ public final class BatchReport {
       return org.sonar.batch.protocol.output.BatchReport.internal_static_CoverageDetail_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonar.batch.protocol.output.BatchReport.CoverageDetail.class, org.sonar.batch.protocol.output.BatchReport.CoverageDetail.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<CoverageDetail> PARSER =
-        new com.google.protobuf.AbstractParser<CoverageDetail>() {
-      public CoverageDetail parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new CoverageDetail(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<CoverageDetail> getParserForType() {
-      return PARSER;
     }
 
     public interface CoveredFileOrBuilder extends
@@ -17943,37 +17870,28 @@ public final class BatchReport {
     /**
      * Protobuf type {@code CoverageDetail.CoveredFile}
      */
-    public static final class CoveredFile extends
+    public  static final class CoveredFile extends
         com.google.protobuf.GeneratedMessage implements
         // @@protoc_insertion_point(message_implements:CoverageDetail.CoveredFile)
         CoveredFileOrBuilder {
       // Use CoveredFile.newBuilder() to construct.
-      private CoveredFile(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      private CoveredFile(com.google.protobuf.GeneratedMessage.Builder builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private CoveredFile(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final CoveredFile defaultInstance;
-      public static CoveredFile getDefaultInstance() {
-        return defaultInstance;
+      private CoveredFile() {
+        fileRef_ = 0;
+        coveredLine_ = java.util.Collections.emptyList();
       }
 
-      public CoveredFile getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private CoveredFile(
           com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+        this();
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -18021,10 +17939,11 @@ public final class BatchReport {
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
+          throw new RuntimeException(e.setUnfinishedMessage(this));
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+          throw new RuntimeException(
+              new com.google.protobuf.InvalidProtocolBufferException(
+                  e.getMessage()).setUnfinishedMessage(this));
         } finally {
           if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
             coveredLine_ = java.util.Collections.unmodifiableList(coveredLine_);
@@ -18043,21 +17962,6 @@ public final class BatchReport {
         return org.sonar.batch.protocol.output.BatchReport.internal_static_CoverageDetail_CoveredFile_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile.class, org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile.Builder.class);
-      }
-
-      public static com.google.protobuf.Parser<CoveredFile> PARSER =
-          new com.google.protobuf.AbstractParser<CoveredFile>() {
-        public CoveredFile parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new CoveredFile(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<CoveredFile> getParserForType() {
-        return PARSER;
       }
 
       private int bitField0_;
@@ -18099,10 +18003,6 @@ public final class BatchReport {
       }
       private int coveredLineMemoizedSerializedSize = -1;
 
-      private void initFields() {
-        fileRef_ = 0;
-        coveredLine_ = java.util.Collections.emptyList();
-      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -18126,7 +18026,7 @@ public final class BatchReport {
         for (int i = 0; i < coveredLine_.size(); i++) {
           output.writeInt32NoTag(coveredLine_.get(i));
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
       private int memoizedSerializedSize = -1;
@@ -18153,18 +18053,12 @@ public final class BatchReport {
           }
           coveredLineMemoizedSerializedSize = dataSize;
         }
-        size += getUnknownFields().getSerializedSize();
+        size += unknownFields.getSerializedSize();
         memoizedSerializedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
       public static org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -18218,12 +18112,17 @@ public final class BatchReport {
         return PARSER.parseFrom(input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
@@ -18264,10 +18163,6 @@ public final class BatchReport {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
         public Builder clear() {
           super.clear();
           fileRef_ = 0;
@@ -18275,10 +18170,6 @@ public final class BatchReport {
           coveredLine_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000002);
           return this;
-        }
-
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
         }
 
         public com.google.protobuf.Descriptors.Descriptor
@@ -18340,7 +18231,8 @@ public final class BatchReport {
             }
             onChanged();
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
@@ -18468,17 +18360,49 @@ public final class BatchReport {
         // @@protoc_insertion_point(builder_scope:CoverageDetail.CoveredFile)
       }
 
+      // @@protoc_insertion_point(class_scope:CoverageDetail.CoveredFile)
+      private static final org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile DEFAULT_INSTANCE;
       static {
-        defaultInstance = new CoveredFile(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile();
       }
 
-      // @@protoc_insertion_point(class_scope:CoverageDetail.CoveredFile)
+      public static org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      public static final com.google.protobuf.Parser<CoveredFile> PARSER =
+          new com.google.protobuf.AbstractParser<CoveredFile>() {
+        public CoveredFile parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          try {
+            return new CoveredFile(input, extensionRegistry);
+          } catch (RuntimeException e) {
+            if (e.getCause() instanceof
+                com.google.protobuf.InvalidProtocolBufferException) {
+              throw (com.google.protobuf.InvalidProtocolBufferException)
+                  e.getCause();
+            }
+            throw e;
+          }
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<CoveredFile> getParserForType() {
+        return PARSER;
+      }
+
+      public org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     private int bitField0_;
     public static final int TEST_NAME_FIELD_NUMBER = 1;
-    private java.lang.Object testName_;
+    private volatile java.lang.Object testName_;
     /**
      * <code>optional string test_name = 1;</code>
      */
@@ -18554,10 +18478,6 @@ public final class BatchReport {
       return coveredFile_.get(index);
     }
 
-    private void initFields() {
-      testName_ = "";
-      coveredFile_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -18570,14 +18490,13 @@ public final class BatchReport {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getTestNameBytes());
       }
       for (int i = 0; i < coveredFile_.size(); i++) {
         output.writeMessage(2, coveredFile_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -18594,18 +18513,12 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, coveredFile_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonar.batch.protocol.output.BatchReport.CoverageDetail parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -18659,12 +18572,17 @@ public final class BatchReport {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.CoverageDetail prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.CoverageDetail prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -18706,10 +18624,6 @@ public final class BatchReport {
           getCoveredFileFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         testName_ = "";
@@ -18721,10 +18635,6 @@ public final class BatchReport {
           coveredFileBuilder_.clear();
         }
         return this;
-      }
-
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -18808,7 +18718,8 @@ public final class BatchReport {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -19154,110 +19065,142 @@ public final class BatchReport {
       // @@protoc_insertion_point(builder_scope:CoverageDetail)
     }
 
+    // @@protoc_insertion_point(class_scope:CoverageDetail)
+    private static final org.sonar.batch.protocol.output.BatchReport.CoverageDetail DEFAULT_INSTANCE;
     static {
-      defaultInstance = new CoverageDetail(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonar.batch.protocol.output.BatchReport.CoverageDetail();
     }
 
-    // @@protoc_insertion_point(class_scope:CoverageDetail)
+    public static org.sonar.batch.protocol.output.BatchReport.CoverageDetail getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<CoverageDetail> PARSER =
+        new com.google.protobuf.AbstractParser<CoverageDetail>() {
+      public CoverageDetail parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new CoverageDetail(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<CoverageDetail> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.batch.protocol.output.BatchReport.CoverageDetail getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Metadata_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Metadata_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_ActiveRule_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_ActiveRule_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_ActiveRule_ActiveRuleParam_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_ActiveRule_ActiveRuleParam_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_ComponentLink_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_ComponentLink_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Component_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Component_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Measure_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Measure_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Issue_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Issue_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_IssueLocation_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_IssueLocation_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_ExecutionFlow_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_ExecutionFlow_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Changesets_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Changesets_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Changesets_Changeset_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Changesets_Changeset_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Duplicate_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Duplicate_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Duplication_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Duplication_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_TextRange_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_TextRange_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Symbol_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Symbol_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Coverage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Coverage_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_SyntaxHighlighting_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_SyntaxHighlighting_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_Test_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Test_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_CoverageDetail_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_CoverageDetail_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_CoverageDetail_CoveredFile_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
