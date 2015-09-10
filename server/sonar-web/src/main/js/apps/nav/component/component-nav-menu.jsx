@@ -29,7 +29,18 @@ export default React.createClass({
   },
 
   renderAdministration() {
-    if (!this.props.conf.showSettings) {
+    let shouldShowAdministration =
+        this.props.conf.showActionPlans ||
+        this.props.conf.showDeletion ||
+        this.props.conf.showHistory ||
+        this.props.conf.showLinks ||
+        this.props.conf.showManualMeasures ||
+        this.props.conf.showPermissions ||
+        this.props.conf.showQualityGates ||
+        this.props.conf.showQualityProfiles ||
+        this.props.conf.showSettings ||
+        this.props.conf.showUpdateKey;
+    if (!shouldShowAdministration) {
       return null;
     }
     let isSettingsActive = SETTINGS_URLS.some(url => {
@@ -58,6 +69,9 @@ export default React.createClass({
   },
 
   renderSettingsLink() {
+    if (!this.props.conf.showSettings) {
+      return null;
+    }
     const url = `/project/settings?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, window.t('project_settings.page'), '/project/settings');
   },
