@@ -5,7 +5,7 @@ define(
       './more-criteria-filters',
       './favorite-filters'
     ],
-    function (BaseFilters, MoreCriteriaFilters) {
+    function ($, BaseFilters, MoreCriteriaFilters) {
 
       return Marionette.CompositeView.extend({
         childViewContainer: '.navigator-filters-list',
