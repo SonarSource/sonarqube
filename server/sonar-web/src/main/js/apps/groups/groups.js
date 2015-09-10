@@ -1,13 +1,12 @@
 define([
-  'backbone',
   './group'
-], function (Backbone, Group) {
+], function (Group) {
 
   return Backbone.Collection.extend({
     model: Group,
 
     url: function () {
-      return window.baseUrl + '/api/usergroups/search';
+      return baseUrl + '/api/usergroups/search';
     },
 
     parse: function (r) {
@@ -20,7 +19,7 @@ define([
     fetch: function (options) {
       var d = (options && options.data) || {};
       this.q = d.q;
-      return Backbone.Collection.prototype.fetch.apply(this, arguments);
+      return this._super(options);
     },
 
     fetchMore: function () {

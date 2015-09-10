@@ -4,15 +4,11 @@ define([
   './templates'
 ], function (Modal) {
 
-  function getSearchUrl(permission, project) {
-    return baseUrl + '/api/permissions/users?ps=100&permission=' + permission + '&projectId=' + project;
-  }
-
   return Modal.extend({
     template: Templates['project-permissions-users'],
 
     onRender: function () {
-      Modal.prototype.onRender.apply(this, arguments);
+      this._super();
       new window.SelectList({
         el: this.$('#project-permissions-users'),
         width: '100%',
@@ -22,7 +18,7 @@ define([
           return item.name + '<br><span class="note">' + item.login + '</span>';
         },
         queryParam: 'q',
-        searchUrl: getSearchUrl(this.options.permission, this.options.project),
+        searchUrl: baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission + '&projectId=' + this.options.project,
         selectUrl: baseUrl + '/api/permissions/add_user',
         deselectUrl: baseUrl + '/api/permissions/remove_user',
         extra: {
@@ -39,16 +35,14 @@ define([
     },
 
     onDestroy: function () {
-      if (this.options.refresh) {
-        this.options.refresh();
-      }
-      Modal.prototype.onDestroy.apply(this, arguments);
+      this.options.refresh && this.options.refresh();
+      this._super();
     },
 
     serializeData: function () {
       return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
         projectName: this.options.projectName
-      });
+      })
     }
   });
 

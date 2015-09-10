@@ -1,6 +1,4 @@
 define([
-  'backbone',
-  'backbone.marionette',
   './models/changelog',
   './views/changelog-view',
   './collections/action-plans',
@@ -14,9 +12,8 @@ define([
   './views/tags-form-view',
   'components/workspace/main',
   './templates'
-], function (Backbone,Marionette, ChangeLog, ChangeLogView, ActionPlans, IssuePopup, TransitionsFormView,
-             AssignFormView, CommentFormView, PlanFormView, SetSeverityFormView, MoreActionsView, TagsFormView,
-             Workspace) {
+], function (ChangeLog, ChangeLogView, ActionPlans, IssuePopup, TransitionsFormView, AssignFormView, CommentFormView,
+             PlanFormView, SetSeverityFormView, MoreActionsView, TagsFormView, Workspace) {
 
   var $ = jQuery;
 

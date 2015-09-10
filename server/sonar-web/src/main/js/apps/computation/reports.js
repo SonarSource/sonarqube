@@ -1,7 +1,6 @@
 define([
-  'backbone',
   './report'
-], function (Backbone, Report) {
+], function (Report) {
 
   return Backbone.Collection.extend({
     model: Report,
@@ -16,7 +15,7 @@ define([
 
     fetch: function (options) {
       var opts = _.defaults(options || {}, { q: this.q }, { q: 'history' });
-      opts.url = window.baseUrl + '/api/computation/' + opts.q;
+      opts.url = baseUrl + '/api/computation/' + opts.q;
       this.q = opts.q;
       return Backbone.Collection.prototype.fetch.call(this, opts);
     },

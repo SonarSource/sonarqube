@@ -36,7 +36,7 @@ define([
         if (!selectedIssueView) {
           return;
         }
-        selectedIssueView.find('.js-issue-' + action).click();
+        return selectedIssueView.find('.js-issue-' + action).click();
       };
       key('up', 'componentViewer', function () {
         that.options.app.controller.selectPrev();

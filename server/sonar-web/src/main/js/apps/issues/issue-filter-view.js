@@ -12,11 +12,11 @@ define([
       var property = $(e.currentTarget).data('property'),
           value = $(e.currentTarget).data('value');
       this.trigger('select', property, value);
-      ActionOptionsView.prototype.selectOption.apply(this, arguments);
+      this._super(e);
     },
 
     serializeData: function () {
-      return _.extend(ActionOptionsView.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         s: this.model.get('severity')
       });
     }

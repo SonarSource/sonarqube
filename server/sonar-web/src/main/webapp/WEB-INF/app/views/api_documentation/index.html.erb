@@ -1,0 +1,7 @@
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/api-documentation/app'], function (App) {
+      App.start({ el: '#content', urlRoot: baseUrl + '/api_documentation' });
+    });
+  </script>
+<% end %>

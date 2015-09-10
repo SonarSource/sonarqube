@@ -1,10 +1,8 @@
-define([
-  'backbone'
-], function (Backbone) {
+define(function () {
 
   return Backbone.Model.extend({
     urlRoot: function () {
-      return window.baseUrl + '/api/usergroups';
+      return baseUrl + '/api/usergroups';
     },
 
     sync: function (method, model, options) {

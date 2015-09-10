@@ -1,6 +1,4 @@
 define([
-  'backbone',
-  'backbone.marionette',
   './models/state',
   './layout',
   './models/issues',
@@ -13,8 +11,8 @@ define([
   './facets-view',
   './filters-view',
   './helpers/format-facet-value'
-], function (Backbone, Marionette, State, Layout, Issues, Facets, Filters, Controller, Router, WorkspaceListView,
-             WorkspaceHeaderView, FacetsView, FiltersView) {
+], function (State, Layout, Issues, Facets, Filters, Controller, Router, WorkspaceListView, WorkspaceHeaderView,
+             FacetsView, FiltersView) {
 
   var $ = jQuery,
       App = new Marionette.Application(),
@@ -63,7 +61,9 @@ define([
       };
 
   App.on('start', function (options) {
-    init.call(App, options);
+    $.when(window.requestMessages()).done(function () {
+      init.call(App, options);
+    });
   });
 
   return App;

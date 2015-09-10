@@ -19,7 +19,6 @@
  */
 define([
   'components/common/popup',
-  '../../../components/common/jquery-isolated-scroll',
   '../templates'
 ], function (Popup) {
 

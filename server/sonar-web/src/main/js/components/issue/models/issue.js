@@ -1,6 +1,4 @@
-define([
-  'backbone'
-], function (Backbone) {
+define(function () {
 
   return Backbone.Model.extend({
     idAttribute: 'key',
@@ -13,11 +11,11 @@ define([
     },
 
     url: function () {
-      return window.baseUrl + '/api/issues';
+      return baseUrl + '/api/issues';
     },
 
     urlRoot: function () {
-      return window.baseUrl + '/api/issues';
+      return baseUrl + '/api/issues';
     },
 
     parse: function (r) {

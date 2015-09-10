@@ -1,8 +1,7 @@
 define([
-  'backbone.marionette',
   'components/common/modal-form',
   './templates'
-], function (Marionette, ModalForm) {
+], function (ModalForm) {
 
   return ModalForm.extend({
     template: Templates['quality-gates-condition-delete'],

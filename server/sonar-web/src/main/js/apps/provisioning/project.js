@@ -1,6 +1,4 @@
-define([
-  'backbone'
-], function (Backbone) {
+define(function () {
 
   return Backbone.Model.extend({
     idAttribute: 'uuid',
@@ -10,7 +8,7 @@ define([
     },
 
     urlRoot: function () {
-      return window.baseUrl + '/api/projects';
+      return baseUrl + '/api/projects';
     },
 
     sync: function (method, model, options) {

@@ -1,9 +1,26 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 define([
-  'backbone',
   'components/common/modal-form',
-  '../../../libs/csv',
   '../templates'
-], function (Backbone, ModalForm, csvEscape) {
+], function (ModalForm) {
 
   var $ = jQuery;
 
@@ -11,7 +28,7 @@ define([
     template: Templates['coding-rules-profile-activation'],
 
     ui: function () {
-      return _.extend(ModalForm.prototype.ui.apply(this, arguments), {
+      return _.extend(this._super(), {
         qualityProfileSelect: '#coding-rules-quality-profile-activation-select',
         qualityProfileSeverity: '#coding-rules-quality-profile-activation-severity',
         qualityProfileActivate: '#coding-rules-quality-profile-activation-activate',
@@ -20,13 +37,13 @@ define([
     },
 
     events: function () {
-      return _.extend(ModalForm.prototype.events.apply(this, arguments), {
+      return _.extend(this._super(), {
         'click @ui.qualityProfileActivate': 'activate'
       });
     },
 
     onRender: function () {
-      ModalForm.prototype.onRender.apply(this, arguments);
+      this._super();
 
       this.ui.qualityProfileSelect.select2({
         width: '250px',
@@ -65,7 +82,7 @@ define([
             };
           }).get(),
           paramsHash = (params.map(function (param) {
-            return param.key + '=' + csvEscape(param.value);
+            return param.key + '=' + window.csvEscape(param.value);
           })).join(';');
 
       if (this.model) {
@@ -129,7 +146,7 @@ define([
 
       var availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang'));
 
-      return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         change: this.model && this.model.has('severity'),
         params: params,
         qualityProfiles: availableProfiles,

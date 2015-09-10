@@ -1,10 +1,8 @@
-define([
-  'backbone'
-], function (Backbone) {
+define(function () {
 
   return Backbone.Model.extend({
     url: function () {
-      return window.baseUrl + '/api/issue_filters/show/' + this.id;
+      return baseUrl + '/api/issue_filters/show/' + this.id;
     },
 
     parse: function (r) {

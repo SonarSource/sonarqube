@@ -124,4 +124,10 @@
       { key: 'nameSearch', value: '<%= escape_javascript @filter.criteria['nameSearch'] -%>' }
     ];
   </script>
+
+  <script>
+    require(['apps/measures/app'], function (App) {
+      App.start();
+    });
+  </script>
 <% end %>

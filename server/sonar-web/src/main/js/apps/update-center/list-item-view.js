@@ -1,9 +1,7 @@
 define([
-  'backbone',
-  'backbone.marionette',
   './plugin-changelog-view',
   './templates'
-], function (Backbone, Marionette, PluginChangelogView) {
+], function (PluginChangelogView) {
 
   var $ = jQuery;
 

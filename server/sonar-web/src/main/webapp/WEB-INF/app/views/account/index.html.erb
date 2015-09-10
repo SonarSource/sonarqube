@@ -67,3 +67,11 @@
     </form>
   </div>
 </div>
+
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/account/app'], function (App) {
+      App.start();
+    });
+  </script>
+<% end %>

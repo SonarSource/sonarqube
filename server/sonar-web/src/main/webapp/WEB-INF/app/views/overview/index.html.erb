@@ -169,12 +169,9 @@
         <% end %>
       };
 
-      window.overview = {
-        component: component,
-        gate: gate,
-        measures: measures,
-        leak: leak
-      };
+      require(['apps/overview/app'], function (App) {
+        App.start({ el: '#content', component: component, gate: gate, measures: measures, leak: leak });
+      });
     })();
   </script>
 <% end %>

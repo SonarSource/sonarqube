@@ -13,10 +13,6 @@ const MORE_URLS = ['/dashboards', '/dashboard', '/plugins/resource'];
 export default React.createClass({
   mixins: [DashboardNameMixin, LinksMixin],
 
-  getDefaultProps() {
-    return { conf: {} };
-  },
-
   renderOverviewLink() {
     const url = `/overview/index?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, window.t('overview.page'), '/overview');

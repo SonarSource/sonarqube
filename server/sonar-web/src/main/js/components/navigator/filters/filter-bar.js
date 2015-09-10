@@ -1,12 +1,29 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 define(
     [
-      'jquery',
-      'backbone.marionette',
       './base-filters',
       './more-criteria-filters',
       './favorite-filters'
     ],
-    function ($, Marionette, BaseFilters, MoreCriteriaFilters) {
+    function (BaseFilters, MoreCriteriaFilters) {
 
       return Marionette.CompositeView.extend({
         childViewContainer: '.navigator-filters-list',
@@ -34,7 +51,7 @@ define(
           Marionette.CompositeView.prototype.initialize.apply(this, arguments);
 
           var that = this;
-          $('body').on('click', function () {
+          $j('body').on('click', function () {
             that.hideDetails();
           });
           this.addMoreCriteriaFilter();
@@ -55,20 +72,20 @@ define(
             }
             return r;
           };
-          key('tab', 'list', function () {
+          key('tab', 'list', function() {
             key.setScope('filters');
             that.selectFirst();
             return false;
           });
-          key('shift+tab', 'filters', function () {
+          key('shift+tab', 'filters', function() {
             that.selectPrev();
             return false;
           });
-          key('tab', 'filters', function () {
+          key('tab', 'filters', function() {
             that.selectNext();
             return false;
           });
-          key('escape', 'filters', function () {
+          key('escape', 'filters', function() {
             that.hideDetails();
             this.selected = -1;
             key.setScope('list');
@@ -76,7 +93,7 @@ define(
         },
 
 
-        getEnabledFilters: function () {
+        getEnabledFilters: function() {
           return this.$(this.childViewContainer).children()
               .not('.navigator-filter-disabled')
               .not('.navigator-filter-inactive')
@@ -84,13 +101,13 @@ define(
         },
 
 
-        selectFirst: function () {
+        selectFirst: function() {
           this.selected = -1;
           this.selectNext();
         },
 
 
-        selectPrev: function () {
+        selectPrev: function() {
           var filters = this.getEnabledFilters();
           if (this.selected > 0) {
             filters.eq(this.selected).blur();
@@ -101,7 +118,7 @@ define(
         },
 
 
-        selectNext: function () {
+        selectNext: function() {
           var filters = this.getEnabledFilters();
           if (this.selected < filters.length - 1) {
             filters.eq(this.selected).blur();
@@ -115,7 +132,7 @@ define(
         },
 
 
-        addMoreCriteriaFilter: function () {
+        addMoreCriteriaFilter: function() {
           var disabledFilters = this.collection.where({ enabled: false });
           if (disabledFilters.length > 0) {
             this.moreCriteriaFilter = new BaseFilters.Filter({

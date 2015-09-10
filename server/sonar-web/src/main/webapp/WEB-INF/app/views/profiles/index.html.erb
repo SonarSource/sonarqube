@@ -1,0 +1,7 @@
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/quality-profiles/app'], function (App) {
+      App.start({ el: '#content', urlRoot: baseUrl + '/profiles' });
+    });
+  </script>
+<% end %>

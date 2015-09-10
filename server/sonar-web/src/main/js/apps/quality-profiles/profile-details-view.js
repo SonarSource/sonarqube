@@ -1,12 +1,30 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 define([
-  'backbone.marionette',
   './change-profile-parent-view',
   './profile-changelog-view',
   './profile-comparison-view',
   'components/common/select-list',
   './helpers',
   './templates'
-], function (Marionette, ChangeProfileParentView, ProfileChangelogView, ProfileComparisonView) {
+], function (ChangeProfileParentView, ProfileChangelogView, ProfileComparisonView) {
 
   var $ = jQuery;
 
@@ -69,14 +87,14 @@ define([
         selectParameter: 'projectUuid',
         selectParameterValue: 'uuid',
         labels: {
-          selected: window.t('quality_gates.projects.with'),
-          deselected: window.t('quality_gates.projects.without'),
-          all: window.t('quality_gates.projects.all'),
-          noResults: window.t('quality_gates.projects.noResults')
+          selected: t('quality_gates.projects.with'),
+          deselected: t('quality_gates.projects.without'),
+          all: t('quality_gates.projects.all'),
+          noResults: t('quality_gates.projects.noResults')
         },
         tooltips: {
-          select: window.t('quality_gates.projects.select_hint'),
-          deselect: window.t('quality_gates.projects.deselect_hint')
+          select: t('quality_gates.projects.select_hint'),
+          deselect: t('quality_gates.projects.deselect_hint')
         }
       });
       this.listenTo(this.projectsSelectList.collection, 'change:selected', this.onProjectsChange);

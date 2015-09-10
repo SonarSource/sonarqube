@@ -1,10 +1,8 @@
-define([
-  'backbone'
-], function (Backbone) {
+define([], function () {
 
   return Backbone.Collection.extend({
     url: function () {
-      return window.baseUrl + '/api/issues/changelog';
+      return baseUrl + '/api/issues/changelog';
     },
 
     parse: function (r) {

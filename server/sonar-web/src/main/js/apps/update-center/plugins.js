@@ -1,7 +1,6 @@
 define([
-  'backbone',
   './plugin'
-], function (Backbone, Plugin) {
+], function (Plugin) {
 
   var $ = jQuery;
 

@@ -1,9 +1,3 @@
-<script>
-  jQuery('html').addClass('dashboard-page');
-  jQuery('[data-toggle="tooltip"]').tooltip({ container: '#body' });
-  window.widgets = [];
-</script>
-
 <div class="page" id="dashboard">
   <% if @resource -%>
   <span class="hidden" id="is-project-dashboard">&nbsp;</span>
@@ -34,3 +28,8 @@
   </div>
   <div style="clear: both;"></div>
 </div>
+
+<script>
+  jQuery('html').addClass('dashboard-page');
+  jQuery('[data-toggle="tooltip"]').tooltip({ container: '#body' });
+</script>

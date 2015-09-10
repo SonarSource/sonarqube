@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
-      'backbone.marionette',
       './measures-filter-bar',
       'components/navigator/filters/base-filters',
       'components/navigator/filters/checkbox-filters',
@@ -29,7 +28,7 @@ define([
       'components/navigator/filters/string-filters',
       'components/navigator/filters/metric-filters'
     ],
-    function (Marionette, FilterBar, BaseFilters, CheckboxFilterView, ChoiceFilters, AjaxSelectFilters, FavoriteFilters,
+    function (FilterBar, BaseFilters, CheckboxFilterView, ChoiceFilters, AjaxSelectFilters, FavoriteFilters,
               RangeFilters, StringFilterView, MetricFilterView) {
 
       var NavigatorApp = new Marionette.Application(),

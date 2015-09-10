@@ -159,8 +159,9 @@ define(function (require) {
     return new this.constructor(this, function () {
       return this.parent
           .execute(function (app, options) {
-            var opts = _.extend({}, options, { urlRoot: '/test/medium/base.html' });
-            window.App.startApp({ name: app, options: opts });
+            require(['apps/' + app + '/app'], function (App) {
+              App.start(_.extend({ el: '#content' }, options));
+            });
           }, [app, options])
           .sleep(1000);
     });
@@ -174,8 +175,8 @@ define(function (require) {
     return new this.constructor(this, function () {
       return this.parent
           .get(require.toUrl(url))
-          .sleep(1000)
-          .checkElementExist('#content.ready');
+          .mockFromString('/api/l10n/index', '{}')
+          .checkElementExist('#content');
     });
   };
 

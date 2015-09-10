@@ -7,17 +7,17 @@ define([
     template: Templates['provisioning-form'],
 
     onRender: function () {
-      ModalForm.prototype.onRender.apply(this, arguments);
+      this._super();
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     },
 
     onDestroy: function () {
-      ModalForm.prototype.onDestroy.apply(this, arguments);
+      this._super();
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
-    onFormSubmit: function () {
-      ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    onFormSubmit: function (e) {
+      this._super(e);
       this.sendRequest();
     }
 

@@ -1,10 +1,9 @@
 define([
-  'backbone.marionette',
   './condition',
   './gate-condition-view',
   './gate-conditions-empty-view',
   './templates'
-], function (Marionette, Condition, ConditionView, ConditionsEmptyView) {
+], function (Condition, ConditionView, ConditionsEmptyView) {
 
   return Marionette.CompositeView.extend({
     template: Templates['quality-gate-detail-conditions'],
@@ -35,7 +34,7 @@ define([
       this.ui.metricSelect.select2({
         allowClear: false,
         width: '250px',
-        placeholder: window.t('alerts.select_metric')
+        placeholder: t('alerts.select_metric')
       });
     },
 

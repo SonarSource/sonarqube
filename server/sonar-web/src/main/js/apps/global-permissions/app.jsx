@@ -5,7 +5,9 @@ const $ = jQuery;
 
 export default {
   start(options) {
-    var el = document.querySelector(options.el);
-    React.render(<Main/>, el);
+    window.requestMessages().done(() => {
+      var el = document.querySelector(options.el);
+      React.render(<Main/>, el);
+    });
   }
 };

@@ -1,19 +1,17 @@
 <div id="body" class="page">
-  <div id="content">
-    <% if @snapshot %>
-      <div class="print"><h2><%= h @snapshot.project.name(true) %></h2></div>
-    <% end %>
-    <div class="hidden" id="messages-panel">
-      <div class="alert alert-danger hidden" id="error">
-        <span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="return hideError();"><%= message('hide').downcase -%></a>]
-      </div>
-      <div class="alert alert-info hidden" id="info">
-        <span id="infomsg"></span> &nbsp;&nbsp;[<a href="#" onclick="return hideInfo();"><%= message('hide').downcase -%></a>]
-      </div>
-      <div class="alert alert-warning hidden" id="warning">
-        <span id="warningmsg"></span> &nbsp;&nbsp;[<a href="#" onclick="return hideWarning();"><%= message('hide').downcase -%></a>]
-      </div>
+  <% if @snapshot %>
+    <div class="print"><h2><%= h @snapshot.project.name(true) %></h2></div>
+  <% end %>
+  <div class="hidden" id="messages-panel">
+    <div class="alert alert-danger hidden" id="error">
+      <span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="return hideError();"><%= message('hide').downcase -%></a>]
     </div>
-    <%= yield %>
+    <div class="alert alert-info hidden" id="info">
+      <span id="infomsg"></span> &nbsp;&nbsp;[<a href="#" onclick="return hideInfo();"><%= message('hide').downcase -%></a>]
+    </div>
+    <div class="alert alert-warning hidden" id="warning">
+      <span id="warningmsg"></span> &nbsp;&nbsp;[<a href="#" onclick="return hideWarning();"><%= message('hide').downcase -%></a>]
+    </div>
   </div>
+  <%= yield %>
 </div>

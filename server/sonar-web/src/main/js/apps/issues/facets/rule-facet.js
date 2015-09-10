@@ -4,7 +4,7 @@ define([
 
   return CustomValuesFacet.extend({
     prepareSearch: function () {
-      var url = window.baseUrl + '/api/rules/search?f=name,langName',
+      var url = baseUrl + '/api/rules/search?f=name,langName',
           languages = this.options.app.state.get('query').languages;
       if (languages != null) {
         url += '&languages=' + languages;
@@ -14,13 +14,13 @@ define([
         minimumInputLength: 2,
         allowClear: false,
         formatNoMatches: function () {
-          return window.t('select2.noMatches');
+          return t('select2.noMatches');
         },
         formatSearching: function () {
-          return window.t('select2.searching');
+          return t('select2.searching');
         },
         formatInputTooShort: function () {
-          return window.tp('select2.tooShort', 2);
+          return tp('select2.tooShort', 2);
         },
         width: '100%',
         ajax: {

@@ -14,7 +14,7 @@ define([
     },
 
     onRender: function () {
-      ModalForm.prototype.onRender.apply(this, arguments);
+      this._super();
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
       this.$('#create-custom-measure-metric').select2({
         width: '250px',
@@ -23,12 +23,12 @@ define([
     },
 
     onDestroy: function () {
-      ModalForm.prototype.onDestroy.apply(this, arguments);
+      this._super();
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
-    onFormSubmit: function () {
-      ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    onFormSubmit: function (e) {
+      this._super(e);
       this.sendRequest();
     },
 
@@ -42,7 +42,7 @@ define([
     serializeData: function () {
       var metrics = this.getAvailableMetrics(),
           isNew = !this.model;
-      return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         metrics: metrics,
         canCreateMetric: !isNew || (isNew && metrics.length > 0)
       });

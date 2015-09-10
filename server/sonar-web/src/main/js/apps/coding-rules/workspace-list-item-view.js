@@ -1,11 +1,28 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 define([
-  'backbone',
   'components/navigator/workspace-list-item-view',
   './rule/profile-activation-view',
-  '../../components/common/dialogs',
   './rule/rule-filter-mixin',
   './templates'
-], function (Backbone, WorkspaceListItemView, ProfileActivationView, confirmDialog, RuleFilterMixin) {
+], function (WorkspaceListItemView, ProfileActivationView, RuleFilterMixin) {
 
   return WorkspaceListItemView.extend(RuleFilterMixin).extend({
     className: 'coding-rule',
@@ -61,9 +78,9 @@ define([
       var that = this,
           ruleKey = this.model.get('key'),
           activation = this.model.get('activation');
-      confirmDialog({
-        title: window.t('coding_rules.deactivate'),
-        html: window.tp('coding_rules.deactivate.confirm'),
+      window.confirmDialog({
+        title: t('coding_rules.deactivate'),
+        html: tp('coding_rules.deactivate.confirm'),
         yesHandler: function () {
           return jQuery.ajax({
             type: 'POST',

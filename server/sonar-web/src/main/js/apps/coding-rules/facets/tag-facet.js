@@ -24,7 +24,7 @@ define([
   return CustomValuesFacet.extend({
 
     getUrl: function () {
-      return window.baseUrl + '/api/rules/tags';
+      return baseUrl + '/api/rules/tags';
     },
 
     prepareAjaxSearch: function () {

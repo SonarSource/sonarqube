@@ -29,9 +29,9 @@
    * @param {string} message
    */
   window.showMessage = function (id, message) {
-    $('#' + id + 'msg').html(message);
-    $('#' + id).removeClass('hidden');
-    $('#messages-panel').removeClass('hidden');
+    $j('#' + id + 'msg').html(message);
+    $j('#' + id).removeClass('hidden');
+    $j('#messages-panel').removeClass('hidden');
   };
 
   /**
@@ -40,8 +40,8 @@
    * @returns {boolean} always false
    */
   window.hideMessage = function (id) {
-    $('#' + id).addClass('hidden');
-    var messagePanel = $('#messages-panel'),
+    $j('#' + id).addClass('hidden');
+    var messagePanel = $j('#messages-panel'),
         isEmpty = messagePanel.children('*:not(.hidden)').length === 0;
     messagePanel.toggleClass('hidden', isEmpty);
     return false;
@@ -52,7 +52,7 @@
    * @param {string} message
    */
   window.error = function (message) {
-    window.showMessage('error', message);
+    showMessage('error', message);
   };
 
   /**
@@ -60,7 +60,7 @@
    * @param {string} message
    */
   window.warning = function (message) {
-    window.showMessage('warning', message);
+    showMessage('warning', message);
   };
 
   /**
@@ -68,7 +68,7 @@
    * @param {string} message
    */
   window.info = function (message) {
-    window.showMessage('info', message);
+    showMessage('info', message);
   };
 
   /**
@@ -76,7 +76,7 @@
    * @returns {boolean} always false
    */
   window.hideError = function () {
-    return window.hideMessage('error');
+    return hideMessage('error');
   };
 
   /**
@@ -84,7 +84,7 @@
    * @returns {boolean} always false
    */
   window.hideWarning = function () {
-    return window.hideMessage('warning');
+    return hideMessage('warning');
   };
 
   /**
@@ -92,29 +92,30 @@
    * @returns {boolean} always false
    */
   window.hideInfo = function () {
-    return window.hideMessage('info');
+    return hideMessage('info');
   };
 })();
 
 
-window.toggleFav = function (resourceId, elt) {
-  $.ajax({
+
+function toggleFav (resourceId, elt) {
+  $j.ajax({
     type: 'POST', dataType: 'json', url: baseUrl + '/favourites/toggle/' + resourceId,
     success: function (data) {
-      var star = $(elt);
+      var star = $j(elt);
       star.removeClass('icon-favorite icon-not-favorite');
       star.addClass(data.css);
       star.attr('title', data.title);
     }
   });
-};
+}
 
-window.dashboardParameters = function (urlHasSomething) {
+function dashboardParameters (urlHasSomething) {
   var queryString = window.location.search;
   var parameters = [];
 
   var matchDashboard = queryString.match(/did=\d+/);
-  if (matchDashboard && $('#is-project-dashboard').length === 1) {
+  if (matchDashboard && $j('#is-project-dashboard').length === 1) {
     parameters.push(matchDashboard[0]);
   }
 
@@ -132,15 +133,15 @@ window.dashboardParameters = function (urlHasSomething) {
     query = (urlHasSomething ? '&' : '?') + query;
   }
   return query;
-};
+}
 
-window.openModalWindow = function (url, options) {
+function openModalWindow (url, options) {
   var width = (options && options.width) || 540;
-  var $dialog = $('#modal');
+  var $dialog = $j('#modal');
   if (!$dialog.length) {
-    $dialog = $('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
+    $dialog = $j('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
   }
-  $.get(url, function (html) {
+  $j.get(url, function (html) {
     $dialog.removeClass('ui-widget-overlay');
     $dialog.html(html);
     $dialog
@@ -154,7 +155,7 @@ window.openModalWindow = function (url, options) {
           resizable: false,
           title: null,
           close: function () {
-            $('#modal').remove();
+            $j('#modal').remove();
           }
         });
     $dialog.dialog('open');
@@ -162,20 +163,20 @@ window.openModalWindow = function (url, options) {
     $dialog.removeClass('ui-widget-overlay');
   });
   return false;
-};
+}
 
-(function ($) {
-  $.fn.extend({
+(function ($j) {
+  $j.fn.extend({
     openModal: function () {
       return this.each(function () {
-        var obj = $(this);
+        var obj = $j(this);
         var url = obj.attr('modal-url') || obj.attr('href');
-        return window.openModalWindow(url, { 'width': obj.attr('modal-width') });
+        return openModalWindow(url, { 'width': obj.attr('modal-width') });
       });
     },
     modal: function () {
       return this.each(function () {
-        var obj = $(this);
+        var obj = $j(this);
         obj.unbind('click');
         var $link = obj.bind('click', function () {
           $link.openModal();
@@ -185,10 +186,10 @@ window.openModalWindow = function (url, options) {
     },
     modalForm: function (ajax_options) {
       return this.each(function () {
-        var obj = $(this);
+        var obj = $j(this);
         obj.submit(function () {
-          $('input[type=submit]', this).attr('disabled', 'disabled');
-          $.ajax($.extend({
+          $j('input[type=submit]', this).attr('disabled', 'disabled');
+          $j.ajax($j.extend({
             type: 'POST',
             url: obj.attr('action'),
             data: obj.serialize(),
@@ -200,14 +201,14 @@ window.openModalWindow = function (url, options) {
               var errorElt = obj.find('.modal-error');
               if (errorElt.length) {
                 // Hide all loading images
-                $('.loading-image').addClass('hidden');
+                $j('.loading-image').addClass('hidden');
                 // Re activate submit button
-                $('input[type=submit]', obj).removeAttr('disabled');
+                $j('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
-                errorElt.html($('<div/>').html(xhr.responseText).text());
+                errorElt.html($j('<div/>').html(xhr.responseText).text());
               } else {
                 // otherwise replace modal window by the returned text
-                $('#modal').html(xhr.responseText);
+                $j('#modal').html(xhr.responseText);
               }
             }
           }, ajax_options));
@@ -218,63 +219,67 @@ window.openModalWindow = function (url, options) {
   });
 })(jQuery);
 
-window.closeModalWindow = function () {
-  $('#modal').dialog('close');
+function closeModalWindow () {
+  $j('#modal').dialog('close');
   return false;
-};
+}
+
 
 
 /*
  * File Path
  */
 
-/**
- * Return a collapsed path without a file name
- * @example
- * // returns 'src/.../js/components/navigator/app/models/'
- * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
- * @param {string} path
- * @returns {string|null}
- */
-window.collapsedDirFromPath = function (path) {
-  var limit = 30;
-  if (typeof path === 'string') {
-    var tokens = _.initial(path.split('/'));
-    if (tokens.length > 2) {
-      var head = _.first(tokens),
-          tail = _.last(tokens),
-          middle = _.initial(_.rest(tokens)),
-          cut = false;
-      while (middle.join().length > limit && middle.length > 0) {
-        middle.shift();
-        cut = true;
+(function () {
+  /**
+   * Return a collapsed path without a file name
+   * @example
+   * // returns 'src/.../js/components/navigator/app/models/'
+   * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
+   * @param {string} path
+   * @returns {string|null}
+   */
+  window.collapsedDirFromPath = function (path) {
+    var limit = 30;
+    if (typeof path === 'string') {
+      var tokens = _.initial(path.split('/'));
+      if (tokens.length > 2) {
+        var head = _.first(tokens),
+            tail = _.last(tokens),
+            middle = _.initial(_.rest(tokens)),
+            cut = false;
+        while (middle.join().length > limit && middle.length > 0) {
+          middle.shift();
+          cut = true;
+        }
+        var body = [].concat(head, cut ? ['...'] : [], middle, tail);
+        return body.join('/') + '/';
+      } else {
+        return tokens.join('/') + '/';
       }
-      var body = [].concat(head, cut ? ['...'] : [], middle, tail);
-      return body.join('/') + '/';
     } else {
-      return tokens.join('/') + '/';
+      return null;
     }
-  } else {
-    return null;
-  }
-};
+  };
 
-/**
- * Return a file name for a given file path
- * * @example
- * // returns 'state.js'
- * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
- * @param {string} path
- * @returns {string|null}
- */
-window.fileFromPath = function (path) {
-  if (typeof path === 'string') {
-    var tokens = path.split('/');
-    return _.last(tokens);
-  } else {
-    return null;
-  }
-};
+  /**
+   * Return a file name for a given file path
+   * * @example
+   * // returns 'state.js'
+   * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
+   * @param {string} path
+   * @returns {string|null}
+   */
+  window.fileFromPath = function (path) {
+    if (typeof path === 'string') {
+      var tokens = path.split('/');
+      return _.last(tokens);
+    } else {
+      return null;
+    }
+  };
+})();
+
 
 
 /*
@@ -394,15 +399,15 @@ window.fileFromPath = function (path) {
   function formatDuration (isNegative, days, hours, minutes) {
     var formatted = '';
     if (shouldDisplayDays(days)) {
-      formatted += window.tp('work_duration.x_days', isNegative ? -1 * days : days);
+      formatted += tp('work_duration.x_days', isNegative ? -1 * days : days);
     }
     if (shouldDisplayHours(days, hours)) {
       formatted = addSpaceIfNeeded(formatted);
-      formatted += window.tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+      formatted += tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
     }
     if (shouldDisplayMinutes(days, hours, minutes)) {
       formatted = addSpaceIfNeeded(formatted);
-      formatted += window.tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+      formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
     }
     return formatted;
   }
@@ -419,18 +424,18 @@ window.fileFromPath = function (path) {
     var formatted = '';
     if (shouldDisplayDays(days)) {
       var formattedDays = window.formatMeasure(isNegative ? -1 * days : days, 'SHORT_INT');
-      formatted += window.tp('work_duration.x_days', formattedDays);
+      formatted += tp('work_duration.x_days', formattedDays);
     }
     if (shouldDisplayHoursInShortFormat(days, hours)) {
       formatted = addSpaceIfNeeded(formatted);
-      formatted += window.tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+      formatted += tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
     }
     if (shouldDisplayMinutesInShortFormat(days, hours, minutes)) {
       formatted = addSpaceIfNeeded(formatted);
-      formatted += window.tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+      formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
     }
     if (shouldDisplayAbout(days, hours, minutes)) {
-      formatted = window.tp('work_duration.about', formatted);
+      formatted = tp('work_duration.about', formatted);
     }
     return formatted;
   }
@@ -444,7 +449,7 @@ window.fileFromPath = function (path) {
     if (value === 0) {
       return '0';
     }
-    var hoursInDay = window.sonar.properties['sonar.technicalDebt.hoursInDay'],
+    var hoursInDay = window.SS.hoursInDay || 8,
         isNegative = value < 0,
         absValue = Math.abs(value);
     var days = Math.floor(absValue / hoursInDay / 60);
@@ -464,7 +469,7 @@ window.fileFromPath = function (path) {
     if (value === 0) {
       return '0';
     }
-    var hoursInDay = window.sonar.properties['sonar.technicalDebt.hoursInDay'],
+    var hoursInDay = window.SS.hoursInDay || 8,
         isNegative = value < 0,
         absValue = Math.abs(value);
     var days = Math.floor(absValue / hoursInDay / 60);
@@ -556,11 +561,12 @@ window.fileFromPath = function (path) {
 })();
 
 
+
 /*
  * Users
  */
 
-(function () {
+(function() {
 
   /**
    * Convert the result of api/users/search to select2 format
@@ -568,7 +574,7 @@ window.fileFromPath = function (path) {
   window.usersToSelect2 = function (response) {
     return {
       more: false,
-      results: _.map(response.users, function (user) {
+      results: _.map(response.users, function(user) {
         return {
           id: user.login,
           text: user.name + ' (' + user.login + ')'
@@ -578,6 +584,7 @@ window.fileFromPath = function (path) {
   };
 
 })();
+
 
 
 /*

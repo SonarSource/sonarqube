@@ -34,19 +34,20 @@
           return;
         }
 
-        window.widgets.push({
-          name: 'issue-filter',
-          options: {
-            el: '#<%= container_id -%>',
-            query: query,
-            distributionAxis: '<%= distribution_axis -%>',
-            displayMode: '<%= display_mode -%>',
-            <% if period_date %>
-            periodDate: '<%= period_date -%>',
-            <% end %>
-            componentUuid: '<%= @project.uuid -%>',
-            componentKey: '<%= @project.key -%>'
-          }
+        require(['widgets/issue-filter/widget'], function (IssueFilter) {
+          window.requestMessages().done(function () {
+            new IssueFilter({
+              el: '#<%= container_id -%>',
+              query: query,
+              distributionAxis: '<%= distribution_axis -%>',
+              displayMode: '<%= display_mode -%>',
+              <% if period_date %>
+              periodDate: '<%= period_date -%>',
+              <% end %>
+              componentUuid: '<%= @project.uuid -%>',
+              componentKey: '<%= @project.key -%>'
+            });
+          });
         });
       })();
     </script>

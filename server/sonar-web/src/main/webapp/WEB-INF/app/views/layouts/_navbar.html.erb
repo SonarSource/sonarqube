@@ -1,0 +1,29 @@
+<%= render 'layouts/recent_history' -%>
+
+<%
+   selected_section = controller.class::SECTION if defined?(controller.class::SECTION)
+   if selected_section == Navigation::SECTION_RESOURCE && !@project && !@resource
+     selected_section = Navigation::SECTION_HOME
+   end
+
+   @project = @resource unless @project || selected_section == Navigation::SECTION_HOME
+%>
+
+<script>
+  (function () {
+    var options = {};
+    <% if selected_section == Navigation::SECTION_RESOURCE %>
+    options.space = 'component';
+    options.componentKey = '<%= escape_javascript @project.key -%>';
+    <% end %>
+
+    <% if selected_section == Navigation::SECTION_CONFIGURATION %>
+    options.space = 'settings';
+    <% end %>
+
+    window.SS.isUserAdmin = <%= current_user && is_admin? ? 'true' : 'false' -%>;
+    require(['apps/nav/app'], function (App) {
+      App.start(options);
+    });
+  })();
+</script>

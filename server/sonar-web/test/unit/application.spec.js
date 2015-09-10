@@ -70,9 +70,7 @@ define(function (require) {
           'work_duration.x_minutes': '{0}min',
           'work_duration.about': '~ {0}'
         };
-        window.sonar = {};
-        window.sonar.properties = {};
-        window.sonar.properties['sonar.technicalDebt.hoursInDay'] = HOURS_IN_DAY;
+        window.SS = { hoursInDay: HOURS_IN_DAY };
       });
 
       bdd.describe('#formatMeasure()', function () {

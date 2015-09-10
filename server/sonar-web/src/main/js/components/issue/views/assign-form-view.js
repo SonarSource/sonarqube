@@ -123,7 +123,7 @@ define([
       if (this.assignees) {
         return this.assignees;
       }
-      var assignees = [{ id: '', text: window.t('unassigned') }],
+      var assignees = [{ id: '', text: t('unassigned') }],
           currentUser = window.SS.user,
           currentUserName = window.SS.userName;
       assignees.push({ id: currentUser, text: currentUserName });

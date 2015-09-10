@@ -1,9 +1,8 @@
 define([
-  'backbone.marionette',
   './gate',
   './details-view',
   './header-view'
-], function (Marionette, Gate, DetailsView, HeaderView) {
+], function (Gate, DetailsView, HeaderView) {
 
   return Marionette.Controller.extend({
 

@@ -3,6 +3,8 @@ define(function (require) {
   require('../helpers/test-page');
 
   bdd.describe('Source Viewer', function () {
+    var file = { uuid: 'uuid', key: 'key' };
+
     bdd.describe('Issues', function () {
       bdd.it('should show precise issue location', function () {
         return this.remote
@@ -12,7 +14,7 @@ define(function (require) {
             .mockFromFile('/api/issues/search',
             'source-viewer-spec/issues-with-precise-location.json',
             { data: { componentUuids: 'uuid' } })
-            .startApp('source-viewer/app')
+            .startApp('source-viewer', { file: file })
 
             .checkElementExist('.source-line-code[data-line-number="3"] .source-line-code-issue')
             .checkElementInclude('.source-line-code[data-line-number="3"] .source-line-code-issue', '14 So')
@@ -35,7 +37,7 @@ define(function (require) {
             .mockFromFile('/api/issues/search',
             'source-viewer-spec/issues-with-precise-location.json',
             { data: { componentUuids: 'uuid' } })
-            .startApp('source-viewer/app')
+            .startApp('source-viewer', { file: file })
             .checkElementExist('.source-line-code[data-line-number="3"] .source-line-code-issue')
             .checkElementInclude('.source-line-code[data-line-number="3"] .source-line-code-issue', '14 So')
             .clickElement('.source-line-with-issues[data-line-number="3"]')
@@ -54,7 +56,7 @@ define(function (require) {
             .mockFromFile('/api/issues/search',
             'source-viewer-spec/issues-with-precise-location.json',
             { data: { componentUuids: 'uuid' } })
-            .startApp('source-viewer/app')
+            .startApp('source-viewer', { file: file })
             .checkElementExist('.source-line-code[data-line-number="9"] .source-line-code-issue')
             .checkElementInclude('.source-line-code[data-line-number="9"] .source-line-code-issue', 'sion')
             .clickElement('.source-line-with-issues[data-line-number="9"]')

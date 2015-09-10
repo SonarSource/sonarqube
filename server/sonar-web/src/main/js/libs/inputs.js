@@ -9,9 +9,9 @@
     if (value === '0') {
       return 0;
     }
-    daysPattern = transformPattern(window.t('work_duration.x_days'));
-    hoursPattern = transformPattern(window.t('work_duration.x_hours'));
-    minutesPattern = transformPattern(window.t('work_duration.x_minutes'));
+    daysPattern = transformPattern(t('work_duration.x_days'));
+    hoursPattern = transformPattern(t('work_duration.x_hours'));
+    minutesPattern = transformPattern(t('work_duration.x_minutes'));
     days = value.match(daysPattern);
     hours = value.match(hoursPattern);
     minutes = value.match(minutesPattern);
@@ -21,7 +21,7 @@
     if (!value) {
       return value;
     } else {
-      return (days * window.sonar.properties['sonar.technicalDebt.hoursInDay'] + hours) * 60 + minutes;
+      return (days * window.SS.hoursInDay + hours) * 60 + minutes;
     }
   }
 
@@ -33,18 +33,18 @@
     if (!/^\d+$/.test(value)) {
       return value;
     }
-    days = Math.floor(value / (window.sonar.properties['sonar.technicalDebt.hoursInDay'] * 60));
-    hours = Math.floor((value - days * window.sonar.properties['sonar.technicalDebt.hoursInDay'] * 60) / 60);
+    days = Math.floor(value / (window.SS.hoursInDay * 60));
+    hours = Math.floor((value - days * window.SS.hoursInDay * 60) / 60);
     minutes = value % 60;
     result = [];
     if (days > 0) {
-      result.push(window.t('work_duration.x_days').replace('{0}', days));
+      result.push(t('work_duration.x_days').replace('{0}', days));
     }
     if (hours > 0) {
-      result.push(window.t('work_duration.x_hours').replace('{0}', hours));
+      result.push(t('work_duration.x_hours').replace('{0}', hours));
     }
     if (minutes > 0) {
-      result.push(window.t('work_duration.x_minutes').replace('{0}', minutes));
+      result.push(t('work_duration.x_minutes').replace('{0}', minutes));
     }
     return result.join(' ');
   }

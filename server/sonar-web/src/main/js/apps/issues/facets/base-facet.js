@@ -16,7 +16,7 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         state: this.options.app.state.toJSON()
       });
     }

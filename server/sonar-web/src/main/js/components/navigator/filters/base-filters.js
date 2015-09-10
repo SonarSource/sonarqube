@@ -1,9 +1,25 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 define([
-  'jquery',
-  'backbone',
-  'backbone.marionette',
   '../templates'
-], function ($, Backbone, Marionette) {
+], function () {
 
   var Filter = Backbone.Model.extend({
 
@@ -17,9 +33,11 @@ define([
   });
 
 
+
   var Filters = Backbone.Collection.extend({
     model: Filter
   });
+
 
 
   var DetailsFilterView = Marionette.ItemView.extend({
@@ -27,19 +45,18 @@ define([
     className: 'navigator-filter-details',
 
 
-    initialize: function () {
-      this.$el.on('click', function (e) {
+    initialize: function() {
+      this.$el.on('click', function(e) {
         e.stopPropagation();
       });
       this.$el.attr('id', 'filter-' + this.model.get('property'));
     },
 
 
-    onShow: function () {
-    },
-    onHide: function () {
-    }
+    onShow: function() {},
+    onHide: function() {}
   });
+
 
 
   var BaseFilterView = Marionette.ItemView.extend({
@@ -47,7 +64,7 @@ define([
     className: 'navigator-filter',
 
 
-    events: function () {
+    events: function() {
       return {
         'click': 'toggleDetails',
         'click .navigator-filter-disable': 'disable'
@@ -64,7 +81,7 @@ define([
     },
 
 
-    initialize: function (options) {
+    initialize: function(options) {
       Marionette.ItemView.prototype.initialize.apply(this, arguments);
 
       var detailsView = (options && options.detailsView) || DetailsFilterView;
@@ -77,12 +94,12 @@ define([
     },
 
 
-    attachDetailsView: function () {
-      this.detailsView.$el.detach().appendTo($('body'));
+    attachDetailsView: function() {
+      this.detailsView.$el.detach().appendTo($j('body'));
     },
 
 
-    render: function () {
+    render: function() {
       this.renderBase();
 
       this.attachDetailsView();
@@ -98,7 +115,7 @@ define([
     },
 
 
-    renderBase: function () {
+    renderBase: function() {
       Marionette.ItemView.prototype.render.apply(this, arguments);
       this.renderInput();
 
@@ -108,16 +125,15 @@ define([
     },
 
 
-    renderInput: function () {
-    },
+    renderInput: function() {},
 
 
-    focus: function () {
+    focus: function() {
       this.render();
     },
 
 
-    toggleDetails: function (e) {
+    toggleDetails: function(e) {
       e.stopPropagation();
       this.options.filterBarView.selected = this.options.filterBarView.getEnabledFilters().index(this.$el);
       if (this.$el.hasClass('active')) {
@@ -130,7 +146,7 @@ define([
     },
 
 
-    showDetails: function () {
+    showDetails: function() {
       this.registerShowedDetails();
 
       var top = this.$el.offset().top + this.$el.outerHeight() - 1,
@@ -142,35 +158,35 @@ define([
     },
 
 
-    registerShowedDetails: function () {
+    registerShowedDetails: function() {
       this.options.filterBarView.hideDetails();
       this.options.filterBarView.showedView = this;
     },
 
 
-    hideDetails: function () {
+    hideDetails: function() {
       this.detailsView.$el.removeClass('active');
       this.$el.removeClass('active');
       this.detailsView.onHide();
     },
 
 
-    isActive: function () {
+    isActive: function() {
       return this.$el.is('.active');
     },
 
 
-    renderValue: function () {
+    renderValue: function() {
       return this.model.get('value') || 'unset';
     },
 
 
-    isDefaultValue: function () {
+    isDefaultValue: function() {
       return true;
     },
 
 
-    restoreFromQuery: function (q) {
+    restoreFromQuery: function(q) {
       var param = _.findWhere(q, { key: this.model.get('property') });
       if (param && param.value) {
         this.model.set('enabled', true);
@@ -181,18 +197,18 @@ define([
     },
 
 
-    restore: function (value) {
+    restore: function(value) {
       this.model.set({ value: value }, { silent: true });
       this.renderBase();
     },
 
 
-    clear: function () {
+    clear: function() {
       this.model.unset('value');
     },
 
 
-    disable: function (e) {
+    disable: function(e) {
       e.stopPropagation();
       this.hideDetails();
       this.options.filterBarView.hideDetails();
@@ -203,7 +219,7 @@ define([
     },
 
 
-    formatValue: function () {
+    formatValue: function() {
       var q = {};
       if (this.model.has('property') && this.model.has('value') && this.model.get('value')) {
         q[this.model.get('property')] = this.model.get('value');
@@ -212,7 +228,7 @@ define([
     },
 
 
-    serializeData: function () {
+    serializeData: function() {
       return _.extend({}, this.model.toJSON(), {
         value: this.renderValue(),
         defaultValue: this.isDefaultValue()
@@ -220,6 +236,7 @@ define([
     }
 
   });
+
 
 
   /*

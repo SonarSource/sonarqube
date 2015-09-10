@@ -19,9 +19,8 @@
  */
 define([
   'components/common/modal-form',
-  '../../../libs/csv',
   '../templates'
-], function (ModalFormView, csvEscape) {
+], function (ModalFormView) {
 
   var $ = jQuery;
 
@@ -129,7 +128,7 @@ define([
         };
       }).get();
       options.params = params.map(function (param) {
-        return param.key + '=' + csvEscape(param.value);
+        return param.key + '=' + window.csvEscape(param.value);
       }).join(';');
       this.sendRequest(action, options);
     },
@@ -173,7 +172,7 @@ define([
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;
-          that.showErrors([], [{ msg: window.t('coding_rules.reactivate.help') }]);
+          that.showErrors([], [{ msg: t('coding_rules.reactivate.help') }]);
           that.ui.customRuleCreationCreate.addClass('hidden');
           that.ui.customRuleCreationReactivate.removeClass('hidden');
         } else {
@@ -195,7 +194,7 @@ define([
       var statuses = ['READY', 'BETA', 'DEPRECATED'].map(function (status) {
         return {
           id: status,
-          text: window.t('rules.status', status.toLowerCase())
+          text: t('rules.status', status.toLowerCase())
         };
       });
 

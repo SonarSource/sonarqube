@@ -1,13 +1,12 @@
 define([
-  'backbone',
   './project'
-], function (Backbone, Project) {
+], function (Project) {
 
   return Backbone.Collection.extend({
     model: Project,
 
     url: function () {
-      return window.baseUrl + '/api/projects/provisioned';
+      return baseUrl + '/api/projects/provisioned';
     },
 
     parse: function (r) {
@@ -20,7 +19,7 @@ define([
     fetch: function (options) {
       var d = (options && options.data) || {};
       this.q = d.q;
-      return Backbone.Collection.prototype.fetch.apply(this, arguments);
+      return this._super(options);
     },
 
     fetchMore: function () {

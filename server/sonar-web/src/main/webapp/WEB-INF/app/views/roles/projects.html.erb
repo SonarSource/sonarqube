@@ -1,0 +1,7 @@
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/project-permissions/app'], function (App) {
+      App.start({ el: '#content' });
+    });
+  </script>
+<% end %>

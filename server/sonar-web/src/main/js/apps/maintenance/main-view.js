@@ -1,8 +1,6 @@
 define([
-  'backbone',
-  'backbone.marionette',
   './templates'
-], function (Backbone, Marionette) {
+], function () {
 
   var $ = jQuery;
 
@@ -17,7 +15,7 @@ define([
       var that = this;
       this.requestOptions = {
         type: 'GET',
-        url: window.baseUrl + '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
+        url: baseUrl + '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
       };
       setInterval(function () {
         that.refresh();
@@ -57,9 +55,7 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-        setup: this.options.setup
-      });
+      return _.extend(this._super(), { setup: this.options.setup });
     }
   });
 

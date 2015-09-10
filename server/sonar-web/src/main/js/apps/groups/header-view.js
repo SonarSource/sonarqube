@@ -1,8 +1,7 @@
 define([
-  'backbone.marionette',
   './create-view',
   './templates'
-], function (Marionette, CreateView) {
+], function (CreateView) {
 
   return Marionette.ItemView.extend({
     template: Templates['groups-header'],

@@ -3,7 +3,7 @@ define([
 ], function (ChangePasswordView) {
 
   var $ = jQuery;
-  var shouldShowAvatars = window.sonar.properties['sonar.lf.enableGravatar'];
+  var shouldShowAvatars = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
   var favorites = $('.js-account-favorites tr');
 
   function showExtraFavorites () {

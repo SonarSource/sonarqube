@@ -1,0 +1,7 @@
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/custom-measures/app'], function (App) {
+      App.start({ el: '#content', projectId: '<%= @resource.uuid -%>' });
+    });
+  </script>
+<% end %>

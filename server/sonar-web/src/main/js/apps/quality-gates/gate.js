@@ -1,6 +1,4 @@
-define([
-  'backbone'
-], function (Backbone) {
+define(function () {
 
   return Backbone.Model.extend({
 
@@ -9,7 +7,7 @@ define([
     },
 
     url: function () {
-      return window.baseUrl + '/api/qualitygates';
+      return baseUrl + '/api/qualitygates';
     },
 
     showUrl: function () {

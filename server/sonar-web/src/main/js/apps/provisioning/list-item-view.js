@@ -1,8 +1,7 @@
 define([
-  'backbone.marionette',
   './delete-view',
   './templates'
-], function (Marionette, DeleteView) {
+], function (DeleteView) {
 
   return Marionette.ItemView.extend({
     tagName: 'li',

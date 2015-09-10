@@ -1,25 +1,6 @@
-<%
-   selected_section = nil
-   selected_section = controller.class::SECTION if defined?(controller.class::SECTION)
-   if selected_section == Navigation::SECTION_RESOURCE && !@project && !@resource
-     selected_section = Navigation::SECTION_HOME
-   end
-   component = @project
-   component = @resource unless @project || selected_section == Navigation::SECTION_HOME
-
-   space = 'global'
-   if selected_section == Navigation::SECTION_RESOURCE
-     space = 'component'
-   elsif selected_section == Navigation::SECTION_CONFIGURATION
-     space = 'settings'
-   end
-%>
-
 <!DOCTYPE html>
-<!--[if IE 9 ]>
-<html class="ie9"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!-->
-<html> <!--<![endif]-->
+<!--[if IE 9 ]> <html class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html> <!--<![endif]-->
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -41,44 +22,39 @@
   <%= yield :style -%>
 
   <script>
-    window.pageLang = '<%= I18n.locale.to_s.gsub(/-/, '_') -%>';
-    window.baseUrl = '<%= ApplicationController.root_context -%>';
-
-    window.sonar = {};
-    window.sonar.version = '<%= escape_javascript sonar_version -%>';
-    window.sonar.space = '<%= escape_javascript space -%>';
-    <% if component -%>
-    window.sonar.component = '<%= escape_javascript component.key -%>';
-    <% end %>
-    window.sonar.properties = {
-      'sonar.technicalDebt.hoursInDay': <%= escape_javascript configuration('sonar.technicalDebt.hoursInDay', 8) %>,
-      'sonar.lf.enableGravatar': <%= escape_javascript configuration('sonar.lf.enableGravatar', true) %>,
-      'sonar.lf.gravatarServerUrl': '<%= escape_javascript configuration('sonar.lf.gravatarServerUrl') %>',
-      'sonar.updatecenter.activate': <%= escape_javascript configuration('sonar.updatecenter.activate', true) %>
-    };
-
+    var pageLang = '<%= I18n.locale.to_s.gsub(/-/, '_') -%>';
+    <%# The two lines below mean that before full removal of Rails, we have to find a way to handle config properties %>
     window.SS = {
+      hoursInDay: <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>,
       user: '<%= current_user.login if current_user -%>',
       userName: '<%= current_user.name if current_user -%>',
       userEmail: '<%= current_user.email if current_user -%>',
-      isUserAdmin: <%= current_user && is_admin? ? 'true' : 'false' -%>
+      lf: {
+        enableGravatar: <%= configuration('sonar.lf.enableGravatar', true) %>,
+        gravatarServerUrl: '<%= configuration('sonar.lf.gravatarServerUrl') %>'
+      },
+      updateCenterActive: <%= configuration('sonar.updatecenter.activate', true) %>
     };
   </script>
-
   <script src="<%= ApplicationController.root_context -%>/js/sonar.js?v=<%= sonar_version -%>"></script>
-
   <script>
-    require([window.baseUrl + '/js/main.js']);
-  </script>
-
-  <script>
-    <%# we should get rid of this $j ASAP %>
-    window.$j = window.jQuery;
-    $(function () {
-      $('.open-modal').modal();
+    var baseUrl = '<%= ApplicationController.root_context -%>';
+    var $j = jQuery.noConflict();
+    $j(document).ready(function () {$j('.open-modal').modal()});
+    moment.lang(window.pageLang);
+    numeral.language(window.pageLang);
+    requirejs.config({
+      baseUrl: baseUrl + '/js',
+      urlArgs: 'v=<%= sonar_version -%>',
+      paths: {
+        'react': 'libs/third-party/react-with-addons',
+        'underscore': 'libs/third-party/shim/underscore-shim',
+        'jquery': 'libs/third-party/shim/jquery-shim',
+        'backbone': 'libs/third-party/shim/backbone-shim',
+        'backbone.marionette': 'libs/third-party/shim/marionette-shim'
+      }
     });
   </script>
-
   <%= yield :script -%>
 </head>
 <body>

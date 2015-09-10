@@ -8,7 +8,7 @@ define([
       keepFields.forEach(function (field) {
         attrs[field] = this.get(field);
       }.bind(this));
-      Issue.prototype.reset.call(this, attrs, options);
+      return this._super(attrs, options);
     }
   });
 

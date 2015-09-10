@@ -1,6 +1,5 @@
 import React from 'react';
 import Avatar from 'components/shared/avatar';
-import RecentHistory from '../../../libs/recent-history';
 
 export default React.createClass({
   renderAuthenticated() {
@@ -39,7 +38,9 @@ export default React.createClass({
 
   handleLogout(e) {
     e.preventDefault();
-    RecentHistory.clear();
+    if (window.sonarRecentHistory) {
+      window.sonarRecentHistory.clear();
+    }
     const logoutUrl = `${window.baseUrl}/sessions/logout`;
     window.location = logoutUrl;
   },

@@ -1,7 +1,6 @@
 define([
-  'backbone.marionette',
   './templates'
-], function (Marionette) {
+], function () {
 
   return Marionette.ItemView.extend({
     tagName: 'tr',

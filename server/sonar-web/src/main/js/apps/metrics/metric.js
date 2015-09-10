@@ -1,12 +1,10 @@
-define([
-  'backbone'
-], function (Backbone) {
+define(function () {
 
   return Backbone.Model.extend({
     idAttribute: 'id',
 
     urlRoot: function () {
-      return window.baseUrl + '/api/metrics';
+      return baseUrl + '/api/metrics';
     },
 
     sync: function (method, model, options) {

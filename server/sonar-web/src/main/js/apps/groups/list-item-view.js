@@ -1,10 +1,9 @@
 define([
-  'backbone.marionette',
   './update-view',
   './delete-view',
   './users-view',
   './templates'
-], function (Marionette, UpdateView, DeleteView, UsersView) {
+], function (UpdateView, DeleteView, UsersView) {
 
   var $ = jQuery;
 

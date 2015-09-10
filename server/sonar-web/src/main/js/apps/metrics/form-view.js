@@ -10,7 +10,7 @@ define([
 
     onRender: function () {
       var that = this;
-      ModalForm.prototype.onRender.apply(this, arguments);
+      this._super();
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
       this.$('#create-metric-domain').select2({
         width: '250px',
@@ -36,17 +36,17 @@ define([
     },
 
     onDestroy: function () {
-      ModalForm.prototype.onDestroy.apply(this, arguments);
+      this._super();
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
-    onFormSubmit: function () {
-      ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    onFormSubmit: function (e) {
+      this._super(e);
       this.sendRequest();
     },
 
     serializeData: function () {
-      return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         domains: this.options.domains,
         types: this.options.types
       });

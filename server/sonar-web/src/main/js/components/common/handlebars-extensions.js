@@ -20,17 +20,16 @@
 (function () {
   Handlebars.registerHelper('log', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
-    /* eslint no-console: 0 */
     console.log.apply(console, args);
   });
 
   Handlebars.registerHelper('link', function () {
     var url = Array.prototype.slice.call(arguments, 0, -1).join('');
-    return window.baseUrl + url;
+    return baseUrl + url;
   });
 
   Handlebars.registerHelper('componentPermalink', function (componentKey) {
-    return window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(componentKey);
+    return baseUrl + '/dashboard/index?id=' + encodeURIComponent(componentKey);
   });
 
   Handlebars.registerHelper('componentOverviewPermalink', function (componentKey) {
@@ -45,7 +44,7 @@
 
     var matchPeriod = window.location.search.match(/period=(\d+)/);
     if (matchPeriod) {
-      // If we have a match for period, check that it is not project-specific
+       // If we have a match for period, check that it is not project-specific
       var period = parseInt(matchPeriod[1], 10);
       if (period <= 3) {
         params.push({ key: 'period', value: period });
@@ -91,7 +90,7 @@
 
   Handlebars.registerHelper('severityHelper', function (severity) {
     return new Handlebars.SafeString(
-        '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + window.t('severity', severity)
+        '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + t('severity', severity)
     );
   });
 
@@ -102,9 +101,9 @@
   });
 
   Handlebars.registerHelper('statusHelper', function (status, resolution) {
-    var s = '<i class="icon-status-' + status.toLowerCase() + '"></i>&nbsp;' + window.t('issue.status', status);
+    var s = '<i class="icon-status-' + status.toLowerCase() + '"></i>&nbsp;' + t('issue.status', status);
     if (resolution != null) {
-      s = s + '&nbsp;(' + window.t('issue.resolution', resolution) + ')';
+      s = s + '&nbsp;(' + t('issue.resolution', resolution) + ')';
     }
     return new Handlebars.SafeString(s);
   });
@@ -199,12 +198,12 @@
   });
 
   Handlebars.registerHelper('eq', function (v1, v2, options) {
-    /* eslint eqeqeq: 0 */
+    // use `==` instead of `===` to ignore types
     return v1 == v2 ? options.fn(this) : options.inverse(this);
   });
 
   Handlebars.registerHelper('notEq', function (v1, v2, options) {
-    /* eslint eqeqeq: 0 */
+    // use `==` instead of `===` to ignore types
     return v1 != v2 ? options.fn(this) : options.inverse(this);
   });
 
@@ -316,7 +315,7 @@
     return ret;
   });
 
-  Handlebars.registerHelper('sum', function () {
+  Handlebars.registerHelper('sum', function (a, b) {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     return args.reduce(function (p, c) {
       return p + +c;
@@ -407,7 +406,6 @@
   Handlebars.registerHelper('recursive', function (children, options) {
     var out = '';
 
-    /* eslint no-undefined: 0 */
     if (options.fn !== undefined) {
       audaciousFn = options.fn;
     }
@@ -449,13 +447,13 @@
   Handlebars.registerHelper('changelog', function (diff) {
     var message = '';
     if (diff.newValue != null) {
-      message = window.tp('issue.changelog.changed_to', window.t('issue.changelog.field', diff.key), diff.newValue);
+      message = tp('issue.changelog.changed_to', t('issue.changelog.field', diff.key), diff.newValue);
     } else {
-      message = window.tp('issue.changelog.removed', window.t('issue.changelog.field', diff.key));
+      message = tp('issue.changelog.removed', t('issue.changelog.field', diff.key));
     }
     if (diff.oldValue != null) {
       message += ' (';
-      message += window.tp('issue.changelog.was', diff.oldValue);
+      message += tp('issue.changelog.was', diff.oldValue);
       message += ')';
     }
     return message;
@@ -567,14 +565,14 @@
   });
 
   Handlebars.registerHelper('ifShowAvatars', function (options) {
-    var cond = window.sonar.properties['sonar.lf.enableGravatar'];
+    var cond = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
     return cond ? options.fn(this) : options.inverse(this);
   });
 
   Handlebars.registerHelper('avatarHelper', function (email, size) {
     // double the size for high pixel density screens
     var emailHash = window.md5((email || '').trim()),
-        url = ('' + window.sonar.properties['sonar.lf.gravatarServerUrl'])
+        url = ('' + window.SS.lf.gravatarServerUrl)
             .replace('{EMAIL_MD5}', emailHash)
             .replace('{SIZE}', size * 2);
     return new Handlebars.SafeString(

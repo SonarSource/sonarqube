@@ -1,8 +1,7 @@
 define([
-  'backbone.marionette',
   './list-item-view',
   './templates'
-], function (Marionette, ListItemView) {
+], function (ListItemView) {
 
   return Marionette.CollectionView.extend({
     tagName: 'ul',

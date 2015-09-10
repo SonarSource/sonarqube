@@ -6,8 +6,8 @@ define([
   return ModalForm.extend({
     template: Templates['groups-delete'],
 
-    onFormSubmit: function () {
-      ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    onFormSubmit: function (e) {
+      this._super(e);
       this.sendRequest();
     },
 
@@ -28,10 +28,10 @@ define([
       });
     },
 
-    showErrors: function () {
+    showErrors: function (errors, warnings) {
       this.$('.js-modal-text').addClass('hidden');
       this.disableForm();
-      ModalForm.prototype.showErrors.apply(this, arguments);
+      this._super(errors, warnings);
     }
   });
 

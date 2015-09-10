@@ -1,0 +1,7 @@
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/update-center/app'], function (App) {
+      App.start({ el: '#content', urlRoot: baseUrl + '/updatecenter' });
+    });
+  </script>
+<% end %>

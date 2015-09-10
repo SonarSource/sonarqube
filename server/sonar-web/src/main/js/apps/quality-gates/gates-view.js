@@ -1,8 +1,7 @@
 define([
-  'backbone.marionette',
   './gate-view',
   './templates'
-], function (Marionette, ItemView) {
+], function (ItemView) {
 
   return Marionette.CompositeView.extend({
     className: 'list-group',

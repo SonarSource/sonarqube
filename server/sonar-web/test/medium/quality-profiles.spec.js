@@ -6,10 +6,11 @@ define(function (require) {
     bdd.it('should show list', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .checkElementCount('.js-list .list-group-item', 5)
           .checkElementInclude('.js-list .list-group-item', 'Sonar way')
@@ -25,10 +26,11 @@ define(function (require) {
     bdd.it('should filter list by language', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .checkElementCount('.js-list .list-group-item', 5)
           .checkElementExist('.js-list .list-group-item[data-key="java-sonar-way-67887"]:not(.hidden)')
@@ -54,6 +56,7 @@ define(function (require) {
     bdd.it('should show details', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
@@ -61,7 +64,34 @@ define(function (require) {
           { data: { qprofile: 'java-sonar-way-67887', activation: 'true' } })
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json',
           { data: { profileKey: 'java-sonar-way-67887' } })
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
+          .checkElementExist('.js-list .list-group-item')
+          .clickElement('.js-list .list-group-item[data-key="java-sonar-way-67887"]')
+          .checkElementExist('.search-navigator-header-component')
+          .checkElementCount('.js-list .list-group-item.active', 1)
+          .checkElementInclude('.js-list .list-group-item.active', 'Sonar way')
+          .checkElementInclude('.search-navigator-workspace-header', 'Sonar way')
+          .checkElementInclude('.search-navigator-workspace-header', 'Java')
+          .checkElementExist('#quality-profile-backup')
+          .checkElementNotExist('#quality-profile-rename')
+          .checkElementNotExist('#quality-profile-copy')
+          .checkElementNotExist('#quality-profile-delete')
+          .checkElementNotExist('#quality-profile-set-as-default')
+          .checkElementNotExist('#quality-profile-change-parent');
+    });
+
+    bdd.it('should show details for admin', function () {
+      return this.remote
+          .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
+          .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
+          .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
+          .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
+          .mockFromFile('/api/rules/search', 'quality-profiles/rules.json',
+          { data: { qprofile: 'java-sonar-way-67887', activation: 'true' } })
+          .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json',
+          { data: { profileKey: 'java-sonar-way-67887' } })
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .clickElement('.js-list .list-group-item[data-key="java-sonar-way-67887"]')
           .checkElementExist('.search-navigator-header-component')
@@ -80,6 +110,7 @@ define(function (require) {
     bdd.it('should show inheritance details', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search-inheritance.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
@@ -87,7 +118,7 @@ define(function (require) {
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance-plus.json', {
             data: { profileKey: 'java-inherited-profile-85155' }
           })
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .clickElement('.js-list .list-group-item[data-key="java-inherited-profile-85155"]')
           .checkElementExist('.search-navigator-header-component')
@@ -106,13 +137,14 @@ define(function (require) {
     bdd.it('should show selected projects', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/projects?key=php-psr-2-46772', 'quality-profiles/projects.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .clickElement('.js-list .list-group-item[data-key="php-psr-2-46772"]')
           .checkElementExist('#quality-profile-projects')
@@ -124,13 +156,14 @@ define(function (require) {
     bdd.it('should move between profiles', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search-inheritance.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json',
           { data: { qprofile: 'java-inherited-profile-85155', activation: 'true' } })
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance-plus.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .clickElement('.js-list .list-group-item[data-key="java-inherited-profile-85155"]')
           .checkElementExist('#quality-profile-ancestors')
@@ -146,6 +179,7 @@ define(function (require) {
     bdd.it('should copy profile', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
@@ -154,7 +188,7 @@ define(function (require) {
           .mockFromFile('/api/qualityprofiles/copy', 'quality-profiles/copy.json', {
             data: { fromKey: 'java-sonar-way-67887', toName: 'Copied Profile' }
           })
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .checkElementCount('.js-list .list-group-item', 5)
           .clickElement('.js-list .list-group-item[data-key="java-sonar-way-67887"]')
@@ -172,12 +206,13 @@ define(function (require) {
     bdd.it('should rename profile', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .clickElement('.js-list .list-group-item[data-key="java-sonar-way-67887"]')
           .checkElementExist('#quality-profile-rename')
@@ -197,12 +232,13 @@ define(function (require) {
     bdd.it('should make profile default', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .checkElementNotExist('.js-list .list-group-item[data-key="php-psr-2-46772"] .badge')
           .checkElementExist('.js-list .list-group-item[data-key="php-sonar-way-10778"] .badge')
@@ -222,12 +258,13 @@ define(function (require) {
     bdd.it('should delete profile', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search-with-copy.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .checkElementCount('.js-list .list-group-item', 6)
           .clickElement('.js-list .list-group-item[data-key="java-copied-profile-11711"]')
@@ -247,13 +284,14 @@ define(function (require) {
     bdd.it('should create profile', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/qualityprofiles/importers', 'quality-profiles/importers-empty.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .checkElementCount('.js-list .list-group-item', 5)
           .clickElement('#quality-profiles-create')
@@ -265,12 +303,13 @@ define(function (require) {
     bdd.it('should restore profile', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .checkElementCount('.js-list .list-group-item', 5)
           .clickElement('#quality-profiles-actions')
@@ -282,13 +321,14 @@ define(function (require) {
     bdd.it('should show importers', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/qualityprofiles/importers', 'quality-profiles/importers.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .clickElement('#quality-profiles-create')
           .checkElementExist('.modal')
@@ -307,12 +347,13 @@ define(function (require) {
     bdd.it('should restore built-in profiles', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search-modified.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .checkElementCount('.js-list .list-group-item', 1)
           .clickElement('#quality-profiles-actions')
@@ -331,12 +372,13 @@ define(function (require) {
     bdd.it('should change profile\'s parent', function () {
       return this.remote
           .open()
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search-change-parent.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance-change-parent.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
           .clickElement('.js-list .list-group-item[data-key="java-inherited-profile-85155"]')
           .checkElementExist('#quality-profile-change-parent')
@@ -359,12 +401,13 @@ define(function (require) {
     bdd.it('should open permalink', function () {
       return this.remote
           .open('#show?key=java-sonar-way-67887')
+          .mockFromFile('/api/users/current', 'quality-profiles/user-admin.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .mockFromFile('/api/rules/search', 'quality-profiles/rules.json')
           .mockFromFile('/api/qualityprofiles/inheritance', 'quality-profiles/inheritance.json')
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('#quality-profile-rename')
           .checkElementCount('.js-list .list-group-item.active', 1)
           .checkElementInclude('.js-list .list-group-item.active', 'Sonar way')
@@ -380,6 +423,7 @@ define(function (require) {
     bdd.it('should show changelog', function () {
       return this.remote
           .open('#show?key=java-sonar-way-67887')
+          .mockFromFile('/api/users/current', 'quality-profiles/user.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
@@ -388,7 +432,7 @@ define(function (require) {
           .mockFromFile('/api/qualityprofiles/changelog', 'quality-profiles/changelog.json', {
             data: { profileKey: 'java-sonar-way-67887' }
           })
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('#quality-profile-changelog-form-submit')
           .checkElementNotExist('.js-show-more-changelog')
           .clickElement('#quality-profile-changelog-form-submit')
@@ -426,6 +470,7 @@ define(function (require) {
     bdd.it('should open changelog permalink', function () {
       return this.remote
           .open('#changelog?since=2015-03-25&key=java-sonar-way-67887&to=2015-03-26')
+          .mockFromFile('/api/users/current', 'quality-profiles/user.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
@@ -438,7 +483,7 @@ define(function (require) {
               profileKey: 'java-sonar-way-67887'
             }
           })
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-show-more-changelog')
           .checkElementCount('#quality-profile-changelog tbody tr', 2)
           .clearMocks()
@@ -457,6 +502,7 @@ define(function (require) {
     bdd.it('should show comparison', function () {
       return this.remote
           .open('#show?key=java-sonar-way-67887')
+          .mockFromFile('/api/users/current', 'quality-profiles/user.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search-with-copy.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
@@ -465,7 +511,7 @@ define(function (require) {
           .mockFromFile('/api/qualityprofiles/compare', 'quality-profiles/compare.json', {
             data: { leftKey: 'java-sonar-way-67887', rightKey: 'java-copied-profile-11711' }
           })
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('#quality-profile-comparison-form-submit')
           .checkElementCount('#quality-profile-comparison-with-key option', 1)
           .clickElement('#quality-profile-comparison-form-submit')
@@ -486,6 +532,7 @@ define(function (require) {
     bdd.it('should open comparison permalink', function () {
       return this.remote
           .open('#compare?key=java-sonar-way-67887&withKey=java-copied-profile-11711')
+          .mockFromFile('/api/users/current', 'quality-profiles/user.json')
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search-with-copy.json')
           .mockFromFile('/api/qualityprofiles/exporters', 'quality-profiles/exporters.json')
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
@@ -494,7 +541,7 @@ define(function (require) {
           .mockFromFile('/api/qualityprofiles/compare', 'quality-profiles/compare.json', {
             data: { leftKey: 'java-sonar-way-67887', rightKey: 'java-copied-profile-11711' }
           })
-          .startApp('quality-profiles/app')
+          .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('#quality-profile-comparison table')
           .checkElementCount('#quality-profile-comparison-with-key option', 1)
           .checkElementCount('.js-comparison-in-left', 2)

@@ -24,7 +24,7 @@ define([
     },
 
     onDestroy: function () {
-      WorkspaceHeaderView.prototype.onDestroy.apply(this, arguments);
+      this._super();
       window.onBulkIssues = this._onBulkIssues;
     },
 
@@ -51,7 +51,7 @@ define([
 
     render: function () {
       if (!this._suppressUpdate) {
-        WorkspaceHeaderView.prototype.render.apply(this, arguments);
+        this._super();
       }
     },
 
@@ -105,7 +105,7 @@ define([
           selectedCount = this.options.app.list.where({ selected: true }).length,
           allSelected = issuesCount > 0 && issuesCount === selectedCount,
           someSelected = !allSelected && selectedCount > 0;
-      return _.extend(WorkspaceHeaderView.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         selectedCount: selectedCount,
         allSelected: allSelected,
         someSelected: someSelected

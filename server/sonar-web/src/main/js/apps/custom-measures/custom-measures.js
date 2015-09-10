@@ -1,7 +1,6 @@
 define([
-  'backbone',
   './custom-measure'
-], function (Backbone, CustomMeasure) {
+], function (CustomMeasure) {
 
   return Backbone.Collection.extend({
     model: CustomMeasure,
@@ -11,7 +10,7 @@ define([
     },
 
     url: function () {
-      return window.baseUrl + '/api/custom_measures/search';
+      return baseUrl + '/api/custom_measures/search';
     },
 
     parse: function (r) {
@@ -25,7 +24,7 @@ define([
       var opts = _.defaults(options || {}, { data: {} });
       this.q = opts.data.q;
       opts.data.projectId = this.projectId;
-      return Backbone.Collection.prototype.fetch.call(this, opts);
+      return this._super(opts);
     },
 
     fetchMore: function () {

@@ -32,7 +32,7 @@ define([
     },
 
     getActionPlans: function () {
-      return [{ key: '', name: window.t('issue.unplanned') }].concat(this.collection.toJSON());
+      return [{ key: '', name: t('issue.unplanned') }].concat(this.collection.toJSON());
     },
 
     serializeData: function () {

@@ -39,7 +39,12 @@ class DashboardController < ApplicationController
       if !@resource || !@snapshot
         redirect_if_bad_component()
       else
-        return redirect_to :controller => 'component', :action => 'index', :id => @resource.key
+        # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
+        @hide_sidebar = true
+        @file = @resource
+        @project = @snapshot.parent.project
+        @metric=params[:metric]
+        render :action => 'no_dashboard'
       end
     end
   end

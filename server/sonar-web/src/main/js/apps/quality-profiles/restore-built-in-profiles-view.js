@@ -27,7 +27,7 @@ define([
   return ModalFormView.extend({
     template: Templates['quality-profiles-restore-built-in-profiles'],
 
-    onFormSubmit: function () {
+    onFormSubmit: function (e) {
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
       this.disableForm();
       this.sendRequest();

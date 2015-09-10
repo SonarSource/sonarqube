@@ -1,8 +1,6 @@
 define([
-  'backbone',
-  'backbone.marionette',
   './main-view'
-], function (Backbone, Marionette, MainView) {
+], function (MainView) {
 
   var App = new Marionette.Application();
 

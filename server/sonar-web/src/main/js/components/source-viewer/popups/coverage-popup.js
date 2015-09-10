@@ -20,7 +20,6 @@
 define([
   'components/common/popup',
   'components/workspace/main',
-  '../../../components/common/jquery-isolated-scroll',
   '../templates'
 ], function (Popup, Workspace) {
 

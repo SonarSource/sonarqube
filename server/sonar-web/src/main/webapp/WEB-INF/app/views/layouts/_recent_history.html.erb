@@ -1,0 +1,9 @@
+<script>
+  var sonarRecentHistory = new Sonar.RecentHistory();
+  <% if @resource && Project.root_qualifiers.include?(@resource.qualifier) %>
+  sonarRecentHistory.add(
+      '<%= escape_javascript(h(@resource.key)) -%>',
+      '<%= escape_javascript(h(@resource.name)) -%>',
+      '<%= escape_javascript @resource.qualifier.downcase -%>');
+  <% end %>
+</script>
