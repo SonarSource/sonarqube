@@ -14,7 +14,7 @@ define([
     },
 
     fetch: function (options) {
-      var opts = _.defaults(options || {}, { q: this.q }, { q: 'history' });
+      var opts = _.defaults(options || {}, { q: this.q }, { q: 'history', data: { ps: 250 } });
       opts.url = baseUrl + '/api/computation/' + opts.q;
       this.q = opts.q;
       return Backbone.Collection.prototype.fetch.call(this, opts);
