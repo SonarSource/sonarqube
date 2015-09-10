@@ -19,28 +19,27 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.Nonnull;
-
-import org.sonar.api.utils.HttpDownloader;
 import com.google.common.io.ByteSource;
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.sonar.batch.cache.WSLoader.ServerStatus.*;
+import javax.annotation.Nonnull;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.home.cache.PersistentCache;
+
+import static org.sonar.batch.cache.WSLoader.ServerStatus.ACCESSIBLE;
+import static org.sonar.batch.cache.WSLoader.ServerStatus.NOT_ACCESSIBLE;
+import static org.sonar.batch.cache.WSLoader.ServerStatus.UNKNOWN;
 
 public class WSLoader {
   private static final Logger LOG = Loggers.get(WSLoader.class);
   private static final String FAIL_MSG = "Server is not accessible and data is not cached";
-  private static final int CONNECT_TIMEOUT = 5000;
-  private static final int READ_TIMEOUT = 10000;
+  private static final int CONNECT_TIMEOUT = 5_000;
+  private static final int READ_TIMEOUT = 600_000;
   private static final String REQUEST_METHOD = "GET";
 
   public enum ServerStatus {
@@ -73,6 +72,7 @@ public class WSLoader {
   public WSLoaderResult<String> loadString(String id) {
     return loadString(id, defautLoadStrategy);
   }
+
   @Nonnull
   public WSLoaderResult<String> loadString(String id, WSLoader.LoadStrategy strategy) {
     WSLoaderResult<byte[]> byteResult = load(id, strategy);
@@ -83,7 +83,7 @@ public class WSLoader {
   public WSLoaderResult<byte[]> load(String id) {
     return load(id, defautLoadStrategy);
   }
-  
+
   @Nonnull
   public WSLoaderResult<byte[]> load(String id, WSLoader.LoadStrategy strategy) {
     switch (strategy) {
