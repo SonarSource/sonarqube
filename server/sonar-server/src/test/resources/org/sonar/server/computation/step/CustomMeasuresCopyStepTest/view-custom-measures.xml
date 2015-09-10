@@ -1,0 +1,22 @@
+<dataset>
+  <manual_measures id="1"
+                   metric_id="10"
+                   component_uuid="SUBVIEW"
+                   value="3.14"
+                   text_value="[null]"
+                   user_login="roger"
+                   description="float measure"
+                   created_at="123456789"
+                   updated_at="123456789"/>
+
+  <manual_measures id="2"
+                   metric_id="11"
+                   component_uuid="VIEW"
+                   value="[null]"
+                   text_value="good"
+                   user_login="simone"
+                   description="string measure"
+                   created_at="123456789"
+                   updated_at="123456789"/>
+
+</dataset>

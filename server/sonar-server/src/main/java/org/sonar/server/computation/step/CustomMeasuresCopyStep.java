@@ -55,7 +55,7 @@ public class CustomMeasuresCopyStep implements ComputationStep {
   @Override
   public void execute() {
     new DepthTraversalTypeAwareCrawler(
-        new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, ComponentVisitor.Order.PRE_ORDER) {
+        new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.PRE_ORDER) {
       @Override
       public void visitAny(Component component) {
         copy(component);
