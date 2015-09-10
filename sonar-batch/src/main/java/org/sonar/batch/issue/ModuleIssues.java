@@ -109,21 +109,23 @@ public class ModuleIssues {
 
   private void applyFlows(Issue issue) {
     for (Flow flow : issue.flows()) {
-      flowBuilder.clear();
-      for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
-        locationBuilder.clear();
-        locationBuilder.setComponentRef(componentCache.get(location.inputComponent()).batchId());
-        String message = location.message();
-        if (message != null) {
-          locationBuilder.setMsg(message);
+      if (!flow.locations().isEmpty()) {
+        flowBuilder.clear();
+        for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
+          locationBuilder.clear();
+          locationBuilder.setComponentRef(componentCache.get(location.inputComponent()).batchId());
+          String message = location.message();
+          if (message != null) {
+            locationBuilder.setMsg(message);
+          }
+          TextRange textRange = location.textRange();
+          if (textRange != null) {
+            locationBuilder.setTextRange(toProtobufTextRange(textRange));
+          }
+          flowBuilder.addLocation(locationBuilder.build());
         }
-        TextRange textRange = location.textRange();
-        if (textRange != null) {
-          locationBuilder.setTextRange(toProtobufTextRange(textRange));
-        }
-        flowBuilder.addLocation(locationBuilder.build());
+        builder.addFlow(flowBuilder.build());
       }
-      builder.addFlow(flowBuilder.build());
     }
   }
 
