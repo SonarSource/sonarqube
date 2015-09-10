@@ -41,8 +41,7 @@ define([
 
     _prepareClosed: function (issue) {
       if (issue.status === 'CLOSED') {
-        issue.secondaryLocations = [];
-        issue.executionFlows = [];
+        issue.flows = [];
         delete issue.textRange;
       }
       return issue;

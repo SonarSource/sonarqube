@@ -752,12 +752,15 @@ define([
                 msg: issue.get('message'),
                 textRange: issue.get('textRange')
               },
-              secondaryLocations = issue.get('secondaryLocations'),
-              _locations = [primaryLocation].concat(secondaryLocations);
-          issue.get('executionFlows').forEach(function (flow) {
+              _locations = [primaryLocation];
+          issue.get('flows').forEach(function (flow) {
             var flowLocationsCount = _.size(flow.locations);
-            var flowLocations = flow.locations.map(function (loc, index) {
-              return _.extend({ index: flowLocationsCount - index }, loc);
+            var flowLocations = flow.locations.map(function (location, index) {
+              var _location = _.extend({}, location);
+              if (flowLocationsCount > 1) {
+                _.extend(_location, { index: flowLocationsCount - index });
+              }
+              return _location;
             });
             _locations = [].concat(_locations, flowLocations);
           });

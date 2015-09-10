@@ -23,18 +23,21 @@
         "startOffset": 24,
         "endOffset": 29
       },
-      "secondaryLocations": [
+      "flows": [
         {
-          "textRange": {
-            "startLine": 3,
-            "endLine": 3,
-            "startOffset": 15,
-            "endOffset": 20
-          },
-          "msg": "Secondary Location #1"
+          "locations": [
+            {
+              "textRange": {
+                "startLine": 3,
+                "endLine": 3,
+                "startOffset": 15,
+                "endOffset": 20
+              },
+              "msg": "Secondary Location #1"
+            }
+          ]
         }
       ],
-      "executionFlows": [],
       "status": "OPEN",
       "message": "Identical sub-expressions on both sides of operator \"||\"",
       "debt": "2min",
@@ -76,18 +79,21 @@
         "startOffset": 6,
         "endOffset": 10
       },
-      "secondaryLocations": [
+      "flows": [
         {
-          "textRange": {
-            "startLine": 8,
-            "endLine": 8,
-            "startOffset": 6,
-            "endOffset": 11
-          },
-          "msg": "Secondary Location #1"
+          "locations": [
+            {
+              "textRange": {
+                "startLine": 8,
+                "endLine": 8,
+                "startOffset": 6,
+                "endOffset": 11
+              },
+              "msg": "Secondary Location #1"
+            }
+          ]
         }
       ],
-      "executionFlows": [],
       "status": "OPEN",
       "message": "Identical sub-expressions on both sides of operator \"||\"",
       "debt": "2min",
@@ -129,18 +135,21 @@
         "startOffset": 13,
         "endOffset": 9
       },
-      "secondaryLocations": [
+      "flows": [
         {
-          "textRange": {
-            "startLine": 17,
-            "endLine": 18,
-            "startOffset": 15,
-            "endOffset": 9
-          },
-          "msg": "Secondary Location #1"
+          "locations": [
+            {
+              "textRange": {
+                "startLine": 17,
+                "endLine": 18,
+                "startOffset": 15,
+                "endOffset": 9
+              },
+              "msg": "Secondary Location #1"
+            }
+          ]
         }
       ],
-      "executionFlows": [],
       "status": "OPEN",
       "message": "Identical sub-expressions on both sides of operator \"||\"",
       "debt": "2min",
