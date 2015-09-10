@@ -5,8 +5,7 @@ define(function () {
 
     defaults: function () {
       return {
-        secondaryLocations: [],
-        executionFlows: []
+        flows: []
       };
     },
 
@@ -68,8 +67,7 @@ define(function () {
 
     _prepareClosed: function (issue) {
       if (issue.status === 'CLOSED') {
-        issue.secondaryLocations = [];
-        issue.executionFlows = [];
+        issue.flows = [];
         delete issue.textRange;
       }
       return issue;
