@@ -104,7 +104,7 @@ define([
         return;
       }
       this._bufferedValue = this.$('.js-search-input').val();
-      if (this.searchRequest != null) {
+      if (this.searchRequest != null && this.searchRequest.abort != null) {
         this.searchRequest.abort();
       }
       this.searchRequest = this.search(value);
