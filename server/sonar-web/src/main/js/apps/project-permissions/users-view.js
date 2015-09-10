@@ -9,6 +9,8 @@ define([
 
     onRender: function () {
       this._super();
+      var searchUrl = baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission +
+          '&projectId=' + this.options.project;
       new window.SelectList({
         el: this.$('#project-permissions-users'),
         width: '100%',
@@ -18,7 +20,7 @@ define([
           return item.name + '<br><span class="note">' + item.login + '</span>';
         },
         queryParam: 'q',
-        searchUrl: baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission + '&projectId=' + this.options.project,
+        searchUrl: searchUrl,
         selectUrl: baseUrl + '/api/permissions/add_user',
         deselectUrl: baseUrl + '/api/permissions/remove_user',
         extra: {
@@ -35,14 +37,16 @@ define([
     },
 
     onDestroy: function () {
-      this.options.refresh && this.options.refresh();
+      if (this.options.refresh) {
+        this.options.refresh();
+      }
       this._super();
     },
 
     serializeData: function () {
       return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
         projectName: this.options.projectName
-      })
+      });
     }
   });
 

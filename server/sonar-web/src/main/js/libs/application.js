@@ -29,9 +29,9 @@
    * @param {string} message
    */
   window.showMessage = function (id, message) {
-    $j('#' + id + 'msg').html(message);
-    $j('#' + id).removeClass('hidden');
-    $j('#messages-panel').removeClass('hidden');
+    jQuery('#' + id + 'msg').html(message);
+    jQuery('#' + id).removeClass('hidden');
+    jQuery('#messages-panel').removeClass('hidden');
   };
 
   /**
@@ -40,8 +40,8 @@
    * @returns {boolean} always false
    */
   window.hideMessage = function (id) {
-    $j('#' + id).addClass('hidden');
-    var messagePanel = $j('#messages-panel'),
+    jQuery('#' + id).addClass('hidden');
+    var messagePanel = jQuery('#messages-panel'),
         isEmpty = messagePanel.children('*:not(.hidden)').length === 0;
     messagePanel.toggleClass('hidden', isEmpty);
     return false;
@@ -52,7 +52,7 @@
    * @param {string} message
    */
   window.error = function (message) {
-    showMessage('error', message);
+    window.showMessage('error', message);
   };
 
   /**
@@ -60,7 +60,7 @@
    * @param {string} message
    */
   window.warning = function (message) {
-    showMessage('warning', message);
+    window.showMessage('warning', message);
   };
 
   /**
@@ -68,7 +68,7 @@
    * @param {string} message
    */
   window.info = function (message) {
-    showMessage('info', message);
+    window.showMessage('info', message);
   };
 
   /**
@@ -76,7 +76,7 @@
    * @returns {boolean} always false
    */
   window.hideError = function () {
-    return hideMessage('error');
+    return window.hideMessage('error');
   };
 
   /**
@@ -84,7 +84,7 @@
    * @returns {boolean} always false
    */
   window.hideWarning = function () {
-    return hideMessage('warning');
+    return window.hideMessage('warning');
   };
 
   /**
@@ -92,17 +92,17 @@
    * @returns {boolean} always false
    */
   window.hideInfo = function () {
-    return hideMessage('info');
+    return window.hideMessage('info');
   };
 })();
 
 
 
 function toggleFav (resourceId, elt) {
-  $j.ajax({
+  jQuery.ajax({
     type: 'POST', dataType: 'json', url: baseUrl + '/favourites/toggle/' + resourceId,
     success: function (data) {
-      var star = $j(elt);
+      var star = jQuery(elt);
       star.removeClass('icon-favorite icon-not-favorite');
       star.addClass(data.css);
       star.attr('title', data.title);
@@ -115,7 +115,7 @@ function dashboardParameters (urlHasSomething) {
   var parameters = [];
 
   var matchDashboard = queryString.match(/did=\d+/);
-  if (matchDashboard && $j('#is-project-dashboard').length === 1) {
+  if (matchDashboard && jQuery('#is-project-dashboard').length === 1) {
     parameters.push(matchDashboard[0]);
   }
 
@@ -137,11 +137,11 @@ function dashboardParameters (urlHasSomething) {
 
 function openModalWindow (url, options) {
   var width = (options && options.width) || 540;
-  var $dialog = $j('#modal');
+  var $dialog = jQuery('#modal');
   if (!$dialog.length) {
-    $dialog = $j('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
+    $dialog = jQuery('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
   }
-  $j.get(url, function (html) {
+  jQuery.get(url, function (html) {
     $dialog.removeClass('ui-widget-overlay');
     $dialog.html(html);
     $dialog
@@ -155,7 +155,7 @@ function openModalWindow (url, options) {
           resizable: false,
           title: null,
           close: function () {
-            $j('#modal').remove();
+            jQuery('#modal').remove();
           }
         });
     $dialog.dialog('open');
@@ -165,18 +165,18 @@ function openModalWindow (url, options) {
   return false;
 }
 
-(function ($j) {
-  $j.fn.extend({
+(function (jQuery) {
+  jQuery.fn.extend({
     openModal: function () {
       return this.each(function () {
-        var obj = $j(this);
+        var obj = jQuery(this);
         var url = obj.attr('modal-url') || obj.attr('href');
         return openModalWindow(url, { 'width': obj.attr('modal-width') });
       });
     },
     modal: function () {
       return this.each(function () {
-        var obj = $j(this);
+        var obj = jQuery(this);
         obj.unbind('click');
         var $link = obj.bind('click', function () {
           $link.openModal();
@@ -186,10 +186,10 @@ function openModalWindow (url, options) {
     },
     modalForm: function (ajax_options) {
       return this.each(function () {
-        var obj = $j(this);
+        var obj = jQuery(this);
         obj.submit(function () {
-          $j('input[type=submit]', this).attr('disabled', 'disabled');
-          $j.ajax($j.extend({
+          jQuery('input[type=submit]', this).attr('disabled', 'disabled');
+          jQuery.ajax(jQuery.extend({
             type: 'POST',
             url: obj.attr('action'),
             data: obj.serialize(),
@@ -201,14 +201,14 @@ function openModalWindow (url, options) {
               var errorElt = obj.find('.modal-error');
               if (errorElt.length) {
                 // Hide all loading images
-                $j('.loading-image').addClass('hidden');
+                jQuery('.loading-image').addClass('hidden');
                 // Re activate submit button
-                $j('input[type=submit]', obj).removeAttr('disabled');
+                jQuery('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
-                errorElt.html($j('<div/>').html(xhr.responseText).text());
+                errorElt.html(jQuery('<div/>').html(xhr.responseText).text());
               } else {
                 // otherwise replace modal window by the returned text
-                $j('#modal').html(xhr.responseText);
+                jQuery('#modal').html(xhr.responseText);
               }
             }
           }, ajax_options));
@@ -220,7 +220,7 @@ function openModalWindow (url, options) {
 })(jQuery);
 
 function closeModalWindow () {
-  $j('#modal').dialog('close');
+  jQuery('#modal').dialog('close');
   return false;
 }
 

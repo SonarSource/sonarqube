@@ -39,7 +39,9 @@ define([
     },
 
     onDestroy: function () {
-      this.options.refresh && this.options.refresh();
+      if (this.options.refresh) {
+        this.options.refresh();
+      }
       this._super();
     },
 

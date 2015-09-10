@@ -1,26 +1,8 @@
-/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 define([
+  'jquery',
   './base-filters',
   '../templates'
-], function (BaseFilters) {
+], function ($, BaseFilters) {
 
   var DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
     template: Templates['choice-filter'],
@@ -116,12 +98,12 @@ define([
 
     onShow: function() {
       this.bindedOnKeyDown = _.bind(this.onKeyDown, this);
-      $j('body').on('keydown', this.bindedOnKeyDown);
+      $('body').on('keydown', this.bindedOnKeyDown);
     },
 
 
     onHide: function() {
-      $j('body').off('keydown', this.bindedOnKeyDown);
+      $('body').off('keydown', this.bindedOnKeyDown);
     },
 
 
@@ -247,12 +229,12 @@ define([
 
 
     renderInput: function() {
-      var input = $j('<select>')
+      var input = $('<select>')
           .prop('name', this.model.get('property'))
           .prop('multiple', true)
           .css('display', 'none');
       this.choices.each(function(item) {
-        var option = $j('<option>')
+        var option = $('<option>')
             .prop('value', item.get('id'))
             .prop('selected', item.get('checked'))
             .text(item.get('text'));

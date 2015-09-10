@@ -19,6 +19,7 @@
  */
 (function () {
   Handlebars.registerHelper('log', function () {
+    /* eslint no-console: 0 */
     var args = Array.prototype.slice.call(arguments, 0, -1);
     console.log.apply(console, args);
   });
@@ -198,12 +199,12 @@
   });
 
   Handlebars.registerHelper('eq', function (v1, v2, options) {
-    // use `==` instead of `===` to ignore types
+    /* eslint eqeqeq: 0 */
     return v1 == v2 ? options.fn(this) : options.inverse(this);
   });
 
   Handlebars.registerHelper('notEq', function (v1, v2, options) {
-    // use `==` instead of `===` to ignore types
+    /* eslint eqeqeq: 0 */
     return v1 != v2 ? options.fn(this) : options.inverse(this);
   });
 
@@ -315,7 +316,7 @@
     return ret;
   });
 
-  Handlebars.registerHelper('sum', function (a, b) {
+  Handlebars.registerHelper('sum', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     return args.reduce(function (p, c) {
       return p + +c;

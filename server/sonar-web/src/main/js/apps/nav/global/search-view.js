@@ -120,7 +120,7 @@ define([
         that.favorite = r.map(function (f) {
           var isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
           return {
-            url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + dashboardParameters(true),
+            url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
             name: isFile ? window.collapsedDirFromPath(f.lname) + window.fileFromPath(f.lname) : f.name,
             icon: 'favorite'
           };
@@ -132,8 +132,10 @@ define([
     resetResultsToDefault: function () {
       var recentHistory = JSON.parse(localStorage.getItem('sonar_recent_history')),
           history = (recentHistory || []).map(function (historyItem, index) {
+            var url = baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
+                window.dashboardParameters(true);
             return {
-              url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) + dashboardParameters(true),
+              url: url,
               name: historyItem.name,
               q: historyItem.icon,
               extra: index === 0 ? t('browsed_recently') : null
@@ -167,7 +169,7 @@ define([
             collection.push(_.extend(item, {
               q: domain.q,
               extra: index === 0 ? domain.name : null,
-              url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + dashboardParameters(true)
+              url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + window.dashboardParameters(true)
             }));
           });
         });

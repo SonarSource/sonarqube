@@ -39,7 +39,9 @@ define(['./item'], function (Item) {
         try {
           var parsed = JSON.parse(dump);
           this.reset(parsed);
-        } catch (err) { }
+        } catch (err) {
+          // fail silently
+        }
       }
     },
 

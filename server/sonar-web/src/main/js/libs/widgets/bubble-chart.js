@@ -220,8 +220,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               sizeMetricValue = d.measures[widget.sizeMetric].fval;
 
           return '<div class="text-left">' +
-              collapsedDirFromPath(d.longName) + '<br>' +
-              fileFromPath(d.longName) + '<br>' + '<br>' +
+              window.collapsedDirFromPath(d.longName) + '<br>' +
+              window.fileFromPath(d.longName) + '<br>' + '<br>' +
               xMetricName + ': ' + xMetricValue + '<br>' +
               yMetricName + ': ' + yMetricValue + '<br>' +
               sizeMetricName + ': ' + sizeMetricValue +

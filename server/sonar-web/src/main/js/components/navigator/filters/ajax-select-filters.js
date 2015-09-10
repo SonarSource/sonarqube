@@ -1,27 +1,9 @@
-/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 define([
+  'jquery',
   './base-filters',
   './choice-filters',
   '../templates'
-], function (BaseFilters, ChoiceFilters) {
+], function ($, BaseFilters, ChoiceFilters) {
 
   var PAGE_SIZE = 100;
 
@@ -247,7 +229,7 @@ define([
 
     renderInput: function() {
       var value = this.model.get('value') || [],
-          input = $j('<input>')
+          input = $('<input>')
           .prop('name', this.model.get('property'))
           .prop('type', 'hidden')
           .css('display', 'none')
@@ -337,7 +319,7 @@ define([
             return that.createRequest(v);
           });
 
-      $j.when.apply($j, requests).done(function () {
+      $.when.apply($, requests).done(function () {
         that.onRestore(value);
       });
     },
@@ -376,7 +358,7 @@ define([
 
     createRequest: function(v) {
       var that = this;
-      return $j
+      return $
           .ajax({
             url: baseUrl + '/api/resources',
             type: 'GET',
@@ -407,7 +389,7 @@ define([
 
     createRequest: function(v) {
       var that = this;
-      return $j
+      return $
           .ajax({
             url: baseUrl + '/api/resources',
             type: 'GET',
@@ -438,7 +420,7 @@ define([
 
     createRequest: function(v) {
       var that = this;
-      return $j
+      return $
           .ajax({
             url: baseUrl + '/api/users/search',
             type: 'GET',
@@ -471,7 +453,7 @@ define([
 
     createRequest: function(v) {
       var that = this;
-      return $j
+      return $
           .ajax({
             url: baseUrl + '/api/users/search',
             type: 'GET',
