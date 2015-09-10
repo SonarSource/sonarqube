@@ -12,6 +12,10 @@
   
   <description>Classes used for communication between batch and server</description>
 
+  <properties>
+    <sonar.exclusions>src/main/gen-java/**/*</sonar.exclusions>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>net.jpountz.lz4</groupId>
