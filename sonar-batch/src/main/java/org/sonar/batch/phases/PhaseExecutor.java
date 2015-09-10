@@ -19,16 +19,15 @@
  */
 package org.sonar.batch.phases;
 
-import org.sonar.batch.issue.tracking.IssueTransition;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.issue.IssueCallback;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.issue.IssueCallback;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
+import org.sonar.batch.issue.tracking.IssueTransition;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
@@ -147,7 +146,7 @@ public final class PhaseExecutor {
   }
 
   private void indexFs() {
-    String stepName = "Index filesystem and store sources";
+    String stepName = "Index filesystem";
     eventBus.fireEvent(new BatchStepEvent(stepName, true));
     fs.index();
     eventBus.fireEvent(new BatchStepEvent(stepName, false));
