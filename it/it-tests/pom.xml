@@ -21,9 +21,9 @@
   <dependencies>
     <!-- must be declared first -->
     <dependency>
-      <groupId>com.sonarsource.orchestrator</groupId>
+      <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
-      <version>3.3</version>
+      <version>3.4.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
