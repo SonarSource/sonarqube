@@ -63,16 +63,10 @@ define(function (require) {
       assert.notOk(result.textRange);
     });
 
-    bdd.it('should unset `secondaryLocations` of a closed issue', function () {
+    bdd.it('should unset `flows` of a closed issue', function () {
       var issue = new Issue();
-      var result = issue.parse({ issue: { status: 'CLOSED', secondaryLocations: [1, 2, 3] } });
-      assert.deepEqual(result.secondaryLocations, []);
-    });
-
-    bdd.it('should unset `executionFlows` of a closed issue', function () {
-      var issue = new Issue();
-      var result = issue.parse({ issue: { status: 'CLOSED', executionFlows: [1, 2, 3] } });
-      assert.deepEqual(result.executionFlows, []);
+      var result = issue.parse({ issue: { status: 'CLOSED', flows: [1, 2, 3] } });
+      assert.deepEqual(result.flows, []);
     });
 
     bdd.describe('Actions', function () {

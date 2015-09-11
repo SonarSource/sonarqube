@@ -8,12 +8,6 @@ define(['intern'], function (intern) {
 
     defaultTimeout: 60 * 1000,
 
-    reporters: [
-      { id: 'Runner' },
-      { id: 'Lcov' },
-      { id: 'LcovHtml', directory: 'target/web-tests' }
-    ],
-
     suites: [
       'test/unit/application.spec',
       'test/unit/issue.spec',
