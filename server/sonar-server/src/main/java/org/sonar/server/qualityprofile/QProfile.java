@@ -20,12 +20,11 @@
 
 package org.sonar.server.qualityprofile;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 public class QProfile {
 
@@ -35,6 +34,7 @@ public class QProfile {
   private String language;
   private String parent;
   private boolean isDefault;
+  private String rulesUpdatedAt;
 
   /**
    * @deprecated in 4.4
@@ -94,8 +94,21 @@ public class QProfile {
     return parent != null;
   }
 
+  public boolean isDefault() {
+    return isDefault;
+  }
+
   public QProfile setDefault(boolean isDefault) {
     this.isDefault = isDefault;
+    return this;
+  }
+
+  public String getRulesUpdatedAt() {
+    return rulesUpdatedAt;
+  }
+
+  public QProfile setRulesUpdatedAt(String rulesUpdatedAt) {
+    this.rulesUpdatedAt = rulesUpdatedAt;
     return this;
   }
 
@@ -106,15 +119,12 @@ public class QProfile {
       .setName(dto.getName())
       .setLanguage(dto.getLanguage())
       .setParent(dto.getParentKee())
-      .setDefault(dto.isDefault());
+      .setDefault(dto.isDefault())
+      .setRulesUpdatedAt(dto.getRulesUpdatedAt());
   }
 
   @Override
   public String toString() {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
-  }
-
-  public boolean isDefault() {
-    return isDefault;
   }
 }

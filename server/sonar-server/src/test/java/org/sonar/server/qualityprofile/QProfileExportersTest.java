@@ -129,7 +129,7 @@ public class QProfileExportersTest {
 
   @Test
   public void import_xml() {
-    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor("xoo", "import_xml"), "import_xml");
+    QualityProfileDto profileDto = QProfileTesting.newQProfileDto(QProfileName.createFor("xoo", "import_xml"), "import_xml");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 

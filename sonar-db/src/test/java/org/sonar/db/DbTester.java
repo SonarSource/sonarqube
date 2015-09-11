@@ -109,6 +109,10 @@ public class DbTester extends ExternalResource {
     return session;
   }
 
+  public void commit() {
+    getSession().commit();
+  }
+
   public void truncateTables() {
     db.truncateTables();
   }

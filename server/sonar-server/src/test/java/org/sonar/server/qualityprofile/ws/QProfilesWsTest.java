@@ -30,7 +30,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileExporters;
@@ -68,7 +67,7 @@ public class QProfilesWsTest {
       new CreateAction(null, null, null, languages, importers, userSessionRule),
       new ImportersAction(importers),
       new RestoreBuiltInAction(null),
-      new SearchAction(languages, null, null, null),
+      new SearchAction(null, languages),
       new SetDefaultAction(languages, null, null, userSessionRule),
       new ProjectsAction(null, userSessionRule),
       new BackupAction(null, null, null, languages),
@@ -82,7 +81,7 @@ public class QProfilesWsTest {
       new ExportersAction(),
       new InheritanceAction(null, null, null, null, languages),
       new RenameAction(null, userSessionRule)
-    )).controller(QProfilesWs.API_ENDPOINT);
+      )).controller(QProfilesWs.API_ENDPOINT);
   }
 
   private ProfileImporter[] createImporters(Languages languages) {
@@ -123,10 +122,8 @@ public class QProfilesWsTest {
     WebService.Action search = controller.action("search");
     assertThat(search).isNotNull();
     assertThat(search.isPost()).isFalse();
-    assertThat(search.params()).hasSize(2);
+    assertThat(search.params()).hasSize(4);
     assertThat(search.param("language").possibleValues()).containsOnly(xoo1Key, xoo2Key);
-    assertThat(search.param(Param.FIELDS).possibleValues())
-      .containsOnly("key", "name", "language", "languageName", "isInherited", "parentKey", "parentName", "isDefault", "activeRuleCount", "projectCount");
   }
 
   @Test

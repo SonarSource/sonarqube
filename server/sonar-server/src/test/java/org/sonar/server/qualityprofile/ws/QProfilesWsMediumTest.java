@@ -549,7 +549,7 @@ public class QProfilesWsMediumTest {
   }
 
   private QualityProfileDto createProfile(String lang) {
-    QualityProfileDto profile = QProfileTesting.newDto(new QProfileName(lang, "P" + lang), "p" + lang);
+    QualityProfileDto profile = QProfileTesting.newQProfileDto(new QProfileName(lang, "P" + lang), "p" + lang);
     db.qualityProfileDao().insert(session, profile);
     return profile;
   }

@@ -33,19 +33,19 @@ public class QProfileTesting {
   public static final QProfileName XOO_P3_NAME = new QProfileName("xoo", "P3");
   public static final String XOO_P3_KEY = "XOO_P3";
 
-  public static QualityProfileDto newDto(QProfileName name, String key) {
+  public static QualityProfileDto newQProfileDto(QProfileName name, String key) {
     return QualityProfileDto.createFor(key).setName(name.getName()).setLanguage(name.getLanguage());
   }
 
   public static QualityProfileDto newXooP1() {
-    return newDto(XOO_P1_NAME, XOO_P1_KEY);
+    return newQProfileDto(XOO_P1_NAME, XOO_P1_KEY);
   }
 
   public static QualityProfileDto newXooP2() {
-    return newDto(XOO_P2_NAME, XOO_P2_KEY);
+    return newQProfileDto(XOO_P2_NAME, XOO_P2_KEY);
   }
 
   public static QualityProfileDto newXooP3() {
-    return newDto(XOO_P3_NAME, XOO_P3_KEY);
+    return newQProfileDto(XOO_P3_NAME, XOO_P3_KEY);
   }
 }
