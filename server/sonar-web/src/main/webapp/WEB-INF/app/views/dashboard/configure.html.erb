@@ -81,7 +81,7 @@
         widget_title = message("widget.#{definition.id}.name", :default => definition.title).downcase
         widget_description = message("widget.#{definition.id}.description", :default => definition.description).downcase
     %>
-    { id:"<%= widget_id -%>", c:"<%= widget_title.gsub(/\r\n?/, " ") -%> <%= widget_description.gsub(/\r\n?/, " ") -%>" } <%= "," unless index==number_of_widgets-1 -%>
+    { id:"<%= widget_id -%>", c:"<%= escape_javascript widget_title.gsub(/\r\n?/, " ") -%> <%= escape_javascript widget_description.gsub(/\r\n?/, " ") -%>" } <%= "," unless index==number_of_widgets-1 -%>
     <% end %>
   ];
 
