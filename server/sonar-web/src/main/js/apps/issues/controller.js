@@ -129,7 +129,8 @@ define([
     requestAssigneeFacet: function () {
       var that = this;
       var facet = this.options.app.facets.get('assignees'),
-          data = _.extend({ facets: 'assignees,assigned_to_me', ps: 1 }, this.options.app.state.get('query'));
+          data = _.extend({ facets: 'assignees,assigned_to_me', ps: 1, additionalFields: '_all' },
+              this.options.app.state.get('query'));
       if (this.options.app.state.get('isContext')) {
         _.extend(data, this.options.app.state.get('contextQuery'));
       }
