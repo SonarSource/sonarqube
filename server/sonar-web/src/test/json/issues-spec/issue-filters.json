@@ -7,7 +7,7 @@
       "shared": true,
       "query": "resolved=false",
       "canModify": true,
-      "favourite": false
+      "favorite": false
     },
     {
       "id": "2",
@@ -16,7 +16,7 @@
       "shared": true,
       "query": "resolutions=FALSE-POSITIVE,WONTFIX",
       "canModify": true,
-      "favourite": false
+      "favorite": false
     },
     {
       "id": "3",
@@ -25,7 +25,7 @@
       "shared": true,
       "query": "resolved=false|assignees=__me__",
       "canModify": true,
-      "favourite": false
+      "favorite": false
     }
   ]
 }

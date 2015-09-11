@@ -20,7 +20,7 @@ define([
       var that = this;
       this.listenTo(options.app.state, 'change:filter', this.render);
       this.listenTo(options.app.state, 'change:changed', this.render);
-      this.listenTo(options.app.filters, 'all', this.render);
+      this.listenTo(options.app.filters, 'reset', this.render);
       window.onSaveAs = window.onCopy = window.onEdit = function (id) {
         $('#modal').dialog('close');
         return that.options.app.controller.fetchFilters().done(function () {

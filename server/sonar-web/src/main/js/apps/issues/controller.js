@@ -90,7 +90,7 @@ define([
     fetchFilters: function () {
       var that = this;
       return $.when(
-          that.options.app.filters.fetch(),
+          that.options.app.filters.fetch({ reset: true }),
           $.get(baseUrl + '/api/issue_filters/app', function (r) {
             that.options.app.state.set({
               canBulkChange: r.canBulkChange,
@@ -237,7 +237,10 @@ define([
       this.options.app.layout.workspaceComponentViewerRegion.reset();
       key.setScope('home');
       this.options.app.issuesView.unbindScrollEvents();
-      this.options.app.homeView = new HomeView({ app: this.options.app });
+      this.options.app.homeView = new HomeView({
+        app: this.options.app,
+        collection: this.options.app.filters
+      });
       this.options.app.layout.workspaceHomeRegion.show(this.options.app.homeView);
       return this.options.app.layout.showHomePage();
     },

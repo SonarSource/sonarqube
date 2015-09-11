@@ -1,77 +1,26 @@
-<div class="spacer-top spacer-bottom">
-  <div class="columns">
-    <div class="column-half {{#unless user}}column-one{{/unless}}">
-      <h3 class="text-center">{{t "issues.home.recent_issues"}}</h3>
-      <p class="note text-center">({{t "issues.home.over_last_week"}})</p>
+<div class="issues-workspace-home-inner">
+  <div>
+    <h2 class="big-spacer-bottom">Start From Filters:</h2>
 
-      <div class="spacer-top text-center js-barchart" data-height="75" data-width="300"></div>
-      <h4 class="spacer-top spacer-bottom text-center">{{t "issues.home.projects"}}</h4>
-      <table class="data zebra spacer-top">
-        {{#each projects}}
-          <tr>
-            <td>{{qualifierIcon "TRK"}}&nbsp;<a href="{{issuesHomeLink "projectUuids" val}}">{{label}}</a></td>
-            <td class="thin text-right">+{{numberShort count}}</td>
-          </tr>
-        {{/each}}
-      </table>
-      <h4 class="spacer-top spacer-bottom text-center">{{t "issues.home.authors"}}</h4>
-      <table class="data zebra spacer-top">
-        {{#each authors}}
-          <tr>
-            <td><a href="{{issuesHomeLink "authors" val}}">{{val}}</a></td>
-            <td class="thin text-right">+{{numberShort count}}</td>
-          </tr>
-        {{/each}}
-      </table>
-      <h4 class="spacer-top spacer-bottom text-center">{{t "issues.home.tags"}}</h4>
-      <ul class="list-inline">
-        {{#each tags}}
-          <li><a class="link-no-underline" style="font-size: {{size}}px;" data-toggle="tooltip" data-placement="bottom"
-                 href="{{issuesHomeLink "tags" val}}"
-                 title="+{{numberShort count}}">{{val}}</a></li>
-        {{/each}}
-      </ul>
-    </div>
+    <ul>
+      {{#each items}}
+        {{#ifCanUseFilter query}}
+          <li class="text-left spacer-bottom">
+            <i class="icon-favorite little-spacer-right" {{#unless favorite}}style="visibility: hidden;"{{/unless}}></i>
 
-    {{#if user}}
-      <div class="column-half">
-        <h3 class="text-center">{{t "issues.home.my_recent_issues"}}</h3>
-        <p class="note text-center">({{t "issues.home.over_last_week"}})</p>
+            <a href="#id={{id}}">{{name}}</a>
 
-        <div class="spacer-top text-center js-my-barchart" data-height="75" data-width="300"></div>
-        {{#notEmpty myProjects}}
-          <h4 class="spacer-top spacer-bottom text-center">{{t "issues.home.projects"}}</h4>
-          <table class="data zebra spacer-top">
-            {{#each myProjects}}
-              <tr>
-                <td>{{qualifierIcon "TRK"}}&nbsp;<a href="{{myIssuesHomeLink "projectUuids" val}}">{{label}}</a></td>
-                <td class="thin text-right">+{{numberShort count}}</td>
-              </tr>
-            {{/each}}
-          </table>
-        {{/notEmpty}}
-        {{#notEmpty myTags}}
-          <h4 class="spacer-top spacer-bottom text-center">{{t "issues.home.tags"}}</h4>
-          <ul class="list-inline">
-            {{#each myTags}}
-              <li><a class="link-no-underline" style="font-size: {{size}}px;" data-toggle="tooltip" data-placement="bottom"
-                     href="{{myIssuesHomeLink "tags" val}}"
-                     title="+{{numberShort count}}">{{val}}</a></li>
-            {{/each}}
-          </ul>
-        {{/notEmpty}}
-        {{#notEmpty filters}}
-          <h3 class="spacer-bottom text-center" style="padding-top: 12px; margin-top: 20px; border-top: 1px solid #efefef;">
-            {{t "issues.home.my_filters"}}</h3>
-          <ul class="list-inline">
-            {{#each filters}}
-              <li>
-                <a href="{{issueFilterHomeLink id}}">{{name}}</a>
-              </li>
-            {{/each}}
-          </ul>
-        {{/notEmpty}}
-      </div>
-    {{/if}}
+            {{#if shared}}
+              <span class="note nowrap">[{{t "issue_filter.shared"}}]</span>
+            {{/if}}
+          </li>
+        {{/ifCanUseFilter}}
+      {{/each}}
+    </ul>
+  </div>
+
+  <div class="big-spacer-top">
+    or make a
+    <a href="#resolved=false" class="button spacer-left">New Search</a>
   </div>
 </div>
