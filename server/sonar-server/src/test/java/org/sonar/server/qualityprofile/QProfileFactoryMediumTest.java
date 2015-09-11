@@ -334,7 +334,7 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void get_profile_by_name_and_language() {
-    QualityProfileDto profileDto = QProfileTesting.newDto(new QProfileName("xoo", "SonarQube way"), "abcd");
+    QualityProfileDto profileDto = QProfileTesting.newQProfileDto(new QProfileName("xoo", "SonarQube way"), "abcd");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
     dbSession.clearCache();

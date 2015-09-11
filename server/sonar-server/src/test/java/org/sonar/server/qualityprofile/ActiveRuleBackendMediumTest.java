@@ -371,7 +371,7 @@ public class ActiveRuleBackendMediumTest {
 
     List<String> profileKeys = newArrayList();
     for (int i = 0; i < 30; i++) {
-      QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor("xoo", "profile-" + i), "profile-" + i);
+      QualityProfileDto profileDto = QProfileTesting.newQProfileDto(QProfileName.createFor("xoo", "profile-" + i), "profile-" + i);
       profileKeys.add(profileDto.getKey());
       db.qualityProfileDao().insert(dbSession, profileDto);
 

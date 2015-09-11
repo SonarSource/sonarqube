@@ -22,10 +22,7 @@ package org.sonar.server.batch;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.server.ws.WsTester;
 
@@ -33,11 +30,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ProjectActionTest {
 
-  @Mock
-  ProjectRepositoryLoader projectRepositoryLoader;
+  ProjectRepositoryLoader projectRepositoryLoader = mock(ProjectRepositoryLoader.class);
 
   WsTester tester;
 

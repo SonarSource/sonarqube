@@ -188,7 +188,7 @@ public class CompareActionMediumTest {
   }
 
   private QualityProfileDto createProfile(String lang, String name, String key) {
-    QualityProfileDto profile = QProfileTesting.newDto(new QProfileName(lang, name), key);
+    QualityProfileDto profile = QProfileTesting.newQProfileDto(new QProfileName(lang, name), key);
     db.qualityProfileDao().insert(session, profile);
     session.commit();
     return profile;

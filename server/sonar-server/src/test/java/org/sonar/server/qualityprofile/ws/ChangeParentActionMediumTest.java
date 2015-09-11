@@ -269,7 +269,7 @@ public class ChangeParentActionMediumTest {
   }
 
   private QualityProfileDto createProfile(String lang, String name) {
-    QualityProfileDto profile = QProfileTesting.newDto(new QProfileName(lang, name), "p" + lang + "-" + name.toLowerCase());
+    QualityProfileDto profile = QProfileTesting.newQProfileDto(new QProfileName(lang, name), "p" + lang + "-" + name.toLowerCase());
     db.qualityProfileDao().insert(session, profile);
     return profile;
   }

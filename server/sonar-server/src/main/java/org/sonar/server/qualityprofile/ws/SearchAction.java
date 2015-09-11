@@ -19,30 +19,24 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.QProfileLoader;
-import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonarqube.ws.QualityProfiles.WsSearchResponse;
 import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 
+import static com.google.common.collect.Maps.uniqueIndex;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements QProfileWsAction {
@@ -63,21 +57,17 @@ public class SearchAction implements QProfileWsAction {
     FIELD_KEY, FIELD_NAME, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_IS_INHERITED, FIELD_PARENT_KEY, FIELD_PARENT_NAME, FIELD_IS_DEFAULT, FIELD_ACTIVE_RULE_COUNT,
     FIELD_PROJECT_COUNT, FIELD_RULES_UPDATED_AT);
 
-  private static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
-  private static final String PARAM_COMPONENT_KEY = "componentKey";
-  private static final String PARAM_DEFAULT = "default";
-  private static final String PARAM_PROFILE_NAME = "profileName";
+  static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
+  static final String PARAM_PROJECT_KEY = "projectKey";
+  static final String PARAM_DEFAULT = "default";
+  static final String PARAM_PROFILE_NAME = "profileName";
 
+  private final SearchDataLoader dataLoader;
   private final Languages languages;
-  private final QProfileLookup profileLookup;
-  private final QProfileLoader profileLoader;
-  private final QualityProfileDao qualityProfileDao;
 
-  public SearchAction(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QualityProfileDao qualityProfileDao) {
+  public SearchAction(SearchDataLoader dataLoader, Languages languages) {
+    this.dataLoader = dataLoader;
     this.languages = languages;
-    this.profileLookup = profileLookup;
-    this.profileLoader = profileLoader;
-    this.qualityProfileDao = qualityProfileDao;
   }
 
   @Override
@@ -89,72 +79,44 @@ public class SearchAction implements QProfileWsAction {
       .addFieldsParam(ALL_FIELDS)
       .setResponseExample(getClass().getResource("example-search.json"));
 
-    action.createParam(PARAM_LANGUAGE)
-      .setDescription("The key of a language supported by the platform. If specified, only profiles for the given language are returned.")
+    action
+      .createParam(PARAM_LANGUAGE)
+      .setDescription(
+        "The key of a language supported by the platform. If specified, only profiles for the given language are returned. " +
+          "It should not be used with project key, profile name or default at the same time.")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
-    action.createParam(PARAM_COMPONENT_KEY)
-      .setDescription("Project or module key")
+    action.createParam(PARAM_PROJECT_KEY)
+      .setDescription("Project or module key. If provided, language key and default parameters should not be provided.")
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action.createParam(PARAM_DEFAULT)
-      .setDescription("Return default quality profiles")
+      .setDescription("Return default quality profiles. If provided, the language, project key and profile name should not be provided")
+      .setDefaultValue(false)
       .setBooleanPossibleValues();
 
     action.createParam(PARAM_PROFILE_NAME)
-      .setDescription("Profile name")
+      .setDescription("Profile name. It should be always used with the project key parameter.")
       .setExampleValue("SonarQube Way");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    List<String> fields = request.paramAsStrings(Param.FIELDS);
-
-    String language = request.param(PARAM_LANGUAGE);
-
-    List<QProfile> profiles;
-    if (language == null) {
-      profiles = profileLookup.allProfiles();
-    } else {
-      profiles = profileLookup.profiles(language);
-    }
-
-    Collections.sort(profiles, new Comparator<QProfile>() {
-      @Override
-      public int compare(QProfile o1, QProfile o2) {
-        return new CompareToBuilder()
-          .append(o1.language(), o2.language())
-          .append(o1.name(), o2.name())
-          .toComparison();
-      }
-    });
-    WsSearchResponse protobufResponse = buildResponse(profiles, fields);
-
+    SearchData data = dataLoader.load(request);
+    WsSearchResponse protobufResponse = buildResponse(data);
     writeProtobuf(protobufResponse, request, response);
   }
 
-  private WsSearchResponse buildResponse(List<QProfile> profiles, List<String> fields) {
-    Map<String, QProfile> profilesByKey = Maps.uniqueIndex(profiles, new NonNullInputFunction<QProfile, String>() {
-      @Override
-      protected String doApply(QProfile input) {
-        return input.key();
-      }
-    });
-    Map<String, Long> activeRuleCountByKey = profileLoader.countAllActiveRules();
-    Map<String, Long> projectCountByKey = qualityProfileDao.countProjectsByProfileKey();
+  private WsSearchResponse buildResponse(SearchData data) {
+    List<QProfile> profiles = data.getProfiles();
+    List<String> fields = data.getFieldsToReturn();
+    Map<String, QProfile> profilesByKey = uniqueIndex(profiles, new QProfileToKey());
 
     WsSearchResponse.Builder response = WsSearchResponse.newBuilder();
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder();
 
     for (QProfile profile : profiles) {
-      if (languages.get(profile.language()) == null) {
-        // Hide profiles on an unsupported language
-        continue;
-      }
-
-      String key = profile.key();
-      Long activeRuleCount = activeRuleCountByKey.containsKey(key) ? activeRuleCountByKey.get(key) : 0L;
-      Long projectCount = projectCountByKey.containsKey(key) ? projectCountByKey.get(key) : 0L;
+      String profileKey = profile.key();
       profileBuilder.clear();
 
       if (shouldSetValue(FIELD_KEY, profile.key(), fields)) {
@@ -163,11 +125,14 @@ public class SearchAction implements QProfileWsAction {
       if (shouldSetValue(FIELD_NAME, profile.name(), fields)) {
         profileBuilder.setName(profile.name());
       }
-      if (shouldSetValue(FIELD_ACTIVE_RULE_COUNT, activeRuleCount, fields)) {
-        profileBuilder.setActiveRuleCount(activeRuleCount);
+      if (shouldSetValue(FIELD_RULES_UPDATED_AT, profile.getRulesUpdatedAt(), fields)) {
+        profileBuilder.setRulesUpdatedAt(profile.getRulesUpdatedAt());
       }
-      if (!profile.isDefault() && shouldSetValue(FIELD_PROJECT_COUNT, projectCount, fields)) {
-        profileBuilder.setProjectCount(projectCount);
+      if (shouldSetValue(FIELD_ACTIVE_RULE_COUNT, data.getActiveRuleCount(profileKey), fields)) {
+        profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
+      }
+      if (!profile.isDefault() && shouldSetValue(FIELD_PROJECT_COUNT, data.getProjectCount(profileKey), fields)) {
+        profileBuilder.setProjectCount(data.getProjectCount(profileKey));
       }
 
       writeLanguageFields(profileBuilder, profile, fields);
@@ -218,5 +183,12 @@ public class SearchAction implements QProfileWsAction {
 
   private static boolean fieldIsNeeded(String field, @Nullable List<String> fields) {
     return fields == null || fields.contains(field);
+  }
+
+  private static class QProfileToKey implements Function<QProfile, String> {
+    @Override
+    public String apply(@Nonnull QProfile input) {
+      return input.key();
+    }
   }
 }
