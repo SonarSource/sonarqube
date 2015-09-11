@@ -39,7 +39,7 @@ public class QProfileTest {
   @Test
   public void to_string() {
     assertThat(new QProfile().setId(1).setName("Default").setLanguage("java").setParent("Parent").toString())
-      .contains("[id=1,key=<null>,name=Default,language=java,parent=Parent,isDefault=false]");
+      .contains("[id=1,key=<null>,name=Default,language=java,parent=Parent,isDefault=false,rulesUpdatedAt=<null>]");
   }
 
   @Test
