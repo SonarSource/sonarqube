@@ -58,16 +58,16 @@
 {{#if hasResponseExample}}
   <h4 class="spacer-top">
     Example Response
-    {{#unless responseExample}}
+    {{#if responseExample}}
+      <a class="js-hide-response-example little-spacer-left" href="#">Hide</a>
+    {{else}}
       <a class="js-show-response-example little-spacer-left" href="#">Show</a>
-    {{/unless}}
+    {{/if}}
   </h4>
 
   {{#if responseExample}}
     <div class="little-spacer-top">
-      <pre>
-{{responseExample}}
-      </pre>
+      <pre>{{responseExample}}</pre>
     </div>
   {{/if}}
 {{/if}}
