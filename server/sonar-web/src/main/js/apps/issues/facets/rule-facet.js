@@ -32,9 +32,10 @@ define([
           results: function (data) {
             var results;
             results = data.rules.map(function (rule) {
+              var lang = rule.langName || window.t('manual');
               return {
                 id: rule.key,
-                text: '(' + rule.langName + ') ' + rule.name
+                text: '(' + lang + ') ' + rule.name
               };
             });
             return {
