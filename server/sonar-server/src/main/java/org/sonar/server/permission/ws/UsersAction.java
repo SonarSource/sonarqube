@@ -100,7 +100,7 @@ public class UsersAction implements PermissionsWsAction {
     }
   }
 
-  private WsUsersResponse buildResponse(List<UserWithPermissionDto> usersWithPermission, Paging paging) {
+  private static WsUsersResponse buildResponse(List<UserWithPermissionDto> usersWithPermission, Paging paging) {
     WsUsersResponse.Builder userResponse = WsUsersResponse.newBuilder();
     WsUsersResponse.User.Builder user = WsUsersResponse.User.newBuilder();
     for (UserWithPermissionDto userWithPermission : usersWithPermission) {

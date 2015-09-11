@@ -99,7 +99,7 @@ public class GroupsAction implements PermissionsWsAction {
     }
   }
 
-  private WsGroupsResponse buildResponse(List<GroupWithPermissionDto> groupsWithPermission, PermissionRequest permissionRequest, int total) {
+  private static WsGroupsResponse buildResponse(List<GroupWithPermissionDto> groupsWithPermission, PermissionRequest permissionRequest, int total) {
     WsGroupsResponse.Builder groupsResponse = WsGroupsResponse.newBuilder();
     WsGroupsResponse.Group.Builder group = WsGroupsResponse.Group.newBuilder();
     Common.Paging.Builder paging = Common.Paging.newBuilder();

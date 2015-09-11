@@ -17,19 +17,9 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class RolesController < ApplicationController
-  helper RolesHelper
 
-  SECTION=Navigation::SECTION_CONFIGURATION
-
-  verify :method => :post, :only => [:set_users, :set_groups], :redirect_to => {:action => 'global'}
-
-
-  # GET /roles/global
-  def global
-  end
-
-  # GET /roles/projects
-  def projects
+class PermissionTemplatesController < ApplicationController
+  # GET
+  def index
   end
 end
