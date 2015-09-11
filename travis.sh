@@ -70,7 +70,7 @@ ITS)
     CATEGORY1=${CATEGORIES[0]:-'NONE'}
     CATEGORY2=${CATEGORIES[1]:-'NONE'}
 
-    mvn install -Pit,dev -DskipTests -Dcategory1="$CATEGORY1" -Dcategory2="$CATEGORY2" -Dmaven.test.redirectTestOutputToFile=false -e -T2 -Dsource.skip=true
+    mvn install -Pit,dev -DskipTests -Dcategory1="$CATEGORY1" -Dcategory2="$CATEGORY2" -Dmaven.test.redirectTestOutputToFile=false -e -Dsource.skip=true
   fi
   ;;
 
