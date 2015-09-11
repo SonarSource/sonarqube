@@ -24,7 +24,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -33,18 +32,15 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDao;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.db.user.RoleDao;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -55,7 +51,6 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.test.DbTests;
 
@@ -74,27 +69,17 @@ public class ViewIndexerTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
-  DbSession dbSession;
+  DbSession dbSession = dbTester.getSession();
 
-  ViewIndexer indexer;
+  ViewIndexer indexer = (ViewIndexer) new ViewIndexer(dbClient, esTester.client()).setEnabled(true);
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
-
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao(System2.INSTANCE), new ComponentDao(), new IssueDao(dbTester.myBatis()), new RoleDao());
-    dbSession = dbClient.openSession(false);
-    indexer = (ViewIndexer) new ViewIndexer(dbClient, esTester.client()).setEnabled(true);
   }
-
-  @After
-  public void after() {
-    dbSession.close();
-  }
-
 
   @Test
   public void index_nothing() {
@@ -178,7 +163,7 @@ public class ViewIndexerTest {
     String viewUuid = "ABCD";
 
     RuleDto rule = RuleTesting.newXooX1();
-    dbClient.deprecatedRuleDao().insert(dbSession, rule);
+    dbClient.ruleDao().insert(dbSession, rule);
     ComponentDto project1 = addProjectWithIssue(rule);
     issueIndexer.indexAll();
     issueAuthorizationIndexer.index();
