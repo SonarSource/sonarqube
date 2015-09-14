@@ -19,13 +19,20 @@
  */
 package org.sonar.batch.bootstrap;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.home.cache.FileCache;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileCacheProviderTest {
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
   public void provide() {
     FileCacheProvider provider = new FileCacheProvider();
@@ -43,5 +50,16 @@ public class FileCacheProviderTest {
     FileCache cache2 = provider.provide(settings);
 
     assertThat(cache1).isSameAs(cache2);
+  }
+
+  @Test
+  public void honor_sonarUserHome() throws IOException {
+    FileCacheProvider provider = new FileCacheProvider();
+    Settings settings = new Settings();
+    File f = temp.newFolder();
+    settings.appendProperty("sonar.userHome", f.getAbsolutePath());
+    FileCache cache = provider.provide(settings);
+
+    assertThat(cache.getDir()).isEqualTo(new File(f, "cache"));
   }
 }

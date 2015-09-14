@@ -20,12 +20,12 @@
 package org.sonar.home.cache;
 
 import java.io.File;
+
 import javax.annotation.Nullable;
 
 public class FileCacheBuilder {
-
+  private final Logger logger;
   private File userHome;
-  private Logger logger;
 
   public FileCacheBuilder(Logger logger) {
     this.logger = logger;
@@ -43,14 +43,18 @@ public class FileCacheBuilder {
 
   public FileCache build() {
     if (userHome == null) {
-      String path = System.getenv("SONAR_USER_HOME");
-      if (path == null) {
-        // Default
-        path = System.getProperty("user.home") + File.separator + ".sonar";
-      }
-      userHome = new File(path);
+      userHome = findHome();
     }
     File cacheDir = new File(userHome, "cache");
     return FileCache.create(cacheDir, logger);
+  }
+  
+  private File findHome() {
+    String path = System.getenv("SONAR_USER_HOME");
+    if (path == null) {
+      // Default
+      path = System.getProperty("user.home") + File.separator + ".sonar";
+    }
+    return new File(path);
   }
 }

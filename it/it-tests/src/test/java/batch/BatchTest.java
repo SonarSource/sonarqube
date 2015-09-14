@@ -39,11 +39,11 @@ public class BatchTest {
     .addPlugin(ItUtils.xooPlugin())
     .setContext("/")
 
-  .addPlugin(ItUtils.pluginArtifact("batch-plugin"))
+    .addPlugin(ItUtils.pluginArtifact("batch-plugin"))
     // Java is only used in convert_library_into_module test
     .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
 
-  .build();
+    .build();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -193,6 +193,25 @@ public class BatchTest {
     assertThat(buildResult.getStatus()).isEqualTo(1);
     assertThat(buildResult.getLogs()).contains(
       "sonar.profile was set to 'unknow' but didn't match any profile for any language. Please check your configuration.");
+  }
+
+  @Test
+  public void should_honor_sonarUserHome() {
+    File userHome = temp.getRoot();
+
+    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+
+    SonarRunner runner = configureRunner("shared/xoo-sample",
+      "sonar.verbose", "true");
+    runner.setEnvironmentVariable("SONAR_USER_HOME", "/dev/null");
+    BuildResult buildResult = orchestrator.executeBuildQuietly(runner);
+    assertThat(buildResult.getStatus()).isEqualTo(1);
+
+    buildResult = scan("shared/xoo-sample",
+      "sonar.verbose", "true",
+      "sonar.userHome", userHome.getAbsolutePath());
+    assertThat(buildResult.isSuccess()).isTrue();
   }
 
   @Test
@@ -351,7 +370,7 @@ public class BatchTest {
       // message
       .contains("Error message from plugin")
 
-    // but not stacktrace
+      // but not stacktrace
       .doesNotContain("at com.sonarsource.RaiseMessageException");
   }
 
