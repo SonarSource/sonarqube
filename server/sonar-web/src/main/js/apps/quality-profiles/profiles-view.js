@@ -67,8 +67,8 @@ define([
       compositeView._insertAfter(childView);
     },
 
-    closeChildren: function () {
-      Marionette.CompositeView.prototype.closeChildren.apply(this, arguments);
+    destroyChildren: function () {
+      Marionette.CompositeView.prototype.destroyChildren.apply(this, arguments);
       this.$('.js-list-language').remove();
     },
 

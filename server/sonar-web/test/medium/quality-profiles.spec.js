@@ -355,6 +355,7 @@ define(function (require) {
           .mockFromFile('/api/languages/list', 'quality-profiles/languages.json')
           .startApp('quality-profiles', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-list .list-group-item')
+          .checkElementCount('.js-list .js-list-language', 1)
           .checkElementCount('.js-list .list-group-item', 1)
           .clickElement('#quality-profiles-actions')
           .clickElement('#quality-profiles-restore-built-in')
@@ -364,6 +365,7 @@ define(function (require) {
           .mockFromFile('/api/qualityprofiles/search', 'quality-profiles/search.json')
           .fillElement('#restore-built-in-profiles-language', 'java')
           .clickElement('#restore-built-in-profiles-submit')
+          .checkElementCount('.js-list .js-list-language', 4)
           .checkElementCount('.js-list .list-group-item', 5)
           .checkElementInclude('.js-list .list-group-item', 'Sonar way')
           .checkElementNotExist('.search-navigator-header-component');
