@@ -154,6 +154,7 @@ module.exports = (grunt) ->
           'build-app:measures'
           'build-app:metrics'
           'build-app:nav'
+          'build-app:permission-templates'
           'build-app:project-permissions'
           'build-app:provisioning'
           'build-app:quality-gates'
@@ -252,6 +253,9 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/project-permissions/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/project-permissions/templates/**/*.hbs'
+          ]
+          '<%= BUILD_PATH %>/js/apps/permission-templates/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/permission-templates/templates/**/*.hbs'
           ]
 
 
