@@ -165,6 +165,7 @@ public class PluginClassloaderFactory {
       .addInclusion("com/ctc/wstx/")
       .addInclusion("org/jfree/")
       .addInclusion("org/slf4j/")
+      .addInclusion("javax/servlet/")
 
       // SLF4J bridges. Do not let plugins re-initialize and configure their logging system
       .addInclusion("org/apache/commons/logging/")
