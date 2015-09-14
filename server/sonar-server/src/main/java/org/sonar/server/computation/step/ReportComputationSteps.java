@@ -93,9 +93,9 @@ public class ReportComputationSteps implements ComputationSteps {
       SwitchSnapshotStep.class,
       IndexComponentsStep.class,
       PurgeDatastoresStep.class,
+      ApplyPermissionsStep.class,
 
       // ES indexing is done after all db changes
-      ApplyPermissionsStep.class,
       IndexIssuesStep.class,
       IndexTestsStep.class,
 

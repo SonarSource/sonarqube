@@ -31,7 +31,6 @@ import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -42,15 +41,12 @@ public class ApplyPermissionsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final DbIdsRepository dbIdsRepository;
-  private final IssueAuthorizationIndexer indexer;
   private final PermissionRepository permissionRepository;
   private final TreeRootHolder treeRootHolder;
 
-  public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, IssueAuthorizationIndexer indexer,
-    PermissionRepository permissionRepository, TreeRootHolder treeRootHolder) {
+  public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, PermissionRepository permissionRepository, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
-    this.indexer = indexer;
     this.permissionRepository = permissionRepository;
     this.treeRootHolder = treeRootHolder;
   }
@@ -74,8 +70,6 @@ public class ApplyPermissionsStep implements ComputationStep {
         permissionRepository.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
         session.commit();
       }
-      // As batch is still apply permission on project, indexing of issue authorization must always been done
-      indexer.index();
     } finally {
       MyBatis.closeQuietly(session);
     }
