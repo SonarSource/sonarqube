@@ -1,0 +1,55 @@
+{
+  "projects": [
+    {
+      "id": "10c394cc-c37c-4cf0-97b9-360165c47270",
+      "key": "my-project",
+      "name": "My Project",
+      "permissions": [
+        {
+          "key": "admin",
+          "usersCount": 11,
+          "groupsCount": 12
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 13,
+          "groupsCount": 14
+        }
+      ]
+    },
+    {
+      "id": "5d2408c9-b5c6-4426-8ee8-05be930a5f62",
+      "key": "another-project",
+      "name": "Another Project",
+      "permissions": [
+        {
+          "key": "admin",
+          "usersCount": 15,
+          "groupsCount": 16
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 17,
+          "groupsCount": 18
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    {
+      "key": "admin",
+      "name": "Administer",
+      "description": "Ability to access project settings and perform administration tasks. (Users will also need \"Browse\" permission)"
+    },
+    {
+      "key": "codeviewer",
+      "name": "See Source Code",
+      "description": "Ability to view the project's source code. (Users will also need \"Browse\" permission)"
+    }
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 25,
+    "total": 2
+  }
+}

@@ -1,11 +1,13 @@
 import React from 'react';
 import UsersView from './users-view';
 import GroupsView from './groups-view';
+import ApplyTemplateView from './apply-template-view';
 import {getProjectUrl} from '../../helpers/Url';
 
 export default React.createClass({
   propTypes: {
     project: React.PropTypes.object.isRequired,
+    permissionTemplates: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     refresh: React.PropTypes.func.isRequired
   },
 
@@ -25,6 +27,15 @@ export default React.createClass({
       permission: permission,
       project: this.props.project.id,
       projectName: this.props.project.name,
+      refresh: this.props.refresh
+    }).render();
+  },
+
+  applyTemplate(e) {
+    e.preventDefault();
+    new ApplyTemplateView({
+      permissionTemplates: this.props.permissionTemplates,
+      project: this.props.project,
       refresh: this.props.refresh
     }).render();
   },
@@ -62,6 +73,9 @@ export default React.createClass({
             </strong>
           </td>
           {permissions}
+          <td className="thin nowrap text-right">
+            <button onClick={this.applyTemplate} className="js-apply-template">Apply Template</button>
+          </td>
         </tr>
     );
   }

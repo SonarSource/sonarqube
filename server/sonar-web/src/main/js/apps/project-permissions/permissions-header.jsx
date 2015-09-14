@@ -19,6 +19,7 @@ export default React.createClass({
         <tr>
           <th style={{ width: '20%' }}>&nbsp;</th>
           {cells}
+          <th className="thin">&nbsp;</th>
         </tr>
         </thead>
     );

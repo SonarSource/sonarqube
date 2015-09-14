@@ -1,13 +1,23 @@
+import $ from 'jquery';
 import React from 'react';
 import Main from './main';
 
-const $ = jQuery;
+let permissionTemplates = [];
 
 export default {
   start(options) {
-    window.requestMessages().done(() => {
-      var el = document.querySelector(options.el);
-      React.render(<Main/>, el);
+    $.when(
+        window.requestMessages(),
+        this.requestPermissionTemplates()
+    ).then(() => {
+          var el = document.querySelector(options.el);
+          React.render(<Main permissionTemplates={permissionTemplates}/>, el);
+        });
+  },
+
+  requestPermissionTemplates() {
+    return $.get(baseUrl + '/api/permissions/search_templates').done(r => {
+      permissionTemplates = r.permissionTemplates;
     });
   }
 };

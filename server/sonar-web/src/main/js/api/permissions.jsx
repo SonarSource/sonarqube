@@ -90,3 +90,9 @@ export function revokeFromGroup(permission, group, project) {
   }
   return _request({ type: 'POST', url: url, data: data });
 }
+
+
+export function applyTemplateToProject(options) {
+  let url = _url('/api/permissions/apply_template');
+  return _request(_.extend({ type: 'POST', url: url }, options));
+}

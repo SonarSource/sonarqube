@@ -1,0 +1,89 @@
+{
+  "permissionTemplates": [
+    {
+      "id": "default_template",
+      "name": "Default template",
+      "description": "This permission template will be used as default when no other permission configuration is available",
+      "projectKeyPattern": "abc.*",
+      "createdAt": "2015-08-07T15:30:59+0200",
+      "updatedAt": "2015-09-14T12:56:21+0200",
+      "permissions": [
+        {
+          "key": "admin",
+          "usersCount": 0,
+          "groupsCount": 1
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 0,
+          "groupsCount": 1
+        },
+        {
+          "key": "issueadmin",
+          "usersCount": 0,
+          "groupsCount": 1
+        },
+        {
+          "key": "user",
+          "usersCount": 0,
+          "groupsCount": 1
+        }
+      ]
+    },
+    {
+      "id": "test_20150820_133222",
+      "name": "test",
+      "description": "",
+      "projectKeyPattern": "Javascript*",
+      "createdAt": "2015-08-20T13:32:22+0200",
+      "updatedAt": "2015-09-14T12:07:26+0200",
+      "permissions": [
+        {
+          "key": "user",
+          "usersCount": 1,
+          "groupsCount": 0
+        }
+      ]
+    },
+    {
+      "id": "AU_Lp7-59jciAH96Rd8H",
+      "name": "test2",
+      "description": "Default permission template",
+      "projectKeyPattern": "",
+      "createdAt": "2015-09-14T13:40:12+0200",
+      "updatedAt": "2015-09-14T13:41:23+0200"
+    }
+  ],
+  "defaultTemplates": [
+    {
+      "templateId": "test_20150820_133222",
+      "qualifier": "VW"
+    },
+    {
+      "templateId": "AU_Lp7-59jciAH96Rd8H",
+      "qualifier": "TRK"
+    }
+  ],
+  "permissions": [
+    {
+      "key": "user",
+      "name": "Browse",
+      "description": "Access a project, browse its measures, and create/edit issues for it."
+    },
+    {
+      "key": "admin",
+      "name": "Administer",
+      "description": "Access project settings and perform administration tasks. (Users will also need \"Browse\" permission)"
+    },
+    {
+      "key": "issueadmin",
+      "name": "Administer Issues",
+      "description": "Perform advanced editing on issues: marking an issue False Positive / Won't Fix, and changing an Issue's severity. (Users will also need \"Browse\" permission)"
+    },
+    {
+      "key": "codeviewer",
+      "name": "See Source Code",
+      "description": "View the project's source code. (Users will also need \"Browse\" permission)"
+    }
+  ]
+}

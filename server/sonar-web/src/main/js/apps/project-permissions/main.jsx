@@ -1,14 +1,18 @@
+import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
 import Permissions from './permissions';
 import PermissionsFooter from './permissions-footer';
 import Search from './search';
-
-let $ = jQuery;
+import ApplyTemplateView from './apply-template-view';
 
 const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin'];
 
 export default React.createClass({
+  propTypes: {
+    permissionTemplates: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
+  },
+
   getInitialState() {
     return { permissions: [], projects: [], total: 0 };
   },
@@ -59,11 +63,23 @@ export default React.createClass({
     this.requestPermissions(1, query);
   },
 
+  bulkApplyTemplate(e) {
+    e.preventDefault();
+    new ApplyTemplateView({
+      projects: this.state.projects,
+      permissionTemplates: this.props.permissionTemplates,
+      refresh: this.requestPermissions
+    }).render();
+  },
+
   render() {
     return (
         <div className="page">
           <header id="project-permissions-header" className="page-header">
             <h1 className="page-title">{window.t('roles.page')}</h1>
+            <div className="page-actions">
+              <button onClick={this.bulkApplyTemplate} className="js-bulk-apply-template">Bulk Apply Template</button>
+            </div>
             <p className="page-description">{window.t('roles.page.description2')}</p>
           </header>
 
@@ -73,6 +89,7 @@ export default React.createClass({
           <Permissions
               projects={this.state.projects}
               permissions={this.state.permissions}
+              permissionTemplates={this.props.permissionTemplates}
               refresh={this.requestPermissions}/>
 
           <PermissionsFooter
