@@ -25,28 +25,27 @@ import java.net.ServerSocket;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class NetworkUtils {
+  private static final int MAX_TRY = 10;
   private static final AtomicInteger nextPort = new AtomicInteger(20000);
 
   private NetworkUtils() {
   }
 
   public static int getNextAvailablePort() {
-    System.out.println("=== Override method provided by orchestrator");
-
-    if ("true".equals(System.getenv("TRAVIS"))) {
-      for (int i = 0; i < 10; i++) {
+    if (isOnTravisCI()) {
+      for (int i = 0; i < MAX_TRY; i++) {
         int port = nextPort.getAndIncrement();
 
+        // Check that the port is really available.
+        // (On Travis, if the build is single threaded, it should be)
+        //
         try {
-          System.out.println("=== Trying port " + port);
           Process process = new ProcessBuilder("nc", "-z", "localhost", Integer.toString(port)).start();
           if (process.waitFor() == 1) {
-            System.out.println("=== Using port " + port);
             return port;
           }
         } catch (Exception e) {
-          // Ignore. will try again
-          System.out.println(e);
+          throw new IllegalStateException("Can't test that a network port is available", e);
         }
       }
 
@@ -59,5 +58,9 @@ public final class NetworkUtils {
     } catch (IOException e) {
       throw new IllegalStateException("Can't find a free network port", e);
     }
+  }
+
+  private static boolean isOnTravisCI() {
+    return "true".equals(System.getenv("TRAVIS"));
   }
 }
