@@ -32,6 +32,8 @@ import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.Component.Type.VIEW;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
@@ -54,10 +56,15 @@ public class ApplyPermissionsStep implements ComputationStep {
   @Override
   public void execute() {
     new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, PRE_ORDER) {
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.reportMaxDepth(PROJECT).withViewsMaxDepth(VIEW), PRE_ORDER) {
         @Override
         public void visitProject(Component project) {
           execute(project);
+        }
+
+        @Override
+        public void visitView(Component view) {
+          execute(view);
         }
       }).visit(treeRootHolder.getRoot());
   }

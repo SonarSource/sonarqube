@@ -38,18 +38,23 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepositoryImpl;
+import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.Component.Type.VIEW;
 
 @Category(DbTests.class)
 public class ApplyPermissionsStepTest extends BaseStepTest {
 
-  private static final String PROJECT_KEY = "PROJECT_KEY";
-  private static final String PROJECT_UUID = "PROJECT_UUID";
+  private static final String ROOT_KEY = "ROOT_KEY";
+  private static final String ROOT_UUID = "ROOT_UUID";
+  private static final long SOME_DATE = 1000L;
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -57,13 +62,14 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
+  @Rule
+  public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
+
   DbSession dbSession;
 
   DbClient dbClient = dbTester.getDbClient();
 
   Settings settings;
-
-  DbIdsRepositoryImpl dbIdsRepository;
 
   ApplyPermissionsStep step;
 
@@ -72,8 +78,6 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbSession = dbClient.openSession(false);
 
     settings = new Settings();
-
-    dbIdsRepository = new DbIdsRepositoryImpl();
 
     step = new ApplyPermissionsStep(dbClient, dbIdsRepository, new PermissionRepository(dbClient, settings), treeRootHolder);
   }
@@ -84,39 +88,34 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void grant_permission() {
-    ComponentDto projectDto = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+  public void grant_permission_for_report() {
+    ComponentDto projectDto = ComponentTesting.newProjectDto(ROOT_UUID).setKey(ROOT_KEY);
     dbClient.componentDao().insert(dbSession, projectDto);
 
     // Create a permission template containing browse permission for anonymous group
-    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(dbSession, newPermissionTemplateDto().setName("Default"));
-    settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
-    dbClient.permissionTemplateDao().insertGroupPermission(permissionTemplateDto.getId(), null, UserRole.USER);
-    dbSession.commit();
+    createDefaultPermissionTemplate(UserRole.USER);
 
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(ROOT_UUID).setKey(ROOT_KEY).build();
     dbIdsRepository.setComponentId(project, projectDto.getId());
     treeRootHolder.setRoot(project);
 
     step.execute();
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, PROJECT_KEY).getAuthorizationUpdatedAt()).isNotNull();
+    assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, ROOT_KEY).getAuthorizationUpdatedAt()).isNotNull();
     assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, projectDto.getId())).containsOnly(UserRole.USER);
   }
 
   @Test
-  public void nothing_to_do() {
-    long authorizationUpdatedAt = 1000L;
-
-    ComponentDto projectDto = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY).setAuthorizationUpdatedAt(authorizationUpdatedAt);
+  public void nothing_to_do_for_report() {
+    ComponentDto projectDto = ComponentTesting.newProjectDto(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
     dbClient.componentDao().insert(dbSession, projectDto);
     // Permissions are already set on the project
     dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()));
 
     dbSession.commit();
 
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(ROOT_UUID).setKey(ROOT_KEY).build();
     dbIdsRepository.setComponentId(project, projectDto.getId());
     treeRootHolder.setRoot(project);
 
@@ -124,7 +123,54 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbSession.commit();
 
     // Check that authorization updated at has not been changed -> Nothing has been done
-    assertThat(projectDto.getAuthorizationUpdatedAt()).isEqualTo(authorizationUpdatedAt);
+    assertThat(projectDto.getAuthorizationUpdatedAt()).isEqualTo(SOME_DATE);
+  }
+
+  @Test
+  public void grant_permission_for_view() {
+    ComponentDto viewDto = newView(ROOT_UUID).setKey(ROOT_KEY);
+    dbClient.componentDao().insert(dbSession, viewDto);
+
+    String permission = UserRole.USER;
+    // Create a permission template containing browse permission for anonymous group
+    createDefaultPermissionTemplate(permission);
+
+    Component project = ViewsComponent.builder(VIEW, ROOT_KEY).setUuid(ROOT_UUID).build();
+    dbIdsRepository.setComponentId(project, viewDto.getId());
+    treeRootHolder.setRoot(project);
+
+    step.execute();
+    dbSession.commit();
+
+    assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, ROOT_KEY).getAuthorizationUpdatedAt()).isNotNull();
+    assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, viewDto.getId())).containsOnly(permission);
+  }
+
+  @Test
+  public void nothing_to_do_for_view() {
+    ComponentDto viewDto = newView(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
+    dbClient.componentDao().insert(dbSession, viewDto);
+    // Permissions are already set on the view
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(viewDto.getId()));
+
+    dbSession.commit();
+
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(ROOT_UUID).setKey(ROOT_KEY).build();
+    dbIdsRepository.setComponentId(project, viewDto.getId());
+    treeRootHolder.setRoot(project);
+
+    step.execute();
+    dbSession.commit();
+
+    // Check that authorization updated at has not been changed -> Nothing has been done
+    assertThat(viewDto.getAuthorizationUpdatedAt()).isEqualTo(SOME_DATE);
+  }
+
+  private void createDefaultPermissionTemplate(String permission) {
+    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(dbSession, newPermissionTemplateDto().setName("Default"));
+    settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
+    dbClient.permissionTemplateDao().insertGroupPermission(permissionTemplateDto.getId(), null, permission);
+    dbSession.commit();
   }
 
   @Override
