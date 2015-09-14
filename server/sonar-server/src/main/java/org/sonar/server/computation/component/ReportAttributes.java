@@ -32,14 +32,11 @@ public class ReportAttributes {
   @CheckForNull
   private final String version;
   @CheckForNull
-  private final String description;
-  @CheckForNull
   private final String path;
 
   private ReportAttributes(Builder builder) {
     this.ref = builder.ref;
     this.version = builder.version;
-    this.description = builder.description;
     this.path = builder.path;
   }
 
@@ -52,8 +49,6 @@ public class ReportAttributes {
     @CheckForNull
     private String version;
     @CheckForNull
-    private String description;
-    @CheckForNull
     private String path;
 
     private Builder(int ref) {
@@ -62,11 +57,6 @@ public class ReportAttributes {
 
     public Builder setVersion(@Nullable String version) {
       this.version = version;
-      return this;
-    }
-
-    public Builder setDescription(@Nullable String description) {
-      this.description = description;
       return this;
     }
 
@@ -96,14 +86,6 @@ public class ReportAttributes {
   }
 
   /**
-   * The description of the report component, if available.
-   */
-  @CheckForNull
-  public String getDescription() {
-    return description;
-  }
-
-  /**
    * The path of the report component, must be non null for module, directories and files.
    */
   @CheckForNull
@@ -116,7 +98,6 @@ public class ReportAttributes {
     return "ReportAttributes{" +
       "ref=" + ref +
       ", version='" + version + '\'' +
-      ", description='" + description + '\'' +
       ", path='" + path + '\'' +
       '}';
   }

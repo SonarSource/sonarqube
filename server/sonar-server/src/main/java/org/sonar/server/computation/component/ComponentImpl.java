@@ -35,6 +35,8 @@ import static com.google.common.collect.Iterables.filter;
 public class ComponentImpl implements Component {
   private final Type type;
   private final String name;
+  @CheckForNull
+  private final String description;
   private final List<Component> children;
   @CheckForNull
   private final ReportAttributes reportAttributes;
@@ -48,6 +50,7 @@ public class ComponentImpl implements Component {
   public ComponentImpl(BatchReport.Component component, @Nullable Iterable<Component> children) {
     this.type = convertType(component.getType());
     this.name = checkNotNull(component.getName());
+    this.description = component.hasDescription() ? component.getDescription() : null;
     this.reportAttributes = createBatchAttributes(component);
     this.fileAttributes = createFileAttributes(component);
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
@@ -56,7 +59,6 @@ public class ComponentImpl implements Component {
   private static ReportAttributes createBatchAttributes(BatchReport.Component component) {
     return ReportAttributes.newBuilder(component.getRef())
       .setVersion(component.hasVersion() ? component.getVersion() : null)
-      .setDescription(component.hasDescription() ? component.getDescription() : null)
       .setPath(component.hasPath() ? component.getPath() : null)
       .build();
   }
@@ -124,6 +126,12 @@ public class ComponentImpl implements Component {
   }
 
   @Override
+  @CheckForNull
+  public String getDescription() {
+    return this.description;
+  }
+
+  @Override
   public List<Component> getChildren() {
     return children;
   }
@@ -150,8 +158,9 @@ public class ComponentImpl implements Component {
       "key='" + key + '\'' +
       ", type=" + type +
       ", uuid='" + uuid + '\'' +
-      ", fileAttributes=" + fileAttributes +
       ", name='" + name + '\'' +
+      ", description='" + description + '\'' +
+      ", fileAttributes=" + fileAttributes +
       ", reportAttributes=" + reportAttributes +
       '}';
   }

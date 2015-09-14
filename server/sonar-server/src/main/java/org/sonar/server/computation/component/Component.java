@@ -22,6 +22,7 @@ package org.sonar.server.computation.component;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.server.computation.step.FillComponentsStep;
 
 public interface Component {
@@ -74,6 +75,12 @@ public interface Component {
    * The component name.
    */
   String getName();
+
+  /**
+   * The optional description of the component.
+   */
+  @CheckForNull
+  String getDescription();
 
   List<Component> getChildren();
 

@@ -187,7 +187,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setQualifier(Qualifiers.PROJECT);
     res.setName(project.getName());
     res.setLongName(res.name());
-    res.setDescription(project.getReportAttributes().getDescription());
+    res.setDescription(project.getDescription());
     res.setProjectUuid(res.uuid());
     res.setModuleUuidPath(MODULE_UUID_PATH_SEP + res.uuid() + MODULE_UUID_PATH_SEP);
 
@@ -202,7 +202,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setName(module.getName());
     res.setLongName(res.name());
     res.setPath(module.getReportAttributes().getPath());
-    res.setDescription(module.getReportAttributes().getDescription());
+    res.setDescription(module.getDescription());
 
     setRootAndParentModule(res, path);
 
@@ -244,6 +244,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setScope(Scopes.PROJECT);
     res.setQualifier(Qualifiers.VIEW);
     res.setName(view.getName());
+    res.setDescription(view.getDescription());
     res.setLongName(res.name());
     res.setProjectUuid(res.uuid());
     res.setModuleUuidPath(MODULE_UUID_PATH_SEP + res.uuid() + MODULE_UUID_PATH_SEP);
@@ -257,6 +258,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setScope(Scopes.PROJECT);
     res.setQualifier(Qualifiers.SUBVIEW);
     res.setName(subView.getName());
+    res.setDescription(subView.getDescription());
     res.setLongName(res.name());
 
     setRootAndParentModule(res, path);

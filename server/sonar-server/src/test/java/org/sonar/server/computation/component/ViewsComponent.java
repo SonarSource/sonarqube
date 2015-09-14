@@ -41,11 +41,13 @@ public class ViewsComponent implements Component {
   private final String uuid;
   @CheckForNull
   private final String name;
+  @CheckForNull
+  private final String description;
   private final List<Component> children;
   @CheckForNull
   private final ProjectViewAttributes projectViewAttributes;
 
-  private ViewsComponent(Type type, String key, @Nullable String uuid, @Nullable String name,
+  private ViewsComponent(Type type, String key, @Nullable String uuid, @Nullable String name, @Nullable String description,
     List<Component> children,
     @Nullable ProjectViewAttributes projectViewAttributes) {
     checkArgument(type.isViewsType(), "Component type must be a Views type");
@@ -53,6 +55,7 @@ public class ViewsComponent implements Component {
     this.key = requireNonNull(key);
     this.uuid = uuid;
     this.name = name;
+    this.description = description;
     this.children = ImmutableList.copyOf(children);
     this.projectViewAttributes = projectViewAttributes;
   }
@@ -72,6 +75,8 @@ public class ViewsComponent implements Component {
     private String uuid;
     @CheckForNull
     private String name;
+    @CheckForNull
+    private String description;
     private List<Component> children = new ArrayList<>();
     @CheckForNull
     private ProjectViewAttributes projectViewAttributes;
@@ -91,6 +96,16 @@ public class ViewsComponent implements Component {
       return this;
     }
 
+    public Builder setDescription(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder setChildren(List<Component> children) {
+      this.children = children;
+      return this;
+    }
+
     public Builder setProjectViewAttributes(@Nullable ProjectViewAttributes projectViewAttributes) {
       this.projectViewAttributes = projectViewAttributes;
       return this;
@@ -105,7 +120,7 @@ public class ViewsComponent implements Component {
     }
 
     public ViewsComponent build() {
-      return new ViewsComponent(type, key, uuid, name, children, projectViewAttributes);
+      return new ViewsComponent(type, key, uuid, name, description, children, projectViewAttributes);
     }
   }
 
@@ -128,6 +143,12 @@ public class ViewsComponent implements Component {
   public String getName() {
     checkState(this.name != null, "No name has been set");
     return this.name;
+  }
+
+  @Override
+  @CheckForNull
+  public String getDescription() {
+    return this.description;
   }
 
   @Override

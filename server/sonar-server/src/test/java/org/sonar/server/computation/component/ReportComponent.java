@@ -22,6 +22,7 @@ package org.sonar.server.computation.component;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -39,6 +40,8 @@ public class ReportComponent implements Component {
 
   private final Type type;
   private final String name;
+  @CheckForNull
+  private final String description;
   private final String key;
   private final String uuid;
   private final ReportAttributes reportAttributes;
@@ -49,12 +52,12 @@ public class ReportComponent implements Component {
     this.type = builder.type;
     this.key = builder.key;
     this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
+    this.description = builder.description;
     this.uuid = builder.uuid;
     this.reportAttributes = ReportAttributes.newBuilder(builder.ref)
-        .setVersion(builder.version)
-        .setDescription(builder.description)
-        .setPath(builder.path)
-        .build();
+      .setVersion(builder.version)
+      .setPath(builder.path)
+      .build();
     this.fileAttributes = builder.fileAttributes == null ? DEFAULT_FILE_ATTRIBUTES : builder.fileAttributes;
     this.children = ImmutableList.copyOf(builder.children);
   }
@@ -83,6 +86,12 @@ public class ReportComponent implements Component {
   @Override
   public String getName() {
     return this.name;
+  }
+
+  @Override
+  @CheckForNull
+  public String getDescription() {
+    return this.description;
   }
 
   @Override
@@ -174,7 +183,7 @@ public class ReportComponent implements Component {
       return this;
     }
 
-    public Builder setFileAttributes(FileAttributes fileAttributes){
+    public Builder setFileAttributes(FileAttributes fileAttributes) {
       checkState(type == Type.FILE, "Only Component of type File can have File attributes");
       this.fileAttributes = fileAttributes;
       return this;

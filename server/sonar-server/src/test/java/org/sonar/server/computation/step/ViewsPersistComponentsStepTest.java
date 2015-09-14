@@ -54,9 +54,11 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   private static final String VIEW_KEY = "VIEW_KEY";
   private static final String VIEW_NAME = "VIEW_NAME";
+  private static final String VIEW_DESCRIPTION = "view description";
   private static final String VIEW_UUID = "VIEW_UUID";
   private static final String SUBVIEW_1_KEY = "SUBVIEW_1_KEY";
   private static final String SUBVIEW_1_NAME = "SUBVIEW_1_NAME";
+  private static final String SUBVIEW_1_DESCRIPTION = "subview 1 description";
   private static final String SUBVIEW_1_UUID = "SUBVIEW_1_UUID";
   private static final String PROJECT_VIEW_1_KEY = "PV1_KEY";
   private static final String PROJECT_VIEW_1_NAME = "PV1_NAME";
@@ -218,17 +220,18 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   }
 
   private static ViewsComponent.Builder createViewBuilder() {
-    return builder(VIEW, VIEW_KEY).setUuid(VIEW_UUID).setName(VIEW_NAME);
+    return builder(VIEW, VIEW_KEY).setUuid(VIEW_UUID).setName(VIEW_NAME).setDescription(VIEW_DESCRIPTION);
   }
 
   private ViewsComponent.Builder createSubView1Builder() {
-    return builder(SUBVIEW, SUBVIEW_1_KEY).setUuid(SUBVIEW_1_UUID).setName(SUBVIEW_1_NAME);
+    return builder(SUBVIEW, SUBVIEW_1_KEY).setUuid(SUBVIEW_1_UUID).setName(SUBVIEW_1_NAME).setDescription(SUBVIEW_1_DESCRIPTION);
   }
 
   private static ViewsComponent.Builder createProjectView1Builder() {
     return builder(PROJECT_VIEW, PROJECT_VIEW_1_KEY)
       .setUuid(PROJECT_VIEW_1_UUID)
       .setName(PROJECT_VIEW_1_NAME)
+      .setDescription("project view description is not persisted")
       .setProjectViewAttributes(new ProjectViewAttributes(PROJECT_1_ID));
   }
 
@@ -259,7 +262,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   private void assertDtoIsView(ComponentDto projectDto) {
     assertThat(projectDto.name()).isEqualTo(VIEW_NAME);
     assertThat(projectDto.longName()).isEqualTo(VIEW_NAME);
-    assertThat(projectDto.description()).isNull();
+    assertThat(projectDto.description()).isEqualTo(VIEW_DESCRIPTION);
     assertThat(projectDto.path()).isNull();
     assertThat(projectDto.uuid()).isEqualTo(VIEW_UUID);
     assertThat(projectDto.projectUuid()).isEqualTo(projectDto.uuid());
@@ -278,7 +281,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   private void assertDtoIsSubView1(ComponentDto viewDto, ComponentDto sv1Dto) {
     assertThat(sv1Dto.name()).isEqualTo(SUBVIEW_1_NAME);
     assertThat(sv1Dto.longName()).isEqualTo(SUBVIEW_1_NAME);
-    assertThat(sv1Dto.description()).isNull();
+    assertThat(sv1Dto.description()).isEqualTo(SUBVIEW_1_DESCRIPTION);
     assertThat(sv1Dto.path()).isNull();
     assertThat(sv1Dto.uuid()).isEqualTo(SUBVIEW_1_UUID);
     assertThat(sv1Dto.projectUuid()).isEqualTo(viewDto.uuid());
