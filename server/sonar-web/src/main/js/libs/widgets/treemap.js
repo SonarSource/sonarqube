@@ -24,6 +24,7 @@
   Treemap.prototype.renderTreemap = function () {
     var that = this;
     var nodes = this.getNodes();
+    this.color = that.getColorScale();
     this.cells = this.box.selectAll('.treemap-cell').data(nodes);
     this.cells.exit().remove();
     var cellsEnter = this.cells.enter().append('div');
@@ -207,7 +208,13 @@
   };
 
   Treemap.prototype.getRatingColorScale = function () {
-    var domain = ['A', 'B', 'C', 'D', 'E'];
+    var domain = [1, 2, 3, 4, 5];
+    if (this.components().length > 0) {
+      var colorMetricSample = this.colorMetric.value(_.first(this.components()));
+      if (typeof colorMetricSample === 'string') {
+        domain = ['A', 'B', 'C', 'D', 'E'];
+      }
+    }
     return d3.scale.ordinal().domain(domain).range(this.colors5r);
   };
 

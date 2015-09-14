@@ -54,8 +54,8 @@
             longName: '<%= escape_javascript row.resource.long_name -%>',
             qualifier: '<%= escape_javascript row.resource.qualifier -%>',
             measures: {
-              <%= colorMetric.name -%>: { val: <%= color ? color.value : "null" -%>, fval: '<%= color ? color.formatted_value : "-" -%>', data: '<%= color ? color.formatted_value : "-" -%>' },
-              <%= sizeMetric.name -%>: { val: <%= size ? size.value : "null" -%>, fval: '<%= size ? size.formatted_value : "-" -%>', data: '<%= size ? size.formatted_value : "-" -%>' }
+              <%= colorMetric.name -%>: { val: <%= color ? color.value : "null" -%>, fval: '<%= color ? color.formatted_value : "-" -%>' },
+              <%= sizeMetric.name -%>: { val: <%= size ? size.value : "null" -%>, fval: '<%= size ? size.formatted_value : "-" -%>' }
             }
           },
         <% end %>
