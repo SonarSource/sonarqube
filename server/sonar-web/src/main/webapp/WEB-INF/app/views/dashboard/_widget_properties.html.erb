@@ -1,16 +1,4 @@
-<form onsubmit="$j.ajax({
-                url: 	'<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>&id=<%= params[:id] -%>',
-                type: 	'post',
-                data: 	$j(this).serialize(),
-                error:	function(request)
-                        {
-                                $j('#error<%=widget.id-%>').text(request.responseText);
-                                $j('#error<%=widget.id-%>').show();
-                        }
-                });
-           return false;"
-         method="post"
-         action="<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>">
+<form id="configure-widget-<%= widget.id -%>" method="post" action="<%= ApplicationController.root_context -%>/dashboard/save_widget?wid=<%= widget.id -%>">
   <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
   <table class="table width100">
     <tbody>
@@ -20,12 +8,12 @@
         <td class="form-key-cell"><%= message('widget.resource_id') %> <em class="mandatory">*</em></td>
         <td class="form-val-cell" id="row_resource">
           <%= resource_select_tag 'resource_id', {
-              :resource_type_property => 'supportsGlobalDashboards',
-              :selected_resource => widget.resource,
-              :width => '250px',
-              :html_id => "widget-#{widget.id}-select-prj-#{widget.key.parameterize}",
-              :html_class => "widget-select-prj-#{widget.key.parameterize}"
-          } -%>
+                                                   :resource_type_property => 'supportsGlobalDashboards',
+                                                   :selected_resource => widget.resource,
+                                                   :width => '250px',
+                                                   :html_id => "widget-#{widget.id}-select-prj-#{widget.key.parameterize}",
+                                                   :html_class => "widget-select-prj-#{widget.key.parameterize}"
+                                               } -%>
         </td>
       </tr>
     <% end %>
@@ -65,3 +53,27 @@
   </table>
   <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
 </form>
+
+<script>
+  (function ($) {
+    $('#configure-widget-<%= widget.id -%>').on('submit', function (e) {
+      e.preventDefault();
+      var form = $(e.currentTarget);
+      var resourceInput = form.find('input[name="resource_id"]');
+      if (resourceInput.length && !resourceInput.val()) {
+        $('#error<%= widget.id -%>').text('<%= escape_javascript message('widget.select_project') -%>');
+        $('#error<%= widget.id -%>').show();
+      } else {
+        $.ajax({
+          url: baseUrl + '/dashboard/save_widget?wid=<%= widget.id -%>&id=<%= params[:id] -%>',
+          type: 'POST',
+          data: form.serialize(),
+          error: function (request) {
+            $('#error<%= widget.id -%>').text(request.responseText);
+            $('#error<%= widget.id -%>').show();
+          }
+        });
+      }
+    });
+  })(window.jQuery);
+</script>
