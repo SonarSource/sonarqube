@@ -172,7 +172,7 @@ public class PersistComponentsStep implements ComputationStep {
         dbClient.componentDao().insert(dbSession, componentDto);
         return componentDto;
       } else {
-        if (shouldUpdate(existingComponent, componentDto)) {
+        if (updateExisting(existingComponent, componentDto)) {
           dbClient.componentDao().update(dbSession, existingComponent);
         }
         return existingComponent;
@@ -325,10 +325,14 @@ public class PersistComponentsStep implements ComputationStep {
     dbIdsRepository.setComponentId(component, componentDto.getId());
   }
 
-  private static boolean shouldUpdate(ComponentDto existingComponent, ComponentDto newComponent) {
+  private static boolean updateExisting(ComponentDto existingComponent, ComponentDto newComponent) {
     boolean modified = false;
     if (!StringUtils.equals(existingComponent.name(), newComponent.name())) {
       existingComponent.setName(newComponent.name());
+      modified = true;
+    }
+    if (!StringUtils.equals(existingComponent.longName(), newComponent.longName())) {
+      existingComponent.setLongName(newComponent.longName());
       modified = true;
     }
     if (!StringUtils.equals(existingComponent.description(), newComponent.description())) {

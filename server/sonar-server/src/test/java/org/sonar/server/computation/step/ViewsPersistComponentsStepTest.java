@@ -124,9 +124,9 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persist_view_with_projectView() {
     treeRootHolder.setRoot(
-      createViewBuilder()
-        .addChildren(createProjectView1Builder().build())
-        .build());
+        createViewBuilder()
+            .addChildren(createProjectView1Builder().build())
+            .build());
 
     underTest.execute();
 
@@ -199,13 +199,13 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persist_project_view_under_subview() {
     treeRootHolder.setRoot(
-      createViewBuilder()
-        .addChildren(
-          createSubView1Builder()
+        createViewBuilder()
             .addChildren(
-              createProjectView1Builder().build())
-            .build())
-        .build());
+                createSubView1Builder()
+                    .addChildren(
+                        createProjectView1Builder().build())
+                    .build())
+            .build());
 
     underTest.execute();
 
@@ -217,6 +217,21 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     assertDtoIsSubView1(viewDto, subView1Dto);
     ComponentDto pv1Dto = getComponentFromDb(PROJECT_VIEW_1_KEY);
     assertDtoIsProjectView1(pv1Dto, viewDto, subView1Dto);
+  }
+
+  @Test
+  public void update_view_name_and_longName() {
+    ComponentDto viewDto = createViewDto().setLongName("another long name").setCreatedAt(now);
+    persistComponentDto(viewDto);
+
+    treeRootHolder.setRoot(createViewBuilder().build());
+
+    underTest.execute();
+
+    assertRowsCountInTableProjects(1);
+
+    ComponentDto newViewDto = getComponentFromDb(VIEW_KEY);
+    assertDtoIsView(newViewDto);
   }
 
   private static ViewsComponent.Builder createViewBuilder() {
