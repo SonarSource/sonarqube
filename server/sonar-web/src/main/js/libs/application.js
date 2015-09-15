@@ -500,6 +500,18 @@ function closeModalWindow () {
     return String.fromCharCode(97 + value - 1).toUpperCase();
   };
 
+
+  /**
+   * Format a level measure
+   * @param {number} value
+   */
+  var levelFormatter = function (value) {
+    var l10nKey = 'metric.level.' + value,
+        result = window.t(l10nKey);
+    // if couldn't translate, return the initial value
+    return l10nKey !== result ? result : value;
+  };
+
   /**
    * Format a measure according to its type
    * @param measure
@@ -524,7 +536,8 @@ function closeModalWindow () {
           },
           'WORK_DUR': durationFormatter,
           'SHORT_WORK_DUR': shortDurationFormatter,
-          'RATING': ratingFormatter
+          'RATING': ratingFormatter,
+          'LEVEL': levelFormatter
         };
     if (measure != null && type != null) {
       formatted = formatters[type] != null ? formatters[type](measure) : measure;
