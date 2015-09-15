@@ -45,7 +45,6 @@ import org.sonar.db.component.ResourceMapper;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithProjectUuidDto;
-import org.sonar.db.component.ViewsComponentDto;
 import org.sonar.db.component.ViewsSnapshotDto;
 import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.db.compute.AnalysisReportMapper;
@@ -210,7 +209,6 @@ public class MyBatis {
     confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
     confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
-    confBuilder.loadAlias("ViewsComponent", ViewsComponentDto.class);
     confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it

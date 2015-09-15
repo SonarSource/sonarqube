@@ -271,14 +271,6 @@ public class ComponentDao implements Dao {
     mapper(session).update(item);
   }
 
-  public List<ViewsComponentDto> selectRootViews(DbSession dbSession) {
-    return mapper(dbSession).selectRootViews();
-  }
-
-  public List<ViewsComponentDto> selectViewTree(DbSession dbSession, String rootViewUuid) {
-    return mapper(dbSession).selectViewTree(rootViewUuid);
-  }
-
   private ComponentMapper mapper(DbSession session) {
     return session.getMapper(ComponentMapper.class);
   }

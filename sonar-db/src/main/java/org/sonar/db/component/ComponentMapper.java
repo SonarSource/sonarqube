@@ -124,7 +124,4 @@ public interface ComponentMapper {
 
   void update(ComponentDto componentDto);
 
-  List<ViewsComponentDto> selectRootViews();
-
-  List<ViewsComponentDto> selectViewTree(@Param("rootViewUuid") String rootViewUuid);
 }

@@ -385,28 +385,4 @@
     WHERE uuid=#{uuid}
   </insert>
 
-  <select id="selectRootViews" resultType="ViewsComponent">
-    SELECT
-    <include refid="viewsComponentColumns"/>
-    FROM projects p
-    <where>
-      p.scope = 'PRJ'
-      and p.qualifier = 'VW'
-    </where>
-  </select>
-
-  <select id="selectViewTree" resultType="ViewsComponent" parameterType="String">
-    select
-    <include refid="viewsComponentColumns"/>
-    from projects p
-    <where>
-      project_uuid = #{rootViewUuid}
-      and p.uuid != #{rootViewUuid}
-      and p.scope in ('PRJ', 'FIL')
-      and p.qualifier in ('VW', 'SVW', 'TRK')
-      and p.enabled = ${_true}
-    </where>
-    order by module_uuid_path;
-  </select>
-
 </mapper>
