@@ -19,18 +19,16 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.repository.ProjectSettingsRepo;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.collect.Lists;
-
 import java.util.List;
-
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
+import org.sonar.batch.report.AnalysisContextReportPublisher;
+import org.sonar.batch.repository.ProjectSettingsRepo;
 
 /**
  * @since 2.12
@@ -38,16 +36,17 @@ import org.sonar.batch.bootstrap.GlobalSettings;
 public class ModuleSettings extends Settings {
 
   private final ProjectSettingsRepo projectSettingsRepo;
-  private DefaultAnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
 
   public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectSettingsRepo projectSettingsRepo,
-    DefaultAnalysisMode analysisMode) {
+    DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     super(batchSettings.getDefinitions());
     this.projectSettingsRepo = projectSettingsRepo;
     this.analysisMode = analysisMode;
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
     init(moduleDefinition, batchSettings);
+    contextReportPublisher.dumpSettings(moduleDefinition, this);
   }
 
   private ModuleSettings init(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {

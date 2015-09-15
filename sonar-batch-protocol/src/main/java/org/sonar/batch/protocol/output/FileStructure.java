@@ -62,6 +62,10 @@ public class FileStructure {
     return new File(dir, "metadata.pb");
   }
 
+  public File analysisLog() {
+    return new File(dir, "analysis.log");
+  }
+
   public File activeRules() {
     return new File(dir, "activerules.pb");
   }

@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -29,8 +27,10 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.scan.ImmutableProjectReactor;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,7 +52,8 @@ public class ReportPublisherTest {
   public void should_log_successful_analysis() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
-    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
+      mock(TempFolder.class), new ReportPublisherStep[0]);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -65,7 +66,8 @@ public class ReportPublisherTest {
   public void should_log_successful_issues_analysis() {
     Settings settings = new Settings();
     when(mode.isIssues()).thenReturn(true);
-    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
+      mock(TempFolder.class), new ReportPublisherStep[0]);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);

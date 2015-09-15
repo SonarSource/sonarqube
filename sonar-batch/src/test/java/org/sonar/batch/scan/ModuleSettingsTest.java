@@ -20,10 +20,11 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.HashBasedTable;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,10 +35,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.report.AnalysisContextReportPublisher;
 import org.sonar.batch.repository.ProjectSettingsRepo;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -85,14 +84,13 @@ public class ModuleSettingsTest {
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "overridding", "batch",
-      "on-batch", "true"
-      ));
+      "on-batch", "true"));
 
     ProjectSettingsRepo projSettingsRepo = createSettings("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -105,14 +103,13 @@ public class ModuleSettingsTest {
     GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
-      "sonar.foo.secured", "bar"
-      ));
+      "sonar.foo.secured", "bar"));
 
     ProjectSettingsRepo projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -123,8 +120,7 @@ public class ModuleSettingsTest {
     GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
-      "sonar.foo.secured", "bar"
-      ));
+      "sonar.foo.secured", "bar"));
 
     ProjectSettingsRepo projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
@@ -132,13 +128,14 @@ public class ModuleSettingsTest {
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 
     thrown.expect(MessageException.class);
     thrown
-      .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
+      .expectMessage(
+        "Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     moduleSettings.getString("sonar.foo.secured");
   }
 }

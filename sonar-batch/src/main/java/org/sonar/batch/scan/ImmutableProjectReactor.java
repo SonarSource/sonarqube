@@ -20,7 +20,7 @@
 package org.sonar.batch.scan;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.BatchSide;
@@ -33,7 +33,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 public class ImmutableProjectReactor {
 
   private ProjectDefinition root;
-  private Map<String, ProjectDefinition> byKey = new HashMap<>();
+  private Map<String, ProjectDefinition> byKey = new LinkedHashMap<>();
 
   public ImmutableProjectReactor(ProjectDefinition root) {
     if (root.getParent() != null) {

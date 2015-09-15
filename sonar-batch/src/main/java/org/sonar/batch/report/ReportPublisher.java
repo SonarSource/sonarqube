@@ -19,12 +19,8 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-
-import org.sonar.batch.util.BatchUtils;
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,7 +28,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
-
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -44,9 +39,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
+import org.sonar.batch.util.BatchUtils;
+
 import static java.lang.String.format;
 
 @BatchSide
@@ -62,16 +60,18 @@ public class ReportPublisher implements Startable {
   private final ImmutableProjectReactor projectReactor;
   private final DefaultAnalysisMode analysisMode;
   private final TempFolder temp;
+  private final AnalysisContextReportPublisher contextPublisher;
 
   private ReportPublisherStep[] publishers;
 
   private File reportDir;
   private BatchReportWriter writer;
 
-  public ReportPublisher(Settings settings, ServerClient serverClient, Server server,
+  public ReportPublisher(Settings settings, ServerClient serverClient, Server server, AnalysisContextReportPublisher contextPublisher,
     ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.serverClient = serverClient;
     this.server = server;
+    this.contextPublisher = contextPublisher;
     this.projectReactor = projectReactor;
     this.settings = settings;
     this.analysisMode = analysisMode;
@@ -83,6 +83,7 @@ public class ReportPublisher implements Startable {
   public void start() {
     reportDir = new File(projectReactor.getRoot().getWorkDir(), "batch-report");
     writer = new BatchReportWriter(reportDir);
+    contextPublisher.init(writer);
   }
 
   @Override
