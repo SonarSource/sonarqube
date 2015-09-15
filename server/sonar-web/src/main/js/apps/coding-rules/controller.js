@@ -156,6 +156,18 @@ define([
       if (firstPage) {
         this.app.workspaceListView.scrollTo();
       }
+    },
+
+    activateCurrent: function () {
+      var rule = this.app.list.at(this.app.state.get('selectedIndex'));
+      var ruleView = this.app.workspaceListView.children.findByModel(rule);
+      ruleView.$('.coding-rules-detail-quality-profile-activate').click();
+    },
+
+    deactivateCurrent: function () {
+      var rule = this.app.list.at(this.app.state.get('selectedIndex'));
+      var ruleView = this.app.workspaceListView.children.findByModel(rule);
+      ruleView.$('.coding-rules-detail-quality-profile-deactivate').click();
     }
 
   });

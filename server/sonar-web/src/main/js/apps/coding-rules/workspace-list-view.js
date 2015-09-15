@@ -37,6 +37,14 @@ define([
         that.options.app.controller.showDetailsForSelected();
         return false;
       });
+      key('a', function () {
+        that.options.app.controller.activateCurrent();
+        return false;
+      });
+      key('d', function () {
+        that.options.app.controller.deactivateCurrent();
+        return false;
+      });
     }
   });
 
