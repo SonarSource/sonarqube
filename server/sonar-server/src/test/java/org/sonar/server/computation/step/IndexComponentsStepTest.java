@@ -26,11 +26,14 @@ import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepositoryImpl;
+import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.component.ViewsComponent;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.Component.Type.VIEW;
 
 public class IndexComponentsStepTest extends BaseStepTest {
 
@@ -38,19 +41,30 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
 
   ResourceIndexDao resourceIndexDao = mock(ResourceIndexDao.class);
-  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
   IndexComponentsStep underTest = new IndexComponentsStep(resourceIndexDao, dbIdsRepository, treeRootHolder);
 
   @Test
-  public void call_indexProject_of_dao() {
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("PROJECT_UUID").setKey(PROJECT_KEY).build();
+  public void call_indexProject_of_dao_for_project() {
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid("PROJECT_UUID").setKey(PROJECT_KEY).build();
     dbIdsRepository.setComponentId(project, 123L);
     treeRootHolder.setRoot(project);
+
+    underTest.execute();
+
+    verify(resourceIndexDao).indexProject(123L);
+  }
+
+  @Test
+  public void call_indexProject_of_dao_for_view() {
+    Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid("PROJECT_UUID").build();
+    dbIdsRepository.setComponentId(view, 123L);
+    treeRootHolder.setRoot(view);
 
     underTest.execute();
 
