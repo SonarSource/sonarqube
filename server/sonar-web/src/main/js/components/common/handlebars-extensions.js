@@ -33,10 +33,6 @@
     return baseUrl + '/dashboard/index?id=' + encodeURIComponent(componentKey);
   });
 
-  Handlebars.registerHelper('componentOverviewPermalink', function (componentKey) {
-    return baseUrl + '/overview/index?id=' + encodeURIComponent(componentKey);
-  });
-
   Handlebars.registerHelper('componentDashboardPermalink', function (componentKey, dashboardKey) {
     var params = [
       { key: 'id', value: componentKey },

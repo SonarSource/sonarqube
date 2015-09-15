@@ -149,7 +149,6 @@ module.exports = (grunt) ->
           'build-app:measures'
           'build-app:metrics'
           'build-app:nav'
-          'build-app:overview'
           'build-app:project-permissions'
           'build-app:provisioning'
           'build-app:quality-gates'

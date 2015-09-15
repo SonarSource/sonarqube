@@ -7,8 +7,9 @@ export default {
 
   renderLink(url, title, highlightUrl = url) {
     let fullUrl = window.baseUrl + url;
+    let check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
     return (
-        <li key={highlightUrl} className={this.activeLink(highlightUrl)}>
+        <li key={highlightUrl} className={check(highlightUrl)}>
           <a href={fullUrl}>{title}</a>
         </li>
     );

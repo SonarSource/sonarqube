@@ -8,14 +8,24 @@ const SETTINGS_URLS = [
   '/project/deletion'
 ];
 
-const MORE_URLS = ['/dashboards', '/dashboard', '/plugins/resource'];
-
 export default React.createClass({
   mixins: [DashboardNameMixin, LinksMixin],
 
   renderOverviewLink() {
-    const url = `/overview/index?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('overview.page'), '/overview');
+    if (_.size(this.props.component.dashboards) === 0) {
+      return null;
+    }
+    let firstDashboard = _.first(this.props.component.dashboards);
+    let url = `/dashboard/index?id=${encodeURIComponent(this.props.component.key)}`;
+    let name = this.getLocalizedDashboardName(firstDashboard.name);
+    return this.renderLink(url, name, () => {
+      /* eslint eqeqeq: 0 */
+      let pathMatch = window.location.pathname === `${window.baseUrl}/dashboard` ||
+          window.location.pathname === `${window.baseUrl}/dashboard/index`;
+      let params = window.getQueryParams();
+      let paramMatch = !params['did'] || params['did'] == firstDashboard.key;
+      return pathMatch && paramMatch ? 'active' : null;
+    });
   },
 
   renderComponentsLink() {
@@ -156,12 +166,8 @@ export default React.createClass({
   },
 
   renderMore() {
-    let isActive = MORE_URLS.some(url => {
-          return window.location.href.indexOf(url) !== -1;
-        }),
-        className = 'dropdown' + (isActive ? ' active' : '');
     return (
-        <li className={className}>
+        <li className="dropdown">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
             {window.t('more')}&nbsp;<i className="icon-dropdown"></i>
           </a>
@@ -175,7 +181,7 @@ export default React.createClass({
   },
 
   renderDashboards() {
-    let dashboards = (this.props.component.dashboards || []).map(d => {
+    let dashboards = _.rest(this.props.component.dashboards || []).map(d => {
       let url = `/dashboard?id=${encodeURIComponent(this.props.component.key)}&did=${d.key}`;
       let name = this.getLocalizedDashboardName(d.name);
       return this.renderLink(url, name);

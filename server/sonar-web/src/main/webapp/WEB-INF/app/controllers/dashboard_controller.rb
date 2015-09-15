@@ -17,8 +17,6 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-include ERB::Util
-
 class DashboardController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
@@ -27,24 +25,20 @@ class DashboardController < ApplicationController
 
   def index
     load_resource()
-    if @resource && @resource.display_dashboard? && !params[:did] && !params[:name]
-      overview_url = url_for({:controller => 'overview', :action => :index}) + '?id=' + url_encode(@resource.key)
-      return redirect_to overview_url
-    end
-    if !@resource || @resource.display_dashboard?
-      redirect_if_bad_component()
-      load_dashboard()
-      load_authorized_widget_definitions()
-    else
-      if !@resource || !@snapshot
+      if !@resource || @resource.display_dashboard?
         redirect_if_bad_component()
+        load_dashboard()
+        load_authorized_widget_definitions()
       else
-        # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
-        @hide_sidebar = true
-        @file = @resource
-        @project = @snapshot.parent.project
-        @metric=params[:metric]
-        render :action => 'no_dashboard'
+        if !@resource || !@snapshot
+          redirect_if_bad_component()
+        else
+          # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
+          @hide_sidebar = true
+          @file = @resource
+          @project = @snapshot.parent.project
+          @metric=params[:metric]
+          render :action => 'no_dashboard'
       end
     end
   end
