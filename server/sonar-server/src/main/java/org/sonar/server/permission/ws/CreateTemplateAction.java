@@ -28,8 +28,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Permissions.PermissionTemplate;
-import org.sonarqube.ws.Permissions.WsCreatePermissionTemplateResponse;
+import org.sonarqube.ws.WsPermissions.PermissionTemplate;
+import org.sonarqube.ws.WsPermissions.WsCreatePermissionTemplateResponse;
 
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;

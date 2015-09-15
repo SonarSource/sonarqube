@@ -45,24 +45,53 @@ message PrimitiveTypeMsg {
   optional NestedMsg nested = 8;
 }
 
-message ArrayFieldMsg {
+message TestArray {
   repeated string strings = 1;
   repeated NestedMsg nesteds = 2;
-
-  // naming convention. A boolean field is used
-  // to know if the repeated field is present.
-  optional bool nullableArrayPresentIfEmpty = 3;
-  repeated string nullableArray = 4;
 }
 
 message NestedMsg {
   optional string label = 1;
 }
 
-message MapMsg {
+message TestMap {
   map<string,string> stringMap = 1;
   map<string,NestedMsg> nestedMap = 2;
+}
 
-  optional bool nullableStringMapPresentIfEmpty = 3;
-  map<string,string> nullableStringMap = 4;
+message TestNullableArray {
+  optional string label = 1;
+
+  // allow to make the difference between null and empty array
+  optional Countries countries = 2;
+}
+
+message TestNullableMap {
+  optional string label = 1;
+
+  // allow to make the difference between null and empty map
+  optional Translations translations = 2;
+}
+
+message TestMapOfArray {
+  // allow to have map values of arrays
+  map<string, Countries> moneys = 1;
+}
+
+message TestMapOfMap {
+  // allow to have map values of maps
+  map<string, Translations> catalogs = 1;
+}
+
+message Translations {
+  map<string,string> translations = 1;
+}
+
+message Countries {
+  repeated Country countries = 1;
+}
+
+message Country {
+  optional string name = 1;
+  optional string continent = 2;
 }

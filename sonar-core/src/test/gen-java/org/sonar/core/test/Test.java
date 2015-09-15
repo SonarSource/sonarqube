@@ -1795,8 +1795,8 @@ public final class Test {
 
   }
 
-  public interface ArrayFieldMsgOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:ArrayFieldMsg)
+  public interface TestArrayOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:TestArray)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -1841,61 +1841,21 @@ public final class Test {
      */
     org.sonar.core.test.Test.NestedMsgOrBuilder getNestedsOrBuilder(
         int index);
-
-    /**
-     * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
-     *
-     * <pre>
-     * naming convention. A boolean field is used
-     * to know if the repeated field is present.
-     * </pre>
-     */
-    boolean hasNullableArrayPresentIfEmpty();
-    /**
-     * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
-     *
-     * <pre>
-     * naming convention. A boolean field is used
-     * to know if the repeated field is present.
-     * </pre>
-     */
-    boolean getNullableArrayPresentIfEmpty();
-
-    /**
-     * <code>repeated string nullableArray = 4;</code>
-     */
-    com.google.protobuf.ProtocolStringList
-        getNullableArrayList();
-    /**
-     * <code>repeated string nullableArray = 4;</code>
-     */
-    int getNullableArrayCount();
-    /**
-     * <code>repeated string nullableArray = 4;</code>
-     */
-    java.lang.String getNullableArray(int index);
-    /**
-     * <code>repeated string nullableArray = 4;</code>
-     */
-    com.google.protobuf.ByteString
-        getNullableArrayBytes(int index);
   }
   /**
-   * Protobuf type {@code ArrayFieldMsg}
+   * Protobuf type {@code TestArray}
    */
-  public  static final class ArrayFieldMsg extends
+  public  static final class TestArray extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:ArrayFieldMsg)
-      ArrayFieldMsgOrBuilder {
-    // Use ArrayFieldMsg.newBuilder() to construct.
-    private ArrayFieldMsg(com.google.protobuf.GeneratedMessage.Builder builder) {
+      // @@protoc_insertion_point(message_implements:TestArray)
+      TestArrayOrBuilder {
+    // Use TestArray.newBuilder() to construct.
+    private TestArray(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
     }
-    private ArrayFieldMsg() {
+    private TestArray() {
       strings_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       nesteds_ = java.util.Collections.emptyList();
-      nullableArrayPresentIfEmpty_ = false;
-      nullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
     @java.lang.Override
@@ -1903,7 +1863,7 @@ public final class Test {
     getUnknownFields() {
       return this.unknownFields;
     }
-    private ArrayFieldMsg(
+    private TestArray(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
       this();
@@ -1942,20 +1902,6 @@ public final class Test {
               nesteds_.add(input.readMessage(org.sonar.core.test.Test.NestedMsg.PARSER, extensionRegistry));
               break;
             }
-            case 24: {
-              bitField0_ |= 0x00000001;
-              nullableArrayPresentIfEmpty_ = input.readBool();
-              break;
-            }
-            case 34: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                nullableArray_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000008;
-              }
-              nullableArray_.add(bs);
-              break;
-            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1971,26 +1917,22 @@ public final class Test {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           nesteds_ = java.util.Collections.unmodifiableList(nesteds_);
         }
-        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-          nullableArray_ = nullableArray_.getUnmodifiableView();
-        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_descriptor;
+      return org.sonar.core.test.Test.internal_static_TestArray_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_fieldAccessorTable
+      return org.sonar.core.test.Test.internal_static_TestArray_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.sonar.core.test.Test.ArrayFieldMsg.class, org.sonar.core.test.Test.ArrayFieldMsg.Builder.class);
+              org.sonar.core.test.Test.TestArray.class, org.sonar.core.test.Test.TestArray.Builder.class);
     }
 
-    private int bitField0_;
     public static final int STRINGS_FIELD_NUMBER = 1;
     private com.google.protobuf.LazyStringList strings_;
     /**
@@ -2055,60 +1997,6 @@ public final class Test {
       return nesteds_.get(index);
     }
 
-    public static final int NULLABLEARRAYPRESENTIFEMPTY_FIELD_NUMBER = 3;
-    private boolean nullableArrayPresentIfEmpty_;
-    /**
-     * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
-     *
-     * <pre>
-     * naming convention. A boolean field is used
-     * to know if the repeated field is present.
-     * </pre>
-     */
-    public boolean hasNullableArrayPresentIfEmpty() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
-     *
-     * <pre>
-     * naming convention. A boolean field is used
-     * to know if the repeated field is present.
-     * </pre>
-     */
-    public boolean getNullableArrayPresentIfEmpty() {
-      return nullableArrayPresentIfEmpty_;
-    }
-
-    public static final int NULLABLEARRAY_FIELD_NUMBER = 4;
-    private com.google.protobuf.LazyStringList nullableArray_;
-    /**
-     * <code>repeated string nullableArray = 4;</code>
-     */
-    public com.google.protobuf.ProtocolStringList
-        getNullableArrayList() {
-      return nullableArray_;
-    }
-    /**
-     * <code>repeated string nullableArray = 4;</code>
-     */
-    public int getNullableArrayCount() {
-      return nullableArray_.size();
-    }
-    /**
-     * <code>repeated string nullableArray = 4;</code>
-     */
-    public java.lang.String getNullableArray(int index) {
-      return nullableArray_.get(index);
-    }
-    /**
-     * <code>repeated string nullableArray = 4;</code>
-     */
-    public com.google.protobuf.ByteString
-        getNullableArrayBytes(int index) {
-      return nullableArray_.getByteString(index);
-    }
-
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -2126,12 +2014,6 @@ public final class Test {
       }
       for (int i = 0; i < nesteds_.size(); i++) {
         output.writeMessage(2, nesteds_.get(i));
-      }
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBool(3, nullableArrayPresentIfEmpty_);
-      }
-      for (int i = 0; i < nullableArray_.size(); i++) {
-        output.writeBytes(4, nullableArray_.getByteString(i));
       }
       unknownFields.writeTo(output);
     }
@@ -2155,72 +2037,59 @@ public final class Test {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, nesteds_.get(i));
       }
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(3, nullableArrayPresentIfEmpty_);
-      }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < nullableArray_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(nullableArray_.getByteString(i));
-        }
-        size += dataSize;
-        size += 1 * getNullableArrayList().size();
-      }
       size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
+    public static org.sonar.core.test.Test.TestArray parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
+    public static org.sonar.core.test.Test.TestArray parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(byte[] data)
+    public static org.sonar.core.test.Test.TestArray parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
+    public static org.sonar.core.test.Test.TestArray parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.TestArray parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
+    public static org.sonar.core.test.Test.TestArray parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseDelimitedFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.TestArray parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseDelimitedFrom(
+    public static org.sonar.core.test.Test.TestArray parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
+    public static org.sonar.core.test.Test.TestArray parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.ArrayFieldMsg parseFrom(
+    public static org.sonar.core.test.Test.TestArray parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -2231,7 +2100,7 @@ public final class Test {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(org.sonar.core.test.Test.ArrayFieldMsg prototype) {
+    public static Builder newBuilder(org.sonar.core.test.Test.TestArray prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -2246,25 +2115,25 @@ public final class Test {
       return builder;
     }
     /**
-     * Protobuf type {@code ArrayFieldMsg}
+     * Protobuf type {@code TestArray}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:ArrayFieldMsg)
-        org.sonar.core.test.Test.ArrayFieldMsgOrBuilder {
+        // @@protoc_insertion_point(builder_implements:TestArray)
+        org.sonar.core.test.Test.TestArrayOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_descriptor;
+        return org.sonar.core.test.Test.internal_static_TestArray_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_fieldAccessorTable
+        return org.sonar.core.test.Test.internal_static_TestArray_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.sonar.core.test.Test.ArrayFieldMsg.class, org.sonar.core.test.Test.ArrayFieldMsg.Builder.class);
+                org.sonar.core.test.Test.TestArray.class, org.sonar.core.test.Test.TestArray.Builder.class);
       }
 
-      // Construct using org.sonar.core.test.Test.ArrayFieldMsg.newBuilder()
+      // Construct using org.sonar.core.test.Test.TestArray.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -2289,34 +2158,29 @@ public final class Test {
         } else {
           nestedsBuilder_.clear();
         }
-        nullableArrayPresentIfEmpty_ = false;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        nullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.sonar.core.test.Test.internal_static_ArrayFieldMsg_descriptor;
+        return org.sonar.core.test.Test.internal_static_TestArray_descriptor;
       }
 
-      public org.sonar.core.test.Test.ArrayFieldMsg getDefaultInstanceForType() {
-        return org.sonar.core.test.Test.ArrayFieldMsg.getDefaultInstance();
+      public org.sonar.core.test.Test.TestArray getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.TestArray.getDefaultInstance();
       }
 
-      public org.sonar.core.test.Test.ArrayFieldMsg build() {
-        org.sonar.core.test.Test.ArrayFieldMsg result = buildPartial();
+      public org.sonar.core.test.Test.TestArray build() {
+        org.sonar.core.test.Test.TestArray result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.sonar.core.test.Test.ArrayFieldMsg buildPartial() {
-        org.sonar.core.test.Test.ArrayFieldMsg result = new org.sonar.core.test.Test.ArrayFieldMsg(this);
+      public org.sonar.core.test.Test.TestArray buildPartial() {
+        org.sonar.core.test.Test.TestArray result = new org.sonar.core.test.Test.TestArray(this);
         int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           strings_ = strings_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000001);
@@ -2331,31 +2195,21 @@ public final class Test {
         } else {
           result.nesteds_ = nestedsBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.nullableArrayPresentIfEmpty_ = nullableArrayPresentIfEmpty_;
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          nullableArray_ = nullableArray_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000008);
-        }
-        result.nullableArray_ = nullableArray_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.sonar.core.test.Test.ArrayFieldMsg) {
-          return mergeFrom((org.sonar.core.test.Test.ArrayFieldMsg)other);
+        if (other instanceof org.sonar.core.test.Test.TestArray) {
+          return mergeFrom((org.sonar.core.test.Test.TestArray)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.sonar.core.test.Test.ArrayFieldMsg other) {
-        if (other == org.sonar.core.test.Test.ArrayFieldMsg.getDefaultInstance()) return this;
+      public Builder mergeFrom(org.sonar.core.test.Test.TestArray other) {
+        if (other == org.sonar.core.test.Test.TestArray.getDefaultInstance()) return this;
         if (!other.strings_.isEmpty()) {
           if (strings_.isEmpty()) {
             strings_ = other.strings_;
@@ -2392,19 +2246,6 @@ public final class Test {
             }
           }
         }
-        if (other.hasNullableArrayPresentIfEmpty()) {
-          setNullableArrayPresentIfEmpty(other.getNullableArrayPresentIfEmpty());
-        }
-        if (!other.nullableArray_.isEmpty()) {
-          if (nullableArray_.isEmpty()) {
-            nullableArray_ = other.nullableArray_;
-            bitField0_ = (bitField0_ & ~0x00000008);
-          } else {
-            ensureNullableArrayIsMutable();
-            nullableArray_.addAll(other.nullableArray_);
-          }
-          onChanged();
-        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -2418,11 +2259,11 @@ public final class Test {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.sonar.core.test.Test.ArrayFieldMsg parsedMessage = null;
+        org.sonar.core.test.Test.TestArray parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.sonar.core.test.Test.ArrayFieldMsg) e.getUnfinishedMessage();
+          parsedMessage = (org.sonar.core.test.Test.TestArray) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -2766,172 +2607,27 @@ public final class Test {
         return nestedsBuilder_;
       }
 
-      private boolean nullableArrayPresentIfEmpty_ ;
-      /**
-       * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
-       *
-       * <pre>
-       * naming convention. A boolean field is used
-       * to know if the repeated field is present.
-       * </pre>
-       */
-      public boolean hasNullableArrayPresentIfEmpty() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
-       *
-       * <pre>
-       * naming convention. A boolean field is used
-       * to know if the repeated field is present.
-       * </pre>
-       */
-      public boolean getNullableArrayPresentIfEmpty() {
-        return nullableArrayPresentIfEmpty_;
-      }
-      /**
-       * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
-       *
-       * <pre>
-       * naming convention. A boolean field is used
-       * to know if the repeated field is present.
-       * </pre>
-       */
-      public Builder setNullableArrayPresentIfEmpty(boolean value) {
-        bitField0_ |= 0x00000004;
-        nullableArrayPresentIfEmpty_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bool nullableArrayPresentIfEmpty = 3;</code>
-       *
-       * <pre>
-       * naming convention. A boolean field is used
-       * to know if the repeated field is present.
-       * </pre>
-       */
-      public Builder clearNullableArrayPresentIfEmpty() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        nullableArrayPresentIfEmpty_ = false;
-        onChanged();
-        return this;
-      }
-
-      private com.google.protobuf.LazyStringList nullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureNullableArrayIsMutable() {
-        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-          nullableArray_ = new com.google.protobuf.LazyStringArrayList(nullableArray_);
-          bitField0_ |= 0x00000008;
-         }
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public com.google.protobuf.ProtocolStringList
-          getNullableArrayList() {
-        return nullableArray_.getUnmodifiableView();
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public int getNullableArrayCount() {
-        return nullableArray_.size();
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public java.lang.String getNullableArray(int index) {
-        return nullableArray_.get(index);
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public com.google.protobuf.ByteString
-          getNullableArrayBytes(int index) {
-        return nullableArray_.getByteString(index);
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public Builder setNullableArray(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureNullableArrayIsMutable();
-        nullableArray_.set(index, value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public Builder addNullableArray(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureNullableArrayIsMutable();
-        nullableArray_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public Builder addAllNullableArray(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureNullableArrayIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, nullableArray_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public Builder clearNullableArray() {
-        nullableArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000008);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string nullableArray = 4;</code>
-       */
-      public Builder addNullableArrayBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureNullableArrayIsMutable();
-        nullableArray_.add(value);
-        onChanged();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:ArrayFieldMsg)
+      // @@protoc_insertion_point(builder_scope:TestArray)
     }
 
-    // @@protoc_insertion_point(class_scope:ArrayFieldMsg)
-    private static final org.sonar.core.test.Test.ArrayFieldMsg DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:TestArray)
+    private static final org.sonar.core.test.Test.TestArray DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new org.sonar.core.test.Test.ArrayFieldMsg();
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.TestArray();
     }
 
-    public static org.sonar.core.test.Test.ArrayFieldMsg getDefaultInstance() {
+    public static org.sonar.core.test.Test.TestArray getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    public static final com.google.protobuf.Parser<ArrayFieldMsg> PARSER =
-        new com.google.protobuf.AbstractParser<ArrayFieldMsg>() {
-      public ArrayFieldMsg parsePartialFrom(
+    public static final com.google.protobuf.Parser<TestArray> PARSER =
+        new com.google.protobuf.AbstractParser<TestArray>() {
+      public TestArray parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         try {
-          return new ArrayFieldMsg(input, extensionRegistry);
+          return new TestArray(input, extensionRegistry);
         } catch (RuntimeException e) {
           if (e.getCause() instanceof
               com.google.protobuf.InvalidProtocolBufferException) {
@@ -2944,11 +2640,11 @@ public final class Test {
     };
 
     @java.lang.Override
-    public com.google.protobuf.Parser<ArrayFieldMsg> getParserForType() {
+    public com.google.protobuf.Parser<TestArray> getParserForType() {
       return PARSER;
     }
 
-    public org.sonar.core.test.Test.ArrayFieldMsg getDefaultInstanceForType() {
+    public org.sonar.core.test.Test.TestArray getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -3426,8 +3122,8 @@ public final class Test {
 
   }
 
-  public interface MapMsgOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:MapMsg)
+  public interface TestMapOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:TestMap)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -3441,35 +3137,19 @@ public final class Test {
      */
     java.util.Map<java.lang.String, org.sonar.core.test.Test.NestedMsg>
     getNestedMap();
-
-    /**
-     * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
-     */
-    boolean hasNullableStringMapPresentIfEmpty();
-    /**
-     * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
-     */
-    boolean getNullableStringMapPresentIfEmpty();
-
-    /**
-     * <code>map&lt;string, string&gt; nullableStringMap = 4;</code>
-     */
-    java.util.Map<java.lang.String, java.lang.String>
-    getNullableStringMap();
   }
   /**
-   * Protobuf type {@code MapMsg}
+   * Protobuf type {@code TestMap}
    */
-  public  static final class MapMsg extends
+  public  static final class TestMap extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:MapMsg)
-      MapMsgOrBuilder {
-    // Use MapMsg.newBuilder() to construct.
-    private MapMsg(com.google.protobuf.GeneratedMessage.Builder builder) {
+      // @@protoc_insertion_point(message_implements:TestMap)
+      TestMapOrBuilder {
+    // Use TestMap.newBuilder() to construct.
+    private TestMap(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
     }
-    private MapMsg() {
-      nullableStringMapPresentIfEmpty_ = false;
+    private TestMap() {
     }
 
     @java.lang.Override
@@ -3477,7 +3157,7 @@ public final class Test {
     getUnknownFields() {
       return this.unknownFields;
     }
-    private MapMsg(
+    private TestMap(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
       this();
@@ -3523,23 +3203,6 @@ public final class Test {
               nestedMap_.getMutableMap().put(nestedMap.getKey(), nestedMap.getValue());
               break;
             }
-            case 24: {
-              bitField0_ |= 0x00000001;
-              nullableStringMapPresentIfEmpty_ = input.readBool();
-              break;
-            }
-            case 34: {
-              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                nullableStringMap_ = com.google.protobuf.MapField.newMapField(
-                    NullableStringMapDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000008;
-              }
-              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-              nullableStringMap = input.readMessage(
-                  NullableStringMapDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              nullableStringMap_.getMutableMap().put(nullableStringMap.getKey(), nullableStringMap.getValue());
-              break;
-            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -3555,7 +3218,7 @@ public final class Test {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.sonar.core.test.Test.internal_static_MapMsg_descriptor;
+      return org.sonar.core.test.Test.internal_static_TestMap_descriptor;
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -3566,8 +3229,6 @@ public final class Test {
           return internalGetStringMap();
         case 2:
           return internalGetNestedMap();
-        case 4:
-          return internalGetNullableStringMap();
         default:
           throw new RuntimeException(
               "Invalid map field number: " + number);
@@ -3575,19 +3236,18 @@ public final class Test {
     }
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.sonar.core.test.Test.internal_static_MapMsg_fieldAccessorTable
+      return org.sonar.core.test.Test.internal_static_TestMap_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.sonar.core.test.Test.MapMsg.class, org.sonar.core.test.Test.MapMsg.Builder.class);
+              org.sonar.core.test.Test.TestMap.class, org.sonar.core.test.Test.TestMap.Builder.class);
     }
 
-    private int bitField0_;
     public static final int STRINGMAP_FIELD_NUMBER = 1;
     private static final class StringMapDefaultEntryHolder {
       static final com.google.protobuf.MapEntry<
           java.lang.String, java.lang.String> defaultEntry =
               com.google.protobuf.MapEntry
               .<java.lang.String, java.lang.String>newDefaultInstance(
-                  org.sonar.core.test.Test.internal_static_MapMsg_StringMapEntry_descriptor, 
+                  org.sonar.core.test.Test.internal_static_TestMap_StringMapEntry_descriptor, 
                   com.google.protobuf.WireFormat.FieldType.STRING,
                   "",
                   com.google.protobuf.WireFormat.FieldType.STRING,
@@ -3617,7 +3277,7 @@ public final class Test {
           java.lang.String, org.sonar.core.test.Test.NestedMsg> defaultEntry =
               com.google.protobuf.MapEntry
               .<java.lang.String, org.sonar.core.test.Test.NestedMsg>newDefaultInstance(
-                  org.sonar.core.test.Test.internal_static_MapMsg_NestedMapEntry_descriptor, 
+                  org.sonar.core.test.Test.internal_static_TestMap_NestedMapEntry_descriptor, 
                   com.google.protobuf.WireFormat.FieldType.STRING,
                   "",
                   com.google.protobuf.WireFormat.FieldType.MESSAGE,
@@ -3639,51 +3299,6 @@ public final class Test {
 
     public java.util.Map<java.lang.String, org.sonar.core.test.Test.NestedMsg> getNestedMap() {
       return internalGetNestedMap().getMap();
-    }
-
-    public static final int NULLABLESTRINGMAPPRESENTIFEMPTY_FIELD_NUMBER = 3;
-    private boolean nullableStringMapPresentIfEmpty_;
-    /**
-     * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
-     */
-    public boolean hasNullableStringMapPresentIfEmpty() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
-     */
-    public boolean getNullableStringMapPresentIfEmpty() {
-      return nullableStringMapPresentIfEmpty_;
-    }
-
-    public static final int NULLABLESTRINGMAP_FIELD_NUMBER = 4;
-    private static final class NullableStringMapDefaultEntryHolder {
-      static final com.google.protobuf.MapEntry<
-          java.lang.String, java.lang.String> defaultEntry =
-              com.google.protobuf.MapEntry
-              .<java.lang.String, java.lang.String>newDefaultInstance(
-                  org.sonar.core.test.Test.internal_static_MapMsg_NullableStringMapEntry_descriptor, 
-                  com.google.protobuf.WireFormat.FieldType.STRING,
-                  "",
-                  com.google.protobuf.WireFormat.FieldType.STRING,
-                  "");
-    }
-    private com.google.protobuf.MapField<
-        java.lang.String, java.lang.String> nullableStringMap_;
-    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-    internalGetNullableStringMap() {
-      if (nullableStringMap_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            NullableStringMapDefaultEntryHolder.defaultEntry);
-     }
-      return nullableStringMap_;
-    }
-    /**
-     * <code>map&lt;string, string&gt; nullableStringMap = 4;</code>
-     */
-
-    public java.util.Map<java.lang.String, java.lang.String> getNullableStringMap() {
-      return internalGetNullableStringMap().getMap();
     }
 
     private byte memoizedIsInitialized = -1;
@@ -3716,18 +3331,6 @@ public final class Test {
             .build();
         output.writeMessage(2, nestedMap);
       }
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBool(3, nullableStringMapPresentIfEmpty_);
-      }
-      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
-           : internalGetNullableStringMap().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-        nullableStringMap = NullableStringMapDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        output.writeMessage(4, nullableStringMap);
-      }
       unknownFields.writeTo(output);
     }
 
@@ -3757,73 +3360,59 @@ public final class Test {
         size += com.google.protobuf.CodedOutputStream
             .computeMessageSize(2, nestedMap);
       }
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(3, nullableStringMapPresentIfEmpty_);
-      }
-      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
-           : internalGetNullableStringMap().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
-        nullableStringMap = NullableStringMapDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(4, nullableStringMap);
-      }
       size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    public static org.sonar.core.test.Test.MapMsg parseFrom(
+    public static org.sonar.core.test.Test.TestMap parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.MapMsg parseFrom(
+    public static org.sonar.core.test.Test.TestMap parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.MapMsg parseFrom(byte[] data)
+    public static org.sonar.core.test.Test.TestMap parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.core.test.Test.MapMsg parseFrom(
+    public static org.sonar.core.test.Test.TestMap parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.MapMsg parseFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.TestMap parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.MapMsg parseFrom(
+    public static org.sonar.core.test.Test.TestMap parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.MapMsg parseDelimitedFrom(java.io.InputStream input)
+    public static org.sonar.core.test.Test.TestMap parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static org.sonar.core.test.Test.MapMsg parseDelimitedFrom(
+    public static org.sonar.core.test.Test.TestMap parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static org.sonar.core.test.Test.MapMsg parseFrom(
+    public static org.sonar.core.test.Test.TestMap parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.core.test.Test.MapMsg parseFrom(
+    public static org.sonar.core.test.Test.TestMap parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -3834,7 +3423,7 @@ public final class Test {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(org.sonar.core.test.Test.MapMsg prototype) {
+    public static Builder newBuilder(org.sonar.core.test.Test.TestMap prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -3849,15 +3438,15 @@ public final class Test {
       return builder;
     }
     /**
-     * Protobuf type {@code MapMsg}
+     * Protobuf type {@code TestMap}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:MapMsg)
-        org.sonar.core.test.Test.MapMsgOrBuilder {
+        // @@protoc_insertion_point(builder_implements:TestMap)
+        org.sonar.core.test.Test.TestMapOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonar.core.test.Test.internal_static_MapMsg_descriptor;
+        return org.sonar.core.test.Test.internal_static_TestMap_descriptor;
       }
 
       @SuppressWarnings({"rawtypes"})
@@ -3868,8 +3457,6 @@ public final class Test {
             return internalGetStringMap();
           case 2:
             return internalGetNestedMap();
-          case 4:
-            return internalGetNullableStringMap();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -3883,8 +3470,6 @@ public final class Test {
             return internalGetMutableStringMap();
           case 2:
             return internalGetMutableNestedMap();
-          case 4:
-            return internalGetMutableNullableStringMap();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -3892,12 +3477,12 @@ public final class Test {
       }
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonar.core.test.Test.internal_static_MapMsg_fieldAccessorTable
+        return org.sonar.core.test.Test.internal_static_TestMap_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.sonar.core.test.Test.MapMsg.class, org.sonar.core.test.Test.MapMsg.Builder.class);
+                org.sonar.core.test.Test.TestMap.class, org.sonar.core.test.Test.TestMap.Builder.class);
       }
 
-      // Construct using org.sonar.core.test.Test.MapMsg.newBuilder()
+      // Construct using org.sonar.core.test.Test.TestMap.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -3915,68 +3500,52 @@ public final class Test {
         super.clear();
         internalGetMutableStringMap().clear();
         internalGetMutableNestedMap().clear();
-        nullableStringMapPresentIfEmpty_ = false;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        internalGetMutableNullableStringMap().clear();
         return this;
       }
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.sonar.core.test.Test.internal_static_MapMsg_descriptor;
+        return org.sonar.core.test.Test.internal_static_TestMap_descriptor;
       }
 
-      public org.sonar.core.test.Test.MapMsg getDefaultInstanceForType() {
-        return org.sonar.core.test.Test.MapMsg.getDefaultInstance();
+      public org.sonar.core.test.Test.TestMap getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.TestMap.getDefaultInstance();
       }
 
-      public org.sonar.core.test.Test.MapMsg build() {
-        org.sonar.core.test.Test.MapMsg result = buildPartial();
+      public org.sonar.core.test.Test.TestMap build() {
+        org.sonar.core.test.Test.TestMap result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.sonar.core.test.Test.MapMsg buildPartial() {
-        org.sonar.core.test.Test.MapMsg result = new org.sonar.core.test.Test.MapMsg(this);
+      public org.sonar.core.test.Test.TestMap buildPartial() {
+        org.sonar.core.test.Test.TestMap result = new org.sonar.core.test.Test.TestMap(this);
         int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
         result.stringMap_ = internalGetStringMap();
         result.stringMap_.makeImmutable();
         result.nestedMap_ = internalGetNestedMap();
         result.nestedMap_.makeImmutable();
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.nullableStringMapPresentIfEmpty_ = nullableStringMapPresentIfEmpty_;
-        result.nullableStringMap_ = internalGetNullableStringMap();
-        result.nullableStringMap_.makeImmutable();
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.sonar.core.test.Test.MapMsg) {
-          return mergeFrom((org.sonar.core.test.Test.MapMsg)other);
+        if (other instanceof org.sonar.core.test.Test.TestMap) {
+          return mergeFrom((org.sonar.core.test.Test.TestMap)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.sonar.core.test.Test.MapMsg other) {
-        if (other == org.sonar.core.test.Test.MapMsg.getDefaultInstance()) return this;
+      public Builder mergeFrom(org.sonar.core.test.Test.TestMap other) {
+        if (other == org.sonar.core.test.Test.TestMap.getDefaultInstance()) return this;
         internalGetMutableStringMap().mergeFrom(
             other.internalGetStringMap());
         internalGetMutableNestedMap().mergeFrom(
             other.internalGetNestedMap());
-        if (other.hasNullableStringMapPresentIfEmpty()) {
-          setNullableStringMapPresentIfEmpty(other.getNullableStringMapPresentIfEmpty());
-        }
-        internalGetMutableNullableStringMap().mergeFrom(
-            other.internalGetNullableStringMap());
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -3990,11 +3559,11 @@ public final class Test {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.sonar.core.test.Test.MapMsg parsedMessage = null;
+        org.sonar.core.test.Test.TestMap parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.sonar.core.test.Test.MapMsg) e.getUnfinishedMessage();
+          parsedMessage = (org.sonar.core.test.Test.TestMap) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -4077,95 +3646,27 @@ public final class Test {
         return internalGetMutableNestedMap().getMutableMap();
       }
 
-      private boolean nullableStringMapPresentIfEmpty_ ;
-      /**
-       * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
-       */
-      public boolean hasNullableStringMapPresentIfEmpty() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
-       */
-      public boolean getNullableStringMapPresentIfEmpty() {
-        return nullableStringMapPresentIfEmpty_;
-      }
-      /**
-       * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
-       */
-      public Builder setNullableStringMapPresentIfEmpty(boolean value) {
-        bitField0_ |= 0x00000004;
-        nullableStringMapPresentIfEmpty_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bool nullableStringMapPresentIfEmpty = 3;</code>
-       */
-      public Builder clearNullableStringMapPresentIfEmpty() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        nullableStringMapPresentIfEmpty_ = false;
-        onChanged();
-        return this;
-      }
-
-      private com.google.protobuf.MapField<
-          java.lang.String, java.lang.String> nullableStringMap_;
-      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-      internalGetNullableStringMap() {
-        if (nullableStringMap_ == null) {
-          return com.google.protobuf.MapField.emptyMapField(
-              NullableStringMapDefaultEntryHolder.defaultEntry);
-       }
-        return nullableStringMap_;
-      }
-      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
-      internalGetMutableNullableStringMap() {
-        onChanged();;
-        if (nullableStringMap_ == null) {
-          nullableStringMap_ = com.google.protobuf.MapField.newMapField(
-              NullableStringMapDefaultEntryHolder.defaultEntry);
-        }
-        if (!nullableStringMap_.isMutable()) {
-          nullableStringMap_ = nullableStringMap_.copy();
-        }
-        return nullableStringMap_;
-      }
-      /**
-       * <code>map&lt;string, string&gt; nullableStringMap = 4;</code>
-       */
-      public java.util.Map<java.lang.String, java.lang.String> getNullableStringMap() {
-        return internalGetNullableStringMap().getMap();
-      }
-      /**
-       * <code>map&lt;string, string&gt; nullableStringMap = 4;</code>
-       */
-      public java.util.Map<java.lang.String, java.lang.String>
-      getMutableNullableStringMap() {
-        return internalGetMutableNullableStringMap().getMutableMap();
-      }
-
-      // @@protoc_insertion_point(builder_scope:MapMsg)
+      // @@protoc_insertion_point(builder_scope:TestMap)
     }
 
-    // @@protoc_insertion_point(class_scope:MapMsg)
-    private static final org.sonar.core.test.Test.MapMsg DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:TestMap)
+    private static final org.sonar.core.test.Test.TestMap DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new org.sonar.core.test.Test.MapMsg();
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.TestMap();
     }
 
-    public static org.sonar.core.test.Test.MapMsg getDefaultInstance() {
+    public static org.sonar.core.test.Test.TestMap getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    public static final com.google.protobuf.Parser<MapMsg> PARSER =
-        new com.google.protobuf.AbstractParser<MapMsg>() {
-      public MapMsg parsePartialFrom(
+    public static final com.google.protobuf.Parser<TestMap> PARSER =
+        new com.google.protobuf.AbstractParser<TestMap>() {
+      public TestMap parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         try {
-          return new MapMsg(input, extensionRegistry);
+          return new TestMap(input, extensionRegistry);
         } catch (RuntimeException e) {
           if (e.getCause() instanceof
               com.google.protobuf.InvalidProtocolBufferException) {
@@ -4178,11 +3679,4147 @@ public final class Test {
     };
 
     @java.lang.Override
-    public com.google.protobuf.Parser<MapMsg> getParserForType() {
+    public com.google.protobuf.Parser<TestMap> getParserForType() {
       return PARSER;
     }
 
-    public org.sonar.core.test.Test.MapMsg getDefaultInstanceForType() {
+    public org.sonar.core.test.Test.TestMap getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface TestNullableArrayOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:TestNullableArray)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    boolean hasLabel();
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    java.lang.String getLabel();
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getLabelBytes();
+
+    /**
+     * <code>optional .Countries countries = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty array
+     * </pre>
+     */
+    boolean hasCountries();
+    /**
+     * <code>optional .Countries countries = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty array
+     * </pre>
+     */
+    org.sonar.core.test.Test.Countries getCountries();
+    /**
+     * <code>optional .Countries countries = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty array
+     * </pre>
+     */
+    org.sonar.core.test.Test.CountriesOrBuilder getCountriesOrBuilder();
+  }
+  /**
+   * Protobuf type {@code TestNullableArray}
+   */
+  public  static final class TestNullableArray extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:TestNullableArray)
+      TestNullableArrayOrBuilder {
+    // Use TestNullableArray.newBuilder() to construct.
+    private TestNullableArray(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private TestNullableArray() {
+      label_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private TestNullableArray(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              label_ = bs;
+              break;
+            }
+            case 18: {
+              org.sonar.core.test.Test.Countries.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                subBuilder = countries_.toBuilder();
+              }
+              countries_ = input.readMessage(org.sonar.core.test.Test.Countries.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(countries_);
+                countries_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000002;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_TestNullableArray_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_TestNullableArray_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.TestNullableArray.class, org.sonar.core.test.Test.TestNullableArray.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int LABEL_FIELD_NUMBER = 1;
+    private volatile java.lang.Object label_;
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public boolean hasLabel() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public java.lang.String getLabel() {
+      java.lang.Object ref = label_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          label_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getLabelBytes() {
+      java.lang.Object ref = label_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        label_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int COUNTRIES_FIELD_NUMBER = 2;
+    private org.sonar.core.test.Test.Countries countries_;
+    /**
+     * <code>optional .Countries countries = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty array
+     * </pre>
+     */
+    public boolean hasCountries() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional .Countries countries = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty array
+     * </pre>
+     */
+    public org.sonar.core.test.Test.Countries getCountries() {
+      return countries_ == null ? org.sonar.core.test.Test.Countries.getDefaultInstance() : countries_;
+    }
+    /**
+     * <code>optional .Countries countries = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty array
+     * </pre>
+     */
+    public org.sonar.core.test.Test.CountriesOrBuilder getCountriesOrBuilder() {
+      return countries_ == null ? org.sonar.core.test.Test.Countries.getDefaultInstance() : countries_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getLabelBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(2, getCountries());
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getLabelBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getCountries());
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonar.core.test.Test.TestNullableArray parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestNullableArray parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonar.core.test.Test.TestNullableArray prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code TestNullableArray}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:TestNullableArray)
+        org.sonar.core.test.Test.TestNullableArrayOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_TestNullableArray_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_TestNullableArray_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.TestNullableArray.class, org.sonar.core.test.Test.TestNullableArray.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.TestNullableArray.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getCountriesFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        label_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (countriesBuilder_ == null) {
+          countries_ = null;
+        } else {
+          countriesBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_TestNullableArray_descriptor;
+      }
+
+      public org.sonar.core.test.Test.TestNullableArray getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.TestNullableArray.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.TestNullableArray build() {
+        org.sonar.core.test.Test.TestNullableArray result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.TestNullableArray buildPartial() {
+        org.sonar.core.test.Test.TestNullableArray result = new org.sonar.core.test.Test.TestNullableArray(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.label_ = label_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (countriesBuilder_ == null) {
+          result.countries_ = countries_;
+        } else {
+          result.countries_ = countriesBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.TestNullableArray) {
+          return mergeFrom((org.sonar.core.test.Test.TestNullableArray)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.TestNullableArray other) {
+        if (other == org.sonar.core.test.Test.TestNullableArray.getDefaultInstance()) return this;
+        if (other.hasLabel()) {
+          bitField0_ |= 0x00000001;
+          label_ = other.label_;
+          onChanged();
+        }
+        if (other.hasCountries()) {
+          mergeCountries(other.getCountries());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.TestNullableArray parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.TestNullableArray) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object label_ = "";
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public boolean hasLabel() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public java.lang.String getLabel() {
+        java.lang.Object ref = label_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            label_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getLabelBytes() {
+        java.lang.Object ref = label_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          label_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder setLabel(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        label_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder clearLabel() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        label_ = getDefaultInstance().getLabel();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder setLabelBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        label_ = value;
+        onChanged();
+        return this;
+      }
+
+      private org.sonar.core.test.Test.Countries countries_ = null;
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonar.core.test.Test.Countries, org.sonar.core.test.Test.Countries.Builder, org.sonar.core.test.Test.CountriesOrBuilder> countriesBuilder_;
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      public boolean hasCountries() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      public org.sonar.core.test.Test.Countries getCountries() {
+        if (countriesBuilder_ == null) {
+          return countries_ == null ? org.sonar.core.test.Test.Countries.getDefaultInstance() : countries_;
+        } else {
+          return countriesBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      public Builder setCountries(org.sonar.core.test.Test.Countries value) {
+        if (countriesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          countries_ = value;
+          onChanged();
+        } else {
+          countriesBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      public Builder setCountries(
+          org.sonar.core.test.Test.Countries.Builder builderForValue) {
+        if (countriesBuilder_ == null) {
+          countries_ = builderForValue.build();
+          onChanged();
+        } else {
+          countriesBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      public Builder mergeCountries(org.sonar.core.test.Test.Countries value) {
+        if (countriesBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              countries_ != null &&
+              countries_ != org.sonar.core.test.Test.Countries.getDefaultInstance()) {
+            countries_ =
+              org.sonar.core.test.Test.Countries.newBuilder(countries_).mergeFrom(value).buildPartial();
+          } else {
+            countries_ = value;
+          }
+          onChanged();
+        } else {
+          countriesBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      public Builder clearCountries() {
+        if (countriesBuilder_ == null) {
+          countries_ = null;
+          onChanged();
+        } else {
+          countriesBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      public org.sonar.core.test.Test.Countries.Builder getCountriesBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getCountriesFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      public org.sonar.core.test.Test.CountriesOrBuilder getCountriesOrBuilder() {
+        if (countriesBuilder_ != null) {
+          return countriesBuilder_.getMessageOrBuilder();
+        } else {
+          return countries_ == null ?
+              org.sonar.core.test.Test.Countries.getDefaultInstance() : countries_;
+        }
+      }
+      /**
+       * <code>optional .Countries countries = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty array
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonar.core.test.Test.Countries, org.sonar.core.test.Test.Countries.Builder, org.sonar.core.test.Test.CountriesOrBuilder> 
+          getCountriesFieldBuilder() {
+        if (countriesBuilder_ == null) {
+          countriesBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonar.core.test.Test.Countries, org.sonar.core.test.Test.Countries.Builder, org.sonar.core.test.Test.CountriesOrBuilder>(
+                  getCountries(),
+                  getParentForChildren(),
+                  isClean());
+          countries_ = null;
+        }
+        return countriesBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:TestNullableArray)
+    }
+
+    // @@protoc_insertion_point(class_scope:TestNullableArray)
+    private static final org.sonar.core.test.Test.TestNullableArray DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.TestNullableArray();
+    }
+
+    public static org.sonar.core.test.Test.TestNullableArray getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<TestNullableArray> PARSER =
+        new com.google.protobuf.AbstractParser<TestNullableArray>() {
+      public TestNullableArray parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new TestNullableArray(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<TestNullableArray> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.TestNullableArray getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface TestNullableMapOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:TestNullableMap)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    boolean hasLabel();
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    java.lang.String getLabel();
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getLabelBytes();
+
+    /**
+     * <code>optional .Translations translations = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty map
+     * </pre>
+     */
+    boolean hasTranslations();
+    /**
+     * <code>optional .Translations translations = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty map
+     * </pre>
+     */
+    org.sonar.core.test.Test.Translations getTranslations();
+    /**
+     * <code>optional .Translations translations = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty map
+     * </pre>
+     */
+    org.sonar.core.test.Test.TranslationsOrBuilder getTranslationsOrBuilder();
+  }
+  /**
+   * Protobuf type {@code TestNullableMap}
+   */
+  public  static final class TestNullableMap extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:TestNullableMap)
+      TestNullableMapOrBuilder {
+    // Use TestNullableMap.newBuilder() to construct.
+    private TestNullableMap(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private TestNullableMap() {
+      label_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private TestNullableMap(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              label_ = bs;
+              break;
+            }
+            case 18: {
+              org.sonar.core.test.Test.Translations.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                subBuilder = translations_.toBuilder();
+              }
+              translations_ = input.readMessage(org.sonar.core.test.Test.Translations.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(translations_);
+                translations_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000002;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_TestNullableMap_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_TestNullableMap_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.TestNullableMap.class, org.sonar.core.test.Test.TestNullableMap.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int LABEL_FIELD_NUMBER = 1;
+    private volatile java.lang.Object label_;
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public boolean hasLabel() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public java.lang.String getLabel() {
+      java.lang.Object ref = label_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          label_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getLabelBytes() {
+      java.lang.Object ref = label_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        label_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int TRANSLATIONS_FIELD_NUMBER = 2;
+    private org.sonar.core.test.Test.Translations translations_;
+    /**
+     * <code>optional .Translations translations = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty map
+     * </pre>
+     */
+    public boolean hasTranslations() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional .Translations translations = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty map
+     * </pre>
+     */
+    public org.sonar.core.test.Test.Translations getTranslations() {
+      return translations_ == null ? org.sonar.core.test.Test.Translations.getDefaultInstance() : translations_;
+    }
+    /**
+     * <code>optional .Translations translations = 2;</code>
+     *
+     * <pre>
+     * allow to make the difference between null and empty map
+     * </pre>
+     */
+    public org.sonar.core.test.Test.TranslationsOrBuilder getTranslationsOrBuilder() {
+      return translations_ == null ? org.sonar.core.test.Test.Translations.getDefaultInstance() : translations_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getLabelBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(2, getTranslations());
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getLabelBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getTranslations());
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonar.core.test.Test.TestNullableMap parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestNullableMap parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonar.core.test.Test.TestNullableMap prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code TestNullableMap}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:TestNullableMap)
+        org.sonar.core.test.Test.TestNullableMapOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_TestNullableMap_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_TestNullableMap_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.TestNullableMap.class, org.sonar.core.test.Test.TestNullableMap.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.TestNullableMap.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getTranslationsFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        label_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (translationsBuilder_ == null) {
+          translations_ = null;
+        } else {
+          translationsBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_TestNullableMap_descriptor;
+      }
+
+      public org.sonar.core.test.Test.TestNullableMap getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.TestNullableMap.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.TestNullableMap build() {
+        org.sonar.core.test.Test.TestNullableMap result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.TestNullableMap buildPartial() {
+        org.sonar.core.test.Test.TestNullableMap result = new org.sonar.core.test.Test.TestNullableMap(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.label_ = label_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (translationsBuilder_ == null) {
+          result.translations_ = translations_;
+        } else {
+          result.translations_ = translationsBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.TestNullableMap) {
+          return mergeFrom((org.sonar.core.test.Test.TestNullableMap)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.TestNullableMap other) {
+        if (other == org.sonar.core.test.Test.TestNullableMap.getDefaultInstance()) return this;
+        if (other.hasLabel()) {
+          bitField0_ |= 0x00000001;
+          label_ = other.label_;
+          onChanged();
+        }
+        if (other.hasTranslations()) {
+          mergeTranslations(other.getTranslations());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.TestNullableMap parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.TestNullableMap) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object label_ = "";
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public boolean hasLabel() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public java.lang.String getLabel() {
+        java.lang.Object ref = label_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            label_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getLabelBytes() {
+        java.lang.Object ref = label_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          label_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder setLabel(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        label_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder clearLabel() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        label_ = getDefaultInstance().getLabel();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder setLabelBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        label_ = value;
+        onChanged();
+        return this;
+      }
+
+      private org.sonar.core.test.Test.Translations translations_ = null;
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonar.core.test.Test.Translations, org.sonar.core.test.Test.Translations.Builder, org.sonar.core.test.Test.TranslationsOrBuilder> translationsBuilder_;
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      public boolean hasTranslations() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      public org.sonar.core.test.Test.Translations getTranslations() {
+        if (translationsBuilder_ == null) {
+          return translations_ == null ? org.sonar.core.test.Test.Translations.getDefaultInstance() : translations_;
+        } else {
+          return translationsBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      public Builder setTranslations(org.sonar.core.test.Test.Translations value) {
+        if (translationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          translations_ = value;
+          onChanged();
+        } else {
+          translationsBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      public Builder setTranslations(
+          org.sonar.core.test.Test.Translations.Builder builderForValue) {
+        if (translationsBuilder_ == null) {
+          translations_ = builderForValue.build();
+          onChanged();
+        } else {
+          translationsBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      public Builder mergeTranslations(org.sonar.core.test.Test.Translations value) {
+        if (translationsBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              translations_ != null &&
+              translations_ != org.sonar.core.test.Test.Translations.getDefaultInstance()) {
+            translations_ =
+              org.sonar.core.test.Test.Translations.newBuilder(translations_).mergeFrom(value).buildPartial();
+          } else {
+            translations_ = value;
+          }
+          onChanged();
+        } else {
+          translationsBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      public Builder clearTranslations() {
+        if (translationsBuilder_ == null) {
+          translations_ = null;
+          onChanged();
+        } else {
+          translationsBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      public org.sonar.core.test.Test.Translations.Builder getTranslationsBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getTranslationsFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      public org.sonar.core.test.Test.TranslationsOrBuilder getTranslationsOrBuilder() {
+        if (translationsBuilder_ != null) {
+          return translationsBuilder_.getMessageOrBuilder();
+        } else {
+          return translations_ == null ?
+              org.sonar.core.test.Test.Translations.getDefaultInstance() : translations_;
+        }
+      }
+      /**
+       * <code>optional .Translations translations = 2;</code>
+       *
+       * <pre>
+       * allow to make the difference between null and empty map
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonar.core.test.Test.Translations, org.sonar.core.test.Test.Translations.Builder, org.sonar.core.test.Test.TranslationsOrBuilder> 
+          getTranslationsFieldBuilder() {
+        if (translationsBuilder_ == null) {
+          translationsBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonar.core.test.Test.Translations, org.sonar.core.test.Test.Translations.Builder, org.sonar.core.test.Test.TranslationsOrBuilder>(
+                  getTranslations(),
+                  getParentForChildren(),
+                  isClean());
+          translations_ = null;
+        }
+        return translationsBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:TestNullableMap)
+    }
+
+    // @@protoc_insertion_point(class_scope:TestNullableMap)
+    private static final org.sonar.core.test.Test.TestNullableMap DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.TestNullableMap();
+    }
+
+    public static org.sonar.core.test.Test.TestNullableMap getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<TestNullableMap> PARSER =
+        new com.google.protobuf.AbstractParser<TestNullableMap>() {
+      public TestNullableMap parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new TestNullableMap(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<TestNullableMap> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.TestNullableMap getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface TestMapOfArrayOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:TestMapOfArray)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>map&lt;string, .Countries&gt; moneys = 1;</code>
+     *
+     * <pre>
+     * allow to have map values of arrays
+     * </pre>
+     */
+    java.util.Map<java.lang.String, org.sonar.core.test.Test.Countries>
+    getMoneys();
+  }
+  /**
+   * Protobuf type {@code TestMapOfArray}
+   */
+  public  static final class TestMapOfArray extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:TestMapOfArray)
+      TestMapOfArrayOrBuilder {
+    // Use TestMapOfArray.newBuilder() to construct.
+    private TestMapOfArray(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private TestMapOfArray() {
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private TestMapOfArray(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                moneys_ = com.google.protobuf.MapField.newMapField(
+                    MoneysDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000001;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.Countries>
+              moneys = input.readMessage(
+                  MoneysDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              moneys_.getMutableMap().put(moneys.getKey(), moneys.getValue());
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_TestMapOfArray_descriptor;
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 1:
+          return internalGetMoneys();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_TestMapOfArray_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.TestMapOfArray.class, org.sonar.core.test.Test.TestMapOfArray.Builder.class);
+    }
+
+    public static final int MONEYS_FIELD_NUMBER = 1;
+    private static final class MoneysDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, org.sonar.core.test.Test.Countries> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, org.sonar.core.test.Test.Countries>newDefaultInstance(
+                  org.sonar.core.test.Test.internal_static_TestMapOfArray_MoneysEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.MESSAGE,
+                  org.sonar.core.test.Test.Countries.getDefaultInstance());
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, org.sonar.core.test.Test.Countries> moneys_;
+    private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.Countries>
+    internalGetMoneys() {
+      if (moneys_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            MoneysDefaultEntryHolder.defaultEntry);
+     }
+      return moneys_;
+    }
+    /**
+     * <code>map&lt;string, .Countries&gt; moneys = 1;</code>
+     *
+     * <pre>
+     * allow to have map values of arrays
+     * </pre>
+     */
+
+    public java.util.Map<java.lang.String, org.sonar.core.test.Test.Countries> getMoneys() {
+      return internalGetMoneys().getMap();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (java.util.Map.Entry<java.lang.String, org.sonar.core.test.Test.Countries> entry
+           : internalGetMoneys().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.Countries>
+        moneys = MoneysDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(1, moneys);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (java.util.Map.Entry<java.lang.String, org.sonar.core.test.Test.Countries> entry
+           : internalGetMoneys().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.Countries>
+        moneys = MoneysDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(1, moneys);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonar.core.test.Test.TestMapOfArray parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestMapOfArray parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonar.core.test.Test.TestMapOfArray prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code TestMapOfArray}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:TestMapOfArray)
+        org.sonar.core.test.Test.TestMapOfArrayOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_TestMapOfArray_descriptor;
+      }
+
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetMoneys();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetMutableMoneys();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_TestMapOfArray_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.TestMapOfArray.class, org.sonar.core.test.Test.TestMapOfArray.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.TestMapOfArray.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        internalGetMutableMoneys().clear();
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_TestMapOfArray_descriptor;
+      }
+
+      public org.sonar.core.test.Test.TestMapOfArray getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.TestMapOfArray.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.TestMapOfArray build() {
+        org.sonar.core.test.Test.TestMapOfArray result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.TestMapOfArray buildPartial() {
+        org.sonar.core.test.Test.TestMapOfArray result = new org.sonar.core.test.Test.TestMapOfArray(this);
+        int from_bitField0_ = bitField0_;
+        result.moneys_ = internalGetMoneys();
+        result.moneys_.makeImmutable();
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.TestMapOfArray) {
+          return mergeFrom((org.sonar.core.test.Test.TestMapOfArray)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.TestMapOfArray other) {
+        if (other == org.sonar.core.test.Test.TestMapOfArray.getDefaultInstance()) return this;
+        internalGetMutableMoneys().mergeFrom(
+            other.internalGetMoneys());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.TestMapOfArray parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.TestMapOfArray) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.MapField<
+          java.lang.String, org.sonar.core.test.Test.Countries> moneys_;
+      private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.Countries>
+      internalGetMoneys() {
+        if (moneys_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              MoneysDefaultEntryHolder.defaultEntry);
+       }
+        return moneys_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.Countries>
+      internalGetMutableMoneys() {
+        onChanged();;
+        if (moneys_ == null) {
+          moneys_ = com.google.protobuf.MapField.newMapField(
+              MoneysDefaultEntryHolder.defaultEntry);
+        }
+        if (!moneys_.isMutable()) {
+          moneys_ = moneys_.copy();
+        }
+        return moneys_;
+      }
+      /**
+       * <code>map&lt;string, .Countries&gt; moneys = 1;</code>
+       *
+       * <pre>
+       * allow to have map values of arrays
+       * </pre>
+       */
+      public java.util.Map<java.lang.String, org.sonar.core.test.Test.Countries> getMoneys() {
+        return internalGetMoneys().getMap();
+      }
+      /**
+       * <code>map&lt;string, .Countries&gt; moneys = 1;</code>
+       *
+       * <pre>
+       * allow to have map values of arrays
+       * </pre>
+       */
+      public java.util.Map<java.lang.String, org.sonar.core.test.Test.Countries>
+      getMutableMoneys() {
+        return internalGetMutableMoneys().getMutableMap();
+      }
+
+      // @@protoc_insertion_point(builder_scope:TestMapOfArray)
+    }
+
+    // @@protoc_insertion_point(class_scope:TestMapOfArray)
+    private static final org.sonar.core.test.Test.TestMapOfArray DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.TestMapOfArray();
+    }
+
+    public static org.sonar.core.test.Test.TestMapOfArray getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<TestMapOfArray> PARSER =
+        new com.google.protobuf.AbstractParser<TestMapOfArray>() {
+      public TestMapOfArray parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new TestMapOfArray(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<TestMapOfArray> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.TestMapOfArray getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface TestMapOfMapOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:TestMapOfMap)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>map&lt;string, .Translations&gt; catalogs = 1;</code>
+     *
+     * <pre>
+     * allow to have map values of maps
+     * </pre>
+     */
+    java.util.Map<java.lang.String, org.sonar.core.test.Test.Translations>
+    getCatalogs();
+  }
+  /**
+   * Protobuf type {@code TestMapOfMap}
+   */
+  public  static final class TestMapOfMap extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:TestMapOfMap)
+      TestMapOfMapOrBuilder {
+    // Use TestMapOfMap.newBuilder() to construct.
+    private TestMapOfMap(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private TestMapOfMap() {
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private TestMapOfMap(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                catalogs_ = com.google.protobuf.MapField.newMapField(
+                    CatalogsDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000001;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.Translations>
+              catalogs = input.readMessage(
+                  CatalogsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              catalogs_.getMutableMap().put(catalogs.getKey(), catalogs.getValue());
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_TestMapOfMap_descriptor;
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 1:
+          return internalGetCatalogs();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_TestMapOfMap_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.TestMapOfMap.class, org.sonar.core.test.Test.TestMapOfMap.Builder.class);
+    }
+
+    public static final int CATALOGS_FIELD_NUMBER = 1;
+    private static final class CatalogsDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, org.sonar.core.test.Test.Translations> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, org.sonar.core.test.Test.Translations>newDefaultInstance(
+                  org.sonar.core.test.Test.internal_static_TestMapOfMap_CatalogsEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.MESSAGE,
+                  org.sonar.core.test.Test.Translations.getDefaultInstance());
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, org.sonar.core.test.Test.Translations> catalogs_;
+    private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.Translations>
+    internalGetCatalogs() {
+      if (catalogs_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            CatalogsDefaultEntryHolder.defaultEntry);
+     }
+      return catalogs_;
+    }
+    /**
+     * <code>map&lt;string, .Translations&gt; catalogs = 1;</code>
+     *
+     * <pre>
+     * allow to have map values of maps
+     * </pre>
+     */
+
+    public java.util.Map<java.lang.String, org.sonar.core.test.Test.Translations> getCatalogs() {
+      return internalGetCatalogs().getMap();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (java.util.Map.Entry<java.lang.String, org.sonar.core.test.Test.Translations> entry
+           : internalGetCatalogs().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.Translations>
+        catalogs = CatalogsDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(1, catalogs);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (java.util.Map.Entry<java.lang.String, org.sonar.core.test.Test.Translations> entry
+           : internalGetCatalogs().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, org.sonar.core.test.Test.Translations>
+        catalogs = CatalogsDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(1, catalogs);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonar.core.test.Test.TestMapOfMap parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.TestMapOfMap parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonar.core.test.Test.TestMapOfMap prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code TestMapOfMap}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:TestMapOfMap)
+        org.sonar.core.test.Test.TestMapOfMapOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_TestMapOfMap_descriptor;
+      }
+
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetCatalogs();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetMutableCatalogs();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_TestMapOfMap_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.TestMapOfMap.class, org.sonar.core.test.Test.TestMapOfMap.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.TestMapOfMap.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        internalGetMutableCatalogs().clear();
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_TestMapOfMap_descriptor;
+      }
+
+      public org.sonar.core.test.Test.TestMapOfMap getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.TestMapOfMap.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.TestMapOfMap build() {
+        org.sonar.core.test.Test.TestMapOfMap result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.TestMapOfMap buildPartial() {
+        org.sonar.core.test.Test.TestMapOfMap result = new org.sonar.core.test.Test.TestMapOfMap(this);
+        int from_bitField0_ = bitField0_;
+        result.catalogs_ = internalGetCatalogs();
+        result.catalogs_.makeImmutable();
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.TestMapOfMap) {
+          return mergeFrom((org.sonar.core.test.Test.TestMapOfMap)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.TestMapOfMap other) {
+        if (other == org.sonar.core.test.Test.TestMapOfMap.getDefaultInstance()) return this;
+        internalGetMutableCatalogs().mergeFrom(
+            other.internalGetCatalogs());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.TestMapOfMap parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.TestMapOfMap) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.MapField<
+          java.lang.String, org.sonar.core.test.Test.Translations> catalogs_;
+      private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.Translations>
+      internalGetCatalogs() {
+        if (catalogs_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              CatalogsDefaultEntryHolder.defaultEntry);
+       }
+        return catalogs_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, org.sonar.core.test.Test.Translations>
+      internalGetMutableCatalogs() {
+        onChanged();;
+        if (catalogs_ == null) {
+          catalogs_ = com.google.protobuf.MapField.newMapField(
+              CatalogsDefaultEntryHolder.defaultEntry);
+        }
+        if (!catalogs_.isMutable()) {
+          catalogs_ = catalogs_.copy();
+        }
+        return catalogs_;
+      }
+      /**
+       * <code>map&lt;string, .Translations&gt; catalogs = 1;</code>
+       *
+       * <pre>
+       * allow to have map values of maps
+       * </pre>
+       */
+      public java.util.Map<java.lang.String, org.sonar.core.test.Test.Translations> getCatalogs() {
+        return internalGetCatalogs().getMap();
+      }
+      /**
+       * <code>map&lt;string, .Translations&gt; catalogs = 1;</code>
+       *
+       * <pre>
+       * allow to have map values of maps
+       * </pre>
+       */
+      public java.util.Map<java.lang.String, org.sonar.core.test.Test.Translations>
+      getMutableCatalogs() {
+        return internalGetMutableCatalogs().getMutableMap();
+      }
+
+      // @@protoc_insertion_point(builder_scope:TestMapOfMap)
+    }
+
+    // @@protoc_insertion_point(class_scope:TestMapOfMap)
+    private static final org.sonar.core.test.Test.TestMapOfMap DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.TestMapOfMap();
+    }
+
+    public static org.sonar.core.test.Test.TestMapOfMap getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<TestMapOfMap> PARSER =
+        new com.google.protobuf.AbstractParser<TestMapOfMap>() {
+      public TestMapOfMap parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new TestMapOfMap(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<TestMapOfMap> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.TestMapOfMap getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface TranslationsOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Translations)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>map&lt;string, string&gt; translations = 1;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getTranslations();
+  }
+  /**
+   * Protobuf type {@code Translations}
+   */
+  public  static final class Translations extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:Translations)
+      TranslationsOrBuilder {
+    // Use Translations.newBuilder() to construct.
+    private Translations(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private Translations() {
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Translations(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                translations_ = com.google.protobuf.MapField.newMapField(
+                    TranslationsDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000001;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              translations = input.readMessage(
+                  TranslationsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              translations_.getMutableMap().put(translations.getKey(), translations.getValue());
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_Translations_descriptor;
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 1:
+          return internalGetTranslations();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_Translations_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.Translations.class, org.sonar.core.test.Test.Translations.Builder.class);
+    }
+
+    public static final int TRANSLATIONS_FIELD_NUMBER = 1;
+    private static final class TranslationsDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  org.sonar.core.test.Test.internal_static_Translations_TranslationsEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> translations_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetTranslations() {
+      if (translations_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            TranslationsDefaultEntryHolder.defaultEntry);
+     }
+      return translations_;
+    }
+    /**
+     * <code>map&lt;string, string&gt; translations = 1;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.String> getTranslations() {
+      return internalGetTranslations().getMap();
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetTranslations().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        translations = TranslationsDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        output.writeMessage(1, translations);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetTranslations().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        translations = TranslationsDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(1, translations);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonar.core.test.Test.Translations parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.Translations parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Translations parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.Translations parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Translations parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.Translations parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Translations parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.Translations parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Translations parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.Translations parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonar.core.test.Test.Translations prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code Translations}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Translations)
+        org.sonar.core.test.Test.TranslationsOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_Translations_descriptor;
+      }
+
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetTranslations();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 1:
+            return internalGetMutableTranslations();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_Translations_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.Translations.class, org.sonar.core.test.Test.Translations.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.Translations.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        internalGetMutableTranslations().clear();
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_Translations_descriptor;
+      }
+
+      public org.sonar.core.test.Test.Translations getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.Translations.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.Translations build() {
+        org.sonar.core.test.Test.Translations result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.Translations buildPartial() {
+        org.sonar.core.test.Test.Translations result = new org.sonar.core.test.Test.Translations(this);
+        int from_bitField0_ = bitField0_;
+        result.translations_ = internalGetTranslations();
+        result.translations_.makeImmutable();
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.Translations) {
+          return mergeFrom((org.sonar.core.test.Test.Translations)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.Translations other) {
+        if (other == org.sonar.core.test.Test.Translations.getDefaultInstance()) return this;
+        internalGetMutableTranslations().mergeFrom(
+            other.internalGetTranslations());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.Translations parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.Translations) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.String> translations_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetTranslations() {
+        if (translations_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              TranslationsDefaultEntryHolder.defaultEntry);
+       }
+        return translations_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetMutableTranslations() {
+        onChanged();;
+        if (translations_ == null) {
+          translations_ = com.google.protobuf.MapField.newMapField(
+              TranslationsDefaultEntryHolder.defaultEntry);
+        }
+        if (!translations_.isMutable()) {
+          translations_ = translations_.copy();
+        }
+        return translations_;
+      }
+      /**
+       * <code>map&lt;string, string&gt; translations = 1;</code>
+       */
+      public java.util.Map<java.lang.String, java.lang.String> getTranslations() {
+        return internalGetTranslations().getMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; translations = 1;</code>
+       */
+      public java.util.Map<java.lang.String, java.lang.String>
+      getMutableTranslations() {
+        return internalGetMutableTranslations().getMutableMap();
+      }
+
+      // @@protoc_insertion_point(builder_scope:Translations)
+    }
+
+    // @@protoc_insertion_point(class_scope:Translations)
+    private static final org.sonar.core.test.Test.Translations DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.Translations();
+    }
+
+    public static org.sonar.core.test.Test.Translations getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Translations> PARSER =
+        new com.google.protobuf.AbstractParser<Translations>() {
+      public Translations parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Translations(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Translations> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.Translations getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface CountriesOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Countries)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    java.util.List<org.sonar.core.test.Test.Country> 
+        getCountriesList();
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    org.sonar.core.test.Test.Country getCountries(int index);
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    int getCountriesCount();
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    java.util.List<? extends org.sonar.core.test.Test.CountryOrBuilder> 
+        getCountriesOrBuilderList();
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    org.sonar.core.test.Test.CountryOrBuilder getCountriesOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code Countries}
+   */
+  public  static final class Countries extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:Countries)
+      CountriesOrBuilder {
+    // Use Countries.newBuilder() to construct.
+    private Countries(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private Countries() {
+      countries_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Countries(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                countries_ = new java.util.ArrayList<org.sonar.core.test.Test.Country>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              countries_.add(input.readMessage(org.sonar.core.test.Test.Country.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          countries_ = java.util.Collections.unmodifiableList(countries_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_Countries_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_Countries_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.Countries.class, org.sonar.core.test.Test.Countries.Builder.class);
+    }
+
+    public static final int COUNTRIES_FIELD_NUMBER = 1;
+    private java.util.List<org.sonar.core.test.Test.Country> countries_;
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    public java.util.List<org.sonar.core.test.Test.Country> getCountriesList() {
+      return countries_;
+    }
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    public java.util.List<? extends org.sonar.core.test.Test.CountryOrBuilder> 
+        getCountriesOrBuilderList() {
+      return countries_;
+    }
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    public int getCountriesCount() {
+      return countries_.size();
+    }
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    public org.sonar.core.test.Test.Country getCountries(int index) {
+      return countries_.get(index);
+    }
+    /**
+     * <code>repeated .Country countries = 1;</code>
+     */
+    public org.sonar.core.test.Test.CountryOrBuilder getCountriesOrBuilder(
+        int index) {
+      return countries_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < countries_.size(); i++) {
+        output.writeMessage(1, countries_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < countries_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, countries_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonar.core.test.Test.Countries parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.Countries parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Countries parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.Countries parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Countries parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.Countries parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Countries parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.Countries parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Countries parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.Countries parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonar.core.test.Test.Countries prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code Countries}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Countries)
+        org.sonar.core.test.Test.CountriesOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_Countries_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_Countries_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.Countries.class, org.sonar.core.test.Test.Countries.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.Countries.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getCountriesFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (countriesBuilder_ == null) {
+          countries_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          countriesBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_Countries_descriptor;
+      }
+
+      public org.sonar.core.test.Test.Countries getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.Countries.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.Countries build() {
+        org.sonar.core.test.Test.Countries result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.Countries buildPartial() {
+        org.sonar.core.test.Test.Countries result = new org.sonar.core.test.Test.Countries(this);
+        int from_bitField0_ = bitField0_;
+        if (countriesBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            countries_ = java.util.Collections.unmodifiableList(countries_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.countries_ = countries_;
+        } else {
+          result.countries_ = countriesBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.Countries) {
+          return mergeFrom((org.sonar.core.test.Test.Countries)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.Countries other) {
+        if (other == org.sonar.core.test.Test.Countries.getDefaultInstance()) return this;
+        if (countriesBuilder_ == null) {
+          if (!other.countries_.isEmpty()) {
+            if (countries_.isEmpty()) {
+              countries_ = other.countries_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureCountriesIsMutable();
+              countries_.addAll(other.countries_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.countries_.isEmpty()) {
+            if (countriesBuilder_.isEmpty()) {
+              countriesBuilder_.dispose();
+              countriesBuilder_ = null;
+              countries_ = other.countries_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              countriesBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getCountriesFieldBuilder() : null;
+            } else {
+              countriesBuilder_.addAllMessages(other.countries_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.Countries parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.Countries) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<org.sonar.core.test.Test.Country> countries_ =
+        java.util.Collections.emptyList();
+      private void ensureCountriesIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          countries_ = new java.util.ArrayList<org.sonar.core.test.Test.Country>(countries_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.core.test.Test.Country, org.sonar.core.test.Test.Country.Builder, org.sonar.core.test.Test.CountryOrBuilder> countriesBuilder_;
+
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public java.util.List<org.sonar.core.test.Test.Country> getCountriesList() {
+        if (countriesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(countries_);
+        } else {
+          return countriesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public int getCountriesCount() {
+        if (countriesBuilder_ == null) {
+          return countries_.size();
+        } else {
+          return countriesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public org.sonar.core.test.Test.Country getCountries(int index) {
+        if (countriesBuilder_ == null) {
+          return countries_.get(index);
+        } else {
+          return countriesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder setCountries(
+          int index, org.sonar.core.test.Test.Country value) {
+        if (countriesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureCountriesIsMutable();
+          countries_.set(index, value);
+          onChanged();
+        } else {
+          countriesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder setCountries(
+          int index, org.sonar.core.test.Test.Country.Builder builderForValue) {
+        if (countriesBuilder_ == null) {
+          ensureCountriesIsMutable();
+          countries_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          countriesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder addCountries(org.sonar.core.test.Test.Country value) {
+        if (countriesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureCountriesIsMutable();
+          countries_.add(value);
+          onChanged();
+        } else {
+          countriesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder addCountries(
+          int index, org.sonar.core.test.Test.Country value) {
+        if (countriesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureCountriesIsMutable();
+          countries_.add(index, value);
+          onChanged();
+        } else {
+          countriesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder addCountries(
+          org.sonar.core.test.Test.Country.Builder builderForValue) {
+        if (countriesBuilder_ == null) {
+          ensureCountriesIsMutable();
+          countries_.add(builderForValue.build());
+          onChanged();
+        } else {
+          countriesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder addCountries(
+          int index, org.sonar.core.test.Test.Country.Builder builderForValue) {
+        if (countriesBuilder_ == null) {
+          ensureCountriesIsMutable();
+          countries_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          countriesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder addAllCountries(
+          java.lang.Iterable<? extends org.sonar.core.test.Test.Country> values) {
+        if (countriesBuilder_ == null) {
+          ensureCountriesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, countries_);
+          onChanged();
+        } else {
+          countriesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder clearCountries() {
+        if (countriesBuilder_ == null) {
+          countries_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          countriesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public Builder removeCountries(int index) {
+        if (countriesBuilder_ == null) {
+          ensureCountriesIsMutable();
+          countries_.remove(index);
+          onChanged();
+        } else {
+          countriesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public org.sonar.core.test.Test.Country.Builder getCountriesBuilder(
+          int index) {
+        return getCountriesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public org.sonar.core.test.Test.CountryOrBuilder getCountriesOrBuilder(
+          int index) {
+        if (countriesBuilder_ == null) {
+          return countries_.get(index);  } else {
+          return countriesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public java.util.List<? extends org.sonar.core.test.Test.CountryOrBuilder> 
+           getCountriesOrBuilderList() {
+        if (countriesBuilder_ != null) {
+          return countriesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(countries_);
+        }
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public org.sonar.core.test.Test.Country.Builder addCountriesBuilder() {
+        return getCountriesFieldBuilder().addBuilder(
+            org.sonar.core.test.Test.Country.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public org.sonar.core.test.Test.Country.Builder addCountriesBuilder(
+          int index) {
+        return getCountriesFieldBuilder().addBuilder(
+            index, org.sonar.core.test.Test.Country.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .Country countries = 1;</code>
+       */
+      public java.util.List<org.sonar.core.test.Test.Country.Builder> 
+           getCountriesBuilderList() {
+        return getCountriesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.core.test.Test.Country, org.sonar.core.test.Test.Country.Builder, org.sonar.core.test.Test.CountryOrBuilder> 
+          getCountriesFieldBuilder() {
+        if (countriesBuilder_ == null) {
+          countriesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonar.core.test.Test.Country, org.sonar.core.test.Test.Country.Builder, org.sonar.core.test.Test.CountryOrBuilder>(
+                  countries_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          countries_ = null;
+        }
+        return countriesBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:Countries)
+    }
+
+    // @@protoc_insertion_point(class_scope:Countries)
+    private static final org.sonar.core.test.Test.Countries DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.Countries();
+    }
+
+    public static org.sonar.core.test.Test.Countries getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Countries> PARSER =
+        new com.google.protobuf.AbstractParser<Countries>() {
+      public Countries parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Countries(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Countries> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.Countries getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface CountryOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Country)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string name = 1;</code>
+     */
+    boolean hasName();
+    /**
+     * <code>optional string name = 1;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <code>optional string name = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <code>optional string continent = 2;</code>
+     */
+    boolean hasContinent();
+    /**
+     * <code>optional string continent = 2;</code>
+     */
+    java.lang.String getContinent();
+    /**
+     * <code>optional string continent = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getContinentBytes();
+  }
+  /**
+   * Protobuf type {@code Country}
+   */
+  public  static final class Country extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:Country)
+      CountryOrBuilder {
+    // Use Country.newBuilder() to construct.
+    private Country(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private Country() {
+      name_ = "";
+      continent_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Country(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              name_ = bs;
+              break;
+            }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              continent_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_Country_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_Country_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.Country.class, org.sonar.core.test.Test.Country.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int NAME_FIELD_NUMBER = 1;
+    private volatile java.lang.Object name_;
+    /**
+     * <code>optional string name = 1;</code>
+     */
+    public boolean hasName() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string name = 1;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          name_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string name = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int CONTINENT_FIELD_NUMBER = 2;
+    private volatile java.lang.Object continent_;
+    /**
+     * <code>optional string continent = 2;</code>
+     */
+    public boolean hasContinent() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional string continent = 2;</code>
+     */
+    public java.lang.String getContinent() {
+      java.lang.Object ref = continent_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          continent_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string continent = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getContinentBytes() {
+      java.lang.Object ref = continent_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        continent_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, getContinentBytes());
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getContinentBytes());
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonar.core.test.Test.Country parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.Country parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Country parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.Country parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Country parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.Country parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Country parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.Country parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.Country parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.Country parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonar.core.test.Test.Country prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code Country}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Country)
+        org.sonar.core.test.Test.CountryOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_Country_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_Country_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.Country.class, org.sonar.core.test.Test.Country.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.Country.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        name_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        continent_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_Country_descriptor;
+      }
+
+      public org.sonar.core.test.Test.Country getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.Country.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.Country build() {
+        org.sonar.core.test.Test.Country result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.Country buildPartial() {
+        org.sonar.core.test.Test.Country result = new org.sonar.core.test.Test.Country(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.name_ = name_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.continent_ = continent_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.Country) {
+          return mergeFrom((org.sonar.core.test.Test.Country)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.Country other) {
+        if (other == org.sonar.core.test.Test.Country.getDefaultInstance()) return this;
+        if (other.hasName()) {
+          bitField0_ |= 0x00000001;
+          name_ = other.name_;
+          onChanged();
+        }
+        if (other.hasContinent()) {
+          bitField0_ |= 0x00000002;
+          continent_ = other.continent_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.Country parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.Country) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object name_ = "";
+      /**
+       * <code>optional string name = 1;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string name = 1;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 1;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 1;</code>
+       */
+      public Builder clearName() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 1;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object continent_ = "";
+      /**
+       * <code>optional string continent = 2;</code>
+       */
+      public boolean hasContinent() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string continent = 2;</code>
+       */
+      public java.lang.String getContinent() {
+        java.lang.Object ref = continent_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            continent_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string continent = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getContinentBytes() {
+        java.lang.Object ref = continent_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          continent_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string continent = 2;</code>
+       */
+      public Builder setContinent(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        continent_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string continent = 2;</code>
+       */
+      public Builder clearContinent() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        continent_ = getDefaultInstance().getContinent();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string continent = 2;</code>
+       */
+      public Builder setContinentBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        continent_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:Country)
+    }
+
+    // @@protoc_insertion_point(class_scope:Country)
+    private static final org.sonar.core.test.Test.Country DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonar.core.test.Test.Country();
+    }
+
+    public static org.sonar.core.test.Test.Country getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Country> PARSER =
+        new com.google.protobuf.AbstractParser<Country>() {
+      public Country parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Country(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Country> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonar.core.test.Test.Country getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -4199,35 +7836,80 @@ public final class Test {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_PrimitiveTypeMsg_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_ArrayFieldMsg_descriptor;
+    internal_static_TestArray_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_ArrayFieldMsg_fieldAccessorTable;
+      internal_static_TestArray_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_NestedMsg_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_NestedMsg_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_MapMsg_descriptor;
+    internal_static_TestMap_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_MapMsg_fieldAccessorTable;
+      internal_static_TestMap_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_MapMsg_StringMapEntry_descriptor;
+    internal_static_TestMap_StringMapEntry_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_MapMsg_StringMapEntry_fieldAccessorTable;
+      internal_static_TestMap_StringMapEntry_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_MapMsg_NestedMapEntry_descriptor;
+    internal_static_TestMap_NestedMapEntry_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_MapMsg_NestedMapEntry_fieldAccessorTable;
+      internal_static_TestMap_NestedMapEntry_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_MapMsg_NullableStringMapEntry_descriptor;
+    internal_static_TestNullableArray_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_MapMsg_NullableStringMapEntry_fieldAccessorTable;
+      internal_static_TestNullableArray_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_TestNullableMap_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TestNullableMap_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_TestMapOfArray_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TestMapOfArray_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_TestMapOfArray_MoneysEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TestMapOfArray_MoneysEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_TestMapOfMap_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TestMapOfMap_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_TestMapOfMap_CatalogsEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TestMapOfMap_CatalogsEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_Translations_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_Translations_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_Translations_TranslationsEntry_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_Translations_TranslationsEntry_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_Countries_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_Countries_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_Country_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_Country_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -4243,21 +7925,31 @@ public final class Test {
       "ld\030\003 \001(\003\022\023\n\013doubleField\030\004 \001(\001\022\024\n\014boolean" +
       "Field\030\005 \001(\010\022\034\n\tenumField\030\006 \001(\0162\t.FakeEnu" +
       "m\022\022\n\nbytesField\030\007 \001(\014\022\032\n\006nested\030\010 \001(\0132\n." +
-      "NestedMsg\"y\n\rArrayFieldMsg\022\017\n\007strings\030\001 " +
-      "\003(\t\022\033\n\007nesteds\030\002 \003(\0132\n.NestedMsg\022#\n\033null" +
-      "ableArrayPresentIfEmpty\030\003 \001(\010\022\025\n\rnullabl" +
-      "eArray\030\004 \003(\t\"\032\n\tNestedMsg\022\r\n\005label\030\001 \001(\t",
-      "\"\354\002\n\006MapMsg\022)\n\tstringMap\030\001 \003(\0132\026.MapMsg." +
-      "StringMapEntry\022)\n\tnestedMap\030\002 \003(\0132\026.MapM" +
-      "sg.NestedMapEntry\022\'\n\037nullableStringMapPr" +
-      "esentIfEmpty\030\003 \001(\010\0229\n\021nullableStringMap\030" +
-      "\004 \003(\0132\036.MapMsg.NullableStringMapEntry\0320\n" +
-      "\016StringMapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 " +
-      "\001(\t:\0028\001\032<\n\016NestedMapEntry\022\013\n\003key\030\001 \001(\t\022\031" +
-      "\n\005value\030\002 \001(\0132\n.NestedMsg:\0028\001\0328\n\026Nullabl" +
-      "eStringMapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 " +
-      "\001(\t:\0028\001*(\n\010FakeEnum\022\010\n\004BLUE\020\000\022\007\n\003RED\020\001\022\t",
-      "\n\005GREEN\020\002B\027\n\023org.sonar.core.testH\001"
+      "NestedMsg\"9\n\tTestArray\022\017\n\007strings\030\001 \003(\t\022" +
+      "\033\n\007nesteds\030\002 \003(\0132\n.NestedMsg\"\032\n\tNestedMs" +
+      "g\022\r\n\005label\030\001 \001(\t\"\321\001\n\007TestMap\022*\n\tstringMa" +
+      "p\030\001 \003(\0132\027.TestMap.StringMapEntry\022*\n\tnest",
+      "edMap\030\002 \003(\0132\027.TestMap.NestedMapEntry\0320\n\016" +
+      "StringMapEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
+      "(\t:\0028\001\032<\n\016NestedMapEntry\022\013\n\003key\030\001 \001(\t\022\031\n" +
+      "\005value\030\002 \001(\0132\n.NestedMsg:\0028\001\"A\n\021TestNull" +
+      "ableArray\022\r\n\005label\030\001 \001(\t\022\035\n\tcountries\030\002 " +
+      "\001(\0132\n.Countries\"E\n\017TestNullableMap\022\r\n\005la" +
+      "bel\030\001 \001(\t\022#\n\014translations\030\002 \001(\0132\r.Transl" +
+      "ations\"x\n\016TestMapOfArray\022+\n\006moneys\030\001 \003(\013" +
+      "2\033.TestMapOfArray.MoneysEntry\0329\n\013MoneysE" +
+      "ntry\022\013\n\003key\030\001 \001(\t\022\031\n\005value\030\002 \001(\0132\n.Count",
+      "ries:\0028\001\"}\n\014TestMapOfMap\022-\n\010catalogs\030\001 \003" +
+      "(\0132\033.TestMapOfMap.CatalogsEntry\032>\n\rCatal" +
+      "ogsEntry\022\013\n\003key\030\001 \001(\t\022\034\n\005value\030\002 \001(\0132\r.T" +
+      "ranslations:\0028\001\"z\n\014Translations\0225\n\014trans" +
+      "lations\030\001 \003(\0132\037.Translations.Translation" +
+      "sEntry\0323\n\021TranslationsEntry\022\013\n\003key\030\001 \001(\t" +
+      "\022\r\n\005value\030\002 \001(\t:\0028\001\"(\n\tCountries\022\033\n\tcoun" +
+      "tries\030\001 \003(\0132\010.Country\"*\n\007Country\022\014\n\004name" +
+      "\030\001 \001(\t\022\021\n\tcontinent\030\002 \001(\t*(\n\010FakeEnum\022\010\n" +
+      "\004BLUE\020\000\022\007\n\003RED\020\001\022\t\n\005GREEN\020\002B\027\n\023org.sonar",
+      ".core.testH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4283,42 +7975,96 @@ public final class Test {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_PrimitiveTypeMsg_descriptor,
         new java.lang.String[] { "StringField", "IntField", "LongField", "DoubleField", "BooleanField", "EnumField", "BytesField", "Nested", });
-    internal_static_ArrayFieldMsg_descriptor =
+    internal_static_TestArray_descriptor =
       getDescriptor().getMessageTypes().get(2);
-    internal_static_ArrayFieldMsg_fieldAccessorTable = new
+    internal_static_TestArray_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_ArrayFieldMsg_descriptor,
-        new java.lang.String[] { "Strings", "Nesteds", "NullableArrayPresentIfEmpty", "NullableArray", });
+        internal_static_TestArray_descriptor,
+        new java.lang.String[] { "Strings", "Nesteds", });
     internal_static_NestedMsg_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_NestedMsg_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_NestedMsg_descriptor,
         new java.lang.String[] { "Label", });
-    internal_static_MapMsg_descriptor =
+    internal_static_TestMap_descriptor =
       getDescriptor().getMessageTypes().get(4);
-    internal_static_MapMsg_fieldAccessorTable = new
+    internal_static_TestMap_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_MapMsg_descriptor,
-        new java.lang.String[] { "StringMap", "NestedMap", "NullableStringMapPresentIfEmpty", "NullableStringMap", });
-    internal_static_MapMsg_StringMapEntry_descriptor =
-      internal_static_MapMsg_descriptor.getNestedTypes().get(0);
-    internal_static_MapMsg_StringMapEntry_fieldAccessorTable = new
+        internal_static_TestMap_descriptor,
+        new java.lang.String[] { "StringMap", "NestedMap", });
+    internal_static_TestMap_StringMapEntry_descriptor =
+      internal_static_TestMap_descriptor.getNestedTypes().get(0);
+    internal_static_TestMap_StringMapEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_MapMsg_StringMapEntry_descriptor,
+        internal_static_TestMap_StringMapEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_MapMsg_NestedMapEntry_descriptor =
-      internal_static_MapMsg_descriptor.getNestedTypes().get(1);
-    internal_static_MapMsg_NestedMapEntry_fieldAccessorTable = new
+    internal_static_TestMap_NestedMapEntry_descriptor =
+      internal_static_TestMap_descriptor.getNestedTypes().get(1);
+    internal_static_TestMap_NestedMapEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_MapMsg_NestedMapEntry_descriptor,
+        internal_static_TestMap_NestedMapEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_MapMsg_NullableStringMapEntry_descriptor =
-      internal_static_MapMsg_descriptor.getNestedTypes().get(2);
-    internal_static_MapMsg_NullableStringMapEntry_fieldAccessorTable = new
+    internal_static_TestNullableArray_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_TestNullableArray_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_MapMsg_NullableStringMapEntry_descriptor,
+        internal_static_TestNullableArray_descriptor,
+        new java.lang.String[] { "Label", "Countries", });
+    internal_static_TestNullableMap_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_TestNullableMap_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_TestNullableMap_descriptor,
+        new java.lang.String[] { "Label", "Translations", });
+    internal_static_TestMapOfArray_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_TestMapOfArray_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_TestMapOfArray_descriptor,
+        new java.lang.String[] { "Moneys", });
+    internal_static_TestMapOfArray_MoneysEntry_descriptor =
+      internal_static_TestMapOfArray_descriptor.getNestedTypes().get(0);
+    internal_static_TestMapOfArray_MoneysEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_TestMapOfArray_MoneysEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
+    internal_static_TestMapOfMap_descriptor =
+      getDescriptor().getMessageTypes().get(8);
+    internal_static_TestMapOfMap_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_TestMapOfMap_descriptor,
+        new java.lang.String[] { "Catalogs", });
+    internal_static_TestMapOfMap_CatalogsEntry_descriptor =
+      internal_static_TestMapOfMap_descriptor.getNestedTypes().get(0);
+    internal_static_TestMapOfMap_CatalogsEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_TestMapOfMap_CatalogsEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_Translations_descriptor =
+      getDescriptor().getMessageTypes().get(9);
+    internal_static_Translations_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Translations_descriptor,
+        new java.lang.String[] { "Translations", });
+    internal_static_Translations_TranslationsEntry_descriptor =
+      internal_static_Translations_descriptor.getNestedTypes().get(0);
+    internal_static_Translations_TranslationsEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Translations_TranslationsEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_Countries_descriptor =
+      getDescriptor().getMessageTypes().get(10);
+    internal_static_Countries_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Countries_descriptor,
+        new java.lang.String[] { "Countries", });
+    internal_static_Country_descriptor =
+      getDescriptor().getMessageTypes().get(11);
+    internal_static_Country_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_Country_descriptor,
+        new java.lang.String[] { "Name", "Continent", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

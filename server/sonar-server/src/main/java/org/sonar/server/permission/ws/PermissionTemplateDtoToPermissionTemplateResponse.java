@@ -24,7 +24,7 @@ import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.permission.PermissionTemplateDto;
-import org.sonarqube.ws.Permissions.PermissionTemplate;
+import org.sonarqube.ws.WsPermissions.PermissionTemplate;
 
 class PermissionTemplateDtoToPermissionTemplateResponse {
 

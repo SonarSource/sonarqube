@@ -29,10 +29,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Permissions.Permission;
-import org.sonarqube.ws.Permissions.PermissionTemplate;
-import org.sonarqube.ws.Permissions.WsSearchTemplatesResponse;
-import org.sonarqube.ws.Permissions.WsSearchTemplatesResponse.TemplateIdQualifier;
+import org.sonarqube.ws.WsPermissions.Permission;
+import org.sonarqube.ws.WsPermissions.PermissionTemplate;
+import org.sonarqube.ws.WsPermissions.WsSearchTemplatesResponse;
+import org.sonarqube.ws.WsPermissions.WsSearchTemplatesResponse.TemplateIdQualifier;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
