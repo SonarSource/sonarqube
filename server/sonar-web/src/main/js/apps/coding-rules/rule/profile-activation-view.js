@@ -144,12 +144,14 @@ define([
         }
       }
 
-      var availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang'));
+      var availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang')),
+          contextProfile = this.options.app.state.get('query').qprofile;
 
       return _.extend(this._super(), {
         change: this.model && this.model.has('severity'),
         params: params,
         qualityProfiles: availableProfiles,
+        contextProfile: contextProfile,
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
         saveEnabled: !_.isEmpty(availableProfiles) || (this.model && this.model.get('qProfile')),
         isCustomRule: (this.model && this.model.has('templateKey')) || this.options.rule.has('templateKey')

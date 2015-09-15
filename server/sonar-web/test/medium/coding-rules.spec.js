@@ -971,5 +971,29 @@ define(function (require) {
           .checkElementExist('.coding-rules-detail-quality-profile-activate')
           .checkElementNotExist('.coding-rules-detail-quality-profile-deactivate');
     });
+
+    bdd.it('should pre-select context profile in the activation modal', function () {
+      return this.remote
+          .open()
+          .mockFromString('/api/l10n/index', '{}')
+          .mockFromFile('/api/rules/app', 'coding-rules-spec/app.json')
+          .mockFromFile('/api/rules/search', 'coding-rules-spec/search.json')
+          .startApp('coding-rules')
+          .clickElement('[data-property="qprofile"] .js-facet-toggle')
+          .checkElementExist('.js-facet[data-value="java-default-with-mojo-conventions-49307"]')
+          .clearMocks()
+          .mockFromFile('/api/rules/search', 'coding-rules-spec/search-inactive.json')
+          .mockFromFile('/api/rules/show', 'coding-rules-spec/show-activate-profile.json')
+          .clickElement('.js-facet[data-value="java-findbugs-14954"]')
+          .clickElement('.js-facet[data-value="java-findbugs-14954"] .js-inactive')
+          .checkElementExist('.coding-rule.selected')
+          .clickElement('.coding-rule.selected .js-rule')
+          .checkElementExist('.coding-rules-detail-header')
+          .checkElementNotExist('.coding-rules-detail-quality-profile-name')
+          .checkElementExist('#coding-rules-quality-profile-activate')
+          .clickElement('#coding-rules-quality-profile-activate')
+          .checkElementExist('.modal')
+          .checkElementInclude('#coding-rules-quality-profile-activation-select option[selected]', 'FindBugs');
+    });
   });
 });
