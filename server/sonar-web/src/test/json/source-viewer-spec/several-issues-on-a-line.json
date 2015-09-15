@@ -1,0 +1,143 @@
+{
+  "total": 3,
+  "p": 1,
+  "ps": 500,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 500,
+    "total": 3
+  },
+  "issues": [
+    {
+      "key": "00c52e57-1e71-4079-aee3-19004bc30899",
+      "rule": "c:S1764",
+      "severity": "CRITICAL",
+      "component": "com.sonarsource.samples:multiple-issue-locations:src/main/c/identical-expressions.c",
+      "componentId": 1875,
+      "project": "com.sonarsource.samples:multiple-issue-locations",
+      "subProject": "com.sonarsource.samples:multiple-issue-locations",
+      "line": 3,
+      "textRange": {
+        "startLine": 3,
+        "endLine": 3,
+        "startOffset": 24,
+        "endOffset": 29
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Identical sub-expressions on both sides of operator \"||\"",
+      "debt": "2min",
+      "author": "",
+      "tags": [
+        "bug",
+        "cert"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive",
+        "wontfix"
+      ],
+      "actions": [
+        "comment",
+        "assign",
+        "set_tags",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "comments": [],
+      "creationDate": "2015-08-12T14:10:00+0200",
+      "updateDate": "2015-08-12T14:10:00+0200"
+    },
+    {
+      "key": "62f1a1f9-b2d0-4003-a774-81ad8668b7ff",
+      "rule": "c:S1764",
+      "severity": "CRITICAL",
+      "component": "com.sonarsource.samples:multiple-issue-locations:src/main/c/identical-expressions.c",
+      "componentId": 1875,
+      "project": "com.sonarsource.samples:multiple-issue-locations",
+      "subProject": "com.sonarsource.samples:multiple-issue-locations",
+      "line": 3,
+      "textRange": {
+        "startLine": 9,
+        "endLine": 9,
+        "startOffset": 6,
+        "endOffset": 10
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Identical sub-expressions on both sides of operator \"||\"",
+      "debt": "2min",
+      "author": "",
+      "tags": [
+        "bug",
+        "cert"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive",
+        "wontfix"
+      ],
+      "actions": [
+        "comment",
+        "assign",
+        "set_tags",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "comments": [],
+      "creationDate": "2015-08-12T14:10:00+0200",
+      "updateDate": "2015-08-12T14:10:00+0200"
+    },
+    {
+      "key": "4ea2b024-fc40-4050-ba36-1083bb09561a",
+      "rule": "c:S1764",
+      "severity": "CRITICAL",
+      "component": "com.sonarsource.samples:multiple-issue-locations:src/main/c/identical-expressions.c",
+      "componentId": 1875,
+      "project": "com.sonarsource.samples:multiple-issue-locations",
+      "subProject": "com.sonarsource.samples:multiple-issue-locations",
+      "line": 5,
+      "textRange": {
+        "startLine": 18,
+        "endLine": 19,
+        "startOffset": 13,
+        "endOffset": 9
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Identical sub-expressions on both sides of operator \"||\"",
+      "debt": "2min",
+      "author": "",
+      "tags": [
+        "bug",
+        "cert"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive",
+        "wontfix"
+      ],
+      "actions": [
+        "comment",
+        "assign",
+        "set_tags",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "comments": [],
+      "creationDate": "2015-08-12T14:10:00+0200",
+      "updateDate": "2015-08-12T14:10:00+0200"
+    }
+  ],
+  "components": [],
+  "rules": [],
+  "users": [],
+  "actionPlans": [],
+  "languages": []
+}

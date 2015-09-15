@@ -586,4 +586,12 @@
     return cond ? options.fn(this) : options.inverse(this);
   });
 
+  Handlebars.registerHelper('length', function (array) {
+    return _.size(array);
+  });
+
+  Handlebars.registerHelper('ifLengthGT', function (array, len, options) {
+    return _.size(array) > len ? options.fn(this) : options.inverse(this);
+  });
+
 })();

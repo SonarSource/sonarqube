@@ -68,6 +68,20 @@ define(function (require) {
             .checkElementInclude('.source-line-code[data-line-number="8"] .source-line-code-secondary-issue', 'ense ')
             .checkElementInclude('.source-line-code[data-line-number="9"] .source-line-code-secondary-issue', 'sion');
       });
+
+      bdd.it('should show the number of issues on a line', function () {
+        return this.remote
+            .open()
+            .mockFromFile('/api/components/app', 'source-viewer-spec/app.json', { data: { uuid: 'uuid' } })
+            .mockFromFile('/api/sources/lines', 'source-viewer-spec/lines.json', { data: { uuid: 'uuid' } })
+            .mockFromFile('/api/issues/search', 'source-viewer-spec/several-issues-on-a-line.json')
+            .startApp('source-viewer', { file: file })
+            .checkElementExist('.source-line-issues[data-line-number="3"] .icon-severity-critical')
+            .checkElementExist('.source-line-issues[data-line-number="3"] .source-line-issues-counter')
+            .checkElementInclude('.source-line-issues[data-line-number="3"] .source-line-issues-counter', 2)
+            .checkElementExist('.source-line-issues[data-line-number="5"] .icon-severity-critical')
+            .checkElementNotExist('.source-line-issues[data-line-number="5"] .source-line-issues-counter');
+      });
     });
   });
 });
