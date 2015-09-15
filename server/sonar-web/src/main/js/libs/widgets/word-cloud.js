@@ -13,12 +13,21 @@
 
   WordCloud.prototype.sizeLow = 10;
 
+  WordCloud.prototype.formatDirectory = function (path) {
+    var dirs = path.split('/');
+    if (dirs.length > 2) {
+      return '.../' + dirs[dirs.length - 1];
+    } else {
+      return path;
+    }
+  };
+
   WordCloud.prototype.renderWords = function () {
     var that = this;
     var words = this.wordContainer.selectAll('.cloud-word').data(this.components()),
         wordsEnter = words.enter().append('a').classed('cloud-word', true);
     wordsEnter.text(function (d) {
-      return d.name;
+      return d.qualifier === 'DIR' ? that.formatDirectory(d.name) : d.name;
     });
     wordsEnter.attr('href', function (d) {
       return that.options().baseUrl + '?id=' + encodeURIComponent(d.key);
