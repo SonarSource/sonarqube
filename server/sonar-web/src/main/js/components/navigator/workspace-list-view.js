@@ -24,7 +24,8 @@ define(function () {
   return Marionette.CompositeView.extend({
 
     ui: {
-      loadMore: '.js-more'
+      loadMore: '.js-more',
+      lastElementReached: '.js-last-element-reached'
     },
 
     childViewOptions: function () {
@@ -49,8 +50,14 @@ define(function () {
       this.unbindShortcuts();
     },
 
+    onRender: function () {
+      this.toggleLoadMore();
+    },
+
     toggleLoadMore: function () {
-      this.ui.loadMore.toggle(!this.options.app.state.get('maxResultsReached'));
+      var maxResultsReached = this.options.app.state.get('maxResultsReached');
+      this.ui.loadMore.toggle(!maxResultsReached);
+      this.ui.lastElementReached.toggle(maxResultsReached);
     },
 
     bindScrollEvents: function () {
