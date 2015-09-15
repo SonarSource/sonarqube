@@ -1650,6 +1650,678 @@ public final class Common {
 
   }
 
+  public interface FacetsOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.commons.Facets)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    java.util.List<org.sonarqube.ws.Common.Facet> 
+        getFacetsList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    org.sonarqube.ws.Common.Facet getFacets(int index);
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    int getFacetsCount();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
+        getFacetsOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.commons.Facets}
+   */
+  public  static final class Facets extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.Facets)
+      FacetsOrBuilder {
+    // Use Facets.newBuilder() to construct.
+    private Facets(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private Facets() {
+      facets_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Facets(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                facets_ = new java.util.ArrayList<org.sonarqube.ws.Common.Facet>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              facets_.add(input.readMessage(org.sonarqube.ws.Common.Facet.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          facets_ = java.util.Collections.unmodifiableList(facets_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Facets_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Facets_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Common.Facets.class, org.sonarqube.ws.Common.Facets.Builder.class);
+    }
+
+    public static final int FACETS_FIELD_NUMBER = 1;
+    private java.util.List<org.sonarqube.ws.Common.Facet> facets_;
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Common.Facet> getFacetsList() {
+      return facets_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
+        getFacetsOrBuilderList() {
+      return facets_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    public int getFacetsCount() {
+      return facets_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    public org.sonarqube.ws.Common.Facet getFacets(int index) {
+      return facets_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+     */
+    public org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
+        int index) {
+      return facets_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < facets_.size(); i++) {
+        output.writeMessage(1, facets_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < facets_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, facets_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonarqube.ws.Common.Facets parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Common.Facets parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Facets parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Common.Facets parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Facets parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Facets parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Facets parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Facets parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Facets parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Facets parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonarqube.ws.Common.Facets prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.commons.Facets}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.commons.Facets)
+        org.sonarqube.ws.Common.FacetsOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Facets_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Facets_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Common.Facets.class, org.sonarqube.ws.Common.Facets.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Common.Facets.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getFacetsFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (facetsBuilder_ == null) {
+          facets_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          facetsBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Facets_descriptor;
+      }
+
+      public org.sonarqube.ws.Common.Facets getDefaultInstanceForType() {
+        return org.sonarqube.ws.Common.Facets.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Common.Facets build() {
+        org.sonarqube.ws.Common.Facets result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Common.Facets buildPartial() {
+        org.sonarqube.ws.Common.Facets result = new org.sonarqube.ws.Common.Facets(this);
+        int from_bitField0_ = bitField0_;
+        if (facetsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            facets_ = java.util.Collections.unmodifiableList(facets_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.facets_ = facets_;
+        } else {
+          result.facets_ = facetsBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Common.Facets) {
+          return mergeFrom((org.sonarqube.ws.Common.Facets)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Common.Facets other) {
+        if (other == org.sonarqube.ws.Common.Facets.getDefaultInstance()) return this;
+        if (facetsBuilder_ == null) {
+          if (!other.facets_.isEmpty()) {
+            if (facets_.isEmpty()) {
+              facets_ = other.facets_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureFacetsIsMutable();
+              facets_.addAll(other.facets_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.facets_.isEmpty()) {
+            if (facetsBuilder_.isEmpty()) {
+              facetsBuilder_.dispose();
+              facetsBuilder_ = null;
+              facets_ = other.facets_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              facetsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getFacetsFieldBuilder() : null;
+            } else {
+              facetsBuilder_.addAllMessages(other.facets_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Common.Facets parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Common.Facets) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<org.sonarqube.ws.Common.Facet> facets_ =
+        java.util.Collections.emptyList();
+      private void ensureFacetsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          facets_ = new java.util.ArrayList<org.sonarqube.ws.Common.Facet>(facets_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder> facetsBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.Facet> getFacetsList() {
+        if (facetsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(facets_);
+        } else {
+          return facetsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public int getFacetsCount() {
+        if (facetsBuilder_ == null) {
+          return facets_.size();
+        } else {
+          return facetsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Facet getFacets(int index) {
+        if (facetsBuilder_ == null) {
+          return facets_.get(index);
+        } else {
+          return facetsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder setFacets(
+          int index, org.sonarqube.ws.Common.Facet value) {
+        if (facetsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFacetsIsMutable();
+          facets_.set(index, value);
+          onChanged();
+        } else {
+          facetsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder setFacets(
+          int index, org.sonarqube.ws.Common.Facet.Builder builderForValue) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          facets_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          facetsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder addFacets(org.sonarqube.ws.Common.Facet value) {
+        if (facetsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFacetsIsMutable();
+          facets_.add(value);
+          onChanged();
+        } else {
+          facetsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder addFacets(
+          int index, org.sonarqube.ws.Common.Facet value) {
+        if (facetsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFacetsIsMutable();
+          facets_.add(index, value);
+          onChanged();
+        } else {
+          facetsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder addFacets(
+          org.sonarqube.ws.Common.Facet.Builder builderForValue) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          facets_.add(builderForValue.build());
+          onChanged();
+        } else {
+          facetsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder addFacets(
+          int index, org.sonarqube.ws.Common.Facet.Builder builderForValue) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          facets_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          facetsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder addAllFacets(
+          java.lang.Iterable<? extends org.sonarqube.ws.Common.Facet> values) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, facets_);
+          onChanged();
+        } else {
+          facetsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder clearFacets() {
+        if (facetsBuilder_ == null) {
+          facets_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          facetsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public Builder removeFacets(int index) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          facets_.remove(index);
+          onChanged();
+        } else {
+          facetsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Facet.Builder getFacetsBuilder(
+          int index) {
+        return getFacetsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
+          int index) {
+        if (facetsBuilder_ == null) {
+          return facets_.get(index);  } else {
+          return facetsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
+           getFacetsOrBuilderList() {
+        if (facetsBuilder_ != null) {
+          return facetsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(facets_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Facet.Builder addFacetsBuilder() {
+        return getFacetsFieldBuilder().addBuilder(
+            org.sonarqube.ws.Common.Facet.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Facet.Builder addFacetsBuilder(
+          int index) {
+        return getFacetsFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Common.Facet.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.Facet.Builder> 
+           getFacetsBuilderList() {
+        return getFacetsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder> 
+          getFacetsFieldBuilder() {
+        if (facetsBuilder_ == null) {
+          facetsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder>(
+                  facets_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          facets_ = null;
+        }
+        return facetsBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.Facets)
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Facets)
+    private static final org.sonarqube.ws.Common.Facets DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.Facets();
+    }
+
+    public static org.sonarqube.ws.Common.Facets getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Facets> PARSER =
+        new com.google.protobuf.AbstractParser<Facets>() {
+      public Facets parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Facets(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Facets> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.Facets getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface FacetValueOrBuilder extends
       // @@protoc_insertion_point(interface_extends:sonarqube.ws.commons.FacetValue)
       com.google.protobuf.MessageOrBuilder {
@@ -3232,6 +3904,678 @@ public final class Common {
 
   }
 
+  public interface RulesOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.commons.Rules)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    java.util.List<org.sonarqube.ws.Common.Rule> 
+        getRulesList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    org.sonarqube.ws.Common.Rule getRules(int index);
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    int getRulesCount();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
+        getRulesOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.commons.Rules}
+   */
+  public  static final class Rules extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.Rules)
+      RulesOrBuilder {
+    // Use Rules.newBuilder() to construct.
+    private Rules(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private Rules() {
+      rules_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Rules(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                rules_ = new java.util.ArrayList<org.sonarqube.ws.Common.Rule>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              rules_.add(input.readMessage(org.sonarqube.ws.Common.Rule.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          rules_ = java.util.Collections.unmodifiableList(rules_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Rules_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Rules_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Common.Rules.class, org.sonarqube.ws.Common.Rules.Builder.class);
+    }
+
+    public static final int RULES_FIELD_NUMBER = 1;
+    private java.util.List<org.sonarqube.ws.Common.Rule> rules_;
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Common.Rule> getRulesList() {
+      return rules_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
+        getRulesOrBuilderList() {
+      return rules_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    public int getRulesCount() {
+      return rules_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    public org.sonarqube.ws.Common.Rule getRules(int index) {
+      return rules_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+     */
+    public org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
+        int index) {
+      return rules_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < rules_.size(); i++) {
+        output.writeMessage(1, rules_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < rules_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, rules_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonarqube.ws.Common.Rules parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Common.Rules parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Rules parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Common.Rules parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Rules parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Rules parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Rules parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Rules parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Rules parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Rules parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonarqube.ws.Common.Rules prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.commons.Rules}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.commons.Rules)
+        org.sonarqube.ws.Common.RulesOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Rules_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Rules_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Common.Rules.class, org.sonarqube.ws.Common.Rules.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Common.Rules.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getRulesFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (rulesBuilder_ == null) {
+          rules_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          rulesBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Rules_descriptor;
+      }
+
+      public org.sonarqube.ws.Common.Rules getDefaultInstanceForType() {
+        return org.sonarqube.ws.Common.Rules.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Common.Rules build() {
+        org.sonarqube.ws.Common.Rules result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Common.Rules buildPartial() {
+        org.sonarqube.ws.Common.Rules result = new org.sonarqube.ws.Common.Rules(this);
+        int from_bitField0_ = bitField0_;
+        if (rulesBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            rules_ = java.util.Collections.unmodifiableList(rules_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.rules_ = rules_;
+        } else {
+          result.rules_ = rulesBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Common.Rules) {
+          return mergeFrom((org.sonarqube.ws.Common.Rules)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Common.Rules other) {
+        if (other == org.sonarqube.ws.Common.Rules.getDefaultInstance()) return this;
+        if (rulesBuilder_ == null) {
+          if (!other.rules_.isEmpty()) {
+            if (rules_.isEmpty()) {
+              rules_ = other.rules_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureRulesIsMutable();
+              rules_.addAll(other.rules_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.rules_.isEmpty()) {
+            if (rulesBuilder_.isEmpty()) {
+              rulesBuilder_.dispose();
+              rulesBuilder_ = null;
+              rules_ = other.rules_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              rulesBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getRulesFieldBuilder() : null;
+            } else {
+              rulesBuilder_.addAllMessages(other.rules_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Common.Rules parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Common.Rules) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<org.sonarqube.ws.Common.Rule> rules_ =
+        java.util.Collections.emptyList();
+      private void ensureRulesIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          rules_ = new java.util.ArrayList<org.sonarqube.ws.Common.Rule>(rules_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.Rule, org.sonarqube.ws.Common.Rule.Builder, org.sonarqube.ws.Common.RuleOrBuilder> rulesBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.Rule> getRulesList() {
+        if (rulesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(rules_);
+        } else {
+          return rulesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public int getRulesCount() {
+        if (rulesBuilder_ == null) {
+          return rules_.size();
+        } else {
+          return rulesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Rule getRules(int index) {
+        if (rulesBuilder_ == null) {
+          return rules_.get(index);
+        } else {
+          return rulesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder setRules(
+          int index, org.sonarqube.ws.Common.Rule value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.set(index, value);
+          onChanged();
+        } else {
+          rulesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder setRules(
+          int index, org.sonarqube.ws.Common.Rule.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder addRules(org.sonarqube.ws.Common.Rule value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.add(value);
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder addRules(
+          int index, org.sonarqube.ws.Common.Rule value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.add(index, value);
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder addRules(
+          org.sonarqube.ws.Common.Rule.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.add(builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder addRules(
+          int index, org.sonarqube.ws.Common.Rule.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder addAllRules(
+          java.lang.Iterable<? extends org.sonarqube.ws.Common.Rule> values) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, rules_);
+          onChanged();
+        } else {
+          rulesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder clearRules() {
+        if (rulesBuilder_ == null) {
+          rules_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          rulesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public Builder removeRules(int index) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.remove(index);
+          onChanged();
+        } else {
+          rulesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Rule.Builder getRulesBuilder(
+          int index) {
+        return getRulesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
+          int index) {
+        if (rulesBuilder_ == null) {
+          return rules_.get(index);  } else {
+          return rulesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
+           getRulesOrBuilderList() {
+        if (rulesBuilder_ != null) {
+          return rulesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(rules_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Rule.Builder addRulesBuilder() {
+        return getRulesFieldBuilder().addBuilder(
+            org.sonarqube.ws.Common.Rule.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Rule.Builder addRulesBuilder(
+          int index) {
+        return getRulesFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Common.Rule.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.Rule.Builder> 
+           getRulesBuilderList() {
+        return getRulesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.Rule, org.sonarqube.ws.Common.Rule.Builder, org.sonarqube.ws.Common.RuleOrBuilder> 
+          getRulesFieldBuilder() {
+        if (rulesBuilder_ == null) {
+          rulesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Common.Rule, org.sonarqube.ws.Common.Rule.Builder, org.sonarqube.ws.Common.RuleOrBuilder>(
+                  rules_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          rules_ = null;
+        }
+        return rulesBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.Rules)
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Rules)
+    private static final org.sonarqube.ws.Common.Rules DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.Rules();
+    }
+
+    public static org.sonarqube.ws.Common.Rules getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Rules> PARSER =
+        new com.google.protobuf.AbstractParser<Rules>() {
+      public Rules parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Rules(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Rules> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.Rules getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface UserOrBuilder extends
       // @@protoc_insertion_point(interface_extends:sonarqube.ws.commons.User)
       com.google.protobuf.MessageOrBuilder {
@@ -4096,6 +5440,678 @@ public final class Common {
 
   }
 
+  public interface UsersOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.commons.Users)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    java.util.List<org.sonarqube.ws.Common.User> 
+        getUsersList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    org.sonarqube.ws.Common.User getUsers(int index);
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    int getUsersCount();
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
+        getUsersOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.commons.Users}
+   */
+  public  static final class Users extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.commons.Users)
+      UsersOrBuilder {
+    // Use Users.newBuilder() to construct.
+    private Users(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private Users() {
+      users_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Users(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                users_ = new java.util.ArrayList<org.sonarqube.ws.Common.User>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              users_.add(input.readMessage(org.sonarqube.ws.Common.User.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          users_ = java.util.Collections.unmodifiableList(users_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Users_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Users_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Common.Users.class, org.sonarqube.ws.Common.Users.Builder.class);
+    }
+
+    public static final int USERS_FIELD_NUMBER = 1;
+    private java.util.List<org.sonarqube.ws.Common.User> users_;
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Common.User> getUsersList() {
+      return users_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
+        getUsersOrBuilderList() {
+      return users_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    public int getUsersCount() {
+      return users_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    public org.sonarqube.ws.Common.User getUsers(int index) {
+      return users_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+     */
+    public org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
+        int index) {
+      return users_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < users_.size(); i++) {
+        output.writeMessage(1, users_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < users_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, users_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonarqube.ws.Common.Users parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Common.Users parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Users parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Common.Users parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Users parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Users parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Users parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Users parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Common.Users parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Common.Users parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonarqube.ws.Common.Users prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.commons.Users}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.commons.Users)
+        org.sonarqube.ws.Common.UsersOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Users_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Users_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Common.Users.class, org.sonarqube.ws.Common.Users.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Common.Users.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getUsersFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (usersBuilder_ == null) {
+          users_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          usersBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Common.internal_static_sonarqube_ws_commons_Users_descriptor;
+      }
+
+      public org.sonarqube.ws.Common.Users getDefaultInstanceForType() {
+        return org.sonarqube.ws.Common.Users.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Common.Users build() {
+        org.sonarqube.ws.Common.Users result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Common.Users buildPartial() {
+        org.sonarqube.ws.Common.Users result = new org.sonarqube.ws.Common.Users(this);
+        int from_bitField0_ = bitField0_;
+        if (usersBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            users_ = java.util.Collections.unmodifiableList(users_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.users_ = users_;
+        } else {
+          result.users_ = usersBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Common.Users) {
+          return mergeFrom((org.sonarqube.ws.Common.Users)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Common.Users other) {
+        if (other == org.sonarqube.ws.Common.Users.getDefaultInstance()) return this;
+        if (usersBuilder_ == null) {
+          if (!other.users_.isEmpty()) {
+            if (users_.isEmpty()) {
+              users_ = other.users_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureUsersIsMutable();
+              users_.addAll(other.users_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.users_.isEmpty()) {
+            if (usersBuilder_.isEmpty()) {
+              usersBuilder_.dispose();
+              usersBuilder_ = null;
+              users_ = other.users_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              usersBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getUsersFieldBuilder() : null;
+            } else {
+              usersBuilder_.addAllMessages(other.users_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Common.Users parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Common.Users) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<org.sonarqube.ws.Common.User> users_ =
+        java.util.Collections.emptyList();
+      private void ensureUsersIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          users_ = new java.util.ArrayList<org.sonarqube.ws.Common.User>(users_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.User, org.sonarqube.ws.Common.User.Builder, org.sonarqube.ws.Common.UserOrBuilder> usersBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.User> getUsersList() {
+        if (usersBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(users_);
+        } else {
+          return usersBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public int getUsersCount() {
+        if (usersBuilder_ == null) {
+          return users_.size();
+        } else {
+          return usersBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public org.sonarqube.ws.Common.User getUsers(int index) {
+        if (usersBuilder_ == null) {
+          return users_.get(index);
+        } else {
+          return usersBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder setUsers(
+          int index, org.sonarqube.ws.Common.User value) {
+        if (usersBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUsersIsMutable();
+          users_.set(index, value);
+          onChanged();
+        } else {
+          usersBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder setUsers(
+          int index, org.sonarqube.ws.Common.User.Builder builderForValue) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          users_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          usersBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder addUsers(org.sonarqube.ws.Common.User value) {
+        if (usersBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUsersIsMutable();
+          users_.add(value);
+          onChanged();
+        } else {
+          usersBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder addUsers(
+          int index, org.sonarqube.ws.Common.User value) {
+        if (usersBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUsersIsMutable();
+          users_.add(index, value);
+          onChanged();
+        } else {
+          usersBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder addUsers(
+          org.sonarqube.ws.Common.User.Builder builderForValue) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          users_.add(builderForValue.build());
+          onChanged();
+        } else {
+          usersBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder addUsers(
+          int index, org.sonarqube.ws.Common.User.Builder builderForValue) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          users_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          usersBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder addAllUsers(
+          java.lang.Iterable<? extends org.sonarqube.ws.Common.User> values) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, users_);
+          onChanged();
+        } else {
+          usersBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder clearUsers() {
+        if (usersBuilder_ == null) {
+          users_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          usersBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public Builder removeUsers(int index) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          users_.remove(index);
+          onChanged();
+        } else {
+          usersBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public org.sonarqube.ws.Common.User.Builder getUsersBuilder(
+          int index) {
+        return getUsersFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
+          int index) {
+        if (usersBuilder_ == null) {
+          return users_.get(index);  } else {
+          return usersBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
+           getUsersOrBuilderList() {
+        if (usersBuilder_ != null) {
+          return usersBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(users_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public org.sonarqube.ws.Common.User.Builder addUsersBuilder() {
+        return getUsersFieldBuilder().addBuilder(
+            org.sonarqube.ws.Common.User.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public org.sonarqube.ws.Common.User.Builder addUsersBuilder(
+          int index) {
+        return getUsersFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Common.User.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.User.Builder> 
+           getUsersBuilderList() {
+        return getUsersFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.User, org.sonarqube.ws.Common.User.Builder, org.sonarqube.ws.Common.UserOrBuilder> 
+          getUsersFieldBuilder() {
+        if (usersBuilder_ == null) {
+          usersBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Common.User, org.sonarqube.ws.Common.User.Builder, org.sonarqube.ws.Common.UserOrBuilder>(
+                  users_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          users_ = null;
+        }
+        return usersBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.commons.Users)
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.commons.Users)
+    private static final org.sonarqube.ws.Common.Users DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonarqube.ws.Common.Users();
+    }
+
+    public static org.sonarqube.ws.Common.Users getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<Users> PARSER =
+        new com.google.protobuf.AbstractParser<Users>() {
+      public Users parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Users(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Users> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.Common.Users getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface TextRangeOrBuilder extends
       // @@protoc_insertion_point(interface_extends:sonarqube.ws.commons.TextRange)
       com.google.protobuf.MessageOrBuilder {
@@ -4870,6 +6886,11 @@ public final class Common {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_commons_Facet_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_commons_Facets_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_commons_Facets_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_FacetValue_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -4880,10 +6901,20 @@ public final class Common {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_commons_Rule_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_commons_Rules_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_commons_Rules_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_User_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_commons_User_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_commons_Users_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_commons_Users_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_commons_TextRange_descriptor;
   private static
@@ -4902,19 +6933,23 @@ public final class Common {
       "\"<\n\006Paging\022\021\n\tpageIndex\030\001 \001(\005\022\020\n\010pageSiz" +
       "e\030\002 \001(\005\022\r\n\005total\030\003 \001(\005\"K\n\005Facet\022\020\n\010prope" +
       "rty\030\001 \001(\t\0220\n\006values\030\002 \003(\0132 .sonarqube.ws" +
-      ".commons.FacetValue\"(\n\nFacetValue\022\013\n\003val" +
-      "\030\001 \001(\t\022\r\n\005count\030\002 \001(\003\"s\n\004Rule\022\013\n\003key\030\001 \001" +
-      "(\t\022\014\n\004name\030\002 \001(\t\022\014\n\004lang\030\003 \001(\t\0220\n\006status" +
-      "\030\004 \001(\0162 .sonarqube.ws.commons.RuleStatus" +
-      "\022\020\n\010langName\030\005 \001(\t\"B\n\004User\022\r\n\005login\030\001 \001(" +
-      "\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030\003 \001(\t\022\016\n\006active",
-      "\030\004 \001(\010\"W\n\tTextRange\022\021\n\tstartLine\030\001 \001(\005\022\017" +
-      "\n\007endLine\030\002 \001(\005\022\023\n\013startOffset\030\003 \001(\005\022\021\n\t" +
-      "endOffset\030\004 \001(\005*E\n\010Severity\022\010\n\004INFO\020\000\022\t\n" +
-      "\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014\n\010CRITICAL\020\003\022\013\n\007BLO" +
-      "CKER\020\004*>\n\nRuleStatus\022\010\n\004BETA\020\000\022\016\n\nDEPREC" +
-      "ATED\020\001\022\t\n\005READY\020\002\022\013\n\007REMOVED\020\003B\034\n\020org.so" +
-      "narqube.wsB\006CommonH\001"
+      ".commons.FacetValue\"5\n\006Facets\022+\n\006facets\030" +
+      "\001 \003(\0132\033.sonarqube.ws.commons.Facet\"(\n\nFa" +
+      "cetValue\022\013\n\003val\030\001 \001(\t\022\r\n\005count\030\002 \001(\003\"s\n\004" +
+      "Rule\022\013\n\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\014\n\004lang\030" +
+      "\003 \001(\t\0220\n\006status\030\004 \001(\0162 .sonarqube.ws.com" +
+      "mons.RuleStatus\022\020\n\010langName\030\005 \001(\t\"2\n\005Rul",
+      "es\022)\n\005rules\030\001 \003(\0132\032.sonarqube.ws.commons" +
+      ".Rule\"B\n\004User\022\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001" +
+      "(\t\022\r\n\005email\030\003 \001(\t\022\016\n\006active\030\004 \001(\010\"2\n\005Use" +
+      "rs\022)\n\005users\030\001 \003(\0132\032.sonarqube.ws.commons" +
+      ".User\"W\n\tTextRange\022\021\n\tstartLine\030\001 \001(\005\022\017\n" +
+      "\007endLine\030\002 \001(\005\022\023\n\013startOffset\030\003 \001(\005\022\021\n\te" +
+      "ndOffset\030\004 \001(\005*E\n\010Severity\022\010\n\004INFO\020\000\022\t\n\005" +
+      "MINOR\020\001\022\t\n\005MAJOR\020\002\022\014\n\010CRITICAL\020\003\022\013\n\007BLOC" +
+      "KER\020\004*>\n\nRuleStatus\022\010\n\004BETA\020\000\022\016\n\nDEPRECA" +
+      "TED\020\001\022\t\n\005READY\020\002\022\013\n\007REMOVED\020\003B\034\n\020org.son",
+      "arqube.wsB\006CommonH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4940,26 +6975,44 @@ public final class Common {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_commons_Facet_descriptor,
         new java.lang.String[] { "Property", "Values", });
-    internal_static_sonarqube_ws_commons_FacetValue_descriptor =
+    internal_static_sonarqube_ws_commons_Facets_descriptor =
       getDescriptor().getMessageTypes().get(2);
+    internal_static_sonarqube_ws_commons_Facets_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_commons_Facets_descriptor,
+        new java.lang.String[] { "Facets", });
+    internal_static_sonarqube_ws_commons_FacetValue_descriptor =
+      getDescriptor().getMessageTypes().get(3);
     internal_static_sonarqube_ws_commons_FacetValue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_commons_FacetValue_descriptor,
         new java.lang.String[] { "Val", "Count", });
     internal_static_sonarqube_ws_commons_Rule_descriptor =
-      getDescriptor().getMessageTypes().get(3);
+      getDescriptor().getMessageTypes().get(4);
     internal_static_sonarqube_ws_commons_Rule_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_commons_Rule_descriptor,
         new java.lang.String[] { "Key", "Name", "Lang", "Status", "LangName", });
+    internal_static_sonarqube_ws_commons_Rules_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_sonarqube_ws_commons_Rules_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_commons_Rules_descriptor,
+        new java.lang.String[] { "Rules", });
     internal_static_sonarqube_ws_commons_User_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_sonarqube_ws_commons_User_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_commons_User_descriptor,
         new java.lang.String[] { "Login", "Name", "Email", "Active", });
+    internal_static_sonarqube_ws_commons_Users_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_sonarqube_ws_commons_Users_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_commons_Users_descriptor,
+        new java.lang.String[] { "Users", });
     internal_static_sonarqube_ws_commons_TextRange_descriptor =
-      getDescriptor().getMessageTypes().get(5);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_sonarqube_ws_commons_TextRange_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_commons_TextRange_descriptor,

@@ -36,6 +36,10 @@ message Facet {
   repeated FacetValue values = 2;
 }
 
+message Facets {
+  repeated Facet facets = 1;
+}
+
 message FacetValue {
   optional string val = 1;
   optional int64 count = 2;
@@ -57,6 +61,10 @@ message Rule {
   optional string langName = 5;
 }
 
+message Rules {
+  repeated Rule rules = 1;
+}
+
 enum RuleStatus {
   BETA = 0;
   DEPRECATED = 1;
@@ -69,6 +77,10 @@ message User {
   optional string name = 2;
   optional string email = 3;
   optional bool active = 4;
+}
+
+message Users {
+  repeated User users = 1;
 }
 
 // Lines start at 1 and line offsets start at 0

@@ -38,16 +38,11 @@ message Search {
 
   repeated Issue issues = 6;
   repeated Component components = 7;
-  optional bool rulesPresentIfEmpty = 8;
-  repeated sonarqube.ws.commons.Rule rules = 9;
-  optional bool usersPresentIfEmpty = 10;
-  repeated sonarqube.ws.commons.User users = 11;
-  optional bool actionPlansPresentIfEmpty = 12;
-  repeated ActionPlan actionPlans = 13;
-  optional bool languagesPresentIfEmpty = 14;
-  repeated Language languages = 15;
-  optional bool facetsPresentIfEmpty = 16;
-  repeated sonarqube.ws.commons.Facet facets = 17;
+  optional sonarqube.ws.commons.Rules rules = 8;
+  optional sonarqube.ws.commons.Users users = 9;
+  optional ActionPlans actionPlans = 10;
+  optional Languages languages = 11;
+  optional sonarqube.ws.commons.Facets facets = 12;
 }
 
 // Response of most of POST/issues/{operation}, for instance assign, add_comment and set_severity
@@ -82,23 +77,27 @@ message Issue {
   optional string author = 17;
 
   optional string actionPlan = 18;
-  optional bool tagsPresentIfEmpty = 19;
-  repeated string tags = 20;
+  repeated string tags = 19;
 
   // the transitions allowed for the requesting user.
-  optional bool transitionsPresentIfEmpty = 21;
-  repeated string transitions = 22;
+  optional Transitions transitions = 20;
 
   // the actions allowed for the requesting user.
-  optional bool actionsPresentIfEmpty = 23;
-  repeated string actions = 24;
+  optional Actions actions = 21;
 
-  optional bool commentsPresentIfEmpty = 25;
-  repeated Comment comments = 26;
-  optional string creationDate = 27;
-  optional string updateDate = 28;
-  optional string fUpdateAge = 29;
-  optional string closeDate = 30;
+  optional Comments comments = 22;
+  optional string creationDate = 23;
+  optional string updateDate = 24;
+  optional string fUpdateAge = 25;
+  optional string closeDate = 26;
+}
+
+message Transitions {
+  repeated string transitions = 1;
+}
+
+message Actions {
+  repeated string actions = 1;
 }
 
 message Flow {
@@ -126,6 +125,10 @@ message Comment {
   optional string createdAt = 8;
 }
 
+message Comments {
+  repeated Comment comments = 1;
+}
+
 message ActionPlan {
   optional string key = 1;
   optional string name = 2;
@@ -137,9 +140,17 @@ message ActionPlan {
   optional string project = 5;
 }
 
+message ActionPlans {
+  repeated ActionPlan actionPlans = 1;
+}
+
 message Language {
   optional string key = 1;
   optional string name = 2;
+}
+
+message Languages {
+  repeated Language languages = 1;
 }
 
 message Component {

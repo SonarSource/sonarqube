@@ -32,9 +32,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Permissions.Permission;
-import org.sonarqube.ws.Permissions.WsSearchProjectPermissionsResponse;
-import org.sonarqube.ws.Permissions.WsSearchProjectPermissionsResponse.Project;
+import org.sonarqube.ws.WsPermissions.Permission;
+import org.sonarqube.ws.WsPermissions.WsSearchProjectPermissionsResponse;
+import org.sonarqube.ws.WsPermissions.WsSearchProjectPermissionsResponse.Project;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
