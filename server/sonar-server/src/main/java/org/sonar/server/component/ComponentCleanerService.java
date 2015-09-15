@@ -29,8 +29,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.purge.IdUuidPair;
-import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
@@ -75,7 +73,7 @@ public class ComponentCleanerService {
     if (hasNotProjectScope(project) || isNotDeletable(project)) {
       throw new IllegalArgumentException("Only projects can be deleted");
     }
-    dbClient.purgeDao().deleteResourceTree(dbSession, new IdUuidPair(project.getId(), project.uuid()), new PurgeProfiler());
+    dbClient.purgeDao().deleteProject(dbSession, project.uuid());
     dbSession.commit();
 
     deleteFromIndices(project.uuid());

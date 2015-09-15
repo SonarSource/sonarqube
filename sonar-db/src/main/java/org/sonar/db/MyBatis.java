@@ -96,7 +96,6 @@ import org.sonar.db.permission.PermissionTemplateUserDto;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.db.purge.PurgeableSnapshotDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
@@ -207,7 +206,6 @@ public class MyBatis {
     confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
     confBuilder.loadAlias("Activity", ActivityDto.class);
     confBuilder.loadAlias("AnalysisReport", AnalysisReportDto.class);
-    confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
     confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
     confBuilder.loadAlias("Event", EventDto.class);

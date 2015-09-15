@@ -29,9 +29,10 @@ public interface PurgeMapper {
 
   List<Long> selectSnapshotIdsByResource(@Param("resourceIds") List<Long> resourceIds);
 
-  List<IdUuidPair> selectProjectIdUuidsByRootId(long rootResourceId);
-
-  List<IdUuidPair> selectComponentIdUuidsByRootId(long rootProjectId);
+  /**
+   * Returns the list of components of a project from a project_uuid. The project itself is also returned.
+   */
+  List<IdUuidPair> selectComponentsByProjectUuid(String projectUuid);
 
   void deleteSnapshot(@Param("snapshotIds") List<Long> snapshotIds);
 

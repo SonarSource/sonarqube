@@ -81,13 +81,13 @@ public class PurgeDao implements Dao {
     deleteOldClosedIssues(conf, mapper);
   }
 
-  private void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper) {
+  private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper) {
     Date toDate = conf.maxLiveDateOfClosedIssues();
     mapper.deleteOldClosedIssueChanges(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
     mapper.deleteOldClosedIssues(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
   }
 
-  private void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
+  private static void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
     if (hasAbortedBuilds(project.getId(), commands)) {
       LOG.debug("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
@@ -98,7 +98,7 @@ public class PurgeDao implements Dao {
     }
   }
 
-  private boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
+  private static boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
       .setIslast(false)
       .setStatus(new String[] {"U"})
@@ -106,7 +106,7 @@ public class PurgeDao implements Dao {
     return !commands.selectSnapshotIds(query).isEmpty();
   }
 
-  private void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
+  private static void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
     List<Long> projectSnapshotIds = purgeCommands.selectSnapshotIds(
       PurgeSnapshotQuery.create()
         .setResourceId(project.getId())
@@ -169,18 +169,11 @@ public class PurgeDao implements Dao {
     return result;
   }
 
-  public PurgeDao deleteResourceTree(IdUuidPair rootIdUuid, PurgeProfiler profiler) {
-    DbSession session = mybatis.openSession(true);
-    try {
-      return deleteResourceTree(session, rootIdUuid, profiler);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public PurgeDao deleteResourceTree(DbSession session, IdUuidPair rootIdUuid, PurgeProfiler profiler) {
-    deleteProject(rootIdUuid, mapper(session), new PurgeCommands(session, profiler));
-    deleteFileSources(rootIdUuid.getUuid(), new PurgeCommands(session, profiler));
+  public PurgeDao deleteProject(DbSession session, String uuid) {
+    PurgeProfiler profiler = new PurgeProfiler();
+    PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
+    deleteProject(uuid, mapper(session), purgeCommands);
+    deleteFileSources(uuid, purgeCommands);
     return this;
   }
 
@@ -188,14 +181,9 @@ public class PurgeDao implements Dao {
     commands.deleteFileSources(rootUuid);
   }
 
-  private static void deleteProject(IdUuidPair rootProjectId, PurgeMapper mapper, PurgeCommands commands) {
-    List<IdUuidPair> childrenIdUuid = mapper.selectProjectIdUuidsByRootId(rootProjectId.getId());
-    for (IdUuidPair childId : childrenIdUuid) {
-      deleteProject(childId, mapper, commands);
-    }
-
-    List<IdUuidPair> componentIdUuids = mapper.selectComponentIdUuidsByRootId(rootProjectId.getId());
-    commands.deleteResources(componentIdUuids);
+  private static void deleteProject(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
+    List<IdUuidPair> childrenIds = mapper.selectComponentsByProjectUuid(rootUuid);
+    commands.deleteResources(childrenIds);
   }
 
   private void disableResource(IdUuidPair componentIdUuid, PurgeMapper mapper) {

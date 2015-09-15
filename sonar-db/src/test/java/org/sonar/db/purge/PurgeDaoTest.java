@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -39,6 +40,8 @@ public class PurgeDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
+
+  DbSession dbSession = dbTester.getSession();
 
   PurgeDao underTest = dbTester.getDbClient().purgeDao();
 
@@ -101,9 +104,10 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void should_delete_project_and_associated_data() {
+  public void delete_project_and_associated_data() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteProject.xml");
-    underTest.deleteResourceTree(new IdUuidPair(1L, "A"), new PurgeProfiler());
+    underTest.deleteProject(dbSession, "A");
+    dbSession.commit();
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
     assertThat(dbTester.countRowsOfTable("action_plans")).isZero();
