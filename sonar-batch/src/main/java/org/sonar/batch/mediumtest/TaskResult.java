@@ -76,9 +76,9 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
       issues.add(issue);
     }
 
+    ReportPublisher reportPublisher = container.getComponentByType(ReportPublisher.class);
+    reader = new BatchReportReader(reportPublisher.getReportDir());
     if (!container.getComponentByType(AnalysisMode.class).isIssues()) {
-      ReportPublisher reportPublisher = container.getComponentByType(ReportPublisher.class);
-      reader = new BatchReportReader(reportPublisher.getReportDir());
       Metadata readMetadata = getReportReader().readMetadata();
       int rootComponentRef = readMetadata.getRootComponentRef();
       storeReportComponents(rootComponentRef, null, readMetadata.hasBranch() ? readMetadata.getBranch() : null);

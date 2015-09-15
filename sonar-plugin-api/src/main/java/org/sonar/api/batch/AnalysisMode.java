@@ -27,6 +27,9 @@ package org.sonar.api.batch;
 public interface AnalysisMode {
   boolean isPreview();
 
+  /**
+   * @since 5.2
+   */
   boolean isIssues();
 
   boolean isPublish();

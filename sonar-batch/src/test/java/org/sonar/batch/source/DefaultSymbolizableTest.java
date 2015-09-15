@@ -21,16 +21,16 @@
 package org.sonar.batch.source;
 
 import com.google.common.base.Strings;
+import java.io.StringReader;
+import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.batch.sensor.DefaultSensorStorage;
-
-import java.io.StringReader;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -46,7 +46,7 @@ public class DefaultSymbolizableTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")
       .initMetadata(new FileMetadata().readMetadata(new StringReader(Strings.repeat("azerty\n", 20))));
 
-    DefaultSymbolizable symbolPerspective = new DefaultSymbolizable(inputFile, sensorStorage);
+    DefaultSymbolizable symbolPerspective = new DefaultSymbolizable(inputFile, sensorStorage, mock(AnalysisMode.class));
     Symbolizable.SymbolTableBuilder symbolTableBuilder = symbolPerspective.newSymbolTableBuilder();
     Symbol firstSymbol = symbolTableBuilder.newSymbol(4, 8);
     symbolTableBuilder.newReference(firstSymbol, 12);

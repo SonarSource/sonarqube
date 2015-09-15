@@ -21,6 +21,7 @@
 package org.sonar.batch.source;
 
 import javax.annotation.CheckForNull;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.source.Symbolizable;
@@ -31,10 +32,12 @@ import org.sonar.batch.sensor.DefaultSensorStorage;
 public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
 
   private final DefaultSensorStorage sensorStorage;
+  private final AnalysisMode analysisMode;
 
-  public SymbolizableBuilder(DefaultSensorStorage sensorStorage) {
+  public SymbolizableBuilder(DefaultSensorStorage sensorStorage, AnalysisMode analysisMode) {
     super(Symbolizable.class);
     this.sensorStorage = sensorStorage;
+    this.analysisMode = analysisMode;
   }
 
   @CheckForNull
@@ -42,7 +45,7 @@ public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
   public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, BatchComponent component) {
     if (component.isFile()) {
       InputFile path = (InputFile) component.inputComponent();
-      return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage);
+      return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage, analysisMode);
     }
     return null;
   }

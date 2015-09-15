@@ -19,17 +19,14 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
-import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-
 import com.google.common.collect.ImmutableMap;
-
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -45,9 +42,11 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueModeAndReportsMediumTest {
@@ -156,7 +155,8 @@ public class IssueModeAndReportsMediumTest {
     int openIssues = 0;
     int resolvedIssue = 0;
     for (Issue issue : result.trackedIssues()) {
-      System.out.println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " " + issue.line());
+      System.out
+        .println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " " + issue.line());
       if (issue.isNew()) {
         newIssues++;
       } else if (issue.resolution() != null) {
@@ -165,7 +165,7 @@ public class IssueModeAndReportsMediumTest {
         openIssues++;
       }
     }
-    System.out.println("new: " + newIssues + " open: " +  openIssues + " resolved " + resolvedIssue);
+    System.out.println("new: " + newIssues + " open: " + openIssues + " resolved " + resolvedIssue);
     assertThat(newIssues).isEqualTo(16);
     assertThat(openIssues).isEqualTo(3);
     assertThat(resolvedIssue).isEqualTo(1);
@@ -261,6 +261,34 @@ public class IssueModeAndReportsMediumTest {
     public void handle(Issue issue) {
       issueList.add(issue);
     }
+  }
+
+  @Test
+  public void noSyntaxHighlightingInIssuesMode() throws IOException {
+
+    File baseDir = temp.newFolder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
+    FileUtils.write(xooFile, "Sample xoo\ncontent plop");
+    FileUtils.write(xoohighlightingFile, "0:10:s\n11:18:k");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(result.getReportReader().hasSyntaxHighlighting(1)).isFalse();
+    assertThat(result.getReportReader().hasSyntaxHighlighting(2)).isFalse();
+    assertThat(result.getReportReader().hasSyntaxHighlighting(3)).isFalse();
   }
 
 }

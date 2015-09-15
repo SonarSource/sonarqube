@@ -20,6 +20,7 @@
 package org.sonar.batch.source;
 
 import javax.annotation.CheckForNull;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -30,10 +31,12 @@ import org.sonar.batch.index.BatchComponent;
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
   private final SensorStorage sensorStorage;
+  private final AnalysisMode analysisMode;
 
-  public HighlightableBuilder(SensorStorage sensorStorage) {
+  public HighlightableBuilder(SensorStorage sensorStorage, AnalysisMode analysisMode) {
     super(Highlightable.class);
     this.sensorStorage = sensorStorage;
+    this.analysisMode = analysisMode;
   }
 
   @CheckForNull
@@ -41,7 +44,7 @@ public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
   public Highlightable loadPerspective(Class<Highlightable> perspectiveClass, BatchComponent component) {
     if (component.isFile()) {
       InputFile path = (InputFile) component.inputComponent();
-      return new DefaultHighlightable((DefaultInputFile) path, sensorStorage);
+      return new DefaultHighlightable((DefaultInputFile) path, sensorStorage, analysisMode);
     }
     return null;
   }

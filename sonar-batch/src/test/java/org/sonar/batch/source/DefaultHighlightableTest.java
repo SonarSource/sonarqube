@@ -19,16 +19,16 @@
  */
 package org.sonar.batch.source;
 
+import java.io.StringReader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-
-import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,7 +44,7 @@ public class DefaultHighlightableTest {
     SensorStorage sensorStorage = mock(SensorStorage.class);
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")
       .initMetadata(new FileMetadata().readMetadata(new StringReader("azerty\nbla bla")));
-    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(inputFile, sensorStorage);
+    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(inputFile, sensorStorage, mock(AnalysisMode.class));
     highlightablePerspective.newHighlighting().highlight(0, 6, "k").highlight(7, 10, "cppd").done();
 
     ArgumentCaptor<DefaultHighlighting> argCaptor = ArgumentCaptor.forClass(DefaultHighlighting.class);

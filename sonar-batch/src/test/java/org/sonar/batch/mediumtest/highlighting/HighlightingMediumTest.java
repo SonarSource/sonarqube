@@ -71,7 +71,6 @@ public class HighlightingMediumTest {
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.projectName", "Foo Project")
@@ -112,7 +111,6 @@ public class HighlightingMediumTest {
     long start = System.currentTimeMillis();
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
         .put("sonar.projectKey", "com.foo.project")
         .put("sonar.projectName", "Foo Project")

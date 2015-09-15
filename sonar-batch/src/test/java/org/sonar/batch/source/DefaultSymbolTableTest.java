@@ -21,6 +21,7 @@
 package org.sonar.batch.source;
 
 import com.google.common.base.Strings;
+import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,8 +30,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
-
-import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

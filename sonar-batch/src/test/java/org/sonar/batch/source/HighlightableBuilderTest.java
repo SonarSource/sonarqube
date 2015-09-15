@@ -20,6 +20,7 @@
 package org.sonar.batch.source;
 
 import org.junit.Test;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -39,7 +40,7 @@ public class HighlightableBuilderTest {
     Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
     BatchComponent component = new BatchComponent(1, file, null).setInputComponent(new DefaultInputFile("foo", "foo.c"));
 
-    HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class));
+    HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class), mock(AnalysisMode.class));
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
 
     assertThat(perspective).isNotNull().isInstanceOf(DefaultHighlightable.class);
@@ -49,7 +50,7 @@ public class HighlightableBuilderTest {
   public void project_should_not_be_highlightable() {
     BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null).setInputComponent(new DefaultInputModule("struts"));
 
-    HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class));
+    HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class), mock(AnalysisMode.class));
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
 
     assertThat(perspective).isNull();

@@ -21,6 +21,7 @@
 package org.sonar.batch.source;
 
 import org.junit.Test;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.component.Perspective;
@@ -41,7 +42,7 @@ public class SymbolizableBuilderTest {
     Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
     BatchComponent component = new BatchComponent(1, file, null).setInputComponent(new DefaultInputFile("foo", "foo.c"));
 
-    SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(mock(DefaultSensorStorage.class));
+    SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(mock(DefaultSensorStorage.class), mock(AnalysisMode.class));
     Perspective perspective = perspectiveBuilder.loadPerspective(Symbolizable.class, component);
 
     assertThat(perspective).isInstanceOf(Symbolizable.class);
@@ -51,7 +52,7 @@ public class SymbolizableBuilderTest {
   public void project_should_not_be_highlightable() {
     BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null).setInputComponent(new DefaultInputModule("struts"));
 
-    SymbolizableBuilder builder = new SymbolizableBuilder(mock(DefaultSensorStorage.class));
+    SymbolizableBuilder builder = new SymbolizableBuilder(mock(DefaultSensorStorage.class), mock(AnalysisMode.class));
     Perspective perspective = builder.loadPerspective(Symbolizable.class, component);
 
     assertThat(perspective).isNull();

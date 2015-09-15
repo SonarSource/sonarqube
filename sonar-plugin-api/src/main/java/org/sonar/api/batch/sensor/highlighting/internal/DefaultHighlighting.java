@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -36,14 +35,10 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 public class DefaultHighlighting extends DefaultStorable implements NewHighlighting {
 
+  private final List<SyntaxHighlightingRule> syntaxHighlightingRules;
   private DefaultInputFile inputFile;
-  private List<SyntaxHighlightingRule> syntaxHighlightingRules;
 
-  public DefaultHighlighting() {
-    this(null);
-  }
-
-  public DefaultHighlighting(@Nullable SensorStorage storage) {
+  public DefaultHighlighting(SensorStorage storage) {
     super(storage);
     syntaxHighlightingRules = new ArrayList<>();
   }

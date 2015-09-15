@@ -20,12 +20,17 @@
 
 package org.sonar.batch.source;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
-
-import java.util.*;
 
 public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
@@ -54,6 +59,25 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
   }
 
   public static class Builder implements Symbolizable.SymbolTableBuilder {
+
+    private static final FakeSymbol FAKE_SYMBOL = new FakeSymbol();
+
+    private static final class FakeSymbol implements Symbol {
+      @Override
+      public String getFullyQualifiedName() {
+        return null;
+      }
+
+      @Override
+      public int getDeclarationStartOffset() {
+        return 0;
+      }
+
+      @Override
+      public int getDeclarationEndOffset() {
+        return 0;
+      }
+    }
 
     private final Map<Symbol, Set<TextRange>> referencesBySymbol = new LinkedHashMap<>();
     private final DefaultInputFile inputFile;

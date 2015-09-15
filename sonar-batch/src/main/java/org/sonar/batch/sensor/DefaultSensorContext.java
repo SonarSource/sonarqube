@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.sensor;
 
+import java.io.Serializable;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
@@ -28,6 +30,7 @@ import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.NewIssue;
@@ -36,9 +39,28 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 
-import java.io.Serializable;
-
 public class DefaultSensorContext implements SensorContext {
+
+  private static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
+
+  private static final class NoOpNewHighlighting implements NewHighlighting {
+    @Override
+    public void save() {
+      // Do nothing
+    }
+
+    @Override
+    public NewHighlighting onFile(InputFile inputFile) {
+      // Do nothing
+      return this;
+    }
+
+    @Override
+    public NewHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
+      // Do nothing
+      return this;
+    }
+  }
 
   private final Settings settings;
   private final FileSystem fs;
@@ -86,6 +108,9 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public NewHighlighting newHighlighting() {
+    if (analysisMode.isIssues()) {
+      return NO_OP_NEW_HIGHLIGHTING;
+    }
     return new DefaultHighlighting(sensorStorage);
   }
 
