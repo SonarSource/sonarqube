@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.codehaus.sonar</groupId>
-    <artifactId>sonar</artifactId>
+    <groupId>org.sonarsource.sonarqube</groupId>
+    <artifactId>sonarqube</artifactId>
     <version>5.2-SNAPSHOT</version>
   </parent>
 
@@ -41,20 +41,11 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-squid</artifactId>
-      <version>4.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-update-center-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-home</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-graph</artifactId>
     </dependency>
 
     <!-- logging -->
@@ -81,7 +72,7 @@
 
     <dependency>
       <!-- sonar-api-deps.jar is copied into target JAR file -->
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-plugin-api-deps</artifactId>
       <version>${project.version}</version>
       <optional>true</optional>
@@ -91,7 +82,7 @@
 
     <!-- tests -->
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>

@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.codehaus.sonar</groupId>
-    <artifactId>sonar</artifactId>
+    <groupId>org.sonarsource.sonarqube</groupId>
+    <artifactId>sonarqube</artifactId>
     <version>5.2-SNAPSHOT</version>
   </parent>
 
@@ -33,11 +33,11 @@
       <artifactId>commons-csv</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-batch-protocol</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-core</artifactId>
     </dependency>
     <dependency>
@@ -77,7 +77,7 @@
 
     <!-- tests -->
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>

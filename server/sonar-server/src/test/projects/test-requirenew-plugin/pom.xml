@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.codehaus.sonar.tests</groupId>
+  <groupId>org.sonarsource.sonarqube.tests</groupId>
   <artifactId>test-requirenew-plugin</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>sonar-plugin</packaging>
@@ -17,7 +17,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.tests</groupId>
+      <groupId>org.sonarsource.sonarqube.tests</groupId>
       <artifactId>test-base-plugin</artifactId>
       <version>0.1-SNAPSHOT</version>
       <type>sonar-plugin</type>
@@ -28,9 +28,9 @@
     <sourceDirectory>src</sourceDirectory>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <version>1.13</version>
+        <version>1.15</version>
         <extensions>true</extensions>
         <configuration>
           <pluginKey>testrequire</pluginKey>

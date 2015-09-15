@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonarsource.it</groupId>
+    <groupId>org.sonarsource.sonarqube</groupId>
     <artifactId>it</artifactId>
     <version>5.2-SNAPSHOT</version>
   </parent>

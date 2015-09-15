@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.codehaus.sonar</groupId>
-    <artifactId>sonar</artifactId>
+    <groupId>org.sonarsource.sonarqube</groupId>
+    <artifactId>sonarqube</artifactId>
     <version>5.2-SNAPSHOT</version>
   </parent>
 
@@ -57,11 +57,11 @@
     embedded by plugins.
     -->
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-check-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-colorizer</artifactId>
       <exclusions>
         <exclusion>
@@ -71,7 +71,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-duplications</artifactId>
       <exclusions>
         <exclusion>
@@ -163,7 +163,7 @@
 
     <!-- unit tests -->
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>

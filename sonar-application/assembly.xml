@@ -13,7 +13,7 @@
       <useTransitiveFiltering>false</useTransitiveFiltering>
       <useProjectArtifact>true</useProjectArtifact>
       <includes>
-        <include>org.codehaus.sonar:sonar-application</include>
+        <include>org.sonarsource.sonarqube:sonar-application</include>
       </includes>
     </dependencySet>
 
@@ -52,7 +52,7 @@
       <useTransitiveDependencies>true</useTransitiveDependencies>
       <useTransitiveFiltering>false</useTransitiveFiltering>
       <includes>
-        <include>org.codehaus.sonar:sonar-search</include>
+        <include>org.sonarsource.sonarqube:sonar-search</include>
       </includes>
       <scope>provided</scope>
     </dependencySet>
@@ -63,7 +63,7 @@
       <useTransitiveDependencies>true</useTransitiveDependencies>
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <includes>
-        <include>org.codehaus.sonar:sonar-server</include>
+        <include>org.sonarsource.sonarqube:sonar-server</include>
       </includes>
       <scope>provided</scope>
     </dependencySet>
@@ -73,7 +73,7 @@
       <outputDirectory>lib/batch</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
-        <include>org.codehaus.sonar:sonar-batch-shaded</include>
+        <include>org.sonarsource.sonarqube:sonar-batch-shaded</include>
       </includes>
       <scope>provided</scope>
     </dependencySet>
@@ -91,7 +91,7 @@
     <dependencySet>
       <outputDirectory>web</outputDirectory>
       <includes>
-        <include>org.codehaus.sonar:sonar-web</include>
+        <include>org.sonarsource.sonarqube:sonar-web</include>
       </includes>
       <unpack>true</unpack>
       <scope>provided</scope>

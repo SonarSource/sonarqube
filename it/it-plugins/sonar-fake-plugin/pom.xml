@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonarsource.it</groupId>
+    <groupId>org.sonarsource.sonarqube</groupId>
     <artifactId>it-plugins</artifactId>
     <version>5.2-SNAPSHOT</version>
   </parent>
@@ -17,7 +17,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <version>${apiVersion}</version>
       <scope>provided</scope>
@@ -27,10 +27,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
-        <version>1.12.1</version>
+        <version>1.15</version>
         <configuration>
           <pluginClass>FakePlugin</pluginClass>
           <pluginKey>fake</pluginKey>

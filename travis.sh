@@ -34,7 +34,7 @@ MYSQL)
   ;;
 
 WEB)
-  set +eu
+set +eu
   source ~/.nvm/nvm.sh && nvm install 4
   cd server/sonar-web && npm install && npm test
   ;;
@@ -59,6 +59,7 @@ ITS)
     echo "Ignore this job since it needs access to private test licenses."
   else
     installTravisTools
+
     start_xvfb
 
     CATEGORIES=($(echo "$IT_CATEGORY" | tr '_' '\n'))

@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.codehaus.sonar</groupId>
-  <artifactId>sonar</artifactId>
+  <groupId>org.sonarsource.sonarqube</groupId>
+  <artifactId>sonarqube</artifactId>
   <packaging>pom</packaging>
   <version>5.2-SNAPSHOT</version>
   <name>SonarQube</name>
@@ -272,9 +272,9 @@
           <version>1.8</version>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.sonar</groupId>
+          <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>${sonarUpdateCenter.version}</version>
+          <version>1.15</version>
         </plugin>
         <plugin>
           <!-- declared to avoid enforcer error during SQ analysis when Clirr plugin installed -->
@@ -434,7 +434,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
@@ -573,6 +573,12 @@
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-channel</artifactId>
         <version>4.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
@@ -580,47 +586,47 @@
         <version>1.0</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-markdown</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-check-api</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-colorizer</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-core</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-db</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-batch-protocol</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-ws</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-duplications</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-home</artifactId>
         <version>${sq.version}</version>
       </dependency>
@@ -645,7 +651,7 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-plugin-api</artifactId>
         <version>${sq.version}</version>
       </dependency>
@@ -655,12 +661,27 @@
         <version>${sonarUpdateCenter.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>sonar-server</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar.plugins</groupId>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-squid</artifactId>
+        <version>4.1</version>
+        <exclusions>
+          <exclusion>
+            <!--
+            Provided at runtime by sonar-plugin-api.
+            Do not use transitive version 4.1 but the current version.
+             -->
+            <groupId>org.codehaus.sonar</groupId>
+            <artifactId>sonar-check-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-xoo-plugin</artifactId>
         <version>${sq.version}</version>
         <scope>test</scope>
@@ -678,12 +699,12 @@
         <type>sonar-plugin</type>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-testing-harness</artifactId>
         <version>${sq.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-views-bridge</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -726,6 +747,10 @@
           <exclusion>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1356,11 +1381,11 @@
                   <pluginExecutions>
                     <pluginExecution>
                       <pluginExecutionFilter>
-                        <groupId>org.codehaus.sonar</groupId>
+                        <groupId>org.sonarsource.sonarqube</groupId>
                         <artifactId>sonar-packaging-maven-plugin</artifactId>
                         <versionRange>[1.0,)</versionRange>
                         <goals>
-                          <goal>check-dependencies</goal>
+                          <goal>check</goal>
                         </goals>
                       </pluginExecutionFilter>
                       <action>
