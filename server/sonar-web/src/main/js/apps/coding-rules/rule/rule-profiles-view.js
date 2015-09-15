@@ -66,7 +66,14 @@ define([
             collection: this.collection,
             app: this.options.app
           });
-      activationView.on('profileActivated', function () {
+      activationView.on('profileActivated', function (severity, params, profile) {
+        var activation = {
+          severity: severity,
+          inherit: 'NONE',
+          params: params,
+          qProfile: profile
+        };
+        that.model.set({ activation: activation });
         that.options.app.controller.showDetails(that.model);
       });
       activationView.render();
