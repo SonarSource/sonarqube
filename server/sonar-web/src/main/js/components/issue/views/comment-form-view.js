@@ -78,6 +78,13 @@ define([
             that.enableForm();
             that.options.detailView.enableControls();
           });
+    },
+
+    serializeData: function () {
+      var options = _.defaults(this.options.additionalOptions, { fromTransition: false });
+      return _.extend(PopupView.prototype.serializeData.apply(this, arguments), {
+        options: options
+      });
     }
   });
 

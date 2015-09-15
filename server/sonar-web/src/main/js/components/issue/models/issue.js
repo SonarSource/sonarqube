@@ -189,11 +189,14 @@ define(function () {
      * @returns {jqXHR}
      */
     transition: function (transition, options) {
+      var that = this;
       var opts = _.extend({
         url: this.urlRoot() + '/do_transition',
         data: { issue: this.id, transition: transition }
       }, options);
-      return this._action(opts);
+      return this._action(opts).done(function () {
+        that.trigger('transition', transition);
+      });
     },
 
     getLinearLocations: function () {

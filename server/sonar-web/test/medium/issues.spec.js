@@ -243,6 +243,21 @@ define(function (require) {
                 .checkElementCount('[data-property="rules"] .js-facet', 13)
                 .checkElementInclude('[data-property="rules"] .js-facet:nth-child(1)', 'Objects should be compared with');
         });
+
+        bdd.it('should open comment form after FP or WF transition', function () {
+            return this.remote
+                .open('#resolved=false')
+                .mockFromString('/api/l10n/index', '{}')
+                .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+                .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
+                .mockFromFile('/api/issues/search', 'issues-spec/search.json')
+                .mockFromFile('/api/issues/do_transition', 'issues-spec/show-fp-new.json')
+                .startApp('issues')
+                .checkElementExist('.issue.selected')
+                .clickElement('.issue.selected .js-issue-transition')
+                .clickElement('.js-issue-transition[data-value="falsepositive"]')
+                .checkElementExist('.js-issue-comment-submit');
+        });
     });
 
 });

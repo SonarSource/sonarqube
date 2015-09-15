@@ -1,0 +1,69 @@
+{
+  "issue": {
+    "key": "91e89abf-fb8e-4b6a-8d9c-2cf0ee01242e",
+    "rule": "javascript:S1067",
+    "severity": "MAJOR",
+    "component": "backbone:backbone.js",
+    "componentId": 1073,
+    "project": "backbone",
+    "subProject": "backbone",
+    "line": 12,
+    "textRange": {
+      "startLine": 12,
+      "endLine": 12,
+      "startOffset": 0,
+      "endOffset": 70
+    },
+    "flows": [],
+    "resolution": "FALSE-POSITIVE",
+    "status": "RESOLVED",
+    "message": "Reduce the number of conditional operators (5) used in the expression (maximum allowed 3).",
+    "author": "yeatesgraeme@gmail.com",
+    "tags": [
+      "brain-overload"
+    ],
+    "transitions": [
+      "reopen"
+    ],
+    "actions": [
+      "comment"
+    ],
+    "comments": [],
+    "creationDate": "2015-08-10T14:37:54+0200",
+    "updateDate": "2015-09-15T17:09:30+0200"
+  },
+  "components": [
+    {
+      "id": 1073,
+      "key": "backbone:backbone.js",
+      "uuid": "51097e69-d229-4471-87c9-c5b86e0e48a7",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "backbone.js",
+      "longName": "backbone.js",
+      "path": "backbone.js",
+      "projectId": 1071,
+      "subProjectId": 1071
+    },
+    {
+      "id": 1071,
+      "key": "backbone",
+      "uuid": "10c394cc-c37c-4cf0-97b9-360165c47270",
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "backbone",
+      "longName": "backbone"
+    }
+  ],
+  "rules": [
+    {
+      "key": "javascript:S1067",
+      "name": "Expressions should not be too complex",
+      "lang": "js",
+      "status": "READY",
+      "langName": "JavaScript"
+    }
+  ],
+  "users": [],
+  "actionPlans": []
+}

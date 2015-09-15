@@ -114,13 +114,6 @@ define(function (require) {
         assert.equal(stub.firstCall.args[0].url, '/api/issues/set_severity');
         assert.deepEqual(stub.firstCall.args[0].data, { issue: 'issue-key', severity: 'BLOCKER' });
       });
-
-      bdd.it('should do a transition', function () {
-        new Issue({ key: 'issue-key' }).transition('RESOLVED');
-        assert.isTrue(stub.calledOnce);
-        assert.equal(stub.firstCall.args[0].url, '/api/issues/do_transition');
-        assert.deepEqual(stub.firstCall.args[0].data, { issue: 'issue-key', transition: 'RESOLVED' });
-      });
     });
 
     bdd.describe('#getLinearLocations', function () {

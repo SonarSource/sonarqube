@@ -22,12 +22,13 @@ define([
     template: Templates.issue,
 
     modelEvents: {
-      'change': 'render'
+      'change': 'render',
+      'transition': 'onTransition'
     },
 
     events: function () {
       return {
-        'click .js-issue-comment': 'comment',
+        'click .js-issue-comment': 'onComment',
         'click .js-issue-comment-edit': 'editComment',
         'click .js-issue-comment-delete': 'deleteComment',
         'click .js-issue-transition': 'transition',
@@ -93,14 +94,19 @@ define([
       }
     },
 
-    comment: function (e) {
+    onComment: function (e) {
       e.stopPropagation();
+      this.comment();
+    },
+
+    comment: function (options) {
       $('body').click();
       this.popup = new CommentFormView({
-        triggerEl: $(e.currentTarget),
+        triggerEl: this.$('.js-issue-comment'),
         bottom: true,
         issue: this.model,
-        detailView: this
+        detailView: this,
+        additionalOptions: options
       });
       this.popup.render();
     },
@@ -220,6 +226,12 @@ define([
 
     showLocations: function () {
       this.model.trigger('locations', this.model);
+    },
+
+    onTransition: function (transition) {
+      if (transition === 'falsepositive' || transition === 'wontfix') {
+        this.comment({ fromTransition: true });
+      }
     },
 
     serializeData: function () {
