@@ -11,7 +11,7 @@ define(function (require) {
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search.json',
           { data: { projectId: projectId } })
           .startApp('custom-measures', { projectId: projectId })
-          .checkElementCount('#custom-measures-list li[data-id]', 4)
+          .checkElementCount('#custom-measures-list tr[data-id]', 4)
           .checkElementInclude('#custom-measures-list .js-custom-measure-value', '35')
           .checkElementInclude('#custom-measures-list .js-custom-measure-metric-name', 'Distribution')
           .checkElementInclude('#custom-measures-list .js-custom-measure-domain', 'Management')
@@ -30,14 +30,14 @@ define(function (require) {
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search-big-1.json',
           { data: { projectId: projectId } })
           .startApp('custom-measures', { projectId: projectId })
-          .checkElementCount('#custom-measures-list li[data-id]', 2)
+          .checkElementCount('#custom-measures-list tr[data-id]', 2)
           .checkElementNotExist('[data-id="3"]')
           .clearMocks()
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search-big-2.json',
           { data: { projectId: projectId, p: 2 } })
           .clickElement('#custom-measures-fetch-more')
           .checkElementExist('[data-id="3"]')
-          .checkElementCount('#custom-measures-list li[data-id]', 4);
+          .checkElementCount('#custom-measures-list tr[data-id]', 4);
     });
 
     bdd.it('should create a new custom measure', function () {
@@ -47,7 +47,7 @@ define(function (require) {
           { data: { projectId: projectId } })
           .mockFromFile('/api/metrics/search', 'custom-measures-spec/metrics.json', { data: { isCustom: true } })
           .startApp('custom-measures', { projectId: projectId })
-          .checkElementCount('#custom-measures-list li[data-id]', 4)
+          .checkElementCount('#custom-measures-list tr[data-id]', 4)
           .clickElement('#custom-measures-create')
           .checkElementExist('#create-custom-measure-form')
           .clearMocks()
@@ -64,7 +64,7 @@ define(function (require) {
           .fillElement('#create-custom-measure-description', 'example')
           .clickElement('#create-custom-measure-submit')
           .checkElementExist('[data-id="6"]')
-          .checkElementCount('#custom-measures-list li[data-id]', 5)
+          .checkElementCount('#custom-measures-list tr[data-id]', 5)
           .checkElementInclude('[data-id="6"] .js-custom-measure-value', '17');
     });
 

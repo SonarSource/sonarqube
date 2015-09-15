@@ -3,9 +3,10 @@ define([
   './templates'
 ], function (ListItemView) {
 
-  return Marionette.CollectionView.extend({
-    tagName: 'ul',
-    childView: ListItemView
+  return Marionette.CompositeView.extend({
+    template: Templates['custom-measures-list'],
+    childView: ListItemView,
+    childViewContainer: 'tbody'
   });
 
 });

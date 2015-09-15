@@ -5,8 +5,7 @@ define([
 ], function (UpdateView, DeleteView) {
 
   return Marionette.ItemView.extend({
-    tagName: 'li',
-    className: 'panel panel-vertical',
+    tagName: 'tr',
     template: Templates['custom-measures-list-item'],
 
     events: {
