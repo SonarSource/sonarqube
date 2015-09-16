@@ -262,11 +262,9 @@
 
   <select id="selectUuidsForQualifiers" resultType="UuidWithProjectUuid">
     SELECT p.uuid as "uuid", p.project_uuid as "projectUuid" FROM projects p
-    INNER JOIN snapshots s on s.project_id=p.id AND s.islast=${_true}
     <where>
-      p.enabled=${_true} AND
       <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator="OR ">
-        s.qualifier=#{qualifier}
+        p.qualifier=#{qualifier}
       </foreach>
     </where>
   </select>
