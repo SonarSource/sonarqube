@@ -39,8 +39,10 @@ public interface Rule {
 
   String name();
 
+  @CheckForNull
   String htmlDescription();
 
+  @CheckForNull
   String markdownDescription();
 
   String effortToFixDescription();

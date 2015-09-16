@@ -1,5 +1,7 @@
 {
-  "total": 2, "p": 1, "ps": 100,
+  "total": 2,
+  "p": 1,
+  "ps": 100,
   "rules": [
     {
       "key": "xoo:x2",
@@ -10,6 +12,7 @@
     {
       "key": "xoo:x1",
       "name": "Rule x1",
-      "htmlDesc": "Description x1",
+      "htmlDesc": "Description x1"
     }
-  ]}
+  ]
+}

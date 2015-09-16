@@ -24,10 +24,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
+import org.sonarqube.ws.Rules.ShowResponse;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
  * @since 4.4
@@ -70,19 +72,25 @@ public class ShowAction implements RulesWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) {
+  public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
     Rule rule = service.getByKey(key);
     if (rule == null) {
       throw new NotFoundException("Rule not found: " + key);
     }
-    JsonWriter json = response.newJsonWriter().beginObject().name("rule");
-    mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
+
+    ShowResponse showResponse = buildResponse(request, rule);
+    writeProtobuf(showResponse, request, response);
+  }
+
+  private ShowResponse buildResponse(Request request, Rule rule) {
+    ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
+    responseBuilder.setRule(mapping.buildRuleResponse(rule, null /* TODO replace by SearchOptions immutable constant */));
 
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
-      activeRuleCompleter.completeShow(rule, json);
+      activeRuleCompleter.completeShow(rule, responseBuilder);
     }
 
-    json.endObject().close();
+    return responseBuilder.build();
   }
 }

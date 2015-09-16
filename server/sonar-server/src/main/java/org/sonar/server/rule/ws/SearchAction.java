@@ -41,7 +41,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
@@ -54,6 +53,10 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Rules.SearchResponse;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
  * @since 4.4
@@ -124,19 +127,24 @@ public class SearchAction implements RulesWsAction {
     RuleQuery query = doQuery(request);
     Result<Rule> result = doSearch(query, context);
 
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeStatistics(json, result, context);
-    doContextResponse(request, result, json);
-    if (context.isFacet()) {
-      writeFacets(request, context, result, json);
-    }
-    json.endObject().close();
+    SearchResponse responseBuilder = buildResponse(request, context, result);
+    writeProtobuf(responseBuilder, request, response);
   }
 
-  protected void writeStatistics(JsonWriter json, Result searchResult, QueryContext context) {
-    json.prop("total", searchResult.getTotal());
-    json.prop(Param.PAGE, context.getPage());
-    json.prop(Param.PAGE_SIZE, context.getLimit());
+  private SearchResponse buildResponse(Request request, QueryContext context, Result<Rule> result) {
+    SearchResponse.Builder responseBuilder = SearchResponse.newBuilder();
+    writeStatistics(responseBuilder, result, context);
+    doContextResponse(request, result, responseBuilder);
+    if (context.isFacet()) {
+      writeFacets(responseBuilder, request, context, result);
+    }
+    return responseBuilder.build();
+  }
+
+  protected void writeStatistics(SearchResponse.Builder response, Result searchResult, QueryContext context) {
+    response.setTotal(searchResult.getTotal());
+    response.setP(context.getPage());
+    response.setPs(context.getLimit());
   }
 
   protected void doDefinition(WebService.NewAction action) {
@@ -299,12 +307,10 @@ public class SearchAction implements RulesWsAction {
     return query;
   }
 
-  private void writeRules(Result<Rule> result, JsonWriter json, QueryContext context) {
-    json.name("rules").beginArray();
+  private void writeRules(SearchResponse.Builder response, Result<Rule> result, QueryContext context) {
     for (Rule rule : result.getHits()) {
-      mapping.write(rule, json, context);
+      response.addRules(mapping.buildRuleResponse(rule, context));
     }
-    json.endArray();
   }
 
   protected QueryContext getQueryContext(Request request) {
@@ -355,12 +361,12 @@ public class SearchAction implements RulesWsAction {
     return plainQuery;
   }
 
-  protected void doContextResponse(Request request, Result<Rule> result, JsonWriter json) {
+  protected void doContextResponse(Request request, Result<Rule> result, SearchResponse.Builder response) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 2/2
     QueryContext contextForResponse = loadCommonContext(request);
-    writeRules(result, json, contextForResponse);
+    writeRules(response, result, contextForResponse);
     if (contextForResponse.getFieldsToReturn().contains("actives")) {
-      activeRuleCompleter.completeSearch(doQuery(request), result.getHits(), json);
+      activeRuleCompleter.completeSearch(doQuery(request), result.getHits(), response);
     }
   }
 
@@ -370,7 +376,7 @@ public class SearchAction implements RulesWsAction {
     return builder.add("actives").build();
   }
 
-  protected void writeFacets(Request request, QueryContext context, Result<?> results, JsonWriter json) {
+  protected void writeFacets(SearchResponse.Builder response, Request request, QueryContext context, Result<?> results) {
     addMandatoryFacetValues(results, RuleIndex.FACET_DEBT_CHARACTERISTICS, request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
     addMandatoryFacetValues(results, RuleIndex.FACET_LANGUAGES, request.paramAsStrings(PARAM_LANGUAGES));
     addMandatoryFacetValues(results, RuleIndex.FACET_REPOSITORIES, request.paramAsStrings(PARAM_REPOSITORIES));
@@ -381,25 +387,23 @@ public class SearchAction implements RulesWsAction {
 
     mergeNoneAndEmptyBucketOnCharacteristics(results);
 
-    json.name("facets").beginArray();
+    Common.Facet.Builder facet = Common.Facet.newBuilder();
+    Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
     for (String facetName : context.facets()) {
-      json.beginObject();
-      json.prop("property", facetName);
-      json.name("values").beginArray();
+      facet.clear().setProperty(facetName);
       if (results.getFacets().containsKey(facetName)) {
         Set<String> itemsFromFacets = Sets.newHashSet();
         for (FacetValue facetValue : results.getFacets().get(facetName)) {
           itemsFromFacets.add(facetValue.getKey());
-          json.beginObject();
-          json.prop("val", facetValue.getKey());
-          json.prop("count", facetValue.getValue());
-          json.endObject();
+          facet.addValues(value
+            .clear()
+            .setVal(facetValue.getKey())
+            .setCount(facetValue.getValue()));
         }
-        addZeroFacetsForSelectedItems(request, facetName, itemsFromFacets, json);
+        addZeroFacetsForSelectedItems(facet, request, facetName, itemsFromFacets);
       }
-      json.endArray().endObject();
+      response.getFacetsBuilder().addFacets(facet);
     }
-    json.endArray();
   }
 
   protected void mergeNoneAndEmptyBucketOnCharacteristics(Result<?> results) {
@@ -424,15 +428,15 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private static void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
+  private static void addZeroFacetsForSelectedItems(Common.Facet.Builder facet, Request request, String facetName, Set<String> itemsFromFacets) {
     List<String> requestParams = request.paramAsStrings(facetName);
     if (requestParams != null) {
+      Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
       for (String param : requestParams) {
         if (!itemsFromFacets.contains(param)) {
-          json.beginObject();
-          json.prop("val", param);
-          json.prop("count", 0);
-          json.endObject();
+          facet.addValues(value.clear()
+            .setVal(param)
+            .setCount(0L));
         }
       }
     }

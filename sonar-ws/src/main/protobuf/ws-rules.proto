@@ -20,6 +20,8 @@ syntax = "proto2";
 
 package sonarqube.ws.rules;
 
+import "ws-commons.proto";
+
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Rules";
 option optimize_for = SPEED;
@@ -35,5 +37,119 @@ message ListResponse {
   }
 
   repeated Rule rules = 1;
+}
 
+// WS api/rules/search
+message SearchResponse {
+  optional int64 total = 1;
+  optional int32 p = 2;
+  optional int64 ps = 3;
+  repeated Rule rules = 4;
+  optional Actives actives = 5;
+  optional QProfiles qProfiles = 6;
+  optional sonarqube.ws.commons.Facets facets = 7;
+}
+
+//WS api/rules/show
+message ShowResponse {
+  optional Rule rule = 1;
+  repeated Active actives = 3;
+}
+
+//WS api/rules/create
+message CreateResponse {
+  optional Rule rule = 1;
+}
+
+//WS api/rules/update
+message UpdateResponse {
+  optional Rule rule = 1;
+}
+
+message Rule {
+  optional string key = 1;
+  optional string repo = 2;
+  optional string name = 3;
+  optional string createdAt = 4;
+  optional string htmlDesc = 5;
+  optional string htmlNote = 6;
+  optional string mdDesc = 7;
+  optional string mdNote = 8;
+  optional string noteLogin = 9;
+  optional string severity = 10;
+  optional sonarqube.ws.commons.RuleStatus status = 11;
+  optional string internalKey = 12;
+  optional bool isTemplate = 13;
+  optional string templateKey = 14;
+  optional Tags tags = 15;
+  optional SysTags sysTags = 16; 
+  optional string lang = 19;
+  optional string langName = 20;
+  optional Params params = 21;
+  // debt fields
+  optional string defaultDebtChar = 23;
+  optional string defaultDebtSubChar = 24;
+  optional string debtChar = 25;
+  optional string debtSubChar = 26;
+  optional string debtCharName = 27;
+  optional string debtSubCharName = 28;
+  optional string defaultDebtRemFnType = 29;
+  optional string defaultDebtRemFnCoeff = 30;
+  optional string defaultDebtRemFnOffset = 31;
+  optional string effortToFixDescription = 32;
+  optional bool debtOverloaded = 33;
+  optional string debtRemFnType = 34;
+  optional string debtRemFnCoeff = 35;
+  optional string debtRemFnOffset = 36;
+
+  message Params {
+    repeated Param params = 1;
+  }
+  
+  message Param {
+    optional string key = 1;
+    optional string htmlDesc = 2;
+    optional string defaultValue = 3;
+    optional string type = 4;
+  }
+}
+
+message SysTags {
+  repeated string sysTags = 1;
+}
+
+message Tags {
+  repeated string tags = 1;
+}
+
+message Actives {
+  map<string, ActiveList> actives = 1;
+}
+
+message ActiveList {
+  repeated Active activeList = 1;
+}
+
+message Active {
+  optional string qProfile = 1;
+  optional string inherit = 2;
+  optional string severity = 3;
+  optional string parent = 4;
+  repeated Param params = 5;
+
+  message Param {
+    optional string key = 1;
+    optional string value = 2;
+  }
+}
+
+message QProfiles {
+  map<string,QProfile> qProfiles = 1;
+}
+
+message QProfile {
+  optional string name = 1;
+  optional string lang = 2;
+  optional string langName = 3;
+  optional string parent = 4;
 }

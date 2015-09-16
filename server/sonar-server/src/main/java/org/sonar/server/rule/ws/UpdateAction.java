@@ -31,11 +31,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdate;
+import org.sonarqube.ws.Rules.UpdateResponse;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements RulesWsAction {
 
@@ -126,7 +128,9 @@ public class UpdateAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     RuleUpdate update = readRequest(request);
     service.update(update);
-    writeResponse(response, update.getRuleKey());
+    UpdateResponse updateResponse = buildResponse(update.getRuleKey());
+
+    writeProtobuf(updateResponse, request, response);
   }
 
   private RuleUpdate readRequest(Request request) {
@@ -211,10 +215,11 @@ public class UpdateAction implements RulesWsAction {
     }
   }
 
-  private void writeResponse(Response response, RuleKey ruleKey) {
+  private UpdateResponse buildResponse(RuleKey ruleKey) {
     Rule rule = service.getNonNullByKey(ruleKey);
-    JsonWriter json = response.newJsonWriter().beginObject().name("rule");
-    mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
-    json.endObject().close();
+    UpdateResponse.Builder responseBuilder = UpdateResponse.newBuilder();
+    responseBuilder.setRule(mapping.buildRuleResponse(rule, null /* TODO replace by SearchOptions immutable constant */));
+
+    return responseBuilder.build();
   }
 }

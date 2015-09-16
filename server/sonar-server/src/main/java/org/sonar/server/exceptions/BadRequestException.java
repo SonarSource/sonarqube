@@ -20,36 +20,35 @@
 package org.sonar.server.exceptions;
 
 import com.google.common.base.Objects;
+import java.util.List;
 import org.sonar.api.utils.ValidationMessages;
 
-import java.util.List;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 
 /**
  * Request is not valid and can not be processed.
  */
 public class BadRequestException extends ServerException {
 
-  private static final int BAD_REQUEST = 400;
-
   private final Errors errors;
 
   public BadRequestException(String l10nKey, Object... l10nParams) {
-    super(BAD_REQUEST);
+    super(HTTP_BAD_REQUEST);
     this.errors = new Errors().add(Message.of(l10nKey, l10nParams));
   }
 
   public BadRequestException(List<Message> messages) {
-    super(BAD_REQUEST);
+    super(HTTP_BAD_REQUEST);
     this.errors = new Errors().add(messages);
   }
 
   public BadRequestException(Errors e) {
-    super(BAD_REQUEST);
+    super(HTTP_BAD_REQUEST);
     this.errors = e;
   }
 
   public BadRequestException(ValidationMessages validationMessages) {
-    super(BAD_REQUEST);
+    super(HTTP_BAD_REQUEST);
     this.errors = new Errors();
     for (String s : validationMessages.getErrors()) {
       errors.add(Message.of(s));

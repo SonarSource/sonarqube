@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.base.Strings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -27,16 +26,16 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.ReactivationException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
+import org.sonarqube.ws.Rules;
 
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
  * @since 4.4
@@ -120,15 +119,15 @@ public class CreateAction implements RulesWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) {
+  public void handle(Request request, Response response) throws Exception {
     String customKey = request.param(PARAM_CUSTOM_KEY);
     String manualKey = request.param(PARAM_MANUAL_KEY);
-    if (Strings.isNullOrEmpty(customKey) && Strings.isNullOrEmpty(manualKey)) {
+    if (isNullOrEmpty(customKey) && isNullOrEmpty(manualKey)) {
       throw new BadRequestException(String.format("Either '%s' or '%s' parameters should be set", PARAM_CUSTOM_KEY, PARAM_MANUAL_KEY));
     }
 
     try {
-      if (!Strings.isNullOrEmpty(customKey)) {
+      if (!isNullOrEmpty(customKey)) {
         NewRule newRule = NewRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
           .setName(request.mandatoryParam(PARAM_NAME))
           .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
@@ -136,40 +135,42 @@ public class CreateAction implements RulesWsAction {
           .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
           .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
         String params = request.param(PARAMS);
-        if (!Strings.isNullOrEmpty(params)) {
+        if (!isNullOrEmpty(params)) {
           newRule.setParameters(KeyValueFormat.parse(params));
         }
-        writeResponse(response, service.create(newRule));
+        writeResponse(request, response, service.create(newRule));
       }
 
-      if (!Strings.isNullOrEmpty(manualKey)) {
+      if (!isNullOrEmpty(manualKey)) {
         NewRule newRule = NewRule.createForManualRule(manualKey)
           .setName(request.mandatoryParam(PARAM_NAME))
           .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
           .setSeverity(request.param(PARAM_SEVERITY))
           .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
-        writeResponse(response, service.create(newRule));
+        writeResponse(request, response, service.create(newRule));
       }
     } catch (ReactivationException e) {
-      write409(response, e.ruleKey());
+      write409(request, response, e.ruleKey());
     }
   }
 
-  private void writeResponse(Response response, RuleKey ruleKey) {
+  private void writeResponse(Request request, Response response, RuleKey ruleKey) throws Exception {
     Rule rule = service.getNonNullByKey(ruleKey);
-    JsonWriter json = response.newJsonWriter().beginObject().name("rule");
-    mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
-    json.endObject().close();
+    Rules.CreateResponse createResponse = Rules.CreateResponse.newBuilder()
+      .setRule(mapping.buildRuleResponse(rule, null /* TODO replace by SearchOptions immutable constant */))
+      .build();
+
+    writeProtobuf(createResponse, request, response);
   }
 
-  private void write409(Response response, RuleKey ruleKey) {
+  private void write409(Request request, Response response, RuleKey ruleKey) throws Exception {
     Rule rule = service.getNonNullByKey(ruleKey);
 
-    Response.Stream stream = response.stream();
-    stream.setStatus(409);
-    stream.setMediaType(MimeTypes.JSON);
-    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8)).beginObject().name("rule");
-    mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
-    json.endObject().close();
+    response.stream().setStatus(HTTP_CONFLICT);
+    Rules.CreateResponse createResponse = Rules.CreateResponse.newBuilder()
+      .setRule(mapping.buildRuleResponse(rule, null /* TODO replace by SearchOptions immutable constant */))
+      .build();
+
+    writeProtobuf(createResponse, request, response);
   }
 }

@@ -18,12 +18,10 @@
 
 syntax = "proto2";
 
-package sonarqube.ws.rules;
+package sonarqube.ws.qualityprofiles;
 
 option java_package = "org.sonarqube.ws";
-
 option java_outer_classname = "QualityProfiles";
-
 option optimize_for = SPEED;
 
 // WS api/qualityprofiles/search

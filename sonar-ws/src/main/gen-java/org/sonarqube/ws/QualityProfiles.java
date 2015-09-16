@@ -9,71 +9,61 @@ public final class QualityProfiles {
       com.google.protobuf.ExtensionRegistry registry) {
   }
   public interface WsSearchResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:sonarqube.ws.rules.WsSearchResponse)
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.qualityprofiles.WsSearchResponse)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     java.util.List<org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile> 
         getProfilesList();
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile getProfiles(int index);
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     int getProfilesCount();
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     java.util.List<? extends org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfileOrBuilder> 
         getProfilesOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfileOrBuilder getProfilesOrBuilder(
         int index);
   }
   /**
-   * Protobuf type {@code sonarqube.ws.rules.WsSearchResponse}
+   * Protobuf type {@code sonarqube.ws.qualityprofiles.WsSearchResponse}
    *
    * <pre>
    * WS api/qualityprofiles/search
    * </pre>
    */
-  public static final class WsSearchResponse extends
+  public  static final class WsSearchResponse extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:sonarqube.ws.rules.WsSearchResponse)
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.qualityprofiles.WsSearchResponse)
       WsSearchResponseOrBuilder {
     // Use WsSearchResponse.newBuilder() to construct.
-    private WsSearchResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private WsSearchResponse(com.google.protobuf.GeneratedMessage.Builder builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private WsSearchResponse(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final WsSearchResponse defaultInstance;
-    public static WsSearchResponse getDefaultInstance() {
-      return defaultInstance;
+    private WsSearchResponse() {
+      profiles_ = java.util.Collections.emptyList();
     }
 
-    public WsSearchResponse getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private WsSearchResponse(
         com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -103,10 +93,11 @@ public final class QualityProfiles {
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
+        throw new RuntimeException(e.setUnfinishedMessage(this));
       } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           profiles_ = java.util.Collections.unmodifiableList(profiles_);
@@ -117,33 +108,18 @@ public final class QualityProfiles {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_descriptor;
+      return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_fieldAccessorTable
+      return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.sonarqube.ws.QualityProfiles.WsSearchResponse.class, org.sonarqube.ws.QualityProfiles.WsSearchResponse.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<WsSearchResponse> PARSER =
-        new com.google.protobuf.AbstractParser<WsSearchResponse>() {
-      public WsSearchResponse parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new WsSearchResponse(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<WsSearchResponse> getParserForType() {
-      return PARSER;
-    }
-
     public interface QualityProfileOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:sonarqube.ws.rules.WsSearchResponse.QualityProfile)
+        // @@protoc_insertion_point(interface_extends:sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile)
         com.google.protobuf.MessageOrBuilder {
 
       /**
@@ -281,39 +257,39 @@ public final class QualityProfiles {
           getRulesUpdatedAtBytes();
     }
     /**
-     * Protobuf type {@code sonarqube.ws.rules.WsSearchResponse.QualityProfile}
+     * Protobuf type {@code sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile}
      */
-    public static final class QualityProfile extends
+    public  static final class QualityProfile extends
         com.google.protobuf.GeneratedMessage implements
-        // @@protoc_insertion_point(message_implements:sonarqube.ws.rules.WsSearchResponse.QualityProfile)
+        // @@protoc_insertion_point(message_implements:sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile)
         QualityProfileOrBuilder {
       // Use QualityProfile.newBuilder() to construct.
-      private QualityProfile(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      private QualityProfile(com.google.protobuf.GeneratedMessage.Builder builder) {
         super(builder);
-        this.unknownFields = builder.getUnknownFields();
       }
-      private QualityProfile(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-      private static final QualityProfile defaultInstance;
-      public static QualityProfile getDefaultInstance() {
-        return defaultInstance;
+      private QualityProfile() {
+        key_ = "";
+        name_ = "";
+        language_ = "";
+        languageName_ = "";
+        isInherited_ = false;
+        parentKey_ = "";
+        parentName_ = "";
+        isDefault_ = false;
+        activeRuleCount_ = 0L;
+        projectCount_ = 0L;
+        rulesUpdatedAt_ = "";
       }
 
-      public QualityProfile getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-
-      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-          getUnknownFields() {
+      getUnknownFields() {
         return this.unknownFields;
       }
       private QualityProfile(
           com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+        this();
         int mutable_bitField0_ = 0;
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -397,10 +373,11 @@ public final class QualityProfiles {
             }
           }
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
+          throw new RuntimeException(e.setUnfinishedMessage(this));
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(
-              e.getMessage()).setUnfinishedMessage(this);
+          throw new RuntimeException(
+              new com.google.protobuf.InvalidProtocolBufferException(
+                  e.getMessage()).setUnfinishedMessage(this));
         } finally {
           this.unknownFields = unknownFields.build();
           makeExtensionsImmutable();
@@ -408,34 +385,19 @@ public final class QualityProfiles {
       }
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_descriptor;
+        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_fieldAccessorTable
+        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.class, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder.class);
       }
 
-      public static com.google.protobuf.Parser<QualityProfile> PARSER =
-          new com.google.protobuf.AbstractParser<QualityProfile>() {
-        public QualityProfile parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          return new QualityProfile(input, extensionRegistry);
-        }
-      };
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<QualityProfile> getParserForType() {
-        return PARSER;
-      }
-
       private int bitField0_;
       public static final int KEY_FIELD_NUMBER = 1;
-      private java.lang.Object key_;
+      private volatile java.lang.Object key_;
       /**
        * <code>optional string key = 1;</code>
        */
@@ -477,7 +439,7 @@ public final class QualityProfiles {
       }
 
       public static final int NAME_FIELD_NUMBER = 2;
-      private java.lang.Object name_;
+      private volatile java.lang.Object name_;
       /**
        * <code>optional string name = 2;</code>
        */
@@ -519,7 +481,7 @@ public final class QualityProfiles {
       }
 
       public static final int LANGUAGE_FIELD_NUMBER = 3;
-      private java.lang.Object language_;
+      private volatile java.lang.Object language_;
       /**
        * <code>optional string language = 3;</code>
        */
@@ -561,7 +523,7 @@ public final class QualityProfiles {
       }
 
       public static final int LANGUAGENAME_FIELD_NUMBER = 4;
-      private java.lang.Object languageName_;
+      private volatile java.lang.Object languageName_;
       /**
        * <code>optional string languageName = 4;</code>
        */
@@ -618,7 +580,7 @@ public final class QualityProfiles {
       }
 
       public static final int PARENTKEY_FIELD_NUMBER = 6;
-      private java.lang.Object parentKey_;
+      private volatile java.lang.Object parentKey_;
       /**
        * <code>optional string parentKey = 6;</code>
        */
@@ -660,7 +622,7 @@ public final class QualityProfiles {
       }
 
       public static final int PARENTNAME_FIELD_NUMBER = 7;
-      private java.lang.Object parentName_;
+      private volatile java.lang.Object parentName_;
       /**
        * <code>optional string parentName = 7;</code>
        */
@@ -747,7 +709,7 @@ public final class QualityProfiles {
       }
 
       public static final int RULESUPDATEDAT_FIELD_NUMBER = 11;
-      private java.lang.Object rulesUpdatedAt_;
+      private volatile java.lang.Object rulesUpdatedAt_;
       /**
        * <code>optional string rulesUpdatedAt = 11;</code>
        */
@@ -788,19 +750,6 @@ public final class QualityProfiles {
         }
       }
 
-      private void initFields() {
-        key_ = "";
-        name_ = "";
-        language_ = "";
-        languageName_ = "";
-        isInherited_ = false;
-        parentKey_ = "";
-        parentName_ = "";
-        isDefault_ = false;
-        activeRuleCount_ = 0L;
-        projectCount_ = 0L;
-        rulesUpdatedAt_ = "";
-      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
@@ -813,7 +762,6 @@ public final class QualityProfiles {
 
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        getSerializedSize();
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           output.writeBytes(1, getKeyBytes());
         }
@@ -847,7 +795,7 @@ public final class QualityProfiles {
         if (((bitField0_ & 0x00000400) == 0x00000400)) {
           output.writeBytes(11, getRulesUpdatedAtBytes());
         }
-        getUnknownFields().writeTo(output);
+        unknownFields.writeTo(output);
       }
 
       private int memoizedSerializedSize = -1;
@@ -900,18 +848,12 @@ public final class QualityProfiles {
           size += com.google.protobuf.CodedOutputStream
             .computeBytesSize(11, getRulesUpdatedAtBytes());
         }
-        size += getUnknownFields().getSerializedSize();
+        size += unknownFields.getSerializedSize();
         memoizedSerializedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-
       public static org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -965,12 +907,17 @@ public final class QualityProfiles {
         return PARSER.parseFrom(input, extensionRegistry);
       }
 
-      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile prototype) {
-        return newBuilder().mergeFrom(prototype);
+      public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
       }
-      public Builder toBuilder() { return newBuilder(this); }
+      public static Builder newBuilder(org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE
+            ? new Builder() : new Builder().mergeFrom(this);
+      }
 
       @java.lang.Override
       protected Builder newBuilderForType(
@@ -979,20 +926,20 @@ public final class QualityProfiles {
         return builder;
       }
       /**
-       * Protobuf type {@code sonarqube.ws.rules.WsSearchResponse.QualityProfile}
+       * Protobuf type {@code sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile}
        */
       public static final class Builder extends
           com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:sonarqube.ws.rules.WsSearchResponse.QualityProfile)
+          // @@protoc_insertion_point(builder_implements:sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile)
           org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfileOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
-          return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_descriptor;
+          return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_descriptor;
         }
 
         protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
             internalGetFieldAccessorTable() {
-          return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_fieldAccessorTable
+          return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_fieldAccessorTable
               .ensureFieldAccessorsInitialized(
                   org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.class, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder.class);
         }
@@ -1011,10 +958,6 @@ public final class QualityProfiles {
           if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           }
         }
-        private static Builder create() {
-          return new Builder();
-        }
-
         public Builder clear() {
           super.clear();
           key_ = "";
@@ -1042,13 +985,9 @@ public final class QualityProfiles {
           return this;
         }
 
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
-        }
-
         public com.google.protobuf.Descriptors.Descriptor
             getDescriptorForType() {
-          return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_descriptor;
+          return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_descriptor;
         }
 
         public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile getDefaultInstanceForType() {
@@ -1174,7 +1113,8 @@ public final class QualityProfiles {
             rulesUpdatedAt_ = other.rulesUpdatedAt_;
             onChanged();
           }
-          this.mergeUnknownFields(other.getUnknownFields());
+          this.mergeUnknownFields(other.unknownFields);
+          onChanged();
           return this;
         }
 
@@ -1861,55 +1801,84 @@ public final class QualityProfiles {
           return this;
         }
 
-        // @@protoc_insertion_point(builder_scope:sonarqube.ws.rules.WsSearchResponse.QualityProfile)
+        // @@protoc_insertion_point(builder_scope:sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile)
       }
 
+      // @@protoc_insertion_point(class_scope:sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile)
+      private static final org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile DEFAULT_INSTANCE;
       static {
-        defaultInstance = new QualityProfile(true);
-        defaultInstance.initFields();
+        DEFAULT_INSTANCE = new org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile();
       }
 
-      // @@protoc_insertion_point(class_scope:sonarqube.ws.rules.WsSearchResponse.QualityProfile)
+      public static org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+      }
+
+      public static final com.google.protobuf.Parser<QualityProfile> PARSER =
+          new com.google.protobuf.AbstractParser<QualityProfile>() {
+        public QualityProfile parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          try {
+            return new QualityProfile(input, extensionRegistry);
+          } catch (RuntimeException e) {
+            if (e.getCause() instanceof
+                com.google.protobuf.InvalidProtocolBufferException) {
+              throw (com.google.protobuf.InvalidProtocolBufferException)
+                  e.getCause();
+            }
+            throw e;
+          }
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<QualityProfile> getParserForType() {
+        return PARSER;
+      }
+
+      public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+      }
+
     }
 
     public static final int PROFILES_FIELD_NUMBER = 1;
     private java.util.List<org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile> profiles_;
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     public java.util.List<org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile> getProfilesList() {
       return profiles_;
     }
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfileOrBuilder> 
         getProfilesOrBuilderList() {
       return profiles_;
     }
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     public int getProfilesCount() {
       return profiles_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile getProfiles(int index) {
       return profiles_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+     * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
      */
     public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfileOrBuilder getProfilesOrBuilder(
         int index) {
       return profiles_.get(index);
     }
 
-    private void initFields() {
-      profiles_ = java.util.Collections.emptyList();
-    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1922,11 +1891,10 @@ public final class QualityProfiles {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
       for (int i = 0; i < profiles_.size(); i++) {
         output.writeMessage(1, profiles_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
     private int memoizedSerializedSize = -1;
@@ -1939,18 +1907,12 @@ public final class QualityProfiles {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, profiles_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
+      size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-
     public static org.sonarqube.ws.QualityProfiles.WsSearchResponse parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2004,12 +1966,17 @@ public final class QualityProfiles {
       return PARSER.parseFrom(input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonarqube.ws.QualityProfiles.WsSearchResponse prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(org.sonarqube.ws.QualityProfiles.WsSearchResponse prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
@@ -2018,7 +1985,7 @@ public final class QualityProfiles {
       return builder;
     }
     /**
-     * Protobuf type {@code sonarqube.ws.rules.WsSearchResponse}
+     * Protobuf type {@code sonarqube.ws.qualityprofiles.WsSearchResponse}
      *
      * <pre>
      * WS api/qualityprofiles/search
@@ -2026,16 +1993,16 @@ public final class QualityProfiles {
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:sonarqube.ws.rules.WsSearchResponse)
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.qualityprofiles.WsSearchResponse)
         org.sonarqube.ws.QualityProfiles.WsSearchResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_descriptor;
+        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_fieldAccessorTable
+        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 org.sonarqube.ws.QualityProfiles.WsSearchResponse.class, org.sonarqube.ws.QualityProfiles.WsSearchResponse.Builder.class);
       }
@@ -2055,10 +2022,6 @@ public final class QualityProfiles {
           getProfilesFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
       public Builder clear() {
         super.clear();
         if (profilesBuilder_ == null) {
@@ -2070,13 +2033,9 @@ public final class QualityProfiles {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_rules_WsSearchResponse_descriptor;
+        return org.sonarqube.ws.QualityProfiles.internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_descriptor;
       }
 
       public org.sonarqube.ws.QualityProfiles.WsSearchResponse getDefaultInstanceForType() {
@@ -2144,7 +2103,8 @@ public final class QualityProfiles {
             }
           }
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
@@ -2184,7 +2144,7 @@ public final class QualityProfiles {
           org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfileOrBuilder> profilesBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public java.util.List<org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile> getProfilesList() {
         if (profilesBuilder_ == null) {
@@ -2194,7 +2154,7 @@ public final class QualityProfiles {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public int getProfilesCount() {
         if (profilesBuilder_ == null) {
@@ -2204,7 +2164,7 @@ public final class QualityProfiles {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile getProfiles(int index) {
         if (profilesBuilder_ == null) {
@@ -2214,7 +2174,7 @@ public final class QualityProfiles {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder setProfiles(
           int index, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile value) {
@@ -2231,7 +2191,7 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder setProfiles(
           int index, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder builderForValue) {
@@ -2245,7 +2205,7 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder addProfiles(org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile value) {
         if (profilesBuilder_ == null) {
@@ -2261,7 +2221,7 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder addProfiles(
           int index, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile value) {
@@ -2278,7 +2238,7 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder addProfiles(
           org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder builderForValue) {
@@ -2292,7 +2252,7 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder addProfiles(
           int index, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder builderForValue) {
@@ -2306,7 +2266,7 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder addAllProfiles(
           java.lang.Iterable<? extends org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile> values) {
@@ -2321,7 +2281,7 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder clearProfiles() {
         if (profilesBuilder_ == null) {
@@ -2334,7 +2294,7 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public Builder removeProfiles(int index) {
         if (profilesBuilder_ == null) {
@@ -2347,14 +2307,14 @@ public final class QualityProfiles {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder getProfilesBuilder(
           int index) {
         return getProfilesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfileOrBuilder getProfilesOrBuilder(
           int index) {
@@ -2364,7 +2324,7 @@ public final class QualityProfiles {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfileOrBuilder> 
            getProfilesOrBuilderList() {
@@ -2375,14 +2335,14 @@ public final class QualityProfiles {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder addProfilesBuilder() {
         return getProfilesFieldBuilder().addBuilder(
             org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder addProfilesBuilder(
           int index) {
@@ -2390,7 +2350,7 @@ public final class QualityProfiles {
             index, org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.rules.WsSearchResponse.QualityProfile profiles = 1;</code>
+       * <code>repeated .sonarqube.ws.qualityprofiles.WsSearchResponse.QualityProfile profiles = 1;</code>
        */
       public java.util.List<org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile.Builder> 
            getProfilesBuilderList() {
@@ -2411,27 +2371,59 @@ public final class QualityProfiles {
         return profilesBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:sonarqube.ws.rules.WsSearchResponse)
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.qualityprofiles.WsSearchResponse)
     }
 
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.qualityprofiles.WsSearchResponse)
+    private static final org.sonarqube.ws.QualityProfiles.WsSearchResponse DEFAULT_INSTANCE;
     static {
-      defaultInstance = new WsSearchResponse(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new org.sonarqube.ws.QualityProfiles.WsSearchResponse();
     }
 
-    // @@protoc_insertion_point(class_scope:sonarqube.ws.rules.WsSearchResponse)
+    public static org.sonarqube.ws.QualityProfiles.WsSearchResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<WsSearchResponse> PARSER =
+        new com.google.protobuf.AbstractParser<WsSearchResponse>() {
+      public WsSearchResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new WsSearchResponse(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<WsSearchResponse> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.QualityProfiles.WsSearchResponse getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_sonarqube_ws_rules_WsSearchResponse_descriptor;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_sonarqube_ws_rules_WsSearchResponse_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_descriptor;
+      internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_fieldAccessorTable;
+      internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -2441,17 +2433,17 @@ public final class QualityProfiles {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\030ws-qualityprofiles.proto\022\022sonarqube.ws" +
-      ".rules\"\305\002\n\020WsSearchResponse\022E\n\010profiles\030" +
-      "\001 \003(\01323.sonarqube.ws.rules.WsSearchRespo" +
-      "nse.QualityProfile\032\351\001\n\016QualityProfile\022\013\n" +
-      "\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010language\030\003 \001" +
-      "(\t\022\024\n\014languageName\030\004 \001(\t\022\023\n\013isInherited\030" +
-      "\005 \001(\010\022\021\n\tparentKey\030\006 \001(\t\022\022\n\nparentName\030\007" +
-      " \001(\t\022\021\n\tisDefault\030\010 \001(\010\022\027\n\017activeRuleCou" +
-      "nt\030\t \001(\003\022\024\n\014projectCount\030\n \001(\003\022\026\n\016rulesU" +
-      "pdatedAt\030\013 \001(\tB%\n\020org.sonarqube.wsB\017Qual",
-      "ityProfilesH\001"
+      "\n\030ws-qualityprofiles.proto\022\034sonarqube.ws" +
+      ".qualityprofiles\"\317\002\n\020WsSearchResponse\022O\n" +
+      "\010profiles\030\001 \003(\0132=.sonarqube.ws.qualitypr" +
+      "ofiles.WsSearchResponse.QualityProfile\032\351" +
+      "\001\n\016QualityProfile\022\013\n\003key\030\001 \001(\t\022\014\n\004name\030\002" +
+      " \001(\t\022\020\n\010language\030\003 \001(\t\022\024\n\014languageName\030\004" +
+      " \001(\t\022\023\n\013isInherited\030\005 \001(\010\022\021\n\tparentKey\030\006" +
+      " \001(\t\022\022\n\nparentName\030\007 \001(\t\022\021\n\tisDefault\030\010 " +
+      "\001(\010\022\027\n\017activeRuleCount\030\t \001(\003\022\024\n\014projectC" +
+      "ount\030\n \001(\003\022\026\n\016rulesUpdatedAt\030\013 \001(\tB%\n\020or",
+      "g.sonarqube.wsB\017QualityProfilesH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2465,17 +2457,17 @@ public final class QualityProfiles {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_sonarqube_ws_rules_WsSearchResponse_descriptor =
+    internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_sonarqube_ws_rules_WsSearchResponse_fieldAccessorTable = new
+    internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_sonarqube_ws_rules_WsSearchResponse_descriptor,
+        internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_descriptor,
         new java.lang.String[] { "Profiles", });
-    internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_descriptor =
-      internal_static_sonarqube_ws_rules_WsSearchResponse_descriptor.getNestedTypes().get(0);
-    internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_fieldAccessorTable = new
+    internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_descriptor =
+      internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_descriptor.getNestedTypes().get(0);
+    internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_sonarqube_ws_rules_WsSearchResponse_QualityProfile_descriptor,
+        internal_static_sonarqube_ws_qualityprofiles_WsSearchResponse_QualityProfile_descriptor,
         new java.lang.String[] { "Key", "Name", "Language", "LanguageName", "IsInherited", "ParentKey", "ParentName", "IsDefault", "ActiveRuleCount", "ProjectCount", "RulesUpdatedAt", });
   }
 

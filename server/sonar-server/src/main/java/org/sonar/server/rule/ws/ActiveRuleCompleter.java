@@ -20,26 +20,27 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.sonar.api.server.ServerSide;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleQuery;
+import org.sonarqube.ws.Rules;
+import org.sonarqube.ws.Rules.SearchResponse;
+import org.sonarqube.ws.Rules.ShowResponse;
 
-import javax.annotation.CheckForNull;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Add details about active rules to api/rules/search and api/rules/show
@@ -58,80 +59,74 @@ public class ActiveRuleCompleter {
     this.languages = languages;
   }
 
-  void completeSearch(RuleQuery query, Collection<Rule> rules, JsonWriter json) {
-    Collection<String> harvestedProfileKeys = writeActiveRules(json, query, rules);
-
-    writeProfiles(json, harvestedProfileKeys);
+  void completeSearch(RuleQuery query, Collection<Rule> rules, SearchResponse.Builder searchResponse) {
+    Collection<String> harvestedProfileKeys = writeActiveRules(searchResponse, query, rules);
+    searchResponse.setQProfiles(buildQProfiles(harvestedProfileKeys));
   }
 
-  private Collection<String> writeActiveRules(JsonWriter json, RuleQuery query, Collection<Rule> rules) {
-    Collection<String> qProfileKeys = Sets.newHashSet();
+  private Collection<String> writeActiveRules(SearchResponse.Builder response, RuleQuery query, Collection<Rule> rules) {
+    Collection<String> qProfileKeys = newHashSet();
+    Rules.Actives.Builder activesBuilder = response.getActivesBuilder();
 
-    json.name("actives").beginObject();
     String profileKey = query.getQProfileKey();
     if (profileKey != null) {
       // Load details of active rules on the selected profile
       for (Rule rule : rules) {
         ActiveRule activeRule = loader.getActiveRule(ActiveRuleKey.of(profileKey, rule.key()));
         if (activeRule != null) {
-          qProfileKeys = writeActiveRules(rule.key(), Arrays.asList(activeRule), json);
+          qProfileKeys = writeActiveRules(rule.key(), Arrays.asList(activeRule), activesBuilder);
         }
       }
     } else {
       // Load details of all active rules
       for (Rule rule : rules) {
-        qProfileKeys = writeActiveRules(rule.key(), loader.findActiveRulesByRule(rule.key()), json);
+        qProfileKeys = writeActiveRules(rule.key(), loader.findActiveRulesByRule(rule.key()), activesBuilder);
       }
     }
-    json.endObject();
 
+    response.setActives(activesBuilder);
     return qProfileKeys;
   }
 
-  void completeShow(Rule rule, JsonWriter json) {
-    json.name("actives").beginArray();
+  void completeShow(Rule rule, ShowResponse.Builder response) {
     for (ActiveRule activeRule : loader.findActiveRulesByRule(rule.key())) {
-      writeActiveRule(activeRule, json);
+      response.addActives(buildActiveRuleResponse(activeRule));
     }
-    json.endArray();
   }
 
-  private Collection<String> writeActiveRules(RuleKey ruleKey, Collection<ActiveRule> activeRules, JsonWriter json) {
-    Collection<String> qProfileKeys = Sets.newHashSet();
-    if (!activeRules.isEmpty()) {
-      json.name(ruleKey.toString());
-      json.beginArray();
-      for (ActiveRule activeRule : activeRules) {
-        qProfileKeys.add(writeActiveRule(activeRule, json));
-      }
-      json.endArray();
+  private Collection<String> writeActiveRules(RuleKey ruleKey, Collection<ActiveRule> activeRules, Rules.Actives.Builder activesBuilder) {
+    Collection<String> qProfileKeys = newHashSet();
+    Rules.ActiveList.Builder activeRulesListResponse = Rules.ActiveList.newBuilder();
+    for (ActiveRule activeRule : activeRules) {
+      activeRulesListResponse.addActiveList(buildActiveRuleResponse(activeRule));
+      qProfileKeys.add(activeRule.key().qProfile());
     }
+    activesBuilder
+      .getMutableActives()
+      .put(ruleKey.toString(), activeRulesListResponse.build());
     return qProfileKeys;
   }
 
-  private String writeActiveRule(ActiveRule activeRule, JsonWriter json) {
-    json
-      .beginObject()
-      .prop("qProfile", activeRule.key().qProfile())
-      .prop("inherit", activeRule.inheritance().toString())
-      .prop("severity", activeRule.severity());
+  private Rules.Active buildActiveRuleResponse(ActiveRule activeRule) {
+    Rules.Active.Builder activeRuleResponse = Rules.Active.newBuilder();
+    activeRuleResponse.setQProfile(activeRule.key().qProfile());
+    activeRuleResponse.setInherit(activeRule.inheritance().toString());
+    activeRuleResponse.setSeverity(activeRule.severity());
     ActiveRuleKey parentKey = activeRule.parentKey();
     if (parentKey != null) {
-      json.prop("parent", parentKey.toString());
+      activeRuleResponse.setParent(parentKey.toString());
     }
-    json.name("params").beginArray();
+    Rules.Active.Param.Builder paramBuilder = Rules.Active.Param.newBuilder();
     for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
-      json
-        .beginObject()
-        .prop("key", param.getKey())
-        .prop("value", param.getValue())
-        .endObject();
+      activeRuleResponse.addParams(paramBuilder.clear()
+        .setKey(param.getKey())
+        .setValue(param.getValue()));
     }
-    json.endArray().endObject();
-    return activeRule.key().qProfile();
+
+    return activeRuleResponse.build();
   }
 
-  private void writeProfiles(JsonWriter json, Collection<String> harvestedProfileKeys) {
+  private Rules.QProfiles.Builder buildQProfiles(Collection<String> harvestedProfileKeys) {
     Map<String, QualityProfileDto> qProfilesByKey = Maps.newHashMap();
     for (String qProfileKey : harvestedProfileKeys) {
       if (!qProfilesByKey.containsKey(qProfileKey)) {
@@ -147,11 +142,14 @@ public class ActiveRuleCompleter {
         }
       }
     }
-    json.name("qProfiles").beginObject();
+
+    Rules.QProfiles.Builder qProfilesResponse = Rules.QProfiles.newBuilder();
+    Map<String, Rules.QProfile> qProfilesMapResponse = qProfilesResponse.getMutableQProfiles();
     for (QualityProfileDto profile : qProfilesByKey.values()) {
-      writeProfile(json, profile);
+      writeProfile(qProfilesMapResponse, profile);
     }
-    json.endObject();
+
+    return qProfilesResponse;
   }
 
   @CheckForNull
@@ -159,15 +157,22 @@ public class ActiveRuleCompleter {
     return loader.getByKey(qProfileKey);
   }
 
-  private void writeProfile(JsonWriter json, QualityProfileDto profile) {
-    Language language = languages.get(profile.getLanguage());
-    String langName = language == null ? profile.getLanguage() : language.getName();
-    json.name(profile.getKey()).beginObject()
-      .prop("name", profile.getName())
-      .prop("lang", profile.getLanguage())
-      .prop("langName", langName)
-      .prop("parent", profile.getParentKee())
-      .endObject();
+  private void writeProfile(Map<String, Rules.QProfile> profilesResponse, QualityProfileDto profile) {
+    Rules.QProfile.Builder profileResponse = Rules.QProfile.newBuilder();
+    if (profile.getName() != null) {
+      profileResponse.setName(profile.getName());
+    }
+    if (profile.getLanguage() != null) {
+      profileResponse.setLang(profile.getLanguage());
+      Language language = languages.get(profile.getLanguage());
+      String langName = language == null ? profile.getLanguage() : language.getName();
+      profileResponse.setLangName(langName);
+    }
+    if (profile.getParentKee() != null) {
+      profileResponse.setParent(profile.getParentKee());
+    }
+
+    profilesResponse.put(profile.getKey(), profileResponse.build());
   }
 
 }

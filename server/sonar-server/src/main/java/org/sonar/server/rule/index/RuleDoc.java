@@ -88,11 +88,13 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  @CheckForNull
   public String htmlDescription() {
     return getNullableField(RuleNormalizer.RuleField.HTML_DESCRIPTION.field());
   }
 
   @Override
+  @CheckForNull
   public String markdownDescription() {
     return getNullableField(RuleNormalizer.RuleField.MARKDOWN_DESCRIPTION.field());
   }

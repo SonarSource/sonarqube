@@ -21,14 +21,14 @@ package org.sonar.server.exceptions;
 
 import com.google.common.base.Preconditions;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+
 /**
  * Permission denied. User does not have the required permissions.
  */
 public class ForbiddenException extends ServerException {
 
-  private static final int FORBIDDEN = 403;
-
   public ForbiddenException(String message) {
-    super(FORBIDDEN, Preconditions.checkNotNull(message));
+    super(HTTP_FORBIDDEN, Preconditions.checkNotNull(message));
   }
 }

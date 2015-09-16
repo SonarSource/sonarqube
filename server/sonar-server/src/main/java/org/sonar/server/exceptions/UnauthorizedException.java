@@ -19,18 +19,18 @@
  */
 package org.sonar.server.exceptions;
 
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+
 /**
  * User needs to be authenticated. HTTP request is generally redirected to login form.
  */
 public class UnauthorizedException extends ServerException {
 
-  private static final int UNAUTHORIZED = 401;
-
   public UnauthorizedException() {
-    super(UNAUTHORIZED);
+    super(HTTP_UNAUTHORIZED);
   }
 
   public UnauthorizedException(String message) {
-    super(UNAUTHORIZED, message);
+    super(HTTP_UNAUTHORIZED, message);
   }
 }

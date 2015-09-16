@@ -68,13 +68,6 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
   }
 
   /**
-   * Write all document fields
-   */
-  protected void doWrite(DOC doc, @Nullable CTX context, JsonWriter json) {
-    doWrite(doc, context, json, null);
-  }
-
-  /**
    * Write only requested document fields
    */
   protected void doWrite(DOC doc, @Nullable CTX context, JsonWriter json, @Nullable QueryContext queryContext) {
@@ -120,7 +113,7 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
     return this;
   }
 
-  public static interface Mapper<DOC extends BaseDoc, CTX> {
+  public interface Mapper<DOC extends BaseDoc, CTX> {
     void write(JsonWriter json, DOC doc, CTX context);
   }
 
@@ -141,11 +134,6 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
    */
   public static class IndexStringMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC, CTX> {
     protected final String key;
-
-    public IndexStringMapper(String key, String indexKey, String defaultIndexKey) {
-      super(indexKey, defaultIndexKey);
-      this.key = key;
-    }
 
     public IndexStringMapper(String key, String indexKey) {
       super(indexKey);
