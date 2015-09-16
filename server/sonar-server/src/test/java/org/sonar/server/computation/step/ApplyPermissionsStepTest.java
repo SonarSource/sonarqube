@@ -19,8 +19,12 @@
  */
 package org.sonar.server.computation.step;
 
+import java.util.List;
+import java.util.Map;
+import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -41,6 +45,9 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.ViewsComponent;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +62,9 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   private static final String ROOT_KEY = "ROOT_KEY";
   private static final String ROOT_UUID = "ROOT_UUID";
   private static final long SOME_DATE = 1000L;
+
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -71,15 +81,20 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
   Settings settings;
 
+  IssueAuthorizationIndexer issueAuthorizationIndexer;
+
   ApplyPermissionsStep step;
 
   @Before
   public void setUp() {
     dbSession = dbClient.openSession(false);
-
     settings = new Settings();
+    esTester.truncateIndices();
 
-    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, new PermissionRepository(dbClient, settings), treeRootHolder);
+    issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, esTester.client());
+    issueAuthorizationIndexer.setEnabled(true);
+
+    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionRepository(dbClient, settings), treeRootHolder);
   }
 
   @After
@@ -88,7 +103,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void grant_permission_for_report() {
+  public void grant_permission_on_new_project() {
     ComponentDto projectDto = ComponentTesting.newProjectDto(ROOT_UUID).setKey(ROOT_KEY);
     dbClient.componentDao().insert(dbSession, projectDto);
 
@@ -104,10 +119,11 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     assertThat(dbClient.componentDao().selectOrFailByKey(dbSession, ROOT_KEY).getAuthorizationUpdatedAt()).isNotNull();
     assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, projectDto.getId())).containsOnly(UserRole.USER);
+    verifyAuthorisationIndex(ROOT_UUID, DefaultGroups.ANYONE);
   }
 
   @Test
-  public void nothing_to_do_for_report() {
+  public void nothing_to_do_on_existing_project() {
     ComponentDto projectDto = ComponentTesting.newProjectDto(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
     dbClient.componentDao().insert(dbSession, projectDto);
     // Permissions are already set on the project
@@ -127,7 +143,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void grant_permission_for_view() {
+  public void grant_permission_on_new_view() {
     ComponentDto viewDto = newView(ROOT_UUID).setKey(ROOT_KEY);
     dbClient.componentDao().insert(dbSession, viewDto);
 
@@ -147,7 +163,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void nothing_to_do_for_view() {
+  public void nothing_to_do_on_existing_view() {
     ComponentDto viewDto = newView(ROOT_UUID).setKey(ROOT_KEY).setAuthorizationUpdatedAt(SOME_DATE);
     dbClient.componentDao().insert(dbSession, viewDto);
     // Permissions are already set on the view
@@ -171,6 +187,15 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
     dbClient.permissionTemplateDao().insertGroupPermission(permissionTemplateDto.getId(), null, permission);
     dbSession.commit();
+  }
+
+  private void verifyAuthorisationIndex(String rootUuid, String groupPermission){
+    List<SearchHit> issueAuthorizationHits = esTester.getDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
+    assertThat(issueAuthorizationHits).hasSize(1);
+    Map<String, Object> issueAuthorization = issueAuthorizationHits.get(0).sourceAsMap();
+    assertThat(issueAuthorization.get("project")).isEqualTo(rootUuid);
+    assertThat((List<String>) issueAuthorization.get("groups")).containsOnly(groupPermission);
+    assertThat((List<String>) issueAuthorization.get("users")).isEmpty();
   }
 
   @Override

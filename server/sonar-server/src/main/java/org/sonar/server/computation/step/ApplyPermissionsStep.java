@@ -31,6 +31,7 @@ import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
@@ -43,12 +44,15 @@ public class ApplyPermissionsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final DbIdsRepository dbIdsRepository;
+  private final IssueAuthorizationIndexer indexer;
   private final PermissionRepository permissionRepository;
   private final TreeRootHolder treeRootHolder;
 
-  public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, PermissionRepository permissionRepository, TreeRootHolder treeRootHolder) {
+  public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, IssueAuthorizationIndexer indexer, PermissionRepository permissionRepository,
+                              TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
+    this.indexer = indexer;
     this.permissionRepository = permissionRepository;
     this.treeRootHolder = treeRootHolder;
   }
@@ -76,6 +80,7 @@ public class ApplyPermissionsStep implements ComputationStep {
       if (dbClient.roleDao().countComponentPermissions(session, projectId) == 0) {
         permissionRepository.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
         session.commit();
+        indexer.index();
       }
     } finally {
       MyBatis.closeQuietly(session);
