@@ -67,7 +67,8 @@ public class SearchAction implements QProfileWsAction {
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
     action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("Project or module key. If provided, language key and default parameters should not be provided.")
+      .setDescription(format("Project or module key. If provided, '%s' and '%s' parameters should not be provided.",
+        PARAM_LANGUAGE, PARAM_DEFAULTS))
       .setExampleValue("my-project-key");
 
     action
