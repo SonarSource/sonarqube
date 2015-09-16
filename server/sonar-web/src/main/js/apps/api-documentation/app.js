@@ -23,14 +23,19 @@ define([
   './layout',
   './list',
   './list-view',
-  './filters-view'
-], function (Router, Controller, Layout, List, ListView, FiltersView) {
+  './filters-view',
+  './search-view'
+], function (Router, Controller, Layout, List, ListView, FiltersView, SearchView) {
 
   var $ = jQuery,
       App = new Marionette.Application(),
       init = function (options) {
         // State
         this.state = new Backbone.Model({ internal: false });
+        this.state.match = function (test) {
+          var pattern = new RegExp(this.get('query'), 'i');
+          return test.search(pattern) !== -1;
+        };
 
         // Layout
         this.layout = new Layout({ el: options.el });
@@ -59,6 +64,12 @@ define([
           state: this.state
         });
         this.layout.actionsRegion.show(this.filtersView);
+
+        // Search View
+        this.searchView = new SearchView({
+          state: this.state
+        });
+        this.layout.searchRegion.show(this.searchView);
 
         // Router
         this.router = new Router({ app: this });

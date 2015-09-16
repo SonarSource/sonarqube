@@ -27,6 +27,7 @@ define([
     regions: {
       headerRegion: '.search-navigator-workspace-header',
       actionsRegion: '.search-navigator-filters',
+      searchRegion: '.api-documentation-search',
       resultsRegion: '.api-documentation-results',
       detailsRegion: '.search-navigator-workspace-details'
     },

@@ -73,7 +73,10 @@ define([
       }
 
       var actions = new Backbone.Collection(item.get('actions')),
-          actionsView = new ActionsView({ collection: actions });
+          actionsView = new ActionsView({
+            collection: actions,
+            state: this.options.state
+          });
       this.options.app.layout.detailsRegion.show(actionsView);
       this.options.app.layout.headerRegion.show(new HeaderView({ model: item }));
 

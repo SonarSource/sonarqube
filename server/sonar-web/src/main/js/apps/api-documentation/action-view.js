@@ -17,9 +17,14 @@ define([
       'click .js-hide-response-example': 'onHideResponseExampleClick'
     },
 
+    initialize: function () {
+      this.listenTo(this.options.state, 'change:query', this.toggleHidden);
+    },
+
     onRender: function () {
       this.$el.attr('data-web-service', this.model.get('path'));
       this.$el.attr('data-action', this.model.get('key'));
+      this.toggleHidden();
     },
 
     onShowResponseExampleClick: function (e) {
@@ -39,6 +44,11 @@ define([
       return $.get(url, options).done(function (r) {
         that.model.set({ responseExample: r.example });
       });
+    },
+
+    toggleHidden: function () {
+      var test = this.model.get('path') + '/' + this.model.get('key');
+      this.$el.toggleClass('hidden', !this.options.state.match(test));
     }
   });
 

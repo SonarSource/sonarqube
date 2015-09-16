@@ -26,6 +26,12 @@ define([
   return Marionette.CollectionView.extend({
     childView: ActionView,
 
+    childViewOptions: function () {
+      return {
+        state: this.options.state
+      };
+    },
+
     scrollToTop: function () {
       var parent = this.$el.scrollParent();
       if (parent.is(document)) {
