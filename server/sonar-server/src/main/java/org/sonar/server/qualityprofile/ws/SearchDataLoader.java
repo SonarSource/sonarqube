@@ -65,13 +65,11 @@ public class SearchDataLoader {
   SearchData load(Request request) {
     validateRequest(request);
 
-    SearchData data = new SearchData()
+    return new SearchData()
       .setProfiles(findProfiles(request))
       .setActiveRuleCountByProfileKey(profileLoader.countAllActiveRules())
       .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey())
       .setFieldsToReturn(request.paramAsStrings(WebService.Param.FIELDS));
-
-    return data;
   }
 
   private List<QProfile> findProfiles(Request request) {
@@ -84,22 +82,12 @@ public class SearchDataLoader {
       profiles = findAllProfiles(request);
     }
 
-    List<QProfile> orderedProfiles = orderProfiles(profiles);
-
-    return orderedProfiles;
+    return orderProfiles(profiles);
   }
 
   private static List<QProfile> orderProfiles(List<QProfile> profiles) {
     return from(profiles)
-      .toSortedList(new Comparator<QProfile>() {
-        @Override
-        public int compare(QProfile o1, QProfile o2) {
-          return new CompareToBuilder()
-            .append(o1.language(), o2.language())
-            .append(o1.name(), o2.name())
-            .toComparison();
-        }
-      });
+      .toSortedList(QProfileComparator.INSTANCE);
   }
 
   private List<QProfile> findAllProfiles(Request request) {
@@ -207,6 +195,17 @@ public class SearchDataLoader {
 
   private static boolean hasLanguage(Request request) {
     return request.hasParam(PARAM_LANGUAGE);
+  }
+
+  private enum QProfileComparator implements Comparator<QProfile> {
+    INSTANCE;
+    @Override
+    public int compare(QProfile o1, QProfile o2) {
+      return new CompareToBuilder()
+        .append(o1.language(), o2.language())
+        .append(o1.name(), o2.name())
+        .toComparison();
+    }
   }
 
   private class IsLanguageKnown implements Predicate<QProfile> {
