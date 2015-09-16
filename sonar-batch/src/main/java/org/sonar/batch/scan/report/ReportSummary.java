@@ -19,16 +19,14 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.batch.rule.Rule;
-
 import com.google.common.collect.Maps;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RulePriority;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RulePriority;
 
 public class ReportSummary {
 
@@ -37,9 +35,6 @@ public class ReportSummary {
   private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = Maps.newHashMap();
   private final Map<String, IssueVariation> totalByRuleKey = Maps.newHashMap();
   private final Map<String, IssueVariation> totalBySeverity = Maps.newHashMap();
-
-  public ReportSummary() {
-  }
 
   public IssueVariation getTotal() {
     return total;

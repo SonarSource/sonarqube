@@ -54,7 +54,6 @@ import org.sonar.batch.phases.ProjectInitializer;
 import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.postjob.DefaultPostJobContext;
 import org.sonar.batch.postjob.PostJobOptimizer;
-import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.rule.RuleFinderCompatibility;
@@ -117,7 +116,7 @@ public class ModuleScanContainer extends ComponentContainer {
       ProjectInitializer.class,
       moduleDefinition.getContainerExtensions(),
 
-    // file system
+      // file system
       ModuleInputFileCache.class,
       FileExclusions.class,
       ExclusionFilters.class,
@@ -136,10 +135,10 @@ public class ModuleScanContainer extends ComponentContainer {
       ProjectClasspath.class,
       QProfileVerifier.class,
 
-    SensorOptimizer.class,
+      SensorOptimizer.class,
       PostJobOptimizer.class,
 
-    DefaultSensorContext.class,
+      DefaultSensorContext.class,
       DefaultPostJobContext.class,
       DefaultSensorStorage.class,
       DeprecatedSensorContext.class,
@@ -147,20 +146,20 @@ public class ModuleScanContainer extends ComponentContainer {
       IssueFilters.class,
       CoverageExclusions.class,
 
-    // rules
+      // rules
       new RulesProfileProvider(),
       QProfileSensor.class,
       CheckFactory.class,
 
-    // report
+      // report
       IssuesReports.class,
 
-    // issues
+      // issues
       IssuableFactory.class,
       ModuleIssues.class,
       org.sonar.api.issue.NoSonarFilter.class,
 
-    // issue exclusions
+      // issue exclusions
       IssueInclusionPatternInitializer.class,
       IssueExclusionPatternInitializer.class,
       IssueExclusionsRegexpScanner.class,
@@ -169,7 +168,7 @@ public class ModuleScanContainer extends ComponentContainer {
       IgnoreIssuesFilter.class,
       NoSonarFilter.class,
 
-    // Perspectives
+      // Perspectives
       BatchPerspectives.class,
       HighlightableBuilder.class,
       SymbolizableBuilder.class);

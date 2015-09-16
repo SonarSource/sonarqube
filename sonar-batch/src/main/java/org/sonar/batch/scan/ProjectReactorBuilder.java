@@ -19,16 +19,10 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.api.batch.AnalysisMode;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.sonar.batch.analysis.AnalysisProperties;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -38,23 +32,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.util.BatchUtils;
 
 /**
@@ -109,7 +103,7 @@ public class ProjectReactorBuilder {
    */
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
     CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
-  
+
   private static final String NON_ASSOCIATED_PROJECT_KEY = "project";
 
   private final AnalysisProperties taskProps;
@@ -165,16 +159,16 @@ public class ProjectReactorBuilder {
       extractPropertiesByModule(propertiesByModuleId, moduleId, currentModuleProperties);
     }
   }
-  
+
   private static void prepareNonAssociatedProject(Map<String, String> props, AnalysisMode mode) {
-    if(mode.isIssues() && !props.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
+    if (mode.isIssues() && !props.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
       props.put(CoreProperties.PROJECT_KEY_PROPERTY, NON_ASSOCIATED_PROJECT_KEY);
     }
   }
-  
+
   protected ProjectDefinition defineRootProject(Map<String, String> rootProperties, @Nullable ProjectDefinition parent) {
     prepareNonAssociatedProject(rootProperties, analysisMode);
-    
+
     if (rootProperties.containsKey(PROPERTY_MODULES)) {
       checkMandatoryProperties(rootProperties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
     } else {

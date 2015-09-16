@@ -21,8 +21,8 @@ package org.sonar.batch.sensor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -60,10 +60,6 @@ public class SensorOptimizer {
     }
     if (!settingsCondition(descriptor)) {
       LOG.debug("'{}' skipped because one of the required properties is missing", descriptor.name());
-      return false;
-    }
-    if (descriptor.isDisabledInPreview() && analysisMode.isPreview()) {
-      LOG.debug("'{}' skipped in preview mode", descriptor.name());
       return false;
     }
     if (descriptor.isDisabledInIssues() && analysisMode.isIssues()) {

@@ -175,21 +175,15 @@ public class IssueTracking {
           findLastIssueWithSameChecksumAndMessage(rawIssue, result.unmatchedByKeyForRule(ruleKey(rawIssue)).values()),
           result);
       }
-    }
-
-    // Try then to match issues on same rule with same line and with same message
-    for (BatchReport.Issue rawIssue : rawIssues) {
+      // Try then to match issues on same rule with same line and with same message
       if (isNotAlreadyMapped(rawIssue, result)) {
         mapIssue(
           rawIssue,
           findLastIssueWithSameLineAndMessage(rawIssue, result.unmatchedByKeyForRule(ruleKey(rawIssue)).values()),
           result);
       }
-    }
-
-    // Last check: match issue if same rule and same checksum but different line and different message
-    // See SONAR-2812
-    for (BatchReport.Issue rawIssue : rawIssues) {
+      // Last check: match issue if same rule and same checksum but different line and different message
+      // See SONAR-2812
       if (isNotAlreadyMapped(rawIssue, result)) {
         mapIssue(
           rawIssue,

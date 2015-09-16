@@ -19,17 +19,15 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.batch.rule.Rule;
-
 import com.google.common.collect.Maps;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.index.BatchComponent;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.batch.index.BatchComponent;
 
 public class IssuesReport {
 
@@ -39,9 +37,6 @@ public class IssuesReport {
   private boolean noFile;
   private final ReportSummary summary = new ReportSummary();
   private final Map<BatchComponent, ResourceReport> resourceReportsByResource = Maps.newLinkedHashMap();
-
-  public IssuesReport() {
-  }
 
   public ReportSummary getSummary() {
     return summary;

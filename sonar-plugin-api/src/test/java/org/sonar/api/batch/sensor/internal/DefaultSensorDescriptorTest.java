@@ -42,16 +42,14 @@ public class DefaultSensorDescriptorTest {
     assertThat(descriptor.properties()).containsOnly("sonar.foo.reportPath");
     assertThat(descriptor.ruleRepositories()).containsOnly("squid-java");
   }
-  
+
   @Test
   public void disabledAnalysisModes() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     descriptor
-      .disabledInIssues()
-      .disabledInPreview();
-    
+      .disabledInIssues();
+
     assertThat(descriptor.isDisabledInIssues()).isTrue();
-    assertThat(descriptor.isDisabledInPreview()).isTrue();
   }
 
 }

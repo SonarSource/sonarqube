@@ -19,13 +19,11 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorDescriptor;
-
-import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collection;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 
 public class DefaultSensorDescriptor implements SensorDescriptor {
 
@@ -34,7 +32,6 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   private InputFile.Type type = null;
   private String[] ruleRepositories = new String[0];
   private String[] properties = new String[0];
-  private boolean disabledInPreview = false;
   private boolean disabledInIssues = false;
 
   public String name() {
@@ -58,10 +55,6 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
     return Arrays.asList(properties);
   }
 
-  public boolean isDisabledInPreview() {
-    return disabledInPreview;
-  }
-  
   public boolean isDisabledInIssues() {
     return disabledInIssues;
   }
@@ -111,12 +104,6 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
     return this;
   }
 
-  @Override
-  public DefaultSensorDescriptor disabledInPreview() {
-    this.disabledInPreview = true;
-    return this;
-  }
-  
   @Override
   public DefaultSensorDescriptor disabledInIssues() {
     this.disabledInIssues = true;
