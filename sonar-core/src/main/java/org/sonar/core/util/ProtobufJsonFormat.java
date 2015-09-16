@@ -32,8 +32,98 @@ import org.sonar.api.utils.text.JsonWriter;
  * Converts a Protocol Buffers message to JSON. Unknown fields, binary fields and groups
  * are not supported. Absent fields are ignored, so it's possible to distinguish
  * null strings (field is absent) and empty strings (field is present with value {@code ""}).
- * <p/>
- * TODO
+ *
+ * <h3>Example</h3>
+ * <pre>
+ *   // protobuf specification
+ *   message Foo {
+ *     string name = 1;
+ *     int32 count = 2;
+ *     repeated string colors = 3;
+ *   }
+ *
+ *   // generated JSON
+ *   {
+ *     "name": "hello",
+ *     "count": 32,
+ *     "colors": ["blue", "red"]
+ *   }
+ * </pre>
+ *
+ * <h3>Absent versus empty arrays</h3>
+ * <p>
+ * Protobuf does not support absent repeated field. The default value is empty. A pattern
+ * is defined by {@link ProtobufJsonFormat} to support the difference between absent and
+ * empty arrays when generating JSON. An intermediary message wrapping the array must be defined.
+ * It is automatically inlined and does not appear in the generated JSON. This wrapper message must:
+ * </p>
+ * <ul>
+ *   <li>contain a single repeated field</li>
+ *   <li>has the same name (case-insensitive) as the field</li>
+ * </ul>
+ *
+ *
+ * <p>Example:</p>
+ * <pre>
+ *   // protobuf specification
+ *   message Continent {
+ *     string name = 1;
+ *     Countries countries = 2;
+ *   }
+ *
+ *   // the message name ("Countries") is the same as the field 1 ("countries")
+ *   message Countries {
+ *     repeated string countries = 1;
+ *   }
+ *
+ *   // example of generated JSON if field 2 is not present
+ *   {
+ *     "name": "Europe",
+ *   }
+ *
+ *   // example of generated JSON if field 2 is present but inner array is empty.
+ *   // The intermediary "countries" message is inline.
+ *   {
+ *     "name": "Europe",
+ *     "countries": []
+ *   }
+ *
+ *   // example of generated JSON if field 2 is present and inner array is not empty
+ *   // The intermediary "countries" message is inline.
+ *   {
+ *     "name": "Europe",
+ *     "countries": ["Spain", "Denmark"]
+ *   }
+ * </pre>
+ *
+ * <h3>Array or map in map values</h3>
+ * <p>
+ *   Map fields cannot be repeated. Values are scalar types or messages, but not arrays nor maps. In order
+ * to support multimaps (maps of lists) and maps of maps in JSON, the same pattern as for absent arrays
+ * can be used:
+ * </p>
+ * <p>Example:</p>
+ * <pre>
+ *   // protobuf specification
+ *   message Continent {
+ *     string name = 1;
+ *     map&lt;string,Countries&gt; countries_by_currency = 2;
+ *   }
+ *
+ *   // the message name ("Countries") is the same as the field 1 ("countries")
+ *   message Countries {
+ *     repeated string countries = 1;
+ *   }
+ *
+ *   // example of generated JSON. The intermediary "countries" message is inline.
+ *   {
+ *     "name": "Europe",
+ *     "countries_by_currency": {
+ *       "eur": ["Spain", "France"],
+ *       "dkk": ["Denmark"]
+ *     }
+ *   }
+ * </pre>
  */
 public class ProtobufJsonFormat {
 
@@ -82,7 +172,7 @@ public class ProtobufJsonFormat {
       if (fieldDescriptor.isRepeated()) {
         writer.name(fieldDescriptor.getName());
         if (fieldDescriptor.isMapField()) {
-          writeMap((Collection<MapEntry>)message.getField(fieldDescriptor), writer);
+          writeMap((Collection<MapEntry>) message.getField(fieldDescriptor), writer);
         } else {
           writeArray(writer, fieldDescriptor, (Collection) message.getField(fieldDescriptor));
         }
