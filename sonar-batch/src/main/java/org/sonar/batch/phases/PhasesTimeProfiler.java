@@ -19,28 +19,18 @@
  */
 package org.sonar.batch.phases;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.events.DecoratorExecutionHandler;
-import org.sonar.api.batch.events.DecoratorsPhaseHandler;
 import org.sonar.api.batch.events.SensorExecutionHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
-public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExecutionHandler, DecoratorsPhaseHandler, SensorsPhaseHandler {
+public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseHandler {
 
   private static final Logger LOG = Loggers.get(PhasesTimeProfiler.class);
 
   private Profiler profiler = Profiler.create(LOG);
-  private DecoratorsProfiler decoratorsProfiler = new DecoratorsProfiler();
 
   @Override
   public void onSensorsPhase(SensorsPhaseEvent event) {
@@ -55,66 +45,6 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
       profiler.startInfo("Sensor " + event.getSensor());
     } else {
       profiler.stopInfo();
-    }
-  }
-
-  @Override
-  public void onDecoratorExecution(DecoratorExecutionEvent event) {
-    if (event.isStart()) {
-      decoratorsProfiler.start(event.getDecorator());
-    } else {
-      decoratorsProfiler.stop();
-    }
-  }
-
-  @Override
-  public void onDecoratorsPhase(DecoratorsPhaseEvent event) {
-    if (event.isStart()) {
-      LOG.info("Execute decorators...");
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Decorators: {}", StringUtils.join(event.getDecorators(), " -> "));
-      }
-    } else {
-      decoratorsProfiler.log();
-    }
-  }
-
-  static class DecoratorsProfiler {
-    List<Decorator> decorators = Lists.newArrayList();
-    Map<Decorator, Long> durations = new IdentityHashMap<>();
-    long startTime;
-    Decorator currentDecorator;
-
-    DecoratorsProfiler() {
-    }
-
-    void start(Decorator decorator) {
-      this.startTime = System.currentTimeMillis();
-      this.currentDecorator = decorator;
-    }
-
-    void stop() {
-      final Long cumulatedDuration;
-      if (durations.containsKey(currentDecorator)) {
-        cumulatedDuration = durations.get(currentDecorator);
-      } else {
-        decorators.add(currentDecorator);
-        cumulatedDuration = 0L;
-      }
-      durations.put(currentDecorator, cumulatedDuration + (System.currentTimeMillis() - startTime));
-    }
-
-    void log() {
-      LOG.debug(getMessage());
-    }
-
-    String getMessage() {
-      StringBuilder sb = new StringBuilder("Decorator time:").append(SystemUtils.LINE_SEPARATOR);
-      for (Decorator decorator : decorators) {
-        sb.append("\t").append(decorator.toString()).append(": ").append(durations.get(decorator)).append("ms")
-            .append(SystemUtils.LINE_SEPARATOR);
-      }
-      return sb.toString();
     }
   }
 

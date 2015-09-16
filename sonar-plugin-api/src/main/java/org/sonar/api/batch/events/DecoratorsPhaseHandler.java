@@ -19,13 +19,14 @@
  */
 package org.sonar.api.batch.events;
 
-import org.sonar.api.batch.Decorator;
-
 import java.util.List;
+import org.sonar.api.batch.Decorator;
 
 /**
  * @since 2.8
+ * @deprecated since 5.2 no more decorator
  */
+@Deprecated
 public interface DecoratorsPhaseHandler extends EventHandler {
 
   /**

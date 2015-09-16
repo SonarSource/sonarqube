@@ -23,7 +23,9 @@ import org.sonar.api.batch.Decorator;
 
 /**
  * @since 2.8
+ * @deprecated since 5.2 no more decorator
  */
+@Deprecated
 public interface DecoratorExecutionHandler extends EventHandler {
 
   /**
