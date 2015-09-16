@@ -38,17 +38,19 @@ import static org.mockito.Mockito.when;
 
 public class ReportProcessingSchedulerTest {
 
-  ReportProcessingSchedulerExecutorService batchExecutorService = mock(ReportProcessingSchedulerExecutorService.class);
-  SimpleComputeEngineProcessingQueue processingQueue = new SimpleComputeEngineProcessingQueue();
-  ReportQueue queue = mock(ReportQueue.class);
-  ComponentContainer componentContainer = mock(ComponentContainer.class);
+  private ReportProcessingSchedulerExecutorService batchExecutorService = mock(ReportProcessingSchedulerExecutorService.class);
+  private SimpleComputeEngineProcessingQueue processingQueue = new SimpleComputeEngineProcessingQueue();
+  private ReportQueue queue = mock(ReportQueue.class);
+  private ComponentContainer componentContainer = mock(ComponentContainer.class);
 
-  ReportProcessingScheduler underTest = new ReportProcessingScheduler(batchExecutorService, processingQueue, queue, componentContainer);
+  private ReportProcessingScheduler underTest = new ReportProcessingScheduler(batchExecutorService, processingQueue, queue, componentContainer);
 
   @Test
-  public void schedule_at_fixed_rate_adding_a_ReportProcessingTask_to_the_queue() throws Exception {
+  public void schedule_at_fixed_rate_adding_a_ReportProcessingTask_to_the_queue_if_there_is_item_in_ReportQueue() {
+    ReportQueue.Item item = mock(ReportQueue.Item.class);
     when(batchExecutorService.scheduleAtFixedRate(any(Runnable.class), eq(0L), eq(10L), eq(TimeUnit.SECONDS)))
       .thenAnswer(new ExecuteFirstArgAsRunnable());
+    when(queue.pop()).thenReturn(item);
 
     underTest.onServerStart(mock(Server.class));
 
@@ -57,13 +59,34 @@ public class ReportProcessingSchedulerTest {
   }
 
   @Test
-  public void adds_immediately_a_ReportProcessingTask_to_the_queue() throws Exception {
+  public void schedule_at_fixed_rate_does_not_add_ReportProcessingTask_to_the_queue_if_there_is_no_item_in_ReportQueue() {
+    when(batchExecutorService.scheduleAtFixedRate(any(Runnable.class), eq(0L), eq(10L), eq(TimeUnit.SECONDS)))
+      .thenAnswer(new ExecuteFirstArgAsRunnable());
+
+    underTest.onServerStart(mock(Server.class));
+
+    assertThat(processingQueue.getTasks()).isEmpty();
+  }
+
+  @Test
+  public void adds_immediately_a_ReportProcessingTask_to_the_queue_if_there_is_item_in_ReportQueue() {
+    ReportQueue.Item item = mock(ReportQueue.Item.class);
     doAnswer(new ExecuteFirstArgAsRunnable()).when(batchExecutorService).execute(any(Runnable.class));
+    when(queue.pop()).thenReturn(item);
 
     underTest.startAnalysisTaskNow();
 
     assertThat(processingQueue.getTasks()).hasSize(1);
     assertThat(processingQueue.getTasks().iterator().next()).isInstanceOf(ReportProcessingTask.class);
+  }
+
+  @Test
+  public void adds_immediately_does_not_add_ReportProcessingTask_to_the_queue_if_there_is_item_in_ReportQueue() {
+    doAnswer(new ExecuteFirstArgAsRunnable()).when(batchExecutorService).execute(any(Runnable.class));
+
+    underTest.startAnalysisTaskNow();
+
+    assertThat(processingQueue.getTasks()).isEmpty();
   }
 
   private static class SimpleComputeEngineProcessingQueue implements ComputeEngineProcessingQueue {

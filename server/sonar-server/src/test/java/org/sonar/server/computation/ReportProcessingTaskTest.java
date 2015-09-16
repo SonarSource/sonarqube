@@ -20,25 +20,26 @@
 
 package org.sonar.server.computation;
 
+import java.io.File;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ReportProcessingTaskTest {
+
+  private static final long ANALYSIS_REPORT_DTO_ID = 663l;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -48,52 +49,63 @@ public class ReportProcessingTaskTest {
   ReportQueue queue = mock(ReportQueue.class);
   ComponentContainer componentContainer = mock(ComponentContainer.class);
   ContainerFactory containerFactory = mock(ContainerFactory.class);
-  ReportProcessingTask underTest = new ReportProcessingTask(queue, componentContainer, containerFactory);
+  ReportQueue.Item item = new ReportQueue.Item(createAnalysisReportDto(), new File("Don't care"));
 
-  @Test
-  public void do_nothing_if_queue_empty() {
-    when(queue.pop()).thenReturn(null);
-
-    underTest.run();
-
-    verify(queue).pop();
-    verifyZeroInteractions(containerFactory);
+  private static AnalysisReportDto createAnalysisReportDto() {
+    AnalysisReportDto res = new AnalysisReportDto();
+    res.setProjectKey("P1").setId(ANALYSIS_REPORT_DTO_ID);
+    return res;
   }
 
-  @Test
-  public void pop_queue_and_integrate_report() throws IOException {
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
-    ReportQueue.Item item = new ReportQueue.Item(report, temp.newFile());
+  ReportProcessingTask underTest = new ReportProcessingTask(queue, item, componentContainer, containerFactory);
 
-    when(queue.pop()).thenReturn(item);
-    when(containerFactory.create(componentContainer, item)).thenReturn(mock(ComputeEngineContainer.class));
+  @Test
+  public void creates_container_for_item_run_its_ReportProcessor_and_remove_from_queue() throws IOException {
+    ComputeEngineContainer computeEngineContainer = mock(ComputeEngineContainer.class);
+    when(containerFactory.create(componentContainer, item)).thenReturn(computeEngineContainer);
+
+    ReportProcessor reportProcessor = mock(ReportProcessor.class);
+    when(computeEngineContainer.getComponentByType(ReportProcessor.class)).thenReturn(reportProcessor);
 
     underTest.run();
 
-    verify(queue).pop();
     verify(containerFactory).create(componentContainer, item);
+    verify(reportProcessor).process();
+    verify(computeEngineContainer).cleanup();
+    verify(queue).remove(item);
   }
 
   @Test
-  public void handle_error_during_queue_pop() {
-    when(queue.pop()).thenThrow(new IllegalStateException());
+  public void remove_from_queue_even_if_process_failed() throws IOException {
+    ComputeEngineContainer computeEngineContainer = mock(ComputeEngineContainer.class);
+    when(containerFactory.create(componentContainer, item)).thenReturn(computeEngineContainer);
+
+    ReportProcessor reportProcessor = mock(ReportProcessor.class);
+    when(computeEngineContainer.getComponentByType(ReportProcessor.class)).thenReturn(reportProcessor);
+    doThrow(new IllegalArgumentException("This exception must be silently logged by ReportProcessingTask"))
+      .when(reportProcessor)
+      .process();
 
     underTest.run();
 
-    assertThat(logTester.logs()).contains("Failed to pop the queue of analysis reports");
+    verify(containerFactory).create(componentContainer, item);
+    verify(reportProcessor).process();
+    verify(computeEngineContainer).cleanup();
+    verify(queue).remove(item);
   }
 
   @Test
   public void handle_error_during_removal_from_queue() throws Exception {
-    when(containerFactory.create(any(ComponentContainer.class), any(ReportQueue.Item.class))).thenReturn(mock(ComputeEngineContainer.class));
+    ComputeEngineContainer computeEngineContainer = mock(ComputeEngineContainer.class);
+    when(containerFactory.create(componentContainer, item)).thenReturn(computeEngineContainer);
 
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L).setProjectKey("P1");
-    ReportQueue.Item item = new ReportQueue.Item(report, temp.newFile());
-    when(queue.pop()).thenReturn(item);
+    ReportProcessor reportProcessor = mock(ReportProcessor.class);
+    when(computeEngineContainer.getComponentByType(ReportProcessor.class)).thenReturn(reportProcessor);
+
     doThrow(new IllegalStateException("pb")).when(queue).remove(item);
 
     underTest.run();
 
-    assertThat(logTester.logs()).contains("Failed to remove analysis report 1 from queue");
+    assertThat(logTester.logs()).contains("Failed to remove analysis report " + ANALYSIS_REPORT_DTO_ID + " from queue");
   }
 }

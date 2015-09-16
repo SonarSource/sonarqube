@@ -23,6 +23,8 @@ package org.sonar.server.computation;
 import java.util.concurrent.TimeUnit;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.container.ContainerFactory;
 import org.sonar.server.computation.container.ContainerFactoryImpl;
@@ -31,6 +33,7 @@ import org.sonar.server.computation.container.ContainerFactoryImpl;
  * Adds tasks to the Compute Engine to process batch reports.
  */
 public class ReportProcessingScheduler implements ServerStartHandler {
+  private static final Logger LOG = Loggers.get(ReportProcessingScheduler.class);
 
   private final ReportProcessingSchedulerExecutorService reportProcessingSchedulerExecutorService;
   private final ComputeEngineProcessingQueue processingQueue;
@@ -68,7 +71,14 @@ public class ReportProcessingScheduler implements ServerStartHandler {
   private class AddReportProcessingToCEProcessingQueue implements Runnable {
     @Override
     public void run() {
-      processingQueue.addTask(new ReportProcessingTask(queue, sqContainer, containerFactory));
+      try {
+        ReportQueue.Item item = queue.pop();
+        if (item != null) {
+          processingQueue.addTask(new ReportProcessingTask(queue, item, sqContainer, containerFactory));
+        }
+      } catch (Exception e) {
+        LOG.error("Failed to pop the queue of analysis reports", e);
+      }
     }
   }
 }

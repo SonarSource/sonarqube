@@ -35,11 +35,13 @@ public class ReportProcessingTask implements ComputeEngineTask {
   private static final Logger LOG = Loggers.get(ReportProcessingTask.class);
 
   private final ReportQueue queue;
+  private final ReportQueue.Item item;
   private final ComponentContainer sqContainer;
   private final ContainerFactory containerFactory;
 
-  public ReportProcessingTask(ReportQueue queue, ComponentContainer sqContainer, ContainerFactory containerFactory) {
+  public ReportProcessingTask(ReportQueue queue, ReportQueue.Item item, ComponentContainer sqContainer, ContainerFactory containerFactory) {
     this.queue = queue;
+    this.item = item;
     this.sqContainer = sqContainer;
     this.containerFactory = containerFactory;
   }
@@ -47,15 +49,6 @@ public class ReportProcessingTask implements ComputeEngineTask {
   @Override
   public void run() {
     Profiler profiler = Profiler.create(LOG).start();
-    ReportQueue.Item item = null;
-    try {
-      item = queue.pop();
-    } catch (Exception e) {
-      LOG.error("Failed to pop the queue of analysis reports", e);
-    }
-    if (item == null) {
-      return;
-    }
 
     ComputeEngineContainer computeEngineContainer = containerFactory.create(sqContainer, item);
     try {
