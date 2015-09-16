@@ -91,13 +91,6 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void modulesRepeatedIds() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Two modules have the same id: module1");
-    loadProjectDefinition("multi-module-repeated-id");
-  }
-
-  @Test
   public void shouldDefineMultiModuleProjectWithDefinitionsAllInRootProject() throws IOException {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-all-in-root");
 
@@ -662,6 +655,42 @@ public class ProjectReactorBuilderTest {
       .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
     assertThat(module1Feature.getWorkDir().getCanonicalFile())
       .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_com.foo.project.module1.feature"));
+  }
+
+  @Test
+  public void subModuleMayHaveTheSameNameAsParent() throws IOException {
+    ProjectDefinition rootProject = loadProjectDefinition("multi-module-same-name-as-parent");
+
+    List<ProjectDefinition> modules = rootProject.getSubProjects();
+    assertThat(modules.size()).isEqualTo(1);
+
+    ProjectDefinition module1 = modules.get(0);
+    assertThat(module1.getKey()).isEqualTo("com.foo.project:module1");
+    assertThat(module1.getSubProjects().size()).isEqualTo(1);
+    ProjectDefinition module1Module1 = module1.getSubProjects().get(0);
+    assertThat(module1Module1.getKey()).isEqualTo("com.foo.project:module1:module1");
+  }
+
+  @Test
+  public void subModulesMayHaveTheSameName() throws IOException {
+    ProjectDefinition rootProject = loadProjectDefinition("multi-module-same-name");
+
+    List<ProjectDefinition> modules = rootProject.getSubProjects();
+    assertThat(modules.size()).isEqualTo(2);
+
+    // Module 1
+    ProjectDefinition module1 = modules.get(0);
+    assertThat(module1.getKey()).isEqualTo("com.foo.project:module1");
+    assertThat(module1.getSubProjects().size()).isEqualTo(1);
+    ProjectDefinition module1Sub = module1.getSubProjects().get(0);
+    assertThat(module1Sub.getKey()).isEqualTo("com.foo.project:module1:sub");
+
+    // Module 2
+    ProjectDefinition module2 = modules.get(1);
+    assertThat(module2.getKey()).isEqualTo("com.foo.project:module2");
+    assertThat(module2.getSubProjects().size()).isEqualTo(1);
+    ProjectDefinition module2Sub = module2.getSubProjects().get(0);
+    assertThat(module2Sub.getKey()).isEqualTo("com.foo.project:module2:sub");
   }
 
   private Map<String, String> loadPropsFromFile(String filePath) throws IOException {

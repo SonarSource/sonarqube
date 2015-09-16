@@ -23,6 +23,7 @@ import org.sonar.api.batch.AnalysisMode;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.batch.analysis.AnalysisProperties;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
@@ -33,11 +34,10 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.annotation.CheckForNull;
@@ -123,49 +123,47 @@ public class ProjectReactorBuilder {
 
   public ProjectReactor execute() {
     Profiler profiler = Profiler.create(LOG).startInfo("Process project properties");
-    Map<String, Map<String, String>> propertiesByModuleId = new HashMap<>();
-    extractPropertiesByModule(propertiesByModuleId, "", taskProps.properties());
+    Map<String, Map<String, String>> propertiesByModuleId = extractPropertiesByModule("", taskProps.properties());
     ProjectDefinition rootProject = defineRootProject(propertiesByModuleId.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
-    defineChildren(rootProject, propertiesByModuleId);
+    defineChildren(rootProject, "", propertiesByModuleId);
     cleanAndCheckProjectDefinitions(rootProject);
     // Since task properties are now empty we should add root module properties
-    taskProps.properties().putAll(propertiesByModuleId.get(""));
+    for (Map.Entry<String, String> entry : propertiesByModuleId.get("").entrySet()) {
+      taskProps.properties().put((String) entry.getKey(), (String) entry.getValue());
+    }
     profiler.stopDebug();
     return new ProjectReactor(rootProject);
   }
 
-  private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleId, String currentModuleId, Map<String, String> parentProperties) {
-    if (propertiesByModuleId.containsKey(currentModuleId)) {
-      throw new IllegalStateException(String.format("Two modules have the same id: %s. Each module must have a unique id.", currentModuleId));
-    }
-
+  private static Map<String, Map<String, String>> extractPropertiesByModule(String currentModuleId, Map<String, String> parentProperties) {
+    Map<String, String> allProperties = new HashMap<>();
+    allProperties.putAll(parentProperties);
     Map<String, String> currentModuleProperties = new HashMap<>();
-    String prefix = !currentModuleId.isEmpty() ? (currentModuleId + ".") : "";
-    int prefixLength = prefix.length();
-
+    String prefix = !currentModuleId.isEmpty() ? currentModuleId + "." : "";
     // By default all properties starting with module prefix belong to current module
-    Iterator<Entry<String, String>> it = parentProperties.entrySet().iterator();
-    while (it.hasNext()) {
-      Map.Entry<String, String> e = it.next();
-      String key = e.getKey();
+    for (Map.Entry<String, String> entry : allProperties.entrySet()) {
+      String key = (String) entry.getKey();
+      int prefixLength = prefix.length();
       if (key.startsWith(prefix)) {
-        currentModuleProperties.put(key.substring(prefixLength), e.getValue());
-        it.remove();
+        currentModuleProperties.put(key.substring(prefixLength), entry.getValue());
+        parentProperties.remove(key);
       }
     }
-    String[] moduleIds = getListFromProperty(currentModuleProperties, PROPERTY_MODULES);
+    List<String> moduleIds = new ArrayList<>(Arrays.asList(getListFromProperty(currentModuleProperties, PROPERTY_MODULES)));
     // Sort module by reverse lexicographic order to avoid issue when one module id is a prefix of another one
-    Arrays.sort(moduleIds);
-    ArrayUtils.reverse(moduleIds);
-
-    propertiesByModuleId.put(currentModuleId, currentModuleProperties);
-
+    Collections.sort(moduleIds);
+    Collections.reverse(moduleIds);
+    Map<String, Map<String, String>> result = new HashMap<>();
     for (String moduleId : moduleIds) {
-      extractPropertiesByModule(propertiesByModuleId, moduleId, currentModuleProperties);
+      for (Map.Entry<String, Map<String, String>> subModuleProps : extractPropertiesByModule(moduleId, currentModuleProperties).entrySet()) {
+        result.put(prefix + subModuleProps.getKey(), subModuleProps.getValue());
+      }
     }
+    result.put(currentModuleId, currentModuleProperties);
+    return result;
   }
-  
+
   private static void prepareNonAssociatedProject(Map<String, String> props, AnalysisMode mode) {
     if(mode.isIssues() && !props.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
       props.put(CoreProperties.PROJECT_KEY_PROPERTY, NON_ASSOCIATED_PROJECT_KEY);
@@ -238,16 +236,17 @@ public class ProjectReactorBuilder {
     return new File(moduleBaseDir, customBuildDir.getPath());
   }
 
-  private void defineChildren(ProjectDefinition parentProject, Map<String, Map<String, String>> propertiesByModuleId) {
+  private void defineChildren(ProjectDefinition parentProject, String parentProjectModuleId, Map<String, Map<String, String>> propertiesByModuleId) {
+    String prefix = !parentProjectModuleId.isEmpty() ? parentProjectModuleId + "." : "";
     Map<String, String> parentProps = parentProject.properties();
     if (parentProps.containsKey(PROPERTY_MODULES)) {
       for (String moduleId : getListFromProperty(parentProps, PROPERTY_MODULES)) {
-        Map<String, String> moduleProps = propertiesByModuleId.get(moduleId);
+        Map<String, String> moduleProps = propertiesByModuleId.get(prefix + moduleId);
         ProjectDefinition childProject = loadChildProject(parentProject, moduleProps, moduleId);
         // check the uniqueness of the child key
         checkUniquenessOfChildKey(childProject, parentProject);
         // the child project may have children as well
-        defineChildren(childProject, propertiesByModuleId);
+        defineChildren(childProject, prefix + moduleId, propertiesByModuleId);
         // and finally add this child project to its parent
         parentProject.addSubProject(childProject);
       }
