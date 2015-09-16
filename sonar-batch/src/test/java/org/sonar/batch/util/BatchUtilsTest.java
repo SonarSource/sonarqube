@@ -32,4 +32,20 @@ public class BatchUtilsTest {
     assertThat(BatchUtils.encodeForUrl("foo")).isEqualTo("foo");
     assertThat(BatchUtils.encodeForUrl("foo&bar")).isEqualTo("foo%26bar");
   }
+
+  @Test
+  
+  public void testDescribe() {
+    Object withToString = new Object() {
+      @Override
+      public String toString() {
+        return "desc";
+      }
+    };
+
+    Object withoutToString = new Object();
+
+    assertThat(BatchUtils.describe(withToString)).isEqualTo(("desc"));
+    assertThat(BatchUtils.describe(withoutToString)).isEqualTo("java.lang.Object");
+  }
 }

@@ -22,7 +22,6 @@ package org.sonar.batch.util;
 import com.google.common.base.Strings;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
@@ -47,5 +46,17 @@ public class BatchUtils {
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException("Encoding not supported", e);
     }
+  }
+
+  public static String describe(Object o) {
+    try {
+      if (o.getClass().getMethod("toString").getDeclaringClass() != Object.class) {
+        return o.toString();
+      }
+    } catch (Exception e) {
+      // fallback
+    }
+
+    return o.getClass().getName();
   }
 }
