@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_DEFAULT;
+import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_DEFAULTS;
 import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROFILE_NAME;
 import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROJECT_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -194,7 +194,7 @@ public class SearchActionTest {
     commit();
 
     String result = ws.newRequest()
-      .setParam(PARAM_DEFAULT, Boolean.TRUE.toString())
+      .setParam(PARAM_DEFAULTS, Boolean.TRUE.toString())
       .execute().getInput();
 
     assertThat(result)

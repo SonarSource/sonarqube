@@ -41,7 +41,7 @@ import org.sonar.server.qualityprofile.QProfileLookup;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_DEFAULT;
+import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_DEFAULTS;
 import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_LANGUAGE;
 import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROFILE_NAME;
 import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROJECT_KEY;
@@ -190,7 +190,7 @@ public class SearchDataLoader {
   }
 
   private static Boolean askDefaultProfiles(Request request) {
-    return request.paramAsBoolean(PARAM_DEFAULT);
+    return request.paramAsBoolean(PARAM_DEFAULTS);
   }
 
   private static boolean hasLanguage(Request request) {

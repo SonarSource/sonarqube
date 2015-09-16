@@ -37,6 +37,7 @@ import org.sonarqube.ws.QualityProfiles.WsSearchResponse;
 import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 
 import static com.google.common.collect.Maps.uniqueIndex;
+import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchAction implements QProfileWsAction {
@@ -59,7 +60,7 @@ public class SearchAction implements QProfileWsAction {
 
   static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
   static final String PARAM_PROJECT_KEY = "projectKey";
-  static final String PARAM_DEFAULT = "defaults";
+  static final String PARAM_DEFAULTS = "defaults";
   static final String PARAM_PROFILE_NAME = "profileName";
 
   private final SearchDataLoader dataLoader;
@@ -82,21 +83,23 @@ public class SearchAction implements QProfileWsAction {
     action
       .createParam(PARAM_LANGUAGE)
       .setDescription(
-        "The key of a language supported by the platform. If specified, only profiles for the given language are returned. " +
-          "It should not be used with project key, profile name or default at the same time.")
+        format("Language key. If provided, only profiles for the given language are returned. " +
+          "It should not be used with '%s', '%s or '%s' at the same time.", PARAM_DEFAULTS, PARAM_PROJECT_KEY, PARAM_PROFILE_NAME))
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("Project or module key. If provided, language key and default parameters should not be provided.")
-      .setExampleValue("org.codehaus.sonar:sonar");
+      .setExampleValue("my-project-key");
 
-    action.createParam(PARAM_DEFAULT)
-      .setDescription("Return default quality profiles. If provided, the language, project key and profile name should not be provided")
+    action
+      .createParam(PARAM_DEFAULTS)
+      .setDescription(format("Return the quality profiles marked as default. If provided, then the parameters '%s', '%s' and '%s' must not be set.",
+        PARAM_LANGUAGE, PARAM_PROJECT_KEY, PARAM_PROFILE_NAME))
       .setDefaultValue(false)
       .setBooleanPossibleValues();
 
     action.createParam(PARAM_PROFILE_NAME)
-      .setDescription("Profile name. It should be always used with the project key parameter.")
+      .setDescription(format("Profile name. It should be always used with the '%s' parameter.", PARAM_PROJECT_KEY))
       .setExampleValue("SonarQube Way");
   }
 
