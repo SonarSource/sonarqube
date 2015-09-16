@@ -73,7 +73,8 @@ public class SearchAction implements QProfileWsAction {
 
     action
       .createParam(PARAM_DEFAULTS)
-      .setDescription(format("Return the quality profiles marked as default. If provided, then the parameters '%s', '%s' and '%s' must not be set.",
+      .setDescription(format("Return the quality profile marked as default for each language. " +
+        "If provided, then the parameters '%s', '%s' and '%s' must not be set.",
         PARAM_LANGUAGE, PARAM_PROJECT_KEY, PARAM_PROFILE_NAME))
       .setDefaultValue(false)
       .setBooleanPossibleValues();
