@@ -2,93 +2,103 @@
 
 {{#if canSeeCode}}
 
-  {{#if hasSourceBefore}}
-    <i class="spinner js-component-viewer-source-before"></i>
-  {{/if}}
+  {{#if exist}}
 
-  <table class="source-table">
-    {{#each source}}
-      <tr class="source-line {{#eq line 0}}{{#empty issues}}hidden{{/empty}}{{/eq}}" {{#if line}}data-line-number="{{line}}"{{/if}}>
-        <td class="source-meta source-line-number" {{#if line}}data-line-number="{{line}}"{{/if}}></td>
+    {{#if hasSourceBefore}}
+      <i class="spinner js-component-viewer-source-before"></i>
+    {{/if}}
 
-        <td class="source-meta source-line-scm" {{#if line}}data-line-number="{{line}}"{{/if}}>
-          {{#ifSCMChanged2 ../source line}}
-            <div class="source-line-scm-inner" data-author="{{scmAuthor}}"></div>
-          {{/ifSCMChanged2}}
-        </td>
+    <table class="source-table">
+      {{#each source}}
+        <tr class="source-line {{#eq line 0}}{{#empty issues}}hidden{{/empty}}{{/eq}}" {{#if line}}data-line-number="{{line}}"{{/if}}>
+          <td class="source-meta source-line-number" {{#if line}}data-line-number="{{line}}"{{/if}}></td>
 
-        {{#if ../hasUTCoverage}}
-          <td class="source-meta source-line-coverage {{#notNull utCoverageStatus}}source-line-{{utCoverageStatus}}{{/notNull}}"
-              data-tests="ut"
-              data-line-number="{{line}}" {{#notNull utCoverageStatus}}title="{{t 'source_viewer.tooltip.ut' utCoverageStatus}}" data-placement="right" data-toggle="tooltip"{{/notNull}}>
-            <div class="source-line-bar"></div>
-          </td>
-        {{/if}}
-
-        {{#if ../hasITCoverage}}
-          <td class="source-meta source-line-coverage {{#notNull itCoverageStatus}}source-line-{{itCoverageStatus}}{{/notNull}}"
-              data-tests="it"
-              data-line-number="{{line}}" {{#notNull itCoverageStatus}}title="{{t 'source_viewer.tooltip.it' itCoverageStatus}}" data-placement="right" data-toggle="tooltip"{{/notNull}}>
-            <div class="source-line-bar"></div>
-          </td>
-        {{/if}}
-
-        {{#if ../hasDuplications}}
-          <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}"
-            {{#if duplicated}}title="{{t 'source_viewer.tooltip.duplicated_line'}}" data-placement="right" data-toggle="tooltip"{{/if}}>
-            <div class="source-line-bar"></div>
+          <td class="source-meta source-line-scm" {{#if line}}data-line-number="{{line}}"{{/if}}>
+            {{#ifSCMChanged2 ../source line}}
+              <div class="source-line-scm-inner" data-author="{{scmAuthor}}"></div>
+            {{/ifSCMChanged2}}
           </td>
 
-          {{#each duplications}}
-            <td class="source-meta source-line-duplications-extra {{#if this}}source-line-duplicated{{/if}}"
-                data-index="{{this}}" data-line-number="{{../line}}"
-              {{#if this}}title="{{t 'source_viewer.tooltip.duplicated_block'}}" data-placement="right" data-toggle="tooltip"{{/if}}>
+          {{#if ../hasUTCoverage}}
+            <td class="source-meta source-line-coverage {{#notNull utCoverageStatus}}source-line-{{utCoverageStatus}}{{/notNull}}"
+                data-tests="ut"
+                data-line-number="{{line}}" {{#notNull utCoverageStatus}}title="{{t 'source_viewer.tooltip.ut' utCoverageStatus}}" data-placement="right" data-toggle="tooltip"{{/notNull}}>
               <div class="source-line-bar"></div>
             </td>
-          {{/each}}
-        {{/if}}
+          {{/if}}
 
-        <td class="source-meta source-line-issues {{#notEmpty issues}}source-line-with-issues{{/notEmpty}}"
-            data-line-number="{{line}}">
-          {{#withFirst issues}}
-            {{severityIcon severity}}
-          {{/withFirst}}
-          {{#ifLengthGT issues 1}}
-            <span class="source-line-issues-counter">{{length issues}}</span>
-          {{/ifLengthGT}}
-        </td>
+          {{#if ../hasITCoverage}}
+            <td class="source-meta source-line-coverage {{#notNull itCoverageStatus}}source-line-{{itCoverageStatus}}{{/notNull}}"
+                data-tests="it"
+                data-line-number="{{line}}" {{#notNull itCoverageStatus}}title="{{t 'source_viewer.tooltip.it' itCoverageStatus}}" data-placement="right" data-toggle="tooltip"{{/notNull}}>
+              <div class="source-line-bar"></div>
+            </td>
+          {{/if}}
 
-        <td class="source-meta source-line-filtered-container" data-line-number="{{line}}">
-          <div class="source-line-bar"></div>
-        </td>
+          {{#if ../hasDuplications}}
+            <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}"
+              {{#if duplicated}}title="{{t 'source_viewer.tooltip.duplicated_line'}}" data-placement="right" data-toggle="tooltip"{{/if}}>
+              <div class="source-line-bar"></div>
+            </td>
 
-        <td class="source-line-code code {{#notEmpty issues}}has-issues{{/notEmpty}}" data-line-number="{{line}}">
-          <div class="source-line-code-inner">
-            {{#notNull code}}
-              <pre>{{{codeWithIssueLocations code issueLocations}}}</pre>
-            {{/notNull}}
+            {{#each duplications}}
+              <td class="source-meta source-line-duplications-extra {{#if this}}source-line-duplicated{{/if}}"
+                  data-index="{{this}}" data-line-number="{{../line}}"
+                {{#if this}}title="{{t 'source_viewer.tooltip.duplicated_block'}}" data-placement="right" data-toggle="tooltip"{{/if}}>
+                <div class="source-line-bar"></div>
+              </td>
+            {{/each}}
+          {{/if}}
 
-            <div class="source-line-issue-locations"></div>
-          </div>
+          <td class="source-meta source-line-issues {{#notEmpty issues}}source-line-with-issues{{/notEmpty}}"
+              data-line-number="{{line}}">
+            {{#withFirst issues}}
+              {{severityIcon severity}}
+            {{/withFirst}}
+            {{#ifLengthGT issues 1}}
+              <span class="source-line-issues-counter">{{length issues}}</span>
+            {{/ifLengthGT}}
+          </td>
 
-          {{#notEmpty issues}}
-            <div class="issue-list">
-              {{#each issues}}
-                <div class="issue" id="issue-{{key}}"></div>
-              {{/each}}
+          <td class="source-meta source-line-filtered-container" data-line-number="{{line}}">
+            <div class="source-line-bar"></div>
+          </td>
+
+          <td class="source-line-code code {{#notEmpty issues}}has-issues{{/notEmpty}}" data-line-number="{{line}}">
+            <div class="source-line-code-inner">
+              {{#notNull code}}
+                <pre>{{{codeWithIssueLocations code issueLocations}}}</pre>
+              {{/notNull}}
+
+              <div class="source-line-issue-locations"></div>
             </div>
-          {{/notEmpty}}
-        </td>
-      </tr>
-    {{/each}}
-  </table>
 
-  {{#if hasSourceAfter}}
-    <i class="spinner js-component-viewer-source-after"></i>
+            {{#notEmpty issues}}
+              <div class="issue-list">
+                {{#each issues}}
+                  <div class="issue" id="issue-{{key}}"></div>
+                {{/each}}
+              </div>
+            {{/notEmpty}}
+          </td>
+        </tr>
+      {{/each}}
+    </table>
+
+    {{#if hasSourceAfter}}
+      <i class="spinner js-component-viewer-source-after"></i>
+    {{/if}}
+
+  {{else}}
+
+    {{! does not exist }}
+    <div class="alert alert-warning spacer-top">{{t 'component_viewer.no_component'}}</div>
+
   {{/if}}
 
 {{else}}
 
-  <div class="alert alert-warning">{{t 'code_viewer.no_source_code_displayed_due_to_security'}}</div>
+  {{! can't see code }}
+  <div class="alert alert-warning spacer-top">{{t 'code_viewer.no_source_code_displayed_due_to_security'}}</div>
 
 {{/if}}

@@ -24,6 +24,8 @@ define(function () {
 
     defaults: function () {
       return {
+        exist: true,
+
         hasSource: false,
         hasCoverage: false,
         hasITCoverage: false,

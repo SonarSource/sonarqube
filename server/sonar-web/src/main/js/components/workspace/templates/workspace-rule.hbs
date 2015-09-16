@@ -2,64 +2,73 @@
 
 <div class="workspace-viewer-container">
 
-  <ul class="coding-rules-detail-properties">
-    {{#if severity}}
-      {{#unless isManual}}
-        <li class="coding-rules-detail-property"
-            data-toggle="tooltip" data-placement="bottom" title="Default rule severity">
-          {{severityIcon severity}}&nbsp;{{t "severity" severity}}
-        </li>
-      {{/unless}}
-    {{/if}}
+  {{#if exist}}
 
-    {{#notEq status 'READY'}}
-      <li class="coding-rules-detail-property"
-          data-toggle="tooltip" data-placement="bottom" title="Rule status">{{status}}</li>
-    {{/notEq}}
-
-    <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}"
-        data-toggle="tooltip" data-placement="bottom" title="Rule tags">
-      <i class="icon-tags"></i>
-      <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
-    </li>
-
-    <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
-
-    <li class="pull-right spacer-left">
-      <a class="icon-link" target="_blank" href="{{rulePermalink key}}"></a>
-    </li>
-
-    <li class="pull-right">
-      <span class="note">{{key}}</span>
-    </li>
-  </ul>
-
-  {{#if debtCharName}}
     <ul class="coding-rules-detail-properties">
-      <li class="coding-rules-detail-property"
-          data-toggle="tooltip" data-placement="bottom" title="Rule characteristic">
-        {{debtCharName}}{{#if debtSubCharName}} > {{debtSubCharName}}{{/if}}
+      {{#if severity}}
+        {{#unless isManual}}
+          <li class="coding-rules-detail-property"
+              data-toggle="tooltip" data-placement="bottom" title="Default rule severity">
+            {{severityIcon severity}}&nbsp;{{t "severity" severity}}
+          </li>
+        {{/unless}}
+      {{/if}}
+
+      {{#notEq status 'READY'}}
+        <li class="coding-rules-detail-property"
+            data-toggle="tooltip" data-placement="bottom" title="Rule status">{{status}}</li>
+      {{/notEq}}
+
+      <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}"
+          data-toggle="tooltip" data-placement="bottom" title="Rule tags">
+        <i class="icon-tags"></i>
+        <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
       </li>
 
-      {{#if debtRemFnType}}
-        <li class="coding-rules-detail-property"
-            data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function'}}">
-          {{t 'coding_rules.remediation_function' debtRemFnType}}:
+      <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
 
-          {{#if debtRemFnOffset}}{{debtRemFnOffset}}{{/if}}
-          {{#if debtRemFnCoeff}}{{#if debtRemFnOffset}}+{{/if}}{{debtRemFnCoeff}}{{/if}}
-          {{#if effortToFixDescription}}{{effortToFixDescription}}{{/if}}
-        </li>
-      {{/if}}
+      <li class="pull-right spacer-left">
+        <a class="icon-link" target="_blank" href="{{rulePermalink key}}"></a>
+      </li>
+
+      <li class="pull-right">
+        <span class="note">{{key}}</span>
+      </li>
     </ul>
-  {{/if}}
 
-  <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
+    {{#if debtCharName}}
+      <ul class="coding-rules-detail-properties">
+        <li class="coding-rules-detail-property"
+            data-toggle="tooltip" data-placement="bottom" title="Rule characteristic">
+          {{debtCharName}}{{#if debtSubCharName}} > {{debtSubCharName}}{{/if}}
+        </li>
 
-  {{#if htmlNote}}
-    <div id="coding-rules-detail-description-extra">
-      <div class="rule-desc markdown">{{{htmlNote}}}</div>
-    </div>
+        {{#if debtRemFnType}}
+          <li class="coding-rules-detail-property"
+              data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function'}}">
+            {{t 'coding_rules.remediation_function' debtRemFnType}}:
+
+            {{#if debtRemFnOffset}}{{debtRemFnOffset}}{{/if}}
+            {{#if debtRemFnCoeff}}{{#if debtRemFnOffset}}+{{/if}}{{debtRemFnCoeff}}{{/if}}
+            {{#if effortToFixDescription}}{{effortToFixDescription}}{{/if}}
+          </li>
+        {{/if}}
+      </ul>
+    {{/if}}
+
+    <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
+
+    {{#if htmlNote}}
+      <div id="coding-rules-detail-description-extra">
+        <div class="rule-desc markdown">{{{htmlNote}}}</div>
+      </div>
+    {{/if}}
+
+  {{else}}
+
+  {{! does not exist}}
+    <div class="alert alert-warning">{{t 'workspace.no_rule'}}</div>
+
   {{/if}}
 
 </div>

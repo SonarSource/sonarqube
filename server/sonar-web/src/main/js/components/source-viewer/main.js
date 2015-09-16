@@ -158,8 +158,19 @@ define([
         requestComponent: function () {
           var that = this,
               url = baseUrl + '/api/components/app',
-              options = { uuid: this.model.id };
-          return $.get(url, options).done(function (data) {
+              data = { uuid: this.model.id };
+          return $.ajax({
+            type: 'GET',
+            url: url,
+            data: data,
+            statusCode: {
+              404: function () {
+                that.model.set({ exist: false });
+                that.render();
+                that.trigger('loaded');
+              }
+            }
+          }).done(function (data) {
             that.model.set(data);
             that.model.set({ isUnitTest: data.q === 'UTS' });
           });

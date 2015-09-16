@@ -119,9 +119,14 @@ define([
 
     showRule: function (model) {
       var that = this;
-      this.fetchRule(model).done(function () {
-        that.showViewer(RuleView, model);
-      });
+      this.fetchRule(model)
+          .done(function () {
+            model.set({ exist: true });
+            that.showViewer(RuleView, model);
+          }).fail(function () {
+            model.set({ exist: false });
+            that.showViewer(RuleView, model);
+          });
     },
 
     fetchRule: function (model) {
