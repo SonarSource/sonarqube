@@ -31,7 +31,8 @@ define([
     childViewOptions: function () {
       return {
         app: this.options.app,
-        rule: this.model
+        rule: this.model,
+        refreshActives: this.refreshActives.bind(this)
       };
     },
 
@@ -76,9 +77,16 @@ define([
           };
           that.model.set({ activation: activation });
         }
-        that.options.app.controller.showDetails(that.model);
+        that.refreshActives();
       });
       activationView.render();
+    },
+
+    refreshActives: function () {
+      var that = this;
+      this.options.app.controller.getRuleDetails(this.model).done(function (data) {
+        that.collection.reset(that.model.getInactiveProfiles(data.actives, that.options.app.qualityProfiles));
+      });
     },
 
     serializeData: function () {

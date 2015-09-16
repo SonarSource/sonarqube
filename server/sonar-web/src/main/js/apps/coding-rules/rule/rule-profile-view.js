@@ -57,7 +57,7 @@ define([
             app: this.options.app
           });
       activationView.on('profileActivated', function () {
-        that.options.app.controller.showDetails(that.options.rule);
+        that.options.refreshActives();
       });
       activationView.render();
     },
@@ -78,7 +78,7 @@ define([
               reset: true
             }
           }).done(function () {
-            that.options.app.controller.showDetails(that.options.rule);
+            that.options.refreshActives();
           });
         }
       });
@@ -99,7 +99,7 @@ define([
               rule_key: ruleKey
             }
           }).done(function () {
-            that.options.app.controller.showDetails(that.options.rule);
+            that.options.refreshActives();
           });
         }
       });

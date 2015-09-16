@@ -32,6 +32,16 @@ define(function () {
         isManual: isManual,
         isCustom: isCustom
       }, { silent: true });
+    },
+
+    getInactiveProfiles: function (actives, profiles) {
+      return actives.map(function (profile) {
+        var profileBase = _.findWhere(profiles, { key: profile.qProfile });
+        if (profileBase != null) {
+          _.extend(profile, profileBase);
+        }
+        return profile;
+      });
     }
   });
 

@@ -116,14 +116,7 @@ define([
         },
 
         getQualityProfiles: function () {
-          var that = this;
-          return this.options.actives.map(function (profile) {
-            var profileBase = _.findWhere(that.options.app.qualityProfiles, { key: profile.qProfile });
-            if (profileBase != null) {
-              _.extend(profile, profileBase);
-            }
-            return profile;
-          });
+          return this.model.getInactiveProfiles(this.options.actives, this.options.app.qualityProfiles);
         },
 
         bindShortcuts: function () {
