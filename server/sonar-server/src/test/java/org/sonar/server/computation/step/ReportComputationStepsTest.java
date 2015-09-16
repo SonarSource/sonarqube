@@ -28,6 +28,8 @@ import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ComputeEngineContainerImpl;
 
+import static org.mockito.Mockito.mock;
+
 public class ReportComputationStepsTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -38,6 +40,27 @@ public class ReportComputationStepsTest {
     expectedException.expectMessage("Component not found: class org.sonar.server.computation.step.ReportExtractionStep");
 
     ComputeEngineContainerImpl computeEngineContainer = new ComputeEngineContainerImpl(new ComponentContainer(), new ContainerPopulator<ComputeEngineContainer>() {
+      @Override
+      public void populateContainer(ComputeEngineContainer container) {
+        // do nothing
+      }
+    });
+
+    Lists.newArrayList(new ReportComputationSteps(computeEngineContainer).instances());
+  }
+
+  @Test
+  public void instances_throws_ISE_if_container_does_not_have_second_step() throws Exception {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Component not found: class org.sonar.server.computation.step.BuildComponentTreeStep");
+
+    final ReportExtractionStep reportExtractionStep = mock(ReportExtractionStep.class);
+    ComponentContainer componentContainer = new ComponentContainer() {
+      {
+        addSingleton(reportExtractionStep);
+      }
+    };
+    ComputeEngineContainerImpl computeEngineContainer = new ComputeEngineContainerImpl(componentContainer, new ContainerPopulator<ComputeEngineContainer>() {
       @Override
       public void populateContainer(ComputeEngineContainer container) {
         // do nothing

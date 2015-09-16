@@ -47,6 +47,7 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
@@ -94,7 +95,7 @@ public class ReportSqaleMeasuresVisitorTest {
 
   @Test
   public void measures_created_for_project_are_all_zero_when_they_have_no_FILE_child() {
-    ReportComponent root = ReportComponent.builder(PROJECT, 1).build();
+    ReportComponent root = builder(PROJECT, 1).build();
     treeRootHolder.setRoot(root);
 
     underTest.visit(root);
@@ -141,29 +142,30 @@ public class ReportSqaleMeasuresVisitorTest {
 
   @Test
   public void verify_aggregation_of_developmentCost_and_value_of_measures_computed_from_that() {
-    ReportComponent root = ReportComponent.builder(PROJECT, 1)
+    ReportComponent root = builder(PROJECT, 1)
       .addChildren(
-        ReportComponent.builder(MODULE, 11)
+        builder(MODULE, 11)
           .addChildren(
-            ReportComponent.builder(DIRECTORY, 111)
+            builder(DIRECTORY, 111)
               .addChildren(
                 createFileComponent(LANGUAGE_KEY_1, 1111),
-                createFileComponent(LANGUAGE_KEY_2, 1112))
+                createFileComponent(LANGUAGE_KEY_2, 1112),
+                builder(FILE, 1113).setFileAttributes(new FileAttributes(true, LANGUAGE_KEY_1)).build())
               .build(),
-            ReportComponent.builder(DIRECTORY, 112)
+            builder(DIRECTORY, 112)
               .addChildren(
                 createFileComponent(LANGUAGE_KEY_2, 1121))
               .build())
           .build(),
-        ReportComponent.builder(MODULE, 12)
+        builder(MODULE, 12)
           .addChildren(
-            ReportComponent.builder(DIRECTORY, 121)
+            builder(DIRECTORY, 121)
               .addChildren(
                 createFileComponent(LANGUAGE_KEY_1, 1211))
               .build(),
-            ReportComponent.builder(DIRECTORY, 122).build())
+            builder(DIRECTORY, 122).build())
           .build(),
-        ReportComponent.builder(MODULE, 13).build())
+        builder(MODULE, 13).build())
       .build();
 
     treeRootHolder.setRoot(root);
@@ -205,6 +207,7 @@ public class ReportSqaleMeasuresVisitorTest {
     // verify measures on files
     verifyFileMeasures(1111, measureValue1111, debt1111, DEV_COST_LANGUAGE_1, C);
     verifyFileMeasures(1112, measureValue1112, debt1112, DEV_COST_LANGUAGE_2, A);
+    verifyNoAddedRawMeasure(1113);
     verifyFileMeasures(1121, measureValue1121, debt1121, DEV_COST_LANGUAGE_2, A);
     verifyFileMeasures(1211, measureValue1211, debt1211, DEV_COST_LANGUAGE_1, C);
     // directory has no children => no file => 0 everywhere and A rating
@@ -229,7 +232,7 @@ public class ReportSqaleMeasuresVisitorTest {
   }
 
   private ReportComponent createFileComponent(String languageKey1, int fileRef) {
-    return ReportComponent.builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, languageKey1)).build();
+    return builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, languageKey1)).build();
   }
 
   private void addRawMeasure(String metricKey, int componentRef, long value) {
@@ -246,6 +249,10 @@ public class ReportSqaleMeasuresVisitorTest {
       entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(Long.toString(expectedDevCost))),
       entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(expectedDebtRatio * 100.0)),
       entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(expectedRating)));
+  }
+
+  private void verifyNoAddedRawMeasure(int componentRef) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).isEmpty();
   }
 
 }
