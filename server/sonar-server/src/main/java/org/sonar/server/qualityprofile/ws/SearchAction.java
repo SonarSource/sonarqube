@@ -59,7 +59,7 @@ public class SearchAction implements QProfileWsAction {
 
   static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
   static final String PARAM_PROJECT_KEY = "projectKey";
-  static final String PARAM_DEFAULT = "default";
+  static final String PARAM_DEFAULT = "defaults";
   static final String PARAM_PROFILE_NAME = "profileName";
 
   private final SearchDataLoader dataLoader;
