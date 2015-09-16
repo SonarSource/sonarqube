@@ -2088,7 +2088,7 @@ public final class CoreMetrics {
   /**
    * @since 4.5
    */
-  public static final Metric<Double> SQALE_DEBT_RATIO = new Metric.Builder(SQALE_DEBT_RATIO_KEY, "SQALE Technical Debt Ratio", Metric.ValueType.PERCENT)
+  public static final Metric<Double> SQALE_DEBT_RATIO = new Metric.Builder(SQALE_DEBT_RATIO_KEY, "Technical Debt Ratio", Metric.ValueType.PERCENT)
     .setDescription("Ratio of the technical debt compared to what it would cost to develop the whole source code from scratch.")
     .setDomain(DOMAIN_TECHNICAL_DEBT)
     .setDirection(Metric.DIRECTION_WORST)
