@@ -37,7 +37,7 @@ public class BatchUtils {
     String cleanKey = StringUtils.deleteWhitespace(projectKey);
     return StringUtils.replace(cleanKey, ":", "_");
   }
-  
+
   public static String encodeForUrl(String url) {
     try {
       return URLEncoder.encode(url, "UTF-8");
@@ -45,5 +45,17 @@ public class BatchUtils {
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException("Encoding not supported", e);
     }
+  }
+
+  public static String describe(Object o) {
+    try {
+      if (o.getClass().getMethod("toString").getDeclaringClass() != Object.class) {
+        return o.toString();
+      }
+    } catch (Exception e) {
+      // fallback
+    }
+
+    return o.getClass().getName();
   }
 }
