@@ -32,7 +32,6 @@ public class SearchData {
   private List<QProfile> profiles;
   private Map<String, Long> activeRuleCountByProfileKey;
   private Map<String, Long> projectCountByProfileKey;
-  private List<String> fieldsToReturn;
 
   public List<QProfile> getProfiles() {
     return profiles;
@@ -59,14 +58,5 @@ public class SearchData {
 
   public long getProjectCount(String profileKey) {
     return firstNonNull(projectCountByProfileKey.get(profileKey), 0L);
-  }
-
-  public List<String> getFieldsToReturn() {
-    return fieldsToReturn;
-  }
-
-  public SearchData setFieldsToReturn(List<String> fieldsToReturn) {
-    this.fieldsToReturn = fieldsToReturn;
-    return this;
   }
 }

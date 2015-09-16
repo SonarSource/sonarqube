@@ -28,7 +28,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -120,20 +119,6 @@ public class SearchActionTest {
     String result = ws.newRequest().execute().getInput();
 
     assertJson(result).isSimilarTo(getClass().getResource("SearchActionTest/search.json"));
-  }
-
-  @Test
-  public void search_with_fields() throws Exception {
-    qualityProfileDao.insert(dbSession,
-      QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1.getKey()).setName("Sonar way").setDefault(true),
-      QualityProfileDto.createFor("sonar-way-xoo2-23456").setLanguage(xoo2.getKey()).setName("Sonar way"),
-      QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2.getKey()).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456")
-      );
-    commit();
-
-    String result = ws.newRequest().setParam(Param.FIELDS, "key,language").execute().getInput();
-
-    assertJson(result).isSimilarTo(getClass().getResource("SearchActionTest/search_fields.json"));
   }
 
   @Test

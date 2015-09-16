@@ -29,7 +29,6 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -68,8 +67,7 @@ public class SearchDataLoader {
     return new SearchData()
       .setProfiles(findProfiles(request))
       .setActiveRuleCountByProfileKey(profileLoader.countAllActiveRules())
-      .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey())
-      .setFieldsToReturn(request.paramAsStrings(WebService.Param.FIELDS));
+      .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey());
   }
 
   private List<QProfile> findProfiles(Request request) {
