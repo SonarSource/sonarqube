@@ -28,7 +28,7 @@ public class BatchWsModule extends Module {
       BatchIndex.class,
       GlobalAction.class,
       ProjectAction.class,
-      ProjectRepositoryLoader.class,
+      ProjectDataLoader.class,
       IssuesAction.class,
       UsersAction.class,
       BatchWs.class);

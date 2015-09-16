@@ -60,7 +60,7 @@ public class BatchWsTest {
   public void before() {
     tester = new WsTester(new BatchWs(batchIndex,
       new GlobalAction(mock(DbClient.class), mock(PropertiesDao.class), userSessionRule),
-      new ProjectAction(mock(ProjectRepositoryLoader.class)),
+      new ProjectAction(mock(ProjectDataLoader.class)),
       new IssuesAction(mock(DbClient.class), mock(IssueIndex.class), userSessionRule, mock(ComponentFinder.class))));
   }
 

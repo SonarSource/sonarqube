@@ -64,7 +64,7 @@ import static org.junit.Assert.fail;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.qualityprofile.QProfileTesting.newQProfileDto;
 
-public class ProjectRepositoryLoaderMediumTest {
+public class ProjectDataLoaderMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().addXoo();
@@ -74,13 +74,13 @@ public class ProjectRepositoryLoaderMediumTest {
 
   DbSession dbSession;
 
-  ProjectRepositoryLoader loader;
+  ProjectDataLoader loader;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
-    loader = tester.get(ProjectRepositoryLoader.class);
+    loader = tester.get(ProjectDataLoader.class);
   }
 
   @After
@@ -104,7 +104,7 @@ public class ProjectRepositoryLoaderMediumTest {
     );
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     Map<String, String> projectSettings = ref.settings(project.key());
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
@@ -128,7 +128,7 @@ public class ProjectRepositoryLoaderMediumTest {
     );
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setPreview(true));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()).setPreview(true));
     Map<String, String> projectSettings = ref.settings(project.key());
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR"
@@ -159,7 +159,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -191,7 +191,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -233,7 +233,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -278,7 +278,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -308,7 +308,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
@@ -338,7 +338,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
@@ -372,7 +372,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
@@ -404,7 +404,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
@@ -437,7 +437,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(subModule.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(subModule.key()));
     assertThat(ref.settings(project.key())).isEmpty();
     assertThat(ref.settings(module.key())).isEmpty();
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
@@ -462,7 +462,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -485,7 +485,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -508,7 +508,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setProfileName("SonarQube way"));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()).setProfileName("SonarQube way"));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -528,7 +528,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey("project"));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey("project"));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -553,7 +553,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     List<QProfile> profiles = newArrayList(ref.qProfiles());
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).key()).isEqualTo("abcd");
@@ -570,7 +570,7 @@ public class ProjectRepositoryLoaderMediumTest {
     dbSession.commit();
 
     try {
-      loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+      loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No quality profile can been found on language 'xoo' for project 'org.codehaus.sonar:sonar'");
@@ -600,7 +600,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     List<ActiveRule> activeRules = newArrayList(ref.activeRules());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
@@ -640,7 +640,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     List<ActiveRule> activeRules = newArrayList(ref.activeRules());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
@@ -668,7 +668,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     assertThat(ref.activeRules()).hasSize(20);
   }
 
@@ -694,7 +694,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     List<ActiveRule> activeRules = newArrayList(ref.activeRules());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
@@ -716,7 +716,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     List<ActiveRule> activeRules = newArrayList(ref.activeRules());
     assertThat(activeRules).extracting("repositoryKey").containsOnly(RuleKey.MANUAL_REPOSITORY_KEY);
     assertThat(activeRules).extracting("ruleKey").containsOnly("manualRuleKey");
@@ -734,7 +734,7 @@ public class ProjectRepositoryLoaderMediumTest {
     dbSession.commit();
 
     try {
-      loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+      loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
@@ -750,7 +750,7 @@ public class ProjectRepositoryLoaderMediumTest {
     dbSession.commit();
 
     try {
-      loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()).setPreview(false));
+      loader.load(ProjectDataQuery.create().setModuleKey(project.key()).setPreview(false));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage(
@@ -772,7 +772,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     assertThat(ref.fileDataByPath(project.key())).hasSize(1);
     FileData fileData = ref.fileData(project.key(), file.path());
     assertThat(fileData.hash()).isEqualTo("123456");
@@ -800,7 +800,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(project.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
     assertThat(ref.fileData(project.key(), projectFile.path()).hash()).isEqualTo("123456");
     assertThat(ref.fileData(module.key(), moduleFile.path()).hash()).isEqualTo("789456");
   }
@@ -827,7 +827,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectRepositoryQuery.create().setModuleKey(module.key()));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(module.key()));
     assertThat(ref.fileData(module.key(), moduleFile.path()).hash()).isEqualTo("789456");
     assertThat(ref.fileData(project.key(), projectFile.path())).isNull();
   }

@@ -33,10 +33,10 @@ public class ProjectAction implements BatchWsAction {
   private static final String PARAM_PROFILE = "profile";
   private static final String PARAM_PREVIEW = "preview";
 
-  private final ProjectRepositoryLoader projectReferentialsLoader;
+  private final ProjectDataLoader projectDataLoader;
 
-  public ProjectAction(ProjectRepositoryLoader projectReferentialsLoader) {
-    this.projectReferentialsLoader = projectReferentialsLoader;
+  public ProjectAction(ProjectDataLoader projectDataLoader) {
+    this.projectDataLoader = projectDataLoader;
   }
 
   @Override
@@ -67,12 +67,12 @@ public class ProjectAction implements BatchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    ProjectRepositories ref = projectReferentialsLoader.load(ProjectRepositoryQuery.create()
+    ProjectRepositories data = projectDataLoader.load(ProjectDataQuery.create()
       .setModuleKey(request.mandatoryParam(PARAM_KEY))
       .setProfileName(request.param(PARAM_PROFILE))
       .setPreview(request.mandatoryParamAsBoolean(PARAM_PREVIEW)));
     response.stream().setMediaType(MimeTypes.JSON);
-    IOUtils.write(ref.toJson(), response.stream().output());
+    IOUtils.write(data.toJson(), response.stream().output());
   }
 
 }

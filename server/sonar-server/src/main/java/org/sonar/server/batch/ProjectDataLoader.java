@@ -65,9 +65,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 @ServerSide
-public class ProjectRepositoryLoader {
+public class ProjectDataLoader {
 
-  private static final Logger LOG = Loggers.get(ProjectRepositoryLoader.class);
+  private static final Logger LOG = Loggers.get(ProjectDataLoader.class);
 
   private final DbClient dbClient;
   private final QProfileFactory qProfileFactory;
@@ -76,8 +76,8 @@ public class ProjectRepositoryLoader {
   private final Languages languages;
   private final UserSession userSession;
 
-  public ProjectRepositoryLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
-    Languages languages, UserSession userSession) {
+  public ProjectDataLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
+                           Languages languages, UserSession userSession) {
     this.dbClient = dbClient;
     this.qProfileFactory = qProfileFactory;
     this.qProfileLoader = qProfileLoader;
@@ -86,7 +86,7 @@ public class ProjectRepositoryLoader {
     this.userSession = userSession;
   }
 
-  public ProjectRepositories load(ProjectRepositoryQuery query) {
+  public ProjectRepositories load(ProjectDataQuery query) {
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     checkPermission(query.isPreview());
 
