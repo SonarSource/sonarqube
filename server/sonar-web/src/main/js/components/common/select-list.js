@@ -128,14 +128,21 @@ define(function () {
       $.ajax({
         url: url,
         type: 'POST',
-        data: data
+        data: data,
+        statusCode: {
+          // do not show global error
+          400: null,
+          401: null,
+          403: null,
+          500: null
+        }
       })
           .done(function () {
             that.model.set('selected', !selected);
           })
-          .fail(function () {
+          .fail(function (jqXHR) {
             that.render();
-            showError();
+            showError(jqXHR);
           })
           .always(function () {
             that.$el.removeClass('progress');
@@ -241,10 +248,15 @@ define(function () {
 
       this.listItemViews = [];
 
-      showError = function () {
+      showError = function (jqXHR) {
+        var message = window.t('default_error_message');
+        if (jqXHR != null && jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
+          message = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
+        }
+
         that.$el.prevAll('.alert').remove();
         $('<div>')
-            .addClass('alert alert-danger').text(that.settings.errorMessage)
+            .addClass('alert alert-danger').text(message)
             .insertBefore(that.$el);
       };
 
