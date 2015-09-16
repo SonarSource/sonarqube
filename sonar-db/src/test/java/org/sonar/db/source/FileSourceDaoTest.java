@@ -55,6 +55,7 @@ public class FileSourceDaoTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(1500000000000L);
     assertThat(fileSourceDto.getDataType()).isEqualTo(Type.SOURCE);
+    assertThat(fileSourceDto.getRevision()).isEqualTo("123456789");
   }
 
   @Test
@@ -100,10 +101,11 @@ public class FileSourceDaoTest {
       .setSrcHash("FILE2_HASH")
       .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
-      .setUpdatedAt(1500000000001L));
+      .setUpdatedAt(1500000000001L)
+      .setRevision("123456789"));
 
     dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "file_sources",
-      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
+      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
   }
 
   @Test
@@ -119,10 +121,11 @@ public class FileSourceDaoTest {
       .setSrcHash("NEW_FILE_HASH")
       .setLineHashes("NEW_LINE_HASHES")
       .setDataType(Type.SOURCE)
-      .setUpdatedAt(1500000000002L));
+      .setUpdatedAt(1500000000002L)
+      .setRevision("987654321"));
 
     dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources",
-      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
+      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
   }
 
   @Test
@@ -133,7 +136,7 @@ public class FileSourceDaoTest {
     dbTester.getSession().commit();
 
     dbTester.assertDbUnitTable(getClass(), "update_date_when_updated_date_is_zero-result.xml", "file_sources",
-      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
+      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type", "revision");
   }
 
   private static class ReaderToStringFunction implements Function<Reader, String> {

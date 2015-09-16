@@ -44,6 +44,7 @@ public class FileSourceDto {
   private byte[] binaryData;
   private String dataType;
   private String dataHash;
+  private String revision;
 
   public Long getId() {
     return id;
@@ -262,6 +263,15 @@ public class FileSourceDto {
 
   public FileSourceDto setDataType(String dataType) {
     this.dataType = dataType;
+    return this;
+  }
+
+  public String getRevision() {
+    return revision;
+  }
+
+  public FileSourceDto setRevision(String revision) {
+    this.revision = revision;
     return this;
   }
 
