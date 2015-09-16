@@ -2097,6 +2097,23 @@ public final class CoreMetrics {
     .setQualitative(true)
     .create();
 
+  /**
+   * @since 5.2
+   */
+  public static final String NEW_SQALE_DEBT_RATIO_KEY = "new_sqale_debt_ratio";
+
+  /**
+   * @since 5.2
+   */
+  public static final Metric<Double> NEW_SQALE_DEBT_RATIO = new Metric.Builder(NEW_SQALE_DEBT_RATIO_KEY, "Technical Debt Ratio on new code", Metric.ValueType.PERCENT)
+      .setDescription("Technical Debt Ratio of new/changed code.")
+      .setDomain(DOMAIN_TECHNICAL_DEBT)
+      .setDirection(Metric.DIRECTION_WORST)
+      .setOptimizedBestValue(true)
+      .setBestValue(0.0)
+      .setQualitative(true)
+      .create();
+
   // --------------------------------------------------------------------------------------------------------------------
   //
   // FILE DATA
