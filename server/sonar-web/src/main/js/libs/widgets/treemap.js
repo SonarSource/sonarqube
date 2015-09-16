@@ -13,6 +13,14 @@
 
   Treemap.prototype.sizeHigh = 18;
 
+  Treemap.prototype.filterComponents = function () {
+    var that = this,
+        components = this.components().filter(function (d) {
+          return that.sizeMetric.value(d) != null;
+        });
+    this.components(components);
+  };
+
   Treemap.prototype.getNodes = function () {
     return this.treemap
         .nodes({ children: this.components() })
@@ -23,6 +31,13 @@
 
   Treemap.prototype.renderTreemap = function () {
     var that = this;
+    this.filterComponents();
+    if (!this.components().length) {
+      this.maxResultsReachedLabel
+          .text(window.t('treemap.all_measures_undefined'))
+          .style('display', 'block');
+      return;
+    }
     var nodes = this.getNodes();
     this.color = that.getColorScale();
     this.cells = this.box.selectAll('.treemap-cell').data(nodes);
@@ -251,10 +266,12 @@
   Treemap.prototype.update = function () {
     this.width(this.box.property('offsetWidth'));
     this.height(this.width() / 100.0 * this.options().heightInPercents);
-    this.box.style('height', (this.height()) + 'px');
-    this.treemap.size([this.width(), this.height()]);
-    this.cells.data(this.getNodes());
-    return this.positionCells();
+    if (this.components().length) {
+      this.box.style('height', (this.height()) + 'px');
+      this.treemap.size([this.width(), this.height()]);
+      this.cells.data(this.getNodes());
+      this.positionCells();
+    }
   };
 
   Treemap.prototype.formatComponents = function (data) {
