@@ -126,7 +126,10 @@
 }
 
 .select-list-check-control.disabled .select-list-control-button {
-  background-color: #fff !important;
+  color: #bbb;
+  border-color: #ddd;
+  background: #ebebeb;
+  cursor: not-allowed;
 }
 
 .select-list-control-button {
@@ -134,87 +137,49 @@
   z-index: @normal-z-index;
   display: inline-block;
   vertical-align: middle;
-  width: 110px;
   height: 27px;
   line-height: 25px;
+  padding: 0 12px;
   .box-sizing(border-box);
-  border: 1px solid #bfbfbf;
-  color: @baseFontColor;
+  border: 1px solid @darkBlue;
+  color: @darkBlue;
+  font-size: @smallFontSize;
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  .trans(none);
+}
+
+.select-list-control-button:first-child {
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.select-list-control-button:last-child {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
 }
 
 .select-list-control-button:hover {
-  background-color: #f6f6f6;
-  color: @baseFontColor;
+  color: @darkBlue;
 }
 
 .select-list-control-button:active,
 .select-list-control-button.active {
   z-index: @above-normal-z-index;
-  background-color: #efefef;
-  color: @baseFontColor;
+  background-color: @darkBlue;
+  color: #fff;
+  font-weight: 500;
 }
 
 .select-list-control-button + .select-list-control-button {
   margin-left: -1px;
 }
 
-
 .select-list-search-control {
   position: relative;
-  float: right;
-  height: 27px;
-}
-
-.select-list-search-control input {
-  width: 170px;
-  height: 100%;
-  line-height: 27px\9;
-  padding: 0 40px 0 10px;
-  border: 1px solid #bfbfbf;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
-}
-
-.select-list-search-control input:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-.select-list-search-control input::-ms-clear {
-  display: none;
-}
-
-.select-list-search-control-clear {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 23px;
-  height: 23px;
-  line-height: 24px;
-  background-color: #e0e0e0;
-  color: #fff;
-  cursor: pointer;
-  font-size: 18px;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-  .select-list-search-control.disabled .select-list-search-control-clear {
-    filter: alpha(opacity=0);
-    opacity: 0;
-  }
-
-  .select-list-search-control-clear:hover {
-    background-color: #d6d6d6;
-  }
-
-.select-list-on-full-width .select-list-search-control {
   float: left;
-  margin-left: 20px;
+  height: 27px;
+  margin-left: 16px;
 }
 
 .select-list-wrapper {

@@ -158,8 +158,10 @@ define(function () {
           '<a class="select-list-control-button" name="all">' + l.all + '</a>' +
           '</div>' +
           '<div class="select-list-search-control">' +
-          '<input type="text" placeholder="Search">' +
-          '<a class="select-list-search-control-clear">&times;</a>' +
+          '<form class="search-box">' +
+          '<span class="search-box-submit button-clean"><i class="icon-search"></i></span>' +
+          '<input class="search-box-input" type="search" name="q" placeholder="Search" maxlength="100" autocomplete="off">' +
+          '</form>' +
           '</div>' +
           '</div>' +
           '<div class="select-list-list-container">' +
@@ -171,9 +173,7 @@ define(function () {
     events: {
       'click .select-list-control-button[name=selected]': 'showSelected',
       'click .select-list-control-button[name=deselected]': 'showDeselected',
-      'click .select-list-control-button[name=all]': 'showAll',
-
-      'click .select-list-search-control-clear': 'clearSearch'
+      'click .select-list-control-button[name=all]': 'showAll'
     },
 
     initialize: function (options) {
@@ -230,7 +230,8 @@ define(function () {
       this.$list = this.$('.select-list-list');
 
       var searchInput = this.$('.select-list-search-control input')
-          .on('keyup', _.debounce(keyup, 250));
+          .on('keyup', _.debounce(keyup, 250))
+          .on('search', _.debounce(keyup, 250));
 
       if (this.settings.focusSearch) {
         setTimeout(function () {
@@ -241,8 +242,9 @@ define(function () {
       this.listItemViews = [];
 
       showError = function () {
+        that.$el.prevAll('.alert').remove();
         $('<div>')
-            .addClass('error').text(that.settings.errorMessage)
+            .addClass('alert alert-danger').text(that.settings.errorMessage)
             .insertBefore(that.$el);
       };
 
