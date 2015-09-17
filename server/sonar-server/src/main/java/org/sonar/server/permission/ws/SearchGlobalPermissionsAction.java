@@ -30,12 +30,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Permissions.Permission;
-import org.sonarqube.ws.Permissions.WsSearchGlobalPermissionsResponse;
+import org.sonarqube.ws.WsPermissions.Permission;
+import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Permissions.Permission.newBuilder;
+import static org.sonarqube.ws.WsPermissions.Permission.newBuilder;
 
 public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   private static final String PROPERTY_PREFIX = "global_permissions.";

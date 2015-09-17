@@ -37,7 +37,7 @@ import org.sonar.server.permission.UserWithPermissionQueryResult;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common.Paging;
-import org.sonarqube.ws.Permissions.WsUsersResponse;
+import org.sonarqube.ws.WsPermissions.WsUsersResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Strings.nullToEmpty;

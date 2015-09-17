@@ -24,7 +24,7 @@ import "ws-commons.proto";
 
 option java_package = "org.sonarqube.ws";
 
-option java_outer_classname = "Permissions";
+option java_outer_classname = "WsPermissions";
 
 option optimize_for = SPEED;
 
@@ -91,8 +91,7 @@ message PermissionTemplate {
   optional string createdAt = 5;
   // ex: 2015-08-25T16:18:48+0200
   optional string updatedAt = 6;
-  optional bool permissionsPresentIfEmpty = 7;
-  repeated Permission permissions = 8;
+  repeated Permission permissions = 7;
 }
 
 message WsCreatePermissionTemplateResponse {

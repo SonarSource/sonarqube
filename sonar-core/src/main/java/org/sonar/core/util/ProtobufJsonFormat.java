@@ -19,54 +19,110 @@
  */
 package org.sonar.core.util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.MapEntry;
 import com.google.protobuf.Message;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.sonar.api.utils.text.JsonWriter;
 
 /**
- * Converts a Protocol Buffers message to JSON. Unknown fields, binary fields, (deprecated) groups
- * and maps are not supported. Absent fields are ignored, so it's possible to distinguish
+ * Converts a Protocol Buffers message to JSON. Unknown fields, binary fields and groups
+ * are not supported. Absent fields are ignored, so it's possible to distinguish
  * null strings (field is absent) and empty strings (field is present with value {@code ""}).
- * <p/>
- * <h2>Empty Arrays</h2>
- * Protobuf does not make the difference between absent arrays and empty arrays (size is zero).
- * The consequence is that arrays are always output in JSON. Empty arrays are converted to {@code []}.
- * <p/>
- * A workaround is implemented in {@link ProtobufJsonFormat} to not generate absent arrays into JSON document.
- * A boolean field is used to declare if the related repeated field (the array) is present or not. The
- * name of the boolean field must be the array field name suffixed with "PresentIfEmpty". This field is "for internal
- * use" and is not generated into JSON document. It is ignored when the array is not empty.
  *
- * For example:
+ * <h3>Example</h3>
  * <pre>
- *   // proto specification
- *   message Response {
- *     optional bool issuesPresentIfEmpty = 1;
- *     repeated Issue issues = 2;
+ *   // protobuf specification
+ *   message Foo {
+ *     string name = 1;
+ *     int32 count = 2;
+ *     repeated string colors = 3;
+ *   }
+ *
+ *   // generated JSON
+ *   {
+ *     "name": "hello",
+ *     "count": 32,
+ *     "colors": ["blue", "red"]
  *   }
  * </pre>
+ *
+ * <h3>Absent versus empty arrays</h3>
+ * <p>
+ * Protobuf does not support absent repeated field. The default value is empty. A pattern
+ * is defined by {@link ProtobufJsonFormat} to support the difference between absent and
+ * empty arrays when generating JSON. An intermediary message wrapping the array must be defined.
+ * It is automatically inlined and does not appear in the generated JSON. This wrapper message must:
+ * </p>
+ * <ul>
+ *   <li>contain a single repeated field</li>
+ *   <li>has the same name (case-insensitive) as the field</li>
+ * </ul>
+ *
+ *
+ * <p>Example:</p>
  * <pre>
- *   // Java usage
+ *   // protobuf specification
+ *   message Continent {
+ *     string name = 1;
+ *     Countries countries = 2;
+ *   }
  *
- *   Response.newBuilder().build();
- *   // output: {}
+ *   // the message name ("Countries") is the same as the field 1 ("countries")
+ *   message Countries {
+ *     repeated string countries = 1;
+ *   }
  *
- *   Response.newBuilder().setIssuesPresentIfEmpty(true).build();
- *   // output: {"issues": []}
+ *   // example of generated JSON if field 2 is not present
+ *   {
+ *     "name": "Europe",
+ *   }
  *
- *   // no need to set the flag to true when the array is not empty
- *   Response.newBuilder().setIssues(atLeastOneIssues).build();
- *   // output: {"issues": [{...}, {...}]}
+ *   // example of generated JSON if field 2 is present but inner array is empty.
+ *   // The intermediary "countries" message is inline.
+ *   {
+ *     "name": "Europe",
+ *     "countries": []
+ *   }
+ *
+ *   // example of generated JSON if field 2 is present and inner array is not empty
+ *   // The intermediary "countries" message is inline.
+ *   {
+ *     "name": "Europe",
+ *     "countries": ["Spain", "Denmark"]
+ *   }
+ * </pre>
+ *
+ * <h3>Array or map in map values</h3>
+ * <p>
+ *   Map fields cannot be repeated. Values are scalar types or messages, but not arrays nor maps. In order
+ * to support multimaps (maps of lists) and maps of maps in JSON, the same pattern as for absent arrays
+ * can be used:
+ * </p>
+ * <p>Example:</p>
+ * <pre>
+ *   // protobuf specification
+ *   message Continent {
+ *     string name = 1;
+ *     map&lt;string,Countries&gt; countries_by_currency = 2;
+ *   }
+ *
+ *   // the message name ("Countries") is the same as the field 1 ("countries")
+ *   message Countries {
+ *     repeated string countries = 1;
+ *   }
+ *
+ *   // example of generated JSON. The intermediary "countries" message is inline.
+ *   {
+ *     "name": "Europe",
+ *     "countries_by_currency": {
+ *       "eur": ["Spain", "France"],
+ *       "dkk": ["Denmark"]
+ *     }
+ *   }
  * </pre>
  */
 public class ProtobufJsonFormat {
@@ -75,113 +131,24 @@ public class ProtobufJsonFormat {
     // only statics
   }
 
-  private abstract static class MessageField {
-    protected final Descriptors.FieldDescriptor descriptor;
+  static class MessageType {
+    private static final Map<Class<? extends Message>, MessageType> TYPES_BY_CLASS = new HashMap<>();
 
-    public MessageField(Descriptors.FieldDescriptor descriptor) {
-      this.descriptor = descriptor;
+    private final Descriptors.FieldDescriptor[] fieldDescriptors;
+    private final boolean doesWrapRepeated;
+
+    private MessageType(Descriptors.Descriptor descriptor) {
+      this.fieldDescriptors = descriptor.getFields().toArray(new Descriptors.FieldDescriptor[descriptor.getFields().size()]);
+      this.doesWrapRepeated = fieldDescriptors.length == 1 && fieldDescriptors[0].isRepeated() && descriptor.getName().equalsIgnoreCase(fieldDescriptors[0].getName());
     }
 
-    public Descriptors.FieldDescriptor getDescriptor() {
-      return descriptor;
-    }
-
-    public abstract boolean hasValue(Message message);
-
-    public Object getValue(Message message) {
-      return message.getField(descriptor);
-    }
-  }
-
-  private static class MessageNonRepeatedField extends MessageField {
-    public MessageNonRepeatedField(Descriptors.FieldDescriptor descriptor) {
-      super(descriptor);
-      Preconditions.checkArgument(!descriptor.isRepeated());
-    }
-
-    @Override
-    public boolean hasValue(Message message) {
-      return message.hasField(descriptor);
-    }
-  }
-
-  private static class MessageRepeatedField extends MessageField {
-    public MessageRepeatedField(Descriptors.FieldDescriptor descriptor) {
-      super(descriptor);
-      Preconditions.checkArgument(descriptor.isRepeated());
-    }
-
-    @Override
-    public boolean hasValue(Message message) {
-      return true;
-    }
-  }
-
-  private static class MessageNullableRepeatedField extends MessageField {
-    private final Descriptors.FieldDescriptor booleanDesc;
-
-    public MessageNullableRepeatedField(Descriptors.FieldDescriptor booleanDesc, Descriptors.FieldDescriptor arrayDescriptor) {
-      super(arrayDescriptor);
-      Preconditions.checkArgument(arrayDescriptor.isRepeated());
-      Preconditions.checkArgument(booleanDesc.getJavaType() == Descriptors.FieldDescriptor.JavaType.BOOLEAN);
-      this.booleanDesc = booleanDesc;
-    }
-
-    @Override
-    public boolean hasValue(Message message) {
-      if (((Collection) message.getField(descriptor)).isEmpty()) {
-        return message.hasField(booleanDesc) && (boolean) message.getField(booleanDesc);
+    static MessageType of(Message message) {
+      MessageType type = TYPES_BY_CLASS.get(message.getClass());
+      if (type == null) {
+        type = new MessageType(message.getDescriptorForType());
+        TYPES_BY_CLASS.put(message.getClass(), type);
       }
-      return true;
-    }
-  }
-
-  static class MessageJsonDescriptor {
-    private static final Map<Class<? extends Message>, MessageJsonDescriptor> BY_CLASS = new HashMap<>();
-    private final MessageField[] fields;
-
-    private MessageJsonDescriptor(MessageField[] fields) {
-      this.fields = fields;
-    }
-
-    MessageField[] getFields() {
-      return fields;
-    }
-
-    static MessageJsonDescriptor of(Message message) {
-      MessageJsonDescriptor desc = BY_CLASS.get(message.getClass());
-      if (desc == null) {
-        desc = introspect(message);
-        BY_CLASS.put(message.getClass(), desc);
-      }
-      return desc;
-    }
-
-    private static MessageJsonDescriptor introspect(Message message) {
-      List<MessageField> fields = new ArrayList<>();
-      BiMap<Descriptors.FieldDescriptor, Descriptors.FieldDescriptor> repeatedToBoolean = HashBiMap.create();
-      for (Descriptors.FieldDescriptor desc : message.getDescriptorForType().getFields()) {
-        if (desc.isRepeated()) {
-          String booleanName = desc.getName() + "PresentIfEmpty";
-          Descriptors.FieldDescriptor booleanDesc = message.getDescriptorForType().findFieldByName(booleanName);
-          if (booleanDesc != null && booleanDesc.getJavaType() == Descriptors.FieldDescriptor.JavaType.BOOLEAN) {
-            repeatedToBoolean.put(desc, booleanDesc);
-          }
-        }
-      }
-      for (Descriptors.FieldDescriptor descriptor : message.getDescriptorForType().getFields()) {
-        if (descriptor.isRepeated()) {
-          Descriptors.FieldDescriptor booleanDesc = repeatedToBoolean.get(descriptor);
-          if (booleanDesc == null) {
-            fields.add(new MessageRepeatedField(descriptor));
-          } else {
-            fields.add(new MessageNullableRepeatedField(booleanDesc, descriptor));
-          }
-        } else if (!repeatedToBoolean.containsValue(descriptor)) {
-          fields.add(new MessageNonRepeatedField(descriptor));
-        }
-      }
-      return new MessageJsonDescriptor(fields.toArray(new MessageField[fields.size()]));
+      return type;
     }
   }
 
@@ -200,31 +167,40 @@ public class ProtobufJsonFormat {
   }
 
   private static void writeMessage(Message message, JsonWriter writer) {
-    MessageJsonDescriptor fields = MessageJsonDescriptor.of(message);
-    for (MessageField field : fields.getFields()) {
-      if (field.hasValue(message)) {
-        writer.name(field.getDescriptor().getName());
-        if (field.getDescriptor().isMapField()) {
-          writer.beginObject();
-          for (Object o : (Collection) field.getValue(message)) {
-            MapEntry mapEntry = (MapEntry)o;
-            // Key fields are always double-quoted in json
-            writer.name(mapEntry.getKey().toString());
-            Descriptors.FieldDescriptor valueDescriptor = mapEntry.getDescriptorForType().findFieldByName("value");
-            writeFieldValue(valueDescriptor, mapEntry.getValue(), writer);
-          }
-          writer.endObject();
-        } else if (field.getDescriptor().isRepeated()) {
-          writer.beginArray();
-          for (Object o : (Collection) field.getValue(message)) {
-            writeFieldValue(field.getDescriptor(), o, writer);
-          }
-          writer.endArray();
+    MessageType type = MessageType.of(message);
+    for (Descriptors.FieldDescriptor fieldDescriptor : type.fieldDescriptors) {
+      if (fieldDescriptor.isRepeated()) {
+        writer.name(fieldDescriptor.getName());
+        if (fieldDescriptor.isMapField()) {
+          writeMap((Collection<MapEntry>) message.getField(fieldDescriptor), writer);
         } else {
-          writeFieldValue(field.getDescriptor(), field.getValue(message), writer);
+          writeArray(writer, fieldDescriptor, (Collection) message.getField(fieldDescriptor));
         }
+      } else if (message.hasField(fieldDescriptor)) {
+        writer.name(fieldDescriptor.getName());
+        Object fieldValue = message.getField(fieldDescriptor);
+        writeFieldValue(fieldDescriptor, fieldValue, writer);
       }
     }
+  }
+
+  private static void writeArray(JsonWriter writer, Descriptors.FieldDescriptor fieldDescriptor, Collection array) {
+    writer.beginArray();
+    for (Object o : array) {
+      writeFieldValue(fieldDescriptor, o, writer);
+    }
+    writer.endArray();
+  }
+
+  private static void writeMap(Collection<MapEntry> mapEntries, JsonWriter writer) {
+    writer.beginObject();
+    for (MapEntry mapEntry : mapEntries) {
+      // Key fields are always double-quoted in json
+      writer.name(mapEntry.getKey().toString());
+      Descriptors.FieldDescriptor valueDescriptor = mapEntry.getDescriptorForType().findFieldByName("value");
+      writeFieldValue(valueDescriptor, mapEntry.getValue(), writer);
+    }
+    writer.endObject();
   }
 
   private static void writeFieldValue(Descriptors.FieldDescriptor fieldDescriptor, Object value, JsonWriter writer) {
@@ -248,12 +224,26 @@ public class ProtobufJsonFormat {
         writer.value(((Descriptors.EnumValueDescriptor) value).getName());
         break;
       case MESSAGE:
-        writer.beginObject();
-        writeMessage((Message) value, writer);
-        writer.endObject();
+        writeMessageValue((Message) value, writer);
         break;
       default:
         throw new IllegalStateException(String.format("JSON format does not support type '%s' of field '%s'", fieldDescriptor.getJavaType(), fieldDescriptor.getName()));
+    }
+  }
+
+  private static void writeMessageValue(Message message, JsonWriter writer) {
+    MessageType messageType = MessageType.of(message);
+    if (messageType.doesWrapRepeated) {
+      Descriptors.FieldDescriptor repeatedDescriptor = messageType.fieldDescriptors[0];
+      if (repeatedDescriptor.isMapField()) {
+        writeMap((Collection<MapEntry>) message.getField(repeatedDescriptor), writer);
+      } else {
+        writeArray(writer, repeatedDescriptor, (Collection) message.getField(repeatedDescriptor));
+      }
+    } else {
+      writer.beginObject();
+      writeMessage(message, writer);
+      writer.endObject();
     }
   }
 }

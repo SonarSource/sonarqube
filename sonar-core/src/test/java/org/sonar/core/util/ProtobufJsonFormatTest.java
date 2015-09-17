@@ -25,9 +25,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.test.Test.ArrayFieldMsg;
-import org.sonar.core.test.Test.MapMsg;
+import org.sonar.core.test.Test.Countries;
+import org.sonar.core.test.Test.Country;
+import org.sonar.core.test.Test.NestedMsg;
 import org.sonar.core.test.Test.PrimitiveTypeMsg;
+import org.sonar.core.test.Test.TestArray;
+import org.sonar.core.test.Test.TestMap;
+import org.sonar.core.test.Test.TestMapOfArray;
+import org.sonar.core.test.Test.TestMapOfMap;
+import org.sonar.core.test.Test.TestNullableArray;
+import org.sonar.core.test.Test.TestNullableMap;
+import org.sonar.core.test.Test.Translations;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +47,7 @@ public class ProtobufJsonFormatTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void test_conversion_of_primitive_types() {
+  public void test_primitive_types() {
     PrimitiveTypeMsg protobuf = PrimitiveTypeMsg.newBuilder()
       .setStringField("foo")
       .setIntField(10)
@@ -59,14 +67,14 @@ public class ProtobufJsonFormatTest {
     expectedException.expectMessage("JSON format does not support type 'BYTE_STRING' of field 'bytesField'");
 
     PrimitiveTypeMsg protobuf = PrimitiveTypeMsg.newBuilder()
-      .setBytesField(ByteString.copyFrom(new byte[] {2, 4}))
+      .setBytesField(ByteString.copyFrom(new byte[]{2, 4}))
       .build();
 
     ProtobufJsonFormat.write(protobuf, JsonWriter.of(new StringWriter()));
   }
 
   @Test
-  public void do_not_convert_absent_primitive_fields() {
+  public void do_not_write_null_primitive_fields() {
     PrimitiveTypeMsg msg = PrimitiveTypeMsg.newBuilder().build();
 
     // fields are absent
@@ -75,7 +83,7 @@ public class ProtobufJsonFormatTest {
   }
 
   @Test
-  public void convert_empty_string() {
+  public void write_empty_string() {
     PrimitiveTypeMsg msg = PrimitiveTypeMsg.newBuilder().setStringField("").build();
 
     // field is present
@@ -86,76 +94,120 @@ public class ProtobufJsonFormatTest {
   }
 
   @Test
-  public void convert_arrays() {
-    ArrayFieldMsg msg = ArrayFieldMsg.newBuilder()
+  public void write_array() {
+    TestArray msg = TestArray.newBuilder()
       .addStrings("one").addStrings("two")
-      .addNesteds(org.sonar.core.test.Test.NestedMsg.newBuilder().setLabel("nestedOne")).addNesteds(org.sonar.core.test.Test.NestedMsg.newBuilder().setLabel("nestedTwo"))
-      .addNullableArray("nullableOne").addNullableArray("nullableTwo")
+      .addNesteds(NestedMsg.newBuilder().setLabel("nestedOne")).addNesteds(NestedMsg.newBuilder().setLabel("nestedTwo"))
       .build();
 
     assertThat(toJson(msg))
-      .isEqualTo("{\"strings\":[\"one\",\"two\"],\"nesteds\":[{\"label\":\"nestedOne\"},{\"label\":\"nestedTwo\"}],\"nullableArray\":[\"nullableOne\",\"nullableTwo\"]}");
+      .isEqualTo("{\"strings\":[\"one\",\"two\"],\"nesteds\":[{\"label\":\"nestedOne\"},{\"label\":\"nestedTwo\"}]}");
   }
 
   @Test
-  public void convert_empty_arrays() {
-    ArrayFieldMsg msg = ArrayFieldMsg.newBuilder()
-      .setNullableArrayPresentIfEmpty(true)
-      .build();
+  public void write_empty_array() {
+    TestArray msg = TestArray.newBuilder().build();
 
-    assertThat(toJson(msg)).isEqualTo("{\"strings\":[],\"nesteds\":[],\"nullableArray\":[]}");
-  }
-
-  @Test
-  public void do_not_convert_empty_array_marked_as_absent() {
-    ArrayFieldMsg msg = ArrayFieldMsg.newBuilder()
-      .setNullableArrayPresentIfEmpty(false)
-      .build();
-
-    assertThat(msg.hasNullableArrayPresentIfEmpty()).isTrue();
-    assertThat(msg.getNullableArrayPresentIfEmpty()).isFalse();
-
-    // nullableArray does not appear
     assertThat(toJson(msg)).isEqualTo("{\"strings\":[],\"nesteds\":[]}");
   }
 
   @Test
-  public void convert_non_empty_array_even_if_not_marked_as_present() {
-    ArrayFieldMsg msg = ArrayFieldMsg.newBuilder()
-      .addNullableArray("foo")
+  public void do_not_write_null_wrapper_of_array() {
+    TestNullableArray msg = TestNullableArray.newBuilder()
+      .setLabel("world")
       .build();
 
-    // repeated field "nullableArray" is present, but the boolean marker "nullableArrayPresentIfEmpty"
-    // is not set.
-    assertThat(msg.hasNullableArrayPresentIfEmpty()).isFalse();
-    assertThat(msg.getNullableArrayPresentIfEmpty()).isFalse();
+    assertThat(msg.hasCountries()).isFalse();
 
-    // JSON contains the array but not the boolean marker
-    assertThat(toJson(msg)).contains("\"nullableArray\":[\"foo\"]");
+    // array wrapper is null
+    assertThat(toJson(msg)).isEqualTo("{\"label\":\"world\"}");
   }
 
   @Test
-  public void convert_map() {
-    MapMsg.Builder builder = MapMsg.newBuilder();
+  public void inline_wrapper_of_array() {
+    TestNullableArray msg = TestNullableArray.newBuilder()
+      .setLabel("world")
+      .setCountries(Countries.newBuilder())
+      .build();
+    assertThat(msg.hasCountries()).isTrue();
+    assertThat(toJson(msg)).contains("\"label\":\"world\",\"countries\":[]");
+
+    msg = TestNullableArray.newBuilder()
+      .setLabel("world")
+      .setCountries(Countries.newBuilder().addCountries(Country.newBuilder().setName("France").setContinent("Europe")))
+      .build();
+    assertThat(msg.hasCountries()).isTrue();
+    assertThat(toJson(msg)).contains("\"label\":\"world\",\"countries\":[{\"name\":\"France\",\"continent\":\"Europe\"}]");
+  }
+
+  @Test
+  public void write_map() {
+    TestMap.Builder builder = TestMap.newBuilder();
     builder.getMutableStringMap().put("one", "un");
     builder.getMutableStringMap().put("two", "deux");
-    builder.getMutableNestedMap().put("three", org.sonar.core.test.Test.NestedMsg.newBuilder().setLabel("trois").build());
-    builder.getMutableNestedMap().put("four", org.sonar.core.test.Test.NestedMsg.newBuilder().setLabel("quatre").build());
-    builder.setNullableStringMapPresentIfEmpty(false);
-    assertThat(toJson(builder.build()))
-      .isEqualTo("{\"stringMap\":{\"one\":\"un\",\"two\":\"deux\"},\"nestedMap\":{\"three\":{\"label\":\"trois\"},\"four\":{\"label\":\"quatre\"}}}");
+    builder.getMutableNestedMap().put("three", NestedMsg.newBuilder().setLabel("trois").build());
+    builder.getMutableNestedMap().put("four", NestedMsg.newBuilder().setLabel("quatre").build());
+    assertThat(toJson(builder.build())).isEqualTo(
+      "{\"stringMap\":{\"one\":\"un\",\"two\":\"deux\"},\"nestedMap\":{\"three\":{\"label\":\"trois\"},\"four\":{\"label\":\"quatre\"}}}");
   }
 
   @Test
-  public void convert_empty_map() {
-    MapMsg msg = MapMsg.newBuilder().build();
-    assertThat(toJson(msg)).isEqualTo("{\"stringMap\":{},\"nestedMap\":{}}");
+  public void write_empty_map() {
+    TestMap.Builder builder = TestMap.newBuilder();
+    assertThat(toJson(builder.build())).isEqualTo("{\"stringMap\":{},\"nestedMap\":{}}");
   }
 
   @Test
-  public void convert_nullable_empty_map_if_marked_as_present() {
-    MapMsg msg = MapMsg.newBuilder().setNullableStringMapPresentIfEmpty(true).build();
-    assertThat(toJson(msg)).isEqualTo("{\"stringMap\":{},\"nestedMap\":{},\"nullableStringMap\":{}}");
+  public void do_not_write_null_wrapper_of_map() {
+    TestNullableMap msg = TestNullableMap.newBuilder()
+      .setLabel("world")
+      .build();
+    assertThat(toJson(msg)).isEqualTo("{\"label\":\"world\"}");
+  }
+
+  @Test
+  public void inline_wrapper_of_map() {
+    TestNullableMap msg = TestNullableMap.newBuilder()
+      .setLabel("world")
+      .setTranslations(Translations.newBuilder())
+      .build();
+    assertThat(toJson(msg)).isEqualTo("{\"label\":\"world\",\"translations\":{}}");
+
+    Translations.Builder translationsBuilder = Translations.newBuilder();
+    translationsBuilder.getMutableTranslations().put("one", "un");
+    translationsBuilder.getMutableTranslations().put("two", "deux");
+    msg = TestNullableMap.newBuilder()
+      .setLabel("world")
+      .setTranslations(translationsBuilder)
+      .build();
+    assertThat(toJson(msg)).isEqualTo("{\"label\":\"world\",\"translations\":{\"one\":\"un\",\"two\":\"deux\"}}");
+  }
+
+  @Test
+  public void write_map_of_arrays() throws Exception {
+    // this is a trick to have arrays in map values
+    TestMapOfArray.Builder msg = TestMapOfArray.newBuilder();
+
+    // wrapper over array
+    Countries europe = Countries.newBuilder()
+      .addCountries(Country.newBuilder().setContinent("Europe").setName("France"))
+      .addCountries(Country.newBuilder().setContinent("Europe").setName("Germany"))
+      .build();
+    msg.getMutableMoneys().put("eur", europe);
+    assertThat(toJson(msg.build())).isEqualTo("{\"moneys\":{\"eur\":[{\"name\":\"France\",\"continent\":\"Europe\"},{\"name\":\"Germany\",\"continent\":\"Europe\"}]}}");
+  }
+
+  @Test
+  public void write_map_of_map() throws Exception {
+    // this is a trick to have maps in map values
+    TestMapOfMap.Builder msg = TestMapOfMap.newBuilder();
+
+    // wrapper over map
+    Translations.Builder translationsBuilder = Translations.newBuilder();
+    translationsBuilder.getMutableTranslations().put("one", "un");
+    translationsBuilder.getMutableTranslations().put("two", "deux");
+    msg.getMutableCatalogs().put("numbers", translationsBuilder.build());
+    assertThat(toJson(msg.build())).isEqualTo("{\"catalogs\":{\"numbers\":{\"one\":\"un\",\"two\":\"deux\"}}}");
   }
 
   @Test

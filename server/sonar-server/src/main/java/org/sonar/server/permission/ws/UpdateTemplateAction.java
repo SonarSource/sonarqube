@@ -30,8 +30,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Permissions.PermissionTemplate;
-import org.sonarqube.ws.Permissions.WsUpdatePermissionTemplateResponse;
+import org.sonarqube.ws.WsPermissions.PermissionTemplate;
+import org.sonarqube.ws.WsPermissions.WsUpdatePermissionTemplateResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static java.lang.String.format;

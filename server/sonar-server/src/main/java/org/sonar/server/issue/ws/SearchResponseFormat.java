@@ -76,20 +76,16 @@ public class SearchResponseFormat {
       formatFacets(facets, response);
     }
     if (fields.contains(SearchAdditionalField.RULES)) {
-      response.setRulesPresentIfEmpty(true);
-      response.addAllRules(formatRules(data));
+      response.setRules(formatRules(data));
     }
     if (fields.contains(SearchAdditionalField.USERS)) {
-      response.setUsersPresentIfEmpty(true);
-      response.addAllUsers(formatUsers(data));
+      response.setUsers(formatUsers(data));
     }
     if (fields.contains(SearchAdditionalField.ACTION_PLANS)) {
-      response.setActionPlansPresentIfEmpty(true);
-      response.addAllActionPlans(formatActionPlans(data));
+      response.setActionPlans(formatActionPlans(data));
     }
     if (fields.contains(SearchAdditionalField.LANGUAGES)) {
-      response.setLanguagesPresentIfEmpty(true);
-      response.addAllLanguages(formatLanguages());
+      response.setLanguages(formatLanguages());
     }
     return response.build();
   }
@@ -107,9 +103,9 @@ public class SearchResponseFormat {
       response.setIssue(issueBuilder.build());
     }
     response.addAllComponents(formatComponents(data));
-    response.addAllRules(formatRules(data));
-    response.addAllUsers(formatUsers(data));
-    response.addAllActionPlans(formatActionPlans(data));
+    response.addAllRules(formatRules(data).getRulesList());
+    response.addAllUsers(formatUsers(data).getUsersList());
+    response.addAllActionPlans(formatActionPlans(data).getActionPlansList());
     return response.build();
   }
 
@@ -178,7 +174,6 @@ public class SearchResponseFormat {
       issueBuilder.setActionPlan(dto.getActionPlanKey());
     }
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
-    issueBuilder.setTagsPresentIfEmpty(true);
     issueBuilder.addAllTags(dto.getTags());
     Long debt = dto.getDebt();
     if (debt != null) {
@@ -254,56 +249,59 @@ public class SearchResponseFormat {
     return targetRange;
   }
 
-  private static void formatIssueTransitions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
-    issueBuilder.setTransitionsPresentIfEmpty(true);
+  private static void formatIssueTransitions(SearchResponseData data, Issues.Issue.Builder wsIssue, IssueDto dto) {
+    Issues.Transitions.Builder wsTransitions = Issues.Transitions.newBuilder();
     List<Transition> transitions = data.getTransitionsForIssueKey(dto.getKey());
     if (transitions != null) {
       for (Transition transition : transitions) {
-        issueBuilder.addTransitions(transition.key());
+        wsTransitions.addTransitions(transition.key());
       }
     }
+    wsIssue.setTransitions(wsTransitions);
   }
 
-  private static void formatIssueActions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
-    issueBuilder.setActionsPresentIfEmpty(true);
+  private static void formatIssueActions(SearchResponseData data, Issues.Issue.Builder wsIssue, IssueDto dto) {
+    Issues.Actions.Builder wsActions = Issues.Actions.newBuilder();
     List<String> actions = data.getActionsForIssueKey(dto.getKey());
     if (actions != null) {
-      issueBuilder.addAllActions(actions);
+      wsActions.addAllActions(actions);
     }
+    wsIssue.setActions(wsActions);
   }
 
-  private static void formatIssueComments(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
-    issueBuilder.setCommentsPresentIfEmpty(true);
+  private static void formatIssueComments(SearchResponseData data, Issues.Issue.Builder wsIssue, IssueDto dto) {
+    Issues.Comments.Builder wsComments = Issues.Comments.newBuilder();
     List<IssueChangeDto> comments = data.getCommentsForIssueKey(dto.getKey());
     if (comments != null) {
-      Issues.Comment.Builder commentBuilder = Issues.Comment.newBuilder();
+      Issues.Comment.Builder wsComment = Issues.Comment.newBuilder();
       for (IssueChangeDto comment : comments) {
         String markdown = comment.getChangeData();
-        commentBuilder
+        wsComment
           .clear()
           .setKey(comment.getKey())
           .setLogin(nullToEmpty(comment.getUserLogin()))
           .setUpdatable(data.isUpdatableComment(comment.getKey()))
           .setCreatedAt(DateUtils.formatDateTime(new Date(comment.getCreatedAt())));
         if (markdown != null) {
-          commentBuilder
+          wsComment
             .setHtmlText(Markdown.convertToHtml(markdown))
             .setMarkdown(markdown);
         }
-        issueBuilder.addComments(commentBuilder.build());
+        wsComments.addComments(wsComment);
       }
     }
+    wsIssue.setComments(wsComments);
   }
 
-  private List<Common.Rule> formatRules(SearchResponseData data) {
-    List<Common.Rule> result = new ArrayList<>();
+  private Common.Rules.Builder formatRules(SearchResponseData data) {
+    Common.Rules.Builder wsRules = Common.Rules.newBuilder();
     List<RuleDto> rules = data.getRules();
     if (rules != null) {
       for (RuleDto rule : rules) {
-        result.add(commonFormat.formatRule(rule).build());
+        wsRules.addRules(commonFormat.formatRule(rule));
       }
     }
-    return result;
+    return wsRules;
   }
 
   private static List<Issues.Component> formatComponents(SearchResponseData data) {
@@ -340,19 +338,19 @@ public class SearchResponseFormat {
     return result;
   }
 
-  private List<Common.User> formatUsers(SearchResponseData data) {
-    List<Common.User> result = new ArrayList<>();
+  private Common.Users.Builder formatUsers(SearchResponseData data) {
+    Common.Users.Builder wsUsers = Common.Users.newBuilder();
     List<UserDto> users = data.getUsers();
     if (users != null) {
       for (UserDto user : users) {
-        result.add(commonFormat.formatUser(user).build());
+        wsUsers.addUsers(commonFormat.formatUser(user));
       }
     }
-    return result;
+    return wsUsers;
   }
 
-  private List<Issues.ActionPlan> formatActionPlans(SearchResponseData data) {
-    List<Issues.ActionPlan> result = new ArrayList<>();
+  private Issues.ActionPlans.Builder formatActionPlans(SearchResponseData data) {
+    Issues.ActionPlans.Builder wsActionPlans = Issues.ActionPlans.newBuilder();
     List<ActionPlanDto> actionPlans = data.getActionPlans();
     if (actionPlans != null) {
       Issues.ActionPlan.Builder planBuilder = Issues.ActionPlan.newBuilder();
@@ -367,43 +365,44 @@ public class SearchResponseFormat {
         if (deadLine != null) {
           planBuilder.setDeadLine(DateUtils.formatDateTime(deadLine));
         }
-        result.add(planBuilder.build());
+        wsActionPlans.addActionPlans(planBuilder);
       }
     }
-    return result;
+    return wsActionPlans;
   }
 
-  private List<Issues.Language> formatLanguages() {
-    List<Issues.Language> result = new ArrayList<>();
-    Issues.Language.Builder builder = Issues.Language.newBuilder();
+  private Issues.Languages.Builder formatLanguages() {
+    Issues.Languages.Builder wsLangs = Issues.Languages.newBuilder();
+    Issues.Language.Builder wsLang = Issues.Language.newBuilder();
     for (Language lang : languages.all()) {
-      builder
+      wsLang
         .clear()
         .setKey(lang.getKey())
         .setName(lang.getName());
-      result.add(builder.build());
+      wsLangs.addLanguages(wsLang);
     }
-    return result;
+    return wsLangs;
   }
 
-  private void formatFacets(Facets facets, Issues.Search.Builder response) {
-    response.setFacetsPresentIfEmpty(true);
-    Common.Facet.Builder facetBuilder = Common.Facet.newBuilder();
+  private void formatFacets(Facets facets, Issues.Search.Builder wsSearch) {
+    Common.Facets.Builder wsFacets = Common.Facets.newBuilder();
+    Common.Facet.Builder wsFacet = Common.Facet.newBuilder();
     for (Map.Entry<String, LinkedHashMap<String, Long>> facet : facets.getAll().entrySet()) {
-      facetBuilder.clear();
-      facetBuilder.setProperty(facet.getKey());
+      wsFacet.clear();
+      wsFacet.setProperty(facet.getKey());
       LinkedHashMap<String, Long> buckets = facet.getValue();
       if (buckets != null) {
         for (Map.Entry<String, Long> bucket : buckets.entrySet()) {
-          Common.FacetValue.Builder valueBuilder = facetBuilder.addValuesBuilder();
+          Common.FacetValue.Builder valueBuilder = wsFacet.addValuesBuilder();
           valueBuilder.setVal(bucket.getKey());
           valueBuilder.setCount(bucket.getValue());
           valueBuilder.build();
         }
       } else {
-        facetBuilder.addAllValues(Collections.<Common.FacetValue>emptyList());
+        wsFacet.addAllValues(Collections.<Common.FacetValue>emptyList());
       }
-      response.addFacets(facetBuilder.build());
+      wsFacets.addFacets(wsFacet);
     }
+    wsSearch.setFacets(wsFacets);
   }
 }
