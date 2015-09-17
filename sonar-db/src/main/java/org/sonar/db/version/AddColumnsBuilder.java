@@ -22,11 +22,13 @@ package org.sonar.db.version;
 import java.util.List;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.MsSql;
-import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * Generate a SQL query to add multiple columns on a table
+ */
 public class AddColumnsBuilder {
 
   private final Dialect dialect;
@@ -76,23 +78,8 @@ public class AddColumnsBuilder {
   }
 
   private void addColumn(StringBuilder sql, ColumnDef columnDef) {
-    sql.append(columnDef.getName()).append(" ").append(typeToSql(columnDef));
-    Integer limit = columnDef.getLimit();
-    if (limit != null) {
-      sql.append(" (").append(Integer.toString(limit)).append(")");
-    }
+    sql.append(columnDef.getName()).append(" ").append(columnDef.generateSqlType(dialect));
     sql.append(columnDef.isNullable() ? " NULL" : " NOT NULL");
-  }
-
-  private String typeToSql(ColumnDef columnDef) {
-    switch (columnDef.getType()) {
-      case STRING:
-        return "VARCHAR";
-      case BIG_INTEGER:
-        return !dialect.getId().equals(Oracle.ID) ? "BIGINT" : "NUMBER (38)";
-      default:
-        throw new IllegalArgumentException("Unsupported type : " + columnDef.getType());
-    }
   }
 
 }

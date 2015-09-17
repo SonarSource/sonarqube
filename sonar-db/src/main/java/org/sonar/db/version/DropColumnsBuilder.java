@@ -25,6 +25,9 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
+/**
+ * Generate a SQL query to drop multiple columns from a table
+ */
 public class DropColumnsBuilder {
 
   private final Dialect dialect;

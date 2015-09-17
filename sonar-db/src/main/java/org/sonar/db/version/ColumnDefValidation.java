@@ -20,14 +20,22 @@
 
 package org.sonar.db.version;
 
-import org.sonar.db.dialect.Dialect;
+import com.google.common.base.CharMatcher;
+import javax.annotation.Nullable;
 
-public interface ColumnDef {
+import static com.google.common.base.CharMatcher.JAVA_LOWER_CASE;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
-  boolean isNullable();
+public class ColumnDefValidation {
 
-  String getName();
+  private ColumnDefValidation() {
+    // Only static stuff here
+  }
 
-  String generateSqlType(Dialect dialect);
-
+  public static String validateColumnName(@Nullable String columnName) {
+    String name = requireNonNull(columnName, "Column name cannot be null");
+    checkArgument(JAVA_LOWER_CASE.or(CharMatcher.anyOf("_")).matchesAllOf(name), String.format("Column name should only contains lowercase and _ characters, got '%s'", columnName));
+    return name;
+  }
 }

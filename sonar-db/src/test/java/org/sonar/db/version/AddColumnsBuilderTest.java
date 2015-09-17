@@ -30,8 +30,6 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.version.ColumnDef.Type.BIG_INTEGER;
-import static org.sonar.db.version.ColumnDef.Type.STRING;
 
 public class AddColumnsBuilderTest {
 
@@ -40,39 +38,33 @@ public class AddColumnsBuilderTest {
 
   static final String TABLE_NAME = "issues";
 
-  static final H2 H2_DIALECT = new H2();
-  static final MySql MYSQL_DIALECT = new MySql();
-  static final Oracle ORACLE_DIALECT = new Oracle();
-  static final PostgreSql POSTGRES_DIALECT = new PostgreSql();
-  static final MsSql MSSQL_DIALECT = new MsSql();
-
   @Test
   public void add_columns_on_h2() {
-    assertThat(createSampleBuilder(H2_DIALECT).build())
+    assertThat(createSampleBuilder(new H2()).build())
       .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL)");
   }
 
   @Test
   public void add_columns_on_mysql() {
-    assertThat(createSampleBuilder(MYSQL_DIALECT).build())
+    assertThat(createSampleBuilder(new MySql()).build())
       .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL)");
   }
 
   @Test
   public void add_columns_on_oracle() {
-    assertThat(createSampleBuilder(ORACLE_DIALECT).build())
+    assertThat(createSampleBuilder(new Oracle()).build())
       .isEqualTo("ALTER TABLE issues ADD (date_in_ms NUMBER (38) NULL, name VARCHAR (10) NOT NULL)");
   }
 
   @Test
   public void add_columns_on_postgresql() {
-    assertThat(createSampleBuilder(POSTGRES_DIALECT).build())
+    assertThat(createSampleBuilder(new PostgreSql()).build())
       .isEqualTo("ALTER TABLE issues ADD COLUMN date_in_ms BIGINT NULL, ADD COLUMN name VARCHAR (10) NOT NULL");
   }
 
   @Test
   public void add_columns_on_mssql() {
-    assertThat(createSampleBuilder(MSSQL_DIALECT).build())
+    assertThat(createSampleBuilder(new MsSql()).build())
       .isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL");
   }
 
@@ -81,20 +73,12 @@ public class AddColumnsBuilderTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("No column has been defined");
 
-    new AddColumnsBuilder(H2_DIALECT, TABLE_NAME).build();
+    new AddColumnsBuilder(new H2(), TABLE_NAME).build();
   }
 
   private AddColumnsBuilder createSampleBuilder(Dialect dialect) {
     return new AddColumnsBuilder(dialect, TABLE_NAME)
-      .addColumn(new ColumnDef()
-        .setName("date_in_ms")
-        .setType(BIG_INTEGER)
-        .setNullable(true))
-      .addColumn(new ColumnDef()
-        .setName("name")
-        .setType(STRING)
-        .setNullable(false)
-        .setLimit(10));
+      .addColumn(new BigDecimalColumnDef.Builder().setColumnName("date_in_ms").setIsNullable(true).build())
+      .addColumn(new StringColumnDef.Builder().setColumnName("name").setLimit(10).setIsNullable(false).build());
   }
-
 }

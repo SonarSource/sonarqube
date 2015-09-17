@@ -23,8 +23,10 @@ package org.sonar.db.version.v51;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
-import org.sonar.db.version.ColumnDef;
 import org.sonar.db.version.DdlChange;
+
+import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBuilder;
+import static org.sonar.db.version.StringColumnDef.newStringColumnDefBuilder;
 
 /**
  * Add the following columns to the issues table :
@@ -51,42 +53,12 @@ public class AddIssuesColumns extends DdlChange {
 
   private String generateSql() {
     return new AddColumnsBuilder(db.getDialect(), "issues")
-      .addColumn(
-        new ColumnDef()
-          .setName("issue_creation_date_ms")
-          .setType(ColumnDef.Type.BIG_INTEGER)
-          .setNullable(true)
-      )
-      .addColumn(
-        new ColumnDef()
-          .setName("issue_update_date_ms")
-          .setType(ColumnDef.Type.BIG_INTEGER)
-          .setNullable(true)
-      )
-      .addColumn(
-        new ColumnDef()
-          .setName("issue_close_date_ms")
-          .setType(ColumnDef.Type.BIG_INTEGER)
-          .setNullable(true)
-      )
-      .addColumn(
-        new ColumnDef()
-          .setName("tags")
-          .setType(ColumnDef.Type.STRING)
-          .setLimit(4000)
-          .setNullable(true))
-      .addColumn(
-        new ColumnDef()
-          .setName("component_uuid")
-          .setType(ColumnDef.Type.STRING)
-          .setLimit(50)
-          .setNullable(true))
-      .addColumn(
-        new ColumnDef()
-          .setName("project_uuid")
-          .setType(ColumnDef.Type.STRING)
-          .setLimit(50)
-          .setNullable(true))
+      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_creation_date_ms").setIsNullable(true).build())
+      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_update_date_ms").setIsNullable(true).build())
+      .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_close_date_ms").setIsNullable(true).build())
+      .addColumn(newStringColumnDefBuilder().setColumnName("tags").setLimit(4000).setIsNullable(true).build())
+      .addColumn(newStringColumnDefBuilder().setColumnName("component_uuid").setLimit(50).setIsNullable(true).build())
+      .addColumn(newStringColumnDefBuilder().setColumnName("project_uuid").setLimit(50).setIsNullable(true).build())
       .build();
   }
 

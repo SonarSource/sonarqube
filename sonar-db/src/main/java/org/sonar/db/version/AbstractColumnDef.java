@@ -20,14 +20,22 @@
 
 package org.sonar.db.version;
 
-import org.sonar.db.dialect.Dialect;
+public abstract class AbstractColumnDef implements ColumnDef {
+  private final String columnName;
+  private final boolean isNullable;
 
-public interface ColumnDef {
+  public AbstractColumnDef(String columnName, boolean isNullable) {
+    this.columnName = columnName;
+    this.isNullable = isNullable;
+  }
 
-  boolean isNullable();
+  @Override
+  public String getName() {
+    return columnName;
+  }
 
-  String getName();
-
-  String generateSqlType(Dialect dialect);
-
+  @Override
+  public boolean isNullable() {
+    return isNullable;
+  }
 }
