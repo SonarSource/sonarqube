@@ -1499,36 +1499,6 @@
     </profile>
 
     <profile>
-      <!-- SonarSource internal use -->
-      <id>dbTests</id>
-      <activation>
-        <property>
-          <name>dbTests</name>
-        </property>
-      </activation>
-      <properties>
-        <junitGroups>org.sonar.test.DbTests</junitGroups>
-      </properties>
-      <dependencies>
-        <dependency>
-          <groupId>mysql</groupId>
-          <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.postgresql</groupId>
-          <artifactId>postgresql</artifactId>
-        </dependency>
-        <dependency>
-          <!-- this artifact is located in the SonarSource internal repository -->
-          <groupId>com.oracle</groupId>
-          <artifactId>ojdbc6</artifactId>
-          <version>11.2.0.3.0</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-
-    <profile>
       <!-- add microbenchmarks module to IDE -->
       <id>includeMicrobenchmarkModule</id>
       <modules>

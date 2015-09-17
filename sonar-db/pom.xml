@@ -160,4 +160,43 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <!-- SonarSource internal use -->
+      <id>dbTests</id>
+      <activation>
+        <property>
+          <name>dbTests</name>
+        </property>
+      </activation>
+      <properties>
+        <junitGroups>org.sonar.test.DbTests</junitGroups>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+        <!-- this artifact is located in the SonarSource internal repository -->
+        <groupId>com.oracle</groupId>
+        <artifactId>ojdbc6</artifactId>
+        <version>11.2.0.3.0</version>
+        <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.microsoft.sqljdbc</groupId>
+          <artifactId>sqljdbc41</artifactId>
+          <version>4.1</version>
+          <scope>system</scope>
+          <systemPath>${project.basedir}/../sonar-application/src/main/assembly/lib/jdbc/mssql/sqljdbc41.jar</systemPath>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
