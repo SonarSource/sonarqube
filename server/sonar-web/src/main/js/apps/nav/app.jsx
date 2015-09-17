@@ -2,6 +2,7 @@ import React from 'react';
 import GlobalNav from './global/global-nav';
 import ComponentNav from './component/component-nav';
 import SettingsNav from './settings/settings-nav';
+import '../../components/workspace/main';
 
 export default {
   start(options) {
