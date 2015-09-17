@@ -191,7 +191,7 @@
   </sql>
 
   <select id="selectEnabledFilesFromProject" parameterType="map" resultType="FilePathWithHash">
-    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash
+    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash, fs.revision
     FROM projects p
     INNER JOIN file_sources fs ON fs.file_uuid=p.uuid and fs.data_type='SOURCE'
     <where>
@@ -202,7 +202,7 @@
   </select>
 
   <select id="selectDescendantFiles" parameterType="map" resultType="FilePathWithHash">
-    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash
+    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash, fs.revision
     FROM projects p
     INNER JOIN file_sources fs ON fs.file_uuid=p.uuid and fs.data_type='SOURCE'
     <include refid="modulesTreeQuery"/>

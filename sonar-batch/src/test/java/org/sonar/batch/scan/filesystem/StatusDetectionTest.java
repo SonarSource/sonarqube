@@ -19,15 +19,14 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.collect.ImmutableTable;
-
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
-
-import org.sonar.batch.repository.ProjectSettingsRepo;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.repository.ProjectSettingsRepo;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatusDetectionTest {
@@ -45,8 +44,8 @@ public class StatusDetectionTest {
   private static Table<String, String, FileData> createTable() {
     Table<String, String, FileData> t = HashBasedTable.create();
 
-    t.put("foo", "src/Foo.java", new FileData("ABCDE", true));
-    t.put("foo", "src/Bar.java", new FileData("FGHIJ", true));
+    t.put("foo", "src/Foo.java", new FileData("ABCDE", "12345789"));
+    t.put("foo", "src/Bar.java", new FileData("FGHIJ", "123456789"));
 
     return t;
   }

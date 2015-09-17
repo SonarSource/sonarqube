@@ -26,6 +26,7 @@ public class FilePathWithHashDto {
   private String moduleUuid;
   private String path;
   private String srcHash;
+  private String revision;
 
   public String getSrcHash() {
     return srcHash;
@@ -51,6 +52,14 @@ public class FilePathWithHashDto {
     this.path = path;
   }
 
+  public String getRevision() {
+    return revision;
+  }
+
+  public void setRevision(String revision) {
+    this.revision = revision;
+  }
+
   public String getUuid() {
     return uuid;
   }
@@ -58,4 +67,5 @@ public class FilePathWithHashDto {
   public void setUuid(String uuid) {
     this.uuid = uuid;
   }
+
 }

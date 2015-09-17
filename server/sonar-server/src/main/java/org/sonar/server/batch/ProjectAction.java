@@ -20,12 +20,16 @@
 
 package org.sonar.server.batch;
 
-import org.apache.commons.io.IOUtils;
+import java.util.HashMap;
+import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.WsBatch.WsProjectResponse;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProjectAction implements BatchWsAction {
 
@@ -66,13 +70,85 @@ public class ProjectAction implements BatchWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(Request wsRequest, Response wsResponse) throws Exception {
     ProjectRepositories data = projectDataLoader.load(ProjectDataQuery.create()
-      .setModuleKey(request.mandatoryParam(PARAM_KEY))
-      .setProfileName(request.param(PARAM_PROFILE))
-      .setPreview(request.mandatoryParamAsBoolean(PARAM_PREVIEW)));
-    response.stream().setMediaType(MimeTypes.JSON);
-    IOUtils.write(data.toJson(), response.stream().output());
+      .setModuleKey(wsRequest.mandatoryParam(PARAM_KEY))
+      .setProfileName(wsRequest.param(PARAM_PROFILE))
+      .setIssuesMode(wsRequest.mandatoryParamAsBoolean(PARAM_PREVIEW)));
+
+    WsProjectResponse projectResponse = buildResponse(data);
+    writeProtobuf(projectResponse, wsRequest, wsResponse);
+  }
+
+  private static WsProjectResponse buildResponse(ProjectRepositories data) {
+    WsProjectResponse.Builder response = WsProjectResponse.newBuilder();
+    setLastAnalysisDate(response, data);
+    response.setTimestamp(data.timestamp());
+    response.getMutableFileDataByModuleAndPatch()
+      .putAll(buildFileDataByModuleAndPatch(data));
+    response.getMutableSettingsByModule()
+      .putAll(buildSettingsByModule(data));
+
+    return response.build();
+  }
+
+  private static void setLastAnalysisDate(WsProjectResponse.Builder response, ProjectRepositories data) {
+    if (data.lastAnalysisDate() != null) {
+      response.setLastAnalysisDate(data.lastAnalysisDate().getTime());
+    }
+  }
+
+  private static Map<String, WsProjectResponse.FileDataByPath> buildFileDataByModuleAndPatch(ProjectRepositories data) {
+    Map<String, WsProjectResponse.FileDataByPath> fileDataByModuleAndPathResponse = new HashMap<>();
+    for (Map.Entry<String, Map<String, FileData>> moduleAndFileDataByPathEntry : data.fileDataByModuleAndPath().entrySet()) {
+      fileDataByModuleAndPathResponse.put(
+        moduleAndFileDataByPathEntry.getKey(),
+        buildFileDataByPath(moduleAndFileDataByPathEntry.getValue()));
+    }
+
+    return fileDataByModuleAndPathResponse;
+  }
+
+  private static WsProjectResponse.FileDataByPath buildFileDataByPath(Map<String, FileData> fileDataByPath) {
+    WsProjectResponse.FileDataByPath.Builder response = WsProjectResponse.FileDataByPath.newBuilder();
+    Map<String, WsProjectResponse.FileData> fileDataByPathResponse = response.getMutableFileDataByPath();
+
+    for (Map.Entry<String, FileData> pathFileDataEntry : fileDataByPath.entrySet()) {
+      fileDataByPathResponse.put(
+        pathFileDataEntry.getKey(),
+        toFileDataResponse(pathFileDataEntry.getValue()));
+    }
+
+    return response.build();
+  }
+
+  private static Map<String, WsProjectResponse.Settings> buildSettingsByModule(ProjectRepositories data) {
+    Map<String, WsProjectResponse.Settings> settingsByModuleResponse = new HashMap<>();
+    for (Map.Entry<String, Map<String, String>> moduleSettingsEntry : data.settings().entrySet()) {
+      settingsByModuleResponse.put(
+        moduleSettingsEntry.getKey(),
+        toSettingsResponse(moduleSettingsEntry.getValue())
+        );
+    }
+
+    return settingsByModuleResponse;
+  }
+
+  private static WsProjectResponse.Settings toSettingsResponse(Map<String, String> settings) {
+    WsProjectResponse.Settings.Builder settingsResponse = WsProjectResponse.Settings
+      .newBuilder();
+    settingsResponse
+      .getMutableSettings()
+      .putAll(settings);
+
+    return settingsResponse.build();
+  }
+
+  private static WsProjectResponse.FileData toFileDataResponse(FileData fileData) {
+    return WsProjectResponse.FileData.newBuilder()
+      .setHash(fileData.hash())
+      .setRevision(fileData.revision())
+      .build();
   }
 
 }

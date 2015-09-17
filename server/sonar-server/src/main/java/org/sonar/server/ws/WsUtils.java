@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ws;
 
+import com.google.common.base.Optional;
 import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -73,5 +74,17 @@ public class WsUtils {
     }
 
     return value;
+  }
+
+  /**
+   * @throws NotFoundException if the value is not present
+   * @return the value
+   */
+  public static <T> T checkFound(Optional<T> value, String message) {
+    if (!value.isPresent()) {
+      throw new NotFoundException(message);
+    }
+
+    return value.get();
   }
 }

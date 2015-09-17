@@ -27,18 +27,18 @@ public class ProjectDataQuery {
 
   private String projectOrModuleKey;
   private String profileName;
-  private boolean preview;
+  private boolean issuesMode;
 
   private ProjectDataQuery() {
     // No direct call
   }
 
-  public boolean isPreview() {
-    return preview;
+  public boolean isIssuesMode() {
+    return issuesMode;
   }
 
-  public ProjectDataQuery setPreview(boolean preview) {
-    this.preview = preview;
+  public ProjectDataQuery setIssuesMode(boolean issuesMode) {
+    this.issuesMode = issuesMode;
     return this;
   }
 

@@ -59,7 +59,7 @@ public class ProjectActionTest {
 
     assertThat(queryArgumentCaptor.getValue().getModuleKey()).isEqualTo(projectKey);
     assertThat(queryArgumentCaptor.getValue().getProfileName()).isEqualTo("Default");
-    assertThat(queryArgumentCaptor.getValue().isPreview()).isFalse();
+    assertThat(queryArgumentCaptor.getValue().isIssuesMode()).isFalse();
   }
 
 }

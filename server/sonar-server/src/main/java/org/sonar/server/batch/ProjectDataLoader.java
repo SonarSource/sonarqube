@@ -20,20 +20,13 @@
 
 package org.sonar.server.batch;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -41,28 +34,19 @@ import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.RuleService;
-import org.sonar.server.rule.index.RuleNormalizer;
-import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 @ServerSide
 public class ProjectDataLoader {
@@ -70,71 +54,58 @@ public class ProjectDataLoader {
   private static final Logger LOG = Loggers.get(ProjectDataLoader.class);
 
   private final DbClient dbClient;
-  private final QProfileFactory qProfileFactory;
-  private final QProfileLoader qProfileLoader;
-  private final RuleService ruleService;
-  private final Languages languages;
   private final UserSession userSession;
 
-  public ProjectDataLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
-                           Languages languages, UserSession userSession) {
+  public ProjectDataLoader(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
-    this.qProfileFactory = qProfileFactory;
-    this.qProfileLoader = qProfileLoader;
-    this.ruleService = ruleService;
-    this.languages = languages;
     this.userSession = userSession;
   }
 
   public ProjectRepositories load(ProjectDataQuery query) {
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-    checkPermission(query.isPreview());
+    checkPermission(query.isIssuesMode());
 
     DbSession session = dbClient.openSession(false);
     try {
-      ProjectRepositories ref = new ProjectRepositories();
-      String projectKey = query.getModuleKey();
-      Optional<ComponentDto> moduleOptional = dbClient.componentDao().selectByKey(session, query.getModuleKey());
-      // Current project/module can be null when analysing a new project
-      if (moduleOptional.isPresent()) {
-        ComponentDto module = moduleOptional.get();
-        // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
-        if (query.isPreview() && !userSession.hasProjectPermissionByUuid(UserRole.USER, module.projectUuid())) {
-          throw new ForbiddenException("You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
-        }
+      ProjectRepositories data = new ProjectRepositories();
+      ComponentDto module = checkFound(dbClient.componentDao().selectByKey(session, query.getModuleKey()),
+        format("Project or module with key '%s' is not found", query.getModuleKey()));
 
-        ComponentDto project = getProject(module, session);
-        if (!project.key().equals(module.key())) {
-          addSettings(ref, module.getKey(), getSettingsFromParents(module, hasScanPerm, session));
-          projectKey = project.key();
-        }
-
-        List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, module.uuid());
-        Map<String, String> moduleUuidsByKey = moduleUuidsByKey(module, modulesTree);
-        Map<String, Long> moduleIdsByKey = moduleIdsByKey(module, modulesTree);
-
-        List<PropertyDto> modulesTreeSettings = dbClient.propertiesDao().selectEnabledDescendantModuleProperties(module.uuid(), session);
-        TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, modulesTree, modulesTreeSettings, module);
-
-        addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
-        List<FilePathWithHashDto> files = module.isRootProject() ? dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid())
-          : dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
-        addFileData(session, ref, modulesTree, files);
-
-        // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
-        // ok
-        ref.setLastAnalysisDate(new Date());
-      } else {
-        ref.setLastAnalysisDate(null);
+      // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
+      if (query.isIssuesMode() && !userSession.hasProjectPermissionByUuid(UserRole.USER, module.projectUuid())) {
+        throw new ForbiddenException("You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
       }
 
-      addProfiles(ref, projectKey, query.getProfileName(), session);
-      addActiveRules(ref);
-      addManualRules(ref);
-      return ref;
+      ComponentDto project = getProject(module, session);
+      if (!project.key().equals(module.key())) {
+        addSettings(data, module.getKey(), getSettingsFromParents(module, hasScanPerm, session));
+      }
+
+      List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, module.uuid());
+      Map<String, String> moduleUuidsByKey = moduleUuidsByKey(modulesTree);
+      Map<String, Long> moduleIdsByKey = moduleIdsByKey(modulesTree);
+
+      List<PropertyDto> modulesTreeSettings = dbClient.propertiesDao().selectEnabledDescendantModuleProperties(module.uuid(), session);
+      TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, modulesTree, modulesTreeSettings);
+
+      addSettingsToChildrenModules(data, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm);
+      List<FilePathWithHashDto> files = searchFilesWithHashAndRevision(session, module);
+      addFileData(data, modulesTree, files);
+
+      // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
+      // ok
+      data.setLastAnalysisDate(new Date());
+
+      return data;
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private List<FilePathWithHashDto> searchFilesWithHashAndRevision(DbSession session, ComponentDto module) {
+    return module.isRootProject() ?
+      dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid())
+      : dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
   }
 
   private ComponentDto getProject(ComponentDto module, DbSession session) {
@@ -169,7 +140,7 @@ public class ProjectDataLoader {
   }
 
   private void addSettingsToChildrenModules(ProjectRepositories ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
-    boolean hasScanPerm, DbSession session) {
+    boolean hasScanPerm) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);
     currentParentProperties.putAll(getPropertiesMap(treeModuleSettings.findModuleSettings(moduleKey), hasScanPerm));
@@ -177,7 +148,7 @@ public class ProjectDataLoader {
 
     for (ComponentDto childModule : treeModuleSettings.findChildrenModule(moduleKey)) {
       addSettings(ref, childModule.getKey(), currentParentProperties);
-      addSettingsToChildrenModules(ref, childModule.getKey(), currentParentProperties, treeModuleSettings, hasScanPerm, session);
+      addSettingsToChildrenModules(ref, childModule.getKey(), currentParentProperties, treeModuleSettings, hasScanPerm);
     }
   }
 
@@ -203,99 +174,15 @@ public class ProjectDataLoader {
     return !key.contains(".secured") || hasScanPerm;
   }
 
-  private void addProfiles(ProjectRepositories ref, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
-    for (Language language : languages.all()) {
-      String languageKey = language.getKey();
-      QualityProfileDto qualityProfileDto = getProfile(languageKey, projectKey, profileName, session);
-      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(
-        qualityProfileDto.getKey(),
-        qualityProfileDto.getName(),
-        qualityProfileDto.getLanguage(),
-        UtcDateUtils.parseDateTime(qualityProfileDto.getRulesUpdatedAt())));
-    }
-  }
-
-  /**
-   * First try to find a quality profile matching the given name (if provided) and current language
-   * If no profile found, try to find the quality profile set on the project (if provided)
-   * If still no profile found, try to find the default profile of the language
-   * <p/>
-   * Never return null because a default profile should always be set on each language
-   */
-  private QualityProfileDto getProfile(String languageKey, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
-    QualityProfileDto qualityProfileDto = profileName != null ? qProfileFactory.getByNameAndLanguage(session, profileName, languageKey) : null;
-    if (qualityProfileDto == null && projectKey != null) {
-      qualityProfileDto = qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
-    }
-    qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getDefault(session, languageKey);
-    if (qualityProfileDto != null) {
-      return qualityProfileDto;
-    } else {
-      throw new IllegalStateException(String.format("No quality profile can been found on language '%s' for project '%s'", languageKey, projectKey));
-    }
-  }
-
-  private void addActiveRules(ProjectRepositories ref) {
-    for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
-      // Load all rules of the profile language (only needed fields are loaded)
-      Map<RuleKey, Rule> languageRules = ruleByRuleKey(ruleService.search(new RuleQuery().setLanguages(newArrayList(qProfile.language())),
-        new QueryContext(userSession).setLimit(100).setFieldsToReturn(newArrayList(
-          RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field(), RuleNormalizer.RuleField.INTERNAL_KEY.field(),
-          RuleNormalizer.RuleField.TEMPLATE_KEY.field())).setScroll(true))
-        .scroll());
-      for (Iterator<ActiveRule> activeRuleIterator = qProfileLoader.findActiveRulesByProfile(qProfile.key()); activeRuleIterator.hasNext();) {
-        ActiveRule activeRule = activeRuleIterator.next();
-        Rule rule = languageRules.get(activeRule.key().ruleKey());
-        if (rule == null) {
-          // It should never happen, but we need some log in case it happens
-          LOG.warn("Rule could not be found on active rule '{}'", activeRule.key());
-        } else {
-          RuleKey templateKey = rule.templateKey();
-          org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
-            activeRule.key().ruleKey().repository(),
-            activeRule.key().ruleKey().rule(),
-            templateKey != null ? templateKey.rule() : null,
-            rule.name(),
-            activeRule.severity(),
-            rule.internalKey(),
-            qProfile.language());
-          for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {
-            inputActiveRule.addParam(entry.getKey(), entry.getValue());
-          }
-          ref.addActiveRule(inputActiveRule);
-        }
-      }
-    }
-  }
-
-  private Map<RuleKey, Rule> ruleByRuleKey(Iterator<Rule> rules) {
-    return Maps.uniqueIndex(rules, MatchRuleKey.INSTANCE);
-  }
-
-  private void addManualRules(ProjectRepositories ref) {
-    Result<Rule> ruleSearchResult = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleKey.MANUAL_REPOSITORY_KEY)), new QueryContext(userSession).setScroll(true)
-      .setFieldsToReturn(newArrayList(RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field())));
-    Iterator<Rule> rules = ruleSearchResult.scroll();
-    while (rules.hasNext()) {
-      Rule rule = rules.next();
-      ref.addActiveRule(new org.sonar.batch.protocol.input.ActiveRule(
-        RuleKey.MANUAL_REPOSITORY_KEY,
-        rule.key().rule(),
-        null, rule.name(),
-        null, null, null));
-    }
-  }
-
-  private static void addFileData(DbSession session, ProjectRepositories ref, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
+  private static void addFileData(ProjectRepositories data, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
     Map<String, String> moduleKeysByUuid = newHashMap();
     for (ComponentDto module : moduleChildren) {
       moduleKeysByUuid.put(module.uuid(), module.key());
     }
 
     for (FilePathWithHashDto file : files) {
-      // TODO should query E/S to know if blame is missing on this file
-      FileData fileData = new FileData(file.getSrcHash(), true);
-      ref.addFileData(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
+      FileData fileData = new FileData(file.getSrcHash(), file.getRevision());
+      data.addFileData(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
     }
   }
 
@@ -314,7 +201,7 @@ public class ProjectDataLoader {
     }
   }
 
-  private static Map<String, String> moduleUuidsByKey(ComponentDto module, List<ComponentDto> moduleChildren) {
+  private static Map<String, String> moduleUuidsByKey(List<ComponentDto> moduleChildren) {
     Map<String, String> moduleUuidsByKey = newHashMap();
     for (ComponentDto componentDto : moduleChildren) {
       moduleUuidsByKey.put(componentDto.key(), componentDto.uuid());
@@ -322,7 +209,7 @@ public class ProjectDataLoader {
     return moduleUuidsByKey;
   }
 
-  private static Map<String, Long> moduleIdsByKey(ComponentDto module, List<ComponentDto> moduleChildren) {
+  private static Map<String, Long> moduleIdsByKey(List<ComponentDto> moduleChildren) {
     Map<String, Long> moduleIdsByKey = newHashMap();
     for (ComponentDto componentDto : moduleChildren) {
       moduleIdsByKey.put(componentDto.key(), componentDto.getId());
@@ -338,7 +225,7 @@ public class ProjectDataLoader {
     private Multimap<String, ComponentDto> moduleChildrenByModuleUuid;
 
     private TreeModuleSettings(Map<String, String> moduleUuidsByKey, Map<String, Long> moduleIdsByKey, List<ComponentDto> moduleChildren,
-      List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
+      List<PropertyDto> moduleChildrenSettings) {
       this.moduleIdsByKey = moduleIdsByKey;
       this.moduleUuidsByKey = moduleUuidsByKey;
       propertiesByModuleId = ArrayListMultimap.create();
@@ -364,15 +251,6 @@ public class ProjectDataLoader {
     List<ComponentDto> findChildrenModule(String moduleKey) {
       String moduleUuid = moduleUuidsByKey.get(moduleKey);
       return newArrayList(moduleChildrenByModuleUuid.get(moduleUuid));
-    }
-  }
-
-  private enum MatchRuleKey implements Function<Rule, RuleKey> {
-    INSTANCE;
-
-    @Override
-    public RuleKey apply(@Nullable Rule input) {
-      return input != null ? input.key() : null;
     }
   }
 }

@@ -19,17 +19,13 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.cache.WSLoaderResult;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.cache.WSLoader;
-
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.MessageException;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.util.BatchUtils;
@@ -58,7 +54,6 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     url += "&preview=" + analysisMode.isIssues();
 
     ProjectRepositories projectRepositories = load(url, fromCache);
-    validateProjectRepositories(projectRepositories);
     return projectRepositories;
   }
 
@@ -68,11 +63,5 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       fromCache.setValue(result.isFromCache());
     }
     return ProjectRepositories.fromJson(result.get());
-  }
-
-  private static void validateProjectRepositories(ProjectRepositories projectRepositories) {
-    if (projectRepositories.qProfiles().isEmpty()) {
-      throw MessageException.of("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
-    }
   }
 }

@@ -36,8 +36,6 @@ import org.sonar.batch.protocol.GsonHelper;
 public class ProjectRepositories {
 
   private long timestamp;
-  private Map<String, QProfile> qprofilesByLanguage = new HashMap<>();
-  private Collection<ActiveRule> activeRules = new ArrayList<>();
   private Map<String, Map<String, String>> settingsByModule = new HashMap<>();
   private Map<String, Map<String, FileData>> fileDataByModuleAndPath = new HashMap<>();
   private Date lastAnalysisDate;
@@ -45,7 +43,7 @@ public class ProjectRepositories {
   public Map<String, String> settings(String moduleKey) {
     return settingsByModule.containsKey(moduleKey) ? settingsByModule.get(moduleKey) : Collections.<String, String>emptyMap();
   }
-  
+
   public Map<String, Map<String, String>> settings() {
     return settingsByModule;
   }
@@ -57,24 +55,6 @@ public class ProjectRepositories {
       settingsByModule.put(moduleKey, existingSettings);
     }
     existingSettings.putAll(settings);
-    return this;
-  }
-
-  public Collection<QProfile> qProfiles() {
-    return qprofilesByLanguage.values();
-  }
-
-  public ProjectRepositories addQProfile(QProfile qProfile) {
-    qprofilesByLanguage.put(qProfile.language(), qProfile);
-    return this;
-  }
-
-  public Collection<ActiveRule> activeRules() {
-    return activeRules;
-  }
-
-  public ProjectRepositories addActiveRule(ActiveRule activeRule) {
-    activeRules.add(activeRule);
     return this;
   }
 
@@ -126,4 +106,19 @@ public class ProjectRepositories {
     return GsonHelper.create().fromJson(json, ProjectRepositories.class);
   }
 
+  public Collection<QProfile> qProfiles() {
+    return new ArrayList<>();
+  }
+
+  public Collection<ActiveRule> activeRules() {
+    return new ArrayList<>();
+  }
+
+  public void addQProfile(QProfile qProfile) {
+    // do nothing
+  }
+
+  public void addActiveRule(ActiveRule activeRule) {
+    // do nothing
+  }
 }

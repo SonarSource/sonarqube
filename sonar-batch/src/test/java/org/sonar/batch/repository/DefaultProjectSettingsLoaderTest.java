@@ -54,8 +54,8 @@ public class DefaultProjectSettingsLoaderTest {
     projectRepositories = new ProjectRepositories();
     projectRepositories.setLastAnalysisDate(new Date(1000));
 
-    f1 = new FileData("hash1", true);
-    f2 = new FileData("hash2", true);
+    f1 = new FileData("hash1", "123456789");
+    f2 = new FileData("hash2", "123456789");
     projectRepositories.addFileData("module1", "file1", f1);
     projectRepositories.addFileData("module1", "file2", f2);
 

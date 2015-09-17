@@ -22,43 +22,30 @@ package org.sonar.server.batch;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.QProfileName;
-import org.sonar.server.qualityprofile.RuleActivation;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -98,10 +85,10 @@ public class ProjectDataLoaderMediumTest {
     // Project properties
     tester.get(DbClient.class).propertiesDao().insertProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId())
-    );
+      );
     tester.get(DbClient.class).propertiesDao().insertProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId())
-    );
+      );
     dbSession.commit();
 
     ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
@@ -109,7 +96,7 @@ public class ProjectDataLoaderMediumTest {
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
   }
 
   @Test
@@ -122,17 +109,17 @@ public class ProjectDataLoaderMediumTest {
     // Project properties
     tester.get(DbClient.class).propertiesDao().insertProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId())
-    );
+      );
     tester.get(DbClient.class).propertiesDao().insertProperty(
       dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId())
-    );
+      );
     dbSession.commit();
 
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()).setPreview(true));
+    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
     Map<String, String> projectSettings = ref.settings(project.key());
     assertThat(projectSettings).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR"
-    ));
+      ));
   }
 
   @Test
@@ -163,12 +150,12 @@ public class ProjectDataLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -195,11 +182,11 @@ public class ProjectDataLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
   }
 
   @Test
@@ -237,17 +224,17 @@ public class ProjectDataLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
     assertThat(ref.settings(module.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
     assertThat(ref.settings(subModule.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER-DAO",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -265,9 +252,11 @@ public class ProjectDataLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, module1);
 
     // Module 1 properties
-    tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module1.getId()));
+    tester.get(DbClient.class).propertiesDao()
+      .insertProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module1.getId()));
     // This property should not be found on the other module
-    tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module1.getId()));
+    tester.get(DbClient.class).propertiesDao()
+      .insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(module1.getId()));
 
     ComponentDto module2 = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module2);
@@ -282,16 +271,16 @@ public class ProjectDataLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
     assertThat(ref.settings(module1.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
     assertThat(ref.settings(module2.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR-APPLICATION",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
   }
 
   @Test
@@ -312,7 +301,7 @@ public class ProjectDataLoaderMediumTest {
     assertThat(ref.settings(project.key())).isEqualTo(ImmutableMap.of(
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john"
-    ));
+      ));
   }
 
   @Test
@@ -334,7 +323,8 @@ public class ProjectDataLoaderMediumTest {
     // Sub module properties
     tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(subModule.getId()));
     tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(subModule.getId()));
-    tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
+    tester.get(DbClient.class).propertiesDao()
+      .insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
 
     dbSession.commit();
 
@@ -345,7 +335,7 @@ public class ProjectDataLoaderMediumTest {
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -368,7 +358,8 @@ public class ProjectDataLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
 
     // Sub module properties
-    tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
+    tester.get(DbClient.class).propertiesDao()
+      .insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(subModule.getId()));
 
     dbSession.commit();
 
@@ -379,7 +370,7 @@ public class ProjectDataLoaderMediumTest {
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -391,7 +382,8 @@ public class ProjectDataLoaderMediumTest {
     // Project properties
     tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR").setResourceId(project.getId()));
     tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(project.getId()));
+    tester.get(DbClient.class).propertiesDao()
+      .insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(project.getId()));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
@@ -411,7 +403,7 @@ public class ProjectDataLoaderMediumTest {
       "sonar.jira.project.key", "SONAR",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
+      ));
   }
 
   @Test
@@ -422,7 +414,8 @@ public class ProjectDataLoaderMediumTest {
 
     // Project properties
     tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(project.getId()));
-    tester.get(DbClient.class).propertiesDao().insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(project.getId()));
+    tester.get(DbClient.class).propertiesDao()
+      .insertProperty(dbSession, new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java").setResourceId(project.getId()));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
@@ -444,285 +437,7 @@ public class ProjectDataLoaderMediumTest {
       "sonar.jira.project.key", "SONAR-SERVER",
       "sonar.jira.login.secured", "john",
       "sonar.coverage.exclusions", "**/*.java"
-    ));
-  }
-
-  @Test
-  public void return_quality_profile_from_project_profile() {
-    Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
-
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-
-    QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      formatDateTime(ruleUpdatedAt));
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profileDto.getKee(), dbSession);
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-    List<QProfile> profiles = newArrayList(ref.qProfiles());
-    assertThat(profiles).hasSize(1);
-    assertThat(profiles.get(0).key()).isEqualTo("abcd");
-    assertThat(profiles.get(0).name()).isEqualTo("SonarQube way");
-    assertThat(profiles.get(0).language()).isEqualTo("xoo");
-    assertThat(profiles.get(0).rulesUpdatedAt()).isEqualTo(ruleUpdatedAt);
-  }
-
-  @Test
-  public void return_quality_profile_from_default_profile() {
-    Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
-
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-
-    QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      formatDateTime(ruleUpdatedAt)).setDefault(true);
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-    List<QProfile> profiles = newArrayList(ref.qProfiles());
-    assertThat(profiles).hasSize(1);
-    assertThat(profiles.get(0).key()).isEqualTo("abcd");
-    assertThat(profiles.get(0).name()).isEqualTo("SonarQube way");
-    assertThat(profiles.get(0).language()).isEqualTo("xoo");
-    assertThat(profiles.get(0).rulesUpdatedAt()).isEqualTo(ruleUpdatedAt);
-  }
-
-  @Test
-  public void return_quality_profile_from_given_profile_name() {
-    Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
-
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-
-    QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      formatDateTime(ruleUpdatedAt)).setDefault(true);
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()).setProfileName("SonarQube way"));
-    List<QProfile> profiles = newArrayList(ref.qProfiles());
-    assertThat(profiles).hasSize(1);
-    assertThat(profiles.get(0).key()).isEqualTo("abcd");
-    assertThat(profiles.get(0).name()).isEqualTo("SonarQube way");
-    assertThat(profiles.get(0).language()).isEqualTo("xoo");
-    assertThat(profiles.get(0).rulesUpdatedAt()).isEqualTo(ruleUpdatedAt);
-  }
-
-  @Test
-  public void return_quality_profiles_even_when_project_does_not_exists() {
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
-
-    QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      formatDateTime(ruleUpdatedAt)).setDefault(true);
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey("project"));
-    List<QProfile> profiles = newArrayList(ref.qProfiles());
-    assertThat(profiles).hasSize(1);
-    assertThat(profiles.get(0).key()).isEqualTo("abcd");
-    assertThat(profiles.get(0).name()).isEqualTo("SonarQube way");
-    assertThat(profiles.get(0).language()).isEqualTo("xoo");
-    assertThat(profiles.get(0).rulesUpdatedAt()).isEqualTo(ruleUpdatedAt);
-  }
-
-  @Test
-  public void return_provisioned_project_profile() {
-    Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
-
-    // No snapshot attached on the project -> provisioned project
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-
-    QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      formatDateTime(ruleUpdatedAt));
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profileDto.getKee(), dbSession);
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-    List<QProfile> profiles = newArrayList(ref.qProfiles());
-    assertThat(profiles).hasSize(1);
-    assertThat(profiles.get(0).key()).isEqualTo("abcd");
-    assertThat(profiles.get(0).name()).isEqualTo("SonarQube way");
-    assertThat(profiles.get(0).language()).isEqualTo("xoo");
-    assertThat(profiles.get(0).rulesUpdatedAt()).isEqualTo(ruleUpdatedAt);
-  }
-
-  @Test
-  public void fail_when_no_quality_profile_for_a_language() {
-    ComponentDto project = ComponentTesting.newProjectDto().setKey("org.codehaus.sonar:sonar");
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    dbSession.commit();
-
-    try {
-      loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No quality profile can been found on language 'xoo' for project 'org.codehaus.sonar:sonar'");
-    }
-  }
-
-  @Test
-  public void return_active_rules() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-
-    QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      formatDateTime(DateUtils.parseDateTime("2014-01-14T13:00:00+0100"))).setDefault(true);
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-
-    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
-    RuleDto rule = RuleTesting.newDto(ruleKey).setName("Avoid Cycle").setConfigKey("squid-1").setLanguage(ServerTester.Xoo.KEY);
-    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, rule);
-    tester.get(DbClient.class).deprecatedRuleDao().insertRuleParam(dbSession, rule, RuleParamDto.createFor(rule)
-      .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
-
-    RuleActivation activation = new RuleActivation(ruleKey);
-    activation.setSeverity(Severity.MINOR);
-    activation.setParameter("max", "2");
-    tester.get(RuleActivator.class).activate(dbSession, activation, profileDto.getKey());
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-    List<ActiveRule> activeRules = newArrayList(ref.activeRules());
-    assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
-    assertThat(activeRules.get(0).ruleKey()).isEqualTo("AvoidCycle");
-    assertThat(activeRules.get(0).name()).isEqualTo("Avoid Cycle");
-    assertThat(activeRules.get(0).language()).isEqualTo("xoo");
-    assertThat(activeRules.get(0).severity()).isEqualTo("MINOR");
-    assertThat(activeRules.get(0).internalKey()).isEqualTo("squid-1");
-    assertThat(activeRules.get(0).params()).isEqualTo(ImmutableMap.of("max", "2"));
-  }
-
-  @Test
-  public void return_only_active_rules_from_project_profile() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-
-    RuleKey ruleKey1 = RuleKey.of("squid", "AvoidCycle");
-    RuleKey ruleKey2 = RuleKey.of("squid", "AvoidNPE");
-    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession,
-      RuleTesting.newDto(ruleKey1).setName("Avoid Cycle").setLanguage(ServerTester.Xoo.KEY),
-      RuleTesting.newDto(ruleKey2).setName("Avoid NPE").setLanguage(ServerTester.Xoo.KEY)
-    );
-
-    QualityProfileDto profileDto1 = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd");
-    QualityProfileDto profileDto2 = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "Another profile"), "efgh");
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
-
-    // The first profile is the profile used but the project
-    tester.get(DbClient.class).qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profileDto1.getKee(), dbSession);
-
-    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey1).setSeverity(Severity.MINOR), profileDto1.getKey());
-
-    // Active rule from 2nd profile
-    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey1).setSeverity(Severity.BLOCKER), profileDto2.getKey());
-    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey2).setSeverity(Severity.BLOCKER), profileDto2.getKey());
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-    List<ActiveRule> activeRules = newArrayList(ref.activeRules());
-    assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
-    assertThat(activeRules.get(0).ruleKey()).isEqualTo("AvoidCycle");
-    assertThat(activeRules.get(0).name()).isEqualTo("Avoid Cycle");
-    assertThat(activeRules.get(0).language()).isEqualTo("xoo");
-    assertThat(activeRules.get(0).severity()).isEqualTo("MINOR");
-  }
-
-  @Test
-  public void return_more_than_10_active_rules() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-
-    QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd")
-      .setRulesUpdatedAt(formatDateTime(DateUtils.parseDateTime("2014-01-14T13:00:00+0100"))).setDefault(true);
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-
-    for (int i = 0; i < 20; i++) {
-      RuleKey ruleKey = RuleKey.of("squid", "Rule" + i);
-      tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, RuleTesting.newDto(ruleKey).setName("Rule" + i).setLanguage(ServerTester.Xoo.KEY));
-      tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey).setSeverity(Severity.MINOR), profileDto.getKey());
-    }
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-    assertThat(ref.activeRules()).hasSize(20);
-  }
-
-  @Test
-  public void return_custom_rule() {
-    Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
-
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-
-    QualityProfileDto profileDto = newQProfileDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      formatDateTime(ruleUpdatedAt)).setDefault(true);
-    tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-
-    RuleKey ruleKey = RuleKey.of("squid", "ArchitecturalConstraint");
-    RuleDto templateRule = RuleTesting.newTemplateRule(ruleKey).setName("Architectural Constraint").setLanguage(ServerTester.Xoo.KEY);
-    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, templateRule);
-
-    RuleDto customRule = RuleTesting.newCustomRule(templateRule);
-    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, customRule);
-    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(customRule.getKey()).setSeverity(Severity.MINOR), profileDto.getKey());
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-    List<ActiveRule> activeRules = newArrayList(ref.activeRules());
-    assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).repositoryKey()).isEqualTo("squid");
-    assertThat(activeRules.get(0).ruleKey()).startsWith("ArchitecturalConstraint_");
-    assertThat(activeRules.get(0).templateRuleKey()).isEqualTo("ArchitecturalConstraint");
-    assertThat(activeRules.get(0).language()).isEqualTo("xoo");
-    assertThat(activeRules.get(0).severity()).isEqualTo("MINOR");
-  }
-
-  @Test
-  public void return_manual_rules() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    tester.get(DbClient.class).componentDao().insert(dbSession, project);
-    addDefaultProfile();
-
-    RuleDto rule = RuleTesting.newManualRule("manualRuleKey").setName("Name manualRuleKey");
-    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, rule);
-
-    dbSession.commit();
-
-    ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
-    List<ActiveRule> activeRules = newArrayList(ref.activeRules());
-    assertThat(activeRules).extracting("repositoryKey").containsOnly(RuleKey.MANUAL_REPOSITORY_KEY);
-    assertThat(activeRules).extracting("ruleKey").containsOnly("manualRuleKey");
-    assertThat(activeRules).extracting("name").containsOnly("Name manualRuleKey");
-    assertThat(activeRules).extracting("language").containsNull();
-    assertThat(activeRules).extracting("severity").containsNull();
+      ));
   }
 
   @Test
@@ -750,7 +465,7 @@ public class ProjectDataLoaderMediumTest {
     dbSession.commit();
 
     try {
-      loader.load(ProjectDataQuery.create().setModuleKey(project.key()).setPreview(false));
+      loader.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(false));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage(
@@ -814,7 +529,7 @@ public class ProjectDataLoaderMediumTest {
     // File on project
     ComponentDto projectFile = ComponentTesting.newFileDto(project, "projectFile");
     tester.get(DbClient.class).componentDao().insert(dbSession, projectFile);
-    tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456"));
+    tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456").setRevision("987654321"));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
     userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
@@ -823,12 +538,13 @@ public class ProjectDataLoaderMediumTest {
     // File on module
     ComponentDto moduleFile = ComponentTesting.newFileDto(module, "moduleFile");
     tester.get(DbClient.class).componentDao().insert(dbSession, moduleFile);
-    tester.get(FileSourceDao.class).insert(newFileSourceDto(moduleFile).setSrcHash("789456"));
+    tester.get(FileSourceDao.class).insert(newFileSourceDto(moduleFile).setSrcHash("789456").setRevision("123456789"));
 
     dbSession.commit();
 
     ProjectRepositories ref = loader.load(ProjectDataQuery.create().setModuleKey(module.key()));
     assertThat(ref.fileData(module.key(), moduleFile.path()).hash()).isEqualTo("789456");
+    assertThat(ref.fileData(module.key(), moduleFile.path()).revision()).isEqualTo("123456789");
     assertThat(ref.fileData(project.key(), projectFile.path())).isNull();
   }
 
@@ -838,16 +554,17 @@ public class ProjectDataLoaderMediumTest {
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
   }
 
-  private FileSourceDto newFileSourceDto(ComponentDto file) {
+  private static FileSourceDto newFileSourceDto(ComponentDto file) {
     return new FileSourceDto()
       .setFileUuid(file.uuid())
       .setProjectUuid(file.projectUuid())
-        //.setSourceData(",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;")
+      // .setSourceData(",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;")
       .setDataHash("0263047cd758c68c27683625f072f010")
       .setLineHashes("8d7b3d6b83c0a517eac07e1aac94b773")
       .setCreatedAt(System.currentTimeMillis())
       .setUpdatedAt(System.currentTimeMillis())
       .setDataType(Type.SOURCE)
+      .setRevision("123456789")
       .setSrcHash("123456");
   }
 
