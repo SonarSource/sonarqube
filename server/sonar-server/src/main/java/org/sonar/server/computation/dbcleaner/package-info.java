@@ -18,24 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.dbcleaner;
 
-import org.junit.Test;
-import org.sonar.server.test.index.TestIndexer;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-public class IndexPurgeListenerTest {
-
-  @Test
-  public void call_test_indexer() {
-    TestIndexer testIndexer = mock(TestIndexer.class);
-    IndexPurgeListener underTest = new IndexPurgeListener(testIndexer);
-
-    underTest.onComponentDisabling("123456");
-
-    verify(testIndexer).deleteByFile("123456");
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

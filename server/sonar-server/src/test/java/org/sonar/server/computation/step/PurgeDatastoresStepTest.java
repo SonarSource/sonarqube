@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
-import org.sonar.core.computation.dbcleaner.ProjectCleaner;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.batch.TreeRootHolderRule;

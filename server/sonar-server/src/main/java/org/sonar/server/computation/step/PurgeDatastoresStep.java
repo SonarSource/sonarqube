@@ -20,7 +20,7 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.computation.dbcleaner.ProjectCleaner;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;

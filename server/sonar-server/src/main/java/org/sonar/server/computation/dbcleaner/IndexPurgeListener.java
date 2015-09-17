@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner;
+package org.sonar.server.computation.dbcleaner;
 
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.purge.PurgeListener;
