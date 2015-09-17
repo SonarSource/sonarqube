@@ -50,7 +50,7 @@ message ActivityResponse {
 
 message Task {
   optional string id = 1;
-  optional string taskType = 2;
+  optional string type = 2;
   optional string componentId = 3;
   optional string componentKey = 4;
   optional string componentName = 5;

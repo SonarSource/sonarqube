@@ -19,30 +19,51 @@
  */
 package org.sonar.server.computation.ws;
 
+import com.google.common.base.Optional;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentService;
 import org.sonarqube.ws.WsCe;
 
 public class CeWsTaskFormatter {
 
-  private final ComponentService componentService;
+  private final DbClient dbClient;
 
-  public CeWsTaskFormatter(ComponentService componentService) {
-    this.componentService = componentService;
+  public CeWsTaskFormatter(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
-  public WsCe.Task format(CeQueueDto dto) {
+  public List<WsCe.Task> format(DbSession dbSession, List<CeQueueDto> dtos) {
+    ComponentCache cache = new ComponentCache(dbSession);
+    List<WsCe.Task> result = new ArrayList<>();
+    for (CeQueueDto dto : dtos) {
+      result.add(format(dto, cache));
+    }
+    return result;
+  }
+
+  public WsCe.Task format(DbSession dbSession, CeQueueDto dto) {
+    return format(dto, new ComponentCache(dbSession));
+  }
+
+  private WsCe.Task format(CeQueueDto dto, ComponentCache componentCache) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
-    builder.setTaskType(dto.getTaskType());
+    builder.setType(dto.getTaskType());
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
-      buildComponent(builder, dto.getComponentUuid());
+      buildComponent(builder, componentCache.get(dto.getComponentUuid()));
     }
     if (dto.getSubmitterLogin() != null) {
       builder.setSubmitterLogin(dto.getSubmitterLogin());
@@ -54,14 +75,18 @@ public class CeWsTaskFormatter {
     return builder.build();
   }
 
-  public WsCe.Task format(CeActivityDto dto) {
+  public WsCe.Task format(DbSession dbSession, CeActivityDto dto) {
+    return format(dto, new ComponentCache(dbSession));
+  }
+
+  private WsCe.Task format(CeActivityDto dto, ComponentCache componentCache) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
-    builder.setTaskType(dto.getTaskType());
+    builder.setType(dto.getTaskType());
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
-      buildComponent(builder, dto.getComponentUuid());
+      buildComponent(builder, componentCache.get(dto.getComponentUuid()));
     }
     if (dto.getSubmitterLogin() != null) {
       builder.setSubmitterLogin(dto.getSubmitterLogin());
@@ -79,11 +104,32 @@ public class CeWsTaskFormatter {
     return builder.build();
   }
 
-  private void buildComponent(WsCe.Task.Builder builder, String componentUuid) {
-    ComponentDto project = componentService.getNonNullByUuid(componentUuid);
-    if (project != null) {
-      builder.setComponentKey(project.getKey());
-      builder.setComponentName(project.name());
+  private void buildComponent(WsCe.Task.Builder builder, @Nullable ComponentDto componentDto) {
+    if (componentDto != null) {
+      builder.setComponentKey(componentDto.getKey());
+      builder.setComponentName(componentDto.name());
+    }
+  }
+
+  private class ComponentCache {
+    private final DbSession dbSession;
+    private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
+
+    ComponentCache(DbSession dbSession) {
+      this.dbSession = dbSession;
+    }
+
+    @CheckForNull
+    ComponentDto get(String uuid) {
+      ComponentDto dto = componentsByUuid.get(uuid);
+      if (dto == null) {
+        Optional<ComponentDto> opt = dbClient.componentDao().selectByUuid(dbSession, uuid);
+        if (opt.isPresent()) {
+          dto = opt.get();
+          componentsByUuid.put(uuid, dto);
+        }
+      }
+      return dto;
     }
   }
 }

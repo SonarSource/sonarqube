@@ -21,7 +21,6 @@ package org.sonar.server.computation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

@@ -72,6 +72,7 @@ import org.sonar.server.computation.ReportFiles;
 import org.sonar.server.computation.ReportSubmitter;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
+import org.sonar.server.computation.ws.CeQueueWsAction;
 import org.sonar.server.computation.ws.CeSubmitWsAction;
 import org.sonar.server.computation.ws.CeTaskWsAction;
 import org.sonar.server.computation.ws.CeWs;
@@ -724,6 +725,7 @@ public class PlatformLevel4 extends PlatformLevel {
       CeWsTaskFormatter.class,
       CeTaskWsAction.class,
       CeSubmitWsAction.class,
+      CeQueueWsAction.class,
       IsQueueEmptyWs.class,
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,

@@ -29,7 +29,6 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
@@ -38,8 +37,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CeTaskWsActionTest {
 
@@ -49,8 +46,7 @@ public class CeTaskWsActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  ComponentService componentService = mock(ComponentService.class);
-  CeWsTaskFormatter formatter = new CeWsTaskFormatter(componentService);
+  CeWsTaskFormatter formatter = new CeWsTaskFormatter(dbTester.getDbClient());
   CeTaskWsAction underTest = new CeTaskWsAction(dbTester.getDbClient(), formatter, userSession);
   WsActionTester tester = new WsActionTester(underTest);
 
@@ -59,7 +55,7 @@ public class CeTaskWsActionTest {
     userSession.setGlobalPermissions(UserRole.ADMIN);
 
     ComponentDto project = new ComponentDto().setUuid("PROJECT_1").setName("Project One").setKey("P1");
-    when(componentService.getNonNullByUuid("PROJECT_1")).thenReturn(project);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
@@ -91,7 +87,7 @@ public class CeTaskWsActionTest {
     userSession.setGlobalPermissions(UserRole.ADMIN);
 
     ComponentDto project = new ComponentDto().setUuid("PROJECT_1").setName("Project One").setKey("P1");
-    when(componentService.getNonNullByUuid("PROJECT_1")).thenReturn(project);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);

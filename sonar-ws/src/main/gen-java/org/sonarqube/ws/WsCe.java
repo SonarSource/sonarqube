@@ -2841,18 +2841,18 @@ public final class WsCe {
         getIdBytes();
 
     /**
-     * <code>optional string taskType = 2;</code>
+     * <code>optional string type = 2;</code>
      */
-    boolean hasTaskType();
+    boolean hasType();
     /**
-     * <code>optional string taskType = 2;</code>
+     * <code>optional string type = 2;</code>
      */
-    java.lang.String getTaskType();
+    java.lang.String getType();
     /**
-     * <code>optional string taskType = 2;</code>
+     * <code>optional string type = 2;</code>
      */
     com.google.protobuf.ByteString
-        getTaskTypeBytes();
+        getTypeBytes();
 
     /**
      * <code>optional string componentId = 3;</code>
@@ -2992,7 +2992,7 @@ public final class WsCe {
     }
     private Task() {
       id_ = "";
-      taskType_ = "";
+      type_ = "";
       componentId_ = "";
       componentKey_ = "";
       componentName_ = "";
@@ -3041,7 +3041,7 @@ public final class WsCe {
             case 18: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              taskType_ = bs;
+              type_ = bs;
               break;
             }
             case 26: {
@@ -3175,19 +3175,19 @@ public final class WsCe {
       }
     }
 
-    public static final int TASKTYPE_FIELD_NUMBER = 2;
-    private volatile java.lang.Object taskType_;
+    public static final int TYPE_FIELD_NUMBER = 2;
+    private volatile java.lang.Object type_;
     /**
-     * <code>optional string taskType = 2;</code>
+     * <code>optional string type = 2;</code>
      */
-    public boolean hasTaskType() {
+    public boolean hasType() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional string taskType = 2;</code>
+     * <code>optional string type = 2;</code>
      */
-    public java.lang.String getTaskType() {
-      java.lang.Object ref = taskType_;
+    public java.lang.String getType() {
+      java.lang.Object ref = type_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -3195,22 +3195,22 @@ public final class WsCe {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          taskType_ = s;
+          type_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string taskType = 2;</code>
+     * <code>optional string type = 2;</code>
      */
     public com.google.protobuf.ByteString
-        getTaskTypeBytes() {
-      java.lang.Object ref = taskType_;
+        getTypeBytes() {
+      java.lang.Object ref = type_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        taskType_ = b;
+        type_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -3573,7 +3573,7 @@ public final class WsCe {
         output.writeBytes(1, getIdBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getTaskTypeBytes());
+        output.writeBytes(2, getTypeBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeBytes(3, getComponentIdBytes());
@@ -3620,7 +3620,7 @@ public final class WsCe {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getTaskTypeBytes());
+          .computeBytesSize(2, getTypeBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
@@ -3776,7 +3776,7 @@ public final class WsCe {
         super.clear();
         id_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
-        taskType_ = "";
+        type_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
         componentId_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -3829,7 +3829,7 @@ public final class WsCe {
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.taskType_ = taskType_;
+        result.type_ = type_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
@@ -3891,9 +3891,9 @@ public final class WsCe {
           id_ = other.id_;
           onChanged();
         }
-        if (other.hasTaskType()) {
+        if (other.hasType()) {
           bitField0_ |= 0x00000002;
-          taskType_ = other.taskType_;
+          type_ = other.type_;
           onChanged();
         }
         if (other.hasComponentId()) {
@@ -4044,24 +4044,24 @@ public final class WsCe {
         return this;
       }
 
-      private java.lang.Object taskType_ = "";
+      private java.lang.Object type_ = "";
       /**
-       * <code>optional string taskType = 2;</code>
+       * <code>optional string type = 2;</code>
        */
-      public boolean hasTaskType() {
+      public boolean hasType() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional string taskType = 2;</code>
+       * <code>optional string type = 2;</code>
        */
-      public java.lang.String getTaskType() {
-        java.lang.Object ref = taskType_;
+      public java.lang.String getType() {
+        java.lang.Object ref = type_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            taskType_ = s;
+            type_ = s;
           }
           return s;
         } else {
@@ -4069,53 +4069,53 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string taskType = 2;</code>
+       * <code>optional string type = 2;</code>
        */
       public com.google.protobuf.ByteString
-          getTaskTypeBytes() {
-        java.lang.Object ref = taskType_;
+          getTypeBytes() {
+        java.lang.Object ref = type_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          taskType_ = b;
+          type_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string taskType = 2;</code>
+       * <code>optional string type = 2;</code>
        */
-      public Builder setTaskType(
+      public Builder setType(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000002;
-        taskType_ = value;
+        type_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string taskType = 2;</code>
+       * <code>optional string type = 2;</code>
        */
-      public Builder clearTaskType() {
+      public Builder clearType() {
         bitField0_ = (bitField0_ & ~0x00000002);
-        taskType_ = getDefaultInstance().getTaskType();
+        type_ = getDefaultInstance().getType();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string taskType = 2;</code>
+       * <code>optional string type = 2;</code>
        */
-      public Builder setTaskTypeBytes(
+      public Builder setTypeBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000002;
-        taskType_ = value;
+        type_ = value;
         onChanged();
         return this;
       }
@@ -4836,17 +4836,17 @@ public final class WsCe {
       "eueResponse\022$\n\005tasks\030\001 \003(\0132\025.sonarqube.w" +
       "s.ce.Task\"f\n\020ActivityResponse\022,\n\006paging\030" +
       "\001 \001(\0132\034.sonarqube.ws.commons.Paging\022$\n\005t" +
-      "asks\030\002 \003(\0132\025.sonarqube.ws.ce.Task\"\230\002\n\004Ta" +
-      "sk\022\n\n\002id\030\001 \001(\t\022\020\n\010taskType\030\002 \001(\t\022\023\n\013comp" +
-      "onentId\030\003 \001(\t\022\024\n\014componentKey\030\004 \001(\t\022\025\n\rc",
-      "omponentName\030\005 \001(\t\022+\n\006status\030\006 \001(\0162\033.son" +
-      "arqube.ws.ce.TaskStatus\022\023\n\013submittedAt\030\007" +
-      " \001(\t\022\026\n\016submitterLogin\030\010 \001(\t\022\021\n\tstartedA" +
-      "t\030\t \001(\t\022\022\n\nfinishedAt\030\n \001(\t\022\026\n\016isLastFin" +
-      "ished\030\013 \001(\010\022\027\n\017executionTimeMs\030\014 \001(\003*Q\n\n" +
-      "TaskStatus\022\013\n\007PENDING\020\000\022\017\n\013IN_PROGRESS\020\001" +
-      "\022\013\n\007SUCCESS\020\002\022\n\n\006FAILED\020\003\022\014\n\010CANCELED\020\004B" +
-      "\032\n\020org.sonarqube.wsB\004WsCeH\001"
+      "asks\030\002 \003(\0132\025.sonarqube.ws.ce.Task\"\224\002\n\004Ta" +
+      "sk\022\n\n\002id\030\001 \001(\t\022\014\n\004type\030\002 \001(\t\022\023\n\013componen" +
+      "tId\030\003 \001(\t\022\024\n\014componentKey\030\004 \001(\t\022\025\n\rcompo",
+      "nentName\030\005 \001(\t\022+\n\006status\030\006 \001(\0162\033.sonarqu" +
+      "be.ws.ce.TaskStatus\022\023\n\013submittedAt\030\007 \001(\t" +
+      "\022\026\n\016submitterLogin\030\010 \001(\t\022\021\n\tstartedAt\030\t " +
+      "\001(\t\022\022\n\nfinishedAt\030\n \001(\t\022\026\n\016isLastFinishe" +
+      "d\030\013 \001(\010\022\027\n\017executionTimeMs\030\014 \001(\003*Q\n\nTask" +
+      "Status\022\013\n\007PENDING\020\000\022\017\n\013IN_PROGRESS\020\001\022\013\n\007" +
+      "SUCCESS\020\002\022\n\n\006FAILED\020\003\022\014\n\010CANCELED\020\004B\032\n\020o" +
+      "rg.sonarqube.wsB\004WsCeH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4890,7 +4890,7 @@ public final class WsCe {
     internal_static_sonarqube_ws_ce_Task_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_ce_Task_descriptor,
-        new java.lang.String[] { "Id", "TaskType", "ComponentId", "ComponentKey", "ComponentName", "Status", "SubmittedAt", "SubmitterLogin", "StartedAt", "FinishedAt", "IsLastFinished", "ExecutionTimeMs", });
+        new java.lang.String[] { "Id", "Type", "ComponentId", "ComponentKey", "ComponentName", "Status", "SubmittedAt", "SubmitterLogin", "StartedAt", "FinishedAt", "IsLastFinished", "ExecutionTimeMs", });
     org.sonarqube.ws.Common.getDescriptor();
   }
 
