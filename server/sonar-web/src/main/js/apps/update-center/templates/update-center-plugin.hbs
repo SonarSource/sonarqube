@@ -11,21 +11,18 @@
     </td>
 
     <td class="text-top big-spacer-right">
-      <div class="pull-left spacer-right">
-        <strong>Versions</strong>
-      </div>
-      <ul class="overflow-hidden bordered-left">
+      <ul>
         {{#if version}}
-          <li class="spacer-left little-spacer-bottom">
+          <li class="little-spacer-bottom">
             <strong class="js-plugin-installed-version">{{version}}</strong>&nbsp;installed
           </li>
         {{/if}}
         {{#notEmpty updates}}
-          <li class="spacer-left little-spacer-bottom spacer-top">
+          <li class="little-spacer-bottom spacer-top">
             <strong>Updates:</strong>
           </li>
           {{#each updates}}
-            <li class="spacer-left little-spacer-bottom">
+            <li class="little-spacer-bottom">
               <div class="pull-left spacer-right">
                 {{#notEq status 'COMPATIBLE'}}
                   <span class="js-update-version badge badge-warning" data-toggle="tooltip"
@@ -42,7 +39,7 @@
           {{/each}}
         {{/notEmpty}}
         {{#if release}}
-          <li class="spacer-left little-spacer-bottom">
+          <li class="little-spacer-bottom">
             <div class="pull-left spacer-right">
               <span class="badge badge-success">{{release.version}}</span>
             </div>
