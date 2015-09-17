@@ -21,7 +21,6 @@ package org.sonar.db.version;
 
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.db.version.MigrationStepModule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,6 +29,6 @@ public class MigrationStepModuleTest {
   public void verify_count_of_added_MigrationStep_types() {
     ComponentContainer container = new ComponentContainer();
     new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(38);
+    assertThat(container.size()).isEqualTo(39);
   }
 }

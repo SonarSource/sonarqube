@@ -52,6 +52,7 @@ import org.sonar.db.version.v52.FeedFileSourcesDataType;
 import org.sonar.db.version.v52.FeedManualMeasuresComponentUuid;
 import org.sonar.db.version.v52.FeedMetricsBooleans;
 import org.sonar.db.version.v52.FeedProjectLinksComponentUuid;
+import org.sonar.db.version.v52.IncreasePrecisionOfNumerics;
 import org.sonar.db.version.v52.MoveProjectProfileAssociation;
 import org.sonar.db.version.v52.RemoveComponentLibraries;
 import org.sonar.db.version.v52.RemoveDuplicatedComponentKeys;
@@ -103,6 +104,7 @@ public class MigrationStepModule extends Module {
       FeedManualMeasuresComponentUuid.class,
       RemoveSnapshotLibraries.class,
       RemoveComponentLibraries.class,
-      RemoveDuplicatedComponentKeys.class);
+      RemoveDuplicatedComponentKeys.class,
+      IncreasePrecisionOfNumerics.class);
   }
 }

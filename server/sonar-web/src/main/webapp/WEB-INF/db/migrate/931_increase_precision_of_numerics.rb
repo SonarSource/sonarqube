@@ -25,15 +25,7 @@
 class IncreasePrecisionOfNumerics < ActiveRecord::Migration
 
   def self.up
-    change_column :metrics, :worst_value, :decimal,  :null => true, :precision => 30, :scale => 5
-    change_column :metrics, :best_value, :decimal,  :null => true, :precision => 30, :scale => 5
-    change_column :project_measures, :value, :decimal,  :null => true, :precision => 30, :scale => 5
-    change_column :project_measures, :variation_value_1, :decimal,  :null => true, :precision => 30, :scale => 5
-    change_column :project_measures, :variation_value_2, :decimal,  :null => true, :precision => 30, :scale => 5
-    change_column :project_measures, :variation_value_3, :decimal,  :null => true, :precision => 30, :scale => 5
-    change_column :project_measures, :variation_value_4, :decimal,  :null => true, :precision => 30, :scale => 5
-    change_column :project_measures, :variation_value_5, :decimal,  :null => true, :precision => 30, :scale => 5
-    change_column :manual_measures, :value, :decimal,  :null => true, :precision => 30, :scale => 5
+    execute_java_migration('org.sonar.db.version.v52.IncreasePrecisionOfNumerics')
   end
 
 end
