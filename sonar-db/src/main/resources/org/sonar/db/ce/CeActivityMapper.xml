@@ -97,4 +97,9 @@
     where uuid=#{uuid}
   </update>
 
+  <delete id="deleteOlderThan" parameterType="long">
+    delete from ce_activity
+    where created_at &lt; #{beforeDate,jdbcType=BIGINT}
+  </delete>
+
 </mapper>

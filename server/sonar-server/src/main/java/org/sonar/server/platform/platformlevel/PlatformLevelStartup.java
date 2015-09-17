@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.server.computation.CeQueueInitializer;
+import org.sonar.server.computation.PurgeCeActivities;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.qualitygate.RegisterQualityGates;
@@ -64,7 +64,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterServletFilters.class,
       RegisterIssueFilters.class,
       RenameIssueWidgets.class,
-      ServerLifecycleNotifier.class);
+      ServerLifecycleNotifier.class,
+      PurgeCeActivities.class);
   }
 
   @Override

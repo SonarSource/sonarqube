@@ -26,7 +26,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
@@ -37,7 +36,7 @@ import static org.sonar.db.ce.CeTaskTypes.REPORT;
 @Category(DbTests.class)
 public class CeActivityDaoTest {
 
-  System2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
+  TestSystem2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -111,6 +110,20 @@ public class CeActivityDaoTest {
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4");
   }
 
+  @Test
+  public void deleteOlderThan() throws Exception {
+    insertWithDate("TASK_1", 1_450_000_000_000L);
+    insertWithDate("TASK_2", 1_460_000_000_000L);
+    insertWithDate("TASK_3", 1_470_000_000_000L);
+
+    underTest.deleteOlderThan(db.getSession(), 1_465_000_000_000L);
+    db.getSession().commit();
+
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").isPresent()).isFalse();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").isPresent()).isTrue();
+  }
+
   private void insert(String uuid, String type, String componentUuid, CeActivityDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(uuid);
@@ -124,6 +137,17 @@ public class CeActivityDaoTest {
     dto.setStartedAt(1_500_000_000_000L);
     dto.setFinishedAt(1_500_000_000_500L);
     dto.setExecutionTimeMs(500L);
+    underTest.insert(db.getSession(), dto);
+  }
+
+  private void insertWithDate(String uuid, long date) {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setUuid(uuid);
+    queueDto.setTaskType("fake");
+
+    CeActivityDto dto = new CeActivityDto(queueDto);
+    dto.setStatus(CeActivityDto.Status.SUCCESS);
+    system2.setNow(date);
     underTest.insert(db.getSession(), dto);
   }
 }

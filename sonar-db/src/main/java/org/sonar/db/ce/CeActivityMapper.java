@@ -40,4 +40,6 @@ public interface CeActivityMapper {
   void updateIsLastToFalseForLastKey(@Param("isLastKey") String isLastKey, @Param("updatedAt") long updatedAt);
 
   void updateIsLastToTrueForUuid(@Param("uuid") String uuid, @Param("updatedAt") long updatedAt);
+
+  void deleteOlderThan(@Param("beforeDate") long beforeDate);
 }
