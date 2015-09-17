@@ -79,11 +79,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>net.sourceforge.jtds</groupId>
-      <artifactId>jtds</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <scope>provided</scope>
