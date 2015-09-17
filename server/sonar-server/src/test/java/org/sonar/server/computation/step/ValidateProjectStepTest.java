@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
@@ -73,56 +72,6 @@ public class ValidateProjectStepTest {
     settings = new Settings();
 
     underTest = new ValidateProjectStep(dbClient, settings, reportReader, treeRootHolder);
-  }
-
-  @Test
-  public void not_fail_if_provisioning_enforced_and_project_exists() {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
-
-    settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
-    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY));
-    dbTester.getSession().commit();
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
-
-    underTest.execute();
-  }
-
-  @Test
-  public void fail_if_provisioning_enforced_and_project_does_not_exists() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Unable to scan non-existing project '" + PROJECT_KEY + "'");
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
-
-    settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
-
-    underTest.execute();
-  }
-
-  @Test
-  public void fail_if_provisioning_not_enforced_and_project_does_not_exists() {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
-
-    settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "false");
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
-
-    underTest.execute();
   }
 
   @Test

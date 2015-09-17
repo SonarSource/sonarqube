@@ -28,6 +28,7 @@
 class AddProvisioningPermissionToScan < ActiveRecord::Migration
 
   class Property < ActiveRecord::Base
+    set_table_name 'properties'
   end
 
   class GroupRole < ActiveRecord::Base

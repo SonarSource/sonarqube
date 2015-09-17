@@ -421,7 +421,9 @@ public interface CoreProperties {
 
   /**
    * @since 4.0
+   * @deprecated replaced in 5.2 by the permission 'provisioning'
    */
+  @Deprecated
   String CORE_PREVENT_AUTOMATIC_PROJECT_CREATION = "sonar.preventAutoProjectCreation";
 
   /**

@@ -21,6 +21,7 @@ import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.project.NewProject;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
 
+@Ignore
 public class ProjectProvisioningTest {
 
   @ClassRule

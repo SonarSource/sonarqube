@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -52,7 +51,6 @@ import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 /**
  * Validate project and modules. It will fail in the following cases :
  * <ol>
- * <li>property {@link org.sonar.api.CoreProperties#CORE_PREVENT_AUTOMATIC_PROJECT_CREATION} is set to true and project does not exists</li>
  * <li>branch is not valid</li>
  * <li>project or module key is not valid</li>
  * <li>module key already exists in another project (same module key cannot exists in different projects)</li>
@@ -83,7 +81,7 @@ public class ValidateProjectStep implements ComputationStep {
       List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(session, treeRootHolder.getRoot().getKey());
       Map<String, ComponentDto> baseModulesByKey = FluentIterable.from(baseModules).uniqueIndex(toKey());
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(),
-        settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), baseModulesByKey);
+        baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
 
       if (!visitor.validationMessages.isEmpty()) {
@@ -102,18 +100,16 @@ public class ValidateProjectStep implements ComputationStep {
   private class ValidateProjectsVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
     private final ComponentDao componentDao;
-    private final boolean preventAutomaticProjectCreation;
     private final Map<String, ComponentDto> baseModulesByKey;
     private final List<String> validationMessages = new ArrayList<>();
 
     private Component rawProject;
 
-    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, boolean preventAutomaticProjectCreation, Map<String, ComponentDto> baseModulesByKey) {
+    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, Map<String, ComponentDto> baseModulesByKey) {
       super(CrawlerDepthLimit.MODULE, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
 
-      this.preventAutomaticProjectCreation = preventAutomaticProjectCreation;
       this.baseModulesByKey = baseModulesByKey;
     }
 
@@ -125,15 +121,8 @@ public class ValidateProjectStep implements ComputationStep {
 
       String rawProjectKey = rawProject.getKey();
       Optional<ComponentDto> baseProject = loadBaseComponent(rawProjectKey);
-      validateWhenProvisioningEnforced(baseProject, rawProjectKey);
       validateProjectKey(baseProject, rawProjectKey);
       validateAnalysisDate(baseProject);
-    }
-
-    private void validateWhenProvisioningEnforced(Optional<ComponentDto> baseProject, String rawProjectKey) {
-      if (!baseProject.isPresent() && preventAutomaticProjectCreation) {
-        validationMessages.add(String.format("Unable to scan non-existing project '%s'", rawProjectKey));
-      }
     }
 
     private void validateProjectKey(Optional<ComponentDto> baseProject, String rawProjectKey) {
