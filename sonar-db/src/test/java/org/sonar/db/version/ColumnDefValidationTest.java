@@ -34,6 +34,7 @@ public class ColumnDefValidationTest {
   @Test
   public void accept_valid_table_name() throws Exception {
     validateColumnName("date_in_ms");
+    validateColumnName("date_in_ms_1");
   }
 
   @Test

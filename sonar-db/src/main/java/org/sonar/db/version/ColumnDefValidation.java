@@ -35,7 +35,8 @@ public class ColumnDefValidation {
 
   public static String validateColumnName(@Nullable String columnName) {
     String name = requireNonNull(columnName, "Column name cannot be null");
-    checkArgument(JAVA_LOWER_CASE.or(CharMatcher.anyOf("_")).matchesAllOf(name), String.format("Column name should only contains lowercase and _ characters, got '%s'", columnName));
+    checkArgument(JAVA_LOWER_CASE.or(CharMatcher.anyOf("_")).or(CharMatcher.DIGIT).matchesAllOf(name),
+      String.format("Column name should only contains lowercase and _ characters, got '%s'", columnName));
     return name;
   }
 }
