@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -387,7 +386,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
         int conditions = (Integer) ObjectUtils.defaultIfNull(conditionsByLine.get(lineId), 0);
         int coveredConditions = (Integer) ObjectUtils.defaultIfNull(coveredConditionsByLine.get(lineId), 0);
         BatchReport.Changesets.Changeset changeset = componentScm.getChangeset(componentScm.getChangesetIndexByLine(lineId - 1));
-        Date date = changeset.hasDate() ? new Date(changeset.getDate()) : null;
+        Long date = changeset.hasDate() ? changeset.getDate() : null;
 
         analyze(context.getPeriods(), date, hits, conditions, coveredConditions);
       }
@@ -400,7 +399,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       return Collections.emptyMap();
     }
 
-    public void analyze(List<Period> periods, @Nullable Date lineDate, int hits, int conditions, int coveredConditions) {
+    public void analyze(List<Period> periods, @Nullable Long lineDate, int hits, int conditions, int coveredConditions) {
       if (lineDate == null) {
         return;
       }
@@ -415,8 +414,8 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     /**
      * A line belongs to a Period if its date is older than the SNAPSHOT's date of the period.
      */
-    private static boolean isLineInPeriod(Date lineDate, Period period) {
-      return lineDate.getTime() > period.getSnapshotDate();
+    private static boolean isLineInPeriod(long lineDate, Period period) {
+      return lineDate > period.getSnapshotDate();
     }
 
     private void incrementLines(Period period, int hits) {
