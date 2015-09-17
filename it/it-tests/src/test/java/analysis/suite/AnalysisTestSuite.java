@@ -20,6 +20,7 @@
 package analysis.suite;
 
 import analysis.suite.measure.CustomMeasuresTest;
+import analysis.suite.measure.DifferentialPeriodsTest;
 import analysis.suite.measure.MeasureFiltersTest;
 import analysis.suite.measure.TimeMachineTest;
 import analysis.suite.testing.CoverageTest;
@@ -35,6 +36,7 @@ import util.ItUtils;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   CustomMeasuresTest.class,
+  DifferentialPeriodsTest.class,
   MeasureFiltersTest.class,
   TimeMachineTest.class,
   CoverageTrackingTest.class,
