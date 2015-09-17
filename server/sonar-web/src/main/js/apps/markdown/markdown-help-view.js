@@ -1,7 +1,8 @@
-define(['./templates'], function () {
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    template: Templates['markdown-help']
-  });
-
+export default Marionette.ItemView.extend({
+  template: Templates['markdown-help']
 });
+
+

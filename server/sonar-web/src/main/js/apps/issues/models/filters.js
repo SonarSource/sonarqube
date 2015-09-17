@@ -1,17 +1,16 @@
-define([
-  './filter'
-], function (Filter) {
+import Backbone from 'backbone';
+import Filter from './filter';
 
-  return Backbone.Collection.extend({
-    model: Filter,
+export default Backbone.Collection.extend({
+  model: Filter,
 
-    url: function () {
-      return window.baseUrl + '/api/issue_filters/search';
-    },
+  url: function () {
+    return window.baseUrl + '/api/issue_filters/search';
+  },
 
-    parse: function (r) {
-      return r.issueFilters;
-    }
-  });
-
+  parse: function (r) {
+    return r.issueFilters;
+  }
 });
+
+

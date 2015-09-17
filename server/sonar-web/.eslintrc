@@ -187,13 +187,8 @@
   "globals": {
     "define": true,
     "require": true,
-    "jQuery": true,
-    "$": true,
-    "_": true,
     "Templates": true,
     "Handlebars": true,
-    "Backbone": true,
-    "Marionette": true,
     "moment": true,
     "numeral": true,
     "key": true,

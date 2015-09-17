@@ -1,22 +1,22 @@
-define(function () {
+import Backbone from 'backbone';
 
-  return Backbone.Router.extend({
-    routes: {
-      '': 'index',
-      'show/:id': 'show'
-    },
+export default Backbone.Router.extend({
+  routes: {
+    '': 'index',
+    'show/:id': 'show'
+  },
 
-    initialize: function (options) {
-      this.app = options.app;
-    },
+  initialize: function (options) {
+    this.app = options.app;
+  },
 
-    index: function () {
-      this.app.controller.index();
-    },
+  index: function () {
+    this.app.controller.index();
+  },
 
-    show: function (id) {
-      this.app.controller.show(id);
-    }
-  });
-
+  show: function (id) {
+    this.app.controller.show(id);
+  }
 });
+
+

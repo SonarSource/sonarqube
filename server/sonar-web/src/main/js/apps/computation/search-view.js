@@ -1,34 +1,34 @@
-define([
-  './templates'
-], function () {
+import _ from 'underscore';
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    template: Templates['computation-search'],
+export default Marionette.ItemView.extend({
+  template: Templates['computation-search'],
 
-    collectionEvents: {
-      'all': 'render'
-    },
+  collectionEvents: {
+    'all': 'render'
+  },
 
-    events: {
-      'click .js-queue': 'queue',
-      'click .js-history': 'history'
-    },
+  events: {
+    'click .js-queue': 'queue',
+    'click .js-history': 'history'
+  },
 
-    queue: function (e) {
-      e.preventDefault();
-      this.options.router.navigate('current', { trigger: true });
-    },
+  queue: function (e) {
+    e.preventDefault();
+    this.options.router.navigate('current', { trigger: true });
+  },
 
-    history: function (e) {
-      e.preventDefault();
-      this.options.router.navigate('past', { trigger: true });
-    },
+  history: function (e) {
+    e.preventDefault();
+    this.options.router.navigate('past', { trigger: true });
+  },
 
-    serializeData: function () {
-      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-        tab: this.collection.q
-      });
-    }
-  });
-
+  serializeData: function () {
+    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      tab: this.collection.q
+    });
+  }
 });
+
+

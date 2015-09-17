@@ -1,11 +1,10 @@
+import $ from 'jquery';
 import React from 'react';
 import GlobalNavBranding from './global-nav-branding';
 import GlobalNavMenu from './global-nav-menu';
 import GlobalNavUser from './global-nav-user';
 import GlobalNavSearch from './global-nav-search';
 import ShortcutsHelpView from './shortcuts-help-view';
-
-let $ = jQuery;
 
 export default React.createClass({
   getInitialState() {

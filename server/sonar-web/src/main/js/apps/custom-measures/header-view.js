@@ -1,26 +1,25 @@
-define([
-  './create-view',
-  './templates'
-], function (CreateView) {
+import Marionette from 'backbone.marionette';
+import CreateView from './create-view';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    template: Templates['custom-measures-header'],
+export default Marionette.ItemView.extend({
+  template: Templates['custom-measures-header'],
 
-    events: {
-      'click #custom-measures-create': 'onCreateClick'
-    },
+  events: {
+    'click #custom-measures-create': 'onCreateClick'
+  },
 
-    onCreateClick: function (e) {
-      e.preventDefault();
-      this.createCustomMeasure();
-    },
+  onCreateClick: function (e) {
+    e.preventDefault();
+    this.createCustomMeasure();
+  },
 
-    createCustomMeasure: function () {
-      new CreateView({
-        collection: this.collection,
-        projectId: this.options.projectId
-      }).render();
-    }
-  });
-
+  createCustomMeasure: function () {
+    new CreateView({
+      collection: this.collection,
+      projectId: this.options.projectId
+    }).render();
+  }
 });
+
+

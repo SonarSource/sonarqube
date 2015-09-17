@@ -1,7 +1,6 @@
+import $ from 'jquery';
 import React from 'react';
 import LinksMixin from '../links-mixin';
-
-let $ = jQuery;
 
 export default React.createClass({
   mixins: [LinksMixin],

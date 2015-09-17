@@ -1,25 +1,24 @@
-define([
-  './gate-view',
-  './templates'
-], function (ItemView) {
+import Marionette from 'backbone.marionette';
+import ItemView from './gate-view';
+import './templates';
 
-  return Marionette.CompositeView.extend({
-    className: 'list-group',
-    template: Templates['quality-gates-gates'],
-    childView: ItemView,
-    childViewContainer: '.js-list',
+export default Marionette.CompositeView.extend({
+  className: 'list-group',
+  template: Templates['quality-gates-gates'],
+  childView: ItemView,
+  childViewContainer: '.js-list',
 
-    childViewOptions: function (model) {
-      return {
-        collectionView: this,
-        highlighted: model.id === this.highlighted
-      };
-    },
+  childViewOptions: function (model) {
+    return {
+      collectionView: this,
+      highlighted: model.id === this.highlighted
+    };
+  },
 
-    highlight: function (id) {
-      this.highlighted = id;
-      this.render();
-    }
-  });
-
+  highlight: function (id) {
+    this.highlighted = id;
+    this.render();
+  }
 });
+
+

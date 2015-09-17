@@ -1,23 +1,22 @@
-define([
-  './base-facet',
-  '../templates'
-], function (BaseFacet) {
+import _ from 'underscore';
+import BaseFacet from './base-facet';
+import '../templates';
 
-  return BaseFacet.extend({
-    template: Templates['issues-mode-facet'],
+export default BaseFacet.extend({
+  template: Templates['issues-mode-facet'],
 
-    events: {
-      'change [name="issues-page-mode"]': 'onModeChange'
-    },
+  events: {
+    'change [name="issues-page-mode"]': 'onModeChange'
+  },
 
-    onModeChange: function () {
-      var mode = this.$('[name="issues-page-mode"]:checked').val();
-      this.options.app.state.updateFilter({ facetMode: mode });
-    },
+  onModeChange: function () {
+    var mode = this.$('[name="issues-page-mode"]:checked').val();
+    this.options.app.state.updateFilter({ facetMode: mode });
+  },
 
-    serializeData: function () {
-      return _.extend(this._super(), { mode: this.options.app.state.getFacetMode() });
-    }
-  });
-
+  serializeData: function () {
+    return _.extend(this._super(), { mode: this.options.app.state.getFacetMode() });
+  }
 });
+
+

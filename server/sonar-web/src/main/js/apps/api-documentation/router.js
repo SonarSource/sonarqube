@@ -1,18 +1,17 @@
-define(function () {
+import Backbone from 'backbone';
 
-  return Backbone.Router.extend({
+export default Backbone.Router.extend({
+  routes: {
+    '*path': 'show'
+  },
 
-    routes: {
-      '*path': 'show'
-    },
+  initialize: function (options) {
+    this.app = options.app;
+  },
 
-    initialize: function (options) {
-      this.app = options.app;
-    },
-
-    show: function (path) {
-      this.app.controller.show(path);
-    }
-  });
-
+  show: function (path) {
+    this.app.controller.show(path);
+  }
 });
+
+

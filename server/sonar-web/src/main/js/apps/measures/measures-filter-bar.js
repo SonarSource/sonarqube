@@ -1,9 +1,10 @@
-define(['components/navigator/filters/filter-bar'], function (FilterBarView) {
+import $ from 'jquery';
+import FilterBarView from 'components/navigator/filters/filter-bar';
 
-  return FilterBarView.extend({
-    template: function () {
-      return jQuery('#filter-bar-template').html();
-    }
-  });
-
+export default FilterBarView.extend({
+  template: function () {
+    return $('#filter-bar-template').html();
+  }
 });
+
+

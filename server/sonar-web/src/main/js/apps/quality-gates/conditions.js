@@ -1,10 +1,9 @@
-define([
-  './condition'
-], function (Condition) {
+import Backbone from 'backbone';
+import Condition from './condition';
 
-  return Backbone.Collection.extend({
-    model: Condition,
-    comparator: 'metric'
-  });
-
+export default Backbone.Collection.extend({
+  model: Condition,
+  comparator: 'metric'
 });
+
+

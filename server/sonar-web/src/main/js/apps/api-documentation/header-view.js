@@ -1,13 +1,12 @@
-define([
-  './templates'
-], function () {
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    template: Templates['api-documentation-header'],
+export default Marionette.ItemView.extend({
+  template: Templates['api-documentation-header'],
 
-    modelEvents: {
-      'change': 'render'
-    }
-  });
-
+  modelEvents: {
+    'change': 'render'
+  }
 });
+
+

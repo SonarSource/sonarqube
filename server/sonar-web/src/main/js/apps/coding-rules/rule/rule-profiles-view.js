@@ -1,10 +1,10 @@
-define([
-  './rule-profile-view',
-  './profile-activation-view',
-  '../templates'
-], function (ProfileView, ProfileActivationView) {
+import _ from 'underscore';
+import Marionette from 'backbone.marionette';
+import ProfileView from './rule-profile-view';
+import ProfileActivationView from './profile-activation-view';
+import '../templates';
 
-  return Marionette.CompositeView.extend({
+  export default Marionette.CompositeView.extend({
     template: Templates['coding-rules-rule-profiles'],
     childView: ProfileView,
     childViewContainer: '#coding-rules-detail-quality-profiles',
@@ -77,4 +77,4 @@ define([
     }
   });
 
-});
+

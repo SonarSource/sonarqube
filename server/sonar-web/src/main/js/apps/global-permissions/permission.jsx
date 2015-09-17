@@ -1,8 +1,7 @@
+import $ from 'jquery';
 import React from 'react';
 import PermissionUsers from './permission-users';
 import PermissionGroups from './permission-groups';
-
-let $ = jQuery;
 
 // Maximum number of displayed groups
 const MAX_ITEMS = 3;

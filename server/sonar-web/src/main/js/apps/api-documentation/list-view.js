@@ -1,23 +1,22 @@
-define([
-  './item-view'
-], function (ItemView) {
+import Marionette from 'backbone.marionette';
+import ItemView from './item-view';
 
-  return Marionette.CollectionView.extend({
-    className: 'list-group',
-    childView: ItemView,
+export default Marionette.CollectionView.extend({
+  className: 'list-group',
+  childView: ItemView,
 
-    childViewOptions: function (model) {
-      return {
-        collectionView: this,
-        highlighted: model.get('path') === this.highlighted,
-        state: this.options.state
-      };
-    },
+  childViewOptions: function (model) {
+    return {
+      collectionView: this,
+      highlighted: model.get('path') === this.highlighted,
+      state: this.options.state
+    };
+  },
 
-    highlight: function (path) {
-      this.highlighted = path;
-      this.render();
-    }
-  });
-
+  highlight: function (path) {
+    this.highlighted = path;
+    this.render();
+  }
 });
+
+

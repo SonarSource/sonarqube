@@ -1,8 +1,6 @@
 import React from 'react';
 import Main from './main';
 
-const $ = jQuery;
-
 export default {
   start(options) {
     window.requestMessages().done(() => {

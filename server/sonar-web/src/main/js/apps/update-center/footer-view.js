@@ -1,19 +1,19 @@
-define([
-  './templates'
-], function () {
+import _ from 'underscore';
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    template: Templates['update-center-footer'],
+export default Marionette.ItemView.extend({
+  template: Templates['update-center-footer'],
 
-    collectionEvents: {
-      'all': 'render'
-    },
+  collectionEvents: {
+    'all': 'render'
+  },
 
-    serializeData: function () {
-      return _.extend(this._super(), {
-        total: this.collection.where({ _hidden: false }).length
-      });
-    }
-  });
-
+  serializeData: function () {
+    return _.extend(this._super(), {
+      total: this.collection.where({ _hidden: false }).length
+    });
+  }
 });
+
+

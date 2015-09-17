@@ -1,15 +1,14 @@
-define([
-  './templates'
-], function () {
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.LayoutView.extend({
-    template: Templates['metrics-layout'],
+export default Marionette.LayoutView.extend({
+  template: Templates['metrics-layout'],
 
-    regions: {
-      headerRegion: '#metrics-header',
-      listRegion: '#metrics-list',
-      listFooterRegion: '#metrics-list-footer'
-    }
-  });
-
+  regions: {
+    headerRegion: '#metrics-header',
+    listRegion: '#metrics-list',
+    listFooterRegion: '#metrics-list-footer'
+  }
 });
+
+

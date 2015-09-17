@@ -1,3 +1,4 @@
+import Marionette from 'backbone.marionette';
 import Layout from './layout';
 import CustomMeasures from './custom-measures';
 import HeaderView from './header-view';

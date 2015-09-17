@@ -1,16 +1,15 @@
-define([
-  './templates'
-], function () {
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.LayoutView.extend({
-    template: Templates['computation-layout'],
+export default Marionette.LayoutView.extend({
+  template: Templates['computation-layout'],
 
-    regions: {
-      headerRegion: '#computation-header',
-      searchRegion: '#computation-search',
-      listRegion: '#computation-list',
-      listFooterRegion: '#computation-list-footer'
-    }
-  });
-
+  regions: {
+    headerRegion: '#computation-header',
+    searchRegion: '#computation-search',
+    listRegion: '#computation-list',
+    listFooterRegion: '#computation-list-footer'
+  }
 });
+
+

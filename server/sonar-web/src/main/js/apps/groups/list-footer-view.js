@@ -1,34 +1,34 @@
-define([
-  './templates'
-], function () {
+import _ from 'underscore';
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    template: Templates['groups-list-footer'],
+export default Marionette.ItemView.extend({
+  template: Templates['groups-list-footer'],
 
-    collectionEvents: {
-      'all': 'render'
-    },
+  collectionEvents: {
+    'all': 'render'
+  },
 
-    events: {
-      'click #groups-fetch-more': 'onMoreClick'
-    },
+  events: {
+    'click #groups-fetch-more': 'onMoreClick'
+  },
 
-    onMoreClick: function (e) {
-      e.preventDefault();
-      this.fetchMore();
-    },
+  onMoreClick: function (e) {
+    e.preventDefault();
+    this.fetchMore();
+  },
 
-    fetchMore: function () {
-      this.collection.fetchMore();
-    },
+  fetchMore: function () {
+    this.collection.fetchMore();
+  },
 
-    serializeData: function () {
-      return _.extend(this._super(), {
-        total: this.collection.total,
-        count: this.collection.length,
-        more: this.collection.hasMore()
-      });
-    }
-  });
-
+  serializeData: function () {
+    return _.extend(this._super(), {
+      total: this.collection.total,
+      count: this.collection.length,
+      more: this.collection.hasMore()
+    });
+  }
 });
+
+

@@ -1,10 +1,9 @@
+import $ from 'jquery';
 import React from 'react';
 import ComponentNavFavorite from './component-nav-favorite';
 import ComponentNavBreadcrumbs from './component-nav-breadcrumbs';
 import ComponentNavMeta from './component-nav-meta';
 import ComponentNavMenu from './component-nav-menu';
-
-let $ = jQuery;
 
 export default React.createClass({
   getInitialState() {

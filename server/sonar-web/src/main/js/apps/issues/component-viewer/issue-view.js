@@ -1,18 +1,17 @@
-define([
-  '../workspace-list-item-view'
-], function (IssueView) {
+import _ from 'underscore';
+import IssueView from '../workspace-list-item-view';
 
-  return IssueView.extend({
-    onRender: function () {
-      IssueView.prototype.onRender.apply(this, arguments);
-      this.$el.removeClass('issue-navigate-right issue-with-checkbox');
-    },
+export default IssueView.extend({
+  onRender: function () {
+    IssueView.prototype.onRender.apply(this, arguments);
+    this.$el.removeClass('issue-navigate-right issue-with-checkbox');
+  },
 
-    serializeData: function () {
-      return _.extend(IssueView.prototype.serializeData.apply(this, arguments), {
-        showComponent: false
-      });
-    }
-  });
-
+  serializeData: function () {
+    return _.extend(IssueView.prototype.serializeData.apply(this, arguments), {
+      showComponent: false
+    });
+  }
 });
+
+

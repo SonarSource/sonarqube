@@ -1,57 +1,57 @@
-define([
-  './router',
-  './layout',
-  './reports',
-  './header-view',
-  './search-view',
-  './list-view',
-  './list-footer-view'
-], function (Router, Layout, Reports, HeaderView, SearchView, ListView, ListFooterView) {
+import Backbone from 'backbone';
+import Marionette from 'backbone.marionette';
+import Router from './router';
+import Layout from './layout';
+import Reports from './reports';
+import HeaderView from './header-view';
+import SearchView from './search-view';
+import ListView from './list-view';
+import ListFooterView from './list-footer-view';
 
-  var App = new Marionette.Application(),
-      init = function (options) {
-        // Collection
-        this.reports = new Reports();
+var App = new Marionette.Application(),
+    init = function (options) {
+      // Collection
+      this.reports = new Reports();
 
-        // Router
-        this.router = new Router({ reports: this.reports });
+      // Router
+      this.router = new Router({ reports: this.reports });
 
-        // Layout
-        this.layout = new Layout({ el: options.el });
-        this.layout.render();
+      // Layout
+      this.layout = new Layout({ el: options.el });
+      this.layout.render();
 
-        // Header View
-        this.headerView = new HeaderView({ collection: this.reports });
-        this.layout.headerRegion.show(this.headerView);
+      // Header View
+      this.headerView = new HeaderView({ collection: this.reports });
+      this.layout.headerRegion.show(this.headerView);
 
-        // Search View
-        this.searchView = new SearchView({
-          collection: this.reports,
-          router: this.router
-        });
-        this.layout.searchRegion.show(this.searchView);
+      // Search View
+      this.searchView = new SearchView({
+        collection: this.reports,
+        router: this.router
+      });
+      this.layout.searchRegion.show(this.searchView);
 
-        // List View
-        this.listView = new ListView({ collection: this.reports });
-        this.layout.listRegion.show(this.listView);
+      // List View
+      this.listView = new ListView({ collection: this.reports });
+      this.layout.listRegion.show(this.listView);
 
-        // List Footer View
-        this.listFooterView = new ListFooterView({ collection: this.reports });
-        this.layout.listFooterRegion.show(this.listFooterView);
+      // List Footer View
+      this.listFooterView = new ListFooterView({ collection: this.reports });
+      this.layout.listFooterRegion.show(this.listFooterView);
 
-        // Go!
-        Backbone.history.start({
-          pushState: true,
-          root: options.urlRoot
-        });
-      };
+      // Go!
+      Backbone.history.start({
+        pushState: true,
+        root: options.urlRoot
+      });
+    };
 
-  App.on('start', function (options) {
-    window.requestMessages().done(function () {
-      init.call(App, options);
-    });
+App.on('start', function (options) {
+  window.requestMessages().done(function () {
+    init.call(App, options);
   });
-
-  return App;
-
 });
+
+export default App;
+
+

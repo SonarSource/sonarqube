@@ -1,16 +1,15 @@
-define([
-  './templates'
-], function () {
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.LayoutView.extend({
-    template: Templates['update-center-layout'],
+export default Marionette.LayoutView.extend({
+  template: Templates['update-center-layout'],
 
-    regions: {
-      headerRegion: '#update-center-header',
-      searchRegion: '#update-center-search',
-      listRegion: '#update-center-plugins',
-      footerRegion: '#update-center-footer'
-    }
-  });
-
+  regions: {
+    headerRegion: '#update-center-header',
+    searchRegion: '#update-center-search',
+    listRegion: '#update-center-plugins',
+    footerRegion: '#update-center-footer'
+  }
 });
+
+

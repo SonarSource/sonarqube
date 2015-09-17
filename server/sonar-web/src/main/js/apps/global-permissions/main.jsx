@@ -1,7 +1,6 @@
+import $ from 'jquery';
 import React from 'react';
 import PermissionsList from './permissions-list';
-
-let $ = jQuery;
 
 export default React.createClass({
   getInitialState() {

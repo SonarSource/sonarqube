@@ -1,24 +1,23 @@
-define([
-  './base-facet',
-  '../templates'
-], function (BaseFacet) {
+import _ from 'underscore';
+import BaseFacet from './base-facet';
+import '../templates';
 
-  return BaseFacet.extend({
-    template: Templates['issues-issue-key-facet'],
+export default BaseFacet.extend({
+  template: Templates['issues-issue-key-facet'],
 
-    onRender: function () {
-      return this.$el.toggleClass('hidden', !this.options.app.state.get('query').issues);
-    },
+  onRender: function () {
+    return this.$el.toggleClass('hidden', !this.options.app.state.get('query').issues);
+  },
 
-    disable: function () {
-      return this.options.app.state.updateFilter({ issues: null });
-    },
+  disable: function () {
+    return this.options.app.state.updateFilter({ issues: null });
+  },
 
-    serializeData: function () {
-      return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
-        issues: this.options.app.state.get('query').issues
-      });
-    }
-  });
-
+  serializeData: function () {
+    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+      issues: this.options.app.state.get('query').issues
+    });
+  }
 });
+
+

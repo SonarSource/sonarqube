@@ -1,11 +1,11 @@
-define(function () {
+import Marionette from 'backbone.marionette';
 
-  return Marionette.ItemView.extend({
-    className: 'search-navigator-no-results',
+export default Marionette.ItemView.extend({
+  className: 'search-navigator-no-results',
 
-    template: function () {
-      return t('issue_filter.no_issues');
-    }
-  });
-
+  template: function () {
+    return t('issue_filter.no_issues');
+  }
 });
+
+

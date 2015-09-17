@@ -1,6 +1,5 @@
 import React from 'react';
 import PermissionsUsersGroupsMixin from './permission-users-groups-mixin';
-import Avatar from 'components/shared/avatar';
 import UsersView from './users-view';
 
 export default React.createClass({

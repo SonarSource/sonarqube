@@ -43,7 +43,11 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: '<%= SOURCE_PATH %>/js'
-          src: ['**/*.jsx']
+          src: [
+            '**/*.jsx'
+            '**/api/**/*.js'
+            '**/apps/**/*.js'
+          ]
           dest: '<%= BUILD_PATH %>/js'
           ext: '.js'
         ]
@@ -310,11 +314,7 @@ module.exports = (grunt) ->
 
       js:
         files: '<%= SOURCE_PATH %>/js/**/*.js'
-        tasks: ['copy:js', 'concat:build', 'copy:assets-all-js']
-
-      jsx:
-        files: '<%= SOURCE_PATH %>/js/**/*.jsx'
-        tasks: ['babel:build', 'concat:build', 'copy:assets-all-js']
+        tasks: ['copy:js', 'babel:build', 'concat:build', 'copy:assets-all-js']
 
       handlebars:
         files: '<%= SOURCE_PATH %>/**/*.hbs'

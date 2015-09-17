@@ -1,12 +1,11 @@
-define([
-  './list-item-view',
-  './templates'
-], function (ListItemView) {
+import Marionette from 'backbone.marionette';
+import ListItemView from './list-item-view';
+import './templates';
 
-  return Marionette.CompositeView.extend({
-    template: Templates['custom-measures-list'],
-    childView: ListItemView,
-    childViewContainer: 'tbody'
-  });
-
+export default Marionette.CompositeView.extend({
+  template: Templates['custom-measures-list'],
+  childView: ListItemView,
+  childViewContainer: 'tbody'
 });
+
+

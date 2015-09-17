@@ -1,47 +1,46 @@
-define([
-  './update-view',
-  './delete-view',
-  './templates'
-], function (UpdateView, DeleteView) {
+import Marionette from 'backbone.marionette';
+import UpdateView from './update-view';
+import DeleteView from './delete-view';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    tagName: 'tr',
-    template: Templates['custom-measures-list-item'],
+export default Marionette.ItemView.extend({
+  tagName: 'tr',
+  template: Templates['custom-measures-list-item'],
 
-    events: {
-      'click .js-custom-measure-update': 'onUpdateClick',
-      'click .js-custom-measure-delete': 'onDeleteClick'
-    },
+  events: {
+    'click .js-custom-measure-update': 'onUpdateClick',
+    'click .js-custom-measure-delete': 'onDeleteClick'
+  },
 
-    onRender: function () {
-      this.$el.attr('data-id', this.model.id);
-      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
-    },
+  onRender: function () {
+    this.$el.attr('data-id', this.model.id);
+    this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
+  },
 
-    onDestroy: function () {
-      this.$('[data-toggle="tooltip"]').tooltip('destroy');
-    },
+  onDestroy: function () {
+    this.$('[data-toggle="tooltip"]').tooltip('destroy');
+  },
 
-    onUpdateClick: function (e) {
-      e.preventDefault();
-      this.updateCustomMeasure();
-    },
+  onUpdateClick: function (e) {
+    e.preventDefault();
+    this.updateCustomMeasure();
+  },
 
-    onDeleteClick: function (e) {
-      e.preventDefault();
-      this.deleteCustomMeasure();
-    },
+  onDeleteClick: function (e) {
+    e.preventDefault();
+    this.deleteCustomMeasure();
+  },
 
-    updateCustomMeasure: function () {
-      new UpdateView({
-        model: this.model,
-        collection: this.model.collection
-      }).render();
-    },
+  updateCustomMeasure: function () {
+    new UpdateView({
+      model: this.model,
+      collection: this.model.collection
+    }).render();
+  },
 
-    deleteCustomMeasure: function () {
-      new DeleteView({ model: this.model }).render();
-    }
-  });
-
+  deleteCustomMeasure: function () {
+    new DeleteView({ model: this.model }).render();
+  }
 });
+
+

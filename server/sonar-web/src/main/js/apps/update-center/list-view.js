@@ -1,10 +1,9 @@
-define([
-  './list-item-view'
-], function (ListItemView) {
+import Marionette from 'backbone.marionette';
+import ListItemView from './list-item-view';
 
-  return Marionette.CollectionView.extend({
-    tagName: 'ul',
-    childView: ListItemView
-  });
-
+export default Marionette.CollectionView.extend({
+  tagName: 'ul',
+  childView: ListItemView
 });
+
+

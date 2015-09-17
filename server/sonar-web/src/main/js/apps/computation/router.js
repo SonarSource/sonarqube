@@ -1,29 +1,29 @@
-define(function () {
+import Backbone from 'backbone';
 
-  return Backbone.Router.extend({
-    routes: {
-      '': 'index',
-      'index': 'index',
-      'current': 'current',
-      'past': 'past'
-    },
+export default Backbone.Router.extend({
+  routes: {
+    '': 'index',
+    'index': 'index',
+    'current': 'current',
+    'past': 'past'
+  },
 
-    initialize: function (options) {
-      this.options = options;
-    },
+  initialize: function (options) {
+    this.options = options;
+  },
 
-    index: function () {
-      this.navigate('current');
-      this.current();
-    },
+  index: function () {
+    this.navigate('current');
+    this.current();
+  },
 
-    current: function () {
-      this.options.reports.fetch({ q: 'queue' });
-    },
+  current: function () {
+    this.options.reports.fetch({ q: 'queue' });
+  },
 
-    past: function () {
-      this.options.reports.fetch({ q: 'history' });
-    }
-  });
-
+  past: function () {
+    this.options.reports.fetch({ q: 'history' });
+  }
 });
+
+

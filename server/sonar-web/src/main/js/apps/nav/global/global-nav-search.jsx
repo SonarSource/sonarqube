@@ -1,7 +1,6 @@
+import Backbone from 'backbone';
 import React from 'react';
 import SearchView from './search-view';
-
-let $ = jQuery;
 
 function contains (root, node) {
   while (node) {

@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import React from 'react';
 
 export default React.createClass({

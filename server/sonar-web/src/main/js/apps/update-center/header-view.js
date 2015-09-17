@@ -1,28 +1,28 @@
-define([
-  './templates'
-], function () {
+import _ from 'underscore';
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    template: Templates['update-center-header'],
+export default Marionette.ItemView.extend({
+  template: Templates['update-center-header'],
 
-    collectionEvents: {
-      all: 'render'
-    },
+  collectionEvents: {
+    all: 'render'
+  },
 
-    events: {
-      'click .js-cancel-all': 'cancelAll'
-    },
+  events: {
+    'click .js-cancel-all': 'cancelAll'
+  },
 
-    cancelAll: function () {
-      this.collection.cancelAll();
-    },
+  cancelAll: function () {
+    this.collection.cancelAll();
+  },
 
-    serializeData: function () {
-      return _.extend(this._super(), {
-        installing: this.collection._installedCount,
-        uninstalling: this.collection._uninstalledCount
-      });
-    }
-  });
-
+  serializeData: function () {
+    return _.extend(this._super(), {
+      installing: this.collection._installedCount,
+      uninstalling: this.collection._uninstalledCount
+    });
+  }
 });
+
+

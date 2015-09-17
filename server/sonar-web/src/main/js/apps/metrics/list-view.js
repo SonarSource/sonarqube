@@ -1,18 +1,17 @@
-define([
-  './list-item-view',
-  './templates'
-], function (ListItemView) {
+import Marionette from 'backbone.marionette';
+import ListItemView from './list-item-view';
+import './templates';
 
-  return Marionette.CollectionView.extend({
-    tagName: 'ul',
-    childView: ListItemView,
+export default Marionette.CollectionView.extend({
+  tagName: 'ul',
+  childView: ListItemView,
 
-    childViewOptions: function () {
-      return {
-        types: this.options.types,
-        domains: this.options.domains
-      };
-    }
-  });
-
+  childViewOptions: function () {
+    return {
+      types: this.options.types,
+      domains: this.options.domains
+    };
+  }
 });
+
+

@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'underscore';
 import ModalForm from '../../components/common/modal-form';
 import {applyTemplateToProject} from '../../api/permissions';
 import './templates';

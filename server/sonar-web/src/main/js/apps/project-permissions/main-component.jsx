@@ -1,8 +1,7 @@
+import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
 import PermissionsList from '../global-permissions/permissions-list';
-
-let $ = jQuery;
 
 const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin'];
 

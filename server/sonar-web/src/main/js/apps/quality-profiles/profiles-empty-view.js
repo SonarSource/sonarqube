@@ -1,10 +1,9 @@
-define([
-  './templates'
-], function () {
+import Marionette from 'backbone.marionette';
+import './templates';
 
-  return Marionette.ItemView.extend({
-    className: 'list-group-item',
-    template: Templates['quality-profiles-empty']
-  });
-
+export default Marionette.ItemView.extend({
+  className: 'list-group-item',
+  template: Templates['quality-profiles-empty']
 });
+
+

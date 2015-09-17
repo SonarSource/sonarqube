@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import React from 'react';
 import DashboardNameMixin from '../dashboard-name-mixin';
 import LinksMixin from '../links-mixin';

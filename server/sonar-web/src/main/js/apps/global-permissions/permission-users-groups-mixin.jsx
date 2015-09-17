@@ -1,7 +1,5 @@
 import React from 'react';
 
-let $ = jQuery;
-
 export default {
   propTypes: {
     permission: React.PropTypes.object.isRequired,
