@@ -19,118 +19,82 @@
  */
 package org.sonar.db.version;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
-import org.sonar.db.version.AddColumnsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.sonar.db.version.ColumnDef.Type.BIG_INTEGER;
+import static org.sonar.db.version.ColumnDef.Type.STRING;
 
 public class AddColumnsBuilderTest {
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  static final String TABLE_NAME = "issues";
+
+  static final H2 H2_DIALECT = new H2();
+  static final MySql MYSQL_DIALECT = new MySql();
+  static final Oracle ORACLE_DIALECT = new Oracle();
+  static final PostgreSql POSTGRES_DIALECT = new PostgreSql();
+  static final MsSql MSSQL_DIALECT = new MsSql();
+
   @Test
   public void add_columns_on_h2() {
-    assertThat(new AddColumnsBuilder(new H2(), "issues")
-      .addColumn(new AddColumnsBuilder.ColumnDef()
-        .setName("date_in_ms")
-        .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
-        .setNullable(true))
-      .addColumn(new AddColumnsBuilder.ColumnDef()
-        .setName("name")
-        .setType(AddColumnsBuilder.ColumnDef.Type.STRING)
-        .setNullable(false)
-        .setLimit(10))
-      .build()).isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL)");
+    assertThat(createSampleBuilder(H2_DIALECT).build())
+      .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL)");
   }
 
   @Test
   public void add_columns_on_mysql() {
-    assertThat(new AddColumnsBuilder(new MySql(), "issues")
-      .addColumn(new AddColumnsBuilder.ColumnDef()
-        .setName("date_in_ms")
-        .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
-        .setNullable(true))
-      .addColumn(new AddColumnsBuilder.ColumnDef()
-        .setName("name")
-        .setType(AddColumnsBuilder.ColumnDef.Type.STRING)
-        .setNullable(false)
-        .setLimit(10))
-      .build()).isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL)");
+    assertThat(createSampleBuilder(MYSQL_DIALECT).build())
+      .isEqualTo("ALTER TABLE issues ADD (date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL)");
   }
 
   @Test
   public void add_columns_on_oracle() {
-    assertThat(new AddColumnsBuilder(new Oracle(), "issues")
-      .addColumn(new AddColumnsBuilder.ColumnDef()
-        .setName("date_in_ms")
-        .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
-        .setNullable(true))
-      .addColumn(new AddColumnsBuilder.ColumnDef()
-        .setName("name")
-        .setType(AddColumnsBuilder.ColumnDef.Type.STRING)
-        .setNullable(false)
-        .setLimit(10))
-      .build()).isEqualTo("ALTER TABLE issues ADD (date_in_ms NUMBER (38) NULL, name VARCHAR (10) NOT NULL)");
+    assertThat(createSampleBuilder(ORACLE_DIALECT).build())
+      .isEqualTo("ALTER TABLE issues ADD (date_in_ms NUMBER (38) NULL, name VARCHAR (10) NOT NULL)");
   }
 
   @Test
   public void add_columns_on_postgresql() {
-    assertThat(new AddColumnsBuilder(new PostgreSql(), "issues")
-      .addColumn(new AddColumnsBuilder.ColumnDef()
-        .setName("date_in_ms")
-        .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
-        .setNullable(true))
-      .addColumn(new AddColumnsBuilder.ColumnDef()
-        .setName("name")
-        .setType(AddColumnsBuilder.ColumnDef.Type.STRING)
-        .setNullable(false)
-        .setLimit(10))
-      .build()).isEqualTo("ALTER TABLE issues ADD COLUMN date_in_ms BIGINT NULL, ADD COLUMN name VARCHAR (10) NOT NULL");
+    assertThat(createSampleBuilder(POSTGRES_DIALECT).build())
+      .isEqualTo("ALTER TABLE issues ADD COLUMN date_in_ms BIGINT NULL, ADD COLUMN name VARCHAR (10) NOT NULL");
   }
 
   @Test
   public void add_columns_on_mssql() {
-    assertThat(new AddColumnsBuilder(new MsSql(), "issues")
-      .addColumn(new AddColumnsBuilder.ColumnDef()
+    assertThat(createSampleBuilder(MSSQL_DIALECT).build())
+      .isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL");
+  }
+
+  @Test
+  public void fail_with_ISE_if_no_column() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("No column has been defined");
+
+    new AddColumnsBuilder(H2_DIALECT, TABLE_NAME).build();
+  }
+
+  private AddColumnsBuilder createSampleBuilder(Dialect dialect) {
+    return new AddColumnsBuilder(dialect, TABLE_NAME)
+      .addColumn(new ColumnDef()
         .setName("date_in_ms")
-        .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
+        .setType(BIG_INTEGER)
         .setNullable(true))
-      .addColumn(new AddColumnsBuilder.ColumnDef()
+      .addColumn(new ColumnDef()
         .setName("name")
-        .setType(AddColumnsBuilder.ColumnDef.Type.STRING)
+        .setType(STRING)
         .setNullable(false)
-        .setLimit(10))
-      .build()).isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name VARCHAR (10) NOT NULL");
-  }
-
-  @Test
-  public void fail_when_column_name_is_in_upper_case() {
-    try {
-      new AddColumnsBuilder.ColumnDef()
-        .setName("DATE_IN_MS")
-        .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
-        .setNullable(true);
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Column name should only contains lowercase and _ characters");
-    }
-  }
-
-  @Test
-  public void fail_when_column_name_contains_invalid_character() {
-    try {
-      new AddColumnsBuilder.ColumnDef()
-        .setName("date-in/ms")
-        .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
-        .setNullable(true);
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Column name should only contains lowercase and _ characters");
-    }
+        .setLimit(10));
   }
 
 }

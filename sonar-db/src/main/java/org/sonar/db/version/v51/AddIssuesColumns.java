@@ -23,6 +23,7 @@ package org.sonar.db.version.v51;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
+import org.sonar.db.version.ColumnDef;
 import org.sonar.db.version.DdlChange;
 
 /**
@@ -51,39 +52,39 @@ public class AddIssuesColumns extends DdlChange {
   private String generateSql() {
     return new AddColumnsBuilder(db.getDialect(), "issues")
       .addColumn(
-        new AddColumnsBuilder.ColumnDef()
+        new ColumnDef()
           .setName("issue_creation_date_ms")
-          .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
+          .setType(ColumnDef.Type.BIG_INTEGER)
           .setNullable(true)
       )
       .addColumn(
-        new AddColumnsBuilder.ColumnDef()
+        new ColumnDef()
           .setName("issue_update_date_ms")
-          .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
+          .setType(ColumnDef.Type.BIG_INTEGER)
           .setNullable(true)
       )
       .addColumn(
-        new AddColumnsBuilder.ColumnDef()
+        new ColumnDef()
           .setName("issue_close_date_ms")
-          .setType(AddColumnsBuilder.ColumnDef.Type.BIG_INTEGER)
+          .setType(ColumnDef.Type.BIG_INTEGER)
           .setNullable(true)
       )
       .addColumn(
-        new AddColumnsBuilder.ColumnDef()
+        new ColumnDef()
           .setName("tags")
-          .setType(AddColumnsBuilder.ColumnDef.Type.STRING)
+          .setType(ColumnDef.Type.STRING)
           .setLimit(4000)
           .setNullable(true))
       .addColumn(
-        new AddColumnsBuilder.ColumnDef()
+        new ColumnDef()
           .setName("component_uuid")
-          .setType(AddColumnsBuilder.ColumnDef.Type.STRING)
+          .setType(ColumnDef.Type.STRING)
           .setLimit(50)
           .setNullable(true))
       .addColumn(
-        new AddColumnsBuilder.ColumnDef()
+        new ColumnDef()
           .setName("project_uuid")
-          .setType(AddColumnsBuilder.ColumnDef.Type.STRING)
+          .setType(ColumnDef.Type.STRING)
           .setLimit(50)
           .setNullable(true))
       .build();

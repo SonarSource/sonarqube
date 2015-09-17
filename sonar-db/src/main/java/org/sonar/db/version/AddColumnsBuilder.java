@@ -19,11 +19,7 @@
  */
 package org.sonar.db.version;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Preconditions;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.Oracle;
@@ -48,6 +44,10 @@ public class AddColumnsBuilder {
   }
 
   public String build() {
+    if (columnDefs.isEmpty()) {
+      throw new IllegalStateException("No column has been defined");
+    }
+
     StringBuilder sql = new StringBuilder().append("ALTER TABLE ").append(tableName).append(" ");
     switch (dialect.getId()) {
       case PostgreSql.ID:
@@ -95,52 +95,4 @@ public class AddColumnsBuilder {
     }
   }
 
-  public static class ColumnDef {
-    private String name;
-    private Type type;
-    private boolean isNullable;
-    private Integer limit;
-
-    public enum Type {
-      STRING, BIG_INTEGER
-    }
-
-    public ColumnDef setNullable(boolean isNullable) {
-      this.isNullable = isNullable;
-      return this;
-    }
-
-    public ColumnDef setLimit(@Nullable Integer limit) {
-      this.limit = limit;
-      return this;
-    }
-
-    public ColumnDef setName(String name) {
-      Preconditions.checkArgument(CharMatcher.JAVA_LOWER_CASE.or(CharMatcher.anyOf("_")).matchesAllOf(name), "Column name should only contains lowercase and _ characters");
-      this.name = name;
-      return this;
-    }
-
-    public ColumnDef setType(Type type) {
-      this.type = type;
-      return this;
-    }
-
-    public boolean isNullable() {
-      return isNullable;
-    }
-
-    @CheckForNull
-    public Integer getLimit() {
-      return limit;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Type getType() {
-      return type;
-    }
-  }
 }
