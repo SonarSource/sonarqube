@@ -102,8 +102,8 @@
             <configuration>
               <nodeDownloadRoot>https://nodejs.org/dist/</nodeDownloadRoot>
               <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
-              <nodeVersion>v0.12.2</nodeVersion>
-              <npmVersion>2.9.1</npmVersion>
+              <nodeVersion>v4.1.0</nodeVersion>
+              <npmVersion>2.14.3</npmVersion>
             </configuration>
           </execution>
           <execution>
