@@ -93,6 +93,8 @@ define(function (require) {
   Command.prototype.clickElement = function (selector) {
     return new this.constructor(this, function () {
       return this.parent
+          .checkElementExist(selector)
+          .sleep(250)
           .findByCssSelector(selector)
           .click()
           .end()
