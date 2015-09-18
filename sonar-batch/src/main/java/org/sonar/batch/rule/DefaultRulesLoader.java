@@ -19,15 +19,15 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.batch.cache.WSLoaderResult;
+import org.apache.commons.io.IOUtils;
 
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
-import com.google.common.io.ByteSource;
 import org.sonarqube.ws.Rules.ListResponse;
 
 import java.io.IOException;
@@ -45,19 +45,21 @@ public class DefaultRulesLoader implements RulesLoader {
 
   @Override
   public List<Rule> load(@Nullable MutableBoolean fromCache) {
-    WSLoaderResult<ByteSource> result = wsLoader.loadSource(RULES_SEARCH_URL);
-    ListResponse list = loadFromSource(result.get());
+    WSLoaderResult<InputStream> result = wsLoader.loadStream(RULES_SEARCH_URL);
+    ListResponse list = loadFromStream(result.get());
     if (fromCache != null) {
       fromCache.setValue(result.isFromCache());
     }
     return list.getRulesList();
   }
 
-  private static ListResponse loadFromSource(ByteSource input) {
-    try (InputStream is = input.openStream()) {
+  private static ListResponse loadFromStream(InputStream is) {
+    try {
       return ListResponse.parseFrom(is);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to get rules", e);
+    } finally {
+      IOUtils.closeQuietly(is);
     }
   }
 

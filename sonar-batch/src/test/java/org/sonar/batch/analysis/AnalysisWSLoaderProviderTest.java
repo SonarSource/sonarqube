@@ -63,6 +63,6 @@ public class AnalysisWSLoaderProviderTest {
     props = new AnalysisProperties(propMap, null);
 
     WSLoader loader = loaderProvider.provide(props, mode, cache, client);
-    assertThat(loader.getStrategy()).isEqualTo(LoadStrategy.SERVER_ONLY);
+    assertThat(loader.getDefaultStrategy()).isEqualTo(LoadStrategy.SERVER_ONLY);
   }
 }

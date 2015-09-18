@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.phases;
 
+
+import org.sonar.batch.util.BatchUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.events.SensorExecutionHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler;
@@ -42,7 +44,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseH
   @Override
   public void onSensorExecution(SensorExecutionEvent event) {
     if (event.isStart()) {
-      profiler.startInfo("Sensor " + event.getSensor());
+      profiler.startInfo("Sensor " + BatchUtils.describe(event.getSensor()));
     } else {
       profiler.stopInfo();
     }

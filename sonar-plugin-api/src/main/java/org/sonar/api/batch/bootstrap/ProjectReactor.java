@@ -29,7 +29,7 @@ import java.util.List;
  * @since 2.9
  */
 @BatchSide
-public class ProjectReactor {
+public class ProjectReactor implements ProjectKey {
 
   private ProjectDefinition root;
 
@@ -64,6 +64,14 @@ public class ProjectReactor {
       if (key.equals(p.getKey())) {
         return p;
       }
+    }
+    return null;
+  }
+
+  @Override
+  public String get() {
+    if (root != null) {
+      return root.getKeyWithBranch();
     }
     return null;
   }

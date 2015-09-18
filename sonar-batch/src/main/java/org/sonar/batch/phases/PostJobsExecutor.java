@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.batch.util.BatchUtils;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -58,14 +60,14 @@ public class PostJobsExecutor {
     logPostJobs(postJobs);
 
     for (PostJob postJob : postJobs) {
-      LOG.info("Executing post-job {}", postJob.toString());
+      LOG.info("Executing post-job {}", BatchUtils.describe(postJob));
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, true));
       postJob.executeOn(project, context);
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, false));
     }
   }
 
-  private void logPostJobs(Collection<PostJob> postJobs) {
+  private static void logPostJobs(Collection<PostJob> postJobs) {
     if (LOG.isDebugEnabled()) {
       LOG.debug("Post-jobs : {}", StringUtils.join(postJobs, " -> "));
     }

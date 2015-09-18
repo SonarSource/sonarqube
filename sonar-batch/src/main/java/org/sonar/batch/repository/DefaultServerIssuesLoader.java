@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.cache.WSLoaderResult;
+import org.apache.commons.io.IOUtils;
 
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.util.BatchUtils;
-import com.google.common.io.ByteSource;
 import com.google.common.base.Function;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 
@@ -40,13 +40,13 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
 
   @Override
   public boolean load(String componentKey, Function<ServerIssue, Void> consumer) {
-    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/issues?key=" + BatchUtils.encodeForUrl(componentKey));
+    WSLoaderResult<InputStream> result = wsLoader.loadStream("/batch/issues?key=" + BatchUtils.encodeForUrl(componentKey));
     parseIssues(result.get(), consumer);
     return result.isFromCache();
   }
 
-  private static void parseIssues(ByteSource input, Function<ServerIssue, Void> consumer) {
-    try (InputStream is = input.openBufferedStream()) {
+  private static void parseIssues(InputStream is, Function<ServerIssue, Void> consumer) {
+    try {
       ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(is);
       while (previousIssue != null) {
         consumer.apply(previousIssue);
@@ -54,6 +54,8 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to get previous issues", e);
+    } finally {
+      IOUtils.closeQuietly(is);
     }
   }
 }

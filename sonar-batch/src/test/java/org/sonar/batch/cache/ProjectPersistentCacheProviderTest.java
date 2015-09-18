@@ -19,45 +19,64 @@
  */
 package org.sonar.batch.cache;
 
+import org.sonar.api.batch.bootstrap.ProjectKey;
+
+import org.sonar.batch.util.BatchUtils;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrap.GlobalProperties;
-import org.sonar.batch.cache.PersistentCacheProvider;
+import org.sonar.batch.cache.ProjectPersistentCacheProvider;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 import org.junit.Before;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
-public class PersistentCacheProviderTest {
+public class ProjectPersistentCacheProviderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  
-  private PersistentCacheProvider provider = null;
+
+  private ProjectPersistentCacheProvider provider = null;
   private GlobalProperties props = null;
+  private DefaultAnalysisMode mode = null;
+  private ProjectKey key = null;
 
   @Before
   public void prepare() {
+    key = new ProjectKeySupplier("proj");
     props = new GlobalProperties(Collections.<String, String>emptyMap());
-    provider = new PersistentCacheProvider();
+    mode = mock(DefaultAnalysisMode.class);
+    provider = new ProjectPersistentCacheProvider();
   }
 
   @Test
   public void test_singleton() {
-    assertThat(provider.provide(props)).isEqualTo(provider.provide(props));
+    assertThat(provider.provide(props, mode, key)).isEqualTo(provider.provide(props, mode, key));
   }
 
   @Test
   public void test_cache_dir() {
-    assertThat(provider.provide(props).getBaseDirectory().toFile()).exists().isDirectory();
+    assertThat(provider.provide(props, mode, key).getDirectory().toFile()).exists().isDirectory();
   }
 
   @Test
   public void test_home() {
     File f = temp.getRoot();
     props.properties().put("sonar.userHome", f.getAbsolutePath());
-    assertThat(provider.provide(props).getBaseDirectory()).isEqualTo(f.toPath().resolve("ws_cache"));
+    Path expected = f.toPath()
+      .resolve("ws_cache")
+      .resolve("http%3A%2F%2Flocalhost%3A9000-" + BatchUtils.getServerVersion())
+      .resolve("projects")
+      .resolve("proj");
+
+    assertThat(provider.provide(props, mode, key).getDirectory()).isEqualTo(expected);
   }
 }

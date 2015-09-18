@@ -19,12 +19,18 @@
  */
 package org.sonar.batch.cache;
 
-import java.util.Date;
+import org.sonar.api.batch.bootstrap.ProjectKey;
 
-public interface ProjectCacheStatus {
-  void save();
+public class ProjectKeySupplier implements ProjectKey {
+  private final String key;
 
-  void delete();
+  ProjectKeySupplier(String key) {
+    this.key = key;
+  }
 
-  Date getSyncStatus();
+  @Override
+  public String get() {
+    return key;
+  }
+
 }

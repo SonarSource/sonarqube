@@ -17,10 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.home.cache;
+package org.sonar.batch.util;
 
-import java.io.IOException;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public interface PersistentCacheLoader<T> {
-  T get() throws IOException;
+import org.junit.Test;
+
+public class BatchUtilsTest {
+  @Test
+  public void testDescribe() {
+    Object withToString = new Object() {
+      @Override
+      public String toString() {
+        return "desc";
+      }
+    };
+
+    Object withoutToString = new Object();
+
+    assertThat(BatchUtils.describe(withToString)).isEqualTo(("desc"));
+    assertThat(BatchUtils.describe(withoutToString)).isEqualTo("java.lang.Object");
+  }
 }

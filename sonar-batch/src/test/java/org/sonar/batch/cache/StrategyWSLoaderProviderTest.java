@@ -47,7 +47,7 @@ public class StrategyWSLoaderProviderTest {
     StrategyWSLoaderProvider provider = new StrategyWSLoaderProvider(LoadStrategy.CACHE_FIRST);
     WSLoader wsLoader = provider.provide(cache, client);
 
-    assertThat(wsLoader.getStrategy()).isEqualTo(LoadStrategy.CACHE_FIRST);
+    assertThat(wsLoader.getDefaultStrategy()).isEqualTo(LoadStrategy.CACHE_FIRST);
   }
 
   @Test

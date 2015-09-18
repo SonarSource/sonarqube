@@ -19,9 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -30,13 +27,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -62,7 +56,6 @@ import org.sonar.core.util.DefaultHttpDownloader;
 @BatchSide
 public class ServerClient {
   private static final String GET = "GET";
-  private static final Logger LOG = LoggerFactory.getLogger(ServerClient.class);
   private GlobalProperties props;
   private DefaultHttpDownloader.BaseHttpDownloader downloader;
 
@@ -73,20 +66,6 @@ public class ServerClient {
 
   public String getURL() {
     return StringUtils.removeEnd(StringUtils.defaultIfBlank(props.property("sonar.host.url"), "http://localhost:9000"), "/");
-  }
-  
-  public String getServerVersion() {
-    InputStream is = this.getClass().getClassLoader().getResourceAsStream("sq-version.txt");
-    if (is == null) {
-      LOG.warn("Failed to get SQ version");
-      return null;
-    }
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-      return br.readLine();
-    } catch (IOException e) {
-      LOG.warn("Failed to get SQ version", e);
-      return null;
-    }
   }
 
   public URI getURI(String pathStartingWithSlash) {
