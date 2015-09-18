@@ -35,6 +35,8 @@ public interface CeActivityMapper {
 
   List<CeActivityDto> selectByQuery(@Param("query") CeActivityQuery query, RowBounds rowBounds);
 
+  int countByQuery(@Param("query") CeActivityQuery query);
+
   void insert(CeActivityDto dto);
 
   void updateIsLastToFalseForLastKey(@Param("isLastKey") String isLastKey, @Param("updatedAt") long updatedAt);

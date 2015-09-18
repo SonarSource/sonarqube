@@ -22,7 +22,7 @@ package org.sonar.server.computation;
 import org.sonar.server.util.StoppableScheduledExecutorService;
 
 /**
- * ExecutorService responsible for adding {@link CeWorkerImpl} to {@link CeQueue} on a regular basis.
+ * ExecutorService responsible for adding {@link CeWorkerImpl} to {@link CeQueueImpl} on a regular basis.
  */
 public interface ReportProcessingSchedulerExecutorService extends StoppableScheduledExecutorService {
 }

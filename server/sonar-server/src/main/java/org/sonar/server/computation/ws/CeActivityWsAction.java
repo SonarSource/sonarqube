@@ -25,10 +25,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityQuery;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
@@ -39,6 +41,11 @@ import org.sonarqube.ws.WsCe;
  * <p>Get the past executed tasks</p>
  */
 public class CeActivityWsAction implements CeWsAction {
+
+  private static final String PARAM_COMPONENT_ID = "componentId";
+  private static final String PARAM_TYPE = "type";
+  private static final String PARAM_STATUS = "status";
+  private static final String PARAM_ONLY_CURRENTS = "onlyCurrents";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -52,32 +59,71 @@ public class CeActivityWsAction implements CeWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("activity")
+    WebService.NewAction action = controller.createAction("activity")
       .setInternal(true)
       .setResponseExample(getClass().getResource("CeActivityWsAction/example.json"))
       .setHandler(this);
+    action.createParam(PARAM_COMPONENT_ID)
+      .setDescription("Optional id of the component (project) to filter on")
+      .setExampleValue(Uuids.UUID_EXAMPLE_03);
+    action.createParam(PARAM_STATUS)
+      .setDescription("Optional filter on task status")
+      .setPossibleValues(CeActivityDto.Status.values());
+    action.createParam(PARAM_ONLY_CURRENTS)
+      .setDescription("Optional filter on the current activities (only the most recent task by project)")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
+    action.createParam(PARAM_TYPE)
+      .setDescription("Optional filter on task type")
+      .setExampleValue(CeTaskTypes.REPORT);
+    action.addPagingParams(10);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkGlobalPermission(UserRole.ADMIN);
     DbSession dbSession = dbClient.openSession(false);
     try {
-      CeActivityQuery query = new CeActivityQuery();
-      List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, new RowBounds(0, 100));
+      CeActivityQuery query = readQuery(wsRequest);
+      RowBounds rowBounds = readMyBatisRowBounds(wsRequest);
+      List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, rowBounds);
+      int total = dbClient.ceActivityDao().countByQuery(dbSession, query);
 
       WsCe.ActivityResponse.Builder wsResponseBuilder = WsCe.ActivityResponse.newBuilder();
       wsResponseBuilder.addAllTasks(formatter.formatActivity(dbSession, dtos));
-      Common.Paging paging = Common.Paging.newBuilder()
-        .setPageIndex(1)
-        .setPageSize(dtos.size())
-        .setTotal(dtos.size())
-        .build();
-      wsResponseBuilder.setPaging(paging);
+      wsResponseBuilder.setPaging(Common.Paging.newBuilder()
+        .setPageIndex(wsRequest.mandatoryParamAsInt(WebService.Param.PAGE))
+        .setPageSize(wsRequest.mandatoryParamAsInt(WebService.Param.PAGE_SIZE))
+        .setTotal(total));
       WsUtils.writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
 
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private CeActivityQuery readQuery(Request wsRequest) {
+    CeActivityQuery query = new CeActivityQuery();
+    query.setType(wsRequest.param(PARAM_TYPE));
+    query.setOnlyCurrents(wsRequest.mandatoryParamAsBoolean(PARAM_ONLY_CURRENTS));
+      
+    String status = wsRequest.param(PARAM_STATUS);
+    if (status != null) {
+      query.setStatus(CeActivityDto.Status.valueOf(status));
+    }
+    
+    String componentId = wsRequest.param(PARAM_COMPONENT_ID);
+    if (componentId == null) {
+      userSession.checkGlobalPermission(UserRole.ADMIN);
+    } else {
+      userSession.checkProjectUuidPermission(UserRole.ADMIN, componentId);
+      query.setComponentUuid(componentId);
+    }
+    return query;
+  }
+
+  private static RowBounds readMyBatisRowBounds(Request wsRequest) {
+    int pageIndex = wsRequest.mandatoryParamAsInt(WebService.Param.PAGE);
+    int pageSize = wsRequest.mandatoryParamAsInt(WebService.Param.PAGE_SIZE);
+    return new RowBounds((pageIndex - 1) * pageSize, pageSize);
   }
 }

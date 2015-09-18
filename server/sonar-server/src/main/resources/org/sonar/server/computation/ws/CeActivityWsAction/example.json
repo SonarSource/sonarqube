@@ -1,4 +1,9 @@
 {
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 10,
+    "total": 233
+  },
   "tasks": [
     {
       "id": "BU_dO1vsORa8_beWCwsP",

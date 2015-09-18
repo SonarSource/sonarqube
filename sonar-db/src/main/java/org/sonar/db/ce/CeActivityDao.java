@@ -57,10 +57,14 @@ public class CeActivityDao implements Dao {
   }
 
   /**
-   * Ordered by id asc -> oldest to newest
+   * Ordered by id desc -> newest to oldest
    */
   public List<CeActivityDto> selectByQuery(DbSession dbSession, CeActivityQuery query, RowBounds rowBounds) {
     return mapper(dbSession).selectByQuery(query, rowBounds);
+  }
+
+  public int countByQuery(DbSession dbSession, CeActivityQuery query) {
+    return mapper(dbSession).countByQuery(query);
   }
 
   private CeActivityMapper mapper(DbSession dbSession) {

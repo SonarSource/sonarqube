@@ -22,7 +22,6 @@ package org.sonar.server.computation.ws;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.computation.ReportProcessingScheduler;
 import org.sonar.server.computation.ReportSubmitter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +31,7 @@ public class CeWsTest {
 
   @Test
   public void define() throws Exception {
-    CeWsAction wsAction = new CeSubmitWsAction(mock(ReportSubmitter.class), mock(ReportProcessingScheduler.class));
+    CeWsAction wsAction = new CeSubmitWsAction(mock(ReportSubmitter.class));
 
     CeWs ws = new CeWs(wsAction);
     WebService.Context context = mock(WebService.Context.class, Mockito.RETURNS_DEEP_STUBS);

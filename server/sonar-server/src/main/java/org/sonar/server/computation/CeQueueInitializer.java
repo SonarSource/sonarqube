@@ -19,89 +19,48 @@
  */
 package org.sonar.server.computation;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.sonar.api.platform.ServerUpgradeStatus;
+import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 
 /**
- * Cleans-up the Compute Engine queue and resets the JMX counters.
- * CE workers must not be started before execution of this class.
+ * Cleans-up the queue, initializes JMX counters then schedule
+ * the execution of workers. That allows to not prevent workers
+ * from peeking the queue before it's ready.
  */
 @ServerSide
-public class CeQueueInitializer {
-
-  private static final Logger LOGGER = Loggers.get(CeQueueInitializer.class);
+public class CeQueueInitializer implements Startable {
 
   private final DbClient dbClient;
-  private final ServerUpgradeStatus serverUpgradeStatus;
-  private final ReportFiles reportFiles;
-  private final CeQueue queue;
   private final CEQueueStatus queueStatus;
+  private final CeQueueCleaner cleaner;
+  private final ReportProcessingScheduler scheduler;
 
-  public CeQueueInitializer(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, ReportFiles reportFiles,
-    CeQueue queue, CEQueueStatus queueStatus) {
+  public CeQueueInitializer(DbClient dbClient, CEQueueStatus queueStatus, CeQueueCleaner cleaner, ReportProcessingScheduler scheduler) {
     this.dbClient = dbClient;
-    this.serverUpgradeStatus = serverUpgradeStatus;
-    this.reportFiles = reportFiles;
-    this.queue = queue;
     this.queueStatus = queueStatus;
+    this.cleaner = cleaner;
+    this.scheduler = scheduler;
   }
 
-  /**
-   * Do not rename. Used at server startup.
-   */
+  @Override
   public void start() {
     DbSession dbSession = dbClient.openSession(false);
     try {
       initJmxCounters(dbSession);
-
-      if (serverUpgradeStatus.isUpgraded()) {
-        cleanOnUpgrade();
-      } else {
-        verifyConsistency(dbSession);
-      }
+      cleaner.clean(dbSession);
+      scheduler.schedule();
 
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private void cleanOnUpgrade() {
-    // we assume that pending tasks are not compatible with the new version
-    // and can't be processed
-    LOGGER.info("Cancel all pending tasks (due to upgrade)");
-    queue.clear();
-  }
-
-  private void verifyConsistency(DbSession dbSession) {
-    // server is not being upgraded
-    dbClient.ceQueueDao().resetAllToPendingStatus(dbSession);
-    dbSession.commit();
-
-    // verify that the report files are available for the tasks in queue
-    Set<String> uuidsInQueue = new HashSet<>();
-    for (CeQueueDto queueDto : dbClient.ceQueueDao().selectAllInAscOrder(dbSession)) {
-      uuidsInQueue.add(queueDto.getUuid());
-      if (CeTaskTypes.REPORT.equals(queueDto.getTaskType()) && !reportFiles.fileForUuid(queueDto.getUuid()).exists()) {
-        // the report is not available on file system
-        queue.cancel(dbSession, queueDto);
-      }
-    }
-
-    // clean-up filesystem
-    for (String uuid : reportFiles.listUuids()) {
-      if (!uuidsInQueue.contains(uuid)) {
-        reportFiles.deleteIfExists(uuid);
-      }
-    }
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   private void initJmxCounters(DbSession dbSession) {

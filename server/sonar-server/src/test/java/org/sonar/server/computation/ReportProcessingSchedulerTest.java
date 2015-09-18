@@ -26,12 +26,10 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.platform.Server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,20 +42,10 @@ public class ReportProcessingSchedulerTest {
 
   @Test
   public void schedule_at_fixed_rate_adding_a_ReportProcessingTask_to_the_queue() throws Exception {
-    when(batchExecutorService.scheduleAtFixedRate(any(Runnable.class), eq(0L), eq(10L), eq(TimeUnit.SECONDS)))
+    when(batchExecutorService.scheduleAtFixedRate(any(Runnable.class), eq(0L), eq(1L), eq(TimeUnit.SECONDS)))
       .thenAnswer(new ExecuteFirstArgAsRunnable());
 
-    underTest.onServerStart(mock(Server.class));
-
-    assertThat(processingQueue.getTasks()).hasSize(1);
-    assertThat(processingQueue.getTasks().iterator().next()).isInstanceOf(CeWorker.class);
-  }
-
-  @Test
-  public void adds_immediately_a_ReportProcessingTask_to_the_queue() throws Exception {
-    doAnswer(new ExecuteFirstArgAsRunnable()).when(batchExecutorService).execute(any(Runnable.class));
-
-    underTest.startAnalysisTaskNow();
+    underTest.schedule();
 
     assertThat(processingQueue.getTasks()).hasSize(1);
     assertThat(processingQueue.getTasks().iterator().next()).isInstanceOf(CeWorker.class);

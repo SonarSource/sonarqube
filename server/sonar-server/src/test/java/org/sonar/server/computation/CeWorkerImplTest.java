@@ -26,15 +26,13 @@ import org.sonar.db.ce.CeTaskTypes;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class CeWorkerImplTest {
 
-  CeQueue queue = mock(CeQueue.class);
+  CeQueue queue = mock(CeQueueImpl.class);
   ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
   CeWorker underTest = new CeWorkerImpl(queue, taskProcessor);
 

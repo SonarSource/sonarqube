@@ -17,35 +17,55 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.util;
-
-import com.google.common.base.Strings;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+package org.sonar.server.computation;
 
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 
-public class BatchUtils {
+public class TestTaskSubmission implements TaskSubmission {
+  private final String uuid;
+  private String type;
+  private String componentUuid;
+  private String submitterLogin;
 
-  private BatchUtils() {
+  public TestTaskSubmission(String uuid) {
+    this.uuid = uuid;
   }
 
-  /**
-   * Clean provided string to remove chars that are not valid as file name.
-   * @param projectKey e.g. my:file
-   */
-  public static String cleanKeyForFilename(String projectKey) {
-    String cleanKey = StringUtils.deleteWhitespace(projectKey);
-    return StringUtils.replace(cleanKey, ":", "_");
+  @Override
+  public String getUuid() {
+    return uuid;
   }
-  
-  public static String encodeForUrl(@Nullable String url) {
-    try {
-      return URLEncoder.encode(Strings.nullToEmpty(url), "UTF-8");
 
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException("Encoding not supported", e);
-    }
+  @Override
+  public String getType() {
+    return type;
+  }
+
+  @Override
+  public TaskSubmission setType(String s) {
+    this.type = s;
+    return this;
+  }
+
+  @Override
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  @Override
+  public TaskSubmission setComponentUuid(@Nullable String s) {
+    this.componentUuid = s;
+    return this;
+  }
+
+  @Override
+  public String getSubmitterLogin() {
+    return submitterLogin;
+  }
+
+  @Override
+  public TaskSubmission setSubmitterLogin(@Nullable String s) {
+    this.submitterLogin = s;
+    return this;
   }
 }

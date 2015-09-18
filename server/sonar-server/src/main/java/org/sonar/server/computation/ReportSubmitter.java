@@ -63,7 +63,7 @@ public class ReportSubmitter {
     }
 
     // the report file must be saved before submitting the task
-    CeTaskSubmit submit = queue.prepareSubmit();
+    TaskSubmission submit = queue.prepareSubmit();
     reportFiles.save(submit, reportInput);
 
     submit.setType(CeTaskTypes.REPORT);

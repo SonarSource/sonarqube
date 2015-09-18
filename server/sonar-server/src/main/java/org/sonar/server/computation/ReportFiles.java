@@ -45,7 +45,7 @@ public class ReportFiles {
     this.settings = settings;
   }
 
-  public void save(CeTaskSubmit taskSubmit, InputStream reportInput) {
+  public void save(TaskSubmission taskSubmit, InputStream reportInput) {
     File file = fileForUuid(taskSubmit.getUuid());
     try {
       FileUtils.copyInputStreamToFile(reportInput, file);

@@ -52,7 +52,7 @@ public abstract class AbstractStoppableExecutorService<T extends ExecutorService
       if (!delegate.awaitTermination(5, TimeUnit.SECONDS)) {
         // Cancel currently executing tasks
         delegate.shutdownNow();
-        // Wait a while for tasks to respond to being cancelled
+        // Wait a while for tasks to respond to being canceled
         if (!delegate.awaitTermination(5, TimeUnit.SECONDS)) {
           Loggers.get(getClass()).error(format("Pool %s did not terminate", getClass().getSimpleName()));
         }

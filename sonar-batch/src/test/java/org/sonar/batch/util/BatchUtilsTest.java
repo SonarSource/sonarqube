@@ -17,44 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.batch.util;
 
-public class CeTaskSubmit {
+import org.junit.Test;
 
-  private final String uuid;
-  private String type;
-  private String componentUuid;
-  private String submitterLogin;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  CeTaskSubmit(String uuid) {
-    this.uuid = uuid;
-  }
+public class BatchUtilsTest {
 
-  public String getUuid() {
-    return uuid;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public String getComponentUuid() {
-    return componentUuid;
-  }
-
-  public void setComponentUuid(String s) {
-    this.componentUuid = s;
-  }
-
-  public String getSubmitterLogin() {
-    return submitterLogin;
-  }
-
-  public void setSubmitterLogin(String s) {
-    this.submitterLogin = s;
+  @Test
+  public void encodeForUrl() throws Exception {
+    assertThat(BatchUtils.encodeForUrl(null)).isEqualTo("");
+    assertThat(BatchUtils.encodeForUrl("")).isEqualTo("");
+    assertThat(BatchUtils.encodeForUrl("foo")).isEqualTo("foo");
+    assertThat(BatchUtils.encodeForUrl("foo&bar")).isEqualTo("foo%26bar");
   }
 }

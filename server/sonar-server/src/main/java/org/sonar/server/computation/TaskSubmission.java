@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.util;
+package org.sonar.server.computation;
 
-import com.google.common.base.Strings;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 
-public class BatchUtils {
+public interface TaskSubmission {
 
-  private BatchUtils() {
-  }
+  String getUuid();
 
-  /**
-   * Clean provided string to remove chars that are not valid as file name.
-   * @param projectKey e.g. my:file
-   */
-  public static String cleanKeyForFilename(String projectKey) {
-    String cleanKey = StringUtils.deleteWhitespace(projectKey);
-    return StringUtils.replace(cleanKey, ":", "_");
-  }
-  
-  public static String encodeForUrl(@Nullable String url) {
-    try {
-      return URLEncoder.encode(Strings.nullToEmpty(url), "UTF-8");
+  String getType();
 
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException("Encoding not supported", e);
-    }
-  }
+  TaskSubmission setType(String s);
+
+  @CheckForNull
+  String getComponentUuid();
+
+  TaskSubmission setComponentUuid(@Nullable String s);
+
+  @CheckForNull
+  String getSubmitterLogin();
+
+  TaskSubmission setSubmitterLogin(@Nullable String s);
+
 }

@@ -21,13 +21,11 @@
 package org.sonar.server.computation;
 
 import java.util.concurrent.TimeUnit;
-import org.sonar.api.platform.Server;
-import org.sonar.api.platform.ServerStartHandler;
 
 /**
  * Adds tasks to the Compute Engine to process batch reports.
  */
-public class ReportProcessingScheduler implements ServerStartHandler {
+public class ReportProcessingScheduler {
   private final ReportProcessingSchedulerExecutorService reportProcessingSchedulerExecutorService;
   private final ComputeEngineProcessingQueue processingQueue;
   private final CeWorker worker;
@@ -43,17 +41,12 @@ public class ReportProcessingScheduler implements ServerStartHandler {
     this.processingQueue = processingQueue;
     this.worker = worker;
 
-    this.delayBetweenTasks = 10;
+    this.delayBetweenTasks = 1;
     this.delayForFirstStart = 0;
     this.timeUnit = TimeUnit.SECONDS;
   }
 
-  public void startAnalysisTaskNow() {
-    reportProcessingSchedulerExecutorService.execute(new AddReportProcessingToCEProcessingQueue());
-  }
-
-  @Override
-  public void onServerStart(Server server) {
+  public void schedule() {
     reportProcessingSchedulerExecutorService.scheduleAtFixedRate(new AddReportProcessingToCEProcessingQueue(), delayForFirstStart, delayBetweenTasks, timeUnit);
   }
 

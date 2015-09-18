@@ -25,7 +25,6 @@ import org.mockito.Matchers;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.ReportProcessingScheduler;
 import org.sonar.server.computation.ReportSubmitter;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.ws.TestResponse;
@@ -43,8 +42,7 @@ import static org.mockito.Mockito.when;
 public class CeSubmitWsActionTest {
 
   ReportSubmitter reportSubmitter = mock(ReportSubmitter.class);
-  ReportProcessingScheduler reportProcessingScheduler = mock(ReportProcessingScheduler.class);
-  CeSubmitWsAction underTest = new CeSubmitWsAction(reportSubmitter, reportProcessingScheduler);
+  CeSubmitWsAction underTest = new CeSubmitWsAction(reportSubmitter);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -61,16 +59,14 @@ public class CeSubmitWsActionTest {
       .execute();
 
     verify(reportSubmitter).submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class));
-    verify(reportProcessingScheduler).startAnalysisTaskNow();
 
-    // verify the protobuf response
     WsCe.SubmitResponse submitResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.SubmitResponse.PARSER);
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     assertThat(submitResponse.getProjectId()).isEqualTo("PROJECT_1");
   }
 
   @Test
-  public void test_response_example() {
+  public void test_example_json_response() {
     CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", "robert");
     when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class))).thenReturn(task);
 
