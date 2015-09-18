@@ -21,6 +21,7 @@ package org.sonar.server.computation;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
@@ -36,18 +37,18 @@ import org.sonar.server.computation.monitoring.CEQueueStatus;
  * CE workers must not be started before execution of this class.
  */
 @ServerSide
-public class CeQueueInitializer {
+public class CeQueueInitializer implements Startable {
 
   private static final Logger LOGGER = Loggers.get(CeQueueInitializer.class);
 
   private final DbClient dbClient;
   private final ServerUpgradeStatus serverUpgradeStatus;
   private final ReportFiles reportFiles;
-  private final CeQueue queue;
+  private final CeQueueImpl queue;
   private final CEQueueStatus queueStatus;
 
   public CeQueueInitializer(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, ReportFiles reportFiles,
-    CeQueue queue, CEQueueStatus queueStatus) {
+    CeQueueImpl queue, CEQueueStatus queueStatus) {
     this.dbClient = dbClient;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.reportFiles = reportFiles;
@@ -58,6 +59,7 @@ public class CeQueueInitializer {
   /**
    * Do not rename. Used at server startup.
    */
+  @Override
   public void start() {
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -72,6 +74,11 @@ public class CeQueueInitializer {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   private void cleanOnUpgrade() {

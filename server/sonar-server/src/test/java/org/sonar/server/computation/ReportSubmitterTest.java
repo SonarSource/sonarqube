@@ -42,7 +42,7 @@ public class ReportSubmitterTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  CeQueue queue = mock(CeQueue.class);
+  CeQueue queue = mock(CeQueueImpl.class);
   ReportFiles reportFiles = mock(ReportFiles.class);
   ComponentService componentService = mock(ComponentService.class);
   ReportSubmitter underTest = new ReportSubmitter(queue, userSession, reportFiles, componentService);

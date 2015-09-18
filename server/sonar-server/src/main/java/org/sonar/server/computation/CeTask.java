@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.ce.CeQueueDto;
 
+import static java.util.Objects.requireNonNull;
+
 @Immutable
 public class CeTask {
 
@@ -34,24 +36,18 @@ public class CeTask {
   private final String submitterLogin;
 
   public CeTask(String uuid, String type, @Nullable String componentUuid, @Nullable String submitterLogin) {
-    this.uuid = uuid;
-    this.type = type;
+    this.uuid = requireNonNull(uuid);
+    this.type = requireNonNull(type);
     this.componentUuid = componentUuid;
     this.submitterLogin = submitterLogin;
   }
 
   CeTask(CeTaskSubmit submit) {
-    this.uuid = submit.getUuid();
-    this.type = submit.getType();
-    this.componentUuid = submit.getComponentUuid();
-    this.submitterLogin = submit.getSubmitterLogin();
+    this(submit.getUuid(), submit.getType(), submit.getComponentUuid(), submit.getSubmitterLogin());
   }
 
   CeTask(CeQueueDto dto) {
-    this.uuid = dto.getUuid();
-    this.type = dto.getTaskType();
-    this.componentUuid = dto.getComponentUuid();
-    this.submitterLogin = dto.getSubmitterLogin();
+    this(dto.getUuid(), dto.getTaskType(), dto.getComponentUuid(), dto.getSubmitterLogin());
   }
 
   public String getUuid() {
@@ -83,7 +79,7 @@ public class CeTask {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

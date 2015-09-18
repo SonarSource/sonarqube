@@ -52,7 +52,7 @@ public class CeQueueInitializerTest {
 
   ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   ReportFiles reportFiles = mock(ReportFiles.class, Mockito.RETURNS_DEEP_STUBS);
-  CeQueue queue = mock(CeQueue.class);
+  CeQueueImpl queue = mock(CeQueueImpl.class);
   CEQueueStatus queueStatus = new CEQueueStatusImpl();
   CeQueueInitializer underTest = new CeQueueInitializer(dbTester.getDbClient(), serverUpgradeStatus, reportFiles, queue, queueStatus);
 

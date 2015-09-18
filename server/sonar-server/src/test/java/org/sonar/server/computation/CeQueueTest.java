@@ -56,7 +56,7 @@ public class CeQueueTest {
   UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   CEQueueStatus queueStatus = new CEQueueStatusImpl();
   CeQueueListener listener = mock(CeQueueListener.class);
-  CeQueue underTest = new CeQueue(system2, dbTester.getDbClient(), uuidFactory, queueStatus, new CeQueueListener[] {listener});
+  CeQueue underTest = new CeQueueImpl(system2, dbTester.getDbClient(), uuidFactory, queueStatus, new CeQueueListener[] {listener});
 
   @Test
   public void test_submit() {
@@ -163,7 +163,7 @@ public class CeQueueTest {
   @Test
   public void fail_to_cancel_if_in_progress() throws Exception {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(startsWith("Task is in progress and can't be cancelled"));
+    expectedException.expectMessage(startsWith("Task is in progress and can't be canceled"));
 
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     underTest.peek();

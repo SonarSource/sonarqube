@@ -64,7 +64,7 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ResourcesWs;
-import org.sonar.server.computation.CeQueue;
+import org.sonar.server.computation.CeQueueImpl;
 import org.sonar.server.computation.CeQueueInitializer;
 import org.sonar.server.computation.CleanReportQueueListener;
 import org.sonar.server.computation.ComputeEngineProcessingModule;
@@ -718,7 +718,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // Compute engine
       CEQueueStatusImpl.class,
       ComputeEngineQueueMonitor.class,
-      CeQueue.class,
+      CeQueueImpl.class,
       CleanReportQueueListener.class,
       ReportFiles.class,
       ComputeEngineProcessingModule.class,
