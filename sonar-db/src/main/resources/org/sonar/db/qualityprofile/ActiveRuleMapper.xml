@@ -70,18 +70,6 @@
     DELETE FROM active_rules WHERE id=#{id}
   </update>
 
-  <select id="selectByIds" parameterType="map" resultType="ActiveRule">
-    select
-    <include refid="activeRuleColumns"/>
-    from active_rules a
-    <include refid="activeRuleJoin"/>
-    <where>
-      (<foreach collection="list" item="id" open="(" separator=" or " close=")">
-      a.id=#{id}
-    </foreach>)
-    </where>
-  </select>
-
   <select id="selectById" parameterType="int" resultType="ActiveRule">
     SELECT
     <include refid="activeRuleColumns"/>
