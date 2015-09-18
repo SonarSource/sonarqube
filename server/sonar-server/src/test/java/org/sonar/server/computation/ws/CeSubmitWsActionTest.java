@@ -21,6 +21,7 @@ package org.sonar.server.computation.ws;
 
 import java.io.InputStream;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.CeTask;
@@ -49,7 +50,7 @@ public class CeSubmitWsActionTest {
   @Test
   public void submit_task_to_the_queue_and_ask_for_immediate_processing() {
     CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", "robert");
-    when(reportSubmitter.submit(eq("my_project"), eq("My Project"), any(InputStream.class))).thenReturn(task);
+    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class))).thenReturn(task);
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -59,7 +60,7 @@ public class CeSubmitWsActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(reportSubmitter).submit(eq("my_project"), eq("My Project"), any(InputStream.class));
+    verify(reportSubmitter).submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class));
     verify(reportProcessingScheduler).startAnalysisTaskNow();
 
     // verify the protobuf response
@@ -71,7 +72,7 @@ public class CeSubmitWsActionTest {
   @Test
   public void test_response_example() {
     CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", "robert");
-    when(reportSubmitter.submit(eq("my_project"), eq("My Project"), any(InputStream.class))).thenReturn(task);
+    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class))).thenReturn(task);
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -90,7 +91,7 @@ public class CeSubmitWsActionTest {
   @Test
   public void project_name_is_optional() {
     CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", "robert");
-    when(reportSubmitter.submit(eq("my_project"), eq("my_project"), any(InputStream.class))).thenReturn(task);
+    when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class))).thenReturn(task);
 
     tester.newRequest()
       .setParam("projectKey", "my_project")
@@ -99,7 +100,7 @@ public class CeSubmitWsActionTest {
       .setMethod("POST")
       .execute();
 
-    verify(reportSubmitter).submit(eq("my_project"), eq("my_project"), any(InputStream.class));
+    verify(reportSubmitter).submit(eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class));
 
   }
 }

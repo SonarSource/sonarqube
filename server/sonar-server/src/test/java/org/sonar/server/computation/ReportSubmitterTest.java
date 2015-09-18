@@ -28,8 +28,10 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.NewComponent;
 import org.sonar.server.tester.UserSessionRule;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,7 +53,7 @@ public class ReportSubmitterTest {
     userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     when(componentService.getNullableByKey("MY_PROJECT")).thenReturn(new ComponentDto().setUuid("P1"));
 
-    underTest.submit("MY_PROJECT", "My Project", IOUtils.toInputStream("{binary}"));
+    underTest.submit("MY_PROJECT", null, "My Project", IOUtils.toInputStream("{binary}"));
 
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
@@ -65,5 +67,29 @@ public class ReportSubmitterTest {
 
       }
     }));
+  }
+
+  @Test
+  public void provision_project_if_does_not_exist() throws Exception {
+    when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit("TASK_1"));
+    userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PROVISIONING);
+    when(componentService.getNullableByKey("MY_PROJECT")).thenReturn(null);
+    when(componentService.create(any(NewComponent.class))).thenReturn(new ComponentDto().setUuid("P1"));
+
+    underTest.submit("MY_PROJECT", null, "My Project", IOUtils.toInputStream("{binary}"));
+
+    verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
+      @Override
+      protected boolean matchesSafely(CeTaskSubmit submit) {
+        return submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals("P1") &&
+          submit.getUuid().equals("TASK_1");
+      }
+
+      @Override
+      public void describeTo(Description description) {
+
+      }
+    }));
+
   }
 }

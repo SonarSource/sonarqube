@@ -138,7 +138,8 @@ public class ReportPublisher implements Startable {
   void sendOrDumpReport(File report) {
     ProjectDefinition projectDefinition = projectReactor.getRoot();
     String effectiveKey = projectDefinition.getKeyWithBranch();
-    String relativeUrl = "/api/ce/submit?projectKey=" + effectiveKey + "&projectName=" + BatchUtils.encodeForUrl(projectDefinition.getName());
+    String relativeUrl = String.format("/api/ce/submit?projectKey=%s&projectName=%s&projectBranch=%s",
+      projectDefinition.getKey(), BatchUtils.encodeForUrl(projectDefinition.getName()), BatchUtils.encodeForUrl(projectDefinition.getBranch()));
 
     String dumpDirLocation = settings.getString(DUMP_REPORT_PROP_KEY);
     if (dumpDirLocation == null) {

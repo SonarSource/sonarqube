@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.ws;
 
+import com.google.common.base.Strings;
 import java.io.InputStream;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
@@ -37,6 +38,7 @@ import org.sonarqube.ws.WsCe;
 public class CeSubmitWsAction implements CeWsAction {
 
   public static final String PARAM_PROJECT_KEY = "projectKey";
+  public static final String PARAM_PROJECT_BRANCH = "projectBranch";
   public static final String PARAM_PROJECT_NAME = "projectName";
   public static final String PARAM_REPORT_DATA = "report";
 
@@ -64,6 +66,11 @@ public class CeSubmitWsAction implements CeWsAction {
       .setExampleValue("my_project");
 
     action
+      .createParam(PARAM_PROJECT_BRANCH)
+      .setDescription("Optional branch of project")
+      .setExampleValue("branch-1.x");
+
+    action
       .createParam(PARAM_PROJECT_NAME)
       .setRequired(false)
       .setDescription("Optional name of the project, used only if the project does not exist yet.")
@@ -78,10 +85,11 @@ public class CeSubmitWsAction implements CeWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     String projectKey = wsRequest.mandatoryParam(PARAM_PROJECT_KEY);
+    String projectBranch = Strings.emptyToNull(wsRequest.param(PARAM_PROJECT_BRANCH));
     String projectName = StringUtils.defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey);
     InputStream reportInput = wsRequest.paramAsInputStream(PARAM_REPORT_DATA);
 
-    CeTask task = reportSubmitter.submit(projectKey, projectName, reportInput);
+    CeTask task = reportSubmitter.submit(projectKey, projectBranch, projectName, reportInput);
     reportProcessingScheduler.startAnalysisTaskNow();
 
     WsCe.SubmitResponse submitResponse = WsCe.SubmitResponse.newBuilder()

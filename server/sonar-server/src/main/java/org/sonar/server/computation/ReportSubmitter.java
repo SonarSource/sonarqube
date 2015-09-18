@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
@@ -47,13 +48,15 @@ public class ReportSubmitter {
     this.componentService = componentService;
   }
 
-  public CeTask submit(String projectKey, @Nullable String projectName, InputStream reportInput) {
+  public CeTask submit(String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
     userSession.checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
-    ComponentDto project = componentService.getNullableByKey(projectKey);
+    String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
+    ComponentDto project = componentService.getNullableByKey(effectiveProjectKey);
     if (project == null) {
       // the project does not exist -> requires to provision it
       NewComponent newProject = new NewComponent(projectKey, StringUtils.defaultIfBlank(projectName, projectKey));
+      newProject.setBranch(projectBranch);
       newProject.setQualifier(Qualifiers.PROJECT);
       // no need to verify the permission "provisionning" as it's already handled by componentService
       project = componentService.create(newProject);

@@ -210,7 +210,7 @@ public class ProjectDefinition {
   }
 
   @CheckForNull
-  private String getBranch() {
+  public String getBranch() {
     String branch = properties.get(CoreProperties.PROJECT_BRANCH_PROPERTY);
     if (StringUtils.isNotBlank(branch)) {
       return branch;
