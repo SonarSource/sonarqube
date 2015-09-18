@@ -19,42 +19,25 @@
  */
 package org.sonar.server.computation;
 
-public class CeTaskSubmit {
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-  private final String uuid;
-  private String type;
-  private String componentUuid;
-  private String submitterLogin;
+public interface TaskSubmission {
 
-  CeTaskSubmit(String uuid) {
-    this.uuid = uuid;
-  }
+  String getUuid();
 
-  public String getUuid() {
-    return uuid;
-  }
+  String getType();
 
-  public String getType() {
-    return type;
-  }
+  TaskSubmission setType(String s);
 
-  public void setType(String type) {
-    this.type = type;
-  }
+  @CheckForNull
+  String getComponentUuid();
 
-  public String getComponentUuid() {
-    return componentUuid;
-  }
+  TaskSubmission setComponentUuid(@Nullable String s);
 
-  public void setComponentUuid(String s) {
-    this.componentUuid = s;
-  }
+  @CheckForNull
+  String getSubmitterLogin();
 
-  public String getSubmitterLogin() {
-    return submitterLogin;
-  }
+  TaskSubmission setSubmitterLogin(@Nullable String s);
 
-  public void setSubmitterLogin(String s) {
-    this.submitterLogin = s;
-  }
 }

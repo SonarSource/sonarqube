@@ -49,15 +49,15 @@ public class ReportSubmitterTest {
 
   @Test
   public void submit_a_report_on_existing_project() {
-    when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit("TASK_1"));
+    when(queue.prepareSubmit()).thenReturn(new TestTaskSubmission("TASK_1"));
     userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     when(componentService.getNullableByKey("MY_PROJECT")).thenReturn(new ComponentDto().setUuid("P1"));
 
     underTest.submit("MY_PROJECT", null, "My Project", IOUtils.toInputStream("{binary}"));
 
-    verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
+    verify(queue).submit(argThat(new TypeSafeMatcher<TaskSubmission>() {
       @Override
-      protected boolean matchesSafely(CeTaskSubmit submit) {
+      protected boolean matchesSafely(TaskSubmission submit) {
         return submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals("P1") &&
           submit.getUuid().equals("TASK_1");
       }
@@ -71,16 +71,16 @@ public class ReportSubmitterTest {
 
   @Test
   public void provision_project_if_does_not_exist() throws Exception {
-    when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit("TASK_1"));
+    when(queue.prepareSubmit()).thenReturn(new TestTaskSubmission("TASK_1"));
     userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PROVISIONING);
     when(componentService.getNullableByKey("MY_PROJECT")).thenReturn(null);
     when(componentService.create(any(NewComponent.class))).thenReturn(new ComponentDto().setUuid("P1"));
 
     underTest.submit("MY_PROJECT", null, "My Project", IOUtils.toInputStream("{binary}"));
 
-    verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
+    verify(queue).submit(argThat(new TypeSafeMatcher<TaskSubmission>() {
       @Override
-      protected boolean matchesSafely(CeTaskSubmit submit) {
+      protected boolean matchesSafely(TaskSubmission submit) {
         return submit.getType().equals(CeTaskTypes.REPORT) && submit.getComponentUuid().equals("P1") &&
           submit.getUuid().equals("TASK_1");
       }

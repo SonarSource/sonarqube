@@ -42,7 +42,7 @@ public class CeTask {
     this.submitterLogin = submitterLogin;
   }
 
-  CeTask(CeTaskSubmit submit) {
+  CeTask(TaskSubmission submit) {
     this(submit.getUuid(), submit.getType(), submit.getComponentUuid(), submit.getSubmitterLogin());
   }
 

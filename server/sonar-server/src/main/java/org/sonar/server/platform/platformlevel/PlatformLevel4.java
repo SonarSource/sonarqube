@@ -65,6 +65,7 @@ import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ResourcesWs;
 import org.sonar.server.computation.CeQueueImpl;
+import org.sonar.server.computation.CeQueueCleaner;
 import org.sonar.server.computation.CeQueueInitializer;
 import org.sonar.server.computation.CleanReportQueueListener;
 import org.sonar.server.computation.ComputeEngineProcessingModule;
@@ -734,6 +735,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectSettingsFactory.class,
       IndexPurgeListener.class,
       ReportSubmitter.class,
+      CeQueueCleaner.class,
       CeQueueInitializer.class,
       // Views plugin
       ViewsBootstrap.class,

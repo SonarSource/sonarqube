@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.ReportProcessingScheduler;
 import org.sonar.server.computation.ReportSubmitter;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
@@ -42,11 +41,9 @@ public class CeSubmitWsAction implements CeWsAction {
   public static final String PARAM_REPORT_DATA = "report";
 
   private final ReportSubmitter reportSubmitter;
-  private final ReportProcessingScheduler reportProcessingScheduler;
 
-  public CeSubmitWsAction(ReportSubmitter reportSubmitter, ReportProcessingScheduler reportProcessingScheduler) {
+  public CeSubmitWsAction(ReportSubmitter reportSubmitter) {
     this.reportSubmitter = reportSubmitter;
-    this.reportProcessingScheduler = reportProcessingScheduler;
   }
 
   @Override
@@ -89,7 +86,6 @@ public class CeSubmitWsAction implements CeWsAction {
     InputStream reportInput = wsRequest.paramAsInputStream(PARAM_REPORT_DATA);
 
     CeTask task = reportSubmitter.submit(projectKey, projectBranch, projectName, reportInput);
-    reportProcessingScheduler.startAnalysisTaskNow();
 
     WsCe.SubmitResponse submitResponse = WsCe.SubmitResponse.newBuilder()
       .setTaskId(task.getUuid())

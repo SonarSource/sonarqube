@@ -43,7 +43,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-public class CeQueueTest {
+public class CeQueueImplTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -60,17 +60,17 @@ public class CeQueueTest {
 
   @Test
   public void test_submit() {
-    CeTaskSubmit submit = underTest.prepareSubmit();
-    submit.setComponentUuid("PROJECT_1");
-    submit.setType(CeTaskTypes.REPORT);
-    submit.setSubmitterLogin("rob");
+    TaskSubmission submission = underTest.prepareSubmit();
+    submission.setComponentUuid("PROJECT_1");
+    submission.setType(CeTaskTypes.REPORT);
+    submission.setSubmitterLogin("rob");
 
-    CeTask task = underTest.submit(submit);
-    assertThat(task.getUuid()).isEqualTo(submit.getUuid());
+    CeTask task = underTest.submit(submission);
+    assertThat(task.getUuid()).isEqualTo(submission.getUuid());
     assertThat(task.getComponentUuid()).isEqualTo("PROJECT_1");
     assertThat(task.getSubmitterLogin()).isEqualTo("rob");
 
-    Optional<CeQueueDto> queueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), submit.getUuid());
+    Optional<CeQueueDto> queueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), submission.getUuid());
     assertThat(queueDto.isPresent()).isTrue();
     assertThat(queueDto.get().getTaskType()).isEqualTo(CeTaskTypes.REPORT);
     assertThat(queueDto.get().getComponentUuid()).isEqualTo("PROJECT_1");
@@ -211,9 +211,9 @@ public class CeQueueTest {
   }
 
   private CeTask submit(String reportType, String componentUuid) {
-    CeTaskSubmit submit = underTest.prepareSubmit();
-    submit.setType(reportType);
-    submit.setComponentUuid(componentUuid);
-    return underTest.submit(submit);
+    TaskSubmission submission = underTest.prepareSubmit();
+    submission.setType(reportType);
+    submission.setComponentUuid(componentUuid);
+    return underTest.submit(submission);
   }
 }

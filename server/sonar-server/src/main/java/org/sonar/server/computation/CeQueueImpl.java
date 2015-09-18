@@ -20,7 +20,9 @@
 package org.sonar.server.computation;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -30,6 +32,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 
@@ -56,15 +59,18 @@ public class CeQueueImpl implements CeQueue {
   }
 
   @Override
-  public CeTaskSubmit prepareSubmit() {
-    return new CeTaskSubmit(uuidFactory.create());
+  public TaskSubmission prepareSubmit() {
+    return new TaskSubmissionImpl(uuidFactory.create());
   }
 
   @Override
-  public CeTask submit(CeTaskSubmit submit) {
+  public CeTask submit(TaskSubmission submission) {
+    checkArgument(!Strings.isNullOrEmpty(submission.getUuid()));
+    checkArgument(!Strings.isNullOrEmpty(submission.getType()));
+    checkArgument(submission instanceof TaskSubmissionImpl);
     checkState(!submitPaused.get(), "Compute Engine does not currently accept new tasks");
 
-    CeTask task = new CeTask(submit);
+    CeTask task = new CeTask(submission);
     DbSession dbSession = dbClient.openSession(false);
     try {
       CeQueueDto dto = createQueueDtoForSubmit(task);
@@ -166,21 +172,26 @@ public class CeQueueImpl implements CeQueue {
       }
       CeActivityDto activityDto = new CeActivityDto(queueDto.get());
       activityDto.setStatus(status);
-      Long startedAt = activityDto.getStartedAt();
-      if (startedAt != null) {
-        activityDto.setFinishedAt(system2.now());
-        long executionTime = activityDto.getFinishedAt() - startedAt;
-        activityDto.setExecutionTimeMs(executionTime);
-        if (status == CeActivityDto.Status.SUCCESS) {
-          queueStatus.addSuccess(executionTime);
-        } else {
-          queueStatus.addError(executionTime);
-        }
-      }
+      updateQueueStatus(status, activityDto);
       remove(dbSession, task, queueDto.get(), activityDto);
 
     } finally {
       dbClient.closeSession(dbSession);
+    }
+  }
+
+  private void updateQueueStatus(CeActivityDto.Status status, CeActivityDto activityDto) {
+    Long startedAt = activityDto.getStartedAt();
+    if (startedAt == null) {
+      return;
+    }
+    activityDto.setFinishedAt(system2.now());
+    long executionTime = activityDto.getFinishedAt() - startedAt;
+    activityDto.setExecutionTimeMs(executionTime);
+    if (status == CeActivityDto.Status.SUCCESS) {
+      queueStatus.addSuccess(executionTime);
+    } else {
+      queueStatus.addError(executionTime);
     }
   }
 
@@ -221,5 +232,54 @@ public class CeQueueImpl implements CeQueue {
   @Override
   public boolean isPeekPaused() {
     return peekPaused.get();
+  }
+
+  private static class TaskSubmissionImpl implements TaskSubmission {
+    private final String uuid;
+    private String type;
+    private String componentUuid;
+    private String submitterLogin;
+
+    private TaskSubmissionImpl(String uuid) {
+      this.uuid = uuid;
+    }
+
+    @Override
+    public String getUuid() {
+      return uuid;
+    }
+
+    @Override
+    public String getType() {
+      return type;
+    }
+
+    @Override
+    public TaskSubmission setType(@Nullable String s) {
+      this.type = s;
+      return this;
+    }
+
+    @Override
+    public String getComponentUuid() {
+      return componentUuid;
+    }
+
+    @Override
+    public TaskSubmission setComponentUuid(@Nullable String s) {
+      this.componentUuid = s;
+      return this;
+    }
+
+    @Override
+    public String getSubmitterLogin() {
+      return submitterLogin;
+    }
+
+    @Override
+    public TaskSubmission setSubmitterLogin(@Nullable String s) {
+      this.submitterLogin = s;
+      return this;
+    }
   }
 }
