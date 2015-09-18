@@ -39,6 +39,7 @@ class CreateCeActivity < ActiveRecord::Migration
       t.column 'execution_time_ms', :big_integer, :null => true
     end
     add_index 'ce_activity', 'uuid', :name => 'ce_activity_uuid', :unique => true
+    add_index 'ce_activity', 'component_uuid', :name => 'ce_activity_component_uuid'
   end
 
 end
