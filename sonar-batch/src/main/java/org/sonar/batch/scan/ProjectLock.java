@@ -19,46 +19,32 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.bootstrap.Slf4jLogger;
+
+import org.sonar.home.cache.DirectoryLock;
 import org.picocontainer.Startable;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ProjectLock implements Startable {
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectLock.class);
   static final String LOCK_FILE_NAME = ".sonar_lock";
-  private final Path lockFilePath;
 
-  private RandomAccessFile lockRandomAccessFile;
-  private FileChannel lockChannel;
-  private FileLock lockFile;
+  private DirectoryLock lock;
 
   public ProjectLock(ProjectReactor projectReactor) {
     Path directory = projectReactor.getRoot().getBaseDir().toPath();
-    this.lockFilePath = directory.resolve(LOCK_FILE_NAME).toAbsolutePath();
+    this.lock = new DirectoryLock(directory.toAbsolutePath(), new Slf4jLogger());
   }
 
   public void tryLock() {
     try {
-      lockRandomAccessFile = new RandomAccessFile(lockFilePath.toFile(), "rw");
-      lockChannel = lockRandomAccessFile.getChannel();
-      lockFile = lockChannel.tryLock(0, 1024, false);
-
-      if (lockFile == null) {
+      if (!lock.tryLock()) {
         failAlreadyInProgress(null);
       }
     } catch (OverlappingFileLockException e) {
       failAlreadyInProgress(e);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to create project lock in " + lockFilePath.toString(), e);
     }
   }
 
@@ -68,42 +54,11 @@ public class ProjectLock implements Startable {
 
   @Override
   public void stop() {
-    if (lockFile != null) {
-      try {
-        lockFile.release();
-        lockFile = null;
-      } catch (IOException e) {
-        LOG.error("Error releasing lock", e);
-      }
-    }
-    if (lockChannel != null) {
-      try {
-        lockChannel.close();
-        lockChannel = null;
-      } catch (IOException e) {
-        LOG.error("Error closing file channel", e);
-      }
-    }
-    if (lockRandomAccessFile != null) {
-      try {
-        lockRandomAccessFile.close();
-        lockRandomAccessFile = null;
-      } catch (IOException e) {
-        LOG.error("Error closing file", e);
-      }
-    }
-
-    try {
-      Files.delete(lockFilePath);
-    } catch (IOException e) {
-      // ignore, as an error happens if another process just started to acquire the same lock
-      LOG.debug("Couldn't delete lock file: " + lockFilePath.toString(), e);
-    }
+    lock.unlock();
   }
 
   @Override
   public void start() {
     // nothing to do
   }
-
 }

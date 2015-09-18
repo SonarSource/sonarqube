@@ -21,9 +21,7 @@ package org.sonar.batch.rule;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import org.junit.rules.ExpectedException;
-
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 import org.apache.commons.lang.mutable.MutableBoolean;
@@ -32,6 +30,7 @@ import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import static org.mockito.Matchers.anyString;
@@ -45,18 +44,18 @@ public class DefaultRulesLoaderTest {
   @Test
   public void testParseServerResponse() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
-    ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
-    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult<>(source, true));
+    InputStream is = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf")).openBufferedStream();
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
     DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
     List<Rule> ruleList = loader.load(null);
     assertThat(ruleList).hasSize(318);
   }
 
   @Test
-  public void testLoadedFromCache() {
+  public void testLoadedFromCache() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
-    ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
-    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult<>(source, true));
+    InputStream is = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf")).openBufferedStream();
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
     DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
     MutableBoolean fromCache = new MutableBoolean();
     loader.load(fromCache);
@@ -65,10 +64,10 @@ public class DefaultRulesLoaderTest {
   }
 
   @Test
-  public void testError() {
+  public void testError() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
-    ByteSource source = ByteSource.wrap(new String("trash").getBytes());
-    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult<>(source, true));
+    InputStream is = ByteSource.wrap(new String("trash").getBytes()).openBufferedStream();
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
     DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
 
     exception.expect(IllegalStateException.class);

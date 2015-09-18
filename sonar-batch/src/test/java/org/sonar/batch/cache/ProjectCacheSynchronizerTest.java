@@ -20,9 +20,7 @@
 package org.sonar.batch.cache;
 
 import static org.mockito.Mockito.when;
-
 import org.sonar.batch.repository.ProjectRepositoriesFactory;
-
 import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -44,9 +42,9 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import com.google.common.io.ByteSource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -101,10 +99,10 @@ public class ProjectCacheSynchronizerTest {
     MockitoAnnotations.initMocks(this);
 
     String batchProject = getResourceAsString("batch_project.json");
-    ByteSource issues = getResourceAsByteSource("batch_issues.protobuf");
+    InputStream issues = getResourceAsInputStream("batch_issues.protobuf");
 
     when(ws.loadString(BATCH_PROJECT)).thenReturn(new WSLoaderResult<>(batchProject, false));
-    when(ws.loadSource(ISSUES)).thenReturn(new WSLoaderResult<>(issues, false));
+    when(ws.loadStream(ISSUES)).thenReturn(new WSLoaderResult<>(issues, false));
 
     when(analysisMode.isIssues()).thenReturn(true);
     when(properties.properties()).thenReturn(new HashMap<String, String>());
@@ -160,10 +158,10 @@ public class ProjectCacheSynchronizerTest {
     sync.load(PROJECT_KEY, false);
 
     verify(ws).loadString(BATCH_PROJECT);
-    verify(ws).loadSource(ISSUES);
+    verify(ws).loadStream(ISSUES);
     verifyNoMoreInteractions(ws);
 
-    verify(cacheStatus).save(anyString());
+    verify(cacheStatus).save();
   }
 
   @Test
@@ -196,12 +194,12 @@ public class ProjectCacheSynchronizerTest {
 
     ProjectCacheSynchronizer sync = create(mockedProjectRepositories);
     sync.load(PROJECT_KEY, true);
-    verify(cacheStatus).save(PROJECT_KEY);
+    verify(cacheStatus).save();
   }
 
   @Test
   public void testDontSyncIfNotForce() {
-    when(cacheStatus.getSyncStatus(PROJECT_KEY)).thenReturn(new Date());
+    when(cacheStatus.getSyncStatus()).thenReturn(new Date());
     ProjectCacheSynchronizer sync = create(null);
     sync.load(PROJECT_KEY, false);
 
@@ -213,8 +211,8 @@ public class ProjectCacheSynchronizerTest {
     return Resources.toString(resource, StandardCharsets.UTF_8);
   }
 
-  private ByteSource getResourceAsByteSource(String name) throws IOException {
+  private InputStream getResourceAsInputStream(String name) throws IOException {
     URL resource = this.getClass().getResource(getClass().getSimpleName() + "/" + name);
-    return Resources.asByteSource(resource);
+    return Resources.asByteSource(resource).openBufferedStream();
   }
 }

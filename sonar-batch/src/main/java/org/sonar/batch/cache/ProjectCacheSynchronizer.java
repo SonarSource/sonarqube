@@ -63,7 +63,7 @@ public class ProjectCacheSynchronizer {
   }
 
   public void load(String projectKey, boolean force) {
-    Date lastSync = cacheStatus.getSyncStatus(projectKey);
+    Date lastSync = cacheStatus.getSyncStatus();
 
     if (lastSync != null) {
       if (!force) {
@@ -72,17 +72,17 @@ public class ProjectCacheSynchronizer {
       } else {
         LOG.info("-- Found project [{}] cache [{}], synchronizing data..", projectKey, lastSync);
       }
-      cacheStatus.delete(projectKey);
+      cacheStatus.delete();
     } else {
       LOG.info("-- Cache for project [{}] not found, synchronizing data..", projectKey);
     }
 
     loadData(projectKey);
-    saveStatus(projectKey);
+    saveStatus();
   }
 
-  private void saveStatus(String projectKey) {
-    cacheStatus.save(projectKey);
+  private void saveStatus() {
+    cacheStatus.save();
     LOG.info("-- Succesfully synchronized project cache");
   }
 
@@ -103,7 +103,7 @@ public class ProjectCacheSynchronizer {
     profiler.stopInfo();
 
     Collection<String> profileKeys = getKeys(qProfiles);
-    
+
     profiler.startInfo("Load project active rules");
     activeRulesLoader.load(profileKeys, projectKey);
     profiler.stopInfo();

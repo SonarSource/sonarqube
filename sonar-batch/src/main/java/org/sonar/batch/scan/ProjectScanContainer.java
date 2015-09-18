@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.issue.tracking.LocalIssueTracking;
+import org.sonar.batch.cache.ProjectPersistentCacheProvider;
 
+import org.sonar.batch.issue.tracking.LocalIssueTracking;
 import org.sonar.batch.issue.tracking.IssueTransition;
 import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
 import org.sonar.batch.repository.QualityProfileProvider;
@@ -151,6 +152,7 @@ public class ProjectScanContainer extends ComponentContainer {
       BatchComponentCache.class,
       DefaultIssueCallback.class,
       new ProjectSettingsProvider(),
+      new ProjectPersistentCacheProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),

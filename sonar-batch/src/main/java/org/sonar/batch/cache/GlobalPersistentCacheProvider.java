@@ -19,54 +19,38 @@
  */
 package org.sonar.batch.cache;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.bootstrap.Slf4jLogger;
-import org.sonar.batch.bootstrap.UserProperties;
-
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.home.cache.PersistentCache;
+import org.sonar.batch.util.BatchUtils;
 import org.sonar.home.cache.PersistentCacheBuilder;
 
-public class PersistentCacheProvider extends ProviderAdapter {
-  private static final Logger LOG = Loggers.get(PersistentCacheProvider.class);
+import java.nio.file.Paths;
+
+import org.sonar.batch.bootstrap.GlobalProperties;
+import org.sonar.home.cache.PersistentCache;
+import org.picocontainer.injectors.ProviderAdapter;
+
+public class GlobalPersistentCacheProvider extends ProviderAdapter {
   private PersistentCache cache;
 
-  public PersistentCache provide(UserProperties props) {
+  public PersistentCache provide(GlobalProperties props) {
     if (cache == null) {
       PersistentCacheBuilder builder = new PersistentCacheBuilder(new Slf4jLogger());
-
       String home = props.property("sonar.userHome");
+      String serverUrl = getServerUrl(props);
+
       if (home != null) {
         builder.setSonarHome(Paths.get(home));
       }
-
-      builder.setVersion(getServerVersion());
+      
+      builder.setAreaForGlobal(serverUrl, BatchUtils.getServerVersion());
       cache = builder.build();
     }
 
     return cache;
   }
 
-  private String getServerVersion() {
-    InputStream is = this.getClass().getClassLoader().getResourceAsStream("sq-version.txt");
-    if (is == null) {
-      LOG.warn("Failed to get SQ version");
-      return null;
-    }
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-      return br.readLine();
-    } catch (IOException e) {
-      LOG.warn("Failed to get SQ version", e);
-      return null;
-    }
+  private String getServerUrl(GlobalProperties props) {
+    return StringUtils.removeEnd(StringUtils.defaultIfBlank(props.property("sonar.host.url"), "http://localhost:9000"), "/");
   }
 }

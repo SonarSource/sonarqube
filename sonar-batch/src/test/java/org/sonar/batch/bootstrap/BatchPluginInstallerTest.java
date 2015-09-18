@@ -81,7 +81,7 @@ public class BatchPluginInstallerTest {
     thrown.expect(IllegalStateException.class);
 
     WSLoader wsLoader = mock(WSLoader.class);
-    doThrow(new IllegalStateException()).when(wsLoader).load("/deploy/plugins/index.txt");
+    doThrow(new IllegalStateException()).when(wsLoader).loadString("/deploy/plugins/index.txt");
 
     new BatchPluginInstaller(wsLoader, serverClient, fileCache, pluginPredicate).installRemotes();
   }

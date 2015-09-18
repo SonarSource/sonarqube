@@ -22,19 +22,15 @@ package org.sonar.batch.cache;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import org.sonar.home.cache.PersistentCacheLoader;
-
+import com.google.common.io.Files;
 import org.junit.rules.ExpectedException;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.any;
 import org.junit.Test;
-import org.sonar.home.cache.Logger;
 import org.junit.rules.TemporaryFolder;
 import org.junit.Rule;
 import org.junit.Before;
@@ -42,10 +38,9 @@ import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.home.cache.PersistentCache;
 
 public class DefaultProjectCacheStatusTest {
-  private static final String PROJ_KEY = "project1";
   @Rule
   public TemporaryFolder tmp = new TemporaryFolder();
-  
+
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
@@ -55,70 +50,44 @@ public class DefaultProjectCacheStatusTest {
 
   @Before
   public void setUp() {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), null);
     client = mock(ServerClient.class);
-    when(client.getServerVersion()).thenReturn("5.2");
-    when(client.getURL()).thenReturn("localhost");
-    cacheStatus = new DefaultProjectCacheStatus(cache, client);
-  }
-
-  @Test
-  public void errorDelete() throws IOException {
     cache = mock(PersistentCache.class);
-    doThrow(IOException.class).when(cache).put(anyString(), any(byte[].class));
-    cacheStatus = new DefaultProjectCacheStatus(cache, client);
-
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("Failed to delete cache sync status");
-    cacheStatus.delete(PROJ_KEY);
+    when(cache.getDirectory()).thenReturn(tmp.getRoot().toPath());
+    cacheStatus = new DefaultProjectCacheStatus(cache);
   }
-  
+
   @Test
   public void errorSave() throws IOException {
-    cache = mock(PersistentCache.class);
-    doThrow(IOException.class).when(cache).put(anyString(), any(byte[].class));
-    cacheStatus = new DefaultProjectCacheStatus(cache, client);
+    when(cache.getDirectory()).thenReturn(tmp.getRoot().toPath().resolve("unexistent_folder"));
+    cacheStatus = new DefaultProjectCacheStatus(cache);
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Failed to write cache sync status");
-    cacheStatus.save(PROJ_KEY);
+    cacheStatus.save();
   }
-  
-  @Test
-  public void useServerVersionAsKey() {
-    cacheStatus.save(PROJ_KEY);
-    assertThat(cacheStatus.getSyncStatus(PROJ_KEY)).isNotNull();
-    assertThat(age(cacheStatus.getSyncStatus(PROJ_KEY))).isLessThan(2000);
-    
-    when(client.getServerVersion()).thenReturn("5.1");
-    
-    assertThat(cacheStatus.getSyncStatus(PROJ_KEY)).isNull();
-  }
-  
+
   @Test
   public void errorStatus() throws IOException {
-    cache = mock(PersistentCache.class);
-    doThrow(IOException.class).when(cache).get(anyString(), any(PersistentCacheLoader.class));
-    cacheStatus = new DefaultProjectCacheStatus(cache, client);
+    Files.write("trash".getBytes(StandardCharsets.UTF_8), new File(tmp.getRoot(), "cache-sync-status"));
+    cacheStatus = new DefaultProjectCacheStatus(cache);
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Failed to read cache sync status");
-    cacheStatus.getSyncStatus(PROJ_KEY);
+    cacheStatus.getSyncStatus();
   }
-  
+
   @Test
   public void testSave() {
-    cacheStatus.save(PROJ_KEY);
-    assertThat(cacheStatus.getSyncStatus(PROJ_KEY)).isNotNull();
-    assertThat(age(cacheStatus.getSyncStatus(PROJ_KEY))).isLessThan(2000);
-    assertThat(cacheStatus.getSyncStatus(PROJ_KEY + "1")).isNull();
+    cacheStatus.save();
+    assertThat(cacheStatus.getSyncStatus()).isNotNull();
+    assertThat(age(cacheStatus.getSyncStatus())).isLessThan(2000);
   }
 
   @Test
   public void testDelete() {
-    cacheStatus.save(PROJ_KEY);
-    cacheStatus.delete(PROJ_KEY);
-    assertThat(cacheStatus.getSyncStatus(PROJ_KEY)).isNull();
+    cacheStatus.save();
+    cacheStatus.delete();
+    assertThat(cacheStatus.getSyncStatus()).isNull();
   }
 
   private long age(Date date) {

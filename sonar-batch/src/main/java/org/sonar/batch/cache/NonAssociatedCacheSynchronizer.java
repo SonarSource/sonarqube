@@ -46,7 +46,7 @@ public class NonAssociatedCacheSynchronizer {
   }
 
   public void execute(boolean force) {
-    Date lastSync = cacheStatus.getSyncStatus(null);
+    Date lastSync = cacheStatus.getSyncStatus();
 
     if (lastSync != null) {
       if (!force) {
@@ -55,13 +55,15 @@ public class NonAssociatedCacheSynchronizer {
       } else {
         LOG.info("-- Found cache [{}], synchronizing data..", lastSync);
       }
-      cacheStatus.delete(null);
+      cacheStatus.delete();
     } else {
       LOG.info("-- Cache not found, synchronizing data..");
     }
 
     loadData();
-    saveStatus();
+    
+    cacheStatus.save();
+    LOG.info("-- Succesfully synchronized cache");
   }
 
   private static Collection<String> getKeys(Collection<QProfile> qProfiles) {
@@ -71,11 +73,6 @@ public class NonAssociatedCacheSynchronizer {
     }
 
     return list;
-  }
-
-  private void saveStatus() {
-    cacheStatus.save(null);
-    LOG.info("-- Succesfully synchronized cache");
   }
 
   private void loadData() {

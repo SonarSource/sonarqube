@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.batch.cache.GlobalPersistentCacheProvider;
+
 import javax.annotation.CheckForNull;
 
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.cache.PersistentCacheProvider;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.cache.StrategyWSLoaderProvider;
@@ -100,7 +101,7 @@ public class GlobalContainer extends ComponentContainer {
       DefaultHttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
-      new PersistentCacheProvider(),
+      new GlobalPersistentCacheProvider(),
       System2.INSTANCE,
       new GlobalRepositoriesProvider(),
       UuidFactoryImpl.INSTANCE);

@@ -19,12 +19,21 @@
  */
 package org.sonar.batch.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang.StringUtils;
 
 public class BatchUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(BatchUtils.class);
 
   private BatchUtils() {
   }
@@ -57,5 +66,19 @@ public class BatchUtils {
     }
 
     return o.getClass().getName();
+  }
+  
+  public static String getServerVersion() {
+    InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("sq-version.txt");
+    if (is == null) {
+      LOG.warn("Failed to get SQ version");
+      return null;
+    }
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+      return br.readLine();
+    } catch (IOException e) {
+      LOG.warn("Failed to get SQ version", e);
+      return null;
+    }
   }
 }
