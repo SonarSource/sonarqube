@@ -49,7 +49,7 @@ public class DifferentialPeriodsTest {
         .setProperty("sonar.projectDate", "2013-01-01"));
 
     // Second analysis -> issues will be created
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measure/suite/DifferentialPeriodsTest/one-issue-per-line.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measure/suite/one-issue-per-line.xml"));
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     orchestrator.executeBuild(SonarRunner.create(ItUtils.projectDir("shared/xoo-sample")));
 

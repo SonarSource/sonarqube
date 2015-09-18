@@ -4,7 +4,10 @@ package util;/*
  * mailto:contact AT sonarsource DOT com
  */
 
+import com.google.common.collect.ImmutableMap;
+import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
+import com.sonar.orchestrator.build.SonarRunner;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -124,5 +127,15 @@ public class ItUtils {
       }
     }
     return count;
+  }
+
+  public static void runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
+    SonarRunner sonarRunner = SonarRunner.create(projectDir(projectRelativePath));
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    for (int i = 0; i < properties.length; i++) {
+      builder.put(properties[i], properties[i+1]);
+      i+=2;
+    }
+    orchestrator.executeBuild(sonarRunner.setProperties(builder.build()));
   }
 }
