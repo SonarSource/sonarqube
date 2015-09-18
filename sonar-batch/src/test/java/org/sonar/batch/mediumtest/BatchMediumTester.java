@@ -76,25 +76,25 @@ public class BatchMediumTester {
   private Batch batch;
   private static Path workingDir = null;
   private static Path globalWorkingDir = null;
-  
+
   private static void createWorkingDirs() throws IOException {
     destroyWorkingDirs();
-    
+
     workingDir = java.nio.file.Files.createTempDirectory("mediumtest-working-dir");
     globalWorkingDir = java.nio.file.Files.createTempDirectory("mediumtest-global-working-dir");
   }
-  
+
   private static void destroyWorkingDirs() throws IOException {
-    if(workingDir != null) {
+    if (workingDir != null) {
       FileUtils.deleteDirectory(workingDir.toFile());
       workingDir = null;
     }
-    
-    if(globalWorkingDir != null) {
+
+    if (globalWorkingDir != null) {
       FileUtils.deleteDirectory(globalWorkingDir.toFile());
       globalWorkingDir = null;
     }
-    
+
   }
 
   public static BatchMediumTesterBuilder builder() {
@@ -103,7 +103,7 @@ public class BatchMediumTester {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    
+
     BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
     builder.bootstrapProperties.put(MEDIUM_TEST_ENABLED, "true");
     builder.bootstrapProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
@@ -432,15 +432,15 @@ public class BatchMediumTester {
   private static class FakeProjectCacheStatus implements ProjectCacheStatus {
 
     @Override
-    public void save(String projectKey) {
+    public void save() {
     }
 
     @Override
-    public void delete(String projectKey) {
+    public void delete() {
     }
 
     @Override
-    public Date getSyncStatus(String projectKey) {
+    public Date getSyncStatus() {
       return new Date();
     }
 

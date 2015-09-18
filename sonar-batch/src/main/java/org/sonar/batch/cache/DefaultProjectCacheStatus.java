@@ -19,73 +19,67 @@
  */
 package org.sonar.batch.cache;
 
-import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
 
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.home.cache.PersistentCache;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 
 public class DefaultProjectCacheStatus implements ProjectCacheStatus {
-  private static final String STATUS_PREFIX = "cache-sync-status-";
+  private static final String STATUS_FILENAME = "cache-sync-status";
   private PersistentCache cache;
-  private ServerClient client;
 
-  public DefaultProjectCacheStatus(PersistentCache cache, ServerClient client) {
+  public DefaultProjectCacheStatus(PersistentCache cache) {
     this.cache = cache;
-    this.client = client;
   }
 
   @Override
-  public void save(@Nullable String projectKey) {
+  public void save() {
     Date now = new Date();
 
     try {
-      ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-      try (ObjectOutputStream objOutput = new ObjectOutputStream(byteOutput)) {
+      FileOutputStream fos = new FileOutputStream(getStatusFilePath().toFile());
+      try (ObjectOutputStream objOutput = new ObjectOutputStream(fos)) {
         objOutput.writeObject(now);
       }
-      cache.put(getKey(projectKey), byteOutput.toByteArray());
+
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write cache sync status", e);
     }
   }
 
   @Override
-  public void delete(@Nullable String projectKey) {
-    try {
-      cache.put(getKey(projectKey), new byte[0]);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to delete cache sync status", e);
-    }
+  public void delete() {
+    cache.clear();
+    FileUtils.deleteQuietly(getStatusFilePath().toFile());
   }
 
   @Override
-  public Date getSyncStatus(@Nullable String projectKey) {
+  public Date getSyncStatus() {
+    Path p = getStatusFilePath();
     try {
-      byte[] status = cache.get(getKey(projectKey), null);
-      if (status == null || status.length == 0) {
+      if (!Files.isRegularFile(p)) {
         return null;
       }
-      ByteArrayInputStream byteInput = new ByteArrayInputStream(status);
-      try (ObjectInputStream objInput = new ObjectInputStream(byteInput)) {
+      InputStream is = new FileInputStream(p.toFile());
+      try (ObjectInputStream objInput = new ObjectInputStream(is)) {
         return (Date) objInput.readObject();
       }
     } catch (IOException | ClassNotFoundException e) {
+      FileUtils.deleteQuietly(p.toFile());
       throw new IllegalStateException("Failed to read cache sync status", e);
     }
   }
 
-  private String getKey(@Nullable String projectKey) {
-    if (projectKey != null) {
-      return STATUS_PREFIX + client.getURL() + "-" + client.getServerVersion() + "-" + projectKey;
-    } else {
-      return STATUS_PREFIX + client.getURL() + "-" + client.getServerVersion();
-    }
+  private Path getStatusFilePath() {
+    return cache.getDirectory().resolve(STATUS_FILENAME);
   }
 }

@@ -71,7 +71,7 @@ public class IssuesModeTest {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample");
+    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", "sonar.verbose", "true");
     BuildResult result = orchestrator.executeBuild(runner);
     assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
   }

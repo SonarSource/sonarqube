@@ -20,12 +20,20 @@
 package org.sonar.batch.util;
 
 import com.google.common.base.Strings;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(BatchUtils.class);
 
   private BatchUtils() {
   }
@@ -38,7 +46,7 @@ public class BatchUtils {
     String cleanKey = StringUtils.deleteWhitespace(projectKey);
     return StringUtils.replace(cleanKey, ":", "_");
   }
-  
+
   public static String encodeForUrl(@Nullable String url) {
     try {
       return URLEncoder.encode(Strings.nullToEmpty(url), "UTF-8");
@@ -58,5 +66,19 @@ public class BatchUtils {
     }
 
     return o.getClass().getName();
+  }
+
+  public static String getServerVersion() {
+    InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("sq-version.txt");
+    if (is == null) {
+      LOG.warn("Failed to get SQ version");
+      return null;
+    }
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+      return br.readLine();
+    } catch (IOException e) {
+      LOG.warn("Failed to get SQ version", e);
+      return null;
+    }
   }
 }

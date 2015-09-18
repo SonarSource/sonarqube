@@ -17,10 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.home.cache;
+package org.sonar.batch.cache;
 
-import java.io.IOException;
+import org.sonar.api.batch.bootstrap.ProjectKey;
 
-public interface PersistentCacheLoader<T> {
-  T get() throws IOException;
+public class ProjectKeySupplier implements ProjectKey {
+  private final String key;
+
+  ProjectKeySupplier(String key) {
+    this.key = key;
+  }
+
+  @Override
+  public String get() {
+    return key;
+  }
+
 }

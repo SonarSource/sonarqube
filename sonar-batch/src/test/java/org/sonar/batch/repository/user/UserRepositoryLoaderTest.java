@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.rules.ExpectedException;
 import org.junit.Rule;
 import org.mockito.Mockito;
-import com.google.common.io.ByteSource;
 import org.junit.Test;
 import org.sonar.batch.protocol.input.BatchInput;
 
@@ -64,20 +63,20 @@ public class UserRepositoryLoaderTest {
   public void testLoadEmptyList() {
     assertThat(userRepo.load(Lists.<String>emptyList())).isEmpty();
   }
-  
+
   @Test
   public void testLoad() throws IOException {
     Map<String, String> userMap = ImmutableMap.of("fmallet", "Freddy Mallet", "sbrandhof", "Simon");
-    WSLoaderResult<ByteSource> res = new WSLoaderResult<>(createUsersMock(userMap), true);
-    when(wsLoader.loadSource("/scanner/users?logins=fmallet,sbrandhof")).thenReturn(res);
+    WSLoaderResult<InputStream> res = new WSLoaderResult<>(createUsersMock(userMap), true);
+    when(wsLoader.loadStream("/scanner/users?logins=fmallet,sbrandhof")).thenReturn(res);
 
     assertThat(userRepo.load(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
   }
 
   @Test
   public void testFromCache() throws IOException {
-    WSLoaderResult<ByteSource> res = new WSLoaderResult<>(createUsersMock(ImmutableMap.of("fmallet", "Freddy Mallet")), true);
-    when(wsLoader.loadSource(anyString())).thenReturn(res);
+    WSLoaderResult<InputStream> res = new WSLoaderResult<>(createUsersMock(ImmutableMap.of("fmallet", "Freddy Mallet")), true);
+    when(wsLoader.loadStream(anyString())).thenReturn(res);
     MutableBoolean fromCache = new MutableBoolean();
     userRepo.load("", fromCache);
     assertThat(fromCache.booleanValue()).isTrue();
@@ -89,35 +88,42 @@ public class UserRepositoryLoaderTest {
 
   @Test
   public void testLoadSingleUser() throws IOException {
+<<<<<<< HEAD
     WSLoaderResult<ByteSource> res = new WSLoaderResult<>(createUsersMock(ImmutableMap.of("fmallet", "Freddy Mallet")), true);
     when(wsLoader.loadSource("/scanner/users?logins=fmallet")).thenReturn(res);
+=======
+    WSLoaderResult<InputStream> res = new WSLoaderResult<>(createUsersMock(ImmutableMap.of("fmallet", "Freddy Mallet")), true);
+    when(wsLoader.loadStream("/batch/users?logins=fmallet")).thenReturn(res);
+>>>>>>> SONAR-6777 Project cache sync
 
     assertThat(userRepo.load("fmallet").getName()).isEqualTo("Freddy Mallet");
   }
 
-  private ByteSource createUsersMock(Map<String, String> users) throws IOException {
+  private InputStream createUsersMock(Map<String, String> users) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
 
     for (Map.Entry<String, String> user : users.entrySet()) {
       BatchInput.User.Builder builder = BatchInput.User.newBuilder();
       builder.setLogin(user.getKey()).setName(user.getValue()).build().writeDelimitedTo(out);
     }
-    ByteSource source = mock(ByteSource.class);
-    when(source.openStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
-    return source;
+    return new ByteArrayInputStream(out.toByteArray());
   }
 
   @Test
   public void testInputStreamError() throws IOException {
+<<<<<<< HEAD
     ByteSource source = mock(ByteSource.class);
 
     WSLoaderResult<ByteSource> res = new WSLoaderResult<>(source, true);
 
     when(wsLoader.loadSource("/scanner/users?logins=fmallet,sbrandhof")).thenReturn(res);
+=======
+    InputStream is = mock(InputStream.class);
+    Mockito.doThrow(IOException.class).when(is).read();
+    WSLoaderResult<InputStream> res = new WSLoaderResult<>(is, true);
+>>>>>>> SONAR-6777 Project cache sync
 
-    InputStream errorInputStream = mock(InputStream.class);
-    Mockito.doThrow(IOException.class).when(errorInputStream).read();
-    when(source.openStream()).thenReturn(errorInputStream);
+    when(wsLoader.loadStream("/batch/users?logins=fmallet,sbrandhof")).thenReturn(res);
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Unable to get user details from server");

@@ -19,41 +19,71 @@
  */
 package org.sonar.home.cache;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nullable;
 
+/**
+ * Cache files will be placed in 3 areas:
+ * <pre>
+ *   &lt;sonar_home&gt;/ws_cache/&lt;server_url&gt;-&lt;version&gt;/projects/&lt;project&gt;/
+ *   &lt;sonar_home&gt;/ws_cache/&lt;server_url&gt;-&lt;version&gt;/global/
+ *   &lt;sonar_home&gt;/ws_cache/&lt;server_url&gt;-&lt;version&gt;/local/
+ * </pre>
+ */
 public class PersistentCacheBuilder {
   private static final long DEFAULT_EXPIRE_DURATION = TimeUnit.MILLISECONDS.convert(1L, TimeUnit.DAYS);
   private static final String DIR_NAME = "ws_cache";
 
-  private Path cachePath;
+  private Path cacheBasePath;
+  private Path relativePath;
   private final Logger logger;
-  private String version;
 
   public PersistentCacheBuilder(Logger logger) {
     this.logger = logger;
   }
 
-  public PersistentCache build() {
-    if (cachePath == null) {
-      setSonarHome(findHome());
-    }
-
-    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, logger, version);
-  }
-
-  public PersistentCacheBuilder setVersion(String version) {
-    this.version = version;
+  public PersistentCacheBuilder setAreaForProject(String serverUrl, String serverVersion, String projectKey) {
+    relativePath = Paths.get(sanitizeFilename(serverUrl + "-" + serverVersion))
+      .resolve("projects")
+      .resolve(sanitizeFilename(projectKey));
     return this;
   }
-
+  
+  public PersistentCacheBuilder setAreaForGlobal(String serverUrl, String serverVersion) {
+    relativePath = Paths.get(sanitizeFilename(serverUrl + "-" + serverVersion))
+      .resolve("global");
+    return this;
+  }
+  
+  public PersistentCacheBuilder setAreaForLocalProject(String serverUrl, String serverVersion) {
+    relativePath = Paths.get(sanitizeFilename(serverUrl + "-" + serverVersion))
+      .resolve("local");
+    return this;
+  }
+  
   public PersistentCacheBuilder setSonarHome(@Nullable Path p) {
     if (p != null) {
-      this.cachePath = p.resolve(DIR_NAME);
+      this.cacheBasePath = p.resolve(DIR_NAME);
     }
     return this;
+  }
+
+  public PersistentCache build() {
+    if(relativePath == null) {
+      throw new IllegalStateException("area must be set before building");
+    }
+    if (cacheBasePath == null) {
+      setSonarHome(findHome());
+    }
+    Path cachePath = cacheBasePath.resolve(relativePath);
+    DirectoryLock lock = new DirectoryLock(cacheBasePath, logger);
+    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, logger, lock);
   }
 
   private static Path findHome() {
@@ -65,5 +95,13 @@ public class PersistentCacheBuilder {
 
     home = System.getProperty("user.home");
     return Paths.get(home, ".sonar");
+  }
+
+  private String sanitizeFilename(String name) {
+    try {
+      return URLEncoder.encode(name, StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException("Couldn't sanitize filename: " + name, e);
+    }
   }
 }

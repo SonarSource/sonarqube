@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository.user;
 
-import org.sonar.batch.cache.WSLoaderResult;
+import org.apache.commons.io.IOUtils;
 
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 
 import javax.annotation.Nullable;
@@ -29,7 +30,6 @@ import org.apache.commons.lang.mutable.MutableBoolean;
 import com.google.common.collect.Lists;
 import com.google.common.base.Joiner;
 import org.sonar.batch.util.BatchUtils;
-import com.google.common.io.ByteSource;
 import com.google.common.base.Function;
 import org.sonar.batch.protocol.input.BatchInput;
 
@@ -50,16 +50,16 @@ public class UserRepositoryLoader {
   public BatchInput.User load(String userLogin) {
     return load(userLogin, null);
   }
-  
+
   public BatchInput.User load(String userLogin, @Nullable MutableBoolean fromCache) {
-    ByteSource byteSource = loadQuery(new UserEncodingFunction().apply(userLogin), fromCache);
-    return parseUser(byteSource);
+    InputStream is = loadQuery(new UserEncodingFunction().apply(userLogin), fromCache);
+    return parseUser(is);
   }
 
   public Collection<BatchInput.User> load(List<String> userLogins) {
     return load(userLogins, null);
   }
-  
+
   /**
    * Not cache friendly. Should not be used if a cache hit is expected.
    */
@@ -67,13 +67,13 @@ public class UserRepositoryLoader {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
-    ByteSource byteSource = loadQuery(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())), fromCache);
+    InputStream is = loadQuery(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())), fromCache);
 
-    return parseUsers(byteSource);
+    return parseUsers(is);
   }
 
-  private ByteSource loadQuery(String loginsQuery, @Nullable MutableBoolean fromCache) {
-    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/scanner/users?logins=" + loginsQuery);
+  private InputStream loadQuery(String loginsQuery, @Nullable MutableBoolean fromCache) {
+    WSLoaderResult<InputStream> result = wsLoader.loadStream("/scanner/users?logins=" + loginsQuery);
     if (fromCache != null) {
       fromCache.setValue(result.isFromCache());
     }
@@ -87,18 +87,20 @@ public class UserRepositoryLoader {
     }
   }
 
-  private static BatchInput.User parseUser(ByteSource input) {
-    try (InputStream is = input.openStream()) {
+  private static BatchInput.User parseUser(InputStream is) {
+    try {
       return BatchInput.User.parseDelimitedFrom(is);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to get user details from server", e);
+    } finally {
+      IOUtils.closeQuietly(is);
     }
   }
 
-  private static Collection<BatchInput.User> parseUsers(ByteSource input) {
+  private static Collection<BatchInput.User> parseUsers(InputStream is) {
     List<BatchInput.User> users = new ArrayList<>();
 
-    try (InputStream is = input.openStream()) {
+    try {
       BatchInput.User user = BatchInput.User.parseDelimitedFrom(is);
       while (user != null) {
         users.add(user);
@@ -106,6 +108,8 @@ public class UserRepositoryLoader {
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to get user details from server", e);
+    } finally {
+      IOUtils.closeQuietly(is);
     }
 
     return users;

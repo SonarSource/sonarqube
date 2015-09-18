@@ -89,7 +89,7 @@ public class ProjectLockTest {
   public void errorLock() {
     lock = setUpTest(Paths.get("path", "that", "wont", "exist", "ever").toFile());
     exception.expect(IllegalStateException.class);
-    exception.expectMessage("Failed to create project lock in");
+    exception.expectMessage("Failed to create lock in");
     lock.tryLock();
   }
   

@@ -28,7 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.cache.PersistentCacheProvider;
+import org.sonar.batch.cache.GlobalPersistentCacheProvider;
 import org.sonar.batch.cache.ProjectSyncContainer;
 import org.sonar.batch.cache.StrategyWSLoaderProvider;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
@@ -85,7 +85,7 @@ public class GlobalContainer extends ComponentContainer {
       BatchPluginPredicate.class,
       ExtensionInstaller.class,
 
-    CachesManager.class,
+      CachesManager.class,
       GlobalMode.class,
       GlobalSettings.class,
       new RulesProvider(),
@@ -95,7 +95,7 @@ public class GlobalContainer extends ComponentContainer {
       DefaultHttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
-      new PersistentCacheProvider(),
+      new GlobalPersistentCacheProvider(),
       System2.INSTANCE,
       new GlobalRepositoriesProvider(),
       UuidFactoryImpl.INSTANCE);

@@ -62,14 +62,14 @@ public class NonAssociatedCacheSynchronizerTest {
 
   @Test
   public void dont_sync_if_exists() {
-    when(cacheStatus.getSyncStatus(null)).thenReturn(new Date());
+    when(cacheStatus.getSyncStatus()).thenReturn(new Date());
     synchronizer.execute(false);
     verifyNoMoreInteractions(qualityProfileLoader, activeRulesLoader);
   }
 
   @Test
   public void always_sync_if_force() {
-    when(cacheStatus.getSyncStatus(null)).thenReturn(new Date());
+    when(cacheStatus.getSyncStatus()).thenReturn(new Date());
     synchronizer.execute(true);
     checkSync();
   }
@@ -81,8 +81,8 @@ public class NonAssociatedCacheSynchronizerTest {
   }
 
   private void checkSync() {
-    verify(cacheStatus).getSyncStatus(null);
-    verify(cacheStatus).save(null);
+    verify(cacheStatus).getSyncStatus();
+    verify(cacheStatus).save();
     verify(qualityProfileLoader).load(null, null);
     verify(activeRulesLoader).load(ImmutableList.of("profile"), null);
 
