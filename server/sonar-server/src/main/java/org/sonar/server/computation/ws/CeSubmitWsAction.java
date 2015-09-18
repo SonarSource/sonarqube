@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.ws;
 
-import com.google.common.base.Strings;
 import java.io.InputStream;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
@@ -85,7 +84,7 @@ public class CeSubmitWsAction implements CeWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     String projectKey = wsRequest.mandatoryParam(PARAM_PROJECT_KEY);
-    String projectBranch = Strings.emptyToNull(wsRequest.param(PARAM_PROJECT_BRANCH));
+    String projectBranch = wsRequest.param(PARAM_PROJECT_BRANCH);
     String projectName = StringUtils.defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey);
     InputStream reportInput = wsRequest.paramAsInputStream(PARAM_REPORT_DATA);
 

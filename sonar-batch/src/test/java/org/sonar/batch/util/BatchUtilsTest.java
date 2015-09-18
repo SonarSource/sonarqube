@@ -19,33 +19,17 @@
  */
 package org.sonar.batch.util;
 
-import com.google.common.base.Strings;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import org.junit.Test;
 
-import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchUtils {
+public class BatchUtilsTest {
 
-  private BatchUtils() {
-  }
-
-  /**
-   * Clean provided string to remove chars that are not valid as file name.
-   * @param projectKey e.g. my:file
-   */
-  public static String cleanKeyForFilename(String projectKey) {
-    String cleanKey = StringUtils.deleteWhitespace(projectKey);
-    return StringUtils.replace(cleanKey, ":", "_");
-  }
-  
-  public static String encodeForUrl(@Nullable String url) {
-    try {
-      return URLEncoder.encode(Strings.nullToEmpty(url), "UTF-8");
-
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException("Encoding not supported", e);
-    }
+  @Test
+  public void encodeForUrl() throws Exception {
+    assertThat(BatchUtils.encodeForUrl(null)).isEqualTo("");
+    assertThat(BatchUtils.encodeForUrl("")).isEqualTo("");
+    assertThat(BatchUtils.encodeForUrl("foo")).isEqualTo("foo");
+    assertThat(BatchUtils.encodeForUrl("foo&bar")).isEqualTo("foo%26bar");
   }
 }

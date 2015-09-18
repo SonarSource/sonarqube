@@ -19,6 +19,9 @@
  */
 package org.sonar.db.ce;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class CeActivityQuery {
 
   private boolean onlyCurrents = false;
@@ -26,11 +29,12 @@ public class CeActivityQuery {
   private CeActivityDto.Status status;
   private String type;
 
+  @CheckForNull
   public String getComponentUuid() {
     return componentUuid;
   }
 
-  public CeActivityQuery setComponentUuid(String componentUuid) {
+  public CeActivityQuery setComponentUuid(@Nullable String componentUuid) {
     this.componentUuid = componentUuid;
     return this;
   }
@@ -44,20 +48,22 @@ public class CeActivityQuery {
     return this;
   }
 
+  @CheckForNull
   public CeActivityDto.Status getStatus() {
     return status;
   }
 
-  public CeActivityQuery setStatus(CeActivityDto.Status status) {
+  public CeActivityQuery setStatus(@Nullable CeActivityDto.Status status) {
     this.status = status;
     return this;
   }
 
+  @CheckForNull
   public String getType() {
     return type;
   }
 
-  public CeActivityQuery setType(String type) {
+  public CeActivityQuery setType(@Nullable String type) {
     this.type = type;
     return this;
   }

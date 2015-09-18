@@ -62,6 +62,25 @@
     order by ca.id desc
   </select>
 
+  <select id="countByQuery" parameterType="map" resultType="int">
+    select count(ca.id)
+    from ce_activity ca
+    <where>
+      <if test="query.onlyCurrents">
+        ca.is_last=${_true}
+      </if>
+      <if test="query.componentUuid != null">
+        ca.component_uuid=#{query.componentUuid}
+      </if>
+      <if test="query.status != null">
+        ca.status=#{query.status}
+      </if>
+      <if test="query.type != null">
+        ca.task_type=#{query.type}
+      </if>
+    </where>
+  </select>
+
   <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
     insert into ce_activity
     (uuid, component_uuid, status, task_type, is_last, is_last_key, submitter_login, submitted_at, started_at,

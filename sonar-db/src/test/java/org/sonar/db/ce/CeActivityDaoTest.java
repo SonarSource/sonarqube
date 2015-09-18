@@ -111,6 +111,32 @@ public class CeActivityDaoTest {
   }
 
   @Test
+  public void test_countByQuery() throws Exception {
+    insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insert("TASK_2", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED);
+    insert("TASK_3", REPORT, "PROJECT_2", CeActivityDto.Status.SUCCESS);
+    insert("TASK_4", "views", null, CeActivityDto.Status.SUCCESS);
+
+    // no filters
+    CeActivityQuery query = new CeActivityQuery();
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(4);
+
+    // select by component uuid
+    query = new CeActivityQuery().setComponentUuid("PROJECT_1");
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(2);
+
+    // select by status
+    query = new CeActivityQuery().setStatus(CeActivityDto.Status.SUCCESS);
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(3);
+
+    // select by type
+    query = new CeActivityQuery().setType(REPORT);
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(3);
+    query = new CeActivityQuery().setType("views");
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
+  }
+
+  @Test
   public void deleteOlderThan() throws Exception {
     insertWithDate("TASK_1", 1_450_000_000_000L);
     insertWithDate("TASK_2", 1_460_000_000_000L);
