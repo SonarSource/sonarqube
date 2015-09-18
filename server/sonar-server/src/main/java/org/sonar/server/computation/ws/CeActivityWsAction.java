@@ -20,30 +20,31 @@
 package org.sonar.server.computation.ws;
 
 import java.util.List;
+import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeActivityQuery;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsCe;
 
 /**
- * GET api/ce/queue
- * <p>Get the status of the queue</p>
+ * GET api/ce/activity
+ * <p>Get the past executed tasks</p>
  */
-public class CeQueueWsAction implements CeWsAction {
-
-  public static final String PARAM_COMPONENT_ID = "componentId";
+public class CeActivityWsAction implements CeWsAction {
 
   private final UserSession userSession;
   private final DbClient dbClient;
   private final CeWsTaskFormatter formatter;
 
-  public CeQueueWsAction(UserSession userSession, DbClient dbClient, CeWsTaskFormatter formatter) {
+  public CeActivityWsAction(UserSession userSession, DbClient dbClient, CeWsTaskFormatter formatter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;
@@ -51,34 +52,28 @@ public class CeQueueWsAction implements CeWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("queue")
-      .setDescription("Gets the tasks of the Compute Engine queue")
+    controller.createAction("activity")
       .setInternal(true)
-      .setResponseExample(getClass().getResource("CeQueueWsAction/example.json"))
+      .setResponseExample(getClass().getResource("CeActivityWsAction/example.json"))
       .setHandler(this);
-
-    action.createParam(PARAM_COMPONENT_ID);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    String componentUuid = wsRequest.param(PARAM_COMPONENT_ID);
-
+    userSession.checkGlobalPermission(UserRole.ADMIN);
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<CeQueueDto> dtos;
-      if (componentUuid == null) {
-        // no filters
-        userSession.checkGlobalPermission(UserRole.ADMIN);
-        dtos = dbClient.ceQueueDao().selectAllInAscOrder(dbSession);
-      } else {
-        // filter by component
-        userSession.checkProjectUuidPermission(UserRole.USER, componentUuid);
-        dtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
-      }
+      CeActivityQuery query = new CeActivityQuery();
+      List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, new RowBounds(0, 100));
 
-      WsCe.QueueResponse.Builder wsResponseBuilder = WsCe.QueueResponse.newBuilder();
-      wsResponseBuilder.addAllTasks(formatter.formatQueue(dbSession, dtos));
+      WsCe.ActivityResponse.Builder wsResponseBuilder = WsCe.ActivityResponse.newBuilder();
+      wsResponseBuilder.addAllTasks(formatter.formatActivity(dbSession, dtos));
+      Common.Paging paging = Common.Paging.newBuilder()
+        .setPageIndex(1)
+        .setPageSize(dtos.size())
+        .setTotal(dtos.size())
+        .build();
+      wsResponseBuilder.setPaging(paging);
       WsUtils.writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
 
     } finally {

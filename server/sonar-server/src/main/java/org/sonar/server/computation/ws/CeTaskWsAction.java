@@ -74,11 +74,11 @@ public class CeTaskWsAction implements CeWsAction {
       WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskId);
       if (queueDto.isPresent()) {
-        wsTaskResponse.setTask(wsTaskFormatter.format(dbSession, queueDto.get()));
+        wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
       } else {
         Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskId);
         if (activityDto.isPresent()) {
-          wsTaskResponse.setTask(wsTaskFormatter.format(dbSession, activityDto.get()));
+          wsTaskResponse.setTask(wsTaskFormatter.formatActivity(dbSession, activityDto.get()));
         } else {
           throw new NotFoundException();
         }

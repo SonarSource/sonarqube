@@ -43,20 +43,20 @@ public class CeWsTaskFormatter {
     this.dbClient = dbClient;
   }
 
-  public List<WsCe.Task> format(DbSession dbSession, List<CeQueueDto> dtos) {
+  public List<WsCe.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
     ComponentCache cache = new ComponentCache(dbSession);
     List<WsCe.Task> result = new ArrayList<>();
     for (CeQueueDto dto : dtos) {
-      result.add(format(dto, cache));
+      result.add(formatQueue(dto, cache));
     }
     return result;
   }
 
-  public WsCe.Task format(DbSession dbSession, CeQueueDto dto) {
-    return format(dto, new ComponentCache(dbSession));
+  public WsCe.Task formatQueue(DbSession dbSession, CeQueueDto dto) {
+    return formatQueue(dto, new ComponentCache(dbSession));
   }
 
-  private WsCe.Task format(CeQueueDto dto, ComponentCache componentCache) {
+  private WsCe.Task formatQueue(CeQueueDto dto, ComponentCache componentCache) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
@@ -75,11 +75,20 @@ public class CeWsTaskFormatter {
     return builder.build();
   }
 
-  public WsCe.Task format(DbSession dbSession, CeActivityDto dto) {
-    return format(dto, new ComponentCache(dbSession));
+  public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto) {
+    return formatActivity(dto, new ComponentCache(dbSession));
   }
 
-  private WsCe.Task format(CeActivityDto dto, ComponentCache componentCache) {
+  public List<WsCe.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
+    ComponentCache cache = new ComponentCache(dbSession);
+    List<WsCe.Task> result = new ArrayList<>();
+    for (CeActivityDto dto : dtos) {
+      result.add(formatActivity(dto, cache));
+    }
+    return result;
+  }
+
+  private WsCe.Task formatActivity(CeActivityDto dto, ComponentCache componentCache) {
     WsCe.Task.Builder builder = WsCe.Task.newBuilder();
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
