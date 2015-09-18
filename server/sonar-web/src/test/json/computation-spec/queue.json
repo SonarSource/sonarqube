@@ -1,12 +1,13 @@
 {
-  "reports": [
+  "tasks": [
     {
-      "submittedAt": "2015-05-13T15:44:15+0200",
-      "status": "WORKING",
-      "projectUuid": "id-sonarqube",
-      "projectName": "SonarQube",
-      "projectKey": "key-sonarqube",
-      "key": "4"
+      "id": "AU_fvdwNrnmp5Ks0AiLg",
+      "type": "REPORT",
+      "componentId": "AU_VQoJCzEjRSwxhFuns",
+      "componentKey": "com.sonarsource.rule-api:rule-api",
+      "componentName": "SonarSource :: Rule API",
+      "status": "PENDING",
+      "submittedAt": "2015-09-18T11:16:56+0200"
     }
   ]
 }
