@@ -37,7 +37,6 @@ import org.sonarqube.ws.WsCe;
 public class CeTaskWsAction implements CeWsAction {
 
   public static final String ACTION = "task";
-
   public static final String PARAM_TASK_ID = "id";
 
   private final DbClient dbClient;
