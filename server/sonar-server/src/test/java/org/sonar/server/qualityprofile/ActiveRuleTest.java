@@ -22,6 +22,8 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -55,10 +57,11 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ActiveRuleBackendMediumTest {
+public class ActiveRuleTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -74,7 +77,6 @@ public class ActiveRuleBackendMediumTest {
     db = tester.get(DbClient.class);
     index = tester.get(IndexClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
-
   }
 
   @After
@@ -86,7 +88,6 @@ public class ActiveRuleBackendMediumTest {
 
   @Test
   public void synchronize_index() {
-
     Date beginning = new Date();
 
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
@@ -119,6 +120,62 @@ public class ActiveRuleBackendMediumTest {
     tester.get(Platform.class).executeStartupTasks();
     assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNotNull();
     assertThat(index.get(ActiveRuleIndex.class).getLastSynchronization()).isNotNull();
+  }
+
+  /**
+   * SONAR-6540
+   */
+  @Test
+  public void active_rule_linked_to_not_existing_rule_should_be_ignored() throws SQLException {
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(dbSession, profile);
+
+    RuleDto rule = RuleDto.createFor(RuleTesting.XOO_X1).setSeverity(Severity.MAJOR);
+    db.deprecatedRuleDao().insert(dbSession, rule);
+
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
+    db.activeRuleDao().insert(dbSession, activeRule);
+    dbSession.commit();
+
+    // Remove rule -> Active rule is now linked to a not existing rule
+    executeSql(String.format("DELETE FROM rules WHERE id=%s", rule.getId()));
+    dbSession.commit();
+
+    // Synchronize index from start
+    tester.clearIndexes();
+    db.activeRuleDao().synchronizeAfter(dbSession, new Date(0L));
+    dbSession.commit();
+
+    // Active does not exist in the index
+    assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNull();
+  }
+
+  /**
+   * SONAR-6540
+   */
+  @Test
+  public void active_rule_linked_to_not_existing_profile_should_be_ignored() throws SQLException {
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(dbSession, profile);
+
+    RuleDto rule = RuleDto.createFor(RuleTesting.XOO_X1).setSeverity(Severity.MAJOR);
+    db.deprecatedRuleDao().insert(dbSession, rule);
+
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
+    db.activeRuleDao().insert(dbSession, activeRule);
+    dbSession.commit();
+
+    // Remove quality profile -> active rule is now linked to a not existing quality profile
+    executeSql(String.format("DELETE FROM rules_profiles WHERE id=%s", profile.getId()));
+    dbSession.commit();
+
+    // Synchronize index from start
+    tester.clearIndexes();
+    db.activeRuleDao().synchronizeAfter(dbSession, new Date(0L));
+    dbSession.commit();
+
+    // Active does not exist in the index
+    assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNull();
   }
 
   @Test
@@ -388,6 +445,59 @@ public class ActiveRuleBackendMediumTest {
     assertThat(stats).hasSize(30);
   }
 
+  @Test
+  public void select_by_id() throws Exception {
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(dbSession, profile);
+
+    RuleDto rule = RuleDto.createFor(RuleTesting.XOO_X1).setSeverity(Severity.MAJOR);
+    db.deprecatedRuleDao().insert(dbSession, rule);
+
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
+    db.activeRuleDao().insert(dbSession, activeRule);
+    dbSession.commit();
+
+    assertThat(db.activeRuleDao().selectById(dbSession, activeRule.getId()).getId()).isEqualTo(activeRule.getId());
+  }
+
+  @Test
+  public void select_by_id_return_nothing_when_rule_does_not_exist() throws Exception {
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(dbSession, profile);
+
+    RuleDto rule = RuleDto.createFor(RuleTesting.XOO_X1).setSeverity(Severity.MAJOR);
+    db.deprecatedRuleDao().insert(dbSession, rule);
+
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
+    db.activeRuleDao().insert(dbSession, activeRule);
+    dbSession.commit();
+
+    // Remove rule -> Active rule is now linked to a not existing rule
+    executeSql(String.format("DELETE FROM rules WHERE id=%s", rule.getId()));
+    dbSession.commit();
+
+    assertThat(db.activeRuleDao().selectById(dbSession, activeRule.getId())).isNull();
+  }
+
+  @Test
+  public void select_by_id_return_nothing_when_profile_does_not_exist() throws Exception {
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(dbSession, profile);
+
+    RuleDto rule = RuleDto.createFor(RuleTesting.XOO_X1).setSeverity(Severity.MAJOR);
+    db.deprecatedRuleDao().insert(dbSession, rule);
+
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
+    db.activeRuleDao().insert(dbSession, activeRule);
+    dbSession.commit();
+
+    // Remove quality profile -> active rule is now linked to a not existing quality profile
+    executeSql(String.format("DELETE FROM rules_profiles WHERE id=%s", profile.getId()));
+    dbSession.commit();
+
+    assertThat(db.activeRuleDao().selectById(dbSession, activeRule.getId())).isNull();
+  }
+
   private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()
       .setRuleKey(ruleKey.rule())
@@ -407,4 +517,10 @@ public class ActiveRuleBackendMediumTest {
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
   }
+
+  private void executeSql(String sql) throws SQLException {
+    PreparedStatement stmt = db.getDatabase().getDataSource().getConnection().prepareStatement(sql);
+    stmt.executeUpdate();
+  }
+
 }

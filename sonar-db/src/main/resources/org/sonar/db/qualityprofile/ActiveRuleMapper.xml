@@ -17,10 +17,9 @@
   </sql>
 
   <sql id="activeRuleKeyJoin">
-    LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
-    LEFT JOIN rules r ON r.id = a.rule_id
+    INNER JOIN rules_profiles qp ON qp.id=a.profile_id
+    INNER JOIN rules r ON r.id = a.rule_id
   </sql>
-
 
   <sql id="activeRuleColumns">
     a.id,
@@ -34,10 +33,9 @@
   </sql>
 
   <sql id="activeRuleJoin">
-    LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
+    INNER JOIN rules_profiles qp ON qp.id=a.profile_id
     LEFT JOIN rules_profiles profile_parent ON profile_parent.kee=qp.parent_kee
-    LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND
-    a.rule_id=active_rule_parent.rule_id
+    LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND a.rule_id=active_rule_parent.rule_id
   </sql>
 
   <select id="selectAfterDate" parameterType="Date" resultType="ActiveRule"
@@ -91,7 +89,6 @@
     <include refid="activeRuleJoin"/>
     WHERE a.id=#{id}
   </select>
-
 
   <select id="selectByKey" parameterType="map" resultType="ActiveRule">
     SELECT
