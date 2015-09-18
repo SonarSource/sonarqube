@@ -32,7 +32,7 @@ import org.sonar.api.web.WidgetPropertyType;
   @WidgetProperty(key = "metric3", type = WidgetPropertyType.METRIC, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "hideEvents", type = WidgetPropertyType.BOOLEAN),
   @WidgetProperty(key = "chartHeight", type = WidgetPropertyType.INTEGER, defaultValue = "180"),
-  @WidgetProperty(key = "undefinedToZero", type = WidgetPropertyType.BOOLEAN)
+  @WidgetProperty(key = "undefinedToZero", type = WidgetPropertyType.BOOLEAN, defaultValue = "true")
 })
 public class TimelineWidget extends CoreWidget {
   public TimelineWidget() {
