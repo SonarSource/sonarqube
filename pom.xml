@@ -49,11 +49,6 @@
       <name>Sonatype Release Repository</name>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
-    <snapshotRepository>
-      <id>sonar-snapshots</id>
-      <url>${sonar.snapshotRepository.url}</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
   </distributionManagement>
 
   <prerequisites>
@@ -89,7 +84,6 @@
     <version.maven-license.plugin>1.9.0</version.maven-license.plugin>
     <skipSanityChecks>false</skipSanityChecks>
 
-    <sonar.snapshotRepository.url>dav:https://dav.codehaus.org/snapshots.repository/sonar</sonar.snapshotRepository.url>
     <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=160m</argLine>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
