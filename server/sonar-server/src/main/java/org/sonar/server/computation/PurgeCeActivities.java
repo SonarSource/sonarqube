@@ -20,6 +20,8 @@
 package org.sonar.server.computation;
 
 import java.util.Calendar;
+import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
@@ -28,7 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 @ServerSide
-public class PurgeCeActivities {
+public class PurgeCeActivities implements ServerStartHandler {
 
   private static final Logger LOGGER = Loggers.get(PurgeCeActivities.class);
 
@@ -40,10 +42,8 @@ public class PurgeCeActivities {
     this.system2 = system2;
   }
 
-  /**
-   * Do not rename. Used at server startup.
-   */
-  public void start() {
+  @Override
+  public void onServerStart(Server server) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Calendar sixMonthsAgo = Calendar.getInstance();
