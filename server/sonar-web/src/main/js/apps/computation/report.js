@@ -1,7 +1,7 @@
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
-  idAttribute: 'key',
+  idAttribute: 'id',
 
   getDuration: function () {
     var duration = null;
