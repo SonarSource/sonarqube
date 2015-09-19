@@ -10,8 +10,8 @@ casper.test.begin(testName('List'), 9, function (test) {
   casper
       .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
-        lib.mockRequestFromFile('/api/computation/queue', 'queue.json');
-        lib.mockRequestFromFile('/api/computation/history', 'history.json');
+        lib.mockRequestFromFile('/api/ce/queue', 'queue.json');
+        lib.mockRequestFromFile('/api/ce/activity', 'history.json');
       })
 
       .then(function () {
@@ -67,7 +67,7 @@ casper.test.begin(testName('Show More'), 2, function (test) {
   casper
       .start(lib.buildUrl('base#past'), function () {
         lib.setDefaultViewport();
-        this.searchMock = lib.mockRequestFromFile('/api/computation/history', 'history-big-1.json');
+        this.searchMock = lib.mockRequestFromFile('/api/ce/activity', 'history-big-1.json');
       })
 
       .then(function () {
@@ -85,7 +85,7 @@ casper.test.begin(testName('Show More'), 2, function (test) {
       .then(function () {
         test.assertElementCount('#computation-list li[data-id]', 2);
         lib.clearRequestMock(this.searchMock);
-        this.searchMock = lib.mockRequestFromFile('/api/computation/history', 'history-big-2.json',
+        this.searchMock = lib.mockRequestFromFile('/api/ce/activity', 'history-big-2.json',
             { data: { p: '2' } });
         casper.click('#computation-fetch-more');
         casper.waitForSelectorTextChange('#computation-list-footer');
