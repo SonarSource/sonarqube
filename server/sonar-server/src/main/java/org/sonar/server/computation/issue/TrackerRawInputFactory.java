@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,18 +38,23 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportTreeRootHolder;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
+import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.rule.CommonRuleKeys;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class TrackerRawInputFactory {
 
   private final ReportTreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
+  private final SourceLinesRepository sourceLinesRepository;
   private final CommonRuleEngine commonRuleEngine;
 
   public TrackerRawInputFactory(ReportTreeRootHolder treeRootHolder, BatchReportReader reportReader,
-    CommonRuleEngine commonRuleEngine) {
+    SourceLinesRepository sourceLinesRepository, CommonRuleEngine commonRuleEngine) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
+    this.sourceLinesRepository = sourceLinesRepository;
     this.commonRuleEngine = commonRuleEngine;
   }
 
@@ -69,7 +73,7 @@ public class TrackerRawInputFactory {
     protected LineHashSequence loadLineHashSequence() {
       Iterable<String> lines;
       if (component.getType() == Component.Type.FILE) {
-        lines = Lists.newArrayList(reportReader.readFileSource(component.getReportAttributes().getRef()));
+        lines = newArrayList(sourceLinesRepository.readLines(component));
       } else {
         lines = Collections.emptyList();
       }
@@ -133,7 +137,7 @@ public class TrackerRawInputFactory {
         dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));
       }
       for (BatchReport.Flow flow : reportIssue.getFlowList()) {
-        if (flow.getLocationCount()>0) {
+        if (flow.getLocationCount() > 0) {
           DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
           for (BatchReport.IssueLocation location : flow.getLocationList()) {
             dbFlowBuilder.addLocation(convertLocation(location));

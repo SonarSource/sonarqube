@@ -49,6 +49,7 @@ import org.sonar.server.computation.source.DuplicationLineReader;
 import org.sonar.server.computation.source.HighlightingLineReader;
 import org.sonar.server.computation.source.LineReader;
 import org.sonar.server.computation.source.ScmLineReader;
+import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.computation.source.SymbolsLineReader;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
@@ -59,12 +60,14 @@ public class PersistFileSourcesStep implements ComputationStep {
   private final System2 system2;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
+  private final SourceLinesRepository sourceLinesRepository;
 
-  public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
+  public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesRepository sourceLinesRepository) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
+    this.sourceLinesRepository = sourceLinesRepository;
   }
 
   @Override
@@ -108,7 +111,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     public void visitFile(Component file) {
       int fileRef = file.getReportAttributes().getRef();
       BatchReport.Component component = reportReader.readComponent(fileRef);
-      CloseableIterator<String> linesIterator = reportReader.readFileSource(fileRef);
+      CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
       LineReaders lineReaders = new LineReaders(reportReader, fileRef);
       try {
         ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), component.getLines());

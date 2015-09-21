@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +40,7 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.language.LanguageRepository;
+import org.sonar.server.computation.source.SourceLinesRepositoryRule;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -69,6 +69,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
+  @Rule
+  public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
+
   DbClient dbClient = dbTester.getDbClient();
   DbSession session = dbTester.getSession();
 
@@ -80,7 +83,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void setup() {
     dbTester.truncateTables();
     when(system2.now()).thenReturn(now);
-    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader);
+    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository);
   }
 
   @Override
@@ -126,10 +129,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
-      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
-    reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
+    fileSourceRepository.addLine("line1").addLine("line2");
 
     underTest.execute();
 
@@ -438,11 +441,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setLines(numberOfLines)
       .build());
 
-    List<String> lines = newArrayList();
     for (int i = 1; i <= numberOfLines; i++) {
-      lines.add("line" + i);
+      fileSourceRepository.addLine("line" + i);
     }
-    reportReader.putFileSourceLines(FILE_REF, lines);
   }
 
   private static class EmptyLanguageRepository implements LanguageRepository {

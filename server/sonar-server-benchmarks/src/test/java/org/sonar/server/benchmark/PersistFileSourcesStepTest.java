@@ -31,19 +31,19 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.Uuids;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
-import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,13 +75,15 @@ public class PersistFileSourcesStepTest {
 
   private void persistFileSources(File reportDir) {
     LOGGER.info("Persist file sources");
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(dbTester.myBatis()));
+    DbClient dbClient = dbTester.getDbClient();
 
     long start = System.currentTimeMillis();
 
     BatchReportDirectoryHolderImpl batchReportDirectoryHolder = new BatchReportDirectoryHolderImpl();
     batchReportDirectoryHolder.setDirectory(reportDir);
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, new BatchReportReaderImpl(batchReportDirectoryHolder));
+    org.sonar.server.computation.batch.BatchReportReader batchReportReader = new BatchReportReaderImpl(batchReportDirectoryHolder);
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader,
+      new SourceLinesRepositoryImpl(dbClient, batchReportReader));
     step.execute();
 
     long end = System.currentTimeMillis();

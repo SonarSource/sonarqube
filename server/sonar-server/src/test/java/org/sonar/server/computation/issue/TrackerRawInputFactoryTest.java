@@ -35,6 +35,7 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
+import org.sonar.server.computation.source.SourceLinesRepositoryRule;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static java.util.Arrays.asList;
@@ -53,13 +54,16 @@ public class TrackerRawInputFactoryTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
+  @Rule
+  public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
+
   CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
 
-  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, commonRuleEngine);
+  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, commonRuleEngine);
 
   @Test
   public void load_source_hash_sequences() throws Exception {
-    reportReader.putFileSourceLines(FILE.getReportAttributes().getRef(), "line 1;", "line 2;");
+    fileSourceRepository.addLine("line 1;").addLine("line 2;");
     Input<DefaultIssue> input = underTest.create(FILE);
 
     assertThat(input.getLineHashSequence()).isNotNull();
@@ -80,7 +84,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues() throws Exception {
-    reportReader.putFileSourceLines(FILE.getReportAttributes().getRef(), "line 1;", "line 2;");
+    fileSourceRepository.addLine("line 1;").addLine("line 2;");
     BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
       .setLine(2)
       .setMsg("the message")
@@ -111,7 +115,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void ignore_report_issues_on_common_rules() throws Exception {
-    reportReader.putFileSourceLines(FILE.getReportAttributes().getRef(), "line 1;", "line 2;");
+    fileSourceRepository.addLine("line 1;").addLine("line 2;");
     BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(CommonRuleKeys.commonRepositoryForLang("java"))
@@ -127,7 +131,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues_of_compute_engine_common_rules() throws Exception {
-    reportReader.putFileSourceLines(FILE.getReportAttributes().getRef(), "line 1;", "line 2;");
+    fileSourceRepository.addLine("line 1;").addLine("line 2;");
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
       .setMessage("not enough coverage")

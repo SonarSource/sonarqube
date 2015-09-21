@@ -24,8 +24,8 @@ import java.util.List;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.computation.CeTask;
-import org.sonar.server.computation.ComputationTempFolderProvider;
 import org.sonar.server.computation.ComputationStepExecutor;
+import org.sonar.server.computation.ComputationTempFolderProvider;
 import org.sonar.server.computation.analysis.ReportAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
@@ -77,6 +77,7 @@ import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.server.computation.source.LastCommitVisitor;
+import org.sonar.server.computation.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
 import org.sonar.server.computation.sqale.SqaleRatingSettings;
 import org.sonar.server.computation.step.ComputationSteps;
@@ -108,9 +109,9 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       ComputationStepExecutor.class,
       new ComputationTempFolderProvider(),
 
-    MetricModule.class,
+      MetricModule.class,
 
-    // holders
+      // holders
       ReportAnalysisMetadataHolder.class,
       BatchReportDirectoryHolderImpl.class,
       ReportTreeRootHolderImpl.class,
@@ -121,9 +122,9 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       ActiveRulesHolderImpl.class,
       MeasureComputersHolderImpl.class,
 
-    BatchReportReaderImpl.class,
+      BatchReportReaderImpl.class,
 
-    // repositories
+      // repositories
       LanguageRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
@@ -131,8 +132,9 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       DbIdsRepositoryImpl.class,
       QualityGateServiceImpl.class,
       EvaluationResultTextConverterImpl.class,
+      SourceLinesRepositoryImpl.class,
 
-    // issues
+      // issues
       RuleCacheLoader.class,
       RuleRepositoryImpl.class,
       ScmAccountToUserLoader.class,
@@ -144,7 +146,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       ComponentsWithUnprocessedIssues.class,
       ComponentIssuesRepositoryImpl.class,
 
-    // common rules
+      // common rules
       CommonRuleEngineImpl.class,
       BranchCoverageRule.class,
       LineCoverageRule.class,
@@ -153,7 +155,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       TestErrorRule.class,
       SkippedTestRule.class,
 
-    // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
+      // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
       DebtCalculator.class,
       DebtAggregator.class,
       NewDebtCalculator.class,
@@ -162,7 +164,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       RuleTagsCopier.class,
       IssueCounter.class,
 
-    // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
+      // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       LoadComponentUuidsHavingOpenIssuesVisitor.class,
       IntegrateIssuesVisitor.class,
       CloseIssuesOnRemovedComponentsVisitor.class,
@@ -170,14 +172,14 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       LastCommitVisitor.class,
       MeasureComputersVisitor.class,
 
-    UpdateConflictResolver.class,
+      UpdateConflictResolver.class,
       TrackerBaseInputFactory.class,
       TrackerRawInputFactory.class,
       Tracker.class,
       TrackerExecution.class,
       BaseIssuesLoader.class,
 
-    // views
+      // views
       ViewIndex.class);
   }
 
