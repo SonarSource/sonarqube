@@ -5,7 +5,7 @@ define(function (require) {
   var Command = require('intern/dojo/node!leadfoot/Command');
   var pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
 
-  var DEFAULT_TIMEOUT = 4000;
+  var DEFAULT_TIMEOUT = 30000;
 
   Command.prototype.checkElementCount = function (selector, count) {
     return new this.constructor(this, function () {
