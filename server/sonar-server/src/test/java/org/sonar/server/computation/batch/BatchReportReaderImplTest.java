@@ -21,7 +21,6 @@ package org.sonar.server.computation.batch;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,15 +28,14 @@ import org.junit.Test;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.batch.protocol.output.FileStructure;
 import org.sonar.core.util.CloseableIterator;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 public class BatchReportReaderImplTest {
   private static final int COMPONENT_REF = 1;
-  private static final String COMPONENT_UUID = "uuid";
   private static final BatchReport.Changesets CHANGESETS = BatchReport.Changesets.newBuilder().setComponentRef(COMPONENT_REF).build();
   private static final BatchReport.Measure MEASURE = BatchReport.Measure.newBuilder().build();
   private static final BatchReport.Component COMPONENT = BatchReport.Component.newBuilder().setRef(COMPONENT_REF).build();
@@ -58,14 +56,12 @@ public class BatchReportReaderImplTest {
 
   private BatchReportWriter writer;
   private BatchReportReaderImpl underTest;
-  private FileStructure fileStructure;
 
   @Before
   public void setUp() {
     BatchReportDirectoryHolder holder = new ImmutableBatchReportDirectoryHolder(tempFolder.newDir());
     underTest = new BatchReportReaderImpl(holder);
     writer = new BatchReportWriter(holder.getDirectory());
-    fileStructure = new FileStructure(holder.getDirectory());
   }
 
   @Test(expected = IllegalStateException.class)
@@ -239,9 +235,9 @@ public class BatchReportReaderImplTest {
     res.close();
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void readFileSource_throws_ISE_when_file_does_not_exist() {
-    underTest.readFileSource(COMPONENT_REF);
+  @Test
+  public void readFileSource_returns_absent_optional_when_file_does_not_exist() {
+    assertThat(underTest.readFileSource(COMPONENT_REF)).isAbsent();
   }
 
   @Test
@@ -249,7 +245,7 @@ public class BatchReportReaderImplTest {
     File file = writer.getSourceFile(COMPONENT_REF);
     FileUtils.writeLines(file, of("1", "2", "3"));
 
-    CloseableIterator<String> res = underTest.readFileSource(COMPONENT_REF);
+    CloseableIterator<String> res = underTest.readFileSource(COMPONENT_REF).get();
     assertThat(res).containsExactly("1", "2", "3");
     res.close();
   }

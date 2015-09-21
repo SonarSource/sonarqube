@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.batch;
 
+import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
@@ -46,10 +47,9 @@ public interface BatchReportReader {
   CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef);
 
   /**
-   * Reads file source line by line. Throws an exception if the ref does not relate
-   * to a file
+   * Reads file source line by line. Return an absent optional if the file doest not exist
    */
-  CloseableIterator<String> readFileSource(int fileRef);
+  Optional<CloseableIterator<String>> readFileSource(int fileRef);
 
   CloseableIterator<BatchReport.Test> readTests(int testFileRef);
 

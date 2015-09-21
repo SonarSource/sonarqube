@@ -120,12 +120,13 @@ public class BatchReportReader {
     return emptyCloseableIterator();
   }
 
+  @CheckForNull
   public File readFileSource(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SOURCE, fileRef);
-    if (!fileExists(file)) {
-      throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + file);
+    if (fileExists(file)) {
+      return file;
     }
-    return file;
+    return null;
   }
 
   @CheckForNull

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.batch;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Parser;
@@ -98,14 +99,14 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public CloseableIterator<String> readFileSource(int fileRef) {
+  public Optional<CloseableIterator<String>> readFileSource(int fileRef) {
     File file = delegate.readFileSource(fileRef);
     if (file == null) {
-      throw new IllegalStateException("Unable to find source for file #" + fileRef);
+      return Optional.absent();
     }
 
     try {
-      return new CloseableLineIterator(IOUtils.lineIterator(FileUtils.openInputStream(file), StandardCharsets.UTF_8));
+      return Optional.<CloseableIterator<String>>of(new CloseableLineIterator(IOUtils.lineIterator(FileUtils.openInputStream(file), StandardCharsets.UTF_8)));
     } catch (IOException e) {
       throw new IllegalStateException("Fail to traverse file: " + file, e);
     }

@@ -21,9 +21,11 @@ package org.sonar.batch.protocol.output;
 
 import com.google.common.collect.Lists;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -339,4 +341,20 @@ public class BatchReportReaderTest {
     assertThat(underTest.readCoverageDetails(UNKNOWN_COMPONENT_REF)).isNull();
   }
 
+  @Test
+  public void read_file_source() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    try (FileOutputStream outputStream = new FileOutputStream(writer.getSourceFile(1))) {
+      IOUtils.write("line1\nline2", outputStream);
+    }
+
+    try (InputStream inputStream = FileUtils.openInputStream(underTest.readFileSource(1))) {
+      assertThat(IOUtils.readLines(inputStream)).containsOnly("line1", "line2");
+    }
+  }
+
+  @Test
+  public void return_null_when_no_file_source() throws Exception {
+    assertThat(underTest.readFileSource(UNKNOWN_COMPONENT_REF)).isNull();
+  }
 }

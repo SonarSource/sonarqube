@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.batch;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -193,13 +194,13 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public CloseableIterator<String> readFileSource(int fileRef) {
+  public Optional<CloseableIterator<String>> readFileSource(int fileRef) {
     List<String> lines = fileSources.get(fileRef);
     if (lines == null) {
-      throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + lines);
+      return Optional.absent();
     }
 
-    return CloseableIterator.from(lines.iterator());
+    return Optional.of(CloseableIterator.from(lines.iterator()));
   }
 
   public void putFileSourceLines(int fileRef, @Nullable String... lines) {
