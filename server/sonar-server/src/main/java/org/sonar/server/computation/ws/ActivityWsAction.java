@@ -36,22 +36,18 @@ import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsCe;
 
-/**
- * GET api/ce/activity
- * <p>Get the past executed tasks</p>
- */
-public class CeActivityWsAction implements CeWsAction {
+public class ActivityWsAction implements CeWsAction {
 
-  private static final String PARAM_COMPONENT_ID = "componentId";
+  private static final String PARAM_COMPONENT_UUID = "componentId";
   private static final String PARAM_TYPE = "type";
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_ONLY_CURRENTS = "onlyCurrents";
 
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final CeWsTaskFormatter formatter;
+  private final TaskFormatter formatter;
 
-  public CeActivityWsAction(UserSession userSession, DbClient dbClient, CeWsTaskFormatter formatter) {
+  public ActivityWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;
@@ -61,9 +57,9 @@ public class CeActivityWsAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("activity")
       .setInternal(true)
-      .setResponseExample(getClass().getResource("CeActivityWsAction/example.json"))
+      .setResponseExample(getClass().getResource("activity-example.json"))
       .setHandler(this);
-    action.createParam(PARAM_COMPONENT_ID)
+    action.createParam(PARAM_COMPONENT_UUID)
       .setDescription("Optional id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
     action.createParam(PARAM_STATUS)
@@ -111,12 +107,12 @@ public class CeActivityWsAction implements CeWsAction {
       query.setStatus(CeActivityDto.Status.valueOf(status));
     }
     
-    String componentId = wsRequest.param(PARAM_COMPONENT_ID);
-    if (componentId == null) {
+    String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
+    if (componentUuid == null) {
       userSession.checkGlobalPermission(UserRole.ADMIN);
     } else {
-      userSession.checkProjectUuidPermission(UserRole.ADMIN, componentId);
-      query.setComponentUuid(componentId);
+      userSession.checkProjectUuidPermission(UserRole.USER, componentUuid);
+      query.setComponentUuid(componentUuid);
     }
     return query;
   }

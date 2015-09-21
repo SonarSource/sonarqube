@@ -108,6 +108,11 @@ public class CeActivityDaoTest {
     query = new CeActivityQuery().setType("views");
     dtos = underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10));
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4");
+
+    // select by multiple conditions
+    query = new CeActivityQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
+    dtos = underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10));
+    assertThat(dtos).extracting("uuid").containsExactly("TASK_2");
   }
 
   @Test

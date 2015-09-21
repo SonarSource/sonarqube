@@ -1,0 +1,25 @@
+{
+  "queue": [
+    {
+      "id": "AU_w84A6gAS1Hm6h4_ih",
+      "type": "REPORT",
+      "componentId": "AU_w74XMgAS1Hm6h4-Y-",
+      "componentKey": "com.github.kevinsawicki:http-request-parent",
+      "componentName": "HttpRequest",
+      "status": "PENDING",
+      "submittedAt": "2015-09-21T19:28:54+0200"
+    }
+  ],
+  "current": {
+    "id": "AU_w8LDjgAS1Hm6h4-aY",
+    "type": "REPORT",
+    "componentId": "AU_w74XMgAS1Hm6h4-Y-",
+    "componentKey": "com.github.kevinsawicki:http-request-parent",
+    "componentName": "HttpRequest",
+    "status": "SUCCESS",
+    "submittedAt": "2015-09-21T19:25:49+0200",
+    "startedAt": "2015-09-21T19:25:57+0200",
+    "finishedAt": "2015-09-21T19:25:58+0200",
+    "executionTimeMs": 1371
+  }
+}

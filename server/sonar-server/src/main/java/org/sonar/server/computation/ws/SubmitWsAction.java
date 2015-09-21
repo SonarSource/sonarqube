@@ -29,11 +29,7 @@ import org.sonar.server.computation.ReportSubmitter;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
-/**
- * POST api/ce/submit
- * <p>Submits an analysis report to the queue of Compute Engine</p>
- */
-public class CeSubmitWsAction implements CeWsAction {
+public class SubmitWsAction implements CeWsAction {
 
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_PROJECT_BRANCH = "projectBranch";
@@ -42,7 +38,7 @@ public class CeSubmitWsAction implements CeWsAction {
 
   private final ReportSubmitter reportSubmitter;
 
-  public CeSubmitWsAction(ReportSubmitter reportSubmitter) {
+  public SubmitWsAction(ReportSubmitter reportSubmitter) {
     this.reportSubmitter = reportSubmitter;
   }
 
@@ -53,7 +49,7 @@ public class CeSubmitWsAction implements CeWsAction {
       .setPost(true)
       .setInternal(true)
       .setHandler(this)
-      .setResponseExample(getClass().getResource("CeSubmitWsAction/example.json"));
+      .setResponseExample(getClass().getResource("submit-example.json"));
 
     action
       .createParam(PARAM_PROJECT_KEY)

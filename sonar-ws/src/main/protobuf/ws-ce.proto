@@ -48,6 +48,12 @@ message ActivityResponse {
   repeated Task tasks = 2;
 }
 
+// GET api/ce/project
+message ProjectResponse {
+  repeated Task queue = 1;
+  optional Task current = 2;
+}
+
 message Task {
   optional string id = 1;
   optional string type = 2;

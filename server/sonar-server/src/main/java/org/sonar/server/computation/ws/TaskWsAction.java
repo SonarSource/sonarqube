@@ -19,66 +19,74 @@
  */
 package org.sonar.server.computation.ws;
 
-import java.util.List;
+import com.google.common.base.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
-public class CeQueueWsAction implements CeWsAction {
+public class TaskWsAction implements CeWsAction {
 
-  public static final String PARAM_COMPONENT_UUID = "componentId";
+  public static final String ACTION = "task";
+  public static final String PARAM_TASK_UUID = "id";
 
-  private final UserSession userSession;
   private final DbClient dbClient;
-  private final TaskFormatter formatter;
+  private final TaskFormatter wsTaskFormatter;
+  private final UserSession userSession;
 
-  public CeQueueWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
-    this.userSession = userSession;
+  public TaskWsAction(DbClient dbClient, TaskFormatter wsTaskFormatter, UserSession userSession) {
     this.dbClient = dbClient;
-    this.formatter = formatter;
+    this.wsTaskFormatter = wsTaskFormatter;
+    this.userSession = userSession;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("queue")
-      .setDescription("Gets the tasks of the Compute Engine queue")
+    WebService.NewAction action = controller.createAction(ACTION)
+      .setDescription("Task information")
       .setInternal(true)
-      .setResponseExample(getClass().getResource("queue-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_UUID);
+    action
+      .createParam(PARAM_TASK_UUID)
+      .setRequired(true)
+      .setDescription("Id of task")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
+    userSession.checkGlobalPermission(UserRole.ADMIN);
 
+    String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<CeQueueDto> dtos;
-      if (componentUuid == null) {
-        // no filters
-        userSession.checkGlobalPermission(UserRole.ADMIN);
-        dtos = dbClient.ceQueueDao().selectAllInAscOrder(dbSession);
+      WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
+      Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
+      if (queueDto.isPresent()) {
+        wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
       } else {
-        // filter by component
-        userSession.checkProjectUuidPermission(UserRole.USER, componentUuid);
-        dtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
+        Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid);
+        if (activityDto.isPresent()) {
+          wsTaskResponse.setTask(wsTaskFormatter.formatActivity(dbSession, activityDto.get()));
+        } else {
+          throw new NotFoundException();
+        }
       }
-
-      WsCe.QueueResponse.Builder wsResponseBuilder = WsCe.QueueResponse.newBuilder();
-      wsResponseBuilder.addAllTasks(formatter.formatQueue(dbSession, dtos));
-      WsUtils.writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
+      WsUtils.writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
 
     } finally {
       dbClient.closeSession(dbSession);
     }
+
   }
 }

@@ -35,11 +35,11 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonarqube.ws.WsCe;
 
-public class CeWsTaskFormatter {
+public class TaskFormatter {
 
   private final DbClient dbClient;
 
-  public CeWsTaskFormatter(DbClient dbClient) {
+  public TaskFormatter(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
@@ -100,7 +100,7 @@ public class CeWsTaskFormatter {
     if (dto.getSubmitterLogin() != null) {
       builder.setSubmitterLogin(dto.getSubmitterLogin());
     }
-    builder.setSubmittedAt(DateUtils.formatDateTime(new Date(dto.getCreatedAt())));
+    builder.setSubmittedAt(DateUtils.formatDateTime(new Date(dto.getSubmittedAt())));
     if (dto.getStartedAt() != null) {
       builder.setStartedAt(DateUtils.formatDateTime(new Date(dto.getStartedAt())));
     }
@@ -113,7 +113,7 @@ public class CeWsTaskFormatter {
     return builder.build();
   }
 
-  private void buildComponent(WsCe.Task.Builder builder, @Nullable ComponentDto componentDto) {
+  private static void buildComponent(WsCe.Task.Builder builder, @Nullable ComponentDto componentDto) {
     if (componentDto != null) {
       builder.setComponentKey(componentDto.getKey());
       builder.setComponentName(componentDto.name());

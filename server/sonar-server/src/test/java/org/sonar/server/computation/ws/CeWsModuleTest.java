@@ -20,23 +20,16 @@
 package org.sonar.server.computation.ws;
 
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.server.computation.ReportSubmitter;
+import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class CeWsTest {
+public class CeWsModuleTest {
 
   @Test
-  public void define() throws Exception {
-    CeWsAction wsAction = new SubmitWsAction(mock(ReportSubmitter.class));
-
-    CeWs ws = new CeWs(wsAction);
-    WebService.Context context = mock(WebService.Context.class, Mockito.RETURNS_DEEP_STUBS);
-    ws.define(context);
-
-    assertThat(context.controller("api/ce")).isNotNull();
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new CeWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(9 + 2 /* injected by ComponentContainer */);
   }
 }

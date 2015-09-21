@@ -64,8 +64,8 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ResourcesWs;
-import org.sonar.server.computation.CeQueueImpl;
 import org.sonar.server.computation.CeQueueCleaner;
+import org.sonar.server.computation.CeQueueImpl;
 import org.sonar.server.computation.CeQueueInitializer;
 import org.sonar.server.computation.CleanReportQueueListener;
 import org.sonar.server.computation.ComputeEngineProcessingModule;
@@ -73,14 +73,7 @@ import org.sonar.server.computation.ReportFiles;
 import org.sonar.server.computation.ReportSubmitter;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
-import org.sonar.server.computation.ws.CeActivityWsAction;
-import org.sonar.server.computation.ws.CeCancelWsAction;
-import org.sonar.server.computation.ws.CeQueueWsAction;
-import org.sonar.server.computation.ws.CeSubmitWsAction;
-import org.sonar.server.computation.ws.CeTaskWsAction;
-import org.sonar.server.computation.ws.CeWs;
-import org.sonar.server.computation.ws.CeWsTaskFormatter;
-import org.sonar.server.computation.ws.IsQueueEmptyWs;
+import org.sonar.server.computation.ws.CeWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
 import org.sonar.server.dashboard.template.ProjectDefaultDashboard;
@@ -724,14 +717,7 @@ public class PlatformLevel4 extends PlatformLevel {
       CleanReportQueueListener.class,
       ReportFiles.class,
       ComputeEngineProcessingModule.class,
-      CeWs.class,
-      CeWsTaskFormatter.class,
-      CeTaskWsAction.class,
-      CeSubmitWsAction.class,
-      CeActivityWsAction.class,
-      CeCancelWsAction.class,
-      CeQueueWsAction.class,
-      IsQueueEmptyWs.class,
+      CeWsModule.class,
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,
       ProjectSettingsFactory.class,
