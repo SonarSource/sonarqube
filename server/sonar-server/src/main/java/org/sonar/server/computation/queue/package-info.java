@@ -17,12 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
 
-import org.sonar.server.util.StoppableScheduledExecutorService;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.queue;
 
-/**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorkerRunnable}.
- */
-public interface CeProcessingSchedulerExecutorService extends StoppableScheduledExecutorService {
-}
+import javax.annotation.ParametersAreNonnullByDefault;

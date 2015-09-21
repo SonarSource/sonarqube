@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.queue;
 
 import java.util.Objects;
 import javax.annotation.CheckForNull;
@@ -65,7 +65,7 @@ public final class CeTaskSubmit {
     private String componentUuid;
     private String submitterLogin;
 
-    Builder(String uuid) {
+    public Builder(String uuid) {
       this.uuid = uuid;
     }
 

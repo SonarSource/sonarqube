@@ -36,7 +36,7 @@ import org.apache.log4j.MDC;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.queue.CeTask;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;

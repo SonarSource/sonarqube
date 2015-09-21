@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.queue.report;
 
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
@@ -29,6 +29,10 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.computation.ReportFiles;
+import org.sonar.server.computation.queue.CeQueue;
+import org.sonar.server.computation.queue.CeQueueImpl;
+import org.sonar.server.computation.queue.CeTaskSubmit;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.tester.UserSessionRule;
 

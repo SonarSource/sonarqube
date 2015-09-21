@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.ComputationStepExecutor;
 import org.sonar.server.computation.ComputationTempFolderProvider;
 import org.sonar.server.computation.analysis.ReportAnalysisMetadataHolder;

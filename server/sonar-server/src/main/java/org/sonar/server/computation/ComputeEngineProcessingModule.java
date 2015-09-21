@@ -21,6 +21,9 @@ package org.sonar.server.computation;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.computation.container.ContainerFactoryImpl;
+import org.sonar.server.computation.queue.CeProcessingSchedulerExecutorServiceImpl;
+import org.sonar.server.computation.queue.CeProcessingSchedulerImpl;
+import org.sonar.server.computation.queue.report.ReportTaskProcessor;
 
 public class ComputeEngineProcessingModule extends Module {
   @Override

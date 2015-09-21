@@ -17,30 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.queue;
 
 import java.io.File;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.computation.ReportFiles;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
+import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
+import org.sonar.server.computation.queue.CeProcessingScheduler;
+import org.sonar.server.computation.queue.CeQueueCleaner;
+import org.sonar.server.computation.queue.CeQueueInitializer;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CeQueueCleanerTest {
+public class CeQueueInitializerTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -48,49 +51,39 @@ public class CeQueueCleanerTest {
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
-  ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   ReportFiles reportFiles = mock(ReportFiles.class, Mockito.RETURNS_DEEP_STUBS);
-  CeQueueImpl queue = mock(CeQueueImpl.class);
-  CeQueueCleaner underTest = new CeQueueCleaner(dbTester.getDbClient(), serverUpgradeStatus, reportFiles, queue);
+  CEQueueStatus queueStatus = new CEQueueStatusImpl();
+  CeQueueCleaner cleaner = mock(CeQueueCleaner.class);
+  CeProcessingScheduler scheduler = mock(CeProcessingScheduler.class);
+  CeQueueInitializer underTest = new CeQueueInitializer(dbTester.getDbClient(), queueStatus, cleaner, scheduler);
 
   @Test
-  public void reset_in_progress_tasks_to_pending() throws IOException {
+  public void init_jmx_counters() throws IOException {
     insertInQueue("TASK_1", CeQueueDto.Status.PENDING);
-    insertInQueue("TASK_2", CeQueueDto.Status.IN_PROGRESS);
+    insertInQueue("TASK_2", CeQueueDto.Status.PENDING);
+    // this in-progress task is going to be moved to PENDING
+    insertInQueue("TASK_3", CeQueueDto.Status.IN_PROGRESS);
 
-    underTest.clean(dbTester.getSession());
+    underTest.start();
 
-    assertThat(dbTester.getDbClient().ceQueueDao().countByStatus(dbTester.getSession(), CeQueueDto.Status.PENDING)).isEqualTo(2);
-    assertThat(dbTester.getDbClient().ceQueueDao().countByStatus(dbTester.getSession(), CeQueueDto.Status.IN_PROGRESS)).isEqualTo(0);
+    assertThat(queueStatus.getPendingCount()).isEqualTo(3);
   }
 
   @Test
-  public void clear_queue_if_version_upgrade() {
-    when(serverUpgradeStatus.isUpgraded()).thenReturn(true);
+  public void init_jmx_counters_when_queue_is_empty() {
+    underTest.start();
 
-    underTest.clean(dbTester.getSession());
-
-    verify(queue).clear();
+    assertThat(queueStatus.getPendingCount()).isEqualTo(0);
   }
 
   @Test
-  public void cancel_task_if_report_file_is_missing() throws IOException {
-    CeQueueDto task = insertInQueue("TASK_1", CeQueueDto.Status.PENDING, false);
+  public void clean_queue_then_start_scheduler_of_workers() throws IOException {
+    InOrder inOrder = Mockito.inOrder(cleaner, scheduler);
 
-    underTest.clean(dbTester.getSession());
+    underTest.start();
 
-    verify(queue).cancel(any(DbSession.class), eq(task));
-  }
-
-  @Test
-  public void delete_orphan_report_files() throws Exception {
-    // two files on disk but on task in queue
-    insertInQueue("TASK_1", CeQueueDto.Status.PENDING, true);
-    when(reportFiles.listUuids()).thenReturn(asList("TASK_1", "TASK_2"));
-
-    underTest.clean(dbTester.getSession());
-
-    verify(reportFiles).deleteIfExists("TASK_2");
+    inOrder.verify(cleaner).clean(any(DbSession.class));
+    inOrder.verify(scheduler).startScheduling();
   }
 
   private void insertInQueue(String taskUuid, CeQueueDto.Status status) throws IOException {

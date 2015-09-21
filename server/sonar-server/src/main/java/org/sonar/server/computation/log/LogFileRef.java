@@ -25,7 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.queue.CeTask;
 
 import static java.lang.String.format;
 

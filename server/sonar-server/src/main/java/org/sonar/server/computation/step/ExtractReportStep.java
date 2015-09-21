@@ -26,12 +26,12 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.ReportFiles;
 import org.sonar.server.computation.batch.MutableBatchReportDirectoryHolder;
 
 /**
- * Extracts the content zip file of the {@link org.sonar.server.computation.CeTask} to a temp directory and adds a {@link File}
+ * Extracts the content zip file of the {@link CeTask} to a temp directory and adds a {@link File}
  * representing that temp directory to the {@link MutableBatchReportDirectoryHolder}.
  */
 public class ExtractReportStep implements ComputationStep {

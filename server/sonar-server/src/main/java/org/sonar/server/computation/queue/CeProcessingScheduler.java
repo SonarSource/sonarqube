@@ -17,22 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.container;
+package org.sonar.server.computation.queue;
 
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.queue.CeTask;
+public interface CeProcessingScheduler {
 
-/**
- * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link CeTask}.
- */
-public interface ComputeEngineContainer extends ContainerPopulator.Container {
-
-  ComponentContainer getParent();
-
-  /**
-   * Cleans up resources after process has been called and has returned.
-   */
-  void cleanup();
+  void startScheduling();
 
 }

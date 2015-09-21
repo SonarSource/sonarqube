@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
-import org.sonar.server.computation.CeQueue;
+import org.sonar.server.computation.queue.CeQueue;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;

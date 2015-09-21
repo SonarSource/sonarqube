@@ -25,7 +25,7 @@ import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.sift.AppenderFactory;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
-import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.queue.CeTask;
 
 import static java.lang.String.format;
 
@@ -47,7 +47,7 @@ public class CeFileAppenderFactory<E> implements AppenderFactory<E> {
   /**
    * @param context
    * @param discriminatingValue path of log file relative to the directory data/ce/logs
-   * @see CeLogging#initForTask(CeTask)
+   * @see CeLogging#initForTask(CeTask) 
    */
   @Override
   public FileAppender<E> buildAppender(Context context, String discriminatingValue) {

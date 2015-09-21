@@ -20,7 +20,7 @@
 package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.queue.CeTask;
 
 /**
  * Compute

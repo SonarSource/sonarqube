@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.computation.CeQueue;
+import org.sonar.server.computation.queue.CeQueue;
 import org.sonar.server.user.UserSession;
 
 public class CancelWsAction implements CeWsAction {

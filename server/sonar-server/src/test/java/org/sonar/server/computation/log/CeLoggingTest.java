@@ -35,7 +35,7 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.MDC;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.queue.CeTask;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;

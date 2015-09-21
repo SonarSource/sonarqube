@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.container;
+package org.sonar.server.computation.queue;
 
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.queue.CeTask;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
-/**
- * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link CeTask}.
- */
-public interface ComputeEngineContainer extends ContainerPopulator.Container {
+public class CeProcessingSchedulerExecutorServiceImpl extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
+  implements CeProcessingSchedulerExecutorService {
+  private static final String THREAD_NAME_PREFIX = "ce-processor-";
 
-  ComponentContainer getParent();
-
-  /**
-   * Cleans up resources after process has been called and has returned.
-   */
-  void cleanup();
+  public CeProcessingSchedulerExecutorServiceImpl() {
+    super(
+      Executors.newSingleThreadScheduledExecutor(
+        new ThreadFactoryBuilder()
+          .setNameFormat(THREAD_NAME_PREFIX + "%d")
+          .setPriority(Thread.MIN_PRIORITY)
+          .build()));
+  }
 
 }

@@ -27,7 +27,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.CeTask;
+import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.container.ComputeEngineContainerImpl;
 import org.sonar.server.computation.container.ReportComputeEngineContainerPopulator;
 import org.sonar.server.computation.container.StepsExplorer;
