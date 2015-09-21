@@ -35,7 +35,7 @@ public class ProjectAction implements ScannerWsAction {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_PROFILE = "profile";
-  private static final String PARAM_PREVIEW = "preview";
+  private static final String PARAM_ISSUES_MODE = "issues_mode";
 
   private final ProjectDataLoader projectDataLoader;
 
@@ -63,8 +63,8 @@ public class ProjectAction implements ScannerWsAction {
       .setExampleValue("SonarQube Way");
 
     action
-      .createParam(PARAM_PREVIEW)
-      .setDescription("Preview mode or not")
+      .createParam(PARAM_ISSUES_MODE)
+      .setDescription("Issues mode or not")
       .setDefaultValue(false)
       .setBooleanPossibleValues();
   }
@@ -74,7 +74,7 @@ public class ProjectAction implements ScannerWsAction {
     ProjectRepositories data = projectDataLoader.load(ProjectDataQuery.create()
       .setModuleKey(wsRequest.mandatoryParam(PARAM_KEY))
       .setProfileName(wsRequest.param(PARAM_PROFILE))
-      .setIssuesMode(wsRequest.mandatoryParamAsBoolean(PARAM_PREVIEW)));
+      .setIssuesMode(wsRequest.mandatoryParamAsBoolean(PARAM_ISSUES_MODE)));
 
     WsProjectResponse projectResponse = buildResponse(data);
     writeProtobuf(projectResponse, wsRequest, wsResponse);
