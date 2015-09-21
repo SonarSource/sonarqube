@@ -21,9 +21,13 @@
 package org.sonar.server.util;
 
 public class ObjectUtils {
+  private ObjectUtils() {
+    // static utility methods only
+  }
 
   /**
    * Taken from http://commons.apache.org/proper/commons-lang/javadocs/api-3.1/src-html/org/apache/commons/lang3/ObjectUtils.html#line.119
+   * 
    * <p>Returns the first value in the array which is not {@code null}.
     * If all the values are {@code null} or the array is {@code null}
     * or empty then {@code null} is returned.</p>

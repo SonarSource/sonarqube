@@ -28,8 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
@@ -50,8 +48,6 @@ import static org.sonar.server.ws.WsUtils.checkFound;
 
 @ServerSide
 public class ProjectDataLoader {
-
-  private static final Logger LOG = Loggers.get(ProjectDataLoader.class);
 
   private final DbClient dbClient;
   private final UserSession userSession;

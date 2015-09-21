@@ -20,6 +20,7 @@
 
 package org.sonar.server.scanner;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.server.ws.Request;
@@ -93,8 +94,9 @@ public class ProjectAction implements ScannerWsAction {
   }
 
   private static void setLastAnalysisDate(WsProjectResponse.Builder response, ProjectRepositories data) {
-    if (data.lastAnalysisDate() != null) {
-      response.setLastAnalysisDate(data.lastAnalysisDate().getTime());
+    Date lastAnalysisDate = data.lastAnalysisDate();
+    if (lastAnalysisDate != null) {
+      response.setLastAnalysisDate(lastAnalysisDate.getTime());
     }
   }
 
