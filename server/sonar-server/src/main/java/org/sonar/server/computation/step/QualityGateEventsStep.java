@@ -137,6 +137,6 @@ public class QualityGateEventsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Generate Quality Gate Events";
+    return "Generate Quality gate events";
   }
 }

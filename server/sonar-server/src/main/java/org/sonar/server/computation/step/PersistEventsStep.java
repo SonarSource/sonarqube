@@ -133,7 +133,7 @@ public class PersistEventsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Persist component links";
+    return "Persist events";
   }
 
   private class PersistEventComponentVisitor extends TypeAwareVisitorAdapter {

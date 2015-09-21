@@ -58,7 +58,7 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_
  * <p/>
  * Note that measures on developer are not handle yet.
  */
-public class FillMeasuresWithVariationsStep implements ComputationStep {
+public class ComputeMeasureVariationsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
@@ -75,8 +75,8 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
     }
   };
 
-  public FillMeasuresWithVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository,
-    MeasureRepository measureRepository) {
+  public ComputeMeasureVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository,
+                                      MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
@@ -252,6 +252,6 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Compute differential measures";
+    return "Compute measure variations";
   }
 }

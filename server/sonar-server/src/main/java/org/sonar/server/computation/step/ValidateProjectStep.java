@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentKeys;
@@ -63,13 +62,11 @@ public class ValidateProjectStep implements ComputationStep {
   private static final Joiner MESSAGES_JOINER = Joiner.on("\n  o ");
 
   private final DbClient dbClient;
-  private final Settings settings;
   private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
 
-  public ValidateProjectStep(DbClient dbClient, Settings settings, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
+  public ValidateProjectStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
-    this.settings = settings;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
   }
@@ -88,13 +85,13 @@ public class ValidateProjectStep implements ComputationStep {
         throw MessageException.of("Validation of project failed:\n  o " + MESSAGES_JOINER.join(visitor.validationMessages));
       }
     } finally {
-      session.close();
+      dbClient.closeSession(session);
     }
   }
 
   @Override
   public String getDescription() {
-    return "Validate project and modules keys";
+    return "Validate project";
   }
 
   private class ValidateProjectsVisitor extends TypeAwareVisitorAdapter {
@@ -130,7 +127,7 @@ public class ValidateProjectStep implements ComputationStep {
         // Project key is already used as a module of another project
         ComponentDto anotherBaseProject = componentDao.selectOrFailByUuid(session, baseProject.get().projectUuid());
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but as a module of project \"%s\". "
-            + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
+          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           rawProjectKey, anotherBaseProject.key(), anotherBaseProject.key(), rawProjectKey));
       }
     }
@@ -142,7 +139,7 @@ public class ValidateProjectStep implements ComputationStep {
         Long lastAnalysisDate = snapshotDto != null ? snapshotDto.getCreatedAt() : null;
         if (lastAnalysisDate != null && currentAnalysisDate <= snapshotDto.getCreatedAt()) {
           validationMessages.add(String.format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
-              "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
+            "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
             formatDateTime(new Date(currentAnalysisDate)), formatDateTime(new Date(lastAnalysisDate))));
         }
       }
@@ -166,7 +163,7 @@ public class ValidateProjectStep implements ComputationStep {
       if (baseModule.projectUuid().equals(baseModule.uuid())) {
         // module is actually a project
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but not as a module of project \"%s\". "
-            + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
+          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           rawModuleKey, rawProjectKey, rawModuleKey, rawProjectKey));
       }
     }

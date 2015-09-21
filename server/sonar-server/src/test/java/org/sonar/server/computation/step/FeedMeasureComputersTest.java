@@ -59,7 +59,7 @@ public class FeedMeasureComputersTest {
   @Test
   public void support_core_metrics_as_input_metrics() throws Exception {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1))};
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
 
     assertThat(holder.getMeasureComputers()).hasSize(1);
@@ -68,7 +68,7 @@ public class FeedMeasureComputersTest {
   @Test
   public void support_plugin_metrics_as_input_metrics() throws Exception {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_1), array(NEW_METRIC_2))};
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
 
     assertThat(holder.getMeasureComputers()).hasSize(1);
@@ -84,7 +84,7 @@ public class FeedMeasureComputersTest {
     MeasureComputer measureComputer3 = newMeasureComputer(array(NEW_METRIC_2), array(NEW_METRIC_3));
     MeasureComputer[] computers = new MeasureComputer[] {measureComputer1, measureComputer2, measureComputer3};
 
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
 
     List<MeasureComputerWrapper> result = newArrayList(holder.getMeasureComputers());
@@ -104,7 +104,7 @@ public class FeedMeasureComputersTest {
     MeasureComputer measureComputer3 = newMeasureComputer(array(NEW_METRIC_2), array(NEW_METRIC_3));
     MeasureComputer[] computers = new MeasureComputer[] {measureComputer1, measureComputer2, measureComputer3};
 
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
 
     List<MeasureComputerWrapper> result = newArrayList(holder.getMeasureComputers());
@@ -120,7 +120,7 @@ public class FeedMeasureComputersTest {
     thrown.expectMessage("Metric 'unknown' cannot be used as an input metric as it's not a core metric and no plugin declare this metric");
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array("unknown"), array(NEW_METRIC_4))};
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
   }
 
@@ -130,7 +130,7 @@ public class FeedMeasureComputersTest {
     thrown.expectMessage("Metric 'unknown' cannot be used as an output metric as no plugin declare this metric");
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array("unknown"))};
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
   }
 
@@ -140,14 +140,14 @@ public class FeedMeasureComputersTest {
     thrown.expectMessage("Metric 'ncloc' cannot be used as an output metric as it's a core metric");
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_4), array(NCLOC_KEY))};
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
   }
 
   @Test
   public void not_fail_if_input_metrics_are_same_as_output_metrics() throws Exception {
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NEW_METRIC_1), array(NEW_METRIC_1))};
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
 
     assertThat(holder.getMeasureComputers()).hasSize(1);
@@ -155,7 +155,7 @@ public class FeedMeasureComputersTest {
 
   @Test
   public void return_empty_list_when_no_measure_computers() throws Exception {
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()));
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()));
     underTest.execute();
 
     assertThat(holder.getMeasureComputers()).isEmpty();
@@ -163,7 +163,7 @@ public class FeedMeasureComputersTest {
 
   @Test
   public void return_empty_list_when_no_metrics_neither_measure_computers() throws Exception {
-    ComputationStep underTest = new FeedMeasureComputers(holder);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder);
     underTest.execute();
 
     assertThat(holder.getMeasureComputers()).isEmpty();
@@ -175,7 +175,7 @@ public class FeedMeasureComputersTest {
     thrown.expectMessage("Metric 'metric1' cannot be used as an output metric as no plugin declare this metric");
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1))};
-    ComputationStep underTest = new FeedMeasureComputers(holder, computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, computers);
     underTest.execute();
   }
 
@@ -185,7 +185,7 @@ public class FeedMeasureComputersTest {
     thrown.expectMessage("Output metric 'metric1' is already defined by another measure computer 'TestMeasureComputer'");
 
     MeasureComputer[] computers = new MeasureComputer[] {newMeasureComputer(array(NCLOC_KEY), array(NEW_METRIC_1)), newMeasureComputer(array(CLASSES_KEY), array(NEW_METRIC_1))};
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
   }
 
@@ -219,7 +219,7 @@ public class FeedMeasureComputersTest {
     };
 
     MeasureComputer[] computers = new MeasureComputer[] {measureComputer};
-    ComputationStep underTest = new FeedMeasureComputers(holder, array(new TestMetrics()), computers);
+    ComputationStep underTest = new LoadMeasureComputersStep(holder, array(new TestMetrics()), computers);
     underTest.execute();
   }
 

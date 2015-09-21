@@ -55,7 +55,7 @@ public class QualityGateLoadingStepTest {
   private SettingsRepository settingsRepository = mock(SettingsRepository.class);
   private QualityGateService qualityGateService = mock(QualityGateService.class);
 
-  private QualityGateLoadingStep underTest = new QualityGateLoadingStep(treeRootHolder, settingsRepository, qualityGateService, mutableQualityGateHolder);
+  private LoadQualityGateStep underTest = new LoadQualityGateStep(treeRootHolder, settingsRepository, qualityGateService, mutableQualityGateHolder);
 
   @Test
   public void execute_sets_default_QualityGate_when_project_has_no_settings() {

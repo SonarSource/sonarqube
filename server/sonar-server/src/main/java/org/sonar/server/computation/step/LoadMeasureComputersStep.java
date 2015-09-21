@@ -46,7 +46,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinitionContext;
 
-public class FeedMeasureComputers implements ComputationStep {
+public class LoadMeasureComputersStep implements ComputationStep {
 
   private static final Set<String> CORE_METRIC_KEYS = from(CoreMetrics.getMetrics()).transform(MetricToKey.INSTANCE).toSet();
   private Set<String> pluginMetricKeys;
@@ -54,7 +54,7 @@ public class FeedMeasureComputers implements ComputationStep {
   private final MutableMeasureComputersHolder measureComputersHolder;
   private final MeasureComputer[] measureComputers;
 
-  public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories, MeasureComputer[] measureComputers) {
+  public LoadMeasureComputersStep(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories, MeasureComputer[] measureComputers) {
     this.measureComputersHolder = measureComputersHolder;
     this.measureComputers = measureComputers;
     this.pluginMetricKeys = from(Arrays.asList(metricsRepositories))
@@ -66,21 +66,21 @@ public class FeedMeasureComputers implements ComputationStep {
   /**
    * Constructor override used by Pico to instantiate the class when no plugin is defining metrics
    */
-  public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, MeasureComputer[] measureComputers) {
+  public LoadMeasureComputersStep(MutableMeasureComputersHolder measureComputersHolder, MeasureComputer[] measureComputers) {
     this(measureComputersHolder, new Metrics[] {}, measureComputers);
   }
 
   /**
    * Constructor override used by Pico to instantiate the class when no plugin is defining measure computers
    */
-  public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories) {
+  public LoadMeasureComputersStep(MutableMeasureComputersHolder measureComputersHolder, Metrics[] metricsRepositories) {
     this(measureComputersHolder, metricsRepositories, new MeasureComputer[] {});
   }
 
   /**
    * Constructor override used by Pico to instantiate the class when no plugin is defining metrics neither measure computers
    */
-  public FeedMeasureComputers(MutableMeasureComputersHolder measureComputersHolder) {
+  public LoadMeasureComputersStep(MutableMeasureComputersHolder measureComputersHolder) {
     this(measureComputersHolder, new Metrics[] {}, new MeasureComputer[] {});
   }
 
@@ -254,6 +254,6 @@ public class FeedMeasureComputers implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Feed measure computers";
+    return "Load measure computers";
   }
 }

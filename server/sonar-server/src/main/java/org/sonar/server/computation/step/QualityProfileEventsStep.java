@@ -166,6 +166,6 @@ public class QualityProfileEventsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Compute Quality Profile events";
+    return "Generate Quality profile events";
   }
 }

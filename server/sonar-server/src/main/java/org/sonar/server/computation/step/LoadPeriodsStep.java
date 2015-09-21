@@ -66,9 +66,9 @@ import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMax
  * - Try to find the matching snapshots from the properties
  * - If a snapshot is found, a new period is added to the repository
  */
-public class FeedPeriodsStep implements ComputationStep {
+public class LoadPeriodsStep implements ComputationStep {
 
-  private static final Logger LOG = Loggers.get(FeedPeriodsStep.class);
+  private static final Logger LOG = Loggers.get(LoadPeriodsStep.class);
 
   private static final int NUMBER_OF_PERIODS = 5;
 
@@ -78,8 +78,8 @@ public class FeedPeriodsStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PeriodsHolderImpl periodsHolder;
 
-  public FeedPeriodsStep(DbClient dbClient, SettingsRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    PeriodsHolderImpl periodsHolder) {
+  public LoadPeriodsStep(DbClient dbClient, SettingsRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
+                         PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settingsRepository = settingsRepository;
     this.treeRootHolder = treeRootHolder;
@@ -303,6 +303,6 @@ public class FeedPeriodsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Feed differential periods";
+    return "Load differential periods";
   }
 }

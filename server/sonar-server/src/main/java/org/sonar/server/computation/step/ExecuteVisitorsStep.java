@@ -41,6 +41,6 @@ public class ExecuteVisitorsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Execute Visitors";
+    return "Execute visitors";
   }
 }

@@ -40,8 +40,8 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_
  * This step retrieves the QualityGate and stores it in
  * {@link MutableQualityGateHolder}.
  */
-public class QualityGateLoadingStep implements ComputationStep {
-  private static final Logger LOGGER = Loggers.get(QualityGateLoadingStep.class);
+public class LoadQualityGateStep implements ComputationStep {
+  private static final Logger LOGGER = Loggers.get(LoadQualityGateStep.class);
 
   private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
 
@@ -50,8 +50,8 @@ public class QualityGateLoadingStep implements ComputationStep {
   private final QualityGateService qualityGateService;
   private final MutableQualityGateHolder qualityGateHolder;
 
-  public QualityGateLoadingStep(TreeRootHolder treeRootHolder, SettingsRepository settingsRepository,
-    QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder) {
+  public LoadQualityGateStep(TreeRootHolder treeRootHolder, SettingsRepository settingsRepository,
+                             QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder) {
     this.treeRootHolder = treeRootHolder;
     this.settingsRepository = settingsRepository;
     this.qualityGateService = qualityGateService;
@@ -97,6 +97,6 @@ public class QualityGateLoadingStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Retrieve Quality Gate";
+    return "Load Quality gate";
   }
 }

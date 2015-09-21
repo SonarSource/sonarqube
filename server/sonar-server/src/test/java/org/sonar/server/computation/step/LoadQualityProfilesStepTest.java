@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.db.rule.RuleTesting.XOO_X2;
 
-public class FeedActiveRulesStepTest {
+public class LoadQualityProfilesStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -51,7 +51,7 @@ public class FeedActiveRulesStepTest {
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
   ActiveRulesHolderImpl activeRulesHolder = new ActiveRulesHolderImpl();
-  FeedActiveRulesStep underTest = new FeedActiveRulesStep(batchReportReader, activeRulesHolder, ruleRepository);
+  LoadQualityProfilesStep underTest = new LoadQualityProfilesStep(batchReportReader, activeRulesHolder, ruleRepository);
 
   @Test
   public void feed_active_rules() throws Exception {

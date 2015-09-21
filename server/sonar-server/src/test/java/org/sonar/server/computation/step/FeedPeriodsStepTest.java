@@ -73,7 +73,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   Settings settings = new Settings();
   SettingsRepository settingsRepository = mock(SettingsRepository.class);
 
-  FeedPeriodsStep underTest;
+  LoadPeriodsStep underTest;
 
   @Override
   protected ComputationStep step() {
@@ -84,7 +84,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   public void setUp() throws Exception {
     analysisMetadataHolder.setAnalysisDate(DATE_FORMAT.parse("2008-11-30"));
 
-    underTest = new FeedPeriodsStep(dbClient, settingsRepository, treeRootHolder, analysisMetadataHolder, periodsHolder);
+    underTest = new LoadPeriodsStep(dbClient, settingsRepository, treeRootHolder, analysisMetadataHolder, periodsHolder);
   }
 
   private void setupRoot(Component root) {

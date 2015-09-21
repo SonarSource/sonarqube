@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 
 /**
@@ -38,19 +39,19 @@ public class ReportComputationSteps implements ComputationSteps {
   public List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
       // extract report to a temp directory
-      ReportExtractionStep.class,
+      ExtractReportStep.class,
 
       // Builds Component tree
       BuildComponentTreeStep.class,
       FillComponentsStep.class,
       ValidateProjectStep.class,
 
-      FeedDebtModelStep.class,
-      FeedActiveRulesStep.class,
+      LoadDebtModelStep.class,
+      LoadQualityProfilesStep.class,
 
       // load project related stuffs
-      QualityGateLoadingStep.class,
-      FeedPeriodsStep.class,
+      LoadQualityGateStep.class,
+      LoadPeriodsStep.class,
 
       // data computation
       SizeMeasuresStep.class,
@@ -63,11 +64,11 @@ public class ReportComputationSteps implements ComputationSteps {
       UnitTestMeasuresStep.class,
       ComplexityMeasuresStep.class,
 
-      FeedMeasureComputers.class,
+      LoadMeasureComputersStep.class,
       ExecuteVisitorsStep.class,
 
       // Must be executed after computation of all measures
-      FillMeasuresWithVariationsStep.class,
+      ComputeMeasureVariationsStep.class,
 
       // Must be executed after computation of differential measures
       QualityGateMeasuresStep.class,
@@ -113,7 +114,7 @@ public class ReportComputationSteps implements ComputationSteps {
   public Iterable<ComputationStep> instances() {
     return Iterables.transform(orderedStepClasses(), new Function<Class<? extends ComputationStep>, ComputationStep>() {
       @Override
-      public ComputationStep apply(Class<? extends ComputationStep> input) {
+      public ComputationStep apply(@Nonnull Class<? extends ComputationStep> input) {
         ComputationStep computationStepType = computeEngineContainer.getComponentByType(input);
         if (computationStepType == null) {
           throw new IllegalStateException(String.format("Component not found: %s", input));

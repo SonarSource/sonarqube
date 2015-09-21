@@ -37,7 +37,7 @@ public class ReportComputationStepsTest {
   @Test
   public void instances_throws_ISE_if_container_does_not_have_any_step() throws Exception {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Component not found: class org.sonar.server.computation.step.ReportExtractionStep");
+    expectedException.expectMessage("Component not found: " + ExtractReportStep.class);
 
     ComputeEngineContainerImpl computeEngineContainer = new ComputeEngineContainerImpl(new ComponentContainer(), new ContainerPopulator<ComputeEngineContainer>() {
       @Override
@@ -54,7 +54,7 @@ public class ReportComputationStepsTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Component not found: class org.sonar.server.computation.step.BuildComponentTreeStep");
 
-    final ReportExtractionStep reportExtractionStep = mock(ReportExtractionStep.class);
+    final ExtractReportStep reportExtractionStep = mock(ExtractReportStep.class);
     ComponentContainer componentContainer = new ComponentContainer() {
       {
         addSingleton(reportExtractionStep);

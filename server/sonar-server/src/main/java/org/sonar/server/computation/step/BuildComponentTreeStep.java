@@ -72,6 +72,6 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Builds the Component tree";
+    return "Build tree of components";
   }
 }

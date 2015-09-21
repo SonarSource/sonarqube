@@ -89,7 +89,7 @@ public class ApplyPermissionsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Apply project permissions";
+    return "Apply permissions";
   }
 
 }
