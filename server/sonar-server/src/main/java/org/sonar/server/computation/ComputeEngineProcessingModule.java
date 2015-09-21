@@ -26,13 +26,10 @@ public class ComputeEngineProcessingModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      CeWorkerImpl.class,
       ContainerFactoryImpl.class,
       ComputationStepExecutor.class,
       ReportTaskProcessor.class,
-      ReportProcessingScheduler.class,
-      ReportProcessingSchedulerExecutorServiceImpl.class,
-      ComputeEngineProcessingExecutorServiceImpl.class,
-      ComputeEngineProcessingQueueImpl.class);
+      CeProcessingSchedulerExecutorServiceImpl.class,
+      CeProcessingSchedulerImpl.class);
   }
 }

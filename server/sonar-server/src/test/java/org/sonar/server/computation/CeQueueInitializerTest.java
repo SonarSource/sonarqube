@@ -50,7 +50,7 @@ public class CeQueueInitializerTest {
   ReportFiles reportFiles = mock(ReportFiles.class, Mockito.RETURNS_DEEP_STUBS);
   CEQueueStatus queueStatus = new CEQueueStatusImpl();
   CeQueueCleaner cleaner = mock(CeQueueCleaner.class);
-  ReportProcessingScheduler scheduler = mock(ReportProcessingScheduler.class);
+  CeProcessingScheduler scheduler = mock(CeProcessingScheduler.class);
   CeQueueInitializer underTest = new CeQueueInitializer(dbTester.getDbClient(), queueStatus, cleaner, scheduler);
 
   @Test
@@ -79,7 +79,7 @@ public class CeQueueInitializerTest {
     underTest.start();
 
     inOrder.verify(cleaner).clean(any(DbSession.class));
-    inOrder.verify(scheduler).schedule();
+    inOrder.verify(scheduler).startScheduling();
   }
 
   private void insertInQueue(String taskUuid, CeQueueDto.Status status) throws IOException {

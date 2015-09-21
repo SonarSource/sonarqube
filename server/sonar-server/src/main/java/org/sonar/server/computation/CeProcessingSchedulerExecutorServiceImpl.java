@@ -19,9 +19,22 @@
  */
 package org.sonar.server.computation;
 
-public interface ComputeEngineProcessingQueue {
-  /**
-   * Adds a task to the Compute Engine processing queue.
-   */
-  void addTask(CeWorker task);
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
+
+public class CeProcessingSchedulerExecutorServiceImpl extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
+  implements CeProcessingSchedulerExecutorService {
+  private static final String THREAD_NAME_PREFIX = "ce-processor-";
+
+  public CeProcessingSchedulerExecutorServiceImpl() {
+    super(
+      Executors.newSingleThreadScheduledExecutor(
+        new ThreadFactoryBuilder()
+          .setNameFormat(THREAD_NAME_PREFIX + "%d")
+          .setPriority(Thread.MIN_PRIORITY)
+          .build()));
+  }
+
 }

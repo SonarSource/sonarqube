@@ -17,43 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.computation;
 
 import java.util.concurrent.TimeUnit;
+import org.sonar.server.computation.log.CeLogging;
 
-/**
- * Adds tasks to the Compute Engine to process batch reports.
- */
-public class ReportProcessingScheduler {
-  private final ReportProcessingSchedulerExecutorService reportProcessingSchedulerExecutorService;
-  private final ComputeEngineProcessingQueue processingQueue;
-  private final CeWorker worker;
+public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
+  private final CeProcessingSchedulerExecutorService executorService;
+  private final CeQueue ceQueue;
+  private final ReportTaskProcessor reportTaskProcessor;
+  private final CeLogging ceLogging;
 
   private final long delayBetweenTasks;
   private final long delayForFirstStart;
   private final TimeUnit timeUnit;
 
-  public ReportProcessingScheduler(ReportProcessingSchedulerExecutorService reportProcessingSchedulerExecutorService,
-    ComputeEngineProcessingQueue processingQueue,
-    CeWorker worker) {
-    this.reportProcessingSchedulerExecutorService = reportProcessingSchedulerExecutorService;
-    this.processingQueue = processingQueue;
-    this.worker = worker;
+  public CeProcessingSchedulerImpl(CeProcessingSchedulerExecutorService processingExecutorService, CeQueue ceQueue, ReportTaskProcessor reportTaskProcessor, CeLogging ceLogging) {
+    this.executorService = processingExecutorService;
+    this.ceQueue = ceQueue;
+    this.reportTaskProcessor = reportTaskProcessor;
+    this.ceLogging = ceLogging;
 
-    this.delayBetweenTasks = 1;
+    this.delayBetweenTasks = 10;
     this.delayForFirstStart = 0;
     this.timeUnit = TimeUnit.SECONDS;
   }
 
-  public void schedule() {
-    reportProcessingSchedulerExecutorService.scheduleAtFixedRate(new AddReportProcessingToCEProcessingQueue(), delayForFirstStart, delayBetweenTasks, timeUnit);
+  @Override
+  public void startScheduling() {
+    executorService.scheduleAtFixedRate(new CeWorkerRunnable(ceQueue, reportTaskProcessor, ceLogging), delayForFirstStart, delayBetweenTasks, timeUnit);
   }
 
-  private class AddReportProcessingToCEProcessingQueue implements Runnable {
-    @Override
-    public void run() {
-      processingQueue.addTask(worker);
-    }
-  }
 }

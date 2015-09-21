@@ -36,9 +36,9 @@ public class CeQueueInitializer implements Startable {
   private final DbClient dbClient;
   private final CEQueueStatus queueStatus;
   private final CeQueueCleaner cleaner;
-  private final ReportProcessingScheduler scheduler;
+  private final CeProcessingScheduler scheduler;
 
-  public CeQueueInitializer(DbClient dbClient, CEQueueStatus queueStatus, CeQueueCleaner cleaner, ReportProcessingScheduler scheduler) {
+  public CeQueueInitializer(DbClient dbClient, CEQueueStatus queueStatus, CeQueueCleaner cleaner, CeProcessingScheduler scheduler) {
     this.dbClient = dbClient;
     this.queueStatus = queueStatus;
     this.cleaner = cleaner;
@@ -51,7 +51,7 @@ public class CeQueueInitializer implements Startable {
     try {
       initJmxCounters(dbSession);
       cleaner.clean(dbSession);
-      scheduler.schedule();
+      scheduler.startScheduling();
 
     } finally {
       dbClient.closeSession(dbSession);

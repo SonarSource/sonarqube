@@ -19,22 +19,8 @@
  */
 package org.sonar.server.computation;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
+public interface CeProcessingScheduler {
 
-public class ReportProcessingSchedulerExecutorServiceImpl extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
-  implements ReportProcessingSchedulerExecutorService {
-  private static final String THREAD_NAME_PREFIX = "ce-report-scheduler-";
-
-  public ReportProcessingSchedulerExecutorServiceImpl() {
-    super(
-      Executors.newSingleThreadScheduledExecutor(
-        new ThreadFactoryBuilder()
-          .setNameFormat(THREAD_NAME_PREFIX + "%d")
-          .setPriority(Thread.MIN_PRIORITY)
-          .build()));
-  }
+  void startScheduling();
 
 }
