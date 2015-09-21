@@ -26,6 +26,7 @@ import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.search.IndexSynchronizer;
+import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.JdbcDriverDeployer;
 import org.sonar.server.startup.LogServerId;
@@ -65,7 +66,9 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterIssueFilters.class,
       RenameIssueWidgets.class,
       ServerLifecycleNotifier.class,
-      PurgeCeActivities.class);
+      PurgeCeActivities.class,
+      DisplayLogOnDeprecatedProjects.class
+    );
   }
 
   @Override
