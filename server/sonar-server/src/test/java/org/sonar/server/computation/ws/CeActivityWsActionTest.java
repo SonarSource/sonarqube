@@ -142,7 +142,7 @@ public class CeActivityWsActionTest {
 
   @Test
   public void get_project_activity() {
-    userSession.addProjectUuidPermissions(UserRole.ADMIN, "PROJECT_1");
+    userSession.addProjectUuidPermissions(UserRole.USER, "PROJECT_1");
     insert("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insert("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 

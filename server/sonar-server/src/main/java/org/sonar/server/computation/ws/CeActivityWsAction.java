@@ -115,7 +115,7 @@ public class CeActivityWsAction implements CeWsAction {
     if (componentId == null) {
       userSession.checkGlobalPermission(UserRole.ADMIN);
     } else {
-      userSession.checkProjectUuidPermission(UserRole.ADMIN, componentId);
+      userSession.checkProjectUuidPermission(UserRole.USER, componentId);
       query.setComponentUuid(componentId);
     }
     return query;
