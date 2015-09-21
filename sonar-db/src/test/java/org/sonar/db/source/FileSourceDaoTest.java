@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.test.DbTests;
@@ -40,13 +41,15 @@ public class FileSourceDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
+  DbSession session = dbTester.getSession();
+
   FileSourceDao underTest = dbTester.getDbClient().fileSourceDao();
 
   @Test
   public void select() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    FileSourceDto fileSourceDto = underTest.selectSource("FILE1_UUID");
+    FileSourceDto fileSourceDto = underTest.selectSourceByFileUuid(session, "FILE1_UUID");
 
     assertThat(fileSourceDto.getBinaryData()).isNotEmpty();
     assertThat(fileSourceDto.getDataHash()).isEqualTo("hash");

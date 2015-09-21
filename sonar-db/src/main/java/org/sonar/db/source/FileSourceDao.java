@@ -46,16 +46,6 @@ public class FileSourceDao implements Dao {
   }
 
   @CheckForNull
-  public FileSourceDto selectSource(String fileUuid) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return mapper(session).select(fileUuid, Type.SOURCE);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
   public FileSourceDto selectSourceByFileUuid(DbSession session, String fileUuid) {
     return mapper(session).select(fileUuid, Type.SOURCE);
   }
