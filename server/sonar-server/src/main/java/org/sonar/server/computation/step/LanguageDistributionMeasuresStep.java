@@ -147,6 +147,6 @@ public class LanguageDistributionMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Compute language distribution measures";
+    return "Compute language distribution";
   }
 }

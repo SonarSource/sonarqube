@@ -205,6 +205,6 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Persist file sources";
+    return "Persist sources";
   }
 }

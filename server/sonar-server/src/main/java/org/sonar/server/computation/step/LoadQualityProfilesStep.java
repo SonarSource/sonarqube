@@ -37,13 +37,13 @@ import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
 
 import static com.google.common.collect.FluentIterable.from;
 
-public class FeedActiveRulesStep implements ComputationStep {
+public class LoadQualityProfilesStep implements ComputationStep {
 
   private final BatchReportReader batchReportReader;
   private final ActiveRulesHolderImpl activeRulesHolder;
   private final RuleRepository ruleRepository;
 
-  public FeedActiveRulesStep(BatchReportReader batchReportReader, ActiveRulesHolderImpl activeRulesHolder, RuleRepository ruleRepository) {
+  public LoadQualityProfilesStep(BatchReportReader batchReportReader, ActiveRulesHolderImpl activeRulesHolder, RuleRepository ruleRepository) {
     this.batchReportReader = batchReportReader;
     this.activeRulesHolder = activeRulesHolder;
     this.ruleRepository = ruleRepository;
@@ -76,10 +76,10 @@ public class FeedActiveRulesStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return getClass().getSimpleName();
+    return "Load quality profiles";
   }
 
-  private ActiveRule convert(BatchReport.ActiveRule input) {
+  private static ActiveRule convert(BatchReport.ActiveRule input) {
     RuleKey key = RuleKey.of(input.getRuleRepository(), input.getRuleKey());
     Map<String, String> params = new HashMap<>();
     for (BatchReport.ActiveRule.ActiveRuleParam inputParam : input.getParamList()) {

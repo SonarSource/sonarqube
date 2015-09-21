@@ -90,6 +90,6 @@ public class ComplexityMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Aggregation of complexity measures";
+    return "Compute complexity measures";
   }
 }

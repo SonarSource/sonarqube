@@ -123,7 +123,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Computation of New Coverage measures";
+    return "Compute new coverage";
   }
 
   private static class NewLinesAndConditionsCoverageFormula extends NewLinesAndConditionsFormula {

@@ -40,12 +40,12 @@ import static com.google.common.collect.FluentIterable.from;
 /**
  * Populates the {@link org.sonar.server.computation.debt.DebtModelHolder}
  */
-public class FeedDebtModelStep implements ComputationStep {
+public class LoadDebtModelStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final MutableDebtModelHolder mutableDebtModelHolder;
 
-  public FeedDebtModelStep(DbClient dbClient, MutableDebtModelHolder mutableDebtModelHolder) {
+  public LoadDebtModelStep(DbClient dbClient, MutableDebtModelHolder mutableDebtModelHolder) {
     this.dbClient = dbClient;
     this.mutableDebtModelHolder = mutableDebtModelHolder;
   }
@@ -123,6 +123,6 @@ public class FeedDebtModelStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Feed technical debt model";
+    return "Load debt model";
   }
 }

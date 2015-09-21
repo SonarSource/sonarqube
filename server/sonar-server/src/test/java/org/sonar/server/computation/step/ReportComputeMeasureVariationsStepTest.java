@@ -29,9 +29,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -50,7 +50,7 @@ import static org.sonar.server.component.SnapshotTesting.createForComponent;
 import static org.sonar.server.component.SnapshotTesting.createForProject;
 
 @Category(DbTests.class)
-public class ReportFillMeasuresWithVariationsStepTest {
+public class ReportComputeMeasureVariationsStepTest {
 
   static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
   static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
@@ -87,7 +87,7 @@ public class ReportFillMeasuresWithVariationsStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
-  FillMeasuresWithVariationsStep underTest;
+  ComputeMeasureVariationsStep underTest;
 
   @Before
   public void setUp() {
@@ -95,7 +95,7 @@ public class ReportFillMeasuresWithVariationsStepTest {
     dbClient.componentDao().insert(session, PROJECT_DTO);
     session.commit();
 
-    underTest = new FillMeasuresWithVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
+    underTest = new ComputeMeasureVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
   }
 
   @Test

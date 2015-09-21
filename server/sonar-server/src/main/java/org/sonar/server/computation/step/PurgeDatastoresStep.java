@@ -81,6 +81,6 @@ public class PurgeDatastoresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Purge datastores";
+    return "Purge db";
   }
 }

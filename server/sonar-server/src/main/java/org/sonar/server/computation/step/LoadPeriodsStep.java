@@ -66,9 +66,9 @@ import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMax
  * - Try to find the matching snapshots from the properties
  * - If a snapshot is found, a new period is added to the repository
  */
-public class FeedPeriodsStep implements ComputationStep {
+public class LoadPeriodsStep implements ComputationStep {
 
-  private static final Logger LOG = Loggers.get(FeedPeriodsStep.class);
+  private static final Logger LOG = Loggers.get(LoadPeriodsStep.class);
 
   private static final int NUMBER_OF_PERIODS = 5;
 
@@ -78,7 +78,7 @@ public class FeedPeriodsStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PeriodsHolderImpl periodsHolder;
 
-  public FeedPeriodsStep(DbClient dbClient, SettingsRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
+  public LoadPeriodsStep(DbClient dbClient, SettingsRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
     PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settingsRepository = settingsRepository;
@@ -172,7 +172,7 @@ public class FeedPeriodsStep implements ComputationStep {
       if (days != null) {
         return findByDays(index, days);
       }
-      Date date = tryToResolveByDate(property);
+      Date date = DateUtils.parseDateQuietly(property);
       if (date != null) {
         return findByDate(index, date);
       }
@@ -261,16 +261,6 @@ public class FeedPeriodsStep implements ComputationStep {
   }
 
   @CheckForNull
-  private static Date tryToResolveByDate(String property) {
-    try {
-      return DateUtils.parseDate(property);
-    } catch (Exception e) {
-      // Nothing to, it means that the property is not a date
-      return null;
-    }
-  }
-
-  @CheckForNull
   private static SnapshotDto findNearestSnapshotToTargetDate(List<SnapshotDto> snapshots, Long targetDate) {
     long bestDistance = Long.MAX_VALUE;
     SnapshotDto nearest = null;
@@ -303,6 +293,6 @@ public class FeedPeriodsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Feed differential periods";
+    return "Load differential periods";
   }
 }

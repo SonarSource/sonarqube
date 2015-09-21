@@ -34,15 +34,15 @@ import org.sonar.server.computation.batch.MutableBatchReportDirectoryHolder;
  * Extracts the content zip file of the {@link org.sonar.server.computation.CeTask} to a temp directory and adds a {@link File}
  * representing that temp directory to the {@link MutableBatchReportDirectoryHolder}.
  */
-public class ReportExtractionStep implements ComputationStep {
-  private static final Logger LOG = Loggers.get(ReportExtractionStep.class);
+public class ExtractReportStep implements ComputationStep {
+  private static final Logger LOG = Loggers.get(ExtractReportStep.class);
 
   private final ReportFiles reportFiles;
   private final CeTask task;
   private final TempFolder tempFolder;
   private final MutableBatchReportDirectoryHolder reportDirectoryHolder;
 
-  public ReportExtractionStep(ReportFiles reportFiles, CeTask task, TempFolder tempFolder,
+  public ExtractReportStep(ReportFiles reportFiles, CeTask task, TempFolder tempFolder,
     MutableBatchReportDirectoryHolder reportDirectoryHolder) {
     this.reportFiles = reportFiles;
     this.task = task;
@@ -66,7 +66,7 @@ public class ReportExtractionStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Uncompress report";
+    return "Extract report";
   }
 
 }

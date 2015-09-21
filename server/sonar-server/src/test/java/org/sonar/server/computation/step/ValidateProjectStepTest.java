@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
@@ -62,16 +61,11 @@ public class ValidateProjectStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
-  Settings settings;
-
-  ValidateProjectStep underTest;
+  ValidateProjectStep underTest = new ValidateProjectStep(dbClient, reportReader, treeRootHolder);
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    settings = new Settings();
-
-    underTest = new ValidateProjectStep(dbClient, settings, reportReader, treeRootHolder);
   }
 
   @Test

@@ -21,14 +21,14 @@
 package org.sonar.server.computation.step;
 
 import java.util.List;
-import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.SnapshotDao;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.db.DbClient;
 
 import static org.sonar.db.component.SnapshotDao.isLast;
 
@@ -59,7 +59,7 @@ public class SwitchSnapshotStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Switch last snapshot flag";
+    return "Enable snapshot";
   }
 
   private void disablePreviousSnapshot(DbSession session, long reportSnapshotId) {

@@ -184,6 +184,6 @@ public class CoverageMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Aggregation of coverage measures";
+    return "Compute coverage measures";
   }
 }

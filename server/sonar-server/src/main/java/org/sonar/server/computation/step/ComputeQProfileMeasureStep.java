@@ -122,6 +122,6 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Computes Quality Profile measures";
+    return "Compute Quality Profile measures";
   }
 }

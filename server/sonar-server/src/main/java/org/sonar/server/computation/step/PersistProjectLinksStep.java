@@ -158,6 +158,6 @@ public class PersistProjectLinksStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Persist component links";
+    return "Persist project links";
   }
 }

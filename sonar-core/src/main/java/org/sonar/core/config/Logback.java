@@ -32,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
 
 /**
  * Configure Logback
@@ -40,8 +39,11 @@ import org.sonar.api.server.ServerSide;
  * @since 2.12
  */
 @BatchSide
-@ServerSide
 public class Logback {
+
+  private Logback() {
+    // only statics
+  }
 
   public static void configure(String classloaderPath, Map<String, String> substitutionVariables) {
     InputStream input = Logback.class.getResourceAsStream(classloaderPath);

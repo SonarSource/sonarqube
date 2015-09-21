@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.batch.protocol.Constants;
@@ -39,10 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.db.rule.RuleTesting.XOO_X2;
 
-public class FeedActiveRulesStepTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+public class LoadQualityProfilesStepTest {
 
   @Rule
   public BatchReportReaderRule batchReportReader = new BatchReportReaderRule();
@@ -51,7 +47,7 @@ public class FeedActiveRulesStepTest {
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule();
 
   ActiveRulesHolderImpl activeRulesHolder = new ActiveRulesHolderImpl();
-  FeedActiveRulesStep underTest = new FeedActiveRulesStep(batchReportReader, activeRulesHolder, ruleRepository);
+  LoadQualityProfilesStep underTest = new LoadQualityProfilesStep(batchReportReader, activeRulesHolder, ruleRepository);
 
   @Test
   public void feed_active_rules() throws Exception {

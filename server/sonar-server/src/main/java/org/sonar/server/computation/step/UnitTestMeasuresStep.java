@@ -27,10 +27,10 @@ import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.formula.counter.IntSumCounter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -151,6 +151,6 @@ public class UnitTestMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Aggregation of comment measures";
+    return "Compute test measures";
   }
 }

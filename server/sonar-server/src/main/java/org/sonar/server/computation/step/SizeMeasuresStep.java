@@ -86,7 +86,7 @@ public class SizeMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "File and Directory measures";
+    return "Compute size measures";
   }
 
   private class FileAndDirectoryMeasureVisitor extends PathAwareVisitorAdapter<Counter> {

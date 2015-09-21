@@ -51,7 +51,7 @@ import static org.sonar.server.component.SnapshotTesting.createForProject;
 import static org.sonar.server.component.SnapshotTesting.createForView;
 
 @Category(DbTests.class)
-public class ViewsFillMeasuresWithVariationsStepTest {
+public class ViewsComputeMeasureVariationsStepTest {
 
   static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
   static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
@@ -88,7 +88,7 @@ public class ViewsFillMeasuresWithVariationsStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
-  FillMeasuresWithVariationsStep underTest;
+  ComputeMeasureVariationsStep underTest;
 
   @Before
   public void setUp() {
@@ -96,7 +96,7 @@ public class ViewsFillMeasuresWithVariationsStepTest {
     dbClient.componentDao().insert(session, VIEW_DTO);
     session.commit();
 
-    underTest = new FillMeasuresWithVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
+    underTest = new ComputeMeasureVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
   }
 
   @Test

@@ -56,7 +56,7 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_
  * {@link CoreMetrics#ALERT_STATUS_KEY}</li>
  * </ul>
  *
- * It must be executed after the computation of differential measures {@link FillMeasuresWithVariationsStep}
+ * It must be executed after the computation of differential measures {@link ComputeMeasureVariationsStep}
  */
 public class QualityGateMeasuresStep implements ComputationStep {
 

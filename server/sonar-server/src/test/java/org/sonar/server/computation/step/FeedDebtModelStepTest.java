@@ -48,14 +48,14 @@ public class FeedDebtModelStepTest extends BaseStepTest {
 
   MutableDebtModelHolder debtModelHolder = new DebtModelHolderImpl();
 
-  FeedDebtModelStep underTest;
+  LoadDebtModelStep underTest;
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
     dbSession = dbClient.openSession(false);
 
-    underTest = new FeedDebtModelStep(dbClient, debtModelHolder);
+    underTest = new LoadDebtModelStep(dbClient, debtModelHolder);
   }
 
   @After
