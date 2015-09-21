@@ -63,7 +63,7 @@
     <!--(eg. in IT plugins where version is 1.0-SNAPSHOT)-->
     <sq.version>${project.version}</sq.version>
     <sonarUpdateCenter.version>1.13</sonarUpdateCenter.version>
-    <sonarJava.version>3.4</sonarJava.version>
+    <sonarJava.version>3.5</sonarJava.version>
     <sonarGit.version>1.0</sonarGit.version>
     <sonarSvn.version>1.0</sonarSvn.version>
     <h2.version>1.3.176</h2.version>
