@@ -22,7 +22,7 @@
 # SonarQube 5.2
 # SONAR-6861
 #
-# Add the permission "provisionning" to the users and groups that have already
+# Add the permission "provisioning" to the users and groups that have already
 # the permission "scan" and if, and only if, the property sonar.preventAutoProjectCreation is false
 # (default value)
 class AddProvisioningPermissionToScan < ActiveRecord::Migration
@@ -43,7 +43,7 @@ class AddProvisioningPermissionToScan < ActiveRecord::Migration
       group_roles=GroupRole.find(:all, :conditions => {:role => 'scan', :resource_id => nil})
       groups = group_roles.map { |ur| ur.group_id }
       groups.each do |group_id|
-        unless GroupRole.exists?(['group_id=? and role=? and resource_id is null', group_id, 'provisioning'])
+        unless GroupRole.exists?(:group_id => group_id, :role => 'provisioning', :resource_id => nil)
           GroupRole.create(:group_id => group_id, :role => 'provisioning', :resource_id => nil)
         end
       end
@@ -51,7 +51,7 @@ class AddProvisioningPermissionToScan < ActiveRecord::Migration
       user_roles=UserRole.find(:all, :conditions => {:role => 'scan', :resource_id => nil})
       users = user_roles.map { |ur| ur.user_id }
       users.each do |user_id|
-        unless UserRole.exists?(['user_id=? and role=? and resource_id is null', user_id, 'provisioning'])
+        unless UserRole.exists?(:user_id => user_id, :role => 'provisioning', :resource_id => nil)
           UserRole.create(:user_id => user_id, :role=> 'provisioning', :resource_id => nil)
         end
       end
