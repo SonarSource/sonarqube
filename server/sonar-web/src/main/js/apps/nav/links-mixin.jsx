@@ -14,5 +14,15 @@ export default {
           <a href={fullUrl}>{title}</a>
         </li>
     );
+  },
+
+  renderNewLink(url, title, highlightUrl = url) {
+    let fullUrl = window.baseUrl + url;
+    let check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
+    return (
+        <li key={highlightUrl} className={check(highlightUrl)}>
+          <a href={fullUrl} className="nowrap">{title} <span className="spacer-left badge">New</span></a>
+        </li>
+    );
   }
 };

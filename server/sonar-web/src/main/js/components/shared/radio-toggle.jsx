@@ -2,6 +2,7 @@ import React from 'react';
 
 export default React.createClass({
   propTypes: {
+    value: React.PropTypes.string,
     options: React.PropTypes.array.isRequired,
     name: React.PropTypes.string.isRequired,
     onCheck: React.PropTypes.func.isRequired

@@ -1,0 +1,14 @@
+export const STATUSES = {
+  ALL: '__ALL__',
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED'
+};
+
+
+export const CURRENTS = {
+  ALL: '__ALL__',
+  ONLY_CURRENTS: 'CURRENTS'
+};

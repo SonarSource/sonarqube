@@ -141,6 +141,7 @@ module.exports = (grunt) ->
           # apps
           'build-app:account'
           'build-app:api-documentation'
+          'build-app:background-tasks'
           'build-app:coding-rules'
           'build-app:computation'
           'build-app:custom-measures'
@@ -313,7 +314,7 @@ module.exports = (grunt) ->
         tasks: ['less:build', 'copy:assets-css']
 
       js:
-        files: '<%= SOURCE_PATH %>/js/**/*.js'
+        files: ['<%= SOURCE_PATH %>/js/**/*.js', '<%= SOURCE_PATH %>/js/**/*.jsx']
         tasks: ['copy:js', 'babel:build', 'concat:build', 'copy:assets-all-js']
 
       handlebars:

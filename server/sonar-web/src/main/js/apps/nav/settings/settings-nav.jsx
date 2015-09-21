@@ -58,6 +58,7 @@ export default React.createClass({
                 {this.state.showProvisioning ? this.renderLink('/provisioning', window.t('provisioning.page')) : null}
                 {this.renderLink('/bulk_deletion', window.t('bulk_deletion.page'))}
                 {this.renderLink('/computation', window.t('analysis_reports.page'))}
+                {this.renderNewLink('/background_tasks', 'Background Tasks')}
               </ul>
             </li>
 
