@@ -29,7 +29,7 @@ option optimize_for = SPEED;
 message WsProjectResponse {
   optional int64 timestamp = 1;
   map<string, Settings> settingsByModule = 2;
-  map<string, FileDataByPath> fileDataByModuleAndPatch = 3;
+  map<string, FileDataByPath> fileDataByModuleAndPath = 3;
   optional int64 lastAnalysisDate = 4;
 
   message Settings {

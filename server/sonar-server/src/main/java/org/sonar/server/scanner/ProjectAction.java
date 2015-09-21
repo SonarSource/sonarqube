@@ -84,8 +84,8 @@ public class ProjectAction implements ScannerWsAction {
     WsProjectResponse.Builder response = WsProjectResponse.newBuilder();
     setLastAnalysisDate(response, data);
     response.setTimestamp(data.timestamp());
-    response.getMutableFileDataByModuleAndPatch()
-      .putAll(buildFileDataByModuleAndPatch(data));
+    response.getMutableFileDataByModuleAndPath()
+      .putAll(buildFileDataByModuleAndPath(data));
     response.getMutableSettingsByModule()
       .putAll(buildSettingsByModule(data));
 
@@ -98,7 +98,7 @@ public class ProjectAction implements ScannerWsAction {
     }
   }
 
-  private static Map<String, WsProjectResponse.FileDataByPath> buildFileDataByModuleAndPatch(ProjectRepositories data) {
+  private static Map<String, WsProjectResponse.FileDataByPath> buildFileDataByModuleAndPath(ProjectRepositories data) {
     Map<String, WsProjectResponse.FileDataByPath> fileDataByModuleAndPathResponse = new HashMap<>();
     for (Map.Entry<String, Map<String, FileData>> moduleAndFileDataByPathEntry : data.fileDataByModuleAndPath().entrySet()) {
       fileDataByModuleAndPathResponse.put(

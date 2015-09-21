@@ -28,10 +28,10 @@ public final class WsScanner {
     getSettingsByModule();
 
     /**
-     * <code>map&lt;string, .sonarqube.ws.batch.WsProjectResponse.FileDataByPath&gt; fileDataByModuleAndPatch = 3;</code>
+     * <code>map&lt;string, .sonarqube.ws.batch.WsProjectResponse.FileDataByPath&gt; fileDataByModuleAndPath = 3;</code>
      */
     java.util.Map<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>
-    getFileDataByModuleAndPatch();
+    getFileDataByModuleAndPath();
 
     /**
      * <code>optional int64 lastAnalysisDate = 4;</code>
@@ -108,14 +108,14 @@ public final class WsScanner {
             }
             case 26: {
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                fileDataByModuleAndPatch_ = com.google.protobuf.MapField.newMapField(
-                    FileDataByModuleAndPatchDefaultEntryHolder.defaultEntry);
+                fileDataByModuleAndPath_ = com.google.protobuf.MapField.newMapField(
+                    FileDataByModuleAndPathDefaultEntryHolder.defaultEntry);
                 mutable_bitField0_ |= 0x00000004;
               }
               com.google.protobuf.MapEntry<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>
-              fileDataByModuleAndPatch = input.readMessage(
-                  FileDataByModuleAndPatchDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              fileDataByModuleAndPatch_.getMutableMap().put(fileDataByModuleAndPatch.getKey(), fileDataByModuleAndPatch.getValue());
+              fileDataByModuleAndPath = input.readMessage(
+                  FileDataByModuleAndPathDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              fileDataByModuleAndPath_.getMutableMap().put(fileDataByModuleAndPath.getKey(), fileDataByModuleAndPath.getValue());
               break;
             }
             case 32: {
@@ -148,7 +148,7 @@ public final class WsScanner {
         case 2:
           return internalGetSettingsByModule();
         case 3:
-          return internalGetFileDataByModuleAndPatch();
+          return internalGetFileDataByModuleAndPath();
         default:
           throw new RuntimeException(
               "Invalid map field number: " + number);
@@ -1742,34 +1742,34 @@ public final class WsScanner {
       return internalGetSettingsByModule().getMap();
     }
 
-    public static final int FILEDATABYMODULEANDPATCH_FIELD_NUMBER = 3;
-    private static final class FileDataByModuleAndPatchDefaultEntryHolder {
+    public static final int FILEDATABYMODULEANDPATH_FIELD_NUMBER = 3;
+    private static final class FileDataByModuleAndPathDefaultEntryHolder {
       static final com.google.protobuf.MapEntry<
           java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> defaultEntry =
               com.google.protobuf.MapEntry
               .<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>newDefaultInstance(
-                  org.sonarqube.ws.WsScanner.internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPatchEntry_descriptor, 
+                  org.sonarqube.ws.WsScanner.internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPathEntry_descriptor, 
                   com.google.protobuf.WireFormat.FieldType.STRING,
                   "",
                   com.google.protobuf.WireFormat.FieldType.MESSAGE,
                   org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath.getDefaultInstance());
     }
     private com.google.protobuf.MapField<
-        java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> fileDataByModuleAndPatch_;
+        java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> fileDataByModuleAndPath_;
     private com.google.protobuf.MapField<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>
-    internalGetFileDataByModuleAndPatch() {
-      if (fileDataByModuleAndPatch_ == null) {
+    internalGetFileDataByModuleAndPath() {
+      if (fileDataByModuleAndPath_ == null) {
         return com.google.protobuf.MapField.emptyMapField(
-            FileDataByModuleAndPatchDefaultEntryHolder.defaultEntry);
+            FileDataByModuleAndPathDefaultEntryHolder.defaultEntry);
      }
-      return fileDataByModuleAndPatch_;
+      return fileDataByModuleAndPath_;
     }
     /**
-     * <code>map&lt;string, .sonarqube.ws.batch.WsProjectResponse.FileDataByPath&gt; fileDataByModuleAndPatch = 3;</code>
+     * <code>map&lt;string, .sonarqube.ws.batch.WsProjectResponse.FileDataByPath&gt; fileDataByModuleAndPath = 3;</code>
      */
 
-    public java.util.Map<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> getFileDataByModuleAndPatch() {
-      return internalGetFileDataByModuleAndPatch().getMap();
+    public java.util.Map<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> getFileDataByModuleAndPath() {
+      return internalGetFileDataByModuleAndPath().getMap();
     }
 
     public static final int LASTANALYSISDATE_FIELD_NUMBER = 4;
@@ -1812,13 +1812,13 @@ public final class WsScanner {
         output.writeMessage(2, settingsByModule);
       }
       for (java.util.Map.Entry<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> entry
-           : internalGetFileDataByModuleAndPatch().getMap().entrySet()) {
+           : internalGetFileDataByModuleAndPath().getMap().entrySet()) {
         com.google.protobuf.MapEntry<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>
-        fileDataByModuleAndPatch = FileDataByModuleAndPatchDefaultEntryHolder.defaultEntry.newBuilderForType()
+        fileDataByModuleAndPath = FileDataByModuleAndPathDefaultEntryHolder.defaultEntry.newBuilderForType()
             .setKey(entry.getKey())
             .setValue(entry.getValue())
             .build();
-        output.writeMessage(3, fileDataByModuleAndPatch);
+        output.writeMessage(3, fileDataByModuleAndPath);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt64(4, lastAnalysisDate_);
@@ -1847,14 +1847,14 @@ public final class WsScanner {
             .computeMessageSize(2, settingsByModule);
       }
       for (java.util.Map.Entry<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> entry
-           : internalGetFileDataByModuleAndPatch().getMap().entrySet()) {
+           : internalGetFileDataByModuleAndPath().getMap().entrySet()) {
         com.google.protobuf.MapEntry<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>
-        fileDataByModuleAndPatch = FileDataByModuleAndPatchDefaultEntryHolder.defaultEntry.newBuilderForType()
+        fileDataByModuleAndPath = FileDataByModuleAndPathDefaultEntryHolder.defaultEntry.newBuilderForType()
             .setKey(entry.getKey())
             .setValue(entry.getValue())
             .build();
         size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(3, fileDataByModuleAndPatch);
+            .computeMessageSize(3, fileDataByModuleAndPath);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -1960,7 +1960,7 @@ public final class WsScanner {
           case 2:
             return internalGetSettingsByModule();
           case 3:
-            return internalGetFileDataByModuleAndPatch();
+            return internalGetFileDataByModuleAndPath();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -1973,7 +1973,7 @@ public final class WsScanner {
           case 2:
             return internalGetMutableSettingsByModule();
           case 3:
-            return internalGetMutableFileDataByModuleAndPatch();
+            return internalGetMutableFileDataByModuleAndPath();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -2005,7 +2005,7 @@ public final class WsScanner {
         timestamp_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000001);
         internalGetMutableSettingsByModule().clear();
-        internalGetMutableFileDataByModuleAndPatch().clear();
+        internalGetMutableFileDataByModuleAndPath().clear();
         lastAnalysisDate_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000008);
         return this;
@@ -2038,8 +2038,8 @@ public final class WsScanner {
         result.timestamp_ = timestamp_;
         result.settingsByModule_ = internalGetSettingsByModule();
         result.settingsByModule_.makeImmutable();
-        result.fileDataByModuleAndPatch_ = internalGetFileDataByModuleAndPatch();
-        result.fileDataByModuleAndPatch_.makeImmutable();
+        result.fileDataByModuleAndPath_ = internalGetFileDataByModuleAndPath();
+        result.fileDataByModuleAndPath_.makeImmutable();
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000002;
         }
@@ -2065,8 +2065,8 @@ public final class WsScanner {
         }
         internalGetMutableSettingsByModule().mergeFrom(
             other.internalGetSettingsByModule());
-        internalGetMutableFileDataByModuleAndPatch().mergeFrom(
-            other.internalGetFileDataByModuleAndPatch());
+        internalGetMutableFileDataByModuleAndPath().mergeFrom(
+            other.internalGetFileDataByModuleAndPath());
         if (other.hasLastAnalysisDate()) {
           setLastAnalysisDate(other.getLastAnalysisDate());
         }
@@ -2167,39 +2167,39 @@ public final class WsScanner {
       }
 
       private com.google.protobuf.MapField<
-          java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> fileDataByModuleAndPatch_;
+          java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> fileDataByModuleAndPath_;
       private com.google.protobuf.MapField<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>
-      internalGetFileDataByModuleAndPatch() {
-        if (fileDataByModuleAndPatch_ == null) {
+      internalGetFileDataByModuleAndPath() {
+        if (fileDataByModuleAndPath_ == null) {
           return com.google.protobuf.MapField.emptyMapField(
-              FileDataByModuleAndPatchDefaultEntryHolder.defaultEntry);
+              FileDataByModuleAndPathDefaultEntryHolder.defaultEntry);
        }
-        return fileDataByModuleAndPatch_;
+        return fileDataByModuleAndPath_;
       }
       private com.google.protobuf.MapField<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>
-      internalGetMutableFileDataByModuleAndPatch() {
+      internalGetMutableFileDataByModuleAndPath() {
         onChanged();;
-        if (fileDataByModuleAndPatch_ == null) {
-          fileDataByModuleAndPatch_ = com.google.protobuf.MapField.newMapField(
-              FileDataByModuleAndPatchDefaultEntryHolder.defaultEntry);
+        if (fileDataByModuleAndPath_ == null) {
+          fileDataByModuleAndPath_ = com.google.protobuf.MapField.newMapField(
+              FileDataByModuleAndPathDefaultEntryHolder.defaultEntry);
         }
-        if (!fileDataByModuleAndPatch_.isMutable()) {
-          fileDataByModuleAndPatch_ = fileDataByModuleAndPatch_.copy();
+        if (!fileDataByModuleAndPath_.isMutable()) {
+          fileDataByModuleAndPath_ = fileDataByModuleAndPath_.copy();
         }
-        return fileDataByModuleAndPatch_;
+        return fileDataByModuleAndPath_;
       }
       /**
-       * <code>map&lt;string, .sonarqube.ws.batch.WsProjectResponse.FileDataByPath&gt; fileDataByModuleAndPatch = 3;</code>
+       * <code>map&lt;string, .sonarqube.ws.batch.WsProjectResponse.FileDataByPath&gt; fileDataByModuleAndPath = 3;</code>
        */
-      public java.util.Map<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> getFileDataByModuleAndPatch() {
-        return internalGetFileDataByModuleAndPatch().getMap();
+      public java.util.Map<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath> getFileDataByModuleAndPath() {
+        return internalGetFileDataByModuleAndPath().getMap();
       }
       /**
-       * <code>map&lt;string, .sonarqube.ws.batch.WsProjectResponse.FileDataByPath&gt; fileDataByModuleAndPatch = 3;</code>
+       * <code>map&lt;string, .sonarqube.ws.batch.WsProjectResponse.FileDataByPath&gt; fileDataByModuleAndPath = 3;</code>
        */
       public java.util.Map<java.lang.String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath>
-      getMutableFileDataByModuleAndPatch() {
-        return internalGetMutableFileDataByModuleAndPatch().getMutableMap();
+      getMutableFileDataByModuleAndPath() {
+        return internalGetMutableFileDataByModuleAndPath().getMutableMap();
       }
 
       private long lastAnalysisDate_ ;
@@ -2288,10 +2288,10 @@ public final class WsScanner {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_batch_WsProjectResponse_SettingsByModuleEntry_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPatchEntry_descriptor;
+    internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPathEntry_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPatchEntry_fieldAccessorTable;
+      internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPathEntry_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_batch_WsProjectResponse_Settings_descriptor;
   private static
@@ -2326,30 +2326,30 @@ public final class WsScanner {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\020ws-scanner.proto\022\022sonarqube.ws.batch\"\364" +
+      "\n\020ws-scanner.proto\022\022sonarqube.ws.batch\"\361" +
       "\006\n\021WsProjectResponse\022\021\n\ttimestamp\030\001 \001(\003\022" +
       "U\n\020settingsByModule\030\002 \003(\0132;.sonarqube.ws" +
       ".batch.WsProjectResponse.SettingsByModul" +
-      "eEntry\022e\n\030fileDataByModuleAndPatch\030\003 \003(\013" +
-      "2C.sonarqube.ws.batch.WsProjectResponse." +
-      "FileDataByModuleAndPatchEntry\022\030\n\020lastAna" +
-      "lysisDate\030\004 \001(\003\032g\n\025SettingsByModuleEntry" +
-      "\022\013\n\003key\030\001 \001(\t\022=\n\005value\030\002 \001(\0132..sonarqube" +
-      ".ws.batch.WsProjectResponse.Settings:\0028\001",
-      "\032u\n\035FileDataByModuleAndPatchEntry\022\013\n\003key" +
-      "\030\001 \001(\t\022C\n\005value\030\002 \001(\01324.sonarqube.ws.bat" +
-      "ch.WsProjectResponse.FileDataByPath:\0028\001\032" +
-      "\213\001\n\010Settings\022N\n\010settings\030\001 \003(\0132<.sonarqu" +
-      "be.ws.batch.WsProjectResponse.Settings.S" +
-      "ettingsEntry\032/\n\rSettingsEntry\022\013\n\003key\030\001 \001" +
-      "(\t\022\r\n\005value\030\002 \001(\t:\0028\001\032\331\001\n\016FileDataByPath" +
-      "\022`\n\016FileDataByPath\030\001 \003(\0132H.sonarqube.ws." +
-      "batch.WsProjectResponse.FileDataByPath.F" +
-      "ileDataByPathEntry\032e\n\023FileDataByPathEntr",
-      "y\022\013\n\003key\030\001 \001(\t\022=\n\005value\030\002 \001(\0132..sonarqub" +
-      "e.ws.batch.WsProjectResponse.FileData:\0028" +
-      "\001\032*\n\010FileData\022\014\n\004hash\030\001 \001(\t\022\020\n\010revision\030" +
-      "\002 \001(\tB\037\n\020org.sonarqube.wsB\tWsScannerH\001"
+      "eEntry\022c\n\027fileDataByModuleAndPath\030\003 \003(\0132" +
+      "B.sonarqube.ws.batch.WsProjectResponse.F" +
+      "ileDataByModuleAndPathEntry\022\030\n\020lastAnaly" +
+      "sisDate\030\004 \001(\003\032g\n\025SettingsByModuleEntry\022\013" +
+      "\n\003key\030\001 \001(\t\022=\n\005value\030\002 \001(\0132..sonarqube.w" +
+      "s.batch.WsProjectResponse.Settings:\0028\001\032t",
+      "\n\034FileDataByModuleAndPathEntry\022\013\n\003key\030\001 " +
+      "\001(\t\022C\n\005value\030\002 \001(\01324.sonarqube.ws.batch." +
+      "WsProjectResponse.FileDataByPath:\0028\001\032\213\001\n" +
+      "\010Settings\022N\n\010settings\030\001 \003(\0132<.sonarqube." +
+      "ws.batch.WsProjectResponse.Settings.Sett" +
+      "ingsEntry\032/\n\rSettingsEntry\022\013\n\003key\030\001 \001(\t\022" +
+      "\r\n\005value\030\002 \001(\t:\0028\001\032\331\001\n\016FileDataByPath\022`\n" +
+      "\016FileDataByPath\030\001 \003(\0132H.sonarqube.ws.bat" +
+      "ch.WsProjectResponse.FileDataByPath.File" +
+      "DataByPathEntry\032e\n\023FileDataByPathEntry\022\013",
+      "\n\003key\030\001 \001(\t\022=\n\005value\030\002 \001(\0132..sonarqube.w" +
+      "s.batch.WsProjectResponse.FileData:\0028\001\032*" +
+      "\n\010FileData\022\014\n\004hash\030\001 \001(\t\022\020\n\010revision\030\002 \001" +
+      "(\tB\037\n\020org.sonarqube.wsB\tWsScannerH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2368,18 +2368,18 @@ public final class WsScanner {
     internal_static_sonarqube_ws_batch_WsProjectResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_batch_WsProjectResponse_descriptor,
-        new java.lang.String[] { "Timestamp", "SettingsByModule", "FileDataByModuleAndPatch", "LastAnalysisDate", });
+        new java.lang.String[] { "Timestamp", "SettingsByModule", "FileDataByModuleAndPath", "LastAnalysisDate", });
     internal_static_sonarqube_ws_batch_WsProjectResponse_SettingsByModuleEntry_descriptor =
       internal_static_sonarqube_ws_batch_WsProjectResponse_descriptor.getNestedTypes().get(0);
     internal_static_sonarqube_ws_batch_WsProjectResponse_SettingsByModuleEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_batch_WsProjectResponse_SettingsByModuleEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPatchEntry_descriptor =
+    internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPathEntry_descriptor =
       internal_static_sonarqube_ws_batch_WsProjectResponse_descriptor.getNestedTypes().get(1);
-    internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPatchEntry_fieldAccessorTable = new
+    internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPathEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPatchEntry_descriptor,
+        internal_static_sonarqube_ws_batch_WsProjectResponse_FileDataByModuleAndPathEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_sonarqube_ws_batch_WsProjectResponse_Settings_descriptor =
       internal_static_sonarqube_ws_batch_WsProjectResponse_descriptor.getNestedTypes().get(2);
