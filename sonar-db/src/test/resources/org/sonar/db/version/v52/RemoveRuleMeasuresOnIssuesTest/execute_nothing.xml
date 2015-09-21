@@ -1,0 +1,12 @@
+<dataset>
+
+  <!-- These measures should not be removed -->
+
+  <metrics id="1" name="violations"/>
+  <metrics id="2" name="new_violations"/>
+
+  <project_measures id="1" metric_id="1" rule_id="[null]"/>
+  <project_measures id="2" metric_id="2" rule_id="[null]"/>
+
+
+</dataset>

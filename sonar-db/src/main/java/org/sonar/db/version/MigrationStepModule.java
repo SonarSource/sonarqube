@@ -47,7 +47,6 @@ import org.sonar.db.version.v51.RemovePermissionsOnModulesMigrationStep;
 import org.sonar.db.version.v51.RenameComponentRelatedParamsInIssueFilters;
 import org.sonar.db.version.v51.UpdateProjectsModuleUuidPath;
 import org.sonar.db.version.v52.AddManualMeasuresComponentUuidColumn;
-import org.sonar.db.version.v52.RemoveAnalysisReportsFromActivities;
 import org.sonar.db.version.v52.FeedEventsComponentUuid;
 import org.sonar.db.version.v52.FeedFileSourcesDataType;
 import org.sonar.db.version.v52.FeedManualMeasuresComponentUuid;
@@ -55,8 +54,10 @@ import org.sonar.db.version.v52.FeedMetricsBooleans;
 import org.sonar.db.version.v52.FeedProjectLinksComponentUuid;
 import org.sonar.db.version.v52.IncreasePrecisionOfNumerics;
 import org.sonar.db.version.v52.MoveProjectProfileAssociation;
+import org.sonar.db.version.v52.RemoveAnalysisReportsFromActivities;
 import org.sonar.db.version.v52.RemoveComponentLibraries;
 import org.sonar.db.version.v52.RemoveDuplicatedComponentKeys;
+import org.sonar.db.version.v52.RemoveRuleMeasuresOnIssues;
 import org.sonar.db.version.v52.RemoveSnapshotLibraries;
 
 public class MigrationStepModule extends Module {
@@ -107,6 +108,8 @@ public class MigrationStepModule extends Module {
       RemoveComponentLibraries.class,
       RemoveDuplicatedComponentKeys.class,
       IncreasePrecisionOfNumerics.class,
-      RemoveAnalysisReportsFromActivities.class);
+      RemoveAnalysisReportsFromActivities.class,
+      RemoveRuleMeasuresOnIssues.class
+    );
   }
 }
