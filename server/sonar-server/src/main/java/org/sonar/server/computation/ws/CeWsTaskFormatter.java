@@ -113,7 +113,7 @@ public class CeWsTaskFormatter {
     return builder.build();
   }
 
-  private void buildComponent(WsCe.Task.Builder builder, @Nullable ComponentDto componentDto) {
+  private static void buildComponent(WsCe.Task.Builder builder, @Nullable ComponentDto componentDto) {
     if (componentDto != null) {
       builder.setComponentKey(componentDto.getKey());
       builder.setComponentName(componentDto.name());
