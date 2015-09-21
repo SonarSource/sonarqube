@@ -25,7 +25,6 @@
           {{else}}
             <select id="coding-rules-quality-profile-activation-select">
               {{#each qualityProfiles}}
-                {{log ../contextProfile}}
                 <option value="{{key}}" {{#eq key ../contextProfile}}selected{{/eq}}>{{name}}</option>
               {{/each}}
             </select>

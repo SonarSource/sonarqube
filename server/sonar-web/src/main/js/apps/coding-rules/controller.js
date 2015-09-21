@@ -140,15 +140,21 @@ export default Controller.extend({
   },
 
   activateCurrent: function () {
-    var rule = this.app.list.at(this.app.state.get('selectedIndex'));
-    var ruleView = this.app.workspaceListView.children.findByModel(rule);
-    ruleView.$('.coding-rules-detail-quality-profile-activate').click();
+    if (this.app.layout.detailsShow()) {
+      this.app.workspaceDetailsView.$('#coding-rules-quality-profile-activate').click();
+    } else {
+      var rule = this.app.list.at(this.app.state.get('selectedIndex'));
+      var ruleView = this.app.workspaceListView.children.findByModel(rule);
+      ruleView.$('.coding-rules-detail-quality-profile-activate').click();
+    }
   },
 
   deactivateCurrent: function () {
-    var rule = this.app.list.at(this.app.state.get('selectedIndex'));
-    var ruleView = this.app.workspaceListView.children.findByModel(rule);
-    ruleView.$('.coding-rules-detail-quality-profile-deactivate').click();
+    if (!this.app.layout.detailsShow()) {
+      var rule = this.app.list.at(this.app.state.get('selectedIndex'));
+      var ruleView = this.app.workspaceListView.children.findByModel(rule);
+      ruleView.$('.coding-rules-detail-quality-profile-deactivate').click();
+    }
   }
 
 });

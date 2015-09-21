@@ -31,6 +31,10 @@ export default Marionette.LayoutView.extend({
     if (this.scroll != null) {
       $(window).scrollTop(this.scroll);
     }
+  },
+
+  detailsShow: function () {
+    return this.$('.search-navigator').is('.search-navigator-extended-view');
   }
 
 });
