@@ -48,55 +48,6 @@ import static org.mockito.Mockito.when;
 
 public class WebServiceEngineTest {
 
-  private static class SimpleRequest extends ValidatingRequest {
-    private final String method;
-    private Map<String, String> params = Maps.newHashMap();
-
-    private SimpleRequest(String method) {
-      this.method = method;
-    }
-
-    @Override
-    public String method() {
-      return method;
-    }
-
-    @Override
-    public String getMediaType() {
-      return MimeTypes.JSON;
-    }
-
-    @Override
-    public boolean hasParam(String key) {
-      return params.keySet().contains(key);
-    }
-
-    @Override
-    protected String readParam(String key) {
-      return params.get(key);
-    }
-
-    @Override
-    protected InputStream readInputStreamParam(String key) {
-      String param = readParam(key);
-
-      return param == null ? null : IOUtils.toInputStream(param);
-    }
-
-    public SimpleRequest setParams(Map<String, String> m) {
-      this.params = m;
-      return this;
-    }
-
-    public SimpleRequest setParam(String key, @Nullable String value) {
-      if (value != null) {
-        params.put(key, value);
-      }
-      return this;
-    }
-
-  }
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   I18n i18n = mock(I18n.class);
@@ -123,6 +74,15 @@ public class WebServiceEngineTest {
     ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "health");
+
+    assertThat(response.stream().outputAsString()).isEqualTo("good");
+  }
+
+  @Test
+  public void execute_request_with_format_type() {
+    ValidatingRequest request = new SimpleRequest("GET");
+    ServletResponse response = new ServletResponse();
+    engine.execute(request, response, "api/system", "health.protobuf");
 
     assertThat(response.stream().outputAsString()).isEqualTo("good");
   }
@@ -305,6 +265,55 @@ public class WebServiceEngineTest {
     assertThat(response.getHeader(name)).isEqualTo(value);
   }
 
+  private static class SimpleRequest extends ValidatingRequest {
+    private final String method;
+    private Map<String, String> params = Maps.newHashMap();
+
+    private SimpleRequest(String method) {
+      this.method = method;
+    }
+
+    @Override
+    public String method() {
+      return method;
+    }
+
+    @Override
+    public String getMediaType() {
+      return MimeTypes.JSON;
+    }
+
+    @Override
+    public boolean hasParam(String key) {
+      return params.keySet().contains(key);
+    }
+
+    @Override
+    protected String readParam(String key) {
+      return params.get(key);
+    }
+
+    @Override
+    protected InputStream readInputStreamParam(String key) {
+      String param = readParam(key);
+
+      return param == null ? null : IOUtils.toInputStream(param);
+    }
+
+    public SimpleRequest setParams(Map<String, String> m) {
+      this.params = m;
+      return this;
+    }
+
+    public SimpleRequest setParam(String key, @Nullable String value) {
+      if (value != null) {
+        params.put(key, value);
+      }
+      return this;
+    }
+
+  }
+
   static class SystemWs implements WebService {
     @Override
     public void define(Context context) {
@@ -405,5 +414,6 @@ public class WebServiceEngineTest {
       });
       newController.done();
     }
+
   }
 }

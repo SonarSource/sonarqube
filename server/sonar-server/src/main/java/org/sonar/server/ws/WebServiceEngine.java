@@ -19,6 +19,9 @@
  */
 package org.sonar.server.ws;
 
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.picocontainer.Startable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ServerSide;
@@ -33,10 +36,7 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
+import static java.lang.String.format;
 import static org.sonar.server.ws.RequestVerifier.verifyRequest;
 
 /**
@@ -98,13 +98,16 @@ public class WebServiceEngine implements Startable {
   }
 
   private WebService.Action getAction(String controllerPath, String actionKey) {
+    String actionKeyWithoutFormatSuffix = actionKey.contains(".") ?
+      actionKey.substring(0, actionKey.lastIndexOf('.'))
+      : actionKey;
     WebService.Controller controller = context.controller(controllerPath);
     if (controller == null) {
-      throw new BadRequestException(String.format("Unknown web service: %s", controllerPath));
+      throw new BadRequestException(format("Unknown web service: %s", controllerPath));
     }
-    WebService.Action action = controller.action(actionKey);
+    WebService.Action action = controller.action(actionKeyWithoutFormatSuffix);
     if (action == null) {
-      throw new BadRequestException(String.format("Unknown action: %s/%s", controllerPath, actionKey));
+      throw new BadRequestException(format("Unknown action: %s/%s", controllerPath, actionKeyWithoutFormatSuffix));
     }
     return action;
   }
