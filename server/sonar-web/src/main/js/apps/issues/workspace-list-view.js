@@ -5,7 +5,7 @@ import EmptyView from './workspace-list-empty-view';
 import './templates';
 
 var COMPONENT_HEIGHT = 29,
-    BOTTOM_OFFSET = 10;
+    BOTTOM_OFFSET = 60;
 
 export default WorkspaceListView.extend({
   template: Templates['issues-workspace-list'],

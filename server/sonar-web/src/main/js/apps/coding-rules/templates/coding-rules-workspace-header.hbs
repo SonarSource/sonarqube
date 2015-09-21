@@ -9,7 +9,7 @@
 
 <div class="search-navigator-header-actions">
   {{#notNull state.total}}
-    <div class="search-navigator-header-pagination">
+    <div class="search-navigator-header-pagination flash flash-heavy">
       {{#gt state.total 0}}
         <a class="js-prev icon-prev" title="{{t 'paging_previous'}}"></a>
         <span class="current">{{sum state.selectedIndex 1}} / <span

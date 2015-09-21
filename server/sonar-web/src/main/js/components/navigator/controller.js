@@ -117,6 +117,8 @@ define(function () {
           this.fetchNextPage().done(function () {
             that.options.app.state.set({ selectedIndex: index });
           });
+        } else {
+          this.options.app.list.trigger('limitReached');
         }
       }
     },
@@ -125,6 +127,8 @@ define(function () {
       var index = this.options.app.state.get('selectedIndex') - 1;
       if (index >= 0) {
         this.options.app.state.set({ selectedIndex: index });
+      } else {
+        this.options.app.list.trigger('limitReached');
       }
     }
 

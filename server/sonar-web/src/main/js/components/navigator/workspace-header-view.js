@@ -4,7 +4,8 @@ define(function () {
 
     collectionEvents: function () {
       return {
-        'all': 'render'
+        'all': 'shouldRender',
+        'limitReached': 'flashPagination'
       };
     },
 
@@ -42,6 +43,12 @@ define(function () {
 
     },
 
+    shouldRender: function (event) {
+      if (event !== 'limitReached') {
+        this.render();
+      }
+    },
+
     reload: function () {
       this.options.app.controller.fetchList();
     },
@@ -52,6 +59,14 @@ define(function () {
 
     selectPrev: function () {
       this.options.app.controller.selectPrev();
+    },
+
+    flashPagination: function () {
+      var flashElement = this.$('.search-navigator-header-pagination');
+      flashElement.addClass('in');
+      setTimeout(function () {
+        flashElement.removeClass('in');
+      }, 2000);
     },
 
     serializeData: function () {

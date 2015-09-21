@@ -1,6 +1,7 @@
 define(function () {
 
-  var $ = jQuery;
+  var $ = jQuery,
+      BOTTOM_OFFSET = 60;
 
   return Marionette.CompositeView.extend({
 
@@ -93,7 +94,7 @@ define(function () {
       var selectedView = this.children.findByModel(selected),
           parentTopOffset = this.$el.offset().top,
           viewTop = selectedView.$el.offset().top - parentTopOffset,
-          viewBottom = selectedView.$el.offset().top + selectedView.$el.outerHeight(),
+          viewBottom = selectedView.$el.offset().top + selectedView.$el.outerHeight() + BOTTOM_OFFSET,
           windowTop = $(window).scrollTop(),
           windowBottom = windowTop + $(window).height();
       if (viewTop < windowTop) {
