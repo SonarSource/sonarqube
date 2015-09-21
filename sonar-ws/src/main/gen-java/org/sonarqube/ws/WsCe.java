@@ -2822,6 +2822,879 @@ public final class WsCe {
 
   }
 
+  public interface ProjectResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.ce.ProjectResponse)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    java.util.List<org.sonarqube.ws.WsCe.Task> 
+        getQueueList();
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    org.sonarqube.ws.WsCe.Task getQueue(int index);
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    int getQueueCount();
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.WsCe.TaskOrBuilder> 
+        getQueueOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    org.sonarqube.ws.WsCe.TaskOrBuilder getQueueOrBuilder(
+        int index);
+
+    /**
+     * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+     */
+    boolean hasCurrent();
+    /**
+     * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+     */
+    org.sonarqube.ws.WsCe.Task getCurrent();
+    /**
+     * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+     */
+    org.sonarqube.ws.WsCe.TaskOrBuilder getCurrentOrBuilder();
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.ce.ProjectResponse}
+   *
+   * <pre>
+   * GET api/ce/project
+   * </pre>
+   */
+  public  static final class ProjectResponse extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.ce.ProjectResponse)
+      ProjectResponseOrBuilder {
+    // Use ProjectResponse.newBuilder() to construct.
+    private ProjectResponse(com.google.protobuf.GeneratedMessage.Builder builder) {
+      super(builder);
+    }
+    private ProjectResponse() {
+      queue_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private ProjectResponse(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                queue_ = new java.util.ArrayList<org.sonarqube.ws.WsCe.Task>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              queue_.add(input.readMessage(org.sonarqube.ws.WsCe.Task.PARSER, extensionRegistry));
+              break;
+            }
+            case 18: {
+              org.sonarqube.ws.WsCe.Task.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = current_.toBuilder();
+              }
+              current_ = input.readMessage(org.sonarqube.ws.WsCe.Task.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(current_);
+                current_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          queue_ = java.util.Collections.unmodifiableList(queue_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.WsCe.internal_static_sonarqube_ws_ce_ProjectResponse_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.WsCe.internal_static_sonarqube_ws_ce_ProjectResponse_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.WsCe.ProjectResponse.class, org.sonarqube.ws.WsCe.ProjectResponse.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int QUEUE_FIELD_NUMBER = 1;
+    private java.util.List<org.sonarqube.ws.WsCe.Task> queue_;
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    public java.util.List<org.sonarqube.ws.WsCe.Task> getQueueList() {
+      return queue_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.WsCe.TaskOrBuilder> 
+        getQueueOrBuilderList() {
+      return queue_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    public int getQueueCount() {
+      return queue_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    public org.sonarqube.ws.WsCe.Task getQueue(int index) {
+      return queue_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+     */
+    public org.sonarqube.ws.WsCe.TaskOrBuilder getQueueOrBuilder(
+        int index) {
+      return queue_.get(index);
+    }
+
+    public static final int CURRENT_FIELD_NUMBER = 2;
+    private org.sonarqube.ws.WsCe.Task current_;
+    /**
+     * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+     */
+    public boolean hasCurrent() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+     */
+    public org.sonarqube.ws.WsCe.Task getCurrent() {
+      return current_ == null ? org.sonarqube.ws.WsCe.Task.getDefaultInstance() : current_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+     */
+    public org.sonarqube.ws.WsCe.TaskOrBuilder getCurrentOrBuilder() {
+      return current_ == null ? org.sonarqube.ws.WsCe.Task.getDefaultInstance() : current_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < queue_.size(); i++) {
+        output.writeMessage(1, queue_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(2, getCurrent());
+      }
+      unknownFields.writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < queue_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, queue_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getCurrent());
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.WsCe.ProjectResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.sonarqube.ws.WsCe.ProjectResponse prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.ce.ProjectResponse}
+     *
+     * <pre>
+     * GET api/ce/project
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.ce.ProjectResponse)
+        org.sonarqube.ws.WsCe.ProjectResponseOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.WsCe.internal_static_sonarqube_ws_ce_ProjectResponse_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.WsCe.internal_static_sonarqube_ws_ce_ProjectResponse_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.WsCe.ProjectResponse.class, org.sonarqube.ws.WsCe.ProjectResponse.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.WsCe.ProjectResponse.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getQueueFieldBuilder();
+          getCurrentFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (queueBuilder_ == null) {
+          queue_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          queueBuilder_.clear();
+        }
+        if (currentBuilder_ == null) {
+          current_ = null;
+        } else {
+          currentBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.WsCe.internal_static_sonarqube_ws_ce_ProjectResponse_descriptor;
+      }
+
+      public org.sonarqube.ws.WsCe.ProjectResponse getDefaultInstanceForType() {
+        return org.sonarqube.ws.WsCe.ProjectResponse.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.WsCe.ProjectResponse build() {
+        org.sonarqube.ws.WsCe.ProjectResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.WsCe.ProjectResponse buildPartial() {
+        org.sonarqube.ws.WsCe.ProjectResponse result = new org.sonarqube.ws.WsCe.ProjectResponse(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (queueBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            queue_ = java.util.Collections.unmodifiableList(queue_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.queue_ = queue_;
+        } else {
+          result.queue_ = queueBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (currentBuilder_ == null) {
+          result.current_ = current_;
+        } else {
+          result.current_ = currentBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.WsCe.ProjectResponse) {
+          return mergeFrom((org.sonarqube.ws.WsCe.ProjectResponse)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.WsCe.ProjectResponse other) {
+        if (other == org.sonarqube.ws.WsCe.ProjectResponse.getDefaultInstance()) return this;
+        if (queueBuilder_ == null) {
+          if (!other.queue_.isEmpty()) {
+            if (queue_.isEmpty()) {
+              queue_ = other.queue_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureQueueIsMutable();
+              queue_.addAll(other.queue_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.queue_.isEmpty()) {
+            if (queueBuilder_.isEmpty()) {
+              queueBuilder_.dispose();
+              queueBuilder_ = null;
+              queue_ = other.queue_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              queueBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getQueueFieldBuilder() : null;
+            } else {
+              queueBuilder_.addAllMessages(other.queue_);
+            }
+          }
+        }
+        if (other.hasCurrent()) {
+          mergeCurrent(other.getCurrent());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.WsCe.ProjectResponse parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.WsCe.ProjectResponse) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<org.sonarqube.ws.WsCe.Task> queue_ =
+        java.util.Collections.emptyList();
+      private void ensureQueueIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          queue_ = new java.util.ArrayList<org.sonarqube.ws.WsCe.Task>(queue_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.WsCe.Task, org.sonarqube.ws.WsCe.Task.Builder, org.sonarqube.ws.WsCe.TaskOrBuilder> queueBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.WsCe.Task> getQueueList() {
+        if (queueBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(queue_);
+        } else {
+          return queueBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public int getQueueCount() {
+        if (queueBuilder_ == null) {
+          return queue_.size();
+        } else {
+          return queueBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public org.sonarqube.ws.WsCe.Task getQueue(int index) {
+        if (queueBuilder_ == null) {
+          return queue_.get(index);
+        } else {
+          return queueBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder setQueue(
+          int index, org.sonarqube.ws.WsCe.Task value) {
+        if (queueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureQueueIsMutable();
+          queue_.set(index, value);
+          onChanged();
+        } else {
+          queueBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder setQueue(
+          int index, org.sonarqube.ws.WsCe.Task.Builder builderForValue) {
+        if (queueBuilder_ == null) {
+          ensureQueueIsMutable();
+          queue_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          queueBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder addQueue(org.sonarqube.ws.WsCe.Task value) {
+        if (queueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureQueueIsMutable();
+          queue_.add(value);
+          onChanged();
+        } else {
+          queueBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder addQueue(
+          int index, org.sonarqube.ws.WsCe.Task value) {
+        if (queueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureQueueIsMutable();
+          queue_.add(index, value);
+          onChanged();
+        } else {
+          queueBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder addQueue(
+          org.sonarqube.ws.WsCe.Task.Builder builderForValue) {
+        if (queueBuilder_ == null) {
+          ensureQueueIsMutable();
+          queue_.add(builderForValue.build());
+          onChanged();
+        } else {
+          queueBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder addQueue(
+          int index, org.sonarqube.ws.WsCe.Task.Builder builderForValue) {
+        if (queueBuilder_ == null) {
+          ensureQueueIsMutable();
+          queue_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          queueBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder addAllQueue(
+          java.lang.Iterable<? extends org.sonarqube.ws.WsCe.Task> values) {
+        if (queueBuilder_ == null) {
+          ensureQueueIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, queue_);
+          onChanged();
+        } else {
+          queueBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder clearQueue() {
+        if (queueBuilder_ == null) {
+          queue_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          queueBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public Builder removeQueue(int index) {
+        if (queueBuilder_ == null) {
+          ensureQueueIsMutable();
+          queue_.remove(index);
+          onChanged();
+        } else {
+          queueBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public org.sonarqube.ws.WsCe.Task.Builder getQueueBuilder(
+          int index) {
+        return getQueueFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public org.sonarqube.ws.WsCe.TaskOrBuilder getQueueOrBuilder(
+          int index) {
+        if (queueBuilder_ == null) {
+          return queue_.get(index);  } else {
+          return queueBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.WsCe.TaskOrBuilder> 
+           getQueueOrBuilderList() {
+        if (queueBuilder_ != null) {
+          return queueBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(queue_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public org.sonarqube.ws.WsCe.Task.Builder addQueueBuilder() {
+        return getQueueFieldBuilder().addBuilder(
+            org.sonarqube.ws.WsCe.Task.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public org.sonarqube.ws.WsCe.Task.Builder addQueueBuilder(
+          int index) {
+        return getQueueFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.WsCe.Task.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.ce.Task queue = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.WsCe.Task.Builder> 
+           getQueueBuilderList() {
+        return getQueueFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.WsCe.Task, org.sonarqube.ws.WsCe.Task.Builder, org.sonarqube.ws.WsCe.TaskOrBuilder> 
+          getQueueFieldBuilder() {
+        if (queueBuilder_ == null) {
+          queueBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.WsCe.Task, org.sonarqube.ws.WsCe.Task.Builder, org.sonarqube.ws.WsCe.TaskOrBuilder>(
+                  queue_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          queue_ = null;
+        }
+        return queueBuilder_;
+      }
+
+      private org.sonarqube.ws.WsCe.Task current_ = null;
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.WsCe.Task, org.sonarqube.ws.WsCe.Task.Builder, org.sonarqube.ws.WsCe.TaskOrBuilder> currentBuilder_;
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      public boolean hasCurrent() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      public org.sonarqube.ws.WsCe.Task getCurrent() {
+        if (currentBuilder_ == null) {
+          return current_ == null ? org.sonarqube.ws.WsCe.Task.getDefaultInstance() : current_;
+        } else {
+          return currentBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      public Builder setCurrent(org.sonarqube.ws.WsCe.Task value) {
+        if (currentBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          current_ = value;
+          onChanged();
+        } else {
+          currentBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      public Builder setCurrent(
+          org.sonarqube.ws.WsCe.Task.Builder builderForValue) {
+        if (currentBuilder_ == null) {
+          current_ = builderForValue.build();
+          onChanged();
+        } else {
+          currentBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      public Builder mergeCurrent(org.sonarqube.ws.WsCe.Task value) {
+        if (currentBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              current_ != null &&
+              current_ != org.sonarqube.ws.WsCe.Task.getDefaultInstance()) {
+            current_ =
+              org.sonarqube.ws.WsCe.Task.newBuilder(current_).mergeFrom(value).buildPartial();
+          } else {
+            current_ = value;
+          }
+          onChanged();
+        } else {
+          currentBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      public Builder clearCurrent() {
+        if (currentBuilder_ == null) {
+          current_ = null;
+          onChanged();
+        } else {
+          currentBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      public org.sonarqube.ws.WsCe.Task.Builder getCurrentBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getCurrentFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      public org.sonarqube.ws.WsCe.TaskOrBuilder getCurrentOrBuilder() {
+        if (currentBuilder_ != null) {
+          return currentBuilder_.getMessageOrBuilder();
+        } else {
+          return current_ == null ?
+              org.sonarqube.ws.WsCe.Task.getDefaultInstance() : current_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.Task current = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.WsCe.Task, org.sonarqube.ws.WsCe.Task.Builder, org.sonarqube.ws.WsCe.TaskOrBuilder> 
+          getCurrentFieldBuilder() {
+        if (currentBuilder_ == null) {
+          currentBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.WsCe.Task, org.sonarqube.ws.WsCe.Task.Builder, org.sonarqube.ws.WsCe.TaskOrBuilder>(
+                  getCurrent(),
+                  getParentForChildren(),
+                  isClean());
+          current_ = null;
+        }
+        return currentBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.ce.ProjectResponse)
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.ce.ProjectResponse)
+    private static final org.sonarqube.ws.WsCe.ProjectResponse DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.sonarqube.ws.WsCe.ProjectResponse();
+    }
+
+    public static org.sonarqube.ws.WsCe.ProjectResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    public static final com.google.protobuf.Parser<ProjectResponse> PARSER =
+        new com.google.protobuf.AbstractParser<ProjectResponse>() {
+      public ProjectResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new ProjectResponse(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ProjectResponse> getParserForType() {
+      return PARSER;
+    }
+
+    public org.sonarqube.ws.WsCe.ProjectResponse getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface TaskOrBuilder extends
       // @@protoc_insertion_point(interface_extends:sonarqube.ws.ce.Task)
       com.google.protobuf.MessageOrBuilder {
@@ -4816,6 +5689,11 @@ public final class WsCe {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_ce_ActivityResponse_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_ce_ProjectResponse_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_ce_ProjectResponse_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_ce_Task_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -4836,17 +5714,19 @@ public final class WsCe {
       "eueResponse\022$\n\005tasks\030\001 \003(\0132\025.sonarqube.w" +
       "s.ce.Task\"f\n\020ActivityResponse\022,\n\006paging\030" +
       "\001 \001(\0132\034.sonarqube.ws.commons.Paging\022$\n\005t" +
-      "asks\030\002 \003(\0132\025.sonarqube.ws.ce.Task\"\224\002\n\004Ta" +
-      "sk\022\n\n\002id\030\001 \001(\t\022\014\n\004type\030\002 \001(\t\022\023\n\013componen" +
-      "tId\030\003 \001(\t\022\024\n\014componentKey\030\004 \001(\t\022\025\n\rcompo",
-      "nentName\030\005 \001(\t\022+\n\006status\030\006 \001(\0162\033.sonarqu" +
-      "be.ws.ce.TaskStatus\022\023\n\013submittedAt\030\007 \001(\t" +
-      "\022\026\n\016submitterLogin\030\010 \001(\t\022\021\n\tstartedAt\030\t " +
-      "\001(\t\022\022\n\nfinishedAt\030\n \001(\t\022\026\n\016isLastFinishe" +
-      "d\030\013 \001(\010\022\027\n\017executionTimeMs\030\014 \001(\003*Q\n\nTask" +
-      "Status\022\013\n\007PENDING\020\000\022\017\n\013IN_PROGRESS\020\001\022\013\n\007" +
-      "SUCCESS\020\002\022\n\n\006FAILED\020\003\022\014\n\010CANCELED\020\004B\032\n\020o" +
-      "rg.sonarqube.wsB\004WsCeH\001"
+      "asks\030\002 \003(\0132\025.sonarqube.ws.ce.Task\"_\n\017Pro" +
+      "jectResponse\022$\n\005queue\030\001 \003(\0132\025.sonarqube." +
+      "ws.ce.Task\022&\n\007current\030\002 \001(\0132\025.sonarqube.",
+      "ws.ce.Task\"\224\002\n\004Task\022\n\n\002id\030\001 \001(\t\022\014\n\004type\030" +
+      "\002 \001(\t\022\023\n\013componentId\030\003 \001(\t\022\024\n\014componentK" +
+      "ey\030\004 \001(\t\022\025\n\rcomponentName\030\005 \001(\t\022+\n\006statu" +
+      "s\030\006 \001(\0162\033.sonarqube.ws.ce.TaskStatus\022\023\n\013" +
+      "submittedAt\030\007 \001(\t\022\026\n\016submitterLogin\030\010 \001(" +
+      "\t\022\021\n\tstartedAt\030\t \001(\t\022\022\n\nfinishedAt\030\n \001(\t" +
+      "\022\026\n\016isLastFinished\030\013 \001(\010\022\027\n\017executionTim" +
+      "eMs\030\014 \001(\003*Q\n\nTaskStatus\022\013\n\007PENDING\020\000\022\017\n\013" +
+      "IN_PROGRESS\020\001\022\013\n\007SUCCESS\020\002\022\n\n\006FAILED\020\003\022\014" +
+      "\n\010CANCELED\020\004B\032\n\020org.sonarqube.wsB\004WsCeH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4885,8 +5765,14 @@ public final class WsCe {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_ce_ActivityResponse_descriptor,
         new java.lang.String[] { "Paging", "Tasks", });
-    internal_static_sonarqube_ws_ce_Task_descriptor =
+    internal_static_sonarqube_ws_ce_ProjectResponse_descriptor =
       getDescriptor().getMessageTypes().get(4);
+    internal_static_sonarqube_ws_ce_ProjectResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_ce_ProjectResponse_descriptor,
+        new java.lang.String[] { "Queue", "Current", });
+    internal_static_sonarqube_ws_ce_Task_descriptor =
+      getDescriptor().getMessageTypes().get(5);
     internal_static_sonarqube_ws_ce_Task_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_ce_Task_descriptor,

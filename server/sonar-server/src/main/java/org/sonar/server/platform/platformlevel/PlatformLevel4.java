@@ -64,8 +64,8 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ResourcesWs;
-import org.sonar.server.computation.CeQueueImpl;
 import org.sonar.server.computation.CeQueueCleaner;
+import org.sonar.server.computation.CeQueueImpl;
 import org.sonar.server.computation.CeQueueInitializer;
 import org.sonar.server.computation.CleanReportQueueListener;
 import org.sonar.server.computation.ComputeEngineProcessingModule;
@@ -75,6 +75,7 @@ import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
 import org.sonar.server.computation.ws.CeActivityWsAction;
 import org.sonar.server.computation.ws.CeCancelWsAction;
+import org.sonar.server.computation.ws.CeProjectWsAction;
 import org.sonar.server.computation.ws.CeQueueWsAction;
 import org.sonar.server.computation.ws.CeSubmitWsAction;
 import org.sonar.server.computation.ws.CeTaskWsAction;
@@ -727,6 +728,7 @@ public class PlatformLevel4 extends PlatformLevel {
       CeWs.class,
       CeWsTaskFormatter.class,
       CeTaskWsAction.class,
+      CeProjectWsAction.class,
       CeSubmitWsAction.class,
       CeActivityWsAction.class,
       CeCancelWsAction.class,

@@ -100,7 +100,7 @@ public class CeWsTaskFormatter {
     if (dto.getSubmitterLogin() != null) {
       builder.setSubmitterLogin(dto.getSubmitterLogin());
     }
-    builder.setSubmittedAt(DateUtils.formatDateTime(new Date(dto.getCreatedAt())));
+    builder.setSubmittedAt(DateUtils.formatDateTime(new Date(dto.getSubmittedAt())));
     if (dto.getStartedAt() != null) {
       builder.setStartedAt(DateUtils.formatDateTime(new Date(dto.getStartedAt())));
     }
