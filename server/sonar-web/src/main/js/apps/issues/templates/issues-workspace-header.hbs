@@ -40,7 +40,7 @@
         <span class="current">
           {{sum state.selectedIndex 1}}
           /
-          <span id="issues-total">{{state.total}}</span>
+          <span id="issues-total">{{formatMeasure state.total 'INT'}}</span>
         </span>
         <a class="js-next icon-next" title="{{t "paging_next"}}"></a>
       {{else}}

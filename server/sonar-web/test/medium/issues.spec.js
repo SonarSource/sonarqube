@@ -84,7 +84,7 @@ define(function (require) {
                 .checkElementExist('.js-new-search')
                 .checkElementExist('.js-filter-save-as')
 
-                .checkElementInclude('#issues-total', '4623')
+                .checkElementInclude('#issues-total', '4,623')
                 .checkElementExist('.js-prev')
                 .checkElementExist('.js-next')
                 .checkElementExist('.js-reload')
