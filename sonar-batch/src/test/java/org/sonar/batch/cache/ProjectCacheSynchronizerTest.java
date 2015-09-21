@@ -19,58 +19,55 @@
  */
 package org.sonar.batch.cache;
 
-import static org.mockito.Mockito.when;
-
-import org.sonar.batch.repository.ProjectRepositoriesFactory;
-
-import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import org.sonar.batch.repository.ProjectSettingsRepo;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.QProfile;
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.repository.DefaultProjectSettingsLoader;
-import org.sonar.batch.rule.DefaultActiveRulesLoader;
-import org.sonar.batch.repository.DefaultQualityProfileLoader;
-import org.sonar.batch.repository.ProjectSettingsLoader;
-import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonar.batch.repository.QualityProfileLoader;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.analysis.AnalysisProperties;
-import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.repository.DefaultServerIssuesLoader;
-import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import com.google.common.io.ByteSource;
-
+import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
-
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import com.google.common.io.Resources;
-import org.junit.Test;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
-import org.mockito.MockitoAnnotations;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.batch.protocol.input.QProfile;
+import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
+import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
+import org.sonar.batch.repository.DefaultProjectSettingsLoader;
+import org.sonar.batch.repository.DefaultQualityProfileLoader;
+import org.sonar.batch.repository.DefaultServerIssuesLoader;
+import org.sonar.batch.repository.ProjectRepositoriesFactory;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.ProjectSettingsLoader;
+import org.sonar.batch.repository.ProjectSettingsRepo;
+import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
+import org.sonar.batch.rule.DefaultActiveRulesLoader;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class ProjectCacheSynchronizerTest {
-  private static final String BATCH_PROJECT = "/batch/project?key=org.codehaus.sonar-plugins%3Asonar-scm-git-plugin&preview=true";
-  private static final String ISSUES = "/batch/issues?key=org.codehaus.sonar-plugins%3Asonar-scm-git-plugin";
+  private static final String BATCH_PROJECT = "/scanner/project?key=org.codehaus.sonar-plugins%3Asonar-scm-git-plugin&preview=true";
+  private static final String ISSUES = "/scanner/issues?key=org.codehaus.sonar-plugins%3Asonar-scm-git-plugin";
   private static final String PROJECT_KEY = "org.codehaus.sonar-plugins:sonar-scm-git-plugin";
 
   @Rule

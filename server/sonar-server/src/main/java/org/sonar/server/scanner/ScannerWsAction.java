@@ -17,20 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
-import org.sonar.core.platform.Module;
+import org.sonar.server.ws.WsAction;
 
-public class BatchWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      BatchIndex.class,
-      GlobalAction.class,
-      ProjectAction.class,
-      ProjectDataLoader.class,
-      IssuesAction.class,
-      UsersAction.class,
-      BatchWs.class);
-  }
+public interface ScannerWsAction extends WsAction {
+  // Marker interface
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -66,7 +66,7 @@ public class GlobalActionTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.metricDao()).thenReturn(metricDao);
 
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalAction(dbClient, propertiesDao, userSessionRule)));
+    tester = new WsTester(new ScannerWs(mock(ScannerIndex.class), new GlobalAction(dbClient, propertiesDao, userSessionRule)));
   }
 
   @Test
@@ -78,7 +78,7 @@ public class GlobalActionTest {
         .setWorstValue(0d).setBestValue(100d).setOptimizedBestValue(false).setDirection(1).setEnabled(true)
       ));
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "global");
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "global");
     request.execute().assertJson(getClass(), "return_global_referentials.json");
   }
 
@@ -92,7 +92,7 @@ public class GlobalActionTest {
       new PropertyDto().setKey("foo.license.secured").setValue("5678")
       ));
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "global");
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "global");
     request.execute().assertJson(getClass(), "return_global_settings.json");
   }
 
@@ -106,7 +106,7 @@ public class GlobalActionTest {
       new PropertyDto().setKey("foo.license.secured").setValue("5678")
       ));
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "global");
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "global");
     request.execute().assertJson(getClass(), "return_only_license_settings_without_scan_but_with_preview_permission.json");
   }
 
@@ -122,6 +122,6 @@ public class GlobalActionTest {
 
     thrown.expect(ForbiddenException.class);
 
-    tester.newGetRequest("batch", "global").execute();
+    tester.newGetRequest("scanner", "global").execute();
   }
 }

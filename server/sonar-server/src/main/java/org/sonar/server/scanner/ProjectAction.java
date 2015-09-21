@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,11 +27,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonarqube.ws.WsBatch.WsProjectResponse;
+import org.sonarqube.ws.WsScanner.WsProjectResponse;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-public class ProjectAction implements BatchWsAction {
+public class ProjectAction implements ScannerWsAction {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_PROFILE = "profile";

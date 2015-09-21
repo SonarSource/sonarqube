@@ -30,7 +30,7 @@ import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public class DefaultGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
 
-  private static final String BATCH_GLOBAL_URL = "/batch/global";
+  private static final String BATCH_GLOBAL_URL = "/scanner/global";
 
   private final WSLoader wsLoader;
 

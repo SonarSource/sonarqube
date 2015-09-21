@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,7 +34,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
-public class UsersAction implements BatchWsAction {
+public class UsersAction implements ScannerWsAction {
 
   private static final String PARAM_LOGINS = "logins";
 

@@ -33,7 +33,7 @@ import org.sonar.batch.util.BatchUtils;
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
-  private static final String BATCH_PROJECT_URL = "/batch/project";
+  private static final String BATCH_PROJECT_URL = "/scanner/project";
 
   private final WSLoader wsLoader;
   private final DefaultAnalysisMode analysisMode;

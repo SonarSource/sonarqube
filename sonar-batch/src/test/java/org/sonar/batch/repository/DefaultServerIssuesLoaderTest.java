@@ -52,7 +52,7 @@ public class DefaultServerIssuesLoaderTest {
   @Test
   public void loadFromWs() throws Exception {
     ByteSource bs = mock(ByteSource.class);
-    when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(new WSLoaderResult<>(bs, true));
+    when(wsLoader.loadSource("/scanner/issues?key=foo")).thenReturn(new WSLoaderResult<>(bs, true));
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -80,7 +80,7 @@ public class DefaultServerIssuesLoaderTest {
   public void testError() throws IOException {
     ByteSource source = mock(ByteSource.class);
     when(source.openBufferedStream()).thenThrow(IOException.class);
-    when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(new WSLoaderResult<ByteSource>(source, true));
+    when(wsLoader.loadSource("/scanner/issues?key=foo")).thenReturn(new WSLoaderResult<ByteSource>(source, true));
     loader.load("foo", mock(Function.class));
   }
 }

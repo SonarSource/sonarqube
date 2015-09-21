@@ -49,7 +49,7 @@ import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.activity.ws.ActivitiesWs;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
-import org.sonar.server.batch.BatchWsModule;
+import org.sonar.server.scanner.ScannerWsModule;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.charts.DistributionAreaChart;
 import org.sonar.server.charts.DistributionBarChart;
@@ -343,7 +343,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ActivityIndex.class,
 
       // batch
-      BatchWsModule.class,
+      ScannerWsModule.class,
 
       // Dashboard
       DashboardsWs.class,

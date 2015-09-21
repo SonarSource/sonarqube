@@ -19,6 +19,6 @@
  */
 
 @ParametersAreNonnullByDefault
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import javax.annotation.ParametersAreNonnullByDefault;

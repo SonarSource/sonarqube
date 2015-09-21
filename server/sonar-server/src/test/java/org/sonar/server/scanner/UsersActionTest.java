@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -60,7 +60,7 @@ public class UsersActionTest {
     userIndex = new UserIndex(es.client());
     usersAction = new UsersAction(userIndex, userSessionRule);
 
-    tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), usersAction));
+    tester = new WsTester(new ScannerWs(new ScannerIndex(mock(Server.class)), usersAction));
   }
 
   @Test
@@ -71,7 +71,7 @@ public class UsersActionTest {
 
     userSessionRule.login("sonarqtech").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "users").setParam("logins", "ada.lovelace,grace.hopper");
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "users").setParam("logins", "ada.lovelace,grace.hopper");
 
     ByteArrayInputStream input = new ByteArrayInputStream(request.execute().output());
 

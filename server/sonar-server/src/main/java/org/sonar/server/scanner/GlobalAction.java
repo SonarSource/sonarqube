@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
@@ -36,7 +36,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-public class GlobalAction implements BatchWsAction {
+public class GlobalAction implements ScannerWsAction {
 
   private final DbClient dbClient;
   private final PropertiesDao propertiesDao;

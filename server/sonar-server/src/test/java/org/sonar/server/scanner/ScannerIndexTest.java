@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharUtils;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BatchIndexTest {
+public class ScannerIndexTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -60,21 +60,21 @@ public class BatchIndexTest {
 
   @Test
   public void get_index() {
-    BatchIndex batchIndex = new BatchIndex(server);
-    batchIndex.start();
+    ScannerIndex scannerIndex = new ScannerIndex(server);
+    scannerIndex.start();
 
-    String index = batchIndex.getIndex();
+    String index = scannerIndex.getIndex();
     assertThat(index).isEqualTo("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8" + CharUtils.LF);
 
-    batchIndex.stop();
+    scannerIndex.stop();
   }
 
   @Test
   public void get_file() {
-    BatchIndex batchIndex = new BatchIndex(server);
-    batchIndex.start();
+    ScannerIndex scannerIndex = new ScannerIndex(server);
+    scannerIndex.start();
 
-    File file = batchIndex.getFile("sonar-batch.jar");
+    File file = scannerIndex.getFile("sonar-batch.jar");
     assertThat(file).isEqualTo(jar);
   }
 
@@ -87,10 +87,10 @@ public class BatchIndexTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: ../sonar-batch.jar");
 
-    BatchIndex batchIndex = new BatchIndex(server);
-    batchIndex.start();
+    ScannerIndex scannerIndex = new ScannerIndex(server);
+    scannerIndex.start();
 
-    batchIndex.getFile("../sonar-batch.jar");
+    scannerIndex.getFile("../sonar-batch.jar");
   }
 
   @Test
@@ -98,9 +98,9 @@ public class BatchIndexTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: other.jar");
 
-    BatchIndex batchIndex = new BatchIndex(server);
-    batchIndex.start();
+    ScannerIndex scannerIndex = new ScannerIndex(server);
+    scannerIndex.start();
 
-    batchIndex.getFile("other.jar");
+    scannerIndex.getFile("other.jar");
   }
 }

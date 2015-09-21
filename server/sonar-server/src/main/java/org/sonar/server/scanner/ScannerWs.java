@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -28,15 +28,15 @@ import org.sonar.api.server.ws.WebService;
 
 import java.io.IOException;
 
-public class BatchWs implements WebService {
+public class ScannerWs implements WebService {
 
-  public static final String API_ENDPOINT = "batch";
+  public static final String API_ENDPOINT = "scanner";
 
-  private final BatchIndex batchIndex;
-  private final BatchWsAction[] actions;
+  private final ScannerIndex scannerIndex;
+  private final ScannerWsAction[] actions;
 
-  public BatchWs(BatchIndex batchIndex, BatchWsAction... actions) {
-    this.batchIndex = batchIndex;
+  public ScannerWs(ScannerIndex scannerIndex, ScannerWsAction... actions) {
+    this.scannerIndex = scannerIndex;
     this.actions = actions;
   }
 
@@ -48,7 +48,7 @@ public class BatchWs implements WebService {
 
     defineIndexAction(controller);
     defineFileAction(controller);
-    for (BatchWsAction action : actions) {
+    for (ScannerWsAction action : actions) {
       action.define(controller);
     }
 
@@ -64,7 +64,7 @@ public class BatchWs implements WebService {
         public void handle(Request request, Response response) {
           try {
             response.stream().setMediaType("text/plain");
-            IOUtils.write(batchIndex.getIndex(), response.stream().output());
+            IOUtils.write(scannerIndex.getIndex(), response.stream().output());
           } catch (IOException e) {
             throw new IllegalStateException(e);
           }
@@ -83,7 +83,7 @@ public class BatchWs implements WebService {
           String filename = request.mandatoryParam("name");
           try {
             response.stream().setMediaType("application/java-archive");
-            FileUtils.copyFile(batchIndex.getFile(filename), response.stream().output());
+            FileUtils.copyFile(scannerIndex.getFile(filename), response.stream().output());
           } catch (IOException e) {
             throw new IllegalStateException(e);
           }

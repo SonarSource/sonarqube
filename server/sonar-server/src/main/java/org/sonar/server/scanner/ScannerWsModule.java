@@ -17,10 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
-public interface Messages {
+import org.sonar.core.platform.Module;
 
-  String NO_PERMISSION = "You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.";
-
+public class ScannerWsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      ScannerIndex.class,
+      GlobalAction.class,
+      ProjectAction.class,
+      ProjectDataLoader.class,
+      IssuesAction.class,
+      UsersAction.class,
+      ScannerWs.class);
+  }
 }

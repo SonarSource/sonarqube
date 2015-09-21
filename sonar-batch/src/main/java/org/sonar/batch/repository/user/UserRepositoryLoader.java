@@ -73,7 +73,7 @@ public class UserRepositoryLoader {
   }
 
   private ByteSource loadQuery(String loginsQuery, @Nullable MutableBoolean fromCache) {
-    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/users?logins=" + loginsQuery);
+    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/scanner/users?logins=" + loginsQuery);
     if (fromCache != null) {
       fromCache.setValue(result.isFromCache());
     }

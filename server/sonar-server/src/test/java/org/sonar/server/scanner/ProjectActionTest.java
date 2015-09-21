@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class ProjectActionTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new ProjectAction(projectDataLoader)));
+    tester = new WsTester(new ScannerWs(mock(ScannerIndex.class), new ProjectAction(projectDataLoader)));
   }
 
   @Test
@@ -51,7 +51,7 @@ public class ProjectActionTest {
     ArgumentCaptor<ProjectDataQuery> queryArgumentCaptor = ArgumentCaptor.forClass(ProjectDataQuery.class);
     when(projectDataLoader.load(queryArgumentCaptor.capture())).thenReturn(projectReferentials);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "project")
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "project")
       .setParam("key", projectKey)
       .setParam("profile", "Default")
       .setParam("preview", "false");

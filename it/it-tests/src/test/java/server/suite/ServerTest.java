@@ -72,7 +72,7 @@ public class ServerTest {
       orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
 
       // /batch/index should never need authentication
-      String batchIndex = orchestrator.getServer().wsClient().get("/batch/index");
+      String batchIndex = orchestrator.getServer().wsClient().get("/scanner/index");
       assertThat(batchIndex).isNotEmpty();
 
       String jar = batchIndex.split("\\|")[0];
@@ -80,13 +80,13 @@ public class ServerTest {
       // /batch/file should never need authentication
       HttpClient httpclient = new DefaultHttpClient();
       try {
-        HttpGet get = new HttpGet(orchestrator.getServer().getUrl() + "/batch/file?name=" + jar);
+        HttpGet get = new HttpGet(orchestrator.getServer().getUrl() + "/scanner/file?name=" + jar);
         HttpResponse response = httpclient.execute(get);
         assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
         EntityUtils.consume(response.getEntity());
 
         // As Sonar runner is still using /batch/key, we have to also verify it
-        get = new HttpGet(orchestrator.getServer().getUrl() + "/batch/" + jar);
+        get = new HttpGet(orchestrator.getServer().getUrl() + "/scanner/" + jar);
         response = httpclient.execute(get);
         assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
         EntityUtils.consume(response.getEntity());

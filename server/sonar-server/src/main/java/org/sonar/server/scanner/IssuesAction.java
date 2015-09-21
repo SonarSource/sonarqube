@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,7 +43,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class IssuesAction implements BatchWsAction {
+public class IssuesAction implements ScannerWsAction {
 
   private static final String PARAM_KEY = "key";
 

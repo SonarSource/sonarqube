@@ -19,25 +19,23 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.cache.WSLoaderResult;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.cache.WSLoader;
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.QProfile;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -69,11 +67,11 @@ public class DefaultProjectRepositoriesLoaderTest {
     project = ProjectDefinition.create().setKey("foo");
     when(analysisMode.isIssues()).thenReturn(false);
     loader.load(project.getKeyWithBranch(), null, null);
-    verify(wsLoader).loadString("/batch/project?key=foo&preview=false");
+    verify(wsLoader).loadString("/scanner/project?key=foo&preview=false");
 
     when(analysisMode.isIssues()).thenReturn(true);
     loader.load(project.getKeyWithBranch(), null, null);
-    verify(wsLoader).loadString("/batch/project?key=foo&preview=true");
+    verify(wsLoader).loadString("/scanner/project?key=foo&preview=true");
   }
 
   @Test
@@ -96,7 +94,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     addQualityProfile();
     project = ProjectDefinition.create().setKey("foo bàr");
     loader.load(project.getKeyWithBranch(), null, null);
-    verify(wsLoader).loadString("/batch/project?key=foo+b%C3%A0r&preview=false");
+    verify(wsLoader).loadString("/scanner/project?key=foo+b%C3%A0r&preview=false");
   }
 
   @Test
@@ -104,7 +102,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     addQualityProfile();
     project = ProjectDefinition.create().setKey("foo");
     loader.load(project.getKeyWithBranch(), "my-profile#2", null);
-    verify(wsLoader).loadString("/batch/project?key=foo&profile=my-profile%232&preview=false");
+    verify(wsLoader).loadString("/scanner/project?key=foo&profile=my-profile%232&preview=false");
   }
 
   @Test

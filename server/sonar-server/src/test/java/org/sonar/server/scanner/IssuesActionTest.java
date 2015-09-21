@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.scanner;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
@@ -90,7 +90,7 @@ public class IssuesActionTest {
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, es.client());
     issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
 
-    tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), issuesAction));
+    tester = new WsTester(new ScannerWs(new ScannerIndex(mock(Server.class)), issuesAction));
   }
 
   @Test
@@ -114,7 +114,7 @@ public class IssuesActionTest {
 
     userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "issues").setParam("key", PROJECT_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
@@ -153,7 +153,7 @@ public class IssuesActionTest {
 
     userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "issues").setParam("key", PROJECT_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
@@ -192,7 +192,7 @@ public class IssuesActionTest {
 
     userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "issues").setParam("key", MODULE_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
@@ -230,7 +230,7 @@ public class IssuesActionTest {
 
     userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", FILE_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "issues").setParam("key", FILE_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
@@ -267,7 +267,7 @@ public class IssuesActionTest {
 
     userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "issues").setParam("key", MODULE_KEY);
     ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(previousIssue.getKey()).isEqualTo("EFGH");
     assertThat(previousIssue.getModuleKey()).isEqualTo(MODULE_KEY);
@@ -306,7 +306,7 @@ public class IssuesActionTest {
 
     userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "issues").setParam("key", PROJECT_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     // Module key of removed file should be returned
@@ -317,7 +317,7 @@ public class IssuesActionTest {
   public void fail_without_preview_permission() throws Exception {
     userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("scanner", "issues").setParam("key", PROJECT_KEY);
     request.execute();
   }
 

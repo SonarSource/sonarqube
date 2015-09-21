@@ -19,22 +19,21 @@
  */
 package org.sonar.batch.repository;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
-import org.sonar.batch.cache.WSLoader;
 import org.junit.Test;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.protocol.input.GlobalRepositories;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class DefaultGlobalRepositoriesLoaderTest {
-  private static final String BATCH_GLOBAL_URL = "/batch/global";
+  private static final String BATCH_GLOBAL_URL = "/scanner/global";
   private WSLoader wsLoader;
   private WSLoaderResult<String> result;
   private DefaultGlobalRepositoriesLoader globalRepositoryLoader;
