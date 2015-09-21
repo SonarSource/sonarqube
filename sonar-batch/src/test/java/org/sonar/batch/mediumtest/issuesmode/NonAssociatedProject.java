@@ -30,7 +30,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -57,10 +56,10 @@ public class NonAssociatedProject {
       .addRules(new XooRulesDefinition())
       .addRule("manual:MyManualIssue", "manual", "MyManualIssue", "My manual issue")
       .addRule("manual:MyManualIssueDup", "manual", "MyManualIssue", "My manual issue")
-      .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
-      .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo"))
-      .activateRule(new ActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo"))
-      .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
+      .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo")
+      .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo")
+      .addActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo")
+      .addActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null)
       .setAssociated(false)
       .build();
     tester.start();

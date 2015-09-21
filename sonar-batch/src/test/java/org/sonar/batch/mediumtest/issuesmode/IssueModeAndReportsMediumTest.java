@@ -41,7 +41,6 @@ import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.Constants.Severity;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.xoo.XooPlugin;
@@ -74,10 +73,10 @@ public class IssueModeAndReportsMediumTest {
     .addRules(new XooRulesDefinition())
     .addRule("manual:MyManualIssue", "manual", "MyManualIssue", "My manual issue")
     .addRule("manual:MyManualIssueDup", "manual", "MyManualIssue", "My manual issue")
-    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
-    .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo"))
-    .activateRule(new ActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo"))
-    .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
+    .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo")
+    .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo")
+    .addActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo")
+    .addActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null)
     .setPreviousAnalysisDate(new Date())
     // Existing issue that is still detected
     .mockServerIssue(ServerIssue.newBuilder().setKey("xyz")

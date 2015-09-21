@@ -28,17 +28,17 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.report.AnalysisContextReportPublisher;
-import org.sonar.batch.repository.ProjectSettingsRepo;
+import org.sonar.batch.repository.ProjectRepositories;
 
 /**
  * @since 2.12
  */
 public class ModuleSettings extends Settings {
 
-  private final ProjectSettingsRepo projectSettingsRepo;
+  private final ProjectRepositories projectSettingsRepo;
   private final DefaultAnalysisMode analysisMode;
 
-  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectSettingsRepo projectSettingsRepo,
+  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
     DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     super(batchSettings.getDefinitions());
     this.projectSettingsRepo = projectSettingsRepo;

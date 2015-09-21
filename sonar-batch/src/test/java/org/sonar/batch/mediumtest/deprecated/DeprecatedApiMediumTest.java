@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -45,7 +44,7 @@ public class DeprecatedApiMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(new ActiveRule("xoo", "DeprecatedResourceApi", null, "One issue per line", "MAJOR", null, "xoo"))
+    .addActiveRule("xoo", "DeprecatedResourceApi", null, "One issue per line", "MAJOR", null, "xoo")
     .build();
 
   @Before

@@ -19,25 +19,53 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.batch.repository.ProjectRepositoriesFactory;
+import org.sonarqube.ws.Rules.SearchResponse;
 
-import org.sonar.batch.protocol.input.ActiveRule;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 
-import java.util.Collection;
+import javax.annotation.Nullable;
 
-import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonarqube.ws.Rules.Rule;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
-  private final ProjectRepositoriesFactory projectRepositoriesFactory;
+  private static final String RULES_SEARCH_URL = "/api/rules/search?f=repo,name,severity,lang,internalKey,templateKey";
 
-  public DefaultActiveRulesLoader(ProjectRepositoriesFactory projectRepositoriesFactory) {
-    this.projectRepositoriesFactory = projectRepositoriesFactory;
+  private final WSLoader wsLoader;
+
+  public DefaultActiveRulesLoader(WSLoader wsLoader) {
+    this.wsLoader = wsLoader;
   }
 
   @Override
-  public Collection<ActiveRule> load(Collection<String> qualityProfileKeys, String projectKey) {
-    ProjectRepositories pr = projectRepositoriesFactory.create();
-    return pr.activeRules();
+  public List<Rule> load(String qualityProfileKey, @Nullable MutableBoolean fromCache) {
+    WSLoaderResult<InputStream> result = wsLoader.loadStream(getUrl(qualityProfileKey));
+    List<Rule> ruleList = loadFromStream(result.get());
+    if (fromCache != null) {
+      fromCache.setValue(result.isFromCache());
+    }
+    return ruleList;
+  }
+
+  private static String getUrl(String qualityProfileKey) {
+    return RULES_SEARCH_URL + "&qprofile=" + qualityProfileKey;
+  }
+
+  private static List<Rule> loadFromStream(InputStream is) {
+    try {
+      SearchResponse response = SearchResponse.parseFrom(is);
+      return response.getRulesList();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to load quality profiles", e);
+    } finally {
+      IOUtils.closeQuietly(is);
+    }
   }
 
 }

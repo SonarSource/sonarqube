@@ -177,7 +177,7 @@ public class PersistentCache {
     lock.unlock();
   }
 
-  private String getKey(String uri) {
+  private static String getKey(String uri) {
     try {
       String key = uri;
       MessageDigest digest = MessageDigest.getInstance(DIGEST_ALGO);

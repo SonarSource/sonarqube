@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.cache;
 
+import org.sonar.api.utils.HttpDownloader.HttpException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +29,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.bootstrap.ServerClient;
@@ -52,9 +53,9 @@ public class WSLoader {
   }
 
   private final LoadStrategy defautLoadStrategy;
-  private ServerStatus serverStatus;
   private final ServerClient client;
   private final PersistentCache cache;
+  private ServerStatus serverStatus;
 
   public WSLoader(LoadStrategy strategy, PersistentCache cache, ServerClient client) {
     this.defautLoadStrategy = strategy;
@@ -65,7 +66,7 @@ public class WSLoader {
 
   @Nonnull
   public WSLoaderResult<InputStream> loadStream(String id) {
-    return load(id, defautLoadStrategy, createStreamLoaderServer(), createStreamLoaderCache());
+    return load(id, defautLoadStrategy, streamServerLoader, streamCacheLoader);
   }
 
   @Nonnull
@@ -75,7 +76,7 @@ public class WSLoader {
 
   @Nonnull
   public WSLoaderResult<String> loadString(String id, WSLoader.LoadStrategy strategy) {
-    return load(id, strategy, createStringLoaderServer(), createStringLoaderCache());
+    return load(id, strategy, stringServerLoader, stringCacheLoader);
   }
 
   @Nonnull
@@ -149,7 +150,7 @@ public class WSLoader {
   @Nonnull
   private <T> WSLoaderResult<T> loadFromCache(String id, DataLoader<T> loader) throws NotAvailableException {
     T result = null;
-    
+
     try {
       result = loader.load(id);
     } catch (IOException e) {
@@ -172,7 +173,7 @@ public class WSLoader {
       switchToOnline();
       return new WSLoaderResult<T>(t, false);
     } catch (IllegalStateException e) {
-      if (e.getCause() instanceof HttpDownloader.HttpException) {
+      if (e.getCause() instanceof HttpException) {
         // fail fast if it could connect but there was a application-level error
         throw e;
       }
@@ -184,56 +185,48 @@ public class WSLoader {
     }
   }
 
-  private DataLoader<String> createStringLoaderServer() {
-    return new DataLoader<String>() {
-      @Override
-      public String load(String id) throws IOException {
-        InputStream is = client.load(id, REQUEST_METHOD, true, CONNECT_TIMEOUT, READ_TIMEOUT);
-        String str = IOUtils.toString(is, StandardCharsets.UTF_8);
-        try {
-          cache.put(id, str.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-          throw new IllegalStateException("Error saving to WS cache", e);
-        }
-        return str;
+  private DataLoader<String> stringServerLoader = new DataLoader<String>() {
+    @Override
+    public String load(String id) throws IOException {
+      InputStream is = client.load(id, REQUEST_METHOD, true, CONNECT_TIMEOUT, READ_TIMEOUT);
+      String str = IOUtils.toString(is, StandardCharsets.UTF_8);
+      try {
+        cache.put(id, str.getBytes(StandardCharsets.UTF_8));
+      } catch (IOException e) {
+        throw new IllegalStateException("Error saving to WS cache", e);
       }
-    };
-  }
+      return str;
+    }
+  };
 
-  private DataLoader<String> createStringLoaderCache() {
-    return new DataLoader<String>() {
-      @Override
-      public String load(String id) throws IOException {
-        return cache.getString(id);
-      }
-    };
-  }
+  private DataLoader<String> stringCacheLoader = new DataLoader<String>() {
+    @Override
+    public String load(String id) throws IOException {
+      return cache.getString(id);
+    }
+  };
 
-  private DataLoader<InputStream> createStreamLoaderServer() {
-    return new DataLoader<InputStream>() {
-      @Override
-      public InputStream load(String id) throws IOException {
-        InputStream is = client.load(id, REQUEST_METHOD, true, CONNECT_TIMEOUT, READ_TIMEOUT);
-        try {
-          cache.put(id, is);
-        } catch (IOException e) {
-          throw new IllegalStateException("Error saving to WS cache", e);
-        }
-        is.close();
-        return cache.getStream(id);
+  private DataLoader<InputStream> streamServerLoader = new DataLoader<InputStream>() {
+    @Override
+    public InputStream load(String id) throws IOException {
+      InputStream is = client.load(id, REQUEST_METHOD, true, CONNECT_TIMEOUT, READ_TIMEOUT);
+      try {
+        cache.put(id, is);
+      } catch (IOException e) {
+        throw new IllegalStateException("Error saving to WS cache", e);
       }
-    };
-  }
+      is.close();
+      return cache.getStream(id);
+    }
+  };
 
-  private DataLoader<InputStream> createStreamLoaderCache() {
-    return new DataLoader<InputStream>() {
-      @Override
-      public InputStream load(String id) throws IOException {
-        return cache.getStream(id);
-      }
-    };
-  }
-  
+  private DataLoader<InputStream> streamCacheLoader = new DataLoader<InputStream>() {
+    @Override
+    public InputStream load(String id) throws IOException {
+      return cache.getStream(id);
+    }
+  };
+
   private class NotAvailableException extends Exception {
     private static final long serialVersionUID = 1L;
 

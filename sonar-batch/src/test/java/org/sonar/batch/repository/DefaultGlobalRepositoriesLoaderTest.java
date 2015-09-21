@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class DefaultGlobalRepositoriesLoaderTest {
-  private static final String BATCH_GLOBAL_URL = "/scanner/global";
+  private static final String BATCH_GLOBAL_URL = "/batch/global";
   private WSLoader wsLoader;
   private WSLoaderResult<String> result;
   private DefaultGlobalRepositoriesLoader globalRepositoryLoader;

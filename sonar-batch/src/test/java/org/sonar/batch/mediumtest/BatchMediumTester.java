@@ -19,6 +19,15 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.batch.repository.FileData;
+
+import org.sonar.api.utils.DateUtils;
+import com.google.common.collect.Table;
+import com.google.common.collect.HashBasedTable;
+import org.sonar.batch.repository.ProjectRepositories;
+import org.sonar.batch.rule.ActiveRulesLoader;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonar.batch.repository.QualityProfileLoader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 
@@ -56,11 +65,8 @@ import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.GlobalRepositories;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
@@ -108,7 +114,7 @@ public class BatchMediumTester {
     builder.bootstrapProperties.put(MEDIUM_TEST_ENABLED, "true");
     builder.bootstrapProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
     builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, workingDir.toString());
-    builder.bootstrapProperties.put(CoreProperties.GLOBAL_WORKING_DIRECTORY, globalWorkingDir.toString());
+    builder.bootstrapProperties.put("sonar.userHome", globalWorkingDir.toString());
     return builder;
   }
 
@@ -120,7 +126,8 @@ public class BatchMediumTester {
     private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<>();
     private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
-    private final FakeProjectCacheStatus projectCacheStatus = new FakeProjectCacheStatus();
+    private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
+    private final FakeActiveRulesLoader activeRules = new FakeActiveRulesLoader();
     private boolean associated = true;
     private LogOutput logOutput = null;
 
@@ -161,7 +168,7 @@ public class BatchMediumTester {
     }
 
     public BatchMediumTesterBuilder addQProfile(String language, String name) {
-      projectRefProvider.addQProfile(language, name);
+      qualityProfiles.add(language, name);
       return this;
     }
 
@@ -202,7 +209,7 @@ public class BatchMediumTester {
     }
 
     public BatchMediumTesterBuilder setPreviousAnalysisDate(Date previousAnalysis) {
-      projectRefProvider.ref.setLastAnalysisDate(previousAnalysis);
+      projectRefProvider.setLastAnalysisDate(previousAnalysis);
       return this;
     }
 
@@ -211,8 +218,33 @@ public class BatchMediumTester {
       return this;
     }
 
-    public BatchMediumTesterBuilder activateRule(ActiveRule activeRule) {
-      projectRefProvider.addActiveRule(activeRule);
+    public BatchMediumTesterBuilder activateRule(org.sonarqube.ws.Rules.Rule activeRule) {
+      activeRules.addActiveRule(activeRule);
+      return this;
+    }
+
+    public BatchMediumTesterBuilder addActiveRule(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,
+      @Nullable String internalKey, @Nullable String languag) {
+
+      org.sonarqube.ws.Rules.Rule.Builder builder = org.sonarqube.ws.Rules.Rule.newBuilder();
+      builder.setRepo(repositoryKey);
+      builder.setKey(ruleKey);
+      builder.setName(name);
+
+      if (templateRuleKey != null) {
+        builder.setTemplateKey(templateRuleKey);
+      }
+      if (languag != null) {
+        builder.setLang(languag);
+      }
+      if (internalKey != null) {
+        builder.setInternalKey(internalKey);
+      }
+      if (severity != null) {
+        builder.setSeverity(severity);
+      }
+
+      activeRules.addActiveRule(builder.build());
       return this;
     }
 
@@ -262,9 +294,10 @@ public class BatchMediumTester {
         new EnvironmentInformation("mediumTest", "1.0"),
         builder.pluginInstaller,
         builder.globalRefProvider,
+        builder.qualityProfiles,
         builder.rulesLoader,
-        builder.projectCacheStatus,
         builder.projectRefProvider,
+        builder.activeRules,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
       .setLogOutput(builder.logOutput);
@@ -346,6 +379,19 @@ public class BatchMediumTester {
     }
   }
 
+  private static class FakeActiveRulesLoader implements ActiveRulesLoader {
+    private List<org.sonarqube.ws.Rules.Rule> activeRules = new LinkedList<>();
+
+    public void addActiveRule(org.sonarqube.ws.Rules.Rule activeRule) {
+      this.activeRules.add(activeRule);
+    }
+
+    @Override
+    public List<org.sonarqube.ws.Rules.Rule> load(String qualityProfileKey, MutableBoolean fromCache) {
+      return activeRules;
+    }
+  }
+
   private static class FakeGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
 
     private int metricId = 1;
@@ -382,34 +428,49 @@ public class BatchMediumTester {
 
   private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
 
-    private ProjectRepositories ref = new ProjectRepositories();
+    private Table<String, String, FileData> fileDataTable = HashBasedTable.create();
+    private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, @Nullable String sonarProfile, @Nullable MutableBoolean fromCache) {
-      return ref;
-    }
-
-    public FakeProjectRepositoriesLoader addQProfile(String language, String name) {
-      // Use a fixed date to allow assertions
-      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(name, name, language, new Date(1234567891212L)));
-      return this;
-    }
-
-    public FakeProjectRepositoriesLoader addActiveRule(ActiveRule activeRule) {
-      ref.addActiveRule(activeRule);
-      return this;
+    public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable MutableBoolean fromCache) {
+      Table<String, String, String> settings = HashBasedTable.create();
+      return new ProjectRepositories(settings, fileDataTable, lastAnalysisDate);
     }
 
     public FakeProjectRepositoriesLoader addFileData(String moduleKey, String path, FileData fileData) {
-      ref.addFileData(moduleKey, path, fileData);
+      fileDataTable.put(moduleKey, path, fileData);
       return this;
     }
 
     public FakeProjectRepositoriesLoader setLastAnalysisDate(Date d) {
-      ref.setLastAnalysisDate(d);
+      lastAnalysisDate = d;
       return this;
     }
 
+  }
+
+  private static class FakeQualityProfileLoader implements QualityProfileLoader {
+
+    private List<QualityProfile> qualityProfiles = new LinkedList<>();
+
+    public void add(String language, String name) {
+      qualityProfiles.add(QualityProfile.newBuilder()
+        .setLanguage(language)
+        .setKey(name)
+        .setName(name)
+        .setRulesUpdatedAt(DateUtils.formatDateTime(new Date(1234567891212L)))
+        .build());
+    }
+
+    @Override
+    public List<QualityProfile> load(String projectKey, String profileName, MutableBoolean fromCache) {
+      return qualityProfiles;
+    }
+
+    @Override
+    public List<QualityProfile> loadDefault(MutableBoolean fromCache) {
+      return qualityProfiles;
+    }
   }
 
   private static class FakeServerIssuesLoader implements ServerIssuesLoader {
@@ -427,23 +488,6 @@ public class BatchMediumTester {
       }
       return true;
     }
-  }
-
-  private static class FakeProjectCacheStatus implements ProjectCacheStatus {
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void delete() {
-    }
-
-    @Override
-    public Date getSyncStatus() {
-      return new Date();
-    }
-
   }
 
   private static class FakeServerLineHashesLoader implements ServerLineHashesLoader {

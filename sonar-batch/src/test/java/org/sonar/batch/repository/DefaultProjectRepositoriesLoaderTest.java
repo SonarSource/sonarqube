@@ -19,107 +19,78 @@
  */
 package org.sonar.batch.repository;
 
-import java.io.IOException;
-import java.util.Date;
-import org.apache.commons.io.IOUtils;
+import org.sonarqube.ws.WsScanner.WsProjectResponse;
+import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.cache.WSLoader;
 import org.apache.commons.lang.mutable.MutableBoolean;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.utils.MessageException;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.protocol.input.QProfile;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultProjectRepositoriesLoaderTest {
-
+  private final static String PROJECT_KEY = "foo?";
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultProjectRepositoriesLoader loader;
   private WSLoader wsLoader;
-  private DefaultAnalysisMode analysisMode;
-  private ProjectDefinition project;
 
   @Before
-  public void prepare() {
+  public void prepare() throws IOException {
     wsLoader = mock(WSLoader.class);
-    analysisMode = mock(DefaultAnalysisMode.class);
-    loader = new DefaultProjectRepositoriesLoader(wsLoader, analysisMode);
-    loader = spy(loader);
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>("{}", true));
+    InputStream is = mockData();
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, true));
+    loader = new DefaultProjectRepositoriesLoader(wsLoader);
   }
 
   @Test
-  public void passPreviewParameter() {
-    addQualityProfile();
-    project = ProjectDefinition.create().setKey("foo");
-    when(analysisMode.isIssues()).thenReturn(false);
-    loader.load(project.getKeyWithBranch(), null, null);
-    verify(wsLoader).loadString("/scanner/project?key=foo&preview=false");
+  public void continueOnError() {
+    when(wsLoader.loadStream(anyString())).thenThrow(IllegalStateException.class);
+    ProjectRepositories proj = loader.load(PROJECT_KEY, false, null);
+    assertThat(proj.exists()).isEqualTo(false);
+  }
 
-    when(analysisMode.isIssues()).thenReturn(true);
-    loader.load(project.getKeyWithBranch(), null, null);
-    verify(wsLoader).loadString("/scanner/project?key=foo&preview=true");
+  @Test
+  public void passIssuesModeParameter() {
+    loader.load(PROJECT_KEY, false, null);
+    verify(wsLoader).loadStream("/batch/project?key=foo%3F");
+
+    loader.load(PROJECT_KEY, true, null);
+    verify(wsLoader).loadStream("/batch/project?key=foo%3F&issues=true");
   }
 
   @Test
   public void deserializeResponse() throws IOException {
-    String resourceName = this.getClass().getSimpleName() + "/sample_response.json";
-    String response = IOUtils.toString(this.getClass().getResourceAsStream(resourceName));
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(response, true));
-    project = ProjectDefinition.create().setKey("foo");
     MutableBoolean fromCache = new MutableBoolean();
-    ProjectRepositories projectRepo = loader.load(project.getKeyWithBranch(), null, fromCache);
-
+    loader.load(PROJECT_KEY, false, fromCache);
     assertThat(fromCache.booleanValue()).isTrue();
-    assertThat(projectRepo.activeRules().size()).isEqualTo(221);
-    assertThat(projectRepo.fileDataByPath("my:project").size()).isEqualTo(11);
-
   }
 
   @Test
   public void passAndEncodeProjectKeyParameter() {
-    addQualityProfile();
-    project = ProjectDefinition.create().setKey("foo bàr");
-    loader.load(project.getKeyWithBranch(), null, null);
-    verify(wsLoader).loadString("/scanner/project?key=foo+b%C3%A0r&preview=false");
+    loader.load(PROJECT_KEY, false, null);
+    verify(wsLoader).loadStream("/batch/project?key=foo%3F");
   }
 
-  @Test
-  public void passAndEncodeProfileParameter() {
-    addQualityProfile();
-    project = ProjectDefinition.create().setKey("foo");
-    loader.load(project.getKeyWithBranch(), "my-profile#2", null);
-    verify(wsLoader).loadString("/scanner/project?key=foo&profile=my-profile%232&preview=false");
-  }
+  private InputStream mockData() throws IOException {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    WsProjectResponse.Builder projectResponseBuilder = WsProjectResponse.newBuilder();
+    WsProjectResponse response = projectResponseBuilder.build();
+    response.writeTo(os);
 
-  @Test
-  public void fail_with_message_exception_when_no_quality_profile() throws Exception {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
-
-    project = ProjectDefinition.create().setKey("foo");
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(new ProjectRepositories().toJson(), true));
-
-    loader.load(project.getKeyWithBranch(), null, null);
-  }
-
-  private void addQualityProfile() {
-    ProjectRepositories projectRepositories = new ProjectRepositories();
-    projectRepositories.addQProfile(new QProfile("key", "name", "language", new Date()));
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(projectRepositories.toJson(), true));
+    return new ByteArrayInputStream(os.toByteArray());
   }
 
 }

@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.output.BatchReport.Flow;
 import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.batch.protocol.output.BatchReport.IssueLocation;
@@ -46,7 +45,7 @@ public class MultilineIssuesMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(new ActiveRule("xoo", "MultilineIssue", null, "Multinile Issue", "MAJOR", null, "xoo"))
+    .addActiveRule("xoo", "MultilineIssue", null, "Multinile Issue", "MAJOR", null, "xoo")
     .build();
 
   private TaskResult result;

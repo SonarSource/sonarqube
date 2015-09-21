@@ -20,7 +20,6 @@
 package org.sonar.batch.repository;
 
 import com.google.common.base.Function;
-import com.google.common.io.ByteSource;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
@@ -39,7 +38,7 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
 
   @Override
   public boolean load(String componentKey, Function<ServerIssue, Void> consumer) {
-    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/scanner/issues?key=" + BatchUtils.encodeForUrl(componentKey));
+    WSLoaderResult<InputStream> result = wsLoader.loadStream("/batch/issues?key=" + BatchUtils.encodeForUrl(componentKey));
     parseIssues(result.get(), consumer);
     return result.isFromCache();
   }

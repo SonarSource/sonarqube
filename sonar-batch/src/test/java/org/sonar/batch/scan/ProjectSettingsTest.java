@@ -19,12 +19,12 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.repository.FileData;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.ImmutableTable;
-import org.sonar.batch.repository.ProjectSettingsRepo;
+import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalMode;
 import com.google.common.collect.ImmutableMap;
@@ -56,7 +56,7 @@ public class ProjectSettingsTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private ProjectSettingsRepo projectRef;
+  private ProjectRepositories projectRef;
   private ProjectDefinition project;
   private GlobalSettings bootstrapProps;
   private Table<String, String, FileData> emptyFileData;
@@ -79,7 +79,7 @@ public class ProjectSettingsTest {
   public void should_load_project_props() {
     project.setProperty("project.prop", "project");
 
-    projectRef = new ProjectSettingsRepo(emptySettings, emptyFileData, null);
+    projectRef = new ProjectRepositories(emptySettings, emptyFileData, null);
     ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
@@ -91,7 +91,7 @@ public class ProjectSettingsTest {
     settings.put("struts", "sonar.cpd.cross", "true");
     settings.put("struts", "sonar.java.coveragePlugin", "jacoco");
 
-    projectRef = new ProjectSettingsRepo(settings, emptyFileData, null);
+    projectRef = new ProjectRepositories(settings, emptyFileData, null);
     ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
@@ -104,7 +104,7 @@ public class ProjectSettingsTest {
     settings.put("struts:mybranch", "sonar.cpd.cross", "true");
     settings.put("struts:mybranch", "sonar.java.coveragePlugin", "jacoco");
 
-    projectRef = new ProjectSettingsRepo(settings, emptyFileData, null);
+    projectRef = new ProjectRepositories(settings, emptyFileData, null);
 
     ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
@@ -117,7 +117,7 @@ public class ProjectSettingsTest {
     settings.put("struts", "sonar.foo.secured", "bar");
     settings.put("struts", "sonar.foo.license.secured", "bar2");
 
-    projectRef = new ProjectSettingsRepo(settings, emptyFileData, null);
+    projectRef = new ProjectRepositories(settings, emptyFileData, null);
     ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
@@ -132,7 +132,7 @@ public class ProjectSettingsTest {
 
     when(mode.isIssues()).thenReturn(true);
 
-    projectRef = new ProjectSettingsRepo(settings, emptyFileData, null);
+    projectRef = new ProjectRepositories(settings, emptyFileData, null);
     ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
@@ -146,7 +146,7 @@ public class ProjectSettingsTest {
   public void should_log_a_warning_when_a_dropper_property_is_present() {
     GlobalSettings settings = new GlobalSettings(new GlobalProperties(ImmutableMap.of("sonar.qualitygate", "somevalue")), new PropertyDefinitions(), new GlobalRepositories(),
       globalMode);
-    projectRef = new ProjectSettingsRepo(emptySettings, emptyFileData, null);
+    projectRef = new ProjectRepositories(emptySettings, emptyFileData, null);
     new ProjectSettings(new ProjectReactor(project), settings, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");

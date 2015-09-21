@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -44,7 +43,7 @@ public class IssuesOnDirMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
-    .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", null, "One issue per line", "MINOR", "xoo", "xoo"))
+    .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "One issue per line", "MINOR", "xoo", "xoo")
     .build();
 
   @Before

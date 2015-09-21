@@ -33,7 +33,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.Benchmark;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
@@ -52,7 +51,7 @@ public class RandomFsAccessMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
-    .activateRule(new ActiveRule("xoo", "RandomAccessIssue", null, "One issue per line", "MAJOR", null, "xoo"))
+    .addActiveRule("xoo", "RandomAccessIssue", null, "One issue per line", "MAJOR", null, "xoo")
     .build();
 
   @Before

@@ -19,17 +19,17 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.batch.repository.ProjectSettingsRepo;
+import org.sonar.batch.repository.FileData;
 
+import org.sonar.batch.repository.ProjectRepositories;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.batch.protocol.input.FileData;
 
 class StatusDetection {
 
-  private final ProjectSettingsRepo projectSettings;
+  private final ProjectRepositories projectSettings;
 
-  StatusDetection(ProjectSettingsRepo projectSettings) {
+  StatusDetection(ProjectRepositories projectSettings) {
     this.projectSettings = projectSettings;
   }
 

@@ -19,14 +19,10 @@
  */
 package org.sonar.batch.repository;
 
-
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public interface ProjectRepositoriesLoader {
-
-  ProjectRepositories load(String projectKeyWithBranch, @Nullable String sonarProfile, @Nullable MutableBoolean fromCache);
-
+  ProjectRepositories load(String projectKeyWithBranch, boolean issuesMode, @Nullable MutableBoolean fromCache);
 }

@@ -19,7 +19,9 @@
  */
 package org.sonar.batch.scm;
 
-import org.sonar.batch.repository.ProjectSettingsRepo;
+import org.sonar.batch.repository.FileData;
+
+import org.sonar.batch.repository.ProjectRepositories;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +37,6 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
@@ -46,12 +47,12 @@ public final class ScmSensor implements Sensor {
   private final ProjectDefinition projectDefinition;
   private final ScmConfiguration configuration;
   private final FileSystem fs;
-  private final ProjectSettingsRepo projectSettings;
+  private final ProjectRepositories projectSettings;
   private final BatchComponentCache resourceCache;
   private final ReportPublisher publishReportJob;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectSettingsRepo projectSettings, FileSystem fs, InputPathCache inputPathCache, BatchComponentCache resourceCache,
+    ProjectRepositories projectSettings, FileSystem fs, InputPathCache inputPathCache, BatchComponentCache resourceCache,
     ReportPublisher publishReportJob) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
@@ -98,7 +99,7 @@ public final class ScmSensor implements Sensor {
         addIfNotEmpty(filesToBlame, f);
       } else {
         FileData fileData = projectSettings.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
-        if (f.status() != Status.SAME || fileData == null || fileData.needBlame()) {
+        if (f.status() != Status.SAME || fileData == null || fileData.revision() != null) {
           addIfNotEmpty(filesToBlame, f);
         }
       }

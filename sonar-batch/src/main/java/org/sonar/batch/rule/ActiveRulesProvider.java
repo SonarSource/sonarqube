@@ -19,52 +19,89 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.log.Profiler;
+
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonarqube.ws.Rules.Rule.Param;
+import org.sonarqube.ws.Rules.Rule;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.protocol.input.ActiveRule;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 
 /**
  * Loads the rules that are activated on the Quality profiles
- * used by the current project and build {@link org.sonar.api.batch.rule.ActiveRules}.
+ * used by the current project and builds {@link org.sonar.api.batch.rule.ActiveRules}.
  */
 public class ActiveRulesProvider extends ProviderAdapter {
-
+  private static final Logger LOG = Loggers.get(ActiveRulesProvider.class);
+  private static final String LOG_MSG = "Load active rules";
   private ActiveRules singleton = null;
 
-  public ActiveRules provide(ActiveRulesLoader ref, ModuleQProfiles qProfiles, ProjectReactor projectReactor) {
+  public ActiveRules provide(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
     if (singleton == null) {
-      singleton = load(ref, qProfiles, projectReactor);
+      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
+      singleton = load(loader, qProfiles);
+      profiler.stopInfo();
     }
     return singleton;
   }
 
-  private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles, ProjectReactor projectReactor) {
+  private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
+
+    Collection<String> qProfileKeys = getKeys(qProfiles);
+    Map<String, Rule> loadedRulesByKey = new HashMap<>();
+
+    try {
+      for (String qProfileKey : qProfileKeys) {
+        Collection<Rule> qProfileRules;
+        qProfileRules = load(loader, qProfileKey);
+
+        for (Rule r : qProfileRules) {
+          if (!loadedRulesByKey.containsKey(r.getKey())) {
+            loadedRulesByKey.put(r.getKey(), r);
+          }
+        }
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Error loading active rules", e);
+    }
+
+    return transform(loadedRulesByKey.values());
+  }
+
+  private static ActiveRules transform(Collection<Rule> loadedRules) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    for (ActiveRule activeRule : loader.load(getKeys(qProfiles), projectReactor.getRoot().getKeyWithBranch())) {
-      NewActiveRule newActiveRule = builder.create(RuleKey.of(activeRule.repositoryKey(), activeRule.ruleKey()));
-      newActiveRule.setName(activeRule.name());
-      newActiveRule.setSeverity(activeRule.severity());
-      newActiveRule.setLanguage(activeRule.language());
-      newActiveRule.setInternalKey(activeRule.internalKey());
-      newActiveRule.setTemplateRuleKey(activeRule.templateRuleKey());
+
+    for (Rule activeRule : loadedRules) {
+      NewActiveRule newActiveRule = builder.create(RuleKey.of(activeRule.getRepo(), activeRule.getKey()));
+      newActiveRule.setName(activeRule.getName());
+      newActiveRule.setSeverity(activeRule.getSeverity());
+      newActiveRule.setLanguage(activeRule.getLang());
+      newActiveRule.setInternalKey(activeRule.getInternalKey());
+      newActiveRule.setTemplateRuleKey(activeRule.getTemplateKey());
 
       // load parameters
-      for (Entry<String, String> param : activeRule.params().entrySet()) {
-        newActiveRule.setParam(param.getKey(), param.getValue());
+      for (Param param : activeRule.getParams().getParamsList()) {
+        newActiveRule.setParam(param.getKey(), param.getDefaultValue());
       }
 
       newActiveRule.activate();
     }
     return builder.build();
+  }
+
+  private static List<Rule> load(ActiveRulesLoader loader, String qProfileKey) throws IOException {
+    return loader.load(qProfileKey, null);
   }
 
   private static Collection<String> getKeys(ModuleQProfiles qProfiles) {

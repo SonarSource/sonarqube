@@ -19,17 +19,15 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.cache.ProjectPersistentCacheProvider;
+import org.sonar.batch.repository.ProjectRepositoriesProvider;
 
+import org.sonar.batch.repository.ProjectRepositories;
+import org.sonar.batch.cache.ProjectPersistentCacheProvider;
 import org.sonar.batch.issue.tracking.LocalIssueTracking;
 import org.sonar.batch.issue.tracking.IssueTransition;
-import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
 import org.sonar.batch.repository.QualityProfileProvider;
 import org.sonar.batch.repository.DefaultQualityProfileLoader;
 import org.sonar.batch.repository.QualityProfileLoader;
-import org.sonar.batch.repository.ProjectSettingsLoader;
-import org.sonar.batch.repository.DefaultProjectSettingsLoader;
-import org.sonar.batch.repository.ProjectSettingsProvider;
 import org.sonar.batch.rule.DefaultActiveRulesLoader;
 import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
@@ -131,7 +129,6 @@ public class ProjectScanContainer extends ComponentContainer {
       props,
       DefaultAnalysisMode.class,
       ProjectReactorBuilder.class,
-      DefaultProjectRepositoriesFactory.class,
       new MutableProjectReactorProvider(),
       new ImmutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
@@ -151,7 +148,7 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
       BatchComponentCache.class,
       DefaultIssueCallback.class,
-      new ProjectSettingsProvider(),
+      new ProjectRepositoriesProvider(),
       new ProjectPersistentCacheProvider(),
 
       // temp
@@ -211,7 +208,6 @@ public class ProjectScanContainer extends ComponentContainer {
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
-    addIfMissing(DefaultProjectSettingsLoader.class, ProjectSettingsLoader.class);
   }
 
   private void addIssueTrackingComponents() {
@@ -227,7 +223,7 @@ public class ProjectScanContainer extends ComponentContainer {
       return false;
     }
 
-    return getComponentByType(DefaultProjectRepositoriesFactory.class).create().lastAnalysisDate() != null;
+    return getComponentByType(ProjectRepositories.class).lastAnalysisDate() != null;
   }
 
   private void addBatchExtensions() {

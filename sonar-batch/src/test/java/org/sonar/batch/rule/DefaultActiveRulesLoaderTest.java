@@ -19,52 +19,50 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
-
-import com.google.common.collect.ImmutableList;
-import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonarqube.ws.Rules.Rule;
+import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.cache.WSLoader;
+import com.google.common.io.Resources;
 import org.junit.Test;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 
+import static org.mockito.Mockito.verify;
+
+import static org.mockito.Matchers.anyString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import org.junit.Before;
 
 public class DefaultActiveRulesLoaderTest {
   private DefaultActiveRulesLoader loader;
-  private DefaultProjectRepositoriesFactory factory;
-  private ProjectRepositories projectRepositories;
-
-  private ActiveRule response;
+  private WSLoader ws;
 
   @Before
   public void setUp() {
-    response = mock(ActiveRule.class);
-    when(response.ruleKey()).thenReturn("rule");
-
-    projectRepositories = new ProjectRepositories();
-    projectRepositories.addActiveRule(response);
-
-    factory = mock(DefaultProjectRepositoriesFactory.class);
-    when(factory.create()).thenReturn(projectRepositories);
-    loader = new DefaultActiveRulesLoader(factory);
+    ws = mock(WSLoader.class);
+    loader = new DefaultActiveRulesLoader(ws);
   }
 
   @Test
-  public void test() {
-    Collection<String> profiles = ImmutableList.of("profile1");
-    Collection<ActiveRule> activeRules = loader.load(profiles, "project");
+  public void feed_real_response() throws IOException {
+    InputStream response = loadResource("active_rule_search.protobuf");
+    when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(response, false));
+    Collection<Rule> activeRules = loader.load("java-sonar-way-26368", null);
+    assertThat(activeRules).hasSize(100);
 
-    assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.iterator().next().ruleKey()).isEqualTo("rule");
+    verify(ws).loadStream("/api/rules/search?f=repo,name,severity,lang,internalKey,templateKey&qprofile=java-sonar-way-26368");
+    verifyNoMoreInteractions(ws);
 
-    verify(factory).create();
-    verifyNoMoreInteractions(factory);
+  }
+
+  private InputStream loadResource(String name) throws IOException {
+    return Resources.asByteSource(this.getClass().getResource("DefaultActiveRulesLoaderTest/" + name))
+      .openBufferedStream();
   }
 
 }

@@ -21,7 +21,6 @@ package org.sonar.batch.cache;
 
 import javax.annotation.Nullable;
 
-import org.sonar.batch.repository.ProjectRepositoriesFactoryProvider;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.api.CoreProperties;
 
@@ -30,15 +29,13 @@ import java.util.Map;
 
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.bootstrap.GlobalProperties;
-import org.sonar.batch.repository.ProjectSettingsLoader;
-import org.sonar.batch.repository.DefaultProjectSettingsLoader;
+import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.rule.DefaultActiveRulesLoader;
 import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.repository.DefaultQualityProfileLoader;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
-import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
@@ -84,7 +81,6 @@ public class ProjectSyncContainer extends ComponentContainer {
       new ProjectKeySupplier(projectKey),
       projectKey != null ? ProjectCacheSynchronizer.class : NonAssociatedCacheSynchronizer.class,
       UserRepositoryLoader.class,
-      new ProjectRepositoriesFactoryProvider(projectKey),
       new ProjectPersistentCacheProvider(),
       createIssuesAnalysisMode(projectKey));
 
@@ -93,6 +89,5 @@ public class ProjectSyncContainer extends ComponentContainer {
     addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
-    addIfMissing(DefaultProjectSettingsLoader.class, ProjectSettingsLoader.class);
   }
 }

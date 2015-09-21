@@ -19,27 +19,38 @@
  */
 package org.sonar.batch.repository;
 
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import org.sonar.batch.protocol.input.FileData;
-
 import java.util.Date;
 import java.util.Map;
 
-public class ProjectSettingsRepo {
-  private Table<String, String, String> settingsByModule = null;
-  private Table<String, String, FileData> fileDataByModuleAndPath = null;
-  private Date lastAnalysisDate;
+public class ProjectRepositories {
+  private final Table<String, String, String> settingsByModule;
+  private final Table<String, String, FileData> fileDataByModuleAndPath;
+  private final Date lastAnalysisDate;
+  private final boolean exists;
 
-  public ProjectSettingsRepo(Table<String, String, String> settingsByModule, Table<String, String, FileData> fileDataByModuleAndPath,
+  public ProjectRepositories() {
+    this.exists = false;
+    this.settingsByModule = HashBasedTable.create();
+    this.fileDataByModuleAndPath = HashBasedTable.create();
+    this.lastAnalysisDate = null;
+  }
+
+  public ProjectRepositories(Table<String, String, String> settingsByModule, Table<String, String, FileData> fileDataByModuleAndPath,
     @Nullable Date lastAnalysisDate) {
-    super();
     this.settingsByModule = settingsByModule;
     this.fileDataByModuleAndPath = fileDataByModuleAndPath;
     this.lastAnalysisDate = lastAnalysisDate;
+    this.exists = true;
+  }
+
+  public boolean exists() {
+    return exists;
   }
 
   public Map<String, FileData> fileDataByPath(String moduleKey) {

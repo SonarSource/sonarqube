@@ -19,12 +19,15 @@
  */
 package org.sonar.batch.repository;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+
 import javax.annotation.Nullable;
 
-import org.sonar.batch.protocol.input.QProfile;
-
-import java.util.Collection;
+import java.util.List;
 
 public interface QualityProfileLoader {
-  Collection<QProfile> load(@Nullable String projectKey, @Nullable String sonarProfile);
+  List<QualityProfile> load(String projectKey, @Nullable String profileName, @Nullable MutableBoolean fromCache);
+  
+  List<QualityProfile> loadDefault(@Nullable MutableBoolean fromCache);
 }

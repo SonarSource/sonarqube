@@ -19,10 +19,23 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.protocol.input.ProjectRepositories;
+import javax.annotation.concurrent.Immutable;
 
-public interface ProjectRepositoriesFactory {
+@Immutable
+public class FileData {
+  private final String hash;
+  private final String revision;
 
-  ProjectRepositories create();
+  public FileData(String hash, String revision) {
+    this.hash = hash;
+    this.revision = revision;
+  }
 
+  public String hash() {
+    return hash;
+  }
+
+  public String revision() {
+    return revision;
+  }
 }

@@ -26,7 +26,6 @@ import org.junit.Before;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.CoreProperties;
 import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 import org.apache.commons.io.FileUtils;
@@ -49,7 +48,7 @@ public class IssuesIssuesModeMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
-    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
+    .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo")
     .setLastBuildDate(new Date())
     .build();
 

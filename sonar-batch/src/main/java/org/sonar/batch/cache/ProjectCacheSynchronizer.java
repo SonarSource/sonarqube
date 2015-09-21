@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.cache;
 
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
+
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 import com.google.common.base.Function;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -26,9 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.batch.protocol.input.QProfile;
-import org.sonar.batch.repository.ProjectSettingsLoader;
-import org.sonar.batch.repository.ProjectSettingsRepo;
+import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
@@ -48,14 +49,14 @@ public class ProjectCacheSynchronizer {
   private final UserRepositoryLoader userRepository;
   private final ProjectCacheStatus cacheStatus;
   private final QualityProfileLoader qualityProfileLoader;
-  private final ProjectSettingsLoader projectSettingsLoader;
+  private final ProjectRepositoriesLoader projectRepositoriesLoader;
   private final ActiveRulesLoader activeRulesLoader;
 
-  public ProjectCacheSynchronizer(QualityProfileLoader qualityProfileLoader, ProjectSettingsLoader projectSettingsLoader,
+  public ProjectCacheSynchronizer(QualityProfileLoader qualityProfileLoader, ProjectRepositoriesLoader projectSettingsLoader,
     ActiveRulesLoader activeRulesLoader, ServerIssuesLoader issuesLoader,
     UserRepositoryLoader userRepository, ProjectCacheStatus cacheStatus) {
     this.qualityProfileLoader = qualityProfileLoader;
-    this.projectSettingsLoader = projectSettingsLoader;
+    this.projectRepositoriesLoader = projectSettingsLoader;
     this.activeRulesLoader = activeRulesLoader;
     this.issuesLoader = issuesLoader;
     this.userRepository = userRepository;
@@ -88,42 +89,51 @@ public class ProjectCacheSynchronizer {
 
   private void loadData(String projectKey) {
     Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
+    ProjectRepositories projectRepo = null;
 
     profiler.startInfo("Load project settings");
-    ProjectSettingsRepo settings = projectSettingsLoader.load(projectKey, null);
-    profiler.stopInfo();
+    projectRepo = projectRepositoriesLoader.load(projectKey, true, null);
 
-    if (settings.lastAnalysisDate() == null) {
+    if (!projectRepo.exists()) {
+      LOG.debug("Project doesn't exist in the server");
+    } else if (projectRepo.lastAnalysisDate() == null) {
       LOG.debug("No previous analysis found");
-      return;
     }
+    profiler.stopInfo();
 
     profiler.startInfo("Load project quality profiles");
-    Collection<QProfile> qProfiles = qualityProfileLoader.load(projectKey, null);
+    Collection<QualityProfile> qProfiles;
+    if (projectRepo.exists()) {
+      qProfiles = qualityProfileLoader.load(projectKey, null, null);
+    } else {
+      qProfiles = qualityProfileLoader.loadDefault(null);
+    }
     profiler.stopInfo();
-
-    Collection<String> profileKeys = getKeys(qProfiles);
 
     profiler.startInfo("Load project active rules");
-    activeRulesLoader.load(profileKeys, projectKey);
-    profiler.stopInfo();
-
-    profiler.startInfo("Load server issues");
-    UserLoginAccumulator consumer = new UserLoginAccumulator();
-    issuesLoader.load(projectKey, consumer);
-    profiler.stopInfo();
-
-    profiler.startInfo("Load user information (" + consumer.loginSet.size() + " users)");
-    for (String login : consumer.loginSet) {
-      userRepository.load(login, null);
+    Collection<String> keys = getKeys(qProfiles);
+    for (String k : keys) {
+      activeRulesLoader.load(k, null);
     }
-    profiler.stopInfo("Load user information");
+
+    if (projectRepo.lastAnalysisDate() != null) {
+      profiler.startInfo("Load server issues");
+      UserLoginAccumulator consumer = new UserLoginAccumulator();
+      issuesLoader.load(projectKey, consumer);
+      profiler.stopInfo();
+
+      profiler.startInfo("Load user information (" + consumer.loginSet.size() + " users)");
+      for (String login : consumer.loginSet) {
+        userRepository.load(login, null);
+      }
+      profiler.stopInfo("Load user information");
+    }
   }
 
-  private static Collection<String> getKeys(Collection<QProfile> qProfiles) {
+  private static Collection<String> getKeys(Collection<QualityProfile> qProfiles) {
     List<String> list = new ArrayList<>(qProfiles.size());
-    for (QProfile qp : qProfiles) {
-      list.add(qp.key());
+    for (QualityProfile qp : qProfiles) {
+      list.add(qp.getKey());
     }
 
     return list;

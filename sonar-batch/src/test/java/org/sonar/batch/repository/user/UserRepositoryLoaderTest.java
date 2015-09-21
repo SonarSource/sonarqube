@@ -68,7 +68,7 @@ public class UserRepositoryLoaderTest {
   public void testLoad() throws IOException {
     Map<String, String> userMap = ImmutableMap.of("fmallet", "Freddy Mallet", "sbrandhof", "Simon");
     WSLoaderResult<InputStream> res = new WSLoaderResult<>(createUsersMock(userMap), true);
-    when(wsLoader.loadStream("/scanner/users?logins=fmallet,sbrandhof")).thenReturn(res);
+    when(wsLoader.loadStream("/batch/users?logins=fmallet,sbrandhof")).thenReturn(res);
 
     assertThat(userRepo.load(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
   }
@@ -88,13 +88,8 @@ public class UserRepositoryLoaderTest {
 
   @Test
   public void testLoadSingleUser() throws IOException {
-<<<<<<< HEAD
-    WSLoaderResult<ByteSource> res = new WSLoaderResult<>(createUsersMock(ImmutableMap.of("fmallet", "Freddy Mallet")), true);
-    when(wsLoader.loadSource("/scanner/users?logins=fmallet")).thenReturn(res);
-=======
     WSLoaderResult<InputStream> res = new WSLoaderResult<>(createUsersMock(ImmutableMap.of("fmallet", "Freddy Mallet")), true);
     when(wsLoader.loadStream("/batch/users?logins=fmallet")).thenReturn(res);
->>>>>>> SONAR-6777 Project cache sync
 
     assertThat(userRepo.load("fmallet").getName()).isEqualTo("Freddy Mallet");
   }
@@ -111,17 +106,9 @@ public class UserRepositoryLoaderTest {
 
   @Test
   public void testInputStreamError() throws IOException {
-<<<<<<< HEAD
-    ByteSource source = mock(ByteSource.class);
-
-    WSLoaderResult<ByteSource> res = new WSLoaderResult<>(source, true);
-
-    when(wsLoader.loadSource("/scanner/users?logins=fmallet,sbrandhof")).thenReturn(res);
-=======
     InputStream is = mock(InputStream.class);
     Mockito.doThrow(IOException.class).when(is).read();
     WSLoaderResult<InputStream> res = new WSLoaderResult<>(is, true);
->>>>>>> SONAR-6777 Project cache sync
 
     when(wsLoader.loadStream("/batch/users?logins=fmallet,sbrandhof")).thenReturn(res);
 

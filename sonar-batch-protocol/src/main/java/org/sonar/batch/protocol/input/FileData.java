@@ -41,8 +41,4 @@ public class FileData {
   public String revision() {
     return revision;
   }
-
-  public boolean needBlame() {
-    return false;
-  }
 }

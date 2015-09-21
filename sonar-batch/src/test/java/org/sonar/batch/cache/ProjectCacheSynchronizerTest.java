@@ -19,36 +19,8 @@
  */
 package org.sonar.batch.cache;
 
-import static org.mockito.Mockito.when;
-import org.sonar.batch.repository.ProjectRepositoriesFactory;
-import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import org.sonar.batch.repository.ProjectSettingsRepo;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.QProfile;
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.repository.DefaultProjectSettingsLoader;
-import org.sonar.batch.rule.DefaultActiveRulesLoader;
-import org.sonar.batch.repository.DefaultQualityProfileLoader;
-import org.sonar.batch.repository.ProjectSettingsLoader;
-import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonar.batch.repository.QualityProfileLoader;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.analysis.AnalysisProperties;
-import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.repository.DefaultServerIssuesLoader;
-import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,23 +32,23 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.protocol.input.QProfile;
-import org.sonar.batch.repository.DefaultProjectRepositoriesFactory;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
-import org.sonar.batch.repository.DefaultProjectSettingsLoader;
 import org.sonar.batch.repository.DefaultQualityProfileLoader;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
-import org.sonar.batch.repository.ProjectRepositoriesFactory;
+import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
-import org.sonar.batch.repository.ProjectSettingsLoader;
-import org.sonar.batch.repository.ProjectSettingsRepo;
 import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.rule.DefaultActiveRulesLoader;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+
+import static org.mockito.Matchers.anyBoolean;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -87,8 +59,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ProjectCacheSynchronizerTest {
-  private static final String BATCH_PROJECT = "/scanner/project?key=org.codehaus.sonar-plugins%3Asonar-scm-git-plugin&preview=true";
-  private static final String ISSUES = "/scanner/issues?key=org.codehaus.sonar-plugins%3Asonar-scm-git-plugin";
   private static final String PROJECT_KEY = "org.codehaus.sonar-plugins:sonar-scm-git-plugin";
 
   @Rule
@@ -104,135 +74,76 @@ public class ProjectCacheSynchronizerTest {
   private DefaultAnalysisMode analysisMode;
   @Mock
   private AnalysisProperties properties;
-  @Mock
-  private WSLoader ws;
 
-  private ProjectRepositoriesLoader projectRepositoryLoader;
   private ServerIssuesLoader issuesLoader;
   private UserRepositoryLoader userRepositoryLoader;
   private QualityProfileLoader qualityProfileLoader;
   private ActiveRulesLoader activeRulesLoader;
-  private ProjectSettingsLoader projectSettingsLoader;
+  private ProjectRepositoriesLoader projectRepositoriesLoader;
 
   @Before
   public void setUp() throws IOException {
     MockitoAnnotations.initMocks(this);
 
-    String batchProject = getResourceAsString("batch_project.json");
-    InputStream issues = getResourceAsInputStream("batch_issues.protobuf");
-
-    when(ws.loadString(BATCH_PROJECT)).thenReturn(new WSLoaderResult<>(batchProject, false));
-    when(ws.loadStream(ISSUES)).thenReturn(new WSLoaderResult<>(issues, false));
-
     when(analysisMode.isIssues()).thenReturn(true);
     when(properties.properties()).thenReturn(new HashMap<String, String>());
   }
 
-  private ProjectCacheSynchronizer create(ProjectRepositories projectRepositories) {
-    if (projectRepositories == null) {
-      projectRepositoryLoader = new DefaultProjectRepositoriesLoader(ws, analysisMode);
-    } else {
-      projectRepositoryLoader = mock(ProjectRepositoriesLoader.class);
-      when(projectRepositoryLoader.load(anyString(), anyString(), any(MutableBoolean.class))).thenReturn(projectRepositories);
-    }
-
-    ProjectReactor reactor = mock(ProjectReactor.class);
-    ProjectDefinition root = mock(ProjectDefinition.class);
-    when(root.getKeyWithBranch()).thenReturn(PROJECT_KEY);
-    when(reactor.getRoot()).thenReturn(root);
-
-    ProjectRepositoriesFactory projectRepositoriesFactory = new DefaultProjectRepositoriesFactory(reactor, analysisMode, projectRepositoryLoader, properties);
-
-    issuesLoader = new DefaultServerIssuesLoader(ws);
-    userRepositoryLoader = new UserRepositoryLoader(ws);
-    qualityProfileLoader = new DefaultQualityProfileLoader(projectRepositoriesFactory);
-    activeRulesLoader = new DefaultActiveRulesLoader(projectRepositoriesFactory);
-    projectSettingsLoader = new DefaultProjectSettingsLoader(projectRepositoriesFactory);
-
-    return new ProjectCacheSynchronizer(qualityProfileLoader, projectSettingsLoader, activeRulesLoader, issuesLoader, userRepositoryLoader, cacheStatus);
-  }
-
-  private ProjectCacheSynchronizer createMockedLoaders(Date lastAnalysisDate) {
+  private ProjectCacheSynchronizer createMockedLoaders(boolean projectExists, Date lastAnalysisDate) {
     issuesLoader = mock(DefaultServerIssuesLoader.class);
     userRepositoryLoader = mock(UserRepositoryLoader.class);
     qualityProfileLoader = mock(DefaultQualityProfileLoader.class);
     activeRulesLoader = mock(DefaultActiveRulesLoader.class);
-    projectSettingsLoader = mock(DefaultProjectSettingsLoader.class);
+    projectRepositoriesLoader = mock(DefaultProjectRepositoriesLoader.class);
 
-    QProfile pf = new QProfile("profile", "profile", "lang", new Date(1000));
-    ActiveRule ar = mock(ActiveRule.class);
-    ProjectSettingsRepo repo = mock(ProjectSettingsRepo.class);
+    QualityProfile pf = QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").build();
+    org.sonarqube.ws.Rules.Rule ar = org.sonarqube.ws.Rules.Rule.newBuilder().build();
+    ProjectRepositories repo = mock(ProjectRepositories.class);
 
-    when(qualityProfileLoader.load(PROJECT_KEY, null)).thenReturn(ImmutableList.of(pf));
-    when(activeRulesLoader.load(ImmutableList.of("profile"), PROJECT_KEY)).thenReturn(ImmutableList.of(ar));
+    when(qualityProfileLoader.load(PROJECT_KEY, null, null)).thenReturn(ImmutableList.of(pf));
+    when(qualityProfileLoader.loadDefault(null)).thenReturn(ImmutableList.of(pf));
+    when(activeRulesLoader.load("profile", null)).thenReturn(ImmutableList.of(ar));
     when(repo.lastAnalysisDate()).thenReturn(lastAnalysisDate);
-    when(projectSettingsLoader.load(anyString(), any(MutableBoolean.class))).thenReturn(repo);
+    when(repo.exists()).thenReturn(projectExists);
+    when(projectRepositoriesLoader.load(anyString(), anyBoolean(), any(MutableBoolean.class))).thenReturn(repo);
 
-    return new ProjectCacheSynchronizer(qualityProfileLoader, projectSettingsLoader, activeRulesLoader, issuesLoader, userRepositoryLoader, cacheStatus);
-  }
-
-  @Test
-  public void testSync() {
-    ProjectCacheSynchronizer sync = create(null);
-
-    sync.load(PROJECT_KEY, false);
-
-    verify(ws).loadString(BATCH_PROJECT);
-    verify(ws).loadStream(ISSUES);
-    verifyNoMoreInteractions(ws);
-
-    verify(cacheStatus).save();
+    return new ProjectCacheSynchronizer(qualityProfileLoader, projectRepositoriesLoader, activeRulesLoader, issuesLoader, userRepositoryLoader, cacheStatus);
   }
 
   @Test
   public void testLoadersUsage() {
-    ProjectCacheSynchronizer synchronizer = createMockedLoaders(new Date());
+    ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
     synchronizer.load(PROJECT_KEY, false);
 
     verify(issuesLoader).load(eq(PROJECT_KEY), any(Function.class));
-    verify(qualityProfileLoader).load(PROJECT_KEY, null);
-    verify(activeRulesLoader).load(ImmutableList.of("profile"), PROJECT_KEY);
-    verify(projectSettingsLoader).load(eq(PROJECT_KEY), any(MutableBoolean.class));
+    verify(qualityProfileLoader).load(PROJECT_KEY, null, null);
+    verify(activeRulesLoader).load("profile", null);
+    verify(projectRepositoriesLoader).load(eq(PROJECT_KEY), eq(true), any(MutableBoolean.class));
 
-    verifyNoMoreInteractions(issuesLoader, userRepositoryLoader, qualityProfileLoader, activeRulesLoader, projectSettingsLoader);
+    verifyNoMoreInteractions(issuesLoader, userRepositoryLoader, qualityProfileLoader, activeRulesLoader, projectRepositoriesLoader);
   }
 
   @Test
   public void testLoadersUsage_NoLastAnalysis() {
-    ProjectCacheSynchronizer synchronizer = createMockedLoaders(null);
+    ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, null);
     synchronizer.load(PROJECT_KEY, false);
 
-    verify(projectSettingsLoader).load(eq(PROJECT_KEY), any(MutableBoolean.class));
+    verify(projectRepositoriesLoader).load(eq(PROJECT_KEY), eq(true), any(MutableBoolean.class));
+    verify(qualityProfileLoader).load(PROJECT_KEY, null, null);
+    verify(activeRulesLoader).load("profile", null);
 
-    verifyNoMoreInteractions(issuesLoader, userRepositoryLoader, qualityProfileLoader, activeRulesLoader, projectSettingsLoader);
+    verifyNoMoreInteractions(issuesLoader, userRepositoryLoader, qualityProfileLoader, activeRulesLoader, projectRepositoriesLoader);
   }
 
   @Test
-  public void testSyncNoLastAnalysis() {
-    ProjectRepositories mockedProjectRepositories = mock(ProjectRepositories.class);
-    when(mockedProjectRepositories.lastAnalysisDate()).thenReturn(null);
+  public void testLoadersUsage_ProjectDoesntExist() {
+    ProjectCacheSynchronizer synchronizer = createMockedLoaders(false, null);
+    synchronizer.load(PROJECT_KEY, false);
 
-    ProjectCacheSynchronizer sync = create(mockedProjectRepositories);
-    sync.load(PROJECT_KEY, true);
-    verify(cacheStatus).save();
-  }
+    verify(projectRepositoriesLoader).load(eq(PROJECT_KEY), eq(true), any(MutableBoolean.class));
+    verify(qualityProfileLoader).loadDefault(null);
+    verify(activeRulesLoader).load("profile", null);
 
-  @Test
-  public void testDontSyncIfNotForce() {
-    when(cacheStatus.getSyncStatus()).thenReturn(new Date());
-    ProjectCacheSynchronizer sync = create(null);
-    sync.load(PROJECT_KEY, false);
-
-    verifyNoMoreInteractions(ws);
-  }
-
-  private String getResourceAsString(String name) throws IOException {
-    URL resource = this.getClass().getResource(getClass().getSimpleName() + "/" + name);
-    return Resources.toString(resource, StandardCharsets.UTF_8);
-  }
-
-  private InputStream getResourceAsInputStream(String name) throws IOException {
-    URL resource = this.getClass().getResource(getClass().getSimpleName() + "/" + name);
-    return Resources.asByteSource(resource).openBufferedStream();
+    verifyNoMoreInteractions(issuesLoader, userRepositoryLoader, qualityProfileLoader, activeRulesLoader, projectRepositoriesLoader);
   }
 }

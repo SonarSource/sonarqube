@@ -19,9 +19,9 @@
  */
 package org.sonar.batch.cache;
 
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.repository.QualityProfileLoader;
-import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.slf4j.Logger;
@@ -61,15 +61,15 @@ public class NonAssociatedCacheSynchronizer {
     }
 
     loadData();
-    
+
     cacheStatus.save();
     LOG.info("-- Succesfully synchronized cache");
   }
 
-  private static Collection<String> getKeys(Collection<QProfile> qProfiles) {
+  private static Collection<String> getKeys(Collection<QualityProfile> qProfiles) {
     List<String> list = new ArrayList<>(qProfiles.size());
-    for (QProfile qp : qProfiles) {
-      list.add(qp.key());
+    for (QualityProfile qp : qProfiles) {
+      list.add(qp.getKey());
     }
 
     return list;
@@ -79,11 +79,14 @@ public class NonAssociatedCacheSynchronizer {
     Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
 
     profiler.startInfo("Load default quality profiles");
-    Collection<QProfile> qProfiles = qualityProfileLoader.load(null, null);
+    Collection<QualityProfile> qProfiles = qualityProfileLoader.loadDefault(null);
     profiler.stopInfo();
 
     profiler.startInfo("Load default active rules");
-    activeRulesLoader.load(getKeys(qProfiles), null);
+    Collection<String> keys = getKeys(qProfiles);
+    for (String k : keys) {
+      activeRulesLoader.load(k, null);
+    }
     profiler.stopInfo();
   }
 }

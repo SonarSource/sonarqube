@@ -20,14 +20,14 @@
 package org.sonar.batch.cache;
 
 import static org.mockito.Mockito.when;
-import org.sonar.batch.protocol.input.ActiveRule;
+
+import org.sonarqube.ws.Rules.Rule;
+
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 import com.google.common.collect.ImmutableList;
-import org.sonar.batch.protocol.input.QProfile;
 import org.junit.Test;
 
 import java.util.Date;
-
-import static org.mockito.Mockito.mock;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -51,11 +51,11 @@ public class NonAssociatedCacheSynchronizerTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    QProfile pf = new QProfile("profile", "profile", "lang", new Date(1000));
-    ActiveRule ar = mock(ActiveRule.class);
+    QualityProfile pf = QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").build();
+    Rule ar = Rule.newBuilder().build();
 
-    when(qualityProfileLoader.load(null, null)).thenReturn(ImmutableList.of(pf));
-    when(activeRulesLoader.load(ImmutableList.of("profile"), null)).thenReturn(ImmutableList.of(ar));
+    when(qualityProfileLoader.loadDefault(null)).thenReturn(ImmutableList.of(pf));
+    when(activeRulesLoader.load("profile", null)).thenReturn(ImmutableList.of(ar));
 
     synchronizer = new NonAssociatedCacheSynchronizer(qualityProfileLoader, activeRulesLoader, cacheStatus);
   }
@@ -83,8 +83,8 @@ public class NonAssociatedCacheSynchronizerTest {
   private void checkSync() {
     verify(cacheStatus).getSyncStatus();
     verify(cacheStatus).save();
-    verify(qualityProfileLoader).load(null, null);
-    verify(activeRulesLoader).load(ImmutableList.of("profile"), null);
+    verify(qualityProfileLoader).loadDefault(null);
+    verify(activeRulesLoader).load("profile", null);
 
     verifyNoMoreInteractions(qualityProfileLoader, activeRulesLoader);
   }

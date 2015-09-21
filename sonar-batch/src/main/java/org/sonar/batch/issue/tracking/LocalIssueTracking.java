@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.repository.ProjectSettingsRepo;
+import org.sonar.batch.repository.ProjectRepositories;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
@@ -64,7 +64,7 @@ public class LocalIssueTracking {
   private boolean hasServerAnalysis;
 
   public LocalIssueTracking(BatchComponentCache resourceCache, IssueTracking tracking, ServerLineHashesLoader lastLineHashes, IssueUpdater updater,
-    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectSettingsRepo projectRepositories, ReportPublisher reportPublisher) {
+    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, ReportPublisher reportPublisher) {
     this.tracking = tracking;
     this.lastLineHashes = lastLineHashes;
     this.updater = updater;

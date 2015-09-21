@@ -19,46 +19,52 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.api.utils.log.Profiler;
+
+import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nullable;
 
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.protocol.input.FileData;
-import com.google.common.collect.Table;
-import com.google.common.collect.ImmutableTable;
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.picocontainer.injectors.ProviderAdapter;
 
-public class ProjectSettingsProvider extends ProviderAdapter {
-  private static final Logger LOG = Loggers.get(ProjectSettingsProvider.class);
-  private ProjectSettingsRepo settings = null;
+public class ProjectRepositoriesProvider extends ProviderAdapter {
+  private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
+  private static final String LOG_MSG = "Load project repositories";
+  private ProjectRepositories project = null;
 
-  public ProjectSettingsRepo provide(@Nullable ProjectSettingsLoader loader, ProjectReactor projectReactor, DefaultAnalysisMode mode) {
-    if (settings == null) {
+  public ProjectRepositories provide(@Nullable ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode) {
+    if (project == null) {
+      MutableBoolean fromCache = new MutableBoolean(false);
+      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       if (mode.isNotAssociated()) {
-        settings = createNonAssociatedProjectSettings();
+        project = createNonAssociatedProjectRepositories();
+        profiler.stopInfo();
       } else {
-        MutableBoolean fromCache = new MutableBoolean();
-        settings = loader.load(projectReactor.getRoot().getKeyWithBranch(), fromCache);
+        project = loader.load(projectKey.get(), mode.isIssues(), fromCache);
         checkProject(mode);
+        profiler.stopInfo(fromCache.booleanValue());
       }
+
     }
 
-    return settings;
+    return project;
   }
 
   private void checkProject(DefaultAnalysisMode mode) {
-    if (mode.isIssues() && settings.lastAnalysisDate() == null) {
-      LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
+    if (mode.isIssues()) {
+      if (!project.exists()) {
+        LOG.warn("Project doesn't exist on the server. All issues will be marked as 'new'.");
+      } else if (project.lastAnalysisDate() == null) {
+        LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
+      }
     }
   }
 
-  private static ProjectSettingsRepo createNonAssociatedProjectSettings() {
-    Table<String, String, String> emptySettings = ImmutableTable.of();
-    Table<String, String, FileData> emptyFileData = ImmutableTable.of();
-    return new ProjectSettingsRepo(emptySettings, emptyFileData, null);
+  private static ProjectRepositories createNonAssociatedProjectRepositories() {
+    return new ProjectRepositories();
   }
 }

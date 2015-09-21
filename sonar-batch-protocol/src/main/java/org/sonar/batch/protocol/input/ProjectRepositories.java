@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.protocol.input;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +34,7 @@ import org.sonar.batch.protocol.GsonHelper;
 public class ProjectRepositories {
 
   private long timestamp;
+  private boolean exists;
   private Map<String, Map<String, String>> settingsByModule = new HashMap<>();
   private Map<String, Map<String, FileData>> fileDataByModuleAndPath = new HashMap<>();
   private Date lastAnalysisDate;
@@ -58,6 +57,10 @@ public class ProjectRepositories {
     return this;
   }
 
+  public boolean exists() {
+    return exists;
+  }
+  
   public Map<String, Map<String, FileData>> fileDataByModuleAndPath() {
     return fileDataByModuleAndPath;
   }
@@ -104,21 +107,5 @@ public class ProjectRepositories {
 
   public static ProjectRepositories fromJson(String json) {
     return GsonHelper.create().fromJson(json, ProjectRepositories.class);
-  }
-
-  public Collection<QProfile> qProfiles() {
-    return new ArrayList<>();
-  }
-
-  public Collection<ActiveRule> activeRules() {
-    return new ArrayList<>();
-  }
-
-  public void addQProfile(QProfile qProfile) {
-    // do nothing
-  }
-
-  public void addActiveRule(ActiveRule activeRule) {
-    // do nothing
   }
 }

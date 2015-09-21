@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.utils.DateUtils;
+
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.batch.BatchSide;
 
@@ -36,12 +39,16 @@ public class ModuleQProfiles {
   public static final String SONAR_PROFILE_PROP = "sonar.profile";
   private final Map<String, QProfile> byLanguage;
 
-  public ModuleQProfiles(Collection<org.sonar.batch.protocol.input.QProfile> profiles) {
+  public ModuleQProfiles(Collection<QualityProfile> profiles) {
     ImmutableMap.Builder<String, QProfile> builder = ImmutableMap.builder();
 
-    for (org.sonar.batch.protocol.input.QProfile qProfile : profiles) {
-      builder.put(qProfile.language(),
-        new QProfile().setKey(qProfile.key()).setName(qProfile.name()).setLanguage(qProfile.language()).setRulesUpdatedAt(qProfile.rulesUpdatedAt()));
+    for (QualityProfile qProfile : profiles) {
+      builder.put(qProfile.getLanguage(),
+        new QProfile()
+          .setKey(qProfile.getKey())
+          .setName(qProfile.getName())
+          .setLanguage(qProfile.getLanguage())
+          .setRulesUpdatedAt(DateUtils.parseDateTime(qProfile.getRulesUpdatedAt())));
     }
     byLanguage = builder.build();
   }

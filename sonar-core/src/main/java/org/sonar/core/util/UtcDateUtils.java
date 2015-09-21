@@ -19,35 +19,40 @@
  */
 package org.sonar.core.util;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
 import org.sonar.api.utils.DateUtils;
 
 public class UtcDateUtils {
+
+  private static final ThreadLocal<DateFormat> format =
+    new ThreadLocal<DateFormat>() {
+      @Override
+      protected DateFormat initialValue() {
+        DateFormat f = new SimpleDateFormat(DateUtils.DATETIME_FORMAT);
+        f.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return f;
+
+      }
+    };
 
   private UtcDateUtils() {
     // only static stuff
   }
 
   public static String formatDateTime(Date date) {
-    SimpleDateFormat format = newFormat();
-    return format.format(date);
+    return format.get().format(date);
   }
 
   public static Date parseDateTime(String s) {
     try {
-      SimpleDateFormat format = newFormat();
-      return format.parse(s);
+      return format.get().parse(s);
     } catch (ParseException e) {
       throw new IllegalArgumentException("Fail to parse date: " + s, e);
     }
-  }
-
-  private static SimpleDateFormat newFormat() {
-    SimpleDateFormat format = new SimpleDateFormat(DateUtils.DATETIME_FORMAT);
-    format.setTimeZone(TimeZone.getTimeZone("UTC"));
-    return format;
   }
 }
