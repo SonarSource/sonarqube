@@ -47,7 +47,7 @@ public class CeSubmitWsActionTest {
 
   @Test
   public void submit_task_to_the_queue_and_ask_for_immediate_processing() {
-    CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", "robert");
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin("robert").build();
     when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class))).thenReturn(task);
 
     TestResponse wsResponse = tester.newRequest()
@@ -67,7 +67,7 @@ public class CeSubmitWsActionTest {
 
   @Test
   public void test_example_json_response() {
-    CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", "robert");
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin("robert").build();
     when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class))).thenReturn(task);
 
     TestResponse wsResponse = tester.newRequest()
@@ -86,7 +86,7 @@ public class CeSubmitWsActionTest {
    */
   @Test
   public void project_name_is_optional() {
-    CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", "robert");
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin("robert").build();
     when(reportSubmitter.submit(eq("my_project"), Matchers.isNull(String.class), eq("my_project"), any(InputStream.class))).thenReturn(task);
 
     tester.newRequest()

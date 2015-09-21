@@ -47,7 +47,7 @@ public class CeWorkerImplTest {
 
   @Test
   public void peek_and_process_task() throws Exception {
-    CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", null);
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
     when(queue.peek()).thenReturn(Optional.of(task));
 
     underTest.run();
@@ -58,7 +58,7 @@ public class CeWorkerImplTest {
 
   @Test
   public void fail_to_process_task() throws Exception {
-    CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", null);
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
     when(queue.peek()).thenReturn(Optional.of(task));
     doThrow(new IllegalStateException()).when(taskProcessor).process(task);
 

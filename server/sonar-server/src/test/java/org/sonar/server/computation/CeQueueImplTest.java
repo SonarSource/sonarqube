@@ -60,12 +60,12 @@ public class CeQueueImplTest {
 
   @Test
   public void test_submit() {
-    TaskSubmission submission = underTest.prepareSubmit();
+    CeTaskSubmit.Builder submission = underTest.prepareSubmit();
     submission.setComponentUuid("PROJECT_1");
     submission.setType(CeTaskTypes.REPORT);
     submission.setSubmitterLogin("rob");
 
-    CeTask task = underTest.submit(submission);
+    CeTask task = underTest.submit(submission.build());
     assertThat(task.getUuid()).isEqualTo(submission.getUuid());
     assertThat(task.getComponentUuid()).isEqualTo("PROJECT_1");
     assertThat(task.getSubmitterLogin()).isEqualTo("rob");
@@ -211,9 +211,9 @@ public class CeQueueImplTest {
   }
 
   private CeTask submit(String reportType, String componentUuid) {
-    TaskSubmission submission = underTest.prepareSubmit();
+    CeTaskSubmit.Builder submission = underTest.prepareSubmit();
     submission.setType(reportType);
     submission.setComponentUuid(componentUuid);
-    return underTest.submit(submission);
+    return underTest.submit(submission.build());
   }
 }

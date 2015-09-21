@@ -45,8 +45,8 @@ public class ReportFiles {
     this.settings = settings;
   }
 
-  public void save(TaskSubmission taskSubmit, InputStream reportInput) {
-    File file = fileForUuid(taskSubmit.getUuid());
+  public void save(String taskUuid, InputStream reportInput) {
+    File file = fileForUuid(taskUuid);
     try {
       FileUtils.copyInputStreamToFile(reportInput, file);
     } catch (Exception e) {

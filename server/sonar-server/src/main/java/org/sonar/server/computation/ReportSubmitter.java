@@ -58,17 +58,17 @@ public class ReportSubmitter {
       NewComponent newProject = new NewComponent(projectKey, StringUtils.defaultIfBlank(projectName, projectKey));
       newProject.setBranch(projectBranch);
       newProject.setQualifier(Qualifiers.PROJECT);
-      // no need to verify the permission "provisionning" as it's already handled by componentService
+      // no need to verify the permission "provisioning" as it's already handled by componentService
       project = componentService.create(newProject);
     }
 
     // the report file must be saved before submitting the task
-    TaskSubmission submit = queue.prepareSubmit();
-    reportFiles.save(submit, reportInput);
+    CeTaskSubmit.Builder submit = queue.prepareSubmit();
+    reportFiles.save(submit.getUuid(), reportInput);
 
     submit.setType(CeTaskTypes.REPORT);
     submit.setComponentUuid(project.uuid());
     submit.setSubmitterLogin(userSession.getLogin());
-    return queue.submit(submit);
+    return queue.submit(submit.build());
   }
 }

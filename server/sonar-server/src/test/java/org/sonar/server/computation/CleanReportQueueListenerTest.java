@@ -33,7 +33,7 @@ public class CleanReportQueueListenerTest {
 
   @Test
   public void remove_report_file_if_success() {
-    CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", null);
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
 
     underTest.onRemoved(task, CeActivityDto.Status.SUCCESS);
     verify(reportFiles).deleteIfExists("TASK_1");
@@ -41,7 +41,7 @@ public class CleanReportQueueListenerTest {
 
   @Test
   public void remove_report_file_if_failure() {
-    CeTask task = new CeTask("TASK_1", CeTaskTypes.REPORT, "PROJECT_1", null);
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
 
     underTest.onRemoved(task, CeActivityDto.Status.FAILED);
     verify(reportFiles).deleteIfExists("TASK_1");
