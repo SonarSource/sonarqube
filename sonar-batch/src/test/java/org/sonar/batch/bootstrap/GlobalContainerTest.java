@@ -19,20 +19,18 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.batch.BatchSide;
-
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.core.config.Logback;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.core.util.UuidFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +51,7 @@ public class GlobalContainerTest {
   public void should_add_components() {
     GlobalContainer container = createContainer(Collections.emptyList());
 
-    assertThat(container.getComponentByType(Logback.class)).isNotNull();
+    assertThat(container.getComponentByType(UuidFactory.class)).isNotNull();
     assertThat(container.getComponentByType(TempFolder.class)).isNotNull();
   }
 

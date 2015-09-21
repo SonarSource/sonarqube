@@ -87,9 +87,10 @@ public final class DateUtils {
    * Parse format {@link #DATE_FORMAT}. This method never throws exception.
    *
    * @param s any string
-   * @return the date, null if parsing error or null string
+   * @return the date, {@code null} if parsing error or if parameter is {@code null}
    * @since 3.0
    */
+  @CheckForNull
   public static Date parseDateQuietly(@Nullable String s) {
     Date date = null;
     if (s != null) {
@@ -121,8 +122,9 @@ public final class DateUtils {
    * Parse format {@link #DATETIME_FORMAT}. This method never throws exception.
    *
    * @param s any string
-   * @return the datetime, null if parsing error or null string
+   * @return the datetime, {@code null} if parsing error or if parameter is {@code null}
    */
+  @CheckForNull
   public static Date parseDateTimeQuietly(@Nullable String s) {
     Date datetime = null;
     if (s != null) {

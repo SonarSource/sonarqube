@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.batch.protocol.Constants;
@@ -40,9 +39,6 @@ import static org.sonar.db.rule.RuleTesting.XOO_X1;
 import static org.sonar.db.rule.RuleTesting.XOO_X2;
 
 public class LoadQualityProfilesStepTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public BatchReportReaderRule batchReportReader = new BatchReportReaderRule();

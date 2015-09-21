@@ -19,32 +19,28 @@
  */
 package org.sonar.batch.bootstrap;
 
-import javax.annotation.CheckForNull;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.cache.PersistentCacheProvider;
-import org.sonar.batch.cache.WSLoader.LoadStrategy;
-import org.sonar.batch.analysis.AnalysisProperties;
-import org.sonar.batch.cache.StrategyWSLoaderProvider;
-import org.sonar.batch.cache.ProjectSyncContainer;
-import org.sonar.batch.rule.RulesLoader;
-import org.sonar.batch.rule.DefaultRulesLoader;
-import org.sonar.batch.rule.RulesProvider;
-
 import java.util.List;
 import java.util.Map;
-
+import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
+import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.cache.PersistentCacheProvider;
+import org.sonar.batch.cache.ProjectSyncContainer;
+import org.sonar.batch.cache.StrategyWSLoaderProvider;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.index.CachesManager;
 import org.sonar.batch.platform.DefaultServer;
 import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.GlobalRepositoriesProvider;
+import org.sonar.batch.rule.DefaultRulesLoader;
+import org.sonar.batch.rule.RulesLoader;
+import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.ProjectScanContainer;
-import org.sonar.core.config.Logback;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
@@ -94,7 +90,6 @@ public class GlobalContainer extends ComponentContainer {
       GlobalSettings.class,
       new RulesProvider(),
       ServerClient.class,
-      Logback.class,
       DefaultServer.class,
       new GlobalTempFolderProvider(),
       DefaultHttpDownloader.class,

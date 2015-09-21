@@ -43,7 +43,7 @@ public class ExtractReportStep implements ComputationStep {
   private final MutableBatchReportDirectoryHolder reportDirectoryHolder;
 
   public ExtractReportStep(ReportFiles reportFiles, CeTask task, TempFolder tempFolder,
-                           MutableBatchReportDirectoryHolder reportDirectoryHolder) {
+    MutableBatchReportDirectoryHolder reportDirectoryHolder) {
     this.reportFiles = reportFiles;
     this.task = task;
     this.tempFolder = tempFolder;

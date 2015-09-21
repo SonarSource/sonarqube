@@ -79,7 +79,7 @@ public class LoadPeriodsStep implements ComputationStep {
   private final PeriodsHolderImpl periodsHolder;
 
   public LoadPeriodsStep(DbClient dbClient, SettingsRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-                         PeriodsHolderImpl periodsHolder) {
+    PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settingsRepository = settingsRepository;
     this.treeRootHolder = treeRootHolder;
@@ -172,7 +172,7 @@ public class LoadPeriodsStep implements ComputationStep {
       if (days != null) {
         return findByDays(index, days);
       }
-      Date date = tryToResolveByDate(property);
+      Date date = DateUtils.parseDateQuietly(property);
       if (date != null) {
         return findByDate(index, date);
       }
@@ -256,16 +256,6 @@ public class LoadPeriodsStep implements ComputationStep {
       return Integer.parseInt(property);
     } catch (NumberFormatException e) {
       // Nothing to, it means that the property is not a number of days
-      return null;
-    }
-  }
-
-  @CheckForNull
-  private static Date tryToResolveByDate(String property) {
-    try {
-      return DateUtils.parseDate(property);
-    } catch (Exception e) {
-      // Nothing to, it means that the property is not a date
       return null;
     }
   }

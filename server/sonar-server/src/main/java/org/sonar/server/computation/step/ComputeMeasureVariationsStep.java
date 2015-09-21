@@ -76,7 +76,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
   };
 
   public ComputeMeasureVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository,
-                                      MeasureRepository measureRepository) {
+    MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
