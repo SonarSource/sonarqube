@@ -21,6 +21,7 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.net.HttpHeaders;
 import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import org.jruby.RubyFile;
@@ -45,7 +46,7 @@ public class ServletRequestTest {
 
   @Test
   public void getMediaType() throws Exception {
-    when(source.getContentType()).thenReturn(MimeTypes.JSON);
+    when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MimeTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
     assertThat(request.getMediaType()).isEqualTo(MimeTypes.JSON);
@@ -61,7 +62,7 @@ public class ServletRequestTest {
   @Test
   public void media_type_taken_in_url_first() throws Exception {
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
-    when(source.getContentType()).thenReturn(MimeTypes.JSON);
+    when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MimeTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search.protobuf");
     assertThat(request.getMediaType()).isEqualTo(MimeTypes.PROTOBUF);
   }

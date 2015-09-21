@@ -20,6 +20,7 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.net.HttpHeaders;
 import java.io.InputStream;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -51,8 +52,10 @@ public class ServletRequest extends ValidatingRequest {
 
   @Override
   public String getMediaType() {
-    String mediaTypeFromUrl = mediaTypeFromUrl(source.getRequestURI());
-    return firstNonNull(mediaTypeFromUrl, source.getContentType(), MimeTypes.DEFAULT);
+    return firstNonNull(
+      mediaTypeFromUrl(source.getRequestURI()),
+      acceptedContentTypeInResponse(),
+      MimeTypes.DEFAULT);
   }
 
   @Override
@@ -89,6 +92,11 @@ public class ServletRequest extends ValidatingRequest {
       url.append("?").append(query);
     }
     return url.toString();
+  }
+
+  @CheckForNull
+  private String acceptedContentTypeInResponse() {
+    return source.getHeader(HttpHeaders.ACCEPT);
   }
 
   @CheckForNull
