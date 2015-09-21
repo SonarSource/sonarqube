@@ -22,6 +22,7 @@ package analysis.suite;
 import analysis.suite.measure.CustomMeasuresTest;
 import analysis.suite.measure.DifferentialPeriodsTest;
 import analysis.suite.measure.MeasureFiltersTest;
+import analysis.suite.measure.NewDebtRatioMeasureTest;
 import analysis.suite.measure.TechnicalDebtMeasureVariationTest;
 import analysis.suite.measure.TimeMachineTest;
 import analysis.suite.testing.CoverageTest;
@@ -44,7 +45,8 @@ import util.ItUtils;
   CoverageTest.class,
   NewCoverageTest.class,
   TestExecutionTest.class,
-  TechnicalDebtMeasureVariationTest.class
+  TechnicalDebtMeasureVariationTest.class,
+  NewDebtRatioMeasureTest.class
 })
 public class AnalysisTestSuite {
 

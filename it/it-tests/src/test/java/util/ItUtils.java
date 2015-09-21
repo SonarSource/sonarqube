@@ -5,6 +5,7 @@ package util;/*
  */
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -20,6 +21,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.fail;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -132,10 +135,26 @@ public class ItUtils {
   public static void runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
     SonarRunner sonarRunner = SonarRunner.create(projectDir(projectRelativePath));
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    for (int i = 0; i < properties.length; i++) {
+    for (int i = 0; i < properties.length; i+=2) {
       builder.put(properties[i], properties[i+1]);
-      i+=2;
     }
-    orchestrator.executeBuild(sonarRunner.setProperties(builder.build()));
+    orchestrator.executeBuild(sonarRunner.setDebugLogs(true).setProperties(builder.build()));
+  }
+
+  /**
+   * Concatenates a vararg to a String array.
+   *
+   * Useful when using {@link #runProjectAnalysis(Orchestrator, String, String...)}, eg.:
+   * <pre>
+   * ItUtils.runProjectAnalysis(orchestrator, "project_name",
+   *    ItUtils.concat(properties, "sonar.scm.disabled", "false")
+   *    );
+   * </pre>
+   */
+  public static String[] concat(String[] properties, String... str) {
+    if (properties == null || properties.length == 0) {
+      return str;
+    }
+    return from(Iterables.concat(asList(properties), asList(str))).toArray(String.class);
   }
 }

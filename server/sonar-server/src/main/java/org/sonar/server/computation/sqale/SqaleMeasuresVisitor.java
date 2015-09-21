@@ -35,7 +35,7 @@ import org.sonar.server.computation.metric.MetricRepository;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresVisitor.DevelopmentCost> {
+public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresVisitor.DevelopmentCostCounter> {
   private static final Logger LOG = Loggers.get(SqaleMeasuresVisitor.class);
 
   private final MetricRepository metricRepository;
@@ -48,18 +48,7 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   private final Metric sqaleRatingMetric;
 
   public SqaleMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SqaleRatingSettings sqaleRatingSettings) {
-    super(CrawlerDepthLimit.LEAVES, POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
-      @Override
-      public DevelopmentCost createForAny(Component component) {
-        return new DevelopmentCost();
-      }
-
-      /** Counter is not used at ProjectView level, saves on instantiating useless objects */
-      @Override
-      public DevelopmentCost createForProjectView(Component projectView) {
-        return null;
-      }
-    });
+    super(CrawlerDepthLimit.LEAVES, POST_ORDER, DevelopmentCostCounterFactory.INSTANCE);
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.sqaleRatingSettings = sqaleRatingSettings;
@@ -71,22 +60,22 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   }
 
   @Override
-  public void visitProject(Component project, Path<DevelopmentCost> path) {
+  public void visitProject(Component project, Path<DevelopmentCostCounter> path) {
     computeAndSaveMeasures(project, path);
   }
 
   @Override
-  public void visitDirectory(Component directory, Path<DevelopmentCost> path) {
+  public void visitDirectory(Component directory, Path<DevelopmentCostCounter> path) {
     computeAndSaveMeasures(directory, path);
   }
 
   @Override
-  public void visitModule(Component module, Path<DevelopmentCost> path) {
+  public void visitModule(Component module, Path<DevelopmentCostCounter> path) {
     computeAndSaveMeasures(module, path);
   }
 
   @Override
-  public void visitFile(Component file, Path<DevelopmentCost> path) {
+  public void visitFile(Component file, Path<DevelopmentCostCounter> path) {
     if (!file.getFileAttributes().isUnitTest()) {
       long developmentCosts = computeDevelopmentCost(file);
       path.current().add(developmentCosts);
@@ -95,17 +84,17 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   }
 
   @Override
-  public void visitView(Component view, Path<DevelopmentCost> path) {
+  public void visitView(Component view, Path<DevelopmentCostCounter> path) {
     computeAndSaveMeasures(view, path);
   }
 
   @Override
-  public void visitSubView(Component subView, Path<DevelopmentCost> path) {
+  public void visitSubView(Component subView, Path<DevelopmentCostCounter> path) {
     computeAndSaveMeasures(subView, path);
   }
 
   @Override
-  public void visitProjectView(Component projectView, Path<DevelopmentCost> path) {
+  public void visitProjectView(Component projectView, Path<DevelopmentCostCounter> path) {
     Optional<Measure> developmentCostMeasure = measureRepository.getRawMeasure(projectView, developmentCostMetric);
     if (developmentCostMeasure.isPresent()) {
       try {
@@ -116,7 +105,7 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
     }
   }
 
-  private void computeAndSaveMeasures(Component component, Path<DevelopmentCost> path) {
+  private void computeAndSaveMeasures(Component component, Path<DevelopmentCostCounter> path) {
     saveDevelopmentCostMeasure(component, path.current());
 
     double density = computeDensity(component, path.current());
@@ -126,12 +115,12 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
     increaseParentDevelopmentCost(path);
   }
 
-  private void saveDevelopmentCostMeasure(Component component, DevelopmentCost developmentCost) {
+  private void saveDevelopmentCostMeasure(Component component, DevelopmentCostCounter developmentCost) {
     // the value of this measure is stored as a string because it can exceed the size limit of number storage on some DB
     measureRepository.add(component, developmentCostMetric, newMeasureBuilder().create(Long.toString(developmentCost.getValue())));
   }
 
-  private double computeDensity(Component component, DevelopmentCost developmentCost) {
+  private double computeDensity(Component component, DevelopmentCostCounter developmentCost) {
     double debt = getLongValue(measureRepository.getRawMeasure(component, technicalDebtMetric));
     if (Double.doubleToRawLongBits(developmentCost.getValue()) != 0L) {
       return debt / (double) developmentCost.getValue();
@@ -150,7 +139,7 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
     measureRepository.add(component, sqaleRatingMetric, newMeasureBuilder().create(rating, ratingLetter));
   }
 
-  private void increaseParentDevelopmentCost(Path<DevelopmentCost> path) {
+  private void increaseParentDevelopmentCost(Path<DevelopmentCostCounter> path) {
     if (!path.isRoot()) {
       // increase parent's developmentCost with our own
       path.parent().add(path.current().getValue());
@@ -191,8 +180,12 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   /**
    * A wrapper class around a long which can be increased and represents the development cost of a Component
    */
-  public static final class DevelopmentCost {
+  public static final class DevelopmentCostCounter {
     private long value = 0;
+
+    private DevelopmentCostCounter() {
+      // prevents instantiation outside SqaleMeasuresVisitor
+    }
 
     public void add(long developmentCosts) {
       this.value += developmentCosts;
@@ -200,6 +193,25 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
 
     public long getValue() {
       return value;
+    }
+  }
+
+  private static final class DevelopmentCostCounterFactory extends SimpleStackElementFactory<DevelopmentCostCounter> {
+    public static final DevelopmentCostCounterFactory INSTANCE = new DevelopmentCostCounterFactory();
+
+    private DevelopmentCostCounterFactory() {
+      // prevents instantiation
+    }
+
+    @Override
+    public DevelopmentCostCounter createForAny(Component component) {
+      return new DevelopmentCostCounter();
+    }
+
+    /** Counter is not used at ProjectView level, saves on instantiating useless objects */
+    @Override
+    public DevelopmentCostCounter createForProjectView(Component projectView) {
+      return null;
     }
   }
 }
