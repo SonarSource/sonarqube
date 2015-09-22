@@ -17,19 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.ws;
+package org.sonar.server.computation;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeWsModuleTest {
+public class CePropertyDefinitionsTest {
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(10 + 2 /* injected by ComponentContainer */);
+  public void all() {
+    assertThat(CePropertyDefinitions.all()).isNotEmpty();
+  }
+
+  @Test
+  public void only_statics() {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(CePropertyDefinitions.class));
   }
 }

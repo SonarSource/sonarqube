@@ -3851,6 +3851,16 @@ public final class WsCe {
      * <code>optional int64 executionTimeMs = 12;</code>
      */
     long getExecutionTimeMs();
+
+    /**
+     * <code>optional bool logs = 13;</code>
+     */
+    boolean hasLogs();
+
+    /**
+     * <code>optional bool logs = 13;</code>
+     */
+    boolean getLogs();
   }
   /**
    * Protobuf type {@code sonarqube.ws.ce.Task}
@@ -3876,6 +3886,7 @@ public final class WsCe {
       finishedAt_ = "";
       isLastFinished_ = false;
       executionTimeMs_ = 0L;
+      logs_ = false;
     }
 
     @java.lang.Override
@@ -3978,6 +3989,11 @@ public final class WsCe {
             case 96: {
               bitField0_ |= 0x00000800;
               executionTimeMs_ = input.readInt64();
+              break;
+            }
+            case 104: {
+              bitField0_ |= 0x00001000;
+              logs_ = input.readBool();
               break;
             }
           }
@@ -4430,6 +4446,23 @@ public final class WsCe {
       return executionTimeMs_;
     }
 
+    public static final int LOGS_FIELD_NUMBER = 13;
+    private boolean logs_;
+
+    /**
+     * <code>optional bool logs = 13;</code>
+     */
+    public boolean hasLogs() {
+      return ((bitField0_ & 0x00001000) == 0x00001000);
+    }
+
+    /**
+     * <code>optional bool logs = 13;</code>
+     */
+    public boolean getLogs() {
+      return logs_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -4477,6 +4510,9 @@ public final class WsCe {
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         output.writeInt64(12, executionTimeMs_);
+      }
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+        output.writeBool(13, logs_);
       }
       unknownFields.writeTo(output);
     }
@@ -4534,6 +4570,10 @@ public final class WsCe {
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(12, executionTimeMs_);
+      }
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(13, logs_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
@@ -4671,6 +4711,8 @@ public final class WsCe {
         bitField0_ = (bitField0_ & ~0x00000400);
         executionTimeMs_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000800);
+        logs_ = false;
+        bitField0_ = (bitField0_ & ~0x00001000);
         return this;
       }
 
@@ -4743,6 +4785,10 @@ public final class WsCe {
           to_bitField0_ |= 0x00000800;
         }
         result.executionTimeMs_ = executionTimeMs_;
+        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
+          to_bitField0_ |= 0x00001000;
+        }
+        result.logs_ = logs_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -4812,6 +4858,9 @@ public final class WsCe {
         }
         if (other.hasExecutionTimeMs()) {
           setExecutionTimeMs(other.getExecutionTimeMs());
+        }
+        if (other.hasLogs()) {
+          setLogs(other.getLogs());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -5625,6 +5674,42 @@ public final class WsCe {
         return this;
       }
 
+      private boolean logs_;
+
+      /**
+       * <code>optional bool logs = 13;</code>
+       */
+      public boolean hasLogs() {
+        return ((bitField0_ & 0x00001000) == 0x00001000);
+      }
+
+      /**
+       * <code>optional bool logs = 13;</code>
+       */
+      public boolean getLogs() {
+        return logs_;
+      }
+
+      /**
+       * <code>optional bool logs = 13;</code>
+       */
+      public Builder setLogs(boolean value) {
+        bitField0_ |= 0x00001000;
+        logs_ = value;
+        onChanged();
+        return this;
+      }
+
+      /**
+       * <code>optional bool logs = 13;</code>
+       */
+      public Builder clearLogs() {
+        bitField0_ = (bitField0_ & ~0x00001000);
+        logs_ = false;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.ce.Task)
     }
 
@@ -5717,16 +5802,17 @@ public final class WsCe {
       "asks\030\002 \003(\0132\025.sonarqube.ws.ce.Task\"_\n\017Pro" +
       "jectResponse\022$\n\005queue\030\001 \003(\0132\025.sonarqube." +
       "ws.ce.Task\022&\n\007current\030\002 \001(\0132\025.sonarqube.",
-      "ws.ce.Task\"\224\002\n\004Task\022\n\n\002id\030\001 \001(\t\022\014\n\004type\030" +
+      "ws.ce.Task\"\242\002\n\004Task\022\n\n\002id\030\001 \001(\t\022\014\n\004type\030" +
       "\002 \001(\t\022\023\n\013componentId\030\003 \001(\t\022\024\n\014componentK" +
       "ey\030\004 \001(\t\022\025\n\rcomponentName\030\005 \001(\t\022+\n\006statu" +
       "s\030\006 \001(\0162\033.sonarqube.ws.ce.TaskStatus\022\023\n\013" +
       "submittedAt\030\007 \001(\t\022\026\n\016submitterLogin\030\010 \001(" +
       "\t\022\021\n\tstartedAt\030\t \001(\t\022\022\n\nfinishedAt\030\n \001(\t" +
       "\022\026\n\016isLastFinished\030\013 \001(\010\022\027\n\017executionTim" +
-      "eMs\030\014 \001(\003*Q\n\nTaskStatus\022\013\n\007PENDING\020\000\022\017\n\013" +
-      "IN_PROGRESS\020\001\022\013\n\007SUCCESS\020\002\022\n\n\006FAILED\020\003\022\014" +
-      "\n\010CANCELED\020\004B\032\n\020org.sonarqube.wsB\004WsCeH\001"
+        "eMs\030\014 \001(\003\022\014\n\004logs\030\r \001(\010*Q\n\nTaskStatus\022\013\n" +
+        "\007PENDING\020\000\022\017\n\013IN_PROGRESS\020\001\022\013\n\007SUCCESS\020\002" +
+        "\022\n\n\006FAILED\020\003\022\014\n\010CANCELED\020\004B\032\n\020org.sonarq",
+      "ube.wsB\004WsCeH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5776,7 +5862,8 @@ public final class WsCe {
     internal_static_sonarqube_ws_ce_Task_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_ce_Task_descriptor,
-        new java.lang.String[] { "Id", "Type", "ComponentId", "ComponentKey", "ComponentName", "Status", "SubmittedAt", "SubmitterLogin", "StartedAt", "FinishedAt", "IsLastFinished", "ExecutionTimeMs", });
+      new java.lang.String[] {"Id", "Type", "ComponentId", "ComponentKey", "ComponentName", "Status", "SubmittedAt", "SubmitterLogin", "StartedAt", "FinishedAt", "IsLastFinished",
+        "ExecutionTimeMs", "Logs",});
     org.sonarqube.ws.Common.getDescriptor();
   }
 

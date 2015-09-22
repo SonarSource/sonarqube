@@ -31,8 +31,6 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.core.component.DefaultResourceTypes;
-import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -71,6 +69,9 @@ import org.sonar.server.computation.CleanReportQueueListener;
 import org.sonar.server.computation.ComputeEngineProcessingModule;
 import org.sonar.server.computation.ReportFiles;
 import org.sonar.server.computation.ReportSubmitter;
+import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
+import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
 import org.sonar.server.computation.ws.CeWsModule;
@@ -718,6 +719,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ReportFiles.class,
       ComputeEngineProcessingModule.class,
       CeWsModule.class,
+      CeLogging.class,
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,
       ProjectSettingsFactory.class,

@@ -17,19 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.ws;
+package org.sonar.server.computation;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.PropertyType;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.server.computation.log.CeLogging;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Arrays.asList;
 
-public class CeWsModuleTest {
+public class CePropertyDefinitions {
+  private CePropertyDefinitions() {
+    // only statics
+  }
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(10 + 2 /* injected by ComponentContainer */);
+  public static List<PropertyDefinition> all() {
+    return asList(
+      PropertyDefinition.builder(CeLogging.MAX_LOGS_PROPERTY)
+        .name("Compute Engine Log Retention")
+        .description("Number of tasks to keep logs for a given project. Once the number of logs exceeds this limit, oldest logs are purged.")
+        .type(PropertyType.INTEGER)
+        .defaultValue("10")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .build());
   }
 }

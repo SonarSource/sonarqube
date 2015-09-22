@@ -8,7 +8,8 @@
       "componentName": "Project One",
       "status": "IN_PROGRESS",
       "submittedAt": "2015-08-13T23:34:59+0200",
-      "submitterLogin": "john"
+      "submitterLogin": "john",
+      "logs": true
     },
     {
       "id": "AU_dO1vsORa8_beWCwmP",
@@ -18,7 +19,8 @@
       "componentName": "Project Two",
       "status": "PENDING",
       "submittedAt": "2015-09-17T23:34:59+0200",
-      "startedAt": "2015-09-17T23:35:00+0200"
+      "startedAt": "2015-09-17T23:35:00+0200",
+      "logs": true
     }
   ]
 }

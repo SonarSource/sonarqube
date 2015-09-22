@@ -67,6 +67,7 @@ message Task {
   optional string finishedAt = 10;
   optional bool isLastFinished = 11;
   optional int64 executionTimeMs = 12;
+  optional bool logs = 13;
 }
 
 enum TaskStatus {

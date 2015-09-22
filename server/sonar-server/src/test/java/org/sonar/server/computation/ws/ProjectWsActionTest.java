@@ -19,6 +19,9 @@
  */
 package org.sonar.server.computation.ws;
 
+import com.google.common.base.Optional;
+import java.io.File;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -28,6 +31,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.computation.log.CeLogging;
+import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -35,6 +40,9 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectWsActionTest {
 
@@ -44,9 +52,15 @@ public class ProjectWsActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient());
+  CeLogging ceLogging = mock(CeLogging.class);
+  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging);
   ProjectWsAction underTest = new ProjectWsAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
+
+  @Before
+  public void setUp() {
+    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.<File>absent());
+  }
 
   @Test
   public void empty_queue_and_empty_activity() {

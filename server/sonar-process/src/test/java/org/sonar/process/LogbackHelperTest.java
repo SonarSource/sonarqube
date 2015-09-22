@@ -27,21 +27,22 @@ import ch.qos.logback.classic.spi.LoggerContextListener;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import java.io.File;
+import java.util.Properties;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.util.Properties;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class LogbackHelperTest {
 
@@ -81,12 +82,22 @@ public class LogbackHelperTest {
   @Test
   public void newConsoleAppender() {
     LoggerContext ctx = underTest.getRootContext();
-    ConsoleAppender<?> appender = underTest.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n");
+    ConsoleAppender<?> appender = underTest.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n", null);
 
     assertThat(appender.getName()).isEqualTo("MY_APPENDER");
     assertThat(appender.getContext()).isSameAs(ctx);
     assertThat(appender.isStarted()).isTrue();
     assertThat(((PatternLayoutEncoder) appender.getEncoder()).getPattern()).isEqualTo("%msg%n");
+    assertThat(appender.getCopyOfAttachedFiltersList()).isEmpty();
+  }
+
+  @Test
+  public void newConsoleAppender_with_filter() {
+    Filter filter = mock(Filter.class);
+    LoggerContext ctx = underTest.getRootContext();
+    ConsoleAppender<?> appender = underTest.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n", filter);
+
+    assertThat(appender.getCopyOfAttachedFiltersList()).containsOnly(filter);
   }
 
   @Test

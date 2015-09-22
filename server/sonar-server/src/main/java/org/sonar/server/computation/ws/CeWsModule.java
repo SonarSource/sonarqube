@@ -30,6 +30,7 @@ public class CeWsModule extends Module {
       CeQueueWsAction.class,
       CeWs.class,
       IsQueueEmptyWs.class,
+      LogsWsAction.class,
       ProjectWsAction.class,
       SubmitWsAction.class,
       TaskFormatter.class,

@@ -17,19 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.ws;
+package org.sonar.server.computation.log;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.FileAppender;
+import java.io.File;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeWsModuleTest {
+public class CeFileAppenderFactoryTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(10 + 2 /* injected by ComponentContainer */);
+  public void buildAppender() throws Exception {
+    File logsDir = temp.newFolder();
+    CeFileAppenderFactory factory = new CeFileAppenderFactory(logsDir);
+
+    FileAppender underTest = factory.buildAppender(new LoggerContext(), "uuid_1.log");
+
+    assertThat(new File(underTest.getFile())).isEqualTo(new File(logsDir, "uuid_1.log"));
+
   }
 }

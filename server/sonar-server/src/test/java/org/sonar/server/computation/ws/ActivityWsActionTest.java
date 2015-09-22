@@ -19,8 +19,11 @@
  */
 package org.sonar.server.computation.ws;
 
+import com.google.common.base.Optional;
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -31,6 +34,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.computation.log.CeLogging;
+import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -39,6 +44,9 @@ import org.sonarqube.ws.WsCe;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ActivityWsActionTest {
 
@@ -48,9 +56,15 @@ public class ActivityWsActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient());
+  CeLogging ceLogging = mock(CeLogging.class);
+  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging);
   ActivityWsAction underTest = new ActivityWsAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
+
+  @Before
+  public void setUp() {
+    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.<File>absent());
+  }
 
   @Test
   public void get_all_past_activity() {
@@ -71,9 +85,11 @@ public class ActivityWsActionTest {
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
     assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo("PROJECT_2");
     assertThat(activityResponse.getTasks(0).getExecutionTimeMs()).isEqualTo(500L);
+    assertThat(activityResponse.getTasks(0).getLogs()).isFalse();
     assertThat(activityResponse.getTasks(1).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(1).getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
     assertThat(activityResponse.getTasks(1).getComponentId()).isEqualTo("PROJECT_1");
+    assertThat(activityResponse.getTasks(1).getLogs()).isFalse();
   }
 
   @Test
