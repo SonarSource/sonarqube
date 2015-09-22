@@ -26,7 +26,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyFieldDefinition;
-import org.sonar.api.measures.CoreMetrics;
 
 class DebtProperties {
 
@@ -42,16 +41,6 @@ class DebtProperties {
         .defaultValue("8")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
         .deprecatedKey("sqale.hoursInDay")
-        .build(),
-
-      PropertyDefinition.builder(CoreProperties.SIZE_METRIC)
-        .defaultValue("" + CoreMetrics.NCLOC_KEY)
-        .name("Size metric")
-        .description("Metric used to estimate artifact's development cost.")
-        .type(PropertyType.METRIC)
-        .options("key:^(ncloc|complexity)$")
-        .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
-        .deprecatedKey("sizeMetric")
         .build(),
 
       PropertyDefinition.builder(CoreProperties.DEVELOPMENT_COST)
@@ -90,12 +79,6 @@ class DebtProperties {
             .name("Development cost")
             .description("If left blank, the generic value defined in this section will be used.")
             .type(PropertyType.FLOAT)
-            .build(),
-          PropertyFieldDefinition.build(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY)
-            .name("Size metric")
-            .description("If left blank, the generic value defined in this section will be used.")
-            .type(PropertyType.METRIC)
-            .options("key:^(ncloc|complexity)$")
             .build()
         )
         .build()

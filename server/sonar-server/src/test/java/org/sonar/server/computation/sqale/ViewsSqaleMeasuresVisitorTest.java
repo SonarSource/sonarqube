@@ -84,6 +84,7 @@ public class ViewsSqaleMeasuresVisitorTest {
       .build());
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+    .add(CoreMetrics.NCLOC)
     .add(CoreMetrics.DEVELOPMENT_COST)
     .add(CoreMetrics.TECHNICAL_DEBT)
     .add(CoreMetrics.SQALE_DEBT_RATIO)

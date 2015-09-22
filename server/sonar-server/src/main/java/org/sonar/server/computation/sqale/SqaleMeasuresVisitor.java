@@ -38,10 +38,10 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresVisitor.DevelopmentCostCounter> {
   private static final Logger LOG = Loggers.get(SqaleMeasuresVisitor.class);
 
-  private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final SqaleRatingSettings sqaleRatingSettings;
 
+  private final Metric nclocMetric;
   private final Metric developmentCostMetric;
   private final Metric technicalDebtMetric;
   private final Metric debtRatioMetric;
@@ -49,14 +49,14 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
 
   public SqaleMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SqaleRatingSettings sqaleRatingSettings) {
     super(CrawlerDepthLimit.LEAVES, POST_ORDER, DevelopmentCostCounterFactory.INSTANCE);
-    this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.sqaleRatingSettings = sqaleRatingSettings;
 
-    this.developmentCostMetric = this.metricRepository.getByKey(CoreMetrics.DEVELOPMENT_COST_KEY);
-    this.technicalDebtMetric = this.metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY);
-    this.debtRatioMetric = this.metricRepository.getByKey(CoreMetrics.SQALE_DEBT_RATIO_KEY);
-    this.sqaleRatingMetric = this.metricRepository.getByKey(CoreMetrics.SQALE_RATING_KEY);
+    this.nclocMetric = metricRepository.getByKey(CoreMetrics.NCLOC_KEY);
+    this.developmentCostMetric = metricRepository.getByKey(CoreMetrics.DEVELOPMENT_COST_KEY);
+    this.technicalDebtMetric = metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY);
+    this.debtRatioMetric = metricRepository.getByKey(CoreMetrics.SQALE_DEBT_RATIO_KEY);
+    this.sqaleRatingMetric = metricRepository.getByKey(CoreMetrics.SQALE_RATING_KEY);
   }
 
   @Override
@@ -147,10 +147,8 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   }
 
   private long computeDevelopmentCost(Component file) {
-    String languageKey = file.getFileAttributes().getLanguageKey();
-    String sizeMetricKey = sqaleRatingSettings.getSizeMetricKey(languageKey);
-    Metric sizeMetric = metricRepository.getByKey(sizeMetricKey);
-    return getLongValue(measureRepository.getRawMeasure(file, sizeMetric)) * sqaleRatingSettings.getDevCost(languageKey);
+    long ncloc = getLongValue(measureRepository.getRawMeasure(file, this.nclocMetric));
+    return ncloc * sqaleRatingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
   }
 
   private static long getLongValue(Optional<Measure> measure) {

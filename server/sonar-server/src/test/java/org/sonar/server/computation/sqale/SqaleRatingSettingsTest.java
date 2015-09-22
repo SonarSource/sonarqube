@@ -63,14 +63,6 @@ public class SqaleRatingSettingsTest {
   }
 
   @Test
-  public void load_size_metric_for_language() {
-    settings.setProperty(CoreProperties.SIZE_METRIC, "complexity");
-    SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
-
-    assertThat(configurationLoader.getSizeMetricKey("defaultLanguage")).isEqualTo("complexity");
-  }
-
-  @Test
   public void load_overridden_values_for_language() {
 
     String aLanguage = "aLanguage";
@@ -86,8 +78,6 @@ public class SqaleRatingSettingsTest {
 
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
-    assertThat(configurationLoader.getSizeMetricKey(aLanguage)).isEqualTo(CoreMetrics.NCLOC_KEY);
-    assertThat(configurationLoader.getSizeMetricKey(anotherLanguage)).isEqualTo(CoreMetrics.COMPLEXITY_KEY);
     assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(30L);
     assertThat(configurationLoader.getDevCost(anotherLanguage)).isEqualTo(40L);
   }
@@ -106,7 +96,6 @@ public class SqaleRatingSettingsTest {
   public void use_generic_value_when_specific_setting_is_missing() {
     String aLanguage = "aLanguage";
 
-    settings.setProperty(CoreProperties.SIZE_METRIC, "complexity");
     settings.setProperty(CoreProperties.DEVELOPMENT_COST, "30");
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS, "0");
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY, aLanguage);
@@ -114,7 +103,6 @@ public class SqaleRatingSettingsTest {
 
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
-    assertThat(configurationLoader.getSizeMetricKey(aLanguage)).isEqualTo(CoreMetrics.COMPLEXITY_KEY);
     assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(40L);
   }
 }

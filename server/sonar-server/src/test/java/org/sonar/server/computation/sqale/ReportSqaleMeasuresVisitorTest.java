@@ -32,14 +32,13 @@ import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
-import org.sonar.server.computation.metric.Metric;
-import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
@@ -56,10 +55,6 @@ import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.C;
 
 public class ReportSqaleMeasuresVisitorTest {
 
-  private static final String METRIC_KEY_1 = "mKey1";
-  private static final String METRIC_KEY_2 = "mKey2";
-  private static final Metric METRIC_1 = new MetricImpl(1, METRIC_KEY_1, "metric1", Metric.MetricType.FLOAT);
-  private static final Metric METRIC_2 = new MetricImpl(2, METRIC_KEY_2, "metric2", Metric.MetricType.WORK_DUR);
   private static final String LANGUAGE_KEY_1 = "lKey1";
   private static final String LANGUAGE_KEY_2 = "lKey2";
   private static final double[] RATING_GRID = new double[] {34, 50, 362, 900, 36258};
@@ -70,8 +65,7 @@ public class ReportSqaleMeasuresVisitorTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(METRIC_1)
-    .add(METRIC_2)
+    .add(CoreMetrics.NCLOC)
     .add(CoreMetrics.DEVELOPMENT_COST)
     .add(CoreMetrics.TECHNICAL_DEBT)
     .add(CoreMetrics.SQALE_DEBT_RATIO)
@@ -87,8 +81,6 @@ public class ReportSqaleMeasuresVisitorTest {
   public void setUp() {
     // assumes SQALE rating configuration is consistent
     when(sqaleRatingSettings.getRatingGrid()).thenReturn(RATING_GRID);
-    when(sqaleRatingSettings.getSizeMetricKey(LANGUAGE_KEY_1)).thenReturn(METRIC_KEY_1);
-    when(sqaleRatingSettings.getSizeMetricKey(LANGUAGE_KEY_2)).thenReturn(METRIC_KEY_2);
     when(sqaleRatingSettings.getDevCost(LANGUAGE_KEY_1)).thenReturn(DEV_COST_LANGUAGE_1);
     when(sqaleRatingSettings.getDevCost(LANGUAGE_KEY_2)).thenReturn(DEV_COST_LANGUAGE_2);
   }
@@ -113,26 +105,25 @@ public class ReportSqaleMeasuresVisitorTest {
 
   @Test
   public void verify_computation_of_measures_for_file_depending_upon_language_1() {
-    verify_computation_of_measure_for_file(33000l, DEV_COST_LANGUAGE_1, METRIC_KEY_1, LANGUAGE_KEY_1, C);
+    verify_computation_of_measure_for_file(33000l, DEV_COST_LANGUAGE_1, LANGUAGE_KEY_1, C);
   }
 
   @Test
   public void verify_computation_of_measures_for_file_depending_upon_language_2() {
-    verify_computation_of_measure_for_file(4200l, DEV_COST_LANGUAGE_2, METRIC_KEY_2, LANGUAGE_KEY_2, A);
+    verify_computation_of_measure_for_file(4200l, DEV_COST_LANGUAGE_2, LANGUAGE_KEY_2, A);
   }
 
   /**
    * Verify the computation of measures values depending upon which language is associated to the file by
    * processing a tree of a single Component of type FILE.
    */
-  private void verify_computation_of_measure_for_file(long debt, long languageCost, String metricKey, String languageKey,
-    SqaleRatingGrid.SqaleRating expectedRating) {
+  private void verify_computation_of_measure_for_file(long debt, long languageCost, String languageKey, SqaleRatingGrid.SqaleRating expectedRating) {
     long measureValue = 10;
 
     int componentRef = 1;
     ReportComponent fileComponent = createFileComponent(languageKey, componentRef);
     treeRootHolder.setRoot(fileComponent);
-    addRawMeasure(metricKey, componentRef, measureValue);
+    addRawMeasure(NCLOC_KEY, componentRef, measureValue);
     addRawMeasure(TECHNICAL_DEBT_KEY, componentRef, debt);
 
     underTest.visit(fileComponent);
@@ -172,12 +163,12 @@ public class ReportSqaleMeasuresVisitorTest {
 
     long measureValue1111 = 10;
     long debt1111 = 66000l;
-    addRawMeasure(METRIC_KEY_1, 1111, measureValue1111);
+    addRawMeasure(NCLOC_KEY, 1111, measureValue1111);
     addRawMeasure(TECHNICAL_DEBT_KEY, 1111, debt1111);
 
     long measureValue1112 = 10;
     long debt1112 = 4200l;
-    addRawMeasure(METRIC_KEY_2, 1112, measureValue1112);
+    addRawMeasure(NCLOC_KEY, 1112, measureValue1112);
     addRawMeasure(TECHNICAL_DEBT_KEY, 1112, debt1112);
 
     long debt111 = 96325l;
@@ -185,7 +176,7 @@ public class ReportSqaleMeasuresVisitorTest {
 
     long measureValue1121 = 30;
     long debt1121 = 25200l;
-    addRawMeasure(METRIC_KEY_2, 1121, measureValue1121);
+    addRawMeasure(NCLOC_KEY, 1121, measureValue1121);
     addRawMeasure(TECHNICAL_DEBT_KEY, 1121, debt1121);
 
     long debt112 = 99633l;
@@ -193,7 +184,7 @@ public class ReportSqaleMeasuresVisitorTest {
 
     long measureValue1211 = 20;
     long debt1211 = 33000l;
-    addRawMeasure(METRIC_KEY_1, 1211, measureValue1211);
+    addRawMeasure(NCLOC_KEY, 1211, measureValue1211);
     addRawMeasure(TECHNICAL_DEBT_KEY, 1211, debt1211);
 
     long debt121 = 7524l;

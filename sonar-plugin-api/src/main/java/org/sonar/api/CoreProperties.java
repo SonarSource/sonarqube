@@ -499,7 +499,9 @@ public interface CoreProperties {
 
   /**
    * @since 4.5
+   * @deprecated no used anymore since 5.2
    */
+  @Deprecated
   String SIZE_METRIC = "sonar.technicalDebt.sizeMetric";
 
   /**

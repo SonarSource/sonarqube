@@ -35,7 +35,6 @@ import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS
 import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY;
 import static org.sonar.api.CoreProperties.RATING_GRID;
 import static org.sonar.api.CoreProperties.RATING_GRID_DEF_VALUES;
-import static org.sonar.api.CoreProperties.SIZE_METRIC;
 
 public class SqaleRatingSettings {
 
@@ -94,18 +93,6 @@ public class SqaleRatingSettings {
       throw new IllegalArgumentException("The value of the SQALE property '" + DEVELOPMENT_COST
         + "' is incorrect. Expected long but got '" + settings.getString(DEVELOPMENT_COST) + "'", e);
     }
-  }
-
-  public String getSizeMetricKey(@Nullable String languageKey) {
-    if (languageKey == null) {
-      return settings.getString(SIZE_METRIC);
-    }
-
-    LanguageSpecificConfiguration languageSpecificConfig = getSpecificParametersForLanguage(languageKey);
-    if (languageSpecificConfig != null && languageSpecificConfig.getMetricKey() != null) {
-      return languageSpecificConfig.getMetricKey();
-    }
-    return settings.getString(SIZE_METRIC);
   }
 
   @CheckForNull
