@@ -136,7 +136,7 @@ public class QualityGates {
   public void delete(long idToDelete) {
     checkPermission();
     QualityGateDto qGate = getNonNullQgate(idToDelete);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       if (isDefault(qGate)) {
         propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, session);
