@@ -23,6 +23,9 @@ import com.google.common.base.Optional;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.data.Offset;
+
+import static java.lang.Math.abs;
 
 public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
@@ -33,6 +36,7 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
   public static MeasureAssert assertThat(Measure actual) {
     return new MeasureAssert(actual);
   }
+
   public static MeasureAssert assertThat(@Nullable Optional<Measure> actual) {
     return new MeasureAssert(actual == null ? null : actual.orNull());
   }
@@ -52,8 +56,8 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getValueType() != Measure.ValueType.INT) {
       failWithMessage(
-          "Expected Measure to have an int value and therefore its ValueType to be <%s> but was <%s>",
-          Measure.ValueType.INT, actual.getValueType());
+        "Expected Measure to have an int value and therefore its ValueType to be <%s> but was <%s>",
+        Measure.ValueType.INT, actual.getValueType());
     }
 
     if (actual.getIntValue() != expected) {
@@ -68,8 +72,8 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getValueType() != Measure.ValueType.LONG) {
       failWithMessage(
-          "Expected Measure to have a long value and therefore its ValueType to be <%s> but was <%s>",
-          Measure.ValueType.LONG, actual.getValueType());
+        "Expected Measure to have a long value and therefore its ValueType to be <%s> but was <%s>",
+        Measure.ValueType.LONG, actual.getValueType());
     }
 
     if (actual.getLongValue() != expected) {
@@ -84,8 +88,8 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getValueType() != Measure.ValueType.DOUBLE) {
       failWithMessage(
-          "Expected Measure to have a double value and therefore its ValueType to be <%s> but was <%s>",
-          Measure.ValueType.DOUBLE, actual.getValueType());
+        "Expected Measure to have a double value and therefore its ValueType to be <%s> but was <%s>",
+        Measure.ValueType.DOUBLE, actual.getValueType());
     }
 
     if (actual.getDoubleValue() != expected) {
@@ -100,8 +104,8 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getValueType() != Measure.ValueType.BOOLEAN) {
       failWithMessage(
-          "Expected Measure to have a boolean value and therefore its ValueType to be <%s> but was <%s>",
-          Measure.ValueType.DOUBLE, actual.getValueType());
+        "Expected Measure to have a boolean value and therefore its ValueType to be <%s> but was <%s>",
+        Measure.ValueType.DOUBLE, actual.getValueType());
     }
 
     if (actual.getBooleanValue() != expected) {
@@ -116,8 +120,8 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getValueType() != Measure.ValueType.STRING) {
       failWithMessage(
-          "Expected Measure to have a String value and therefore its ValueType to be <%s> but was <%s>",
-          Measure.ValueType.DOUBLE, actual.getValueType());
+        "Expected Measure to have a String value and therefore its ValueType to be <%s> but was <%s>",
+        Measure.ValueType.DOUBLE, actual.getValueType());
     }
 
     if (!Objects.equals(actual.getStringValue(), expected)) {
@@ -132,8 +136,8 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getValueType() != Measure.ValueType.LEVEL) {
       failWithMessage(
-          "Expected Measure to have a Level value and therefore its ValueType to be <%s> but was <%s>",
-          Measure.ValueType.DOUBLE, actual.getValueType());
+        "Expected Measure to have a Level value and therefore its ValueType to be <%s> but was <%s>",
+        Measure.ValueType.DOUBLE, actual.getValueType());
     }
 
     if (actual.getLevelValue() != expected) {
@@ -148,8 +152,8 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getValueType() != Measure.ValueType.NO_VALUE) {
       failWithMessage(
-          "Expected Measure to have no value and therefore its ValueType to be <%s> but was <%s>",
-          Measure.ValueType.DOUBLE, actual.getValueType());
+        "Expected Measure to have no value and therefore its ValueType to be <%s> but was <%s>",
+        Measure.ValueType.DOUBLE, actual.getValueType());
     }
 
     return this;
@@ -270,6 +274,23 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
     return this;
   }
 
+  public MeasureAssert hasVariation1(double expected, Offset<Double> offset) {
+    isNotNull();
+    hasVariations();
+
+    if (!actual.getVariations().hasVariation1()) {
+      failWithMessage("Expected Measure to have a Variation 1 but it did not");
+    }
+
+    if (abs(expected - actual.getVariations().getVariation1()) <= offset.value) {
+      failWithMessage(
+        "Expected Variation 1 of Measure to be close to <%s> by less than <%s> but was <%s>",
+        expected, offset.value, actual.getVariations().getVariation1());
+    }
+
+    return this;
+  }
+
   public MeasureAssert hasVariation2(double expected) {
     isNotNull();
     hasVariations();
@@ -280,6 +301,23 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getVariations().getVariation2() != expected) {
       failWithMessage("Expected Variation 2 of Measure to be <%s> but was <%s>", expected, actual.getVariations().getVariation2());
+    }
+
+    return this;
+  }
+
+  public MeasureAssert hasVariation2(double expected, Offset<Double> offset) {
+    isNotNull();
+    hasVariations();
+
+    if (!actual.getVariations().hasVariation2()) {
+      failWithMessage("Expected Measure to have a Variation 2 but it did not");
+    }
+
+    if (abs(expected - actual.getVariations().getVariation2()) > offset.value) {
+      failWithMessage(
+        "Expected Variation 2 of Measure to be close to <%s> by less than <%s> but was <%s>",
+        expected, offset.value, actual.getVariations().getVariation2());
     }
 
     return this;
@@ -300,6 +338,23 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
     return this;
   }
 
+  public MeasureAssert hasVariation3(double expected, Offset<Double> offset) {
+    isNotNull();
+    hasVariations();
+
+    if (!actual.getVariations().hasVariation3()) {
+      failWithMessage("Expected Measure to have a Variation 3 but it did not");
+    }
+
+    if (abs(expected - actual.getVariations().getVariation3()) > offset.value) {
+      failWithMessage(
+        "Expected Variation 3 of Measure to be close to <%s> by less than <%s> but was <%s>",
+        expected, offset.value, actual.getVariations().getVariation3());
+    }
+
+    return this;
+  }
+
   public MeasureAssert hasVariation4(double expected) {
     isNotNull();
     hasVariations();
@@ -310,6 +365,23 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
     if (actual.getVariations().getVariation4() != expected) {
       failWithMessage("Expected Variation 4 of Measure to be <%s> but was <%s>", expected, actual.getVariations().getVariation4());
+    }
+
+    return this;
+  }
+
+  public MeasureAssert hasVariation4(double expected, Offset<Double> offset) {
+    isNotNull();
+    hasVariations();
+
+    if (!actual.getVariations().hasVariation4()) {
+      failWithMessage("Expected Measure to have a Variation 4 but it did not");
+    }
+
+    if (abs(expected - actual.getVariations().getVariation4()) > offset.value) {
+      failWithMessage(
+        "Expected Variation 4 of Measure to be close to <%s> by less than <%s> but was <%s>",
+        expected, offset.value, actual.getVariations().getVariation4());
     }
 
     return this;
@@ -330,9 +402,32 @@ public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
     return this;
   }
 
+  public MeasureAssert hasVariation5(double expected, Offset<Double> offset) {
+    isNotNull();
+    hasVariations();
+
+    if (!actual.getVariations().hasVariation5()) {
+      failWithMessage("Expected Measure to have a Variation 5 but it did not");
+    }
+
+    if (abs(expected - actual.getVariations().getVariation5()) > offset.value) {
+      failWithMessage(
+        "Expected Variation 5 of Measure to be close to <%s> by less than <%s> but was <%s>",
+        expected, offset.value, actual.getVariations().getVariation5());
+    }
+
+    return this;
+  }
+
   private void hasVariations() {
     if (!actual.hasVariations()) {
       failWithMessage("Expected Measure to have a Variations but it did not");
+    }
+  }
+
+  public void isAbsent() {
+    if (actual != null) {
+      failWithMessage("Expected measure to be absent");
     }
   }
 }
