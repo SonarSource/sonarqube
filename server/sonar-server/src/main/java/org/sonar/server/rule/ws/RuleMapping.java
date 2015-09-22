@@ -29,6 +29,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -331,7 +332,10 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
   private static void setTemplateKey(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.TEMPLATE_KEY) && ruleDoc.templateKey() != null) {
-      ruleResponse.setTemplateKey(ruleDoc.templateKey().toString());
+      RuleKey templateKey = ruleDoc.templateKey();
+      if (templateKey != null) {
+        ruleResponse.setTemplateKey(templateKey.toString());
+      }
     }
   }
 
@@ -343,7 +347,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     return fieldsToReturn.isEmpty() || fieldsToReturn.contains(fieldName);
   }
 
-  private void buildCharacteristicRuleResponse(Rules.Rule.Builder ruleResponse, Rule ruleDoc, RuleMappingContext context) {
+  private static void buildCharacteristicRuleResponse(Rules.Rule.Builder ruleResponse, Rule ruleDoc, RuleMappingContext context) {
     String ruleCharacteristic = ruleToCharacteristic(ruleDoc);
     if (ruleCharacteristic != null) {
       ruleResponse.setDebtChar(ruleCharacteristic);
@@ -354,7 +358,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     }
   }
 
-  private void buildDebtSubCharacteristicRuleResponse(Rules.Rule.Builder ruleResponse, Rule ruleDoc, RuleMappingContext context) {
+  private static void buildDebtSubCharacteristicRuleResponse(Rules.Rule.Builder ruleResponse, Rule ruleDoc, RuleMappingContext context) {
     String ruleSubCharacteristic = ruleToSubCharacteristic(ruleDoc);
     if (ruleSubCharacteristic != null) {
       ruleResponse.setDebtSubChar(ruleSubCharacteristic);
@@ -365,11 +369,11 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     }
   }
 
-  private boolean needDebtCharacteristicNames(@Nullable QueryContext context) {
+  private static boolean needDebtCharacteristicNames(@Nullable QueryContext context) {
     return context == null || context.getFieldsToReturn().contains("debtCharName");
   }
 
-  private boolean needDebtSubCharacteristicNames(@Nullable QueryContext context) {
+  private static boolean needDebtSubCharacteristicNames(@Nullable QueryContext context) {
     return context == null || context.getFieldsToReturn().contains("debtSubCharName");
   }
 
