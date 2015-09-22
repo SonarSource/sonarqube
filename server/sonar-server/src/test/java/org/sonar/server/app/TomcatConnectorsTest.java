@@ -1,4 +1,3 @@
-
 /*
  * SonarQube, open source software quality management tool.
  * Copyright (C) 2008-2014 SonarSource
@@ -249,13 +248,7 @@ public class TomcatConnectorsTest {
 
     TomcatConnectors.configure(tomcat, props);
 
-    verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getProperty("clientAuth").equals("want");
-      }
-    }));
+    verifyConnectorProperty(tomcat, "https", "clientAuth", "want");
   }
 
   @Test
@@ -271,13 +264,47 @@ public class TomcatConnectorsTest {
 
     TomcatConnectors.configure(tomcat, props);
 
-    verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getProperty("clientAuth").equals("true");
-      }
-    }));
+    verifyConnectorProperty(tomcat, "https", "clientAuth", "true");
+  }
+
+  @Test
+  public void test_default_max_http_header_size_for_http_connection() {
+      Properties properties = new Properties();
+
+      properties.setProperty("sonar.web.https.port", "9443");
+
+      Props props = new Props(properties);
+      TomcatConnectors.configure(tomcat, props);
+      verifyConnectorProperty(tomcat, "http", "maxHttpHeaderSize", TomcatConnectors.DEFAULT_MAX_HTTP_HEADER_SIZE_KB);
+      verifyConnectorProperty(tomcat, "https", "maxHttpHeaderSize", TomcatConnectors.DEFAULT_MAX_HTTP_HEADER_SIZE_KB);
+  }
+
+  @Test
+  public void test_configured_max_http_header_size() {
+      final Integer headerSize32Kb = 32 * 1024;
+
+      Properties properties = new Properties();
+
+      properties.setProperty("sonar.web.http.maxHttpHeaderSize", headerSize32Kb.toString());
+      properties.setProperty("sonar.web.https.port", "9443");
+      properties.setProperty("sonar.web.https.maxHttpHeaderSize", headerSize32Kb.toString());
+
+      Props props = new Props(properties);
+      TomcatConnectors.configure(tomcat, props);
+
+      verifyConnectorProperty(tomcat, "http", "maxHttpHeaderSize", headerSize32Kb);
+      verifyConnectorProperty(tomcat, "https", "maxHttpHeaderSize", headerSize32Kb);
+  }
+
+  private static void verifyConnectorProperty(Tomcat tomcat, final String connectorScheme, final String property,
+                                              final Object propertyValue) {
+      verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+          @Override
+          public boolean matches(Object o) {
+              Connector c = (Connector) o;
+              return c.getScheme().equals(connectorScheme) && c.getProperty(property).equals(propertyValue);
+          }
+      }));
   }
 
   private static class PropertiesMatcher extends ArgumentMatcher<Connector> {
