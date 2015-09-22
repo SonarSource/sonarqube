@@ -81,7 +81,7 @@ public class DefaultIssueCallback implements IssueCallback {
       newIssue.setMessage(issue.getMessage());
       newIssue.setNew(issue.isNew());
       newIssue.setResolution(issue.resolution());
-      newIssue.setRuleKey(issue.getRuleKey().rule());
+      newIssue.setRuleKey(issue.getRuleKey().toString());
       newIssue.setRuleName(getRuleName(issue.getRuleKey()));
       newIssue.setSeverity(issue.severity());
       newIssue.setStatus(issue.status());
