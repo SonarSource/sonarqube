@@ -71,6 +71,7 @@ import org.sonar.server.computation.CleanReportQueueListener;
 import org.sonar.server.computation.ComputeEngineProcessingModule;
 import org.sonar.server.computation.ReportFiles;
 import org.sonar.server.computation.ReportSubmitter;
+import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
 import org.sonar.server.computation.ws.CeWsModule;
@@ -718,6 +719,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ReportFiles.class,
       ComputeEngineProcessingModule.class,
       CeWsModule.class,
+      CeLogging.class,
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,
       ProjectSettingsFactory.class,

@@ -25,6 +25,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
+import org.sonar.server.computation.log.CeLogging;
 
 import static java.lang.String.format;
 
@@ -34,10 +35,12 @@ public class CeWorkerImpl implements CeWorker {
 
   private final CeQueue queue;
   private final ReportTaskProcessor reportTaskProcessor;
+  private final CeLogging ceLogging;
 
-  public CeWorkerImpl(CeQueue queue, ReportTaskProcessor reportTaskProcessor) {
+  public CeWorkerImpl(CeQueue queue, ReportTaskProcessor reportTaskProcessor, CeLogging ceLogging) {
     this.queue = queue;
     this.reportTaskProcessor = reportTaskProcessor;
+    this.ceLogging = ceLogging;
   }
 
   @Override
@@ -54,17 +57,18 @@ public class CeWorkerImpl implements CeWorker {
       return;
     }
 
-    // TODO delegate the message to the related task processor, according to task type
+    ceLogging.initTask(task.getUuid());
     Profiler profiler = Profiler.create(LOG).startInfo(format("Analysis of project %s (report %s)", task.getComponentKey(), task.getUuid()));
     try {
+      // TODO delegate the message to the related task processor, according to task type
       reportTaskProcessor.process(task);
       queue.remove(task, CeActivityDto.Status.SUCCESS);
     } catch (Throwable e) {
       LOG.error(format("Failed to process task %s", task.getUuid()), e);
       queue.remove(task, CeActivityDto.Status.FAILED);
     } finally {
-
       profiler.stopInfo();
+      ceLogging.clearTask();
     }
   }
 }

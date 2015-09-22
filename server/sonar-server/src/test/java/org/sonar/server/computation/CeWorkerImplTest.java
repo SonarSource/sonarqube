@@ -21,12 +21,14 @@ package org.sonar.server.computation;
 
 import com.google.common.base.Optional;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.computation.log.CeLogging;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +36,8 @@ public class CeWorkerImplTest {
 
   CeQueue queue = mock(CeQueueImpl.class);
   ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
-  CeWorker underTest = new CeWorkerImpl(queue, taskProcessor);
+  CeLogging ceLogging = mock(CeLogging.class);
+  CeWorker underTest = new CeWorkerImpl(queue, taskProcessor, ceLogging);
 
   @Test
   public void no_pending_tasks_in_queue() throws Exception {
@@ -42,7 +45,7 @@ public class CeWorkerImplTest {
 
     underTest.run();
 
-    verifyZeroInteractions(taskProcessor);
+    verifyZeroInteractions(taskProcessor, ceLogging);
   }
 
   @Test
@@ -52,8 +55,11 @@ public class CeWorkerImplTest {
 
     underTest.run();
 
-    verify(taskProcessor).process(task);
-    verify(queue).remove(task, CeActivityDto.Status.SUCCESS);
+    InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
+    inOrder.verify(ceLogging).initTask("TASK_1");
+    inOrder.verify(taskProcessor).process(task);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS);
+    inOrder.verify(ceLogging).clearTask();
   }
 
   @Test
@@ -64,7 +70,10 @@ public class CeWorkerImplTest {
 
     underTest.run();
 
-    verify(taskProcessor).process(task);
-    verify(queue).remove(task, CeActivityDto.Status.FAILED);
+    InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
+    inOrder.verify(ceLogging).initTask("TASK_1");
+    inOrder.verify(taskProcessor).process(task);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED);
+    inOrder.verify(ceLogging).clearTask();
   }
 }

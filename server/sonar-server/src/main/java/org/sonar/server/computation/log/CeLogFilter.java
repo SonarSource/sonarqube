@@ -17,28 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.search;
+package org.sonar.server.computation.log;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import org.sonar.process.LogbackHelper;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
+import org.slf4j.MDC;
 
-public class SearchLogging {
+/**
+ * Filters the Compute Engine logs.
+ */
+public class CeLogFilter<E> extends Filter<E> {
 
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level  es[%logger{20}] %X %msg%n";
+  private final boolean isComputeEngine;
 
-  private LogbackHelper helper = new LogbackHelper();
+  public CeLogFilter(boolean isComputeEngine) {
+    this.isComputeEngine = isComputeEngine;
+  }
 
-  public LoggerContext configure() {
-    LoggerContext ctx = helper.getRootContext();
-    ctx.reset();
+  @Override
+  public FilterReply decide(E o) {
+    return MDC.get(CeFileAppenderFactory.MDC_TASK_UUID) != null ? acceptIfCe() : denyIfCe();
+  }
 
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT, null);
-    Logger rootLogger = helper.configureLogger(ctx, Logger.ROOT_LOGGER_NAME, Level.INFO);
-    rootLogger.addAppender(consoleAppender);
-    return ctx;
+  private FilterReply acceptIfCe() {
+    return isComputeEngine ? FilterReply.ACCEPT : FilterReply.DENY;
+  }
+
+  private FilterReply denyIfCe() {
+    return isComputeEngine ? FilterReply.DENY : FilterReply.ACCEPT;
   }
 }

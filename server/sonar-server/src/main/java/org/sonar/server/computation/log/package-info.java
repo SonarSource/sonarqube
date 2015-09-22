@@ -17,28 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.search;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import org.sonar.process.LogbackHelper;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.log;
 
-public class SearchLogging {
-
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level  es[%logger{20}] %X %msg%n";
-
-  private LogbackHelper helper = new LogbackHelper();
-
-  public LoggerContext configure() {
-    LoggerContext ctx = helper.getRootContext();
-    ctx.reset();
-
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT, null);
-    Logger rootLogger = helper.configureLogger(ctx, Logger.ROOT_LOGGER_NAME, Level.INFO);
-    rootLogger.addAppender(consoleAppender);
-    return ctx;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -24,13 +24,13 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
-
+import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.api.utils.MessageException;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
-
-import java.util.logging.LogManager;
+import org.sonar.server.computation.log.CeFileAppenderFactory;
+import org.sonar.server.computation.log.CeLogFilter;
 
 /**
  * Configure logback for web server process. Logs must be written to console, which is
@@ -48,7 +48,7 @@ class WebLogging {
     ctx.reset();
 
     helper.enableJulChangePropagation(ctx);
-    configureAppender(ctx);
+    configureAppender(ctx, props);
     configureLevels(ctx, props);
 
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
@@ -57,9 +57,11 @@ class WebLogging {
     return ctx;
   }
 
-  private void configureAppender(LoggerContext ctx) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT);
+  private void configureAppender(LoggerContext ctx, Props props) {
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT, new CeLogFilter(false));
     ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
+    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeFileAppenderFactory.createSiftingAppender(ctx, props));
+
   }
 
   private void configureLevels(LoggerContext ctx, Props props) {
