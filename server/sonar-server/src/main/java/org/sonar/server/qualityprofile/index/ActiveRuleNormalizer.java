@@ -22,7 +22,11 @@ package org.sonar.server.qualityprofile.index;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.elasticsearch.action.support.replication.ReplicationType;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -35,12 +39,6 @@ import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRuleKey> {
 
@@ -114,7 +112,6 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
       /* Creating updateRequest */
       requests.add(new UpdateRequest()
-        .replicationType(ReplicationType.ASYNC)
         .routing(key.ruleKey().toString())
         .id(activeRuleDto.getKey().toString())
         .parent(activeRuleDto.getKey().ruleKey().toString())
@@ -136,7 +133,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
   @Override
   public List<UpdateRequest> normalizeNested(Object object, ActiveRuleKey key) {
-    Preconditions.checkArgument(key != null, "key cannot be null");
+    Preconditions.checkNotNull(key);
     if (object.getClass().isAssignableFrom(ActiveRuleParamDto.class)) {
       return nestedUpdate((ActiveRuleParamDto) object, key);
     } else {
@@ -146,7 +143,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
   @Override
   public List<UpdateRequest> deleteNested(Object object, ActiveRuleKey key) {
-    Preconditions.checkArgument(key != null, "key of Rule must be set");
+    Preconditions.checkNotNull(key);
     if (object.getClass().isAssignableFrom(ActiveRuleParamDto.class)) {
       return nestedDelete((ActiveRuleParamDto) object, key);
     } else {
@@ -154,15 +151,14 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     }
   }
 
-  private List<UpdateRequest> nestedUpdate(ActiveRuleParamDto param, ActiveRuleKey key) {
-    Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleParamDto for null key of ActiveRule");
+  private static List<UpdateRequest> nestedUpdate(ActiveRuleParamDto param, ActiveRuleKey key) {
+    Preconditions.checkNotNull(key);
 
     Map<String, Object> newParam = new HashMap<>();
     newParam.put(ActiveRuleParamField.NAME.field(), param.getKey());
     newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
 
     return ImmutableList.of(new UpdateRequest()
-      .replicationType(ReplicationType.ASYNC)
       .routing(key.ruleKey().toString())
       .id(key.toString())
       .script(ProcessProperties.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
@@ -173,9 +169,8 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       );
   }
 
-  private List<UpdateRequest> nestedDelete(ActiveRuleParamDto param, ActiveRuleKey key) {
+  private static List<UpdateRequest> nestedDelete(ActiveRuleParamDto param, ActiveRuleKey key) {
     return ImmutableList.of(new UpdateRequest()
-      .replicationType(ReplicationType.ASYNC)
       .routing(key.ruleKey().toString())
       .id(key.toString())
       .script(ProcessProperties.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)

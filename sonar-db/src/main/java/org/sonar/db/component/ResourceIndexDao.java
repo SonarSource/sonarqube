@@ -162,7 +162,7 @@ public class ResourceIndexDao extends AbstractDao {
     return indexed;
   }
 
-  private boolean indexResource(long id, String name, String qualifier, long rootId, SqlSession session, ResourceIndexMapper mapper) {
+  private static boolean indexResource(long id, String name, String qualifier, long rootId, SqlSession session, ResourceIndexMapper mapper) {
     boolean indexed = false;
     String key = nameToKey(name);
     if (key.length() >= MINIMUM_KEY_SIZE || key.length() == SINGLE_INDEX_SIZE) {

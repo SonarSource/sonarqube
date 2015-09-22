@@ -476,7 +476,7 @@ public class IssueIndex extends BaseIndex {
       .interval(bucketSize)
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
-      .preZone(timeZoneString)
+      .timeZone(timeZoneString)
       .postZone(timeZoneString)
       .extendedBounds(startTime, endTime);
     dateHistogram = addDebtAggregationIfNeeded(query, dateHistogram);

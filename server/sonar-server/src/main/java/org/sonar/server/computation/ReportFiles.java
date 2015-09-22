@@ -33,7 +33,6 @@ import org.sonar.process.ProcessProperties;
 
 import static java.lang.String.format;
 
-// TODO deal with temporary unzipped files
 @ServerSide
 public class ReportFiles {
 
