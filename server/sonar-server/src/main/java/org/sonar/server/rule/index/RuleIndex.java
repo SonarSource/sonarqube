@@ -206,7 +206,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     String queryString = query.getQueryText();
 
     // Human readable type of querying
-    qb.should(QueryBuilders.simpleQueryString(query.getQueryText())
+    qb.should(QueryBuilders.simpleQueryStringQuery(query.getQueryText())
       .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
       .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
       .defaultOperator(SimpleQueryStringBuilder.Operator.AND)

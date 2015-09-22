@@ -51,9 +51,11 @@ public class CustomMessageSensor extends AbstractDeprecatedXooRuleSensor {
   @Override
   protected void processFile(InputFile inputFile, org.sonar.api.resources.File sonarFile, SensorContext context, RuleKey ruleKey, String languageKey) {
     Issuable issuable = perspectives.as(Issuable.class, sonarFile);
-    issuable.addIssue(issuable.newIssueBuilder()
-      .ruleKey(ruleKey)
-      .message(settings.getString(MESSAGE_PROPERTY))
-      .build());
+    if (issuable != null) {
+      issuable.addIssue(issuable.newIssueBuilder()
+        .ruleKey(ruleKey)
+        .message(settings.getString(MESSAGE_PROPERTY))
+        .build());
+    }
   }
 }

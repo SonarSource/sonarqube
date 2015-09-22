@@ -19,13 +19,12 @@
  */
 package org.sonar.server.search.action;
 
+import java.util.List;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.server.search.Index;
 import org.sonar.server.search.IndexDefinition;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -69,6 +68,5 @@ public class RefreshIndexTest {
 
     RefreshRequest request = requests.get(0);
     assertThat(request.indices()).containsOnly(TEST_INDEX.getIndexName());
-    assertThat(request.force()).isFalse();
   }
 }

@@ -61,10 +61,12 @@ public class ReportFiles {
 
   public void deleteAll() {
     File dir = reportDir();
-    try {
-      FileUtils.deleteDirectory(dir);
-    } catch (Exception e) {
-      throw new IllegalStateException(format("Fail to delete directory: %s", dir.getAbsolutePath()), e);
+    if (dir.exists()) {
+      try {
+        FileUtils.cleanDirectory(dir);
+      } catch (Exception e) {
+        throw new IllegalStateException(format("Fail to clean directory: %s", dir.getAbsolutePath()), e);
+      }
     }
   }
 

@@ -20,10 +20,9 @@
 package org.sonar.server.search.action;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.sonar.server.search.Index;
-
-import java.util.List;
 
 public class RefreshIndex extends IndexAction<RefreshRequest> {
 
@@ -40,7 +39,6 @@ public class RefreshIndex extends IndexAction<RefreshRequest> {
   public List<RefreshRequest> doCall(Index index) {
     return ImmutableList.of(
       new RefreshRequest()
-        .force(false)
         .indices(index.getIndexName()));
   }
 }
