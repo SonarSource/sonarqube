@@ -19,22 +19,27 @@
  */
 package org.sonar.server.computation.component;
 
-import java.util.Collections;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.ImmutableList.copyOf;
-import static com.google.common.collect.Iterables.filter;
+import static java.util.Arrays.asList;
 
+@Immutable
 public class ComponentImpl implements Component {
   private final Type type;
   private final String name;
+  private final String key;
+  private final String uuid;
+
   @CheckForNull
   private final String description;
   private final List<Component> children;
@@ -43,50 +48,15 @@ public class ComponentImpl implements Component {
   @CheckForNull
   private final FileAttributes fileAttributes;
 
-  // Mutable values
-  private String key;
-  private String uuid;
-
-  public ComponentImpl(BatchReport.Component component, @Nullable Iterable<Component> children) {
-    this.type = convertType(component.getType());
-    this.name = checkNotNull(component.getName());
-    this.description = component.hasDescription() ? component.getDescription() : null;
-    this.reportAttributes = createBatchAttributes(component);
-    this.fileAttributes = createFileAttributes(component);
-    this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
-  }
-
-  private static ReportAttributes createBatchAttributes(BatchReport.Component component) {
-    return ReportAttributes.newBuilder(component.getRef())
-      .setVersion(component.hasVersion() ? component.getVersion() : null)
-      .setPath(component.hasPath() ? component.getPath() : null)
-      .build();
-  }
-
-  @CheckForNull
-  private static FileAttributes createFileAttributes(BatchReport.Component component) {
-    if (component.getType() != Constants.ComponentType.FILE) {
-      return null;
-    }
-
-    return new FileAttributes(
-      component.hasIsTest() && component.getIsTest(),
-      component.hasLanguage() ? component.getLanguage() : null);
-  }
-
-  public static Type convertType(Constants.ComponentType type) {
-    switch (type) {
-      case PROJECT:
-        return Type.PROJECT;
-      case MODULE:
-        return Type.MODULE;
-      case DIRECTORY:
-        return Type.DIRECTORY;
-      case FILE:
-        return Type.FILE;
-      default:
-        throw new IllegalArgumentException("Unsupported Constants.ComponentType value " + type);
-    }
+  private ComponentImpl(Builder builder) {
+    this.type = builder.type;
+    this.key = builder.key;
+    this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
+    this.description = builder.description;
+    this.uuid = builder.uuid;
+    this.reportAttributes = builder.reportAttributes;
+    this.fileAttributes = builder.fileAttributes;
+    this.children = ImmutableList.copyOf(builder.children);
   }
 
   @Override
@@ -102,22 +72,12 @@ public class ComponentImpl implements Component {
     return uuid;
   }
 
-  public ComponentImpl setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
-  }
-
   @Override
   public String getKey() {
     if (key == null) {
       throw new UnsupportedOperationException(String.format("Component key of ref '%s' has not be fed yet", this.reportAttributes.getRef()));
     }
     return key;
-  }
-
-  public ComponentImpl setKey(String key) {
-    this.key = key;
-    return this;
   }
 
   @Override
@@ -150,6 +110,89 @@ public class ComponentImpl implements Component {
   @Override
   public ProjectViewAttributes getProjectViewAttributes() {
     throw new IllegalStateException("Only component of type PROJECT_VIEW have a FileAttributes object");
+  }
+
+  public static Builder builder(BatchReport.Component component) {
+    return new Builder(component);
+  }
+
+  public static final class Builder {
+
+    private final Type type;
+    private final ReportAttributes reportAttributes;
+    private String uuid;
+    private String key;
+    private String name;
+    private String description;
+    private FileAttributes fileAttributes;
+    private final List<Component> children = new ArrayList<>();
+
+    private Builder(BatchReport.Component component) {
+      checkNotNull(component);
+      this.type = convertType(component.getType());
+      this.name = checkNotNull(component.getName());
+      this.description = component.hasDescription() ? component.getDescription() : null;
+      this.reportAttributes = createBatchAttributes(component);
+      this.fileAttributes = createFileAttributes(component);
+    }
+
+    public Builder setUuid(String s) {
+      this.uuid = checkNotNull(s);
+      return this;
+    }
+
+    public Builder setKey(String s) {
+      this.key = checkNotNull(s);
+      return this;
+    }
+
+    public Builder addChildren(Component... c) {
+      for (Component component : c) {
+        checkArgument(component.getType().isReportType());
+      }
+      this.children.addAll(asList(c));
+      return this;
+    }
+
+    public ComponentImpl build() {
+      checkNotNull(key);
+      checkNotNull(uuid);
+      return new ComponentImpl(this);
+    }
+
+    private static ReportAttributes createBatchAttributes(BatchReport.Component component) {
+      return ReportAttributes.newBuilder(component.getRef())
+        .setVersion(component.hasVersion() ? component.getVersion() : null)
+        .setPath(component.hasPath() ? component.getPath() : null)
+        .build();
+    }
+
+    @CheckForNull
+    private static FileAttributes createFileAttributes(BatchReport.Component component) {
+      if (component.getType() != Constants.ComponentType.FILE) {
+        return null;
+      }
+
+      return new FileAttributes(
+        component.hasIsTest() && component.getIsTest(),
+        component.hasLanguage() ? component.getLanguage() : null);
+    }
+
+    @VisibleForTesting
+    static Type convertType(Constants.ComponentType type) {
+      switch (type) {
+        case PROJECT:
+          return Type.PROJECT;
+        case MODULE:
+          return Type.MODULE;
+        case DIRECTORY:
+          return Type.DIRECTORY;
+        case FILE:
+          return Type.FILE;
+        default:
+          throw new IllegalArgumentException("Unsupported Constants.ComponentType value " + type);
+      }
+    }
   }
 
   @Override

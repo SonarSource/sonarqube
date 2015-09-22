@@ -35,6 +35,9 @@ import org.sonar.server.computation.component.ComponentImpl;
 import org.sonar.server.computation.component.MutableTreeRootHolder;
 import org.sonar.server.computation.component.UuidFactory;
 
+import static com.google.common.collect.Iterables.toArray;
+import static org.sonar.server.computation.component.ComponentImpl.builder;
+
 /**
  * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link BatchReportReader}
  */
@@ -96,11 +99,11 @@ public class BuildComponentTreeStep implements ComputationStep {
     }
 
     private ComponentImpl buildComponent(BatchReport.Component reportComponent, String componentKey, String latestModuleKey){
-      // TODO create builder for component
-      ComponentImpl component = new ComponentImpl(reportComponent, buildChildren(reportComponent, latestModuleKey));
-      component.setKey(componentKey);
-      component.setUuid(uuidFactory.getOrCreateForKey(componentKey));
-      return component;
+      return builder(reportComponent)
+        .addChildren(toArray(buildChildren(reportComponent, latestModuleKey), Component.class))
+        .setKey(componentKey)
+        .setUuid(uuidFactory.getOrCreateForKey(componentKey))
+        .build();
     }
 
     private Iterable<Component> buildChildren(BatchReport.Component component, final String latestModuleKey) {

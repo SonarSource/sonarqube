@@ -23,7 +23,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.sonar.server.computation.step.FillComponentsStep;
 
 public interface Component {
   enum Type {
@@ -62,12 +61,12 @@ public interface Component {
   Type getType();
 
   /**
-   * Returns the component uuid only when {@link FillComponentsStep} has been executed, otherwise it will throw an exception.
+   * Returns the component uuid
    */
   String getUuid();
 
   /**
-   * Returns the component key only when {@link FillComponentsStep} has been executed, otherwise it will throw an exception.
+   * Returns the component key
    */
   String getKey();
 
