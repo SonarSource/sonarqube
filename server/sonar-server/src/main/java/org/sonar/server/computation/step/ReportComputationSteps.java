@@ -43,7 +43,6 @@ public class ReportComputationSteps implements ComputationSteps {
 
       // Builds Component tree
       BuildComponentTreeStep.class,
-      FillComponentsStep.class,
       ValidateProjectStep.class,
 
       LoadDebtModelStep.class,

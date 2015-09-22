@@ -23,48 +23,80 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableTreeRootHolderRule;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.batch.protocol.Constants.ComponentType.DIRECTORY;
 import static org.sonar.batch.protocol.Constants.ComponentType.FILE;
 import static org.sonar.batch.protocol.Constants.ComponentType.MODULE;
 import static org.sonar.batch.protocol.Constants.ComponentType.PROJECT;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
+@Category(DbTests.class)
 @RunWith(DataProviderRunner.class)
 public class BuildComponentTreeStepTest {
-  private static final int ROOT_REF = 1;
-  private static final int MODULE_REF = 2;
-  private static final int DIR_REF_1 = 3;
-  private static final int FILE_1_REF = 4;
-  private static final int FILE_2_REF = 5;
-  private static final int DIR_REF_2 = 6;
-  private static final int FILE_3_REF = 7;
+
+  static final int ROOT_REF = 1;
+  static final int MODULE_REF = 2;
+  static final int DIR_REF_1 = 3;
+  static final int FILE_1_REF = 4;
+  static final int FILE_2_REF = 5;
+  static final int DIR_REF_2 = 6;
+  static final int FILE_3_REF = 7;
+
+  static final String REPORT_PROJECT_KEY = "REPORT_PROJECT_KEY";
+  static final String REPORT_MODULE_KEY = "MODULE_KEY";
+  static final String REPORT_DIR_KEY_1 = "src/main/java/dir1";
+  static final String REPORT_FILE_KEY_1 = "src/main/java/dir1/File1.java";
+  static final String REPORT_DIR_KEY_2 = "src/main/java/dir2";
+  static final String REPORT_FILE_KEY_2 = "src/main/java/dir2/File2.java";
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
   @Rule
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
+
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
-  private Date someDate = new Date();
+  Date someDate = new Date();
 
-  private BuildComponentTreeStep underTest = new BuildComponentTreeStep(reportReader, treeRootHolder, analysisMetadataHolder);
+  DbClient dbClient = dbTester.getDbClient();
+
+  BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
 
   @Before
   public void setUp() {
-    reportReader.setMetadata(Metadata.newBuilder().setRootComponentRef(ROOT_REF).setAnalysisDate(someDate.getTime()).build());
+    reportReader.setMetadata(Metadata.newBuilder()
+      .setRootComponentRef(ROOT_REF)
+      .setAnalysisDate(someDate.getTime())
+      .build());
   }
 
   @Test(expected = NullPointerException.class)
@@ -128,18 +160,186 @@ public class BuildComponentTreeStepTest {
     assertThat(analysisMetadataHolder.getAnalysisDate().getTime()).isEqualTo(someDate.getTime());
   }
 
+  @Test
+  public void compute_keys_and_uuids() {
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
+    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
+
+    underTest.execute();
+
+    verifyComponent(ROOT_REF, REPORT_PROJECT_KEY);
+    verifyComponent(MODULE_REF, REPORT_MODULE_KEY);
+    verifyComponent(DIR_REF_1, REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1);
+    verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1);
+  }
+
+  @Test
+  public void return_existing_uuids() {
+    ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
+    ComponentDto module = insertComponent(newModuleDto("BCDE", project).setKey(REPORT_MODULE_KEY));
+    insertComponent(newDirectory(module, "CDEF", REPORT_DIR_KEY_1).setKey(REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1));
+    insertComponent(newFileDto(module, "DEFG").setKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1));
+
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
+    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
+
+    underTest.execute();
+
+    verifyComponent(ROOT_REF, REPORT_PROJECT_KEY, "ABCD");
+    verifyComponent(MODULE_REF, REPORT_MODULE_KEY, "BCDE");
+    verifyComponent(DIR_REF_1, REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, "CDEF");
+    verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, "DEFG");
+  }
+
+  @Test
+  public void use_branch_to_generate_keys() {
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(ROOT_REF)
+      .setBranch("origin/master")
+      .setProjectKey("")
+      .build());
+
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
+    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
+
+    underTest.execute();
+
+    verifyComponent(ROOT_REF, REPORT_PROJECT_KEY + ":origin/master");
+    verifyComponent(MODULE_REF, REPORT_MODULE_KEY + ":origin/master");
+    verifyComponent(DIR_REF_1, REPORT_MODULE_KEY + ":origin/master:" + REPORT_DIR_KEY_1);
+    verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":origin/master:" + REPORT_FILE_KEY_1);
+  }
+
+  @Test
+  public void compute_keys_and_uuids_on_project_having_module_and_directory() {
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF, DIR_REF_2));
+    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_2, DIRECTORY, REPORT_DIR_KEY_2, FILE_2_REF));
+    reportReader.putComponent(componentWithPath(FILE_2_REF, FILE, REPORT_FILE_KEY_2));
+
+    underTest.execute();
+
+    verifyComponent(ROOT_REF, REPORT_PROJECT_KEY);
+    verifyComponent(MODULE_REF, REPORT_MODULE_KEY);
+    verifyComponent(DIR_REF_1, REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1);
+    verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1);
+    verifyComponent(DIR_REF_2, REPORT_PROJECT_KEY + ":" + REPORT_DIR_KEY_2);
+    verifyComponent(FILE_2_REF, REPORT_PROJECT_KEY + ":" + REPORT_FILE_KEY_2);
+  }
+
+  @Test
+  public void compute_keys_and_uuids_on_multi_modules() {
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
+    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, 100));
+    reportReader.putComponent(componentWithKey(100, MODULE, "SUB_MODULE_KEY", DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
+
+    underTest.execute();
+
+    verifyComponent(ROOT_REF, REPORT_PROJECT_KEY);
+    verifyComponent(MODULE_REF, REPORT_MODULE_KEY);
+    verifyComponent(100, "SUB_MODULE_KEY");
+    verifyComponent(DIR_REF_1, "SUB_MODULE_KEY" + ":" + REPORT_DIR_KEY_1);
+    verifyComponent(FILE_1_REF, "SUB_MODULE_KEY" + ":" + REPORT_FILE_KEY_1);
+  }
+
+  @Test
+  public void return_existing_uuids_when_components_were_removed() {
+    ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
+    ComponentDto removedModule = insertComponent(newModuleDto("BCDE", project).setKey(REPORT_MODULE_KEY).setEnabled(false));
+    ComponentDto removedDirectory = insertComponent(newDirectory(removedModule, "CDEF", REPORT_DIR_KEY_1).setKey(REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1).setEnabled(false));
+    insertComponent(newFileDto(removedDirectory, "DEFG").setKey(REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1).setEnabled(false));
+
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
+    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
+    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
+
+    underTest.execute();
+
+    verifyComponent(ROOT_REF, REPORT_PROJECT_KEY, "ABCD");
+
+    // No new UUID is generated on removed components
+    verifyComponent(MODULE_REF, REPORT_MODULE_KEY, "BCDE");
+    verifyComponent(DIR_REF_1, REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, "CDEF");
+    verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, "DEFG");
+  }
+
   private void verifyComponent(Component component, Component.Type type, int componentRef, int size) {
     assertThat(component.getType()).isEqualTo(type);
     assertThat(component.getReportAttributes().getRef()).isEqualTo(componentRef);
     assertThat(component.getChildren()).hasSize(size);
   }
 
+  private void verifyComponent(int ref, String key) {
+    verifyComponent(ref, key, null);
+  }
+
+  private void verifyComponent(int ref, String key, @Nullable String uuid) {
+    Map<Integer, Component> componentsByRef = indexAllComponentsInTreeByRef(treeRootHolder.getRoot());
+    Component component = componentsByRef.get(ref);
+    assertThat(component.getKey()).isEqualTo(key);
+    if (uuid != null) {
+      assertThat(component.getUuid()).isEqualTo(uuid);
+    } else {
+      assertThat(component.getUuid()).isNotNull();
+    }
+  }
+
   private static BatchReport.Component component(int componentRef, Constants.ComponentType componentType, int... children) {
-    BatchReport.Component.Builder builder = BatchReport.Component.newBuilder().setType(componentType).setRef(componentRef);
+    return component(componentRef, componentType, null, null, children);
+  }
+
+  private static BatchReport.Component componentWithKey(int componentRef, Constants.ComponentType componentType, String key, int... children) {
+    return component(componentRef, componentType, key, null, children);
+  }
+
+  private static BatchReport.Component componentWithPath(int componentRef, Constants.ComponentType componentType, String path, int... children) {
+    return component(componentRef, componentType, null, path, children);
+  }
+
+  private static BatchReport.Component component(int componentRef, Constants.ComponentType componentType, @Nullable String key, @Nullable String path, int... children) {
+    BatchReport.Component.Builder builder = BatchReport.Component.newBuilder()
+      .setType(componentType)
+      .setRef(componentRef);
+    if (key != null) {
+      builder.setKey(key);
+    }
+    if (path != null) {
+      builder.setPath(path);
+    }
     for (int child : children) {
       builder.addChildRef(child);
     }
     return builder.build();
+  }
+
+  private static Map<Integer, Component> indexAllComponentsInTreeByRef(Component root) {
+    Map<Integer, Component> componentsByRef = new HashMap<>();
+    feedComponentByRef(root, componentsByRef);
+    return componentsByRef;
+  }
+
+  private static void feedComponentByRef(Component component, Map<Integer, Component> map) {
+    map.put(component.getReportAttributes().getRef(), component);
+    for (Component child : component.getChildren()) {
+      feedComponentByRef(child, map);
+    }
+  }
+
+  private ComponentDto insertComponent(ComponentDto component) {
+    dbClient.componentDao().insert(dbTester.getSession(), component);
+    dbTester.getSession().commit();
+    return component;
   }
 
 }

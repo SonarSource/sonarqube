@@ -22,23 +22,31 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Date;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.component.ComponentKeys;
+import org.sonar.db.DbClient;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
 import org.sonar.server.computation.component.MutableTreeRootHolder;
+import org.sonar.server.computation.component.UuidFactory;
 
 /**
  * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link BatchReportReader}
  */
 public class BuildComponentTreeStep implements ComputationStep {
+
+  private final DbClient dbClient;
   private final BatchReportReader reportReader;
   private final MutableTreeRootHolder treeRootHolder;
   private final MutableAnalysisMetadataHolder analysisMetadataHolder;
 
-  public BuildComponentTreeStep(BatchReportReader reportReader, MutableTreeRootHolder treeRootHolder, MutableAnalysisMetadataHolder analysisMetadataHolder) {
+  public BuildComponentTreeStep(DbClient dbClient, BatchReportReader reportReader, MutableTreeRootHolder treeRootHolder, MutableAnalysisMetadataHolder analysisMetadataHolder) {
+    this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -46,28 +54,70 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   @Override
   public void execute() {
-    BatchReport.Metadata metadata = reportReader.readMetadata();
-    treeRootHolder.setRoot(buildComponentRoot(metadata));
-    analysisMetadataHolder.setAnalysisDate(new Date(metadata.getAnalysisDate()));
+    analysisMetadataHolder.setAnalysisDate(new Date(reportReader.readMetadata().getAnalysisDate()));
+    BatchReport.Metadata reportMetadata = reportReader.readMetadata();
+    String branch = reportMetadata.hasBranch() ? reportMetadata.getBranch() : null;
+    BatchReport.Component reportProject = reportReader.readComponent(reportMetadata.getRootComponentRef());
+    UuidFactory uuidFactory = new UuidFactory(dbClient, moduleKey(reportProject, branch));
+    treeRootHolder.setRoot(new ComponentRootBuilder(reportProject, uuidFactory, branch).build());
   }
 
-  private Component buildComponentRoot(BatchReport.Metadata metadata) {
-    int rootComponentRef = metadata.getRootComponentRef();
-    BatchReport.Component component = reportReader.readComponent(rootComponentRef);
-    return new ComponentImpl(component, buildChildren(component));
-  }
+  private class ComponentRootBuilder {
 
-  private Iterable<Component> buildChildren(BatchReport.Component component) {
-    return Iterables.transform(
+    private final BatchReport.Component reportProject;
+
+    private final UuidFactory uuidFactory;
+
+    @CheckForNull
+    private final String branch;
+
+    public ComponentRootBuilder(BatchReport.Component reportProject, UuidFactory uuidFactory, @Nullable String branch) {
+      this.reportProject = reportProject;
+      this.uuidFactory = uuidFactory;
+      this.branch = branch;
+    }
+
+    private Component build() {
+      return buildComponent(reportProject, moduleKey(reportProject, branch));
+    }
+
+    private ComponentImpl buildComponent(BatchReport.Component reportComponent, String latestModuleKey) {
+      switch (reportComponent.getType()) {
+        case PROJECT:
+        case MODULE:
+          String moduleKey = moduleKey(reportComponent, branch);
+          return buildComponent(reportComponent, moduleKey, moduleKey);
+        case DIRECTORY:
+        case FILE:
+          return buildComponent(reportComponent, ComponentKeys.createEffectiveKey(latestModuleKey, reportComponent.getPath()), latestModuleKey);
+        default:
+          throw new IllegalStateException(String.format("Unsupported component type '%s'", reportComponent.getType()));
+      }
+    }
+
+    private ComponentImpl buildComponent(BatchReport.Component reportComponent, String componentKey, String latestModuleKey){
+      // TODO create builder for component
+      ComponentImpl component = new ComponentImpl(reportComponent, buildChildren(reportComponent, latestModuleKey));
+      component.setKey(componentKey);
+      component.setUuid(uuidFactory.getOrCreateForKey(componentKey));
+      return component;
+    }
+
+    private Iterable<Component> buildChildren(BatchReport.Component component, final String latestModuleKey) {
+      return Iterables.transform(
         component.getChildRefList(),
         new Function<Integer, Component>() {
           @Override
           public Component apply(@Nonnull Integer componentRef) {
-            BatchReport.Component component = reportReader.readComponent(componentRef);
-            return new ComponentImpl(component, buildChildren(component));
+            return buildComponent(reportReader.readComponent(componentRef), latestModuleKey);
           }
         }
-    );
+      );
+    }
+  }
+
+  private static String moduleKey(BatchReport.Component reportComponent, @Nullable String branch) {
+    return ComponentKeys.createKey(reportComponent.getKey(), branch);
   }
 
   @Override
