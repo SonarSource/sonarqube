@@ -20,39 +20,37 @@
 package org.sonar.server.computation.ws;
 
 import com.google.common.base.Optional;
+import java.io.File;
+import java.io.IOException;
+import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.ce.CeActivityDto;
-import org.sonar.db.ce.CeQueueDto;
+import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsCe;
 
-public class TaskWsAction implements CeWsAction {
+public class LogsWsAction implements CeWsAction {
 
-  public static final String ACTION = "task";
-  public static final String PARAM_TASK_UUID = "id";
+  public static final String ACTION = "logs";
+  public static final String PARAM_TASK_UUID = "taskId";
 
-  private final DbClient dbClient;
-  private final TaskFormatter wsTaskFormatter;
   private final UserSession userSession;
+  private final CeLogging ceLogging;
 
-  public TaskWsAction(DbClient dbClient, TaskFormatter wsTaskFormatter, UserSession userSession) {
-    this.dbClient = dbClient;
-    this.wsTaskFormatter = wsTaskFormatter;
+  public LogsWsAction(UserSession userSession, CeLogging ceLogging) {
     this.userSession = userSession;
+    this.ceLogging = ceLogging;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .setDescription("Task information")
+      .setDescription("Logs of a task. Returns HTTP code 404 if task does not " +
+        "exist or if logs are not available. Requires system administration permission.")
       .setInternal(true)
       .setHandler(this);
 
@@ -68,24 +66,21 @@ public class TaskWsAction implements CeWsAction {
     userSession.checkGlobalPermission(UserRole.ADMIN);
 
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
-      Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
-      if (queueDto.isPresent()) {
-        wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
-      } else {
-        Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid);
-        if (activityDto.isPresent()) {
-          wsTaskResponse.setTask(wsTaskFormatter.formatActivity(dbSession, activityDto.get()));
-        } else {
-          throw new NotFoundException();
-        }
-      }
-      WsUtils.writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
+    Optional<File> logFile = ceLogging.fileForTaskUuid(taskUuid);
+    if (logFile.isPresent()) {
+      writeFile(logFile.get(), wsResponse);
+    } else {
+      throw new NotFoundException();
+    }
+  }
 
-    } finally {
-      dbClient.closeSession(dbSession);
+  private static void writeFile(File file, Response wsResponse) {
+    try {
+      Response.Stream stream = wsResponse.stream();
+      stream.setMediaType(MimeTypes.TXT);
+      FileUtils.copyFile(file, stream.output());
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to copy compute engine log file to HTTP response: " + file.getAbsolutePath(), e);
     }
   }
 }
