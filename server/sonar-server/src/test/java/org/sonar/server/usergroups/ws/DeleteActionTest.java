@@ -33,6 +33,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.RoleDao;
@@ -41,7 +42,6 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.db.user.GroupDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -154,7 +154,7 @@ public class DeleteActionTest {
   public void not_found() throws Exception {
     loginAsAdmin();
     ws.newPostRequest("api/usergroups", "delete")
-      .setParam("id", "42")
+      .setParam("id", String.valueOf(defaultGroupId + 1L))
       .execute();
   }
 
