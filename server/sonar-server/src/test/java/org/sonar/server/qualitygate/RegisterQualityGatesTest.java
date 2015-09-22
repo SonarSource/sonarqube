@@ -59,7 +59,7 @@ public class RegisterQualityGatesTest {
 
     verify(templateDao).countByTypeAndKey(templateType, templateName);
     verify(qualityGates).create(templateName);
-    verify(qualityGates, times(8)).createCondition(anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt());
+    verify(qualityGates, times(9)).createCondition(anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt());
     ArgumentCaptor<LoadedTemplateDto> templateArg = ArgumentCaptor.forClass(LoadedTemplateDto.class);
     verify(templateDao).insert(templateArg.capture());
     LoadedTemplateDto template = templateArg.getValue();
