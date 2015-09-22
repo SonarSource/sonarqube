@@ -25,7 +25,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
-import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.plugins.MimeTypes;
@@ -36,7 +35,7 @@ import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeProjectWsActionTest {
+public class QueueWsActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -44,48 +43,50 @@ public class CeProjectWsActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  CeWsTaskFormatter formatter = new CeWsTaskFormatter(dbTester.getDbClient());
-  CeProjectWsAction underTest = new CeProjectWsAction(userSession, dbTester.getDbClient(), formatter);
+  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient());
+  CeQueueWsAction underTest = new CeQueueWsAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void empty_queue_and_empty_activity() {
-    userSession.addProjectUuidPermissions(UserRole.USER, "PROJECT_1");
+  public void get_all_queue() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    insert("T1", "PROJECT_1", CeQueueDto.Status.PENDING);
+    insert("T2", "PROJECT_2", CeQueueDto.Status.IN_PROGRESS);
 
     TestResponse wsResponse = tester.newRequest()
-      .setParam("componentId", "PROJECT_1")
       .setMediaType(MimeTypes.PROTOBUF)
       .execute();
 
-    WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.PARSER);
-    assertThat(response.getQueueCount()).isEqualTo(0);
-    assertThat(response.hasCurrent()).isFalse();
+    // verify the protobuf response
+    WsCe.QueueResponse queueResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.QueueResponse.PARSER);
+    assertThat(queueResponse.getTasksCount()).isEqualTo(2);
+    assertThat(queueResponse.getTasks(0).getId()).isEqualTo("T1");
+    assertThat(queueResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
+    assertThat(queueResponse.getTasks(0).getComponentId()).isEqualTo("PROJECT_1");
+    assertThat(queueResponse.getTasks(1).getId()).isEqualTo("T2");
+    assertThat(queueResponse.getTasks(1).getStatus()).isEqualTo(WsCe.TaskStatus.IN_PROGRESS);
+    assertThat(queueResponse.getTasks(1).getComponentId()).isEqualTo("PROJECT_2");
   }
 
   @Test
-  public void project_tasks() {
+  public void get_queue_of_project() {
     userSession.addProjectUuidPermissions(UserRole.USER, "PROJECT_1");
-    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
-    insertActivity("T3", "PROJECT_1", CeActivityDto.Status.FAILED);
-    insertQueue("T4", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
-    insertQueue("T5", "PROJECT_1", CeQueueDto.Status.PENDING);
+    insert("T1", "PROJECT_1", CeQueueDto.Status.PENDING);
+    insert("T2", "PROJECT_2", CeQueueDto.Status.PENDING);
+    insert("T3", "PROJECT_2", CeQueueDto.Status.IN_PROGRESS);
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("componentId", "PROJECT_1")
       .setMediaType(MimeTypes.PROTOBUF)
       .execute();
 
-    WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.PARSER);
-    assertThat(response.getQueueCount()).isEqualTo(2);
-    assertThat(response.getQueue(0).getId()).isEqualTo("T4");
-    assertThat(response.getQueue(1).getId()).isEqualTo("T5");
-    // T3 is the latest task executed on PROJECT_1
-    assertThat(response.hasCurrent()).isTrue();
-    assertThat(response.getCurrent().getId()).isEqualTo("T3");
+    // verify the protobuf response
+    WsCe.QueueResponse queueResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.QueueResponse.PARSER);
+    assertThat(queueResponse.getTasksCount()).isEqualTo(1);
+    assertThat(queueResponse.getTasks(0).getId()).isEqualTo("T1");
   }
 
-  private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {
+  private CeQueueDto insert(String taskUuid, String componentUuid, CeQueueDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(componentUuid);
@@ -94,18 +95,5 @@ public class CeProjectWsActionTest {
     dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
     dbTester.getSession().commit();
     return queueDto;
-  }
-
-  private CeActivityDto insertActivity(String taskUuid, String componentUuid, CeActivityDto.Status status) {
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid(componentUuid);
-    queueDto.setUuid(taskUuid);
-    CeActivityDto activityDto = new CeActivityDto(queueDto);
-    activityDto.setStatus(status);
-    activityDto.setExecutionTimeMs(500L);
-    dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
-    dbTester.getSession().commit();
-    return activityDto;
   }
 }

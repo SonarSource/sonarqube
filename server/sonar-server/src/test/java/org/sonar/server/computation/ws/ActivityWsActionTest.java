@@ -40,7 +40,7 @@ import org.sonarqube.ws.WsCe;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeActivityWsActionTest {
+public class ActivityWsActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -48,8 +48,8 @@ public class CeActivityWsActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  CeWsTaskFormatter formatter = new CeWsTaskFormatter(dbTester.getDbClient());
-  CeActivityWsAction underTest = new CeActivityWsAction(userSession, dbTester.getDbClient(), formatter);
+  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient());
+  ActivityWsAction underTest = new ActivityWsAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test

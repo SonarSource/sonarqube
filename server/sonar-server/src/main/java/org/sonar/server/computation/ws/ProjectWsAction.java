@@ -19,7 +19,8 @@
  */
 package org.sonar.server.computation.ws;
 
-import com.google.common.base.Optional;
+import java.util.List;
+import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -28,65 +29,62 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeActivityQuery;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsCe;
 
-public class CeTaskWsAction implements CeWsAction {
+import static org.sonarqube.ws.WsCe.ProjectResponse;
 
-  public static final String ACTION = "task";
-  public static final String PARAM_TASK_ID = "id";
+public class ProjectWsAction implements CeWsAction {
 
-  private final DbClient dbClient;
-  private final CeWsTaskFormatter wsTaskFormatter;
+  public static final String PARAM_COMPONENT_UUID = "componentId";
+
   private final UserSession userSession;
+  private final DbClient dbClient;
+  private final TaskFormatter formatter;
 
-  public CeTaskWsAction(DbClient dbClient, CeWsTaskFormatter wsTaskFormatter, UserSession userSession) {
-    this.dbClient = dbClient;
-    this.wsTaskFormatter = wsTaskFormatter;
+  public ProjectWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
     this.userSession = userSession;
+    this.dbClient = dbClient;
+    this.formatter = formatter;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(ACTION)
-      .setDescription("Task information")
+    WebService.NewAction action = controller.createAction("project")
+      .setDescription("Get the pending and last executed tasks of a given project")
       .setInternal(true)
+      .setResponseExample(getClass().getResource("project-example.json"))
       .setHandler(this);
 
-    action
-      .createParam(PARAM_TASK_ID)
+    action.createParam(PARAM_COMPONENT_UUID)
       .setRequired(true)
-      .setDescription("Id of task")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkGlobalPermission(UserRole.ADMIN);
+    String componentUuid = wsRequest.mandatoryParam(PARAM_COMPONENT_UUID);
+    userSession.checkProjectUuidPermission(UserRole.USER, componentUuid);
 
-    String taskId = wsRequest.mandatoryParam(PARAM_TASK_ID);
     DbSession dbSession = dbClient.openSession(false);
     try {
-      WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
-      Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskId);
-      if (queueDto.isPresent()) {
-        wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
-      } else {
-        Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskId);
-        if (activityDto.isPresent()) {
-          wsTaskResponse.setTask(wsTaskFormatter.formatActivity(dbSession, activityDto.get()));
-        } else {
-          throw new NotFoundException();
-        }
+      List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
+      CeActivityQuery activityQuery = new CeActivityQuery()
+        .setComponentUuid(componentUuid)
+        .setOnlyCurrents(true);
+      List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, new RowBounds(0, 1));
+
+      ProjectResponse.Builder wsResponseBuilder = ProjectResponse.newBuilder();
+      wsResponseBuilder.addAllQueue(formatter.formatQueue(dbSession, queueDtos));
+      if (activityDtos.size() == 1) {
+        wsResponseBuilder.setCurrent(formatter.formatActivity(dbSession, activityDtos.get(0)));
       }
-      WsUtils.writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
+      WsUtils.writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
 
     } finally {
       dbClient.closeSession(dbSession);
     }
-
   }
 }

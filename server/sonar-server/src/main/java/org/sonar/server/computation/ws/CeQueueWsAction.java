@@ -31,19 +31,15 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
-/**
- * GET api/ce/queue
- * <p>Get the status of the queue</p>
- */
 public class CeQueueWsAction implements CeWsAction {
 
-  public static final String PARAM_COMPONENT_ID = "componentId";
+  public static final String PARAM_COMPONENT_UUID = "componentId";
 
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final CeWsTaskFormatter formatter;
+  private final TaskFormatter formatter;
 
-  public CeQueueWsAction(UserSession userSession, DbClient dbClient, CeWsTaskFormatter formatter) {
+  public CeQueueWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;
@@ -54,15 +50,15 @@ public class CeQueueWsAction implements CeWsAction {
     WebService.NewAction action = controller.createAction("queue")
       .setDescription("Gets the tasks of the Compute Engine queue")
       .setInternal(true)
-      .setResponseExample(getClass().getResource("CeQueueWsAction/example.json"))
+      .setResponseExample(getClass().getResource("queue-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_ID);
+    action.createParam(PARAM_COMPONENT_UUID);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    String componentUuid = wsRequest.param(PARAM_COMPONENT_ID);
+    String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

@@ -38,7 +38,7 @@ import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeTaskWsActionTest {
+public class TaskWsActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -46,8 +46,8 @@ public class CeTaskWsActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  CeWsTaskFormatter formatter = new CeWsTaskFormatter(dbTester.getDbClient());
-  CeTaskWsAction underTest = new CeTaskWsAction(dbTester.getDbClient(), formatter, userSession);
+  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient());
+  TaskWsAction underTest = new TaskWsAction(dbTester.getDbClient(), formatter, userSession);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test

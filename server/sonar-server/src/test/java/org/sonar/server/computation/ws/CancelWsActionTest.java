@@ -34,7 +34,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-public class CeCancelWsActionTest {
+public class CancelWsActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -43,7 +43,7 @@ public class CeCancelWsActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   CeQueue queue = mock(CeQueue.class);
-  CeCancelWsAction underTest = new CeCancelWsAction(userSession, queue);
+  CancelWsAction underTest = new CancelWsAction(userSession, queue);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test

@@ -35,11 +35,11 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonarqube.ws.WsCe;
 
-public class CeWsTaskFormatter {
+public class TaskFormatter {
 
   private final DbClient dbClient;
 
-  public CeWsTaskFormatter(DbClient dbClient) {
+  public TaskFormatter(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 

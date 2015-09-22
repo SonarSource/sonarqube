@@ -28,7 +28,7 @@ import org.sonar.server.computation.CeQueue;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
-public class CeCancelWsAction implements CeWsAction {
+public class CancelWsAction implements CeWsAction {
 
   public static final String PARAM_TASK_ID = "id";
   public static final String PARAM_ALL = "all";
@@ -36,7 +36,7 @@ public class CeCancelWsAction implements CeWsAction {
   private final UserSession userSession;
   private final CeQueue queue;
 
-  public CeCancelWsAction(UserSession userSession, CeQueue queue) {
+  public CancelWsAction(UserSession userSession, CeQueue queue) {
     this.userSession = userSession;
     this.queue = queue;
   }

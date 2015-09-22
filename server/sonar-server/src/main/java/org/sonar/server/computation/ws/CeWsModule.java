@@ -19,24 +19,20 @@
  */
 package org.sonar.server.computation.ws;
 
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.server.computation.ReportSubmitter;
+import org.sonar.core.platform.Module;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-public class CeWsTest {
-
-  @Test
-  public void define() throws Exception {
-    CeWsAction wsAction = new SubmitWsAction(mock(ReportSubmitter.class));
-
-    CeWs ws = new CeWs(wsAction);
-    WebService.Context context = mock(WebService.Context.class, Mockito.RETURNS_DEEP_STUBS);
-    ws.define(context);
-
-    assertThat(context.controller("api/ce")).isNotNull();
+public class CeWsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      ActivityWsAction.class,
+      CancelWsAction.class,
+      CeQueueWsAction.class,
+      CeWs.class,
+      IsQueueEmptyWs.class,
+      ProjectWsAction.class,
+      SubmitWsAction.class,
+      TaskFormatter.class,
+      TaskWsAction.class);
   }
 }
