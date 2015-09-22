@@ -29,7 +29,7 @@ import org.jruby.RubyFile;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.server.plugins.MimeTypes;
 
-import static org.sonar.server.util.ObjectUtils.firstNonNull;
+import static com.google.common.base.Objects.firstNonNull;
 
 public class ServletRequest extends ValidatingRequest {
 
@@ -54,8 +54,9 @@ public class ServletRequest extends ValidatingRequest {
   public String getMediaType() {
     return firstNonNull(
       mediaTypeFromUrl(source.getRequestURI()),
-      acceptedContentTypeInResponse(),
-      MimeTypes.DEFAULT);
+      firstNonNull(
+        acceptedContentTypeInResponse(),
+        MimeTypes.DEFAULT));
   }
 
   @Override

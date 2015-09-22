@@ -34,6 +34,7 @@ module ActionController
         ws_engine.controllers().each do |controller|
           controller.actions.each do |action|
             if (!action.handler().java_kind_of?(Java::OrgSonarApiServerWs::RailsHandler))
+              prepend_route("#{controller.path()}/#{action.key()}.:format/:id", {:controller => 'api/java_ws', :action => 'index', :wsaction => action.key(), :wspath => controller.path()})
               prepend_route("#{controller.path()}/#{action.key()}/:id", {:controller => 'api/java_ws', :action => 'index', :wsaction => action.key(), :wspath => controller.path()})
               if action.key()=='index'
                 prepend_route("#{controller.path()}", {:controller => 'api/java_ws', :action => 'index', :wsaction => action.key(), :wspath => controller.path()})

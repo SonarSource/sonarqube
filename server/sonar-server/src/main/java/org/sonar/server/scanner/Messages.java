@@ -19,8 +19,10 @@
  */
 package org.sonar.server.scanner;
 
-public interface Messages {
+public class Messages {
+  private Messages() {
+    // constants
+  }
 
   String NO_PERMISSION = "You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.";
-
 }
