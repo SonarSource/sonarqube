@@ -46,8 +46,8 @@ class DebtProperties {
       PropertyDefinition.builder(CoreProperties.DEVELOPMENT_COST)
         .defaultValue("" + CoreProperties.DEVELOPMENT_COST_DEF_VALUE)
         .name("Development cost")
-        .description("Cost to develop one unit of code. If the unit is a line of code (LOC), and the cost to develop 1 LOC has been estimated at 30 minutes, " +
-          "then the value of this property would be 30.")
+        .description("Cost to develop one line of code (LOC). Example: if the cost to develop 1 LOC has been estimated " +
+          "at 30 minutes, then the value of this property would be 30.")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
         .deprecatedKey("workUnitsBySizePoint")
         .build(),
