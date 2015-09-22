@@ -33,14 +33,17 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.computation.log.CeLogging;
 import org.sonarqube.ws.WsCe;
 
 public class TaskFormatter {
 
   private final DbClient dbClient;
+  private final CeLogging ceLogging;
 
-  public TaskFormatter(DbClient dbClient) {
+  public TaskFormatter(DbClient dbClient, CeLogging ceLogging) {
     this.dbClient = dbClient;
+    this.ceLogging = ceLogging;
   }
 
   public List<WsCe.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
@@ -61,6 +64,7 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
+    builder.setLogs(ceLogging.fileForTaskUuid(dto.getUuid()).isPresent());
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
       buildComponent(builder, componentCache.get(dto.getComponentUuid()));
@@ -93,6 +97,7 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
+    builder.setLogs(ceLogging.fileForTaskUuid(dto.getUuid()).isPresent());
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
       buildComponent(builder, componentCache.get(dto.getComponentUuid()));
