@@ -76,7 +76,7 @@ class PluginRealm
     if @java_authenticator
       context = org.sonar.api.security.Authenticator::Context.new(username, password, servlet_request)
       status = @java_authenticator.doAuthenticate(context)
-      status ? synchronize(username, password, details) : nil
+      status ? synchronize(username, password, details, servlet_request) : nil
     else
       # No authenticator
       nil
@@ -114,7 +114,7 @@ class PluginRealm
   # Authentication in external system was successful - replicate password, details and groups into Sonar
   # Return the user.
   #
-  def synchronize(username, password, details)
+  def synchronize(username, password, details, servlet_request)
     username=details.getName() if username.blank? && details
     user = User.find_by_login(username)
 
@@ -159,7 +159,7 @@ class PluginRealm
       # Note that validation disabled
       user.save(false)
 
-      synchronize_groups(user)
+      synchronize_groups(user, servlet_request)
       # Note that validation disabled
       user.save(false)
     end
@@ -172,10 +172,11 @@ class PluginRealm
     user
   end
 
-  def synchronize_groups(user)
+  def synchronize_groups(user, servlet_request)
     if @java_groups_provider
       begin
-        groups = @java_groups_provider.doGetGroups(user.login)
+        provider_context = org.sonar.api.security.ExternalGroupsProvider::Context.new(user.login, servlet_request)
+        groups = @java_groups_provider.doGetGroups(provider_context)
       rescue Exception => e
         Rails.logger.error("Error from external groups provider: #{e.message}")
       else

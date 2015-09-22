@@ -19,20 +19,54 @@
  */
 package org.sonar.api.security;
 
+import javax.servlet.http.HttpServletRequest;
+
 import java.util.Collection;
 
 /**
  * Note that prefix "do" for names of methods is reserved for future enhancements, thus should not be used in subclasses.
  *
- * @since 2.14
  * @see SecurityRealm
+ * @since 2.14
  */
 public abstract class ExternalGroupsProvider {
 
-  /**
-   * @return list of groups associated with specified user, or null if such user doesn't exist
-   * @throws RuntimeException in case of unexpected error such as connection failure
-   */
-  public abstract Collection<String> doGetGroups(String username);
+    /**
+     * @return list of groups associated with specified user, or null if such user doesn't exist
+     * @throws RuntimeException in case of unexpected error such as connection failure
+     * @deprecated replaced by {@link #doGetGroups(org.sonar.api.security.ExternalGroupsProvider.Context)} since v. 5.2
+     */
+    @Deprecated
+    public Collection<String> doGetGroups(String username) {
+        return null;
+    }
 
+    /**
+     * Override this method in order to load user group information.
+     *
+     * @return list of groups associated with specified user, or null if such user doesn't exist
+     * @throws RuntimeException in case of unexpected error such as connection failure
+     * @since 5.2
+     */
+    public Collection<String> doGetGroups(Context context) {
+        return doGetGroups(context.getUsername());
+    }
+
+    public static final class Context {
+        private String username;
+        private HttpServletRequest request;
+
+        public Context(String username, HttpServletRequest request) {
+            this.username = username;
+            this.request = request;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public HttpServletRequest getRequest() {
+            return request;
+        }
+    }
 }
