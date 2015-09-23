@@ -83,8 +83,7 @@ class TomcatConnectors {
     if (port > DISABLED_PORT) {
       connector = newConnector(props, HTTP_PROTOCOL, "http");
       connector.setPort(port);
-      setConnectorAttribute(connector, "maxHttpHeaderSize", props.valueAsInt("sonar.web.http.maxHttpHeaderSize",
-              DEFAULT_MAX_HTTP_HEADER_SIZE_KB));
+      setConnectorAttribute(connector, "maxHttpHeaderSize", DEFAULT_MAX_HTTP_HEADER_SIZE_KB);
     }
     return connector;
   }
@@ -109,8 +108,7 @@ class TomcatConnectors {
       connector.setPort(port);
       connector.setSecure(true);
       connector.setScheme("https");
-      setConnectorAttribute(connector, "maxHttpHeaderSize", props.valueAsInt("sonar.web.https.maxHttpHeaderSize",
-              DEFAULT_MAX_HTTP_HEADER_SIZE_KB));
+      setConnectorAttribute(connector, "maxHttpHeaderSize", DEFAULT_MAX_HTTP_HEADER_SIZE_KB);
 
       setConnectorAttribute(connector, "keyAlias", props.value("sonar.web.https.keyAlias"));
       String keyPassword = props.value("sonar.web.https.keyPass", "changeit");
