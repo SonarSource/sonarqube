@@ -19,14 +19,21 @@
  */
 package org.sonar.server.computation.log;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.log4j.MDC;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.computation.CeTask;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 
 public class CeLogging {
 
@@ -36,6 +43,11 @@ public class CeLogging {
     String dataDir = settings.getString(ProcessProperties.PATH_DATA);
     checkArgument(dataDir != null, "Property %s is not set", ProcessProperties.PATH_DATA);
     this.logsDir = CeFileAppenderFactory.logsDirFromDataDir(new File(dataDir));
+  }
+
+  @VisibleForTesting
+  CeLogging(File logsDir) {
+    this.logsDir = logsDir;
   }
 
   public Optional<File> getFile(LogFileRef ref) {
@@ -51,7 +63,7 @@ public class CeLogging {
    * before first writing of log.
    */
   public void initTask(CeTask task) {
-    LogFileRef ref = new LogFileRef(task.getUuid(), task.getComponentUuid());
+    LogFileRef ref = LogFileRef.from(task);
     MDC.put(CeFileAppenderFactory.MDC_LOG_PATH, ref.getRelativePath());
   }
 
@@ -59,7 +71,24 @@ public class CeLogging {
    * Clean-up the logging of a task. Must be called after the last writing
    * of log.
    */
-  public void clearTask() {
+  public void clearTask(CeTask task) {
     MDC.clear();
+
+    LogFileRef ref = LogFileRef.from(task);
+    deleteSiblings(ref);
+  }
+
+  @VisibleForTesting
+  void deleteSiblings(LogFileRef ref) {
+    File parentDir = new File(logsDir, ref.getRelativePath()).getParentFile();
+    List<File> logFiles = newArrayList(FileUtils.listFiles(parentDir, FileFilterUtils.fileFileFilter(), FileFilterUtils.falseFileFilter()));
+
+    if (logFiles.size() > 10) {
+      Collections.sort(logFiles, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
+      logFiles = logFiles.subList(0, logFiles.size() - 10);
+      for (File logFile : logFiles) {
+        logFile.delete();
+      }
+    }
   }
 }

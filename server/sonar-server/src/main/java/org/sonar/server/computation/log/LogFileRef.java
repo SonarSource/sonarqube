@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.server.computation.CeTask;
 
 import static java.lang.String.format;
 
@@ -78,5 +79,9 @@ public class LogFileRef {
 
   public static LogFileRef from(CeQueueDto dto) {
     return new LogFileRef(dto.getUuid(), dto.getComponentUuid());
+  }
+
+  public static LogFileRef from(CeTask task) {
+    return new LogFileRef(task.getUuid(), task.getComponentUuid());
   }
 }

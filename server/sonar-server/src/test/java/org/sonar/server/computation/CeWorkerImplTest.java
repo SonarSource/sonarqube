@@ -59,7 +59,7 @@ public class CeWorkerImplTest {
     inOrder.verify(ceLogging).initTask(task);
     inOrder.verify(taskProcessor).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS);
-    inOrder.verify(ceLogging).clearTask();
+    inOrder.verify(ceLogging).clearTask(task);
   }
 
   @Test
@@ -74,6 +74,6 @@ public class CeWorkerImplTest {
     inOrder.verify(ceLogging).initTask(task);
     inOrder.verify(taskProcessor).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED);
-    inOrder.verify(ceLogging).clearTask();
+    inOrder.verify(ceLogging).clearTask(task);
   }
 }

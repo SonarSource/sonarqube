@@ -68,7 +68,7 @@ public class CeWorkerImpl implements CeWorker {
       queue.remove(task, CeActivityDto.Status.FAILED);
     } finally {
       profiler.stopInfo();
-      ceLogging.clearTask();
+      ceLogging.clearTask(task);
     }
   }
 }

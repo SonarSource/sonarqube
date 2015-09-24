@@ -32,6 +32,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.computation.CeTask;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeLoggingTest {
@@ -66,15 +67,45 @@ public class CeLoggingTest {
 
   @Test
   public void use_MDC_to_store_path_to_in_progress_task_logs() throws IOException {
-    File dataDir = temp.newFolder();
-    Settings settings = new Settings();
-    settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
+    CeLogging underTest = new CeLogging(temp.newFolder());
 
-    CeLogging underTest = new CeLogging(settings);
-
-    underTest.initTask(new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid("U1").build());
+    CeTask task = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid("U1").build();
+    underTest.initTask(task);
     assertThat(MDC.get(CeFileAppenderFactory.MDC_LOG_PATH)).isEqualTo("U1.log");
-    underTest.clearTask();
+    underTest.clearTask(task);
     assertThat(MDC.get(CeFileAppenderFactory.MDC_LOG_PATH)).isNull();
+  }
+
+  @Test
+  public void delete_oldest_files_of_same_directory_to_keep_only_10_files() throws IOException {
+    File dir = temp.newFolder();
+    for (int i = 1; i <= 14; i++) {
+      File file = new File(dir, format("U%d.log", i));
+      FileUtils.touch(file);
+      // see javadoc: "all platforms support file-modification times to the nearest second,
+      // but some provide more precision" --> increment by second, not by millisecond
+      file.setLastModified(1_450_000_000_000L + i * 1000);
+    }
+    assertThat(dir.listFiles()).hasSize(14);
+
+    CeTask task = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid("U14").build();
+    CeLogging underTest = new CeLogging(dir);
+    underTest.clearTask(task);
+
+    assertThat(dir.listFiles()).hasSize(10);
+    assertThat(dir.listFiles()).extracting("name")
+      .containsOnly("U5.log", "U6.log", "U7.log", "U8.log", "U9.log", "U10.log", "U11.log", "U12.log", "U13.log", "U14.log");
+  }
+
+  @Test
+  public void do_not_delete_files_if_dir_has_less_than_10_files() throws IOException {
+    File dir = temp.newFolder();
+    FileUtils.touch(new File(dir, "U1.log"));
+
+    CeTask task = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid("U11").build();
+    CeLogging underTest = new CeLogging(dir);
+    underTest.clearTask(task);
+
+    assertThat(dir.listFiles()).extracting("name").containsOnly("U1.log");
   }
 }
