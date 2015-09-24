@@ -49,12 +49,27 @@ class NullProfiler extends Profiler {
   }
 
   @Override
+  public Profiler startTrace(String message, Object... args) {
+    return this;
+  }
+
+  @Override
   public Profiler startDebug(String message) {
     return this;
   }
 
   @Override
+  public Profiler startDebug(String message, Object... args) {
+    return this;
+  }
+
+  @Override
   public Profiler startInfo(String message) {
+    return this;
+  }
+
+  @Override
+  public Profiler startInfo(String message, Object... args) {
     return this;
   }
 
@@ -79,12 +94,27 @@ class NullProfiler extends Profiler {
   }
 
   @Override
+  public long stopTrace(String message, Object... args) {
+    return 0;
+  }
+
+  @Override
   public long stopDebug(String message) {
     return 0;
   }
 
   @Override
+  public long stopDebug(String message, Object... args) {
+    return 0;
+  }
+
+  @Override
   public long stopInfo(String message) {
+    return 0;
+  }
+
+  @Override
+  public long stopInfo(String message, Object... args) {
     return 0;
   }
 

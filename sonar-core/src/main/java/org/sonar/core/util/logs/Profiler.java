@@ -54,9 +54,15 @@ public abstract class Profiler {
 
   public abstract Profiler startTrace(String message);
 
+  public abstract Profiler startTrace(String message, Object... args);
+
   public abstract Profiler startDebug(String message);
 
+  public abstract Profiler startDebug(String message, Object... args);
+
   public abstract Profiler startInfo(String message);
+
+  public abstract Profiler startInfo(String message, Object... args);
 
   /**
    * Works only if a message have been set in startXXX() methods.
@@ -69,9 +75,15 @@ public abstract class Profiler {
 
   public abstract long stopTrace(String message);
 
+  public abstract long stopTrace(String message, Object... args);
+
   public abstract long stopDebug(String message);
 
+  public abstract long stopDebug(String message, Object... args);
+
   public abstract long stopInfo(String message);
+
+  public abstract long stopInfo(String message, Object... args);
 
   /**
    * Context information is removed if value is <code>null</code>.

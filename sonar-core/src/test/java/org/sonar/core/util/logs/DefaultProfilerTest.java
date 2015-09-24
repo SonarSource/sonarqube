@@ -55,13 +55,13 @@ public class DefaultProfilerTest {
     tester.setLevel(LoggerLevel.TRACE);
 
     // trace
-    underTest.startTrace("Register rules");
+    underTest.startTrace("Register rules {}", 1);
     Thread.sleep(2);
-    assertThat(tester.logs()).containsOnly("Register rules");
+    assertThat(tester.logs()).containsOnly("Register rules 1");
     long timing = underTest.stopTrace();
     assertThat(timing).isGreaterThan(0);
     assertThat(tester.logs()).hasSize(2);
-    assertThat(tester.logs().get(1)).startsWith("Register rules (done) | time=" + timing);
+    assertThat(tester.logs().get(1)).startsWith("Register rules 1 (done) | time=" + timing);
     tester.clear();
 
     // debug
@@ -97,10 +97,10 @@ public class DefaultProfilerTest {
     tester.clear();
 
     // start DEBUG and stop INFO
-    underTest.startDebug("Register rules");
+    underTest.startDebug("Register rules {}", 10);
     underTest.stopInfo("Rules registered");
     assertThat(tester.logs()).hasSize(2);
-    assertThat(tester.logs().get(0)).contains("Register rules");
+    assertThat(tester.logs().get(0)).contains("Register rules 10");
     assertThat(tester.logs().get(1)).startsWith("Rules registered | time=");
     tester.clear();
 
@@ -125,9 +125,9 @@ public class DefaultProfilerTest {
 
     // debug
     underTest.start();
-    underTest.stopDebug("Rules registered");
+    underTest.stopDebug("Rules registered {} on {}", 6, 10);
     assertThat(tester.logs()).hasSize(1);
-    assertThat(tester.logs().get(0)).startsWith("Rules registered | time=");
+    assertThat(tester.logs().get(0)).startsWith("Rules registered 6 on 10 | time=");
     tester.clear();
 
     // info

@@ -37,6 +37,7 @@ class DefaultProfiler extends Profiler {
 
   private long startTime = 0L;
   private String startMessage = null;
+  private Object[] args = null;
 
   public DefaultProfiler(Logger logger) {
     this.logger = logger;
@@ -61,37 +62,33 @@ class DefaultProfiler extends Profiler {
 
   @Override
   public Profiler startTrace(String message) {
-    this.startTime = System2.INSTANCE.now();
-    this.startMessage = message;
-    StringBuilder sb = new StringBuilder();
-    sb.append(message);
-    appendContext(sb);
-    logger.trace(sb.toString());
-    return this;
+    return doStart(LoggerLevel.TRACE, message);
+  }
+
+  @Override
+  public Profiler startTrace(String message, Object... args) {
+    return doStart(LoggerLevel.TRACE, message, args);
   }
 
   @Override
   public Profiler startDebug(String message) {
-    this.startTime = System2.INSTANCE.now();
-    this.startMessage = message;
-    StringBuilder sb = new StringBuilder();
-    sb.append(message);
-    appendContext(sb);
-    logger.debug(sb.toString());
-    return this;
+    return doStart(LoggerLevel.DEBUG, message);
+  }
+
+  @Override
+  public Profiler startDebug(String message, Object... args) {
+    return doStart(LoggerLevel.DEBUG, message, args);
   }
 
   @Override
   public Profiler startInfo(String message) {
-    this.startTime = System2.INSTANCE.now();
-    this.startMessage = message;
-    StringBuilder sb = new StringBuilder();
-    sb.append(message);
-    appendContext(sb);
-    logger.info(sb.toString());
-    return this;
+    return doStart(LoggerLevel.INFO, message);
   }
 
+  @Override
+  public Profiler startInfo(String message, Object... args) {
+    return doStart(LoggerLevel.INFO, message, args);
+  }
 
   @Override
   public long stopTrace() {
@@ -108,68 +105,141 @@ class DefaultProfiler extends Profiler {
     return doStopWithoutMessage(LoggerLevel.INFO);
   }
 
-  private long doStopWithoutMessage(LoggerLevel level) {
-    if (startMessage == null) {
-      throw new IllegalStateException("Profiler#stopXXX() can't be called without any message defined in start methods");
-    }
-    return doStop(level, startMessage, " (done)");
+  @Override
+  public long stopTrace(String message) {
+    return doStop(LoggerLevel.TRACE, message, null, "");
   }
 
   @Override
-  public long stopTrace(String message) {
-    return doStop(LoggerLevel.TRACE, message, "");
+  public long stopTrace(String message, Object... args) {
+    return doStop(LoggerLevel.TRACE, message, args, "");
   }
 
   @Override
   public long stopDebug(String message) {
-    return doStop(LoggerLevel.DEBUG, message, "");
+    return doStop(LoggerLevel.DEBUG, message, null, "");
+  }
+
+  @Override
+  public long stopDebug(String message, Object... args) {
+    return doStop(LoggerLevel.DEBUG, message, args, "");
   }
 
   @Override
   public long stopInfo(String message) {
-    return doStop(LoggerLevel.INFO, message, "");
+    return doStop(LoggerLevel.INFO, message, null, "");
   }
 
-  private long doStop(LoggerLevel level, @Nullable String message, String messageSuffix) {
+  @Override
+  public long stopInfo(String message, Object... args) {
+    return doStop(LoggerLevel.INFO, message, args, "");
+  }
+
+  private Profiler doStart(LoggerLevel logLevel, String message, Object... args) {
+    init(message, args);
+    logStartMessage(logLevel, message, args);
+    return this;
+  }
+
+  private void init(String message, Object... args) {
+    this.startTime = System2.INSTANCE.now();
+    this.startMessage = message;
+    this.args = args;
+  }
+
+  private void reset() {
+    this.startTime = 0L;
+    this.startMessage = null;
+    this.args = null;
+    this.context.clear();
+  }
+
+  private void logStartMessage(LoggerLevel loggerLevel, String message, Object... args) {
+    if (shouldLog(logger, loggerLevel)) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(message);
+      appendContext(sb);
+      logger.trace(sb.toString(), args);
+    }
+  }
+
+  private long doStopWithoutMessage(LoggerLevel level) {
+    if (startMessage == null) {
+      throw new IllegalStateException("Profiler#stopXXX() can't be called without any message defined in start methods");
+    }
+    return doStop(level, startMessage, this.args, " (done)");
+  }
+
+  private long doStop(LoggerLevel level, @Nullable String message, @Nullable Object[] args, String messageSuffix) {
     if (startTime == 0L) {
       throw new IllegalStateException("Profiler must be started before being stopped");
     }
     long duration = System2.INSTANCE.now() - startTime;
-    StringBuilder sb = new StringBuilder();
-    if (!StringUtils.isEmpty(message)) {
-      sb.append(message);
-      sb.append(messageSuffix);
-      sb.append(CONTEXT_SEPARATOR);
+    if (shouldLog(logger, level)) {
+      StringBuilder sb = new StringBuilder();
+      if (!StringUtils.isEmpty(message)) {
+        sb.append(message);
+        sb.append(messageSuffix);
+        sb.append(CONTEXT_SEPARATOR);
+      }
+      sb.append("time=").append(duration).append("ms");
+      appendContext(sb);
+      log(level, sb.toString(), args);
     }
-    sb.append("time=").append(duration).append("ms");
-    appendContext(sb);
-    log(level, sb.toString());
-    startTime = 0L;
-    startMessage = null;
-    context.clear();
+    reset();
     return duration;
   }
 
-  void log(LoggerLevel level, String msg) {
+  void log(LoggerLevel level, String msg, @Nullable Object[] args) {
     switch (level) {
       case TRACE:
-        logger.trace(msg);
+        if (args == null) {
+          logger.trace(msg);
+        } else {
+          logger.trace(msg, args);
+        }
         break;
       case DEBUG:
-        logger.debug(msg);
+        if (args == null) {
+          logger.debug(msg);
+        } else {
+          logger.debug(msg, args);
+        }
         break;
       case INFO:
-        logger.info(msg);
+        if (args == null) {
+          logger.info(msg);
+        } else {
+          logger.info(msg, args);
+        }
         break;
       case WARN:
-        logger.warn(msg);
+        if (args == null) {
+          logger.warn(msg);
+        } else {
+          logger.warn(msg, args);
+        }
         break;
       case ERROR:
-        logger.error(msg);
+        if (args == null) {
+          logger.error(msg);
+        } else {
+          logger.error(msg, args);
+        }
         break;
       default:
         throw new IllegalArgumentException("Unsupported LoggerLevel value: " + level);
     }
+  }
+
+  private static boolean shouldLog(Logger logger, LoggerLevel level) {
+    if (level == LoggerLevel.TRACE && !logger.isTraceEnabled()) {
+      return false;
+    }
+    if (level == LoggerLevel.DEBUG && !logger.isDebugEnabled()) {
+      return false;
+    }
+    return true;
   }
 
   private void appendContext(StringBuilder sb) {
