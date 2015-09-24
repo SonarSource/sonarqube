@@ -22,6 +22,7 @@ package org.sonar.server.computation.component;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -142,7 +143,7 @@ public class ReportComponent implements Component {
   }
 
   public static Builder builder(Type type, int ref) {
-    return new Builder(type, ref);
+    return new Builder(type, ref).setKey("key_" + ref).setUuid("uuid_" + ref);
   }
 
   public static final class Builder {
@@ -163,8 +164,8 @@ public class ReportComponent implements Component {
       this.ref = ref;
     }
 
-    public Builder setUuid(@Nullable String s) {
-      this.uuid = s;
+    public Builder setUuid(String s) {
+      this.uuid = Objects.requireNonNull(s);
       return this;
     }
 
@@ -173,8 +174,8 @@ public class ReportComponent implements Component {
       return this;
     }
 
-    public Builder setKey(@Nullable String s) {
-      this.key = s;
+    public Builder setKey(String s) {
+      this.key = Objects.requireNonNull(s);
       return this;
     }
 
