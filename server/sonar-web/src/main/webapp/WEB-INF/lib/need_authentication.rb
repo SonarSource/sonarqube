@@ -115,7 +115,12 @@ class PluginRealm
   # Return the user.
   #
   def synchronize(username, password, details, servlet_request)
-    username=details.getName() if username.blank? && details
+    user_id = nil
+    user_id = details.getUserId() if details
+
+    username = user_id if !user_id.blank?
+    username = details.getName() if username.blank? && details
+
     user = User.find_by_login(username)
 
     now = java.lang.System.currentTimeMillis
