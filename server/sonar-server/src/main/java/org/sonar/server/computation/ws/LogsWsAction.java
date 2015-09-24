@@ -28,20 +28,29 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.computation.log.CeLogging;
+import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
+
+import static java.lang.String.format;
 
 public class LogsWsAction implements CeWsAction {
 
   public static final String ACTION = "logs";
   public static final String PARAM_TASK_UUID = "taskId";
 
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final CeLogging ceLogging;
 
-  public LogsWsAction(UserSession userSession, CeLogging ceLogging) {
+  public LogsWsAction(DbClient dbClient, UserSession userSession, CeLogging ceLogging) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.ceLogging = ceLogging;
   }
@@ -66,11 +75,30 @@ public class LogsWsAction implements CeWsAction {
     userSession.checkGlobalPermission(UserRole.ADMIN);
 
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
-    Optional<File> logFile = ceLogging.fileForTaskUuid(taskUuid);
+    LogFileRef ref = loadLogRef(taskUuid);
+    Optional<File> logFile = ceLogging.getFile(ref);
     if (logFile.isPresent()) {
       writeFile(logFile.get(), wsResponse);
     } else {
-      throw new NotFoundException();
+      throw new NotFoundException(format("Logs of task %s not found", taskUuid));
+    }
+  }
+
+  private LogFileRef loadLogRef(String taskUuid) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
+      if (queueDto.isPresent()) {
+        return LogFileRef.from(queueDto.get());
+      }
+      Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid);
+      if (activityDto.isPresent()) {
+        return LogFileRef.from(activityDto.get());
+      }
+      throw new NotFoundException(format("Task %s not found", taskUuid));
+
+    } finally {
+      dbClient.closeSession(dbSession);
     }
   }
 

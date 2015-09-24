@@ -19,35 +19,30 @@
  */
 package org.sonar.server.computation.log;
 
-import ch.qos.logback.core.filter.Filter;
-import ch.qos.logback.core.spi.FilterReply;
-import org.slf4j.MDC;
+import org.junit.Test;
 
-/**
- * Filters the Compute Engine logs.
- */
-public class CeLogFilter<E> extends Filter<E> {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final boolean isComputeEngine;
+public class LogFileRefTest {
 
-  public CeLogFilter(boolean isComputeEngine) {
-    this.isComputeEngine = isComputeEngine;
+  @Test
+  public void equals_hashCode() {
+    LogFileRef ref1 = new LogFileRef("UUID_1", "COMPONENT_1");
+    LogFileRef ref1bis = new LogFileRef("UUID_1", "COMPONENT_1");
+    LogFileRef ref2 = new LogFileRef("UUID_2", "COMPONENT_1");
+
+    assertThat(ref1.equals(ref1)).isTrue();
+    assertThat(ref1.equals(ref1bis)).isTrue();
+    assertThat(ref1.equals(ref2)).isFalse();
+    assertThat(ref1.equals(null)).isFalse();
+    assertThat(ref1.equals("UUID_1")).isFalse();
+
+    assertThat(ref1.hashCode()).isEqualTo(ref1bis.hashCode());
   }
 
-  @Override
-  public FilterReply decide(E o) {
-    return MDC.get(CeFileAppenderFactory.MDC_LOG_PATH) != null ? acceptIfCe() : denyIfCe();
-  }
-
-  private FilterReply acceptIfCe() {
-    return isComputeEngine ? FilterReply.ACCEPT : FilterReply.DENY;
-  }
-
-  private FilterReply denyIfCe() {
-    return isComputeEngine ? FilterReply.DENY : FilterReply.ACCEPT;
-  }
-
-  public boolean isComputeEngine() {
-    return isComputeEngine;
+  @Test
+  public void getRelativePath() {
+    assertThat(new LogFileRef("UUID_1", "COMPONENT_1").getRelativePath()).isEqualTo("COMPONENT_1/UUID_1.log");
+    assertThat(new LogFileRef("UUID_1", null).getRelativePath()).isEqualTo("UUID_1.log");
   }
 }

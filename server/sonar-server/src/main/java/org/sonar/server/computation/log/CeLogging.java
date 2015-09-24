@@ -24,17 +24,22 @@ import java.io.File;
 import org.apache.log4j.MDC;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.computation.CeTask;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class CeLogging {
 
   private final File logsDir;
 
   public CeLogging(Settings settings) {
-    this.logsDir = CeFileAppenderFactory.logsDirFromDataDir(new File(settings.getString(ProcessProperties.PATH_DATA)));
+    String dataDir = settings.getString(ProcessProperties.PATH_DATA);
+    checkArgument(dataDir != null, "Property %s is not set", ProcessProperties.PATH_DATA);
+    this.logsDir = CeFileAppenderFactory.logsDirFromDataDir(new File(dataDir));
   }
 
-  public Optional<File> fileForTaskUuid(String taskUuid) {
-    File logFile = new File(logsDir, CeFileAppenderFactory.logFilenameForTaskUuid(taskUuid));
+  public Optional<File> getFile(LogFileRef ref) {
+    File logFile = new File(logsDir, ref.getRelativePath());
     if (logFile.exists()) {
       return Optional.of(logFile);
     }
@@ -45,8 +50,9 @@ public class CeLogging {
    * Initialize logging of a Compute Engine task. Must be called
    * before first writing of log.
    */
-  public void initTask(String taskUuid) {
-    MDC.put(CeFileAppenderFactory.MDC_TASK_UUID, taskUuid);
+  public void initTask(CeTask task) {
+    LogFileRef ref = new LogFileRef(task.getUuid(), task.getComponentUuid());
+    MDC.put(CeFileAppenderFactory.MDC_LOG_PATH, ref.getRelativePath());
   }
 
   /**

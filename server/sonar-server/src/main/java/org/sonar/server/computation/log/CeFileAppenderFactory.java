@@ -28,32 +28,36 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.sift.AppenderFactory;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.server.computation.CeTask;
 
 import static java.lang.String.format;
 
 /**
- * Created a Logback file appender for each Compute Engine task
+ * Creates a Logback appender for a Compute Engine task
  */
 public class CeFileAppenderFactory<E> implements AppenderFactory<E> {
 
-  static final String MDC_TASK_UUID = "ceTaskUuid";
+  static final String MDC_LOG_PATH = "ceLogPath";
   private static final String ENCODER_PATTERN = "%d{yyyy.MM.dd HH:mm:ss} %-5level %msg%n";
 
   private final File ceLogsDir;
 
-  private CeFileAppenderFactory(File ceLogsDir) {
+  @VisibleForTesting
+  CeFileAppenderFactory(File ceLogsDir) {
     this.ceLogsDir = ceLogsDir;
   }
 
   /**
    * @param context
-   * @param discriminatingValue UUID of the CE task
+   * @param discriminatingValue path of log file relative to the directory data/ce/logs
+   * @see CeLogging#initTask(CeTask) 
    */
   @Override
-  public Appender<E> buildAppender(Context context, String discriminatingValue) {
+  public FileAppender<E> buildAppender(Context context, String discriminatingValue) {
     PatternLayoutEncoder consoleEncoder = new PatternLayoutEncoder();
     consoleEncoder.setContext(context);
     consoleEncoder.setPattern(ENCODER_PATTERN);
@@ -62,26 +66,29 @@ public class CeFileAppenderFactory<E> implements AppenderFactory<E> {
     appender.setContext(context);
     appender.setEncoder(consoleEncoder);
     appender.setName(format("ce-%s", discriminatingValue));
-    appender.setFile(new File(ceLogsDir, logFilenameForTaskUuid(discriminatingValue)).getAbsolutePath());
+    appender.setFile(new File(ceLogsDir, discriminatingValue).getAbsolutePath());
     appender.start();
     return appender;
   }
 
   /**
-   * Create a Logback sifting appender dedicated to Compute Engine logs.
+   * Create Logback configuration for enabling sift appender.
    * A new log file is created for each task. It is based on MDC as long
    * as Compute Engine is not executed in its
    * own process but in the same process as web server.
    */
-  public static Appender<ILoggingEvent> createSiftingAppender(LoggerContext ctx, Props processProps) {
+  public static Appender<ILoggingEvent> createConfiguration(LoggerContext ctx, Props processProps) {
     File dataDir = new File(processProps.nonNullValue(ProcessProperties.PATH_DATA));
     File logsDir = logsDirFromDataDir(dataDir);
+    return createConfiguration(ctx, logsDir);
+  }
 
+  static SiftingAppender createConfiguration(LoggerContext ctx, File logsDir) {
     SiftingAppender siftingAppender = new SiftingAppender();
     siftingAppender.addFilter(new CeLogFilter(true));
     MDCBasedDiscriminator mdcDiscriminator = new MDCBasedDiscriminator();
     mdcDiscriminator.setContext(ctx);
-    mdcDiscriminator.setKey(MDC_TASK_UUID);
+    mdcDiscriminator.setKey(MDC_LOG_PATH);
     mdcDiscriminator.setDefaultValue("error");
     mdcDiscriminator.start();
     siftingAppender.setContext(ctx);
@@ -100,9 +107,5 @@ public class CeFileAppenderFactory<E> implements AppenderFactory<E> {
    */
   static File logsDirFromDataDir(File dataDir) {
     return new File(dataDir, "ce/logs");
-  }
-
-  static String logFilenameForTaskUuid(String taskUuid) {
-    return format("%s.log", taskUuid);
   }
 }

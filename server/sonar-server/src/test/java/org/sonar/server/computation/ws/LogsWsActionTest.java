@@ -22,13 +22,19 @@ package org.sonar.server.computation.ws;
 import com.google.common.base.Optional;
 import java.io.File;
 import java.io.IOException;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.log.CeLogging;
+import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
@@ -47,8 +53,11 @@ public class LogsWsActionTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   CeLogging ceLogging = mock(CeLogging.class);
-  LogsWsAction underTest = new LogsWsAction(userSession, ceLogging);
+  LogsWsAction underTest = new LogsWsAction(dbTester.getDbClient(), userSession, ceLogging);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -58,9 +67,11 @@ public class LogsWsActionTest {
 
   @Test
   public void return_task_logs_if_available() throws IOException {
+    // task must exist in database
+    insert("TASK_1", null);
     File logFile = temp.newFile();
     FileUtils.write(logFile, "{logs}");
-    when(ceLogging.fileForTaskUuid("TASK_1")).thenReturn(Optional.of(logFile));
+    when(ceLogging.getFile(new LogFileRef("TASK_1", null))).thenReturn(Optional.of(logFile));
 
     TestResponse response = tester.newRequest()
       .setParam("taskId", "TASK_1")
@@ -71,12 +82,30 @@ public class LogsWsActionTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void return_404_if_task_logs_do_not_exist() throws IOException {
-    when(ceLogging.fileForTaskUuid("TASK_1")).thenReturn(Optional.<File>absent());
+  public void return_404_if_task_logs_are_not_available() throws IOException {
+    insert("TASK_1", null);
+    when(ceLogging.getFile(new LogFileRef("TASK_1", null))).thenReturn(Optional.<File>absent());
 
     tester.newRequest()
       .setParam("taskId", "TASK_1")
       .execute();
+  }
 
+  @Test(expected = NotFoundException.class)
+  public void return_404_if_task_does_not_exist() throws IOException {
+    tester.newRequest()
+      .setParam("taskId", "TASK_1")
+      .execute();
+  }
+
+  private CeQueueDto insert(String taskUuid, @Nullable String componentUuid) {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setTaskType(CeTaskTypes.REPORT);
+    queueDto.setComponentUuid(componentUuid);
+    queueDto.setUuid(taskUuid);
+    queueDto.setStatus(CeQueueDto.Status.IN_PROGRESS);
+    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
+    dbTester.getSession().commit();
+    return queueDto;
   }
 }

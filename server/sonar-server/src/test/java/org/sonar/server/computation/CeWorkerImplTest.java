@@ -56,7 +56,7 @@ public class CeWorkerImplTest {
     underTest.run();
 
     InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
-    inOrder.verify(ceLogging).initTask("TASK_1");
+    inOrder.verify(ceLogging).initTask(task);
     inOrder.verify(taskProcessor).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS);
     inOrder.verify(ceLogging).clearTask();
@@ -71,7 +71,7 @@ public class CeWorkerImplTest {
     underTest.run();
 
     InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
-    inOrder.verify(ceLogging).initTask("TASK_1");
+    inOrder.verify(ceLogging).initTask(task);
     inOrder.verify(taskProcessor).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED);
     inOrder.verify(ceLogging).clearTask();

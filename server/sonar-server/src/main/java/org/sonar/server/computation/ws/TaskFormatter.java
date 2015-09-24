@@ -34,6 +34,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.log.CeLogging;
+import org.sonar.server.computation.log.LogFileRef;
 import org.sonarqube.ws.WsCe;
 
 public class TaskFormatter {
@@ -64,7 +65,7 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
-    builder.setLogs(ceLogging.fileForTaskUuid(dto.getUuid()).isPresent());
+    builder.setLogs(ceLogging.getFile(LogFileRef.from(dto)).isPresent());
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
       buildComponent(builder, componentCache.get(dto.getComponentUuid()));
@@ -97,7 +98,7 @@ public class TaskFormatter {
     builder.setId(dto.getUuid());
     builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
-    builder.setLogs(ceLogging.fileForTaskUuid(dto.getUuid()).isPresent());
+    builder.setLogs(ceLogging.getFile(LogFileRef.from(dto)).isPresent());
     if (dto.getComponentUuid() != null) {
       builder.setComponentId(dto.getComponentUuid());
       buildComponent(builder, componentCache.get(dto.getComponentUuid()));

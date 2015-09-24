@@ -60,7 +60,7 @@ class WebLogging {
   private void configureAppender(LoggerContext ctx, Props props) {
     ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT, new CeLogFilter(false));
     ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeFileAppenderFactory.createSiftingAppender(ctx, props));
+    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeFileAppenderFactory.createConfiguration(ctx, props));
 
   }
 
