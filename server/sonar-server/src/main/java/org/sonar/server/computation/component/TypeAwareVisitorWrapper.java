@@ -29,6 +29,11 @@ public class TypeAwareVisitorWrapper implements VisitorWrapper {
   }
 
   @Override
+  public ComponentVisitor getWrappedVisitor() {
+    return this.delegate;
+  }
+
+  @Override
   public void beforeComponent(Component component){
     // Nothing to do
   }

@@ -23,11 +23,13 @@ package org.sonar.server.computation.component;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.sonar.api.utils.log.Logger;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.logs.Profiler;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
@@ -38,8 +40,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class VisitorsCrawler implements ComponentCrawler {
 
-  private static final Logger LOGGER = Loggers.get(VisitorsCrawler.class);
-
+  private final Map<ComponentVisitor, VisitorDuration> visitorCumulativeDurations;
   private final List<VisitorWrapper> preOrderVisitorWrappers;
   private final List<VisitorWrapper> postOrderVisitorWrappers;
 
@@ -47,6 +48,13 @@ public class VisitorsCrawler implements ComponentCrawler {
     List<VisitorWrapper> visitorWrappers = from(visitors).transform(ToVisitorWrapper.INSTANCE).toList();
     this.preOrderVisitorWrappers = from(visitorWrappers).filter(MathPreOrderVisitor.INSTANCE).toList();
     this.postOrderVisitorWrappers = from(visitorWrappers).filter(MatchPostOrderVisitor.INSTANCE).toList();
+    this.visitorCumulativeDurations = from(visitors).toMap(VisitorWrapperToInitialDuration.INSTANCE);
+  }
+
+  public Map<ComponentVisitor, Long> getCumulativeDurations() {
+    return ImmutableMap.copyOf(
+      Maps.transformValues(this.visitorCumulativeDurations, VisitorDurationToDuration.INSTANCE)
+      );
   }
 
   @Override
@@ -84,7 +92,8 @@ public class VisitorsCrawler implements ComponentCrawler {
   }
 
   private void visitNode(Component component, VisitorWrapper visitor) {
-    LOGGER.trace("Visitor '{}' is currently visiting component {}", visitor, component);
+    Profiler profiler = Profiler.create(Loggers.get(visitor.getWrappedVisitor().getClass()))
+      .startTrace("Visiting component {}", component.getKey());
     visitor.visitAny(component);
     switch (component.getType()) {
       case PROJECT:
@@ -111,6 +120,12 @@ public class VisitorsCrawler implements ComponentCrawler {
       default:
         throw new IllegalStateException(String.format("Unknown type %s", component.getType().name()));
     }
+    long duration = profiler.stopTrace();
+    incrementDuration(visitor, duration);
+  }
+
+  private void incrementDuration(VisitorWrapper visitorWrapper, long duration) {
+    visitorCumulativeDurations.get(visitorWrapper.getWrappedVisitor()).increment(duration);
   }
 
   private enum ToVisitorWrapper implements Function<ComponentVisitor, VisitorWrapper> {
@@ -171,6 +186,38 @@ public class VisitorsCrawler implements ComponentCrawler {
     @Override
     public boolean apply(@Nonnull VisitorWrapper visitorWrapper) {
       return visitorWrapper.getOrder() == ComponentVisitor.Order.POST_ORDER;
+    }
+  }
+
+  private static final class VisitorDuration {
+    private long duration = 0;
+
+    public void increment(long duration) {
+      this.duration += duration;
+    }
+
+    public long getDuration() {
+      return duration;
+    }
+  }
+
+  private enum VisitorWrapperToInitialDuration implements Function<ComponentVisitor, VisitorDuration> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public VisitorDuration apply(@Nonnull ComponentVisitor visitorWrapper) {
+      return new VisitorDuration();
+    }
+  }
+
+  private enum VisitorDurationToDuration implements Function<VisitorDuration, Long> {
+    INSTANCE;
+
+    @Nullable
+    @Override
+    public Long apply(VisitorDuration input) {
+      return input.getDuration();
     }
   }
 }

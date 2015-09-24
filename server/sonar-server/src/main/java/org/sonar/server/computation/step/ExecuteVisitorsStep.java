@@ -21,11 +21,17 @@
 package org.sonar.server.computation.step;
 
 import java.util.List;
+import java.util.Map;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.VisitorsCrawler;
 
 public class ExecuteVisitorsStep implements ComputationStep {
+
+  private static final Logger LOGGER = Loggers.get(ExecuteVisitorsStep.class);
+
   private final TreeRootHolder treeRootHolder;
   private final List<ComponentVisitor> visitors;
 
@@ -35,12 +41,22 @@ public class ExecuteVisitorsStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
-    new VisitorsCrawler(visitors).visit(treeRootHolder.getRoot());
+  public String getDescription() {
+    return "Execute Component Visitors";
   }
 
   @Override
-  public String getDescription() {
-    return "Execute visitors";
+  public void execute() {
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(visitors);
+    visitorsCrawler.visit(treeRootHolder.getRoot());
+    logVisitorExecutionDurations(visitors, visitorsCrawler);
+  }
+
+  private static void logVisitorExecutionDurations(List<ComponentVisitor> visitors, VisitorsCrawler visitorsCrawler) {
+    LOGGER.info("  Execution time for each Component visitor:");
+    Map<ComponentVisitor, Long> cumulativeDurations = visitorsCrawler.getCumulativeDurations();
+    for (ComponentVisitor visitor : visitors) {
+      LOGGER.info("  - {} | time={}ms", visitor.getClass().getSimpleName(), cumulativeDurations.get(visitor));
+    }
   }
 }

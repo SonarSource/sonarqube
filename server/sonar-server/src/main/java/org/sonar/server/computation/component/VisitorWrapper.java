@@ -22,6 +22,8 @@ package org.sonar.server.computation.component;
 
 public interface VisitorWrapper extends TypeAwareVisitor {
 
+  ComponentVisitor getWrappedVisitor();
+
   void beforeComponent(Component component);
 
   void afterComponent(Component component);

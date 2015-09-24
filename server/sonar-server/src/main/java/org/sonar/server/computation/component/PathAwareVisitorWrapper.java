@@ -33,6 +33,11 @@ public class PathAwareVisitorWrapper<T> implements VisitorWrapper {
   }
 
   @Override
+  public ComponentVisitor getWrappedVisitor() {
+    return this.delegate;
+  }
+
+  @Override
   public void beforeComponent(Component component){
     stack.add(new PathElementImpl<>(component, createForComponent(component)));
   }
