@@ -67,16 +67,16 @@
     from ce_activity ca
     <where>
       <if test="query.onlyCurrents">
-        ca.is_last=${_true}
+        and ca.is_last=${_true}
       </if>
       <if test="query.componentUuid != null">
-        ca.component_uuid=#{query.componentUuid}
+        and ca.component_uuid=#{query.componentUuid}
       </if>
       <if test="query.status != null">
-        ca.status=#{query.status}
+        and ca.status=#{query.status}
       </if>
       <if test="query.type != null">
-        ca.task_type=#{query.type}
+        and ca.task_type=#{query.type}
       </if>
     </where>
   </select>

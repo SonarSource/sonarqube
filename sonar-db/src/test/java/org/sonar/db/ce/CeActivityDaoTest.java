@@ -139,6 +139,10 @@ public class CeActivityDaoTest {
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(3);
     query = new CeActivityQuery().setType("views");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
+
+    // select by multiple conditions
+    query = new CeActivityQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
   }
 
   @Test
