@@ -21,7 +21,6 @@ package org.sonar.server.computation.source;
 
 import com.google.common.base.Optional;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
@@ -36,15 +35,12 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.POST
 
 public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor.LastCommit> {
 
-  private static final long MILLISECONDS_PER_DAY = 1000L * 60 * 60 * 24;
-
   private final BatchReportReader reportReader;
   private final MeasureRepository measureRepository;
   private final Metric lastCommitDateMetric;
-  private final System2 system2;
 
   public LastCommitVisitor(BatchReportReader reportReader, MetricRepository metricRepository,
-    MeasureRepository measureRepository, System2 system2) {
+    MeasureRepository measureRepository) {
     super(CrawlerDepthLimit.LEAVES, POST_ORDER, new SimpleStackElementFactory<LastCommit>() {
       @Override
       public LastCommit createForAny(Component component) {
@@ -59,7 +55,6 @@ public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor
     });
     this.reportReader = reportReader;
     this.measureRepository = measureRepository;
-    this.system2 = system2;
     this.lastCommitDateMetric = metricRepository.getByKey(CoreMetrics.LAST_COMMIT_DATE_KEY);
   }
 
