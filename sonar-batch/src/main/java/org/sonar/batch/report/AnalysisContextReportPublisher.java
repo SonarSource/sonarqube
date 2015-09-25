@@ -37,6 +37,7 @@ import org.sonar.core.platform.PluginInfo;
 @BatchSide
 public class AnalysisContextReportPublisher {
 
+  private static final String SONAR_PROP_PREFIX = "sonar.";
   private final BatchPluginRepository pluginRepo;
   private final AnalysisMode mode;
 
@@ -54,20 +55,35 @@ public class AnalysisContextReportPublisher {
     this.writer = writer;
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8)) {
-      fileWriter.append("Environement variables:\n");
-      for (Map.Entry<String, String> env : System.getenv().entrySet()) {
-        fileWriter.append(String.format("  - %s=%s", env.getKey(), env.getValue())).append('\n');
-      }
-      fileWriter.write("System properties:\n");
-      for (Map.Entry<Object, Object> env : System.getProperties().entrySet()) {
-        fileWriter.append(String.format("  - %s=%s", env.getKey(), env.getValue())).append('\n');
-      }
-      fileWriter.write("SonarQube plugins:\n");
-      for (PluginInfo p : pluginRepo.getPluginInfos()) {
-        fileWriter.append(String.format("  - %s %s (%s)", p.getName(), p.getVersion(), p.getKey())).append('\n');
-      }
+      writeEnvVariables(fileWriter);
+      writeSystemProps(fileWriter);
+      writePlugins(fileWriter);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);
+    }
+  }
+
+  private void writePlugins(BufferedWriter fileWriter) throws IOException {
+    fileWriter.write("SonarQube plugins:\n");
+    for (PluginInfo p : pluginRepo.getPluginInfos()) {
+      fileWriter.append(String.format("  - %s %s (%s)", p.getName(), p.getVersion(), p.getKey())).append('\n');
+    }
+  }
+
+  private void writeSystemProps(BufferedWriter fileWriter) throws IOException {
+    fileWriter.write("System properties:\n");
+    for (Map.Entry<Object, Object> env : System.getProperties().entrySet()) {
+      if (env.getKey().toString().startsWith(SONAR_PROP_PREFIX)) {
+        continue;
+      }
+      fileWriter.append(String.format("  - %s=%s", env.getKey(), env.getValue())).append('\n');
+    }
+  }
+
+  private static void writeEnvVariables(BufferedWriter fileWriter) throws IOException {
+    fileWriter.append("Environment variables:\n");
+    for (Map.Entry<String, String> env : System.getenv().entrySet()) {
+      fileWriter.append(String.format("  - %s=%s", env.getKey(), env.getValue())).append('\n');
     }
   }
 
@@ -79,6 +95,9 @@ public class AnalysisContextReportPublisher {
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
       fileWriter.append(String.format("Settings for module: %s", moduleDefinition.getKey())).append('\n');
       for (Map.Entry<String, String> prop : settings.getProperties().entrySet()) {
+        if (System.getProperties().containsKey(prop.getKey()) && !prop.getKey().startsWith(SONAR_PROP_PREFIX)) {
+          continue;
+        }
         fileWriter.append(String.format("  - %s=%s", prop.getKey(), sensitive(prop.getKey()) ? "******" : prop.getValue())).append('\n');
       }
     } catch (IOException e) {

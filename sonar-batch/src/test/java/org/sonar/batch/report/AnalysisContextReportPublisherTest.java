@@ -74,6 +74,28 @@ public class AnalysisContextReportPublisherTest {
   }
 
   @Test
+  public void shouldNotDumpSQPropsInSystemProps() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(temp.newFolder());
+    System.setProperty("com.foo", "bar");
+    System.setProperty("sonar.skip", "true");
+    publisher.init(writer);
+
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    assertThat(content).containsOnlyOnce("com.foo");
+    assertThat(content).doesNotContain("sonar.skip");
+
+    Settings settings = new Settings();
+    settings.setProperty("com.foo", "bar");
+    settings.setProperty("sonar.skip", "true");
+
+    publisher.dumpSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"), settings);
+
+    content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    assertThat(content).containsOnlyOnce("com.foo");
+    assertThat(content).containsOnlyOnce("sonar.skip");
+  }
+
+  @Test
   public void shouldNotDumpSensitiveProperties() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(temp.newFolder());
     publisher.init(writer);
