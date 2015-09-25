@@ -11,11 +11,11 @@ export default Backbone.Model.extend({
   },
 
   url: function () {
-    return baseUrl + '/api/issues';
+    return window.baseUrl + '/api/issues';
   },
 
   urlRoot: function () {
-    return baseUrl + '/api/issues';
+    return window.baseUrl + '/api/issues';
   },
 
   parse: function (r) {

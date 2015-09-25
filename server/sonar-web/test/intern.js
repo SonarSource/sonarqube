@@ -14,14 +14,25 @@ define(['intern'], function (intern) {
       { id: 'LcovHtml', directory: 'target/web-tests' }
     ],
 
-    suites: [
-      'test/unit/application.spec',
-      'test/unit/issue.spec',
-      'test/unit/code-with-issue-locations-helper.spec',
-      'test/unit/nav/component/component-nav-breadcrumbs.spec'
-    ],
+    suites: [],
 
-    functionalSuites: [],
+    functionalSuites: [
+      'test/medium/api-documentation.spec',
+      'test/medium/coding-rules.spec',
+      'test/medium/computation.spec',
+      'test/medium/custom-measures.spec',
+      'test/medium/global-permissions.spec',
+      'test/medium/groups.spec',
+      'test/medium/issues.spec',
+      'test/medium/maintenance.spec',
+      'test/medium/metrics.spec',
+      'test/medium/project-permissions.spec',
+      'test/medium/quality-gates.spec',
+      'test/medium/quality-profiles.spec',
+      'test/medium/source-viewer.spec',
+      'test/medium/update-center.spec',
+      'test/medium/users.spec'
+    ],
 
     tunnel: tunnel,
     environments: [

@@ -5,6 +5,9 @@
   "repository": "SonarSource/sonarqube",
   "license": "LGPL-3.0",
   "devDependencies": {
+    "babel": "^5.8.23",
+    "backbone": "^1.1.2",
+    "chai": "^3.3.0",
     "grunt": "0.4.5",
     "grunt-babel": "5.0.1",
     "grunt-cli": "0.1.13",
@@ -21,15 +24,18 @@
     "grunt-text-replace": "0.4.0",
     "intern": "3.0.0",
     "jit-grunt": "0.9.1",
+    "jquery": "2.1.4",
+    "jsdom": "^6.5.1",
+    "mocha": "^2.3.3",
+    "react": "0.13.3",
     "sinon": "^1.15.4",
-    "time-grunt": "1.2.1"
+    "sinon-chai": "^2.8.0",
+    "time-grunt": "1.2.1",
+    "underscore": "1.8.3"
   },
   "scripts": {
     "build-fast": "./node_modules/.bin/grunt build-fast",
     "build": "./node_modules/.bin/grunt build",
-    "build-test": "./node_modules/.bin/grunt build-test",
-    "build-coverage": "./node_modules/.bin/grunt build-coverage",
-    "test": "./node_modules/.bin/grunt test",
-    "coverage": "./node_modules/.bin/grunt coverage"
+    "test": "./node_modules/.bin/mocha --opts tests/mocha.opts tests"
   }
 }

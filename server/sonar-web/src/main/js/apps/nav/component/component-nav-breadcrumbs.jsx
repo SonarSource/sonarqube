@@ -1,5 +1,5 @@
 import React from 'react';
-import QualifierIcon from 'components/shared/qualifier-icon';
+import QualifierIcon from '../../../components/shared/qualifier-icon';
 
 export default React.createClass({
   render() {

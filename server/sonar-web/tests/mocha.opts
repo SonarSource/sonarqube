@@ -1,0 +1,4 @@
+--recursive
+--compilers js:babel/register
+--compilers jsx:babel/register
+--require tests/jsdom-setup.js
