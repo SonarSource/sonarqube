@@ -5,18 +5,15 @@
  */
 package batch.suite;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.sonar.orchestrator.build.BuildFailureException;
-
-import com.sonar.orchestrator.build.SonarRunner;
-import util.ItUtils;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.MavenBuild;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import util.ItUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test the extension point org.sonar.api.batch.bootstrap.ProjectBuilder
@@ -45,18 +42,6 @@ public class ProjectBuilderTest {
     checkFile("project-builder-module-a", "src/HelloA.java");
     checkFile("project-builder-module-b", "src/HelloB.java");
     assertThat(getResource("com.sonarsource.it.projects.batch:project-builder-module-b:src/IgnoredFile.java")).isNull();
-  }
-
-  @Test
-  // SONAR-6665
-  public void errorSubModuleSameName() {
-    SonarRunner build = SonarRunner.create(ItUtils.projectDir("batch/multi-module-repeated-names"));
-
-    try {
-      orchestrator.executeBuild(build);
-    } catch (BuildFailureException e) {
-      assertThat(e.getResult().getLogs()).contains("Two modules have the same id: module1");
-    }
   }
 
   private void checkProject() {

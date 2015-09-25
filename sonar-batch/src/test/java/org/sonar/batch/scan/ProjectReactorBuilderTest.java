@@ -19,18 +19,7 @@
  */
 package org.sonar.batch.scan;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.sonar.api.batch.AnalysisMode;
-import org.sonar.batch.analysis.AnalysisProperties;
 import com.google.common.collect.Maps;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.test.TestUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,11 +27,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.test.TestUtils;
 
-import static org.mockito.Mockito.when;
-
-import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectReactorBuilderTest {
 
@@ -50,12 +48,12 @@ public class ProjectReactorBuilderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private AnalysisMode mode;
-  
+
   @Before
   public void setUp() {
     mode = mock(AnalysisMode.class);
   }
-  
+
   @Test
   public void shouldDefineSimpleProject() {
     ProjectDefinition projectDefinition = loadProjectDefinition("simple-project");
@@ -91,10 +89,28 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void modulesRepeatedIds() {
+  public void modulesDuplicateIds() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Two modules have the same id: module1");
-    loadProjectDefinition("multi-module-repeated-id");
+    thrown.expectMessage("Two modules have the same id: 'module1'. Each module must have a unique id.");
+
+    loadProjectDefinition("multi-module-duplicate-id");
+  }
+
+  @Test
+  public void modulesRepeatedIds() {
+    ProjectDefinition rootProject = loadProjectDefinition("multi-module-repeated-id");
+
+    List<ProjectDefinition> modules = rootProject.getSubProjects();
+    assertThat(modules.size()).isEqualTo(1);
+    // Module 1
+    ProjectDefinition module1 = modules.get(0);
+    assertThat(module1.getKey()).isEqualTo("com.foo.project:module1");
+    assertThat(module1.getName()).isEqualTo("Foo Module 1");
+
+    // Module 1 -> Module 1
+    ProjectDefinition module1_module1 = module1.getSubProjects().get(0);
+    assertThat(module1_module1.getKey()).isEqualTo("com.foo.project:module1:module1");
+    assertThat(module1_module1.getName()).isEqualTo("Foo Sub Module 1");
   }
 
   @Test
@@ -460,12 +476,12 @@ public class ProjectReactorBuilderTest {
 
     assertThat(workDir).isEqualTo(new File(baseDir, ".sonar"));
   }
-  
+
   @Test
   public void nonAssociatedMode() {
     when(mode.isIssues()).thenReturn(true);
     ProjectDefinition project = loadProjectDefinition("multi-module-with-basedir-not-associated");
-    
+
     assertThat(project.getKey()).isEqualTo("project");
   }
 
@@ -537,10 +553,10 @@ public class ProjectReactorBuilderTest {
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
     AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
-    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps,mode).execute();
+    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps, mode).execute();
     return projectReactor.getRoot();
   }
-  
+
   protected static Properties toProperties(File propertyFile) {
     Properties propsFromFile = new Properties();
     try (FileInputStream fileInputStream = new FileInputStream(propertyFile)) {

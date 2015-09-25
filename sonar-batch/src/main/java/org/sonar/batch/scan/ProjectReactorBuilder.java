@@ -117,21 +117,22 @@ public class ProjectReactorBuilder {
 
   public ProjectReactor execute() {
     Profiler profiler = Profiler.create(LOG).startInfo("Process project properties");
-    Map<String, Map<String, String>> propertiesByModuleId = new HashMap<>();
-    extractPropertiesByModule(propertiesByModuleId, "", taskProps.properties());
-    ProjectDefinition rootProject = defineRootProject(propertiesByModuleId.get(""), null);
+    Map<String, Map<String, String>> propertiesByModuleIdPath = new HashMap<>();
+    extractPropertiesByModule(propertiesByModuleIdPath, "", "", taskProps.properties());
+    ProjectDefinition rootProject = defineRootProject(propertiesByModuleIdPath.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
-    defineChildren(rootProject, propertiesByModuleId);
+    defineChildren(rootProject, propertiesByModuleIdPath, "");
     cleanAndCheckProjectDefinitions(rootProject);
     // Since task properties are now empty we should add root module properties
-    taskProps.properties().putAll(propertiesByModuleId.get(""));
+    taskProps.properties().putAll(propertiesByModuleIdPath.get(""));
     profiler.stopDebug();
     return new ProjectReactor(rootProject);
   }
 
-  private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleId, String currentModuleId, Map<String, String> parentProperties) {
-    if (propertiesByModuleId.containsKey(currentModuleId)) {
-      throw new IllegalStateException(String.format("Two modules have the same id: %s. Each module must have a unique id.", currentModuleId));
+  private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleIdPath, String currentModuleId, String currentModuleIdPath,
+    Map<String, String> parentProperties) {
+    if (propertiesByModuleIdPath.containsKey(currentModuleIdPath)) {
+      throw new IllegalStateException(String.format("Two modules have the same id: '%s'. Each module must have a unique id.", currentModuleId));
     }
 
     Map<String, String> currentModuleProperties = new HashMap<>();
@@ -153,10 +154,11 @@ public class ProjectReactorBuilder {
     Arrays.sort(moduleIds);
     ArrayUtils.reverse(moduleIds);
 
-    propertiesByModuleId.put(currentModuleId, currentModuleProperties);
+    propertiesByModuleIdPath.put(currentModuleIdPath, currentModuleProperties);
 
     for (String moduleId : moduleIds) {
-      extractPropertiesByModule(propertiesByModuleId, moduleId, currentModuleProperties);
+      String subModuleIdPath = currentModuleIdPath.isEmpty() ? moduleId : (currentModuleIdPath + "." + moduleId);
+      extractPropertiesByModule(propertiesByModuleIdPath, moduleId, subModuleIdPath, currentModuleProperties);
     }
   }
 
@@ -232,16 +234,17 @@ public class ProjectReactorBuilder {
     return new File(moduleBaseDir, customBuildDir.getPath());
   }
 
-  private void defineChildren(ProjectDefinition parentProject, Map<String, Map<String, String>> propertiesByModuleId) {
+  private void defineChildren(ProjectDefinition parentProject, Map<String, Map<String, String>> propertiesByModuleIdPath, String parentModuleIdPath) {
     Map<String, String> parentProps = parentProject.properties();
     if (parentProps.containsKey(PROPERTY_MODULES)) {
       for (String moduleId : getListFromProperty(parentProps, PROPERTY_MODULES)) {
-        Map<String, String> moduleProps = propertiesByModuleId.get(moduleId);
+        String moduleIdPath = parentModuleIdPath.isEmpty() ? moduleId : (parentModuleIdPath + "." + moduleId);
+        Map<String, String> moduleProps = propertiesByModuleIdPath.get(moduleIdPath);
         ProjectDefinition childProject = loadChildProject(parentProject, moduleProps, moduleId);
         // check the uniqueness of the child key
         checkUniquenessOfChildKey(childProject, parentProject);
         // the child project may have children as well
-        defineChildren(childProject, propertiesByModuleId);
+        defineChildren(childProject, propertiesByModuleIdPath, moduleIdPath);
         // and finally add this child project to its parent
         parentProject.addSubProject(childProject);
       }
