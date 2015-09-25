@@ -20,6 +20,7 @@
 
 package org.sonar.server.component;
 
+import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -28,27 +29,36 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.test.DbTests;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 
 @Category(DbTests.class)
 public class ComponentServiceTest {
@@ -268,7 +278,7 @@ public class ComponentServiceTest {
 
   @Test
   public void create_project() {
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
 
     String key = service.create(NewComponent.create("struts", "Struts project")).getKey();
 
@@ -288,7 +298,7 @@ public class ComponentServiceTest {
 
   @Test
   public void create_new_project_with_branch() {
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
 
     String key = service.create(NewComponent.create("struts", "Struts project").setBranch("origin/branch")).getKey();
 
@@ -299,7 +309,7 @@ public class ComponentServiceTest {
 
   @Test
   public void create_view() {
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
 
     String key = service.create(NewComponent.create("all-project", "All Projects").setQualifier(Qualifiers.VIEW)).getKey();
 
@@ -319,7 +329,7 @@ public class ComponentServiceTest {
 
   @Test
   public void fail_to_create_new_component_on_invalid_key() {
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
 
     try {
       service.create(NewComponent.create("struts?parent", "Struts project"));
@@ -332,7 +342,7 @@ public class ComponentServiceTest {
 
   @Test
   public void fail_to_create_new_component_on_invalid_branch() {
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
 
     try {
       service.create(NewComponent.create("struts", "Struts project").setBranch("origin?branch"));
@@ -345,7 +355,7 @@ public class ComponentServiceTest {
 
   @Test
   public void fail_to_create_new_component_if_key_already_exists() {
-    userSessionRule.login("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
 
     ComponentDto project = ComponentTesting.newProjectDto().setKey("struts");
     dbClient.componentDao().insert(session, project);
@@ -357,6 +367,42 @@ public class ComponentServiceTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Could not create Project, key already exists: struts");
     }
+  }
+
+  @Test
+  public void remove_duplicated_components_when_creating_project() throws Exception {
+    String projectKey = "PROJECT_KEY";
+
+    userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
+
+    DbSession session = mock(DbSession.class);
+
+    ComponentDao componentDao = mock(ComponentDao.class);
+    when(componentDao.selectByKey(session, projectKey)).thenReturn(Optional.<ComponentDto>absent());
+
+    DbClient dbClient = mock(DbClient.class);
+    when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.componentIndexDao()).thenReturn(mock(ResourceIndexDao.class));
+
+    doAnswer(new Answer<Object>() {
+      public Object answer(InvocationOnMock invocation) {
+        ((ComponentDto) invocation.getArguments()[1]).setId(1L);
+        return null;
+      }
+    }).when(componentDao).insert(eq(session), any(ComponentDto.class));
+
+    when(componentDao.selectComponentsHavingSameKeyOrderedById(session, projectKey)).thenReturn(newArrayList(
+      ComponentTesting.newProjectDto().setId(1L).setKey(projectKey),
+      ComponentTesting.newProjectDto().setId(2L).setKey(projectKey),
+      ComponentTesting.newProjectDto().setId(3L).setKey(projectKey)
+    ));
+
+    service = new ComponentService(dbClient, i18n, userSessionRule, System2.INSTANCE, new ComponentFinder(dbClient));
+    service.create(NewComponent.create(projectKey, projectKey));
+
+    verify(componentDao).delete(session, 2L);
+    verify(componentDao).delete(session, 3L);
   }
 
   @Test

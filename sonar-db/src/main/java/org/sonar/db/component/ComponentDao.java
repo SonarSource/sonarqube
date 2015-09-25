@@ -135,6 +135,10 @@ public class ComponentDao implements Dao {
     return executeLargeInputs(keys, new KeyToDto(mapper(session)));
   }
 
+  public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {
+    return mapper(session).selectComponentsHavingSameKeyOrderedById(key);
+  }
+
   private static class KeyToDto implements Function<List<String>, List<ComponentDto>> {
     private final ComponentMapper mapper;
 
@@ -269,6 +273,10 @@ public class ComponentDao implements Dao {
 
   public void update(DbSession session, ComponentDto item) {
     mapper(session).update(item);
+  }
+
+  public void delete(DbSession session, long componentId) {
+    mapper(session).delete(componentId);
   }
 
   private ComponentMapper mapper(DbSession session) {

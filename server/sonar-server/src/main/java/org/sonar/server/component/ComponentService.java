@@ -146,7 +146,12 @@ public class ComponentService {
 
   public ComponentDto create(NewComponent newComponent) {
     userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
+    ComponentDto project = createProject(newComponent);
+    removeDuplicatedProjects(project.getKey());
+    return project;
+  }
 
+  private ComponentDto createProject(NewComponent newComponent) {
     DbSession session = dbClient.openSession(false);
     try {
       checkKeyFormat(newComponent.qualifier(), newComponent.key());
@@ -174,8 +179,26 @@ public class ComponentService {
       dbClient.componentDao().insert(session, component);
       dbClient.componentIndexDao().indexResource(session, component.getId());
       session.commit();
-
       return component;
+    } finally {
+      dbClient.closeSession(session);
+    }
+  }
+
+  /**
+   * On MySQL, as PROJECTS.KEE is not unique, if the same project is provisioned multiple times, then it will be duplicated in the database.
+   * So, after creating a project, we commit, and we search in the db if their are some duplications and we remove them.
+   *
+   * SONAR-6332
+   */
+  private void removeDuplicatedProjects(String projectKey) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      List<ComponentDto> duplicated = dbClient.componentDao().selectComponentsHavingSameKeyOrderedById(session, projectKey);
+      for (int i = 1; i < duplicated.size(); i++) {
+        dbClient.componentDao().delete(session, duplicated.get(i).getId());
+      }
+      session.commit();
     } finally {
       dbClient.closeSession(session);
     }
@@ -186,7 +209,7 @@ public class ComponentService {
     try {
       return componentUuids(session, componentKeys, false);
     } finally {
-      session.close();
+      dbClient.closeSession(session);
     }
   }
 

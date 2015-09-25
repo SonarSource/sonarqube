@@ -118,10 +118,14 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectGhostProjects(Map<String, Object> parameters, RowBounds rowBounds);
 
+  List<ComponentDto> selectComponentsHavingSameKeyOrderedById(String key);
+
   long countGhostProjects(Map<String, Object> parameters);
 
   void insert(ComponentDto componentDto);
 
   void update(ComponentDto componentDto);
+
+  void delete(long componentId);
 
 }
