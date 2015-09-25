@@ -21,6 +21,9 @@ package org.sonar.core.properties;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
@@ -28,11 +31,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
 
 public class PropertiesDao implements BatchComponent, ServerComponent, DaoComponent {
 
@@ -85,11 +83,14 @@ public class PropertiesDao implements BatchComponent, ServerComponent, DaoCompon
     return session.getMapper(PropertiesMapper.class).selectGlobalProperties();
   }
 
+  public PropertyDto selectGlobalProperty(DbSession session, String propertyKey) {
+    return session.getMapper(PropertiesMapper.class).selectByKey(new PropertyDto().setKey(propertyKey));
+  }
+
   public PropertyDto selectGlobalProperty(String propertyKey) {
-    SqlSession session = mybatis.openSession(false);
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    DbSession session = mybatis.openSession(false);
     try {
-      return mapper.selectByKey(new PropertyDto().setKey(propertyKey));
+      return selectGlobalProperty(session, propertyKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
