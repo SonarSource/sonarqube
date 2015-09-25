@@ -20,6 +20,10 @@
 
 package org.sonar.server.issue.notification;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.Locale;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +35,6 @@ import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -95,7 +95,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String file = IOUtils.toString(getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_all_details.txt"), StandardCharsets.UTF_8);
+    String file = loadTestFile("MyNewIssuesEmailTemplateTest/email_with_all_details.txt");
     assertThat(message.getMessage()).startsWith(file);
   }
 
@@ -124,7 +124,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String file = IOUtils.toString(getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt"), StandardCharsets.UTF_8);
+    String file = loadTestFile("MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt");
     assertThat(message.getMessage()).startsWith(file);
   }
 
@@ -176,5 +176,11 @@ public class MyNewIssuesEmailTemplateTest {
       .setFieldValue(RULE + ".1.count", "42")
       .setFieldValue(RULE + ".2.label", "Rule the World (Java)")
       .setFieldValue(RULE + ".2.count", "5");
+  }
+
+  private static String loadTestFile(String path) throws IOException {
+    String file = IOUtils.toString(MyNewIssuesEmailTemplateTest.class.getResource(path), StandardCharsets.UTF_8);
+    // sanitize EOL characters if git clone is badly configured
+    return file.replaceAll("\\r\\n|\\r", "");
   }
 }
