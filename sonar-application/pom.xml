@@ -98,7 +98,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar-plugins</groupId>
+      <groupId>org.sonarsource.scm.svn</groupId>
       <artifactId>sonar-scm-svn-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
