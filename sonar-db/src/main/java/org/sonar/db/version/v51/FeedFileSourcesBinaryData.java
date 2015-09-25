@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.Iterator;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -84,9 +85,9 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
             if (StringUtils.isNotEmpty(s)) {
               lineBuilder.setScmAuthor(s);
             }
-            s = row.get(2);
-            if (StringUtils.isNotEmpty(s)) {
-              lineBuilder.setScmDate(DateUtils.parseDateTimeQuietly(s).getTime());
+            Date scmDate = DateUtils.parseDateTimeQuietly(row.get(2));
+            if (scmDate != null) {
+              lineBuilder.setScmDate(scmDate.getTime());
             }
             s = row.get(3);
             if (StringUtils.isNotEmpty(s)) {
