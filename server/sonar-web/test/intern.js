@@ -21,18 +21,7 @@ define(['intern'], function (intern) {
       'test/unit/nav/component/component-nav-breadcrumbs.spec'
     ],
 
-    functionalSuites: [
-      'test/medium/users.spec',
-      'test/medium/issues.spec',
-      'test/medium/update-center.spec',
-      'test/medium/computation.spec',
-      'test/medium/coding-rules.spec',
-      'test/medium/custom-measures.spec',
-      'test/medium/quality-profiles.spec',
-      'test/medium/source-viewer.spec',
-      'test/medium/global-permissions.spec',
-      'test/medium/project-permissions.spec'
-    ],
+    functionalSuites: [],
 
     tunnel: tunnel,
     environments: [
