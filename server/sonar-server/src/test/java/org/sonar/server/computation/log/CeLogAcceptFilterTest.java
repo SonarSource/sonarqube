@@ -21,33 +21,32 @@ package org.sonar.server.computation.log;
 
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
-import org.slf4j.MDC;
+import org.apache.log4j.MDC;
+import org.junit.After;
+import org.junit.Test;
 
-/**
- * Filters the Compute Engine logs.
- */
-public class CeLogFilter<E> extends Filter<E> {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final boolean isComputeEngine;
+public class CeLogAcceptFilterTest {
 
-  public CeLogFilter(boolean isComputeEngine) {
-    this.isComputeEngine = isComputeEngine;
+  private static final Object UNUSED = "";
+
+  Filter underTest = new CeLogAcceptFilter();
+
+  @After
+  public void tearDown() {
+    MDC.clear();
   }
 
-  @Override
-  public FilterReply decide(E o) {
-    return MDC.get(CeFileAppenderFactory.MDC_LOG_PATH) != null ? acceptIfCe() : denyIfCe();
+  @Test
+  public void reject_non_ce_logs() {
+    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.DENY);
   }
 
-  private FilterReply acceptIfCe() {
-    return isComputeEngine ? FilterReply.ACCEPT : FilterReply.DENY;
+  @Test
+  public void accept_ce_logs() {
+    MDC.put(CeLogging.MDC_LOG_PATH, "abc.log");
+    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.ACCEPT);
   }
 
-  private FilterReply denyIfCe() {
-    return isComputeEngine ? FilterReply.DENY : FilterReply.ACCEPT;
-  }
-
-  public boolean isComputeEngine() {
-    return isComputeEngine;
-  }
 }

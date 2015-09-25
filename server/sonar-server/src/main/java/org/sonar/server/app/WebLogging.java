@@ -29,8 +29,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.api.utils.MessageException;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
-import org.sonar.server.computation.log.CeFileAppenderFactory;
-import org.sonar.server.computation.log.CeLogFilter;
+import org.sonar.server.computation.log.CeLogDenyFilter;
+import org.sonar.server.computation.log.CeLogging;
 
 /**
  * Configure logback for web server process. Logs must be written to console, which is
@@ -58,9 +58,9 @@ class WebLogging {
   }
 
   private void configureAppender(LoggerContext ctx, Props props) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT, new CeLogFilter(false));
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT, new CeLogDenyFilter<ILoggingEvent>());
     ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
-    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeFileAppenderFactory.createConfiguration(ctx, props));
+    ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeLogging.createAppenderConfiguration(ctx, props));
 
   }
 

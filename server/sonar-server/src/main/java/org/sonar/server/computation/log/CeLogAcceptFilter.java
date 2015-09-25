@@ -19,28 +19,18 @@
  */
 package org.sonar.server.computation.log;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.core.FileAppender;
-import java.io.File;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
+import org.slf4j.MDC;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Keeps only the Compute Engine logs.
+ */
+public class CeLogAcceptFilter<E> extends Filter<E> {
 
-public class CeFileAppenderFactoryTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Test
-  public void buildAppender() throws Exception {
-    File logsDir = temp.newFolder();
-    CeFileAppenderFactory factory = new CeFileAppenderFactory(logsDir);
-
-    FileAppender underTest = factory.buildAppender(new LoggerContext(), "uuid_1.log");
-
-    assertThat(new File(underTest.getFile())).isEqualTo(new File(logsDir, "uuid_1.log"));
-
+  @Override
+  public FilterReply decide(E o) {
+    return MDC.get(CeLogging.MDC_LOG_PATH) == null ? FilterReply.DENY : FilterReply.ACCEPT;
   }
+
 }

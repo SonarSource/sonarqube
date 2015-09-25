@@ -29,12 +29,14 @@ import static java.lang.String.format;
 
 public class LogFileRef {
 
+  private final String taskType;
   private final String taskUuid;
 
   @CheckForNull
   private final String componentUuid;
 
-  public LogFileRef(String taskUuid, @Nullable String componentUuid) {
+  public LogFileRef(String taskType, String taskUuid, @Nullable String componentUuid) {
+    this.taskType = taskType;
     this.taskUuid = taskUuid;
     this.componentUuid = componentUuid;
   }
@@ -44,9 +46,9 @@ public class LogFileRef {
    */
   public String getRelativePath() {
     if (componentUuid == null) {
-      return format("%s.log", taskUuid);
+      return format("%s/%s.log", taskType, taskUuid);
     }
-    return format("%s/%s.log", componentUuid, taskUuid);
+    return format("%s/%s/%s.log", taskType, componentUuid, taskUuid);
   }
 
   @Override
@@ -58,7 +60,9 @@ public class LogFileRef {
       return false;
     }
     LogFileRef that = (LogFileRef) o;
-
+    if (!taskType.equals(that.taskType)) {
+      return false;
+    }
     if (!taskUuid.equals(that.taskUuid)) {
       return false;
     }
@@ -68,20 +72,21 @@ public class LogFileRef {
 
   @Override
   public int hashCode() {
-    int result = taskUuid.hashCode();
+    int result = taskType.hashCode();
+    result = 31 * result + taskUuid.hashCode();
     result = 31 * result + (componentUuid != null ? componentUuid.hashCode() : 0);
     return result;
   }
 
   public static LogFileRef from(CeActivityDto dto) {
-    return new LogFileRef(dto.getUuid(), dto.getComponentUuid());
+    return new LogFileRef(dto.getTaskType(), dto.getUuid(), dto.getComponentUuid());
   }
 
   public static LogFileRef from(CeQueueDto dto) {
-    return new LogFileRef(dto.getUuid(), dto.getComponentUuid());
+    return new LogFileRef(dto.getTaskType(), dto.getUuid(), dto.getComponentUuid());
   }
 
   public static LogFileRef from(CeTask task) {
-    return new LogFileRef(task.getUuid(), task.getComponentUuid());
+    return new LogFileRef(task.getType(), task.getUuid(), task.getComponentUuid());
   }
 }

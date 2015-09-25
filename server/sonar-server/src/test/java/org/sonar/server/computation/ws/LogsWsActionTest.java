@@ -71,7 +71,7 @@ public class LogsWsActionTest {
     insert("TASK_1", null);
     File logFile = temp.newFile();
     FileUtils.write(logFile, "{logs}");
-    when(ceLogging.getFile(new LogFileRef("TASK_1", null))).thenReturn(Optional.of(logFile));
+    when(ceLogging.getFile(new LogFileRef(CeTaskTypes.REPORT, "TASK_1", null))).thenReturn(Optional.of(logFile));
 
     TestResponse response = tester.newRequest()
       .setParam("taskId", "TASK_1")
@@ -81,10 +81,27 @@ public class LogsWsActionTest {
     assertThat(response.getInput()).isEqualTo("{logs}");
   }
 
+  /**
+   * The parameter taskId is present but empty. It's considered as
+   * a valid task which does not exist
+   */
+  @Test(expected = NotFoundException.class)
+  public void return_404_if_task_id_is_empty() throws IOException {
+    tester.newRequest()
+      .setParam("taskId", "")
+      .execute();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void bad_request_if_task_id_is_missing() throws IOException {
+    tester.newRequest()
+      .execute();
+  }
+
   @Test(expected = NotFoundException.class)
   public void return_404_if_task_logs_are_not_available() throws IOException {
     insert("TASK_1", null);
-    when(ceLogging.getFile(new LogFileRef("TASK_1", null))).thenReturn(Optional.<File>absent());
+    when(ceLogging.getFile(new LogFileRef(CeTaskTypes.REPORT, "TASK_1", null))).thenReturn(Optional.<File>absent());
 
     tester.newRequest()
       .setParam("taskId", "TASK_1")

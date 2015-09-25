@@ -57,7 +57,7 @@ public class CeWorkerImpl implements CeWorker {
       return;
     }
 
-    ceLogging.initTask(task);
+    ceLogging.initForTask(task);
     Profiler profiler = Profiler.create(LOG).startInfo(format("Analysis of project %s (report %s)", task.getComponentKey(), task.getUuid()));
     try {
       // TODO delegate the message to the related task processor, according to task type
@@ -68,7 +68,7 @@ public class CeWorkerImpl implements CeWorker {
       queue.remove(task, CeActivityDto.Status.FAILED);
     } finally {
       profiler.stopInfo();
-      ceLogging.clearTask(task);
+      ceLogging.clearForTask();
     }
   }
 }

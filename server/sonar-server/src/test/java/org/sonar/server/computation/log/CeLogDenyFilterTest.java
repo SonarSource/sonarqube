@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.log;
 
+import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import org.apache.log4j.MDC;
 import org.junit.After;
@@ -26,34 +27,26 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeLogFilterTest {
+public class CeLogDenyFilterTest {
 
   private static final Object UNUSED = "";
 
+  Filter underTest = new CeLogDenyFilter();
+
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     MDC.clear();
   }
 
   @Test
-  public void filter_logs_in_ce() throws Exception {
-    CeLogFilter underTest = new CeLogFilter(true);
-
-    assertThat(underTest.isComputeEngine()).isTrue();
-    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.DENY);
-
-    MDC.put(CeFileAppenderFactory.MDC_LOG_PATH, "abc.log");
+  public void accept_non_ce_logs() {
     assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.ACCEPT);
   }
 
   @Test
-  public void filter_logs_outside_ce() throws Exception {
-    CeLogFilter underTest = new CeLogFilter(false);
-
-    assertThat(underTest.isComputeEngine()).isFalse();
-    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.ACCEPT);
-
-    MDC.put(CeFileAppenderFactory.MDC_LOG_PATH, "abc.log");
+  public void deny_ce_logs() {
+    MDC.put(CeLogging.MDC_LOG_PATH, "abc.log");
     assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.DENY);
   }
+
 }

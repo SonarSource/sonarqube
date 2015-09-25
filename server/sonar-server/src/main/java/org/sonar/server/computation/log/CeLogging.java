@@ -19,6 +19,11 @@
  */
 package org.sonar.server.computation.log;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.sift.MDCBasedDiscriminator;
+import ch.qos.logback.classic.sift.SiftingAppender;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import java.io.File;
@@ -30,19 +35,33 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.log4j.MDC;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.Props;
 import org.sonar.server.computation.CeTask;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * Manages the logs written by Compute Engine:
+ * <ul>
+ *   <li>access to existing logs</li>
+ *   <li>configure logback when CE worker starts and stops processing a task</li>
+ * </ul>
+ */
 public class CeLogging {
+
+  public static final int MAX_FILES_PER_DIR = 10;
+
+  @VisibleForTesting
+  static final String MDC_LOG_PATH = "ceLogPath";
 
   private final File logsDir;
 
   public CeLogging(Settings settings) {
     String dataDir = settings.getString(ProcessProperties.PATH_DATA);
     checkArgument(dataDir != null, "Property %s is not set", ProcessProperties.PATH_DATA);
-    this.logsDir = CeFileAppenderFactory.logsDirFromDataDir(new File(dataDir));
+    this.logsDir = logsDirFromDataDir(new File(dataDir));
   }
 
   @VisibleForTesting
@@ -50,6 +69,10 @@ public class CeLogging {
     this.logsDir = logsDir;
   }
 
+  /**
+   * Gets the log file of a given task. It may not exist if it
+   * was purged or if the task does not exist.
+   */
   public Optional<File> getFile(LogFileRef ref) {
     File logFile = new File(logsDir, ref.getRelativePath());
     if (logFile.exists()) {
@@ -62,33 +85,74 @@ public class CeLogging {
    * Initialize logging of a Compute Engine task. Must be called
    * before first writing of log.
    */
-  public void initTask(CeTask task) {
+  public void initForTask(CeTask task) {
     LogFileRef ref = LogFileRef.from(task);
-    MDC.put(CeFileAppenderFactory.MDC_LOG_PATH, ref.getRelativePath());
+    // Logback SiftingAppender requires to use a String, so
+    // the path is put but not the object LogFileRef
+    MDC.put(MDC_LOG_PATH, ref.getRelativePath());
   }
 
   /**
    * Clean-up the logging of a task. Must be called after the last writing
    * of log.
    */
-  public void clearTask(CeTask task) {
-    MDC.clear();
+  public void clearForTask() {
+    String relativePath = (String) MDC.get(MDC_LOG_PATH);
+    MDC.remove(MDC_LOG_PATH);
 
-    LogFileRef ref = LogFileRef.from(task);
-    deleteSiblings(ref);
+    if (relativePath != null) {
+      purgeDir(new File(logsDir, relativePath).getParentFile());
+    }
   }
 
   @VisibleForTesting
-  void deleteSiblings(LogFileRef ref) {
-    File parentDir = new File(logsDir, ref.getRelativePath()).getParentFile();
-    List<File> logFiles = newArrayList(FileUtils.listFiles(parentDir, FileFilterUtils.fileFileFilter(), FileFilterUtils.falseFileFilter()));
-
-    if (logFiles.size() > 10) {
-      Collections.sort(logFiles, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
-      logFiles = logFiles.subList(0, logFiles.size() - 10);
-      for (File logFile : logFiles) {
-        logFile.delete();
+  void purgeDir(File dir) {
+    if (dir.exists()) {
+      List<File> logFiles = newArrayList(FileUtils.listFiles(dir, FileFilterUtils.fileFileFilter(), FileFilterUtils.falseFileFilter()));
+      if (logFiles.size() > MAX_FILES_PER_DIR) {
+        Collections.sort(logFiles, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
+        for (File logFile : from(logFiles).limit(logFiles.size() - MAX_FILES_PER_DIR)) {
+          logFile.delete();
+        }
       }
     }
+  }
+
+  /**
+   * Directory which contains all the compute engine logs.
+   * Log files must be persistent among server restarts and upgrades, so they are
+   * stored into directory data/ but not into directories logs/ or temp/.
+   * @return the non-null directory. It may not exist at startup.
+   */
+  static File logsDirFromDataDir(File dataDir) {
+    return new File(dataDir, "ce/logs");
+  }
+
+  /**
+   * Create Logback configuration for enabling sift appender.
+   * A new log file is created for each task. It is based on MDC as long
+   * as Compute Engine is not executed in its
+   * own process but in the same process as web server.
+   */
+  public static Appender<ILoggingEvent> createAppenderConfiguration(LoggerContext ctx, Props processProps) {
+    File dataDir = new File(processProps.nonNullValue(ProcessProperties.PATH_DATA));
+    File logsDir = logsDirFromDataDir(dataDir);
+    return createAppenderConfiguration(ctx, logsDir);
+  }
+
+  static SiftingAppender createAppenderConfiguration(LoggerContext ctx, File logsDir) {
+    SiftingAppender siftingAppender = new SiftingAppender();
+    siftingAppender.addFilter(new CeLogAcceptFilter<ILoggingEvent>());
+    MDCBasedDiscriminator mdcDiscriminator = new MDCBasedDiscriminator();
+    mdcDiscriminator.setContext(ctx);
+    mdcDiscriminator.setKey(MDC_LOG_PATH);
+    mdcDiscriminator.setDefaultValue("error");
+    mdcDiscriminator.start();
+    siftingAppender.setContext(ctx);
+    siftingAppender.setDiscriminator(mdcDiscriminator);
+    siftingAppender.setAppenderFactory(new CeFileAppenderFactory(logsDir));
+    siftingAppender.setName("ce");
+    siftingAppender.start();
+    return siftingAppender;
   }
 }

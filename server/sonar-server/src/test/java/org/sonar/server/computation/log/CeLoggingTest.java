@@ -19,16 +19,20 @@
  */
 package org.sonar.server.computation.log;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.sift.SiftingAppender;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.filter.Filter;
 import com.google.common.base.Optional;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.MDC;
 import org.sonar.api.config.Settings;
-import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.computation.CeTask;
 
@@ -47,7 +51,7 @@ public class CeLoggingTest {
     settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
 
     CeLogging underTest = new CeLogging(settings);
-    LogFileRef ref = new LogFileRef("TASK1", "COMPONENT1");
+    LogFileRef ref = new LogFileRef("TYPE1", "TASK1", "COMPONENT1");
 
     // file does not exist
     Optional<File> file = underTest.getFile(ref);
@@ -69,11 +73,11 @@ public class CeLoggingTest {
   public void use_MDC_to_store_path_to_in_progress_task_logs() throws IOException {
     CeLogging underTest = new CeLogging(temp.newFolder());
 
-    CeTask task = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid("U1").build();
-    underTest.initTask(task);
-    assertThat(MDC.get(CeFileAppenderFactory.MDC_LOG_PATH)).isEqualTo("U1.log");
-    underTest.clearTask(task);
-    assertThat(MDC.get(CeFileAppenderFactory.MDC_LOG_PATH)).isNull();
+    CeTask task = new CeTask.Builder().setType("TYPE1").setUuid("U1").build();
+    underTest.initForTask(task);
+    assertThat(MDC.get(CeLogging.MDC_LOG_PATH)).isNotEmpty().isEqualTo(LogFileRef.from(task).getRelativePath());
+    underTest.clearForTask();
+    assertThat(MDC.get(CeLogging.MDC_LOG_PATH)).isNull();
   }
 
   @Test
@@ -88,9 +92,8 @@ public class CeLoggingTest {
     }
     assertThat(dir.listFiles()).hasSize(14);
 
-    CeTask task = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid("U14").build();
     CeLogging underTest = new CeLogging(dir);
-    underTest.clearTask(task);
+    underTest.purgeDir(dir);
 
     assertThat(dir.listFiles()).hasSize(10);
     assertThat(dir.listFiles()).extracting("name")
@@ -102,10 +105,23 @@ public class CeLoggingTest {
     File dir = temp.newFolder();
     FileUtils.touch(new File(dir, "U1.log"));
 
-    CeTask task = new CeTask.Builder().setType(CeTaskTypes.REPORT).setUuid("U11").build();
     CeLogging underTest = new CeLogging(dir);
-    underTest.clearTask(task);
+    underTest.purgeDir(dir);
 
     assertThat(dir.listFiles()).extracting("name").containsOnly("U1.log");
   }
+
+  @Test
+  public void createConfiguration() throws Exception {
+    File logsDir = temp.newFolder();
+    SiftingAppender siftingAppender = CeLogging.createAppenderConfiguration(new LoggerContext(), logsDir);
+
+    // filter on CE logs
+    List<Filter<ILoggingEvent>> filters = siftingAppender.getCopyOfAttachedFiltersList();
+    assertThat(filters).hasSize(1);
+    assertThat(filters.get(0)).isInstanceOf(CeLogAcceptFilter.class);
+
+    assertThat(siftingAppender.getDiscriminator().getKey()).isEqualTo(CeLogging.MDC_LOG_PATH);
+  }
+
 }
