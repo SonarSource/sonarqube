@@ -366,21 +366,21 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> CLASS_COMPLEXITY_DISTRIBUTION = new Metric.Builder(CLASS_COMPLEXITY_DISTRIBUTION_KEY, "Classes distribution /complexity",
     Metric.ValueType.DISTRIB)
-    .setDescription("Classes distribution /complexity")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(true)
-    .setDomain(DOMAIN_COMPLEXITY)
-    .setHidden(true)
-    .create();
+      .setDescription("Classes distribution /complexity")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .setHidden(true)
+      .create();
 
   public static final String FUNCTION_COMPLEXITY_DISTRIBUTION_KEY = "function_complexity_distribution";
   public static final Metric<String> FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Functions distribution /complexity",
     Metric.ValueType.DISTRIB)
-    .setDescription("Functions distribution /complexity")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(true)
-    .setDomain(DOMAIN_COMPLEXITY)
-    .create();
+      .setDescription("Functions distribution /complexity")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .create();
 
   public static final String FILE_COMPLEXITY_DISTRIBUTION_KEY = "file_complexity_distribution";
   public static final Metric<String> FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files distribution /complexity", Metric.ValueType.DISTRIB)
@@ -887,12 +887,12 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> NEW_IT_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_IT_UNCOVERED_CONDITIONS_KEY, "Uncovered branches by IT on new code",
     Metric.ValueType.INT)
-    .setDescription("Uncovered branches by Integration Tests on new code")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_INTEGRATION_TESTS)
-    .setBestValue(0.0)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Uncovered branches by Integration Tests on new code")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_INTEGRATION_TESTS)
+      .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 2.12
@@ -1114,12 +1114,12 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> OVERALL_COVERAGE_LINE_HITS_DATA = new Metric.Builder(OVERALL_COVERAGE_LINE_HITS_DATA_KEY, "Overall coverage hits by line",
     Metric.ValueType.DATA)
-    .setDescription("Coverage hits by all tests and by line")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(false)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Coverage hits by all tests and by line")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(false)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1147,11 +1147,11 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> NEW_OVERALL_CONDITIONS_TO_COVER = new Metric.Builder(NEW_OVERALL_CONDITIONS_TO_COVER_KEY, "Overall branches to cover on new code",
     Metric.ValueType.INT)
-    .setDescription("New branches to cover by all tests")
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setDeleteHistoricalData(true)
-    .setHidden(true)
-    .create();
+      .setDescription("New branches to cover by all tests")
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setDeleteHistoricalData(true)
+      .setHidden(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1177,12 +1177,12 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> NEW_OVERALL_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_OVERALL_UNCOVERED_CONDITIONS_KEY, "Overall uncovered branches on new code",
     Metric.ValueType.INT)
-    .setDescription("New branches that are not covered by any test")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setBestValue(0.0)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("New branches that are not covered by any test")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setBestValue(0.0)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1211,14 +1211,14 @@ public final class CoreMetrics {
    */
   public static final Metric<Double> NEW_OVERALL_BRANCH_COVERAGE = new Metric.Builder(NEW_OVERALL_BRANCH_COVERAGE_KEY, "Overall condition coverage on new code",
     Metric.ValueType.PERCENT)
-    .setDescription("Condition coverage of new/changed code by all tests")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setWorstValue(0.0)
-    .setBestValue(100.0)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Condition coverage of new/changed code by all tests")
+      .setDirection(Metric.DIRECTION_BETTER)
+      .setQualitative(true)
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setWorstValue(0.0)
+      .setBestValue(100.0)
+      .setDeleteHistoricalData(true)
+      .create();
 
   /**
    * @since 3.3
@@ -1252,10 +1252,10 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> OVERALL_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, "Overall covered branches by line",
     Metric.ValueType.DATA)
-    .setDescription("Overall covered branches by all tests and by line")
-    .setDomain(DOMAIN_OVERALL_TESTS)
-    .setDeleteHistoricalData(true)
-    .create();
+      .setDescription("Overall covered branches by all tests and by line")
+      .setDomain(DOMAIN_OVERALL_TESTS)
+      .setDeleteHistoricalData(true)
+      .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //
@@ -2004,8 +2004,8 @@ public final class CoreMetrics {
   @Deprecated
   public static final transient Metric<String> SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last commit dates by line",
     Metric.ValueType.DATA)
-    .setDomain(DOMAIN_SCM)
-    .create();
+      .setDomain(DOMAIN_SCM)
+      .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //
@@ -2106,13 +2106,13 @@ public final class CoreMetrics {
    * @since 5.2
    */
   public static final Metric<Double> NEW_SQALE_DEBT_RATIO = new Metric.Builder(NEW_SQALE_DEBT_RATIO_KEY, "Technical Debt Ratio on new code", Metric.ValueType.PERCENT)
-      .setDescription("Technical Debt Ratio of new/changed code.")
-      .setDomain(DOMAIN_TECHNICAL_DEBT)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setOptimizedBestValue(true)
-      .setBestValue(0.0)
-      .setQualitative(true)
-      .create();
+    .setDescription("Technical Debt Ratio of new/changed code.")
+    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //
@@ -2231,18 +2231,6 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setDomain(DOMAIN_GENERAL)
     .setHidden(true)
-    .create();
-
-  /**
-   * @since 5.2 – was computed in the dev cockpit plugin previously
-   */
-  public static final String DAYS_SINCE_LAST_COMMIT_KEY = "days_since_last_commit";
-
-  /**
-   * @since 5.2 – was computed in the dev cockpit plugin previously
-   */
-  public static final Metric<Integer> DAYS_SINCE_LAST_COMMIT = new Metric.Builder(DAYS_SINCE_LAST_COMMIT_KEY, "Days since last commit", Metric.ValueType.INT)
-    .setDomain(CoreMetrics.DOMAIN_SCM)
     .create();
 
   /**
