@@ -20,6 +20,9 @@
 package org.sonar.batch.report;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,6 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.platform.PluginInfo;
@@ -39,16 +43,24 @@ import static org.mockito.Mockito.when;
 
 public class AnalysisContextReportPublisherTest {
 
+  private static final String BIZ = "BIZ";
+  private static final String FOO = "FOO";
+  private static final String SONAR_SKIP = "sonar.skip";
+  private static final String COM_FOO = "com.foo";
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   private BatchPluginRepository pluginRepo = mock(BatchPluginRepository.class);
   private AnalysisContextReportPublisher publisher;
   private AnalysisMode analysisMode = mock(AnalysisMode.class);
+  private System2 system2;
 
   @Before
   public void prepare() throws Exception {
-    publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo);
+    system2 = mock(System2.class);
+    when(system2.properties()).thenReturn(new Properties());
+    publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo, system2);
   }
 
   @Test
@@ -76,23 +88,52 @@ public class AnalysisContextReportPublisherTest {
   @Test
   public void shouldNotDumpSQPropsInSystemProps() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(temp.newFolder());
-    System.setProperty("com.foo", "bar");
-    System.setProperty("sonar.skip", "true");
+    Properties props = new Properties();
+    props.setProperty(COM_FOO, "bar");
+    props.setProperty(SONAR_SKIP, "true");
+    when(system2.properties()).thenReturn(props);
     publisher.init(writer);
 
     String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
-    assertThat(content).containsOnlyOnce("com.foo");
-    assertThat(content).doesNotContain("sonar.skip");
+    assertThat(content).containsOnlyOnce(COM_FOO);
+    assertThat(content).doesNotContain(SONAR_SKIP);
 
     Settings settings = new Settings();
-    settings.setProperty("com.foo", "bar");
-    settings.setProperty("sonar.skip", "true");
+    settings.setProperty(COM_FOO, "bar");
+    settings.setProperty(SONAR_SKIP, "true");
 
     publisher.dumpSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"), settings);
 
     content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
-    assertThat(content).containsOnlyOnce("com.foo");
-    assertThat(content).containsOnlyOnce("sonar.skip");
+    assertThat(content).containsOnlyOnce(COM_FOO);
+    assertThat(content).containsOnlyOnce(SONAR_SKIP);
+  }
+
+  @Test
+  public void shouldNotDumpEnvTwice() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(temp.newFolder());
+
+    Map<String, String> env = new HashMap<>();
+    env.put(FOO, "BAR");
+    env.put(BIZ, "BAZ");
+    when(system2.envVariables()).thenReturn(env);
+    publisher.init(writer);
+
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    assertThat(content).containsOnlyOnce(FOO);
+    assertThat(content).containsOnlyOnce(BIZ);
+
+    Settings settings = new Settings();
+    settings.setProperty("env." + FOO, "BAR");
+    settings.setProperty("env.another", "world");
+
+    publisher.dumpSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"), settings);
+
+    content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    assertThat(content).containsOnlyOnce("env.another");
+    assertThat(content).containsOnlyOnce(FOO);
+    assertThat(content).containsOnlyOnce(BIZ);
+    assertThat(content).doesNotContain("env." + FOO);
   }
 
   @Test

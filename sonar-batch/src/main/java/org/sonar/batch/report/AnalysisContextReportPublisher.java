@@ -30,6 +30,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.platform.PluginInfo;
@@ -37,15 +38,18 @@ import org.sonar.core.platform.PluginInfo;
 @BatchSide
 public class AnalysisContextReportPublisher {
 
+  private static final String ENV_PROP_PREFIX = "env.";
   private static final String SONAR_PROP_PREFIX = "sonar.";
   private final BatchPluginRepository pluginRepo;
   private final AnalysisMode mode;
+  private final System2 system;
 
   private BatchReportWriter writer;
 
-  public AnalysisContextReportPublisher(AnalysisMode mode, BatchPluginRepository pluginRepo) {
+  public AnalysisContextReportPublisher(AnalysisMode mode, BatchPluginRepository pluginRepo, System2 system) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;
+    this.system = system;
   }
 
   public void init(BatchReportWriter writer) {
@@ -72,7 +76,7 @@ public class AnalysisContextReportPublisher {
 
   private void writeSystemProps(BufferedWriter fileWriter) throws IOException {
     fileWriter.write("System properties:\n");
-    for (Map.Entry<Object, Object> env : System.getProperties().entrySet()) {
+    for (Map.Entry<Object, Object> env : system.properties().entrySet()) {
       if (env.getKey().toString().startsWith(SONAR_PROP_PREFIX)) {
         continue;
       }
@@ -80,9 +84,9 @@ public class AnalysisContextReportPublisher {
     }
   }
 
-  private static void writeEnvVariables(BufferedWriter fileWriter) throws IOException {
+  private void writeEnvVariables(BufferedWriter fileWriter) throws IOException {
     fileWriter.append("Environment variables:\n");
-    for (Map.Entry<String, String> env : System.getenv().entrySet()) {
+    for (Map.Entry<String, String> env : system.envVariables().entrySet()) {
       fileWriter.append(String.format("  - %s=%s", env.getKey(), env.getValue())).append('\n');
     }
   }
@@ -95,7 +99,7 @@ public class AnalysisContextReportPublisher {
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
       fileWriter.append(String.format("Settings for module: %s", moduleDefinition.getKey())).append('\n');
       for (Map.Entry<String, String> prop : settings.getProperties().entrySet()) {
-        if (System.getProperties().containsKey(prop.getKey()) && !prop.getKey().startsWith(SONAR_PROP_PREFIX)) {
+        if (alreadyLoggedAsSystemProp(prop) || alreadyLoggedAsEnv(prop)) {
           continue;
         }
         fileWriter.append(String.format("  - %s=%s", prop.getKey(), sensitive(prop.getKey()) ? "******" : prop.getValue())).append('\n');
@@ -103,6 +107,14 @@ public class AnalysisContextReportPublisher {
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);
     }
+  }
+
+  private boolean alreadyLoggedAsSystemProp(Map.Entry<String, String> prop) {
+    return system.properties().containsKey(prop.getKey()) && !prop.getKey().startsWith(SONAR_PROP_PREFIX);
+  }
+
+  private boolean alreadyLoggedAsEnv(Map.Entry<String, String> prop) {
+    return prop.getKey().startsWith(ENV_PROP_PREFIX) && system.envVariables().containsKey(prop.getKey().substring(ENV_PROP_PREFIX.length()));
   }
 
   private static boolean sensitive(String key) {
