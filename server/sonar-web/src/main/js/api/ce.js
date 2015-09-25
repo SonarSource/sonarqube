@@ -19,3 +19,8 @@ export function cancelTask (id) {
   let url = baseUrl + '/api/ce/cancel';
   return $.post(url, { id }).then(getTask.bind(null, id));
 }
+
+export function getTasksForComponent(componentId) {
+  let url = baseUrl + '/api/ce/project';
+  return $.get(url, { componentId });
+}
