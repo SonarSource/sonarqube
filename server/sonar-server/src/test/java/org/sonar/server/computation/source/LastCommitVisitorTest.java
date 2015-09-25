@@ -42,7 +42,6 @@ import org.sonar.server.computation.metric.MetricRepositoryRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.measures.CoreMetrics.DAYS_SINCE_LAST_COMMIT_KEY;
 import static org.sonar.api.measures.CoreMetrics.LAST_COMMIT_DATE_KEY;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
@@ -73,8 +72,7 @@ public class LastCommitVisitorTest {
 
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(CoreMetrics.LAST_COMMIT_DATE)
-    .add(CoreMetrics.DAYS_SINCE_LAST_COMMIT);
+    .add(CoreMetrics.LAST_COMMIT_DATE);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -138,17 +136,13 @@ public class LastCommitVisitorTest {
     underTest.visit(project);
 
     assertDate(DIR_1_REF, FILE_2_DATE);
-    assertDaysSinceLastCommit(DIR_1_REF, 6944 /* number of days between FILE_2_DATE and now */);
     assertDate(DIR_2_REF, FILE_3_DATE);
-    assertDaysSinceLastCommit(DIR_2_REF, 5787 /* number of days between FILE_3_DATE and now */);
 
     // module = most recent commit date of directories
     assertDate(MODULE_REF, FILE_3_DATE);
-    assertDaysSinceLastCommit(MODULE_REF, 5787 /* number of days between FILE_3_DATE and now */);
 
     // project
     assertDate(PROJECT_REF, FILE_3_DATE);
-    assertDaysSinceLastCommit(PROJECT_REF, 5787 /* number of days between FILE_3_DATE and now */);
   }
 
   @Test
@@ -191,17 +185,13 @@ public class LastCommitVisitorTest {
 
     // second level of sub-views
     assertDate(SUBVIEW_2_REF, PROJECT_2_DATE);
-    assertDaysSinceLastCommit(SUBVIEW_2_REF, 1157 /* nb of days between PROJECT_2_DATE and NOW */);
     assertDate(SUBVIEW_3_REF, PROJECT_3_DATE);
-    assertDaysSinceLastCommit(SUBVIEW_3_REF, 2314 /* nb of days between PROJECT_3_DATE and NOW */);
 
     // first level of sub-views
     assertDate(SUBVIEW_1_REF, PROJECT_2_DATE);
-    assertDaysSinceLastCommit(SUBVIEW_1_REF, 1157 /* nb of days between PROJECT_2_DATE and NOW */);
 
     // view
     assertDate(VIEW_REF, PROJECT_2_DATE);
-    assertDaysSinceLastCommit(VIEW_REF, 1157 /* nb of days between PROJECT_2_DATE and NOW */);
   }
 
   @Test
@@ -235,19 +225,12 @@ public class LastCommitVisitorTest {
     underTest.visit(file);
 
     assertDate(FILE_1_REF, 1_600_000_000_000L);
-    assertDaysSinceLastCommit(FILE_1_REF, 2314);
   }
 
   private void assertDate(int componentRef, long expectedDate) {
     Optional<Measure> measure = measureRepository.getAddedRawMeasure(componentRef, LAST_COMMIT_DATE_KEY);
     assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getLongValue()).isEqualTo(expectedDate);
-  }
-
-  private void assertDaysSinceLastCommit(int componentRef, int numberOfDays) {
-    Optional<Measure> measure = measureRepository.getAddedRawMeasure(componentRef, DAYS_SINCE_LAST_COMMIT_KEY);
-    assertThat(measure.isPresent()).isTrue();
-    assertThat(measure.get().getIntValue()).isEqualTo(numberOfDays);
   }
 
   /**
