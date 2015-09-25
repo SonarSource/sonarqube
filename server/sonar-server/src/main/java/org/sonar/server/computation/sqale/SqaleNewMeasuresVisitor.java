@@ -155,13 +155,17 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
       return;
     }
 
-    long lineDevCost = sqaleRatingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
     BatchReport.Changesets changesets = batchReportReader.readChangesets(file.getReportAttributes().getRef());
     if (changesets == null) {
       LOG.trace(String.format("No changeset for file %s. Dev cost will be zero.", file.getKey()));
       return;
     }
 
+    initNewDebtRatioCounter(path.current(), file.getFileAttributes().getLanguageKey(), nclocDataMeasure.get(), changesets);
+  }
+
+  private void initNewDebtRatioCounter(NewDevelopmentCostCounter devCostCounter, String languageKey, Measure nclocDataMeasure, BatchReport.Changesets changesets) {
+    long lineDevCost = sqaleRatingSettings.getDevCost(languageKey);
     for (Integer nclocLineIndex : nclocLineIndexes(nclocDataMeasure)) {
       // lines are 0-based in changesetIndexByLine array
       int changesetIndex = changesets.getChangesetIndexByLine(nclocLineIndex - 1);
@@ -172,7 +176,7 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
 
       for (Period period : periodsHolder.getPeriods()) {
         if (isLineInPeriod(changeset.getDate(), period)) {
-          path.current().increment(period, lineDevCost);
+          devCostCounter.increment(period, lineDevCost);
         }
       }
     }
@@ -195,8 +199,8 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
    *
    * This method parses the value of the NCLOC_DATA measure and return the line numbers of lines which contain code.
    */
-  private static Iterable<Integer> nclocLineIndexes(Optional<Measure> nclocDataMeasure) {
-    Map<Integer, Integer> parsedNclocData = KeyValueFormat.parse(nclocDataMeasure.get().getData(), newIntegerConverter(), newIntegerConverter());
+  private static Iterable<Integer> nclocLineIndexes(Measure nclocDataMeasure) {
+    Map<Integer, Integer> parsedNclocData = KeyValueFormat.parse(nclocDataMeasure.getData(), newIntegerConverter(), newIntegerConverter());
     return from(parsedNclocData.entrySet())
       .filter(NclocEntryNclocLine.INSTANCE)
       .transform(MapEntryToKey.INSTANCE);
