@@ -21,6 +21,8 @@
 package org.sonar.db.permission;
 
 import java.util.Date;
+import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.Uuids;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -32,6 +34,13 @@ public class PermissionTemplateTesting {
       .setName(randomAlphanumeric(60))
       .setDescription(randomAscii(500))
       .setUuid(Uuids.create())
+      .setCreatedAt(new Date())
+      .setUpdatedAt(new Date());
+  }
+
+  public static PermissionTemplateUserDto newPermissionTemplateUserDto() {
+    return new PermissionTemplateUserDto()
+      .setPermission(ProjectPermissions.ALL.get(RandomUtils.nextInt(ProjectPermissions.ALL.size())))
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
   }

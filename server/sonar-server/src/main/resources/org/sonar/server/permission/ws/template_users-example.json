@@ -1,0 +1,22 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2
+  },
+  "users": [
+    {
+      "login": "admin",
+      "name": "Administrator",
+      "email": "admin@admin.com",
+      "selected": true
+    },
+    {
+      "login": "george.orwell",
+      "name": "George Orwell",
+      "email": "george.orwell@1984.net",
+      "selected": true
+    }
+  ]
+}
+

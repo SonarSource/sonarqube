@@ -307,6 +307,10 @@ public class PermissionTemplateDao implements Dao {
     session.commit();
   }
 
+  public void insertUserPermission(DbSession session, PermissionTemplateUserDto permissionTemplateUserDto) {
+    mapper(session).insertUserPermission(permissionTemplateUserDto);
+  }
+
   /**
    * @deprecated since 5.2 {@link #deleteUserPermission(DbSession, Long, Long, String)}
    */

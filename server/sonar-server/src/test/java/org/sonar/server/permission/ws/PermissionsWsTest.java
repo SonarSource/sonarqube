@@ -24,33 +24,36 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class PermissionsWsTest {
 
-  WsTester tester;
+  WsTester ws;
 
   @Before
   public void setUp() {
-    tester = new WsTester(new PermissionsWs());
+    ws = new WsTester(new PermissionsWs(
+      new TemplateUsersAction(mock(DbClient.class), mock(UserSession.class), mock(PermissionDependenciesFinder.class))
+      ));
   }
 
   @Test
   public void define_controller() {
-    WebService.Controller controller = tester.controller("api/permissions");
+    WebService.Controller controller = controller();
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.7");
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
   }
 
   @Test
   public void define_add_action() {
-    WebService.Controller controller = tester.controller("api/permissions");
-
-    WebService.Action action = controller.action("add");
+    WebService.Action action = controller().action("add");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.INSTANCE.getClass());
     assertThat(action.params()).hasSize(5);
@@ -62,11 +65,24 @@ public class PermissionsWsTest {
 
   @Test
   public void define_remove_action() {
-    WebService.Controller controller = tester.controller("api/permissions");
-
-    WebService.Action action = controller.action("remove");
+    WebService.Action action = controller().action("remove");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.INSTANCE.getClass());
     assertThat(action.params()).hasSize(5);
+  }
+
+  @Test
+  public void define_template_users() {
+    WebService.Action action = controller().action("template_users");
+
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.since()).isEqualTo("5.2");
+    assertThat(action.param(WsPermissionParameters.PARAM_PERMISSION).isRequired()).isTrue();
+  }
+
+  private WebService.Controller controller() {
+    return ws.controller("api/permissions");
   }
 }

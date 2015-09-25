@@ -67,7 +67,7 @@
   </delete>
 
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
-    SELECT u.login as login, u.name as name, ptu.permission_reference as permission
+    SELECT u.login as login, u.name as name, u.email, ptu.permission_reference as permission
     <include refid="usersSelection"/>
     ORDER BY u.name
   </select>

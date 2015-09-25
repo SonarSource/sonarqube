@@ -45,9 +45,10 @@ public class PermissionRequestValidator {
     // static methods only
   }
 
-  public static void validateProjectPermission(String permission) {
+  public static String validateProjectPermission(String permission) {
     checkRequest(ProjectPermissions.ALL.contains(permission),
       format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, ProjectPermissions.ALL_ON_ONE_LINE, permission));
+    return permission;
   }
 
   public static void validateGlobalPermission(String permission) {

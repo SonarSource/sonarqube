@@ -23,9 +23,7 @@ package sonarqube.ws.permissions;
 import "ws-commons.proto";
 
 option java_package = "org.sonarqube.ws";
-
 option java_outer_classname = "WsPermissions";
-
 option optimize_for = SPEED;
 
 // WS api/permissions/users for internal use only
@@ -54,6 +52,20 @@ message WsGroupsResponse {
 
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated Group groups = 2;
+}
+
+// WS api/permissions/template_users for internal use only
+message WsTemplateUsersResponse {
+
+  message User {
+    optional string login = 1;
+    optional string name = 2;
+    optional string email = 3;
+    optional bool selected = 4;
+  }
+
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
 }
 
 message Permission {
