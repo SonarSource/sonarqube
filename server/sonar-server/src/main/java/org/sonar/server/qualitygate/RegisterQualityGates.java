@@ -57,15 +57,10 @@ public class RegisterQualityGates implements Startable {
 
   private void createBuiltinQualityGate() {
     QualityGateDto builtin = qualityGates.create(BUILTIN_QUALITY_GATE);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.BLOCKER_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", null);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.CRITICAL_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", 3);
+    qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", 3);
+    qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", 3);
     qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "5", 3);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.TEST_ERRORS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", null);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.TEST_FAILURES_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", null);
     qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_COVERAGE_KEY, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "80", 3);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.OPEN_ISSUES_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, "0", null, null);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.REOPENED_ISSUES_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, "0", null, null);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.SKIPPED_TESTS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, "0", null, null);
   }
 
   private void registerBuiltinQualityGate() {
