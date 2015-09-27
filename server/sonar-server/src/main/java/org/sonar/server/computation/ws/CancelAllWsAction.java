@@ -23,42 +23,32 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.Uuids;
 import org.sonar.server.computation.CeQueue;
 import org.sonar.server.user.UserSession;
 
-public class CancelWsAction implements CeWsAction {
-
-  public static final String PARAM_TASK_ID = "id";
+public class CancelAllWsAction implements CeWsAction {
 
   private final UserSession userSession;
   private final CeQueue queue;
 
-  public CancelWsAction(UserSession userSession, CeQueue queue) {
+  public CancelAllWsAction(UserSession userSession, CeQueue queue) {
     this.userSession = userSession;
     this.queue = queue;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("cancel")
-      .setDescription("Cancels a pending task. Requires system administration permission.")
+    controller.createAction("cancel_all")
+      .setDescription("Cancels all pending task. Requires system administration permission.")
       .setInternal(true)
       .setPost(true)
       .setHandler(this);
-
-    action
-      .createParam(PARAM_TASK_ID)
-      .setRequired(true)
-      .setDescription("Id of the task to cancel.")
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
     userSession.checkGlobalPermission(UserRole.ADMIN);
-    String taskId = wsRequest.mandatoryParam(PARAM_TASK_ID);
-    queue.cancel(taskId);
+    queue.cancelAll();
     wsResponse.noContent();
   }
 }
