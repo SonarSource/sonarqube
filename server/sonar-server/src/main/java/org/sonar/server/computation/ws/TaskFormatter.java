@@ -37,6 +37,10 @@ import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
 import org.sonarqube.ws.WsCe;
 
+/**
+ * Converts {@link CeActivityDto} and {@link CeQueueDto} to the protobuf objects
+ * used to write WS responses (see ws-ce.proto in module sonar-ws)
+ */
 public class TaskFormatter {
 
   private final DbClient dbClient;
