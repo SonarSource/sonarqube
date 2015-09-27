@@ -275,7 +275,7 @@ public class IssueUpdater {
     Set<String> newTags = Sets.newHashSet(Collections2.transform(
       Collections2.filter(tags, new Predicate<String>() {
         @Override
-        public boolean apply(String tag) {
+        public boolean apply(@Nullable String tag) {
           return tag != null && !tag.isEmpty();
         }
       }), new Function<String, String>() {

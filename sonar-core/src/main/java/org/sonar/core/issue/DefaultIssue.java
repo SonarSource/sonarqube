@@ -134,8 +134,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return componentUuid;
   }
 
-  public DefaultIssue setComponentUuid(@CheckForNull String componentUuid) {
-    this.componentUuid = componentUuid;
+  public DefaultIssue setComponentUuid(@Nullable String s) {
+    this.componentUuid = s;
     return this;
   }
 

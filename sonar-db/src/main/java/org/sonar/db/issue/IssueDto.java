@@ -37,12 +37,13 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.util.Uuids;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
@@ -273,6 +274,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setMessage(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 4000, "Value is too long for column ISSUES.MESSAGE: %s", s);
     this.message = s;
     return this;
   }
@@ -342,6 +344,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setReporter(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 255, "Value is too long for column ISSUES.REPORTER: %s", s);
     this.reporter = s;
     return this;
   }
@@ -352,6 +355,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setAssignee(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 255, "Value is too long for column ISSUES.ASSIGNEE: %s", s);
     this.assignee = s;
     return this;
   }
@@ -361,8 +365,9 @@ public final class IssueDto implements Serializable {
     return authorLogin;
   }
 
-  public IssueDto setAuthorLogin(@Nullable String authorLogin) {
-    this.authorLogin = authorLogin;
+  public IssueDto setAuthorLogin(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 255, "Value is too long for column ISSUES.AUTHOR_LOGIN: %s", s);
+    this.authorLogin = s;
     return this;
   }
 
@@ -372,8 +377,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setIssueAttributes(@Nullable String s) {
-    Preconditions.checkArgument(s == null || s.length() <= 4000,
-      "Issue attributes must not exceed 4000 characters: " + s);
+    checkArgument(s == null || s.length() <= 4000, "Value is too long for column ISSUES.ATTRIBUTES: %s", s);
     this.issueAttributes = s;
     return this;
   }
@@ -518,8 +522,9 @@ public final class IssueDto implements Serializable {
    * <p/>
    * Please use {@link #setComponent(ComponentDto)} instead
    */
-  public IssueDto setComponentUuid(@Nullable String componentUuid) {
-    this.componentUuid = componentUuid;
+  public IssueDto setComponentUuid(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 50, "Value is too long for column ISSUES.COMPONENT_UUID: %s", s);
+    this.componentUuid = s;
     return this;
   }
 
@@ -583,8 +588,9 @@ public final class IssueDto implements Serializable {
    * <p/>
    * Please use {@link #setProject(ComponentDto)} instead
    */
-  public IssueDto setProjectUuid(@Nullable String projectUuid) {
-    this.projectUuid = projectUuid;
+  public IssueDto setProjectUuid(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 50, "Value is too long for column ISSUES.PROJECT_UUID: %s", s);
+    this.projectUuid = s;
     return this;
   }
 
@@ -632,22 +638,23 @@ public final class IssueDto implements Serializable {
     return ImmutableSet.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags));
   }
 
-  public IssueDto setTags(Collection<String> tags) {
-    if (tags.isEmpty()) {
-      this.tags = null;
+  public IssueDto setTags(@Nullable Collection<String> tags) {
+    if (tags == null || tags.isEmpty()) {
+      setTagsString(null);
     } else {
-      this.tags = TAGS_JOINER.join(tags);
+      setTagsString(TAGS_JOINER.join(tags));
     }
+    return this;
+  }
+
+  public IssueDto setTagsString(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 4000, "Value is too long for column ISSUES.TAGS: %s", s);
+    this.tags = s;
     return this;
   }
 
   public String getTagsString() {
     return tags;
-  }
-
-  public IssueDto setTagsString(String tags) {
-    this.tags = tags;
-    return this;
   }
 
   @CheckForNull
