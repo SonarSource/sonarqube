@@ -146,10 +146,45 @@ public class CeActivityDaoTest {
   }
 
   @Test
+  public void select_and_count_by_date() throws Exception {
+    insertWithDates("UUID1", 1_450_000_000_000L, 1_470_000_000_000L);
+    insertWithDates("UUID2", 1_460_000_000_000L, 1_480_000_000_000L);
+
+    // search by min submitted date
+    CeActivityQuery query = new CeActivityQuery().setMinSubmittedAt(1_455_000_000_000L);
+    assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID2");
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
+
+    // search by max finished date
+    query = new CeActivityQuery().setMaxFinishedAt(1_475_000_000_000L);
+    assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID1");
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
+
+    // search by both dates
+    query = new CeActivityQuery()
+      .setMinSubmittedAt(1_400_000_000_000L)
+      .setMaxFinishedAt(1_475_000_000_000L);
+    assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID1");
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
+
+  }
+
+  private void insertWithDates(String uuid, long submittedAt, long finishedAt) {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setUuid(uuid);
+    queueDto.setTaskType("fake");
+    CeActivityDto dto = new CeActivityDto(queueDto);
+    dto.setStatus(CeActivityDto.Status.SUCCESS);
+    dto.setSubmittedAt(submittedAt);
+    dto.setFinishedAt(finishedAt);
+    underTest.insert(db.getSession(), dto);
+  }
+
+  @Test
   public void deleteOlderThan() throws Exception {
-    insertWithDate("TASK_1", 1_450_000_000_000L);
-    insertWithDate("TASK_2", 1_460_000_000_000L);
-    insertWithDate("TASK_3", 1_470_000_000_000L);
+    insertWithCreationDate("TASK_1", 1_450_000_000_000L);
+    insertWithCreationDate("TASK_2", 1_460_000_000_000L);
+    insertWithCreationDate("TASK_3", 1_470_000_000_000L);
 
     underTest.deleteOlderThan(db.getSession(), 1_465_000_000_000L);
     db.getSession().commit();
@@ -175,7 +210,7 @@ public class CeActivityDaoTest {
     underTest.insert(db.getSession(), dto);
   }
 
-  private void insertWithDate(String uuid, long date) {
+  private void insertWithCreationDate(String uuid, long date) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(uuid);
     queueDto.setTaskType("fake");

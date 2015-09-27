@@ -28,6 +28,8 @@ public class CeActivityQuery {
   private String componentUuid;
   private CeActivityDto.Status status;
   private String type;
+  private Long minSubmittedAt;
+  private Long maxFinishedAt;
 
   @CheckForNull
   public String getComponentUuid() {
@@ -65,6 +67,26 @@ public class CeActivityQuery {
 
   public CeActivityQuery setType(@Nullable String type) {
     this.type = type;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getMaxFinishedAt() {
+    return maxFinishedAt;
+  }
+
+  public CeActivityQuery setMaxFinishedAt(@Nullable Long l) {
+    this.maxFinishedAt = l;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getMinSubmittedAt() {
+    return minSubmittedAt;
+  }
+
+  public CeActivityQuery setMinSubmittedAt(@Nullable Long l) {
+    this.minSubmittedAt = l;
     return this;
   }
 }

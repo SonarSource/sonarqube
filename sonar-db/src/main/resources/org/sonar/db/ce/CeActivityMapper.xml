@@ -58,6 +58,12 @@
       <if test="query.type != null">
         and ca.task_type=#{query.type}
       </if>
+      <if test="query.minSubmittedAt != null">
+        and ca.submitted_at &gt;= #{query.minSubmittedAt}
+      </if>
+      <if test="query.maxFinishedAt != null">
+        and ca.finished_at &lt;= #{query.maxFinishedAt}
+      </if>
     </where>
     order by ca.id desc
   </select>
@@ -77,6 +83,12 @@
       </if>
       <if test="query.type != null">
         and ca.task_type=#{query.type}
+      </if>
+      <if test="query.minSubmittedAt != null">
+        and ca.submitted_at &gt;= #{query.minSubmittedAt}
+      </if>
+      <if test="query.maxFinishedAt != null">
+        and ca.finished_at &lt;= #{query.maxFinishedAt}
       </if>
     </where>
   </select>

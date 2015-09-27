@@ -19,11 +19,15 @@
  */
 package org.sonar.server.computation.ws;
 
+import java.util.Date;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -42,6 +46,8 @@ public class ActivityWsAction implements CeWsAction {
   private static final String PARAM_TYPE = "type";
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_ONLY_CURRENTS = "onlyCurrents";
+  private static final String PARAM_MIN_SUBMITTED_AT = "minSubmittedAt";
+  private static final String PARAM_MAX_FINISHED_AT = "maxFinishedAt";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -72,6 +78,12 @@ public class ActivityWsAction implements CeWsAction {
     action.createParam(PARAM_TYPE)
       .setDescription("Optional filter on task type")
       .setExampleValue(CeTaskTypes.REPORT);
+    action.createParam(PARAM_MIN_SUBMITTED_AT)
+      .setDescription("Optional filter on minimum date of task submission")
+      .setExampleValue(DateUtils.formatDateTime(new Date()));
+    action.createParam(PARAM_MAX_FINISHED_AT)
+      .setDescription("Optional filter on the maximum date of end of task processing")
+      .setExampleValue(DateUtils.formatDateTime(new Date()));
     action.addPagingParams(10);
   }
 
@@ -101,12 +113,14 @@ public class ActivityWsAction implements CeWsAction {
     CeActivityQuery query = new CeActivityQuery();
     query.setType(wsRequest.param(PARAM_TYPE));
     query.setOnlyCurrents(wsRequest.mandatoryParamAsBoolean(PARAM_ONLY_CURRENTS));
-      
+    query.setMinSubmittedAt(toTime(wsRequest.paramAsDateTime(PARAM_MIN_SUBMITTED_AT)));
+    query.setMaxFinishedAt(toTime(wsRequest.paramAsDateTime(PARAM_MAX_FINISHED_AT)));
+
     String status = wsRequest.param(PARAM_STATUS);
     if (status != null) {
       query.setStatus(CeActivityDto.Status.valueOf(status));
     }
-    
+
     String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
     if (componentUuid == null) {
       userSession.checkGlobalPermission(UserRole.ADMIN);
@@ -121,5 +135,10 @@ public class ActivityWsAction implements CeWsAction {
     int pageIndex = wsRequest.mandatoryParamAsInt(WebService.Param.PAGE);
     int pageSize = wsRequest.mandatoryParamAsInt(WebService.Param.PAGE_SIZE);
     return new RowBounds((pageIndex - 1) * pageSize, pageSize);
+  }
+
+  @CheckForNull
+  private static Long toTime(@Nullable Date date) {
+    return date == null ? null : date.getTime();
   }
 }
