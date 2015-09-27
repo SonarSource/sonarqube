@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -35,6 +34,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
@@ -60,13 +60,10 @@ public class LogsWsActionTest {
   LogsWsAction underTest = new LogsWsAction(dbTester.getDbClient(), userSession, ceLogging);
   WsActionTester tester = new WsActionTester(underTest);
 
-  @Before
-  public void setUp() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
-  }
-
   @Test
   public void return_task_logs_if_available() throws IOException {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+
     // task must exist in database
     insert("TASK_1", null);
     File logFile = temp.newFile();
@@ -86,20 +83,23 @@ public class LogsWsActionTest {
    * a valid task which does not exist
    */
   @Test(expected = NotFoundException.class)
-  public void return_404_if_task_id_is_empty() throws IOException {
+  public void return_404_if_task_id_is_empty() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
     tester.newRequest()
       .setParam("taskId", "")
       .execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void bad_request_if_task_id_is_missing() throws IOException {
+  public void bad_request_if_task_id_is_missing() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
     tester.newRequest()
       .execute();
   }
 
   @Test(expected = NotFoundException.class)
-  public void return_404_if_task_logs_are_not_available() throws IOException {
+  public void return_404_if_task_logs_are_not_available() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
     insert("TASK_1", null);
     when(ceLogging.getFile(new LogFileRef(CeTaskTypes.REPORT, "TASK_1", null))).thenReturn(Optional.<File>absent());
 
@@ -109,7 +109,15 @@ public class LogsWsActionTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void return_404_if_task_does_not_exist() throws IOException {
+  public void return_404_if_task_does_not_exist() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    tester.newRequest()
+      .setParam("taskId", "TASK_1")
+      .execute();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void require_admin_permission() {
     tester.newRequest()
       .setParam("taskId", "TASK_1")
       .execute();
