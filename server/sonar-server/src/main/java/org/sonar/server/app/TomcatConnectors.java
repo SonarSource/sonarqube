@@ -42,6 +42,7 @@ class TomcatConnectors {
   public static final int DISABLED_PORT = -1;
   public static final String HTTP_PROTOCOL = "HTTP/1.1";
   public static final String AJP_PROTOCOL = "AJP/1.3";
+  public static final int DEFAULT_MAX_HTTP_HEADER_SIZE_KB = 48 * 1024;
 
   private TomcatConnectors() {
     // only static stuff
@@ -82,6 +83,7 @@ class TomcatConnectors {
     if (port > DISABLED_PORT) {
       connector = newConnector(props, HTTP_PROTOCOL, "http");
       connector.setPort(port);
+      setConnectorAttribute(connector, "maxHttpHeaderSize", DEFAULT_MAX_HTTP_HEADER_SIZE_KB);
     }
     return connector;
   }
@@ -106,6 +108,8 @@ class TomcatConnectors {
       connector.setPort(port);
       connector.setSecure(true);
       connector.setScheme("https");
+      setConnectorAttribute(connector, "maxHttpHeaderSize", DEFAULT_MAX_HTTP_HEADER_SIZE_KB);
+
       setConnectorAttribute(connector, "keyAlias", props.value("sonar.web.https.keyAlias"));
       String keyPassword = props.value("sonar.web.https.keyPass", "changeit");
       setConnectorAttribute(connector, "keyPass", keyPassword);
@@ -119,6 +123,7 @@ class TomcatConnectors {
       setConnectorAttribute(connector, "truststoreProvider", props.value("sonar.web.https.truststoreProvider"));
       setConnectorAttribute(connector, "clientAuth", props.value("sonar.web.https.clientAuth", "false"));
       setConnectorAttribute(connector, "ciphers", props.value(PROP_HTTPS_CIPHERS));
+
       // SSLv3 must not be enable because of Poodle vulnerability
       // See https://jira.sonarsource.com/browse/SONAR-5860
       setConnectorAttribute(connector, "sslEnabledProtocols", "TLSv1,TLSv1.1,TLSv1.2");
