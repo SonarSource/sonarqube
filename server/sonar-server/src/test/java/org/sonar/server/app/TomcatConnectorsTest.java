@@ -21,16 +21,15 @@
 package org.sonar.server.app;
 
 import com.google.common.collect.ImmutableMap;
+import java.net.InetAddress;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.sonar.process.Props;
-
-import java.net.InetAddress;
-import java.util.Map;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -55,8 +54,7 @@ public class TomcatConnectorsTest {
     TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat).setConnector(argThat(new PropertiesMatcher(
-      ImmutableMap.<String, Object>of("minSpareThreads", 2, "maxThreads", 30, "acceptCount", 20)
-      )));
+      ImmutableMap.<String, Object>of("minSpareThreads", 2, "maxThreads", 30, "acceptCount", 20))));
   }
 
   @Test
@@ -66,8 +64,7 @@ public class TomcatConnectorsTest {
     TomcatConnectors.configure(tomcat, props);
 
     verify(tomcat).setConnector(argThat(new PropertiesMatcher(
-      ImmutableMap.<String, Object>of("minSpareThreads", 5, "maxThreads", 50, "acceptCount", 25)
-      )));
+      ImmutableMap.<String, Object>of("minSpareThreads", 5, "maxThreads", 50, "acceptCount", 25))));
   }
 
   @Test
@@ -121,14 +118,7 @@ public class TomcatConnectorsTest {
 
     TomcatConnectors.configure(tomcat, props);
 
-    verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getPort() == 9443
-          && c.getProperty("clientAuth").equals("false");
-      }
-    }));
+    verifyConnectorProperty(tomcat, "https", "clientAuth", "false");
   }
 
   @Test
@@ -238,44 +228,49 @@ public class TomcatConnectorsTest {
 
   @Test
   public void enable_client_auth() {
-
     Properties p = new Properties();
-
     p.setProperty("sonar.web.port", "-1");
     p.setProperty("sonar.web.https.port", "9443");
     p.setProperty("sonar.web.https.clientAuth", "want");
-
     Props props = new Props(p);
 
     TomcatConnectors.configure(tomcat, props);
 
-    verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getProperty("clientAuth").equals("want");
-      }
-    }));
+    verifyConnectorProperty(tomcat, "https", "clientAuth", "want");
   }
 
   @Test
   public void require_client_auth() {
-
     Properties p = new Properties();
-
     p.setProperty("sonar.web.port", "-1");
     p.setProperty("sonar.web.https.port", "9443");
     p.setProperty("sonar.web.https.clientAuth", "true");
-
     Props props = new Props(p);
 
     TomcatConnectors.configure(tomcat, props);
 
-    verify(tomcat).setConnector(argThat(new ArgumentMatcher<Connector>() {
+    verifyConnectorProperty(tomcat, "https", "clientAuth", "true");
+  }
+
+  @Test
+  public void test_max_http_header_size_for_http_and_https_connections() {
+    Properties properties = new Properties();
+
+    properties.setProperty("sonar.web.https.port", "9443");
+
+    Props props = new Props(properties);
+    TomcatConnectors.configure(tomcat, props);
+    verifyConnectorProperty(tomcat, "http", "maxHttpHeaderSize", TomcatConnectors.MAX_HTTP_HEADER_SIZE_BYTES);
+    verifyConnectorProperty(tomcat, "https", "maxHttpHeaderSize", TomcatConnectors.MAX_HTTP_HEADER_SIZE_BYTES);
+  }
+
+  private static void verifyConnectorProperty(Tomcat tomcat, final String connectorScheme,
+    final String property, final Object propertyValue) {
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {
         Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getProperty("clientAuth").equals("true");
+        return c.getScheme().equals(connectorScheme) && c.getProperty(property).equals(propertyValue);
       }
     }));
   }

@@ -19,18 +19,16 @@
  */
 package org.sonar.server.app;
 
-import org.apache.catalina.connector.Connector;
-import org.apache.catalina.startup.Tomcat;
-import org.sonar.process.Props;
-
-import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.catalina.connector.Connector;
+import org.apache.catalina.startup.Tomcat;
+import org.sonar.process.Props;
 
 /**
  * Configuration of Tomcat connectors
@@ -42,6 +40,7 @@ class TomcatConnectors {
   public static final int DISABLED_PORT = -1;
   public static final String HTTP_PROTOCOL = "HTTP/1.1";
   public static final String AJP_PROTOCOL = "AJP/1.3";
+  public static final int MAX_HTTP_HEADER_SIZE_BYTES = 48 * 1024;
 
   private TomcatConnectors() {
     // only static stuff
@@ -81,6 +80,7 @@ class TomcatConnectors {
     int port = props.valueAsInt("sonar.web.port", 9000);
     if (port > DISABLED_PORT) {
       connector = newConnector(props, HTTP_PROTOCOL, "http");
+      configureMaxHttpHeaderSize(connector);
       connector.setPort(port);
     }
     return connector;
@@ -106,6 +106,7 @@ class TomcatConnectors {
       connector.setPort(port);
       connector.setSecure(true);
       connector.setScheme("https");
+      configureMaxHttpHeaderSize(connector);
       setConnectorAttribute(connector, "keyAlias", props.value("sonar.web.https.keyAlias"));
       String keyPassword = props.value("sonar.web.https.keyPass", "changeit");
       setConnectorAttribute(connector, "keyPass", keyPassword);
@@ -126,6 +127,14 @@ class TomcatConnectors {
       setConnectorAttribute(connector, "SSLEnabled", true);
     }
     return connector;
+  }
+
+  /**
+   * HTTP header must be at least 48kb  to accommodate the authentication token used for
+   * negotiate protocol of windows authentication.
+   */
+  private static void configureMaxHttpHeaderSize(Connector connector) {
+    setConnectorAttribute(connector, "maxHttpHeaderSize", MAX_HTTP_HEADER_SIZE_BYTES);
   }
 
   private static Connector newConnector(Props props, String protocol, String scheme) {
