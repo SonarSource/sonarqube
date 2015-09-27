@@ -24,22 +24,39 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.sonar.process.LogbackHelper;
-import org.sonar.process.Props;
-
+import ch.qos.logback.core.joran.spi.JoranException;
+import java.io.IOException;
 import java.util.Properties;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.process.LogbackHelper;
+import org.sonar.process.ProcessProperties;
+import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebLoggingTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   Props props = new Props(new Properties());
   WebLogging underTest = new WebLogging();
 
+  /**
+   * Path to data dir must be set for Compute Engine logging.
+   * @see org.sonar.server.computation.log.CeFileAppenderFactory
+   */
+  @Before
+  public void setUp() throws IOException {
+    props.set(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
+  }
+
   @AfterClass
-  public static void resetLogback() throws Exception {
+  public static void resetLogback() throws JoranException {
     new LogbackHelper().resetFromXml("/logback-test.xml");
   }
 

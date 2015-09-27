@@ -17,19 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.ws;
+package org.sonar.server.computation.log;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.ce.CeTaskTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeWsModuleTest {
+public class LogFileRefTest {
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(10 + 2 /* injected by ComponentContainer */);
+  public void equals_hashCode() {
+    LogFileRef ref1 = new LogFileRef(CeTaskTypes.REPORT, "UUID_1", "COMPONENT_1");
+    LogFileRef ref1bis = new LogFileRef(CeTaskTypes.REPORT, "UUID_1", "COMPONENT_1");
+    LogFileRef ref2 = new LogFileRef(CeTaskTypes.REPORT, "UUID_2", "COMPONENT_1");
+
+    assertThat(ref1.equals(ref1)).isTrue();
+    assertThat(ref1.equals(ref1bis)).isTrue();
+    assertThat(ref1.equals(ref2)).isFalse();
+    assertThat(ref1.equals(null)).isFalse();
+    assertThat(ref1.equals("UUID_1")).isFalse();
+
+    assertThat(ref1.hashCode()).isEqualTo(ref1bis.hashCode());
+  }
+
+  @Test
+  public void getRelativePath() {
+    assertThat(new LogFileRef("TYPE_1", "UUID_1", "COMPONENT_1").getRelativePath()).isEqualTo("TYPE_1/COMPONENT_1/UUID_1.log");
+    assertThat(new LogFileRef("TYPE_1", "UUID_1", null).getRelativePath()).isEqualTo("TYPE_1/UUID_1.log");
   }
 }

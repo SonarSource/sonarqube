@@ -17,19 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.log;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class CeWsModuleTest {
-
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(10 + 2 /* injected by ComponentContainer */);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

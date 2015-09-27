@@ -17,19 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.ws;
+package org.sonar.server.computation.log;
 
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
+import org.apache.log4j.MDC;
+import org.junit.After;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeWsModuleTest {
+public class CeLogAcceptFilterTest {
+
+  private static final Object UNUSED = "";
+
+  Filter underTest = new CeLogAcceptFilter();
+
+  @After
+  public void tearDown() {
+    MDC.clear();
+  }
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(10 + 2 /* injected by ComponentContainer */);
+  public void reject_non_ce_logs() {
+    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.DENY);
   }
+
+  @Test
+  public void accept_ce_logs() {
+    MDC.put(CeLogging.MDC_LOG_PATH, "abc.log");
+    assertThat(underTest.decide(UNUSED)).isEqualTo(FilterReply.ACCEPT);
+  }
+
 }

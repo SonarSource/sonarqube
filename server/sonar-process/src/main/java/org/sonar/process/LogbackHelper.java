@@ -29,15 +29,16 @@ import ch.qos.logback.classic.spi.LoggerContextListener;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import java.io.File;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  * Helps to configure Logback in a programmatic way, without using XML.
@@ -72,7 +73,7 @@ public class LogbackHelper {
     return propagator;
   }
 
-  public ConsoleAppender newConsoleAppender(Context loggerContext, String name, String pattern) {
+  public ConsoleAppender newConsoleAppender(Context loggerContext, String name, String pattern, @Nullable Filter filter) {
     PatternLayoutEncoder consoleEncoder = new PatternLayoutEncoder();
     consoleEncoder.setContext(loggerContext);
     consoleEncoder.setPattern(pattern);
@@ -82,6 +83,9 @@ public class LogbackHelper {
     consoleAppender.setEncoder(consoleEncoder);
     consoleAppender.setName(name);
     consoleAppender.setTarget("System.out");
+    if (filter != null) {
+      consoleAppender.addFilter(filter);
+    }
     consoleAppender.start();
     return consoleAppender;
   }

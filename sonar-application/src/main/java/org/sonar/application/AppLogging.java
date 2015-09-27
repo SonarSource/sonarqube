@@ -27,7 +27,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
-
 import org.slf4j.LoggerFactory;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
@@ -71,7 +70,7 @@ class AppLogging {
   }
 
   private void configureConsole(LoggerContext loggerContext) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_APPENDER, "%msg%n");
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_APPENDER, "%msg%n", null);
     Logger consoleLogger = loggerContext.getLogger(CONSOLE_LOGGER);
     consoleLogger.setAdditive(false);
     consoleLogger.addAppender(consoleAppender);
@@ -96,7 +95,7 @@ class AppLogging {
   }
 
   private void configureRoot(LoggerContext loggerContext) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, "ROOT_CONSOLE", APP_PATTERN);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, "ROOT_CONSOLE", APP_PATTERN, null);
     Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.INFO);
     rootLogger.addAppender(consoleAppender);

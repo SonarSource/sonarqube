@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.ws;
+package org.sonar.server.computation.log;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
+import org.slf4j.MDC;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Keeps only the Compute Engine logs.
+ */
+public class CeLogAcceptFilter<E> extends Filter<E> {
 
-public class CeWsModuleTest {
-
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(10 + 2 /* injected by ComponentContainer */);
+  @Override
+  public FilterReply decide(E o) {
+    return MDC.get(CeLogging.MDC_LOG_PATH) == null ? FilterReply.DENY : FilterReply.ACCEPT;
   }
+
 }
