@@ -21,10 +21,10 @@ package org.sonar.server.qualitygate;
 
 import org.picocontainer.Startable;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 
 public class RegisterQualityGates implements Startable {
 
@@ -61,6 +61,7 @@ public class RegisterQualityGates implements Startable {
     qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", 3);
     qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "5", 3);
     qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_COVERAGE_KEY, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "80", 3);
+    qualityGates.setDefault(builtin.getId());
   }
 
   private void registerBuiltinQualityGate() {

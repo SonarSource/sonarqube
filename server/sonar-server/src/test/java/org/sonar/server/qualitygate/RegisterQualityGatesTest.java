@@ -25,12 +25,19 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterQualityGatesTest {
@@ -60,6 +67,8 @@ public class RegisterQualityGatesTest {
     verify(templateDao).countByTypeAndKey(templateType, templateName);
     verify(qualityGates).create(templateName);
     verify(qualityGates, times(4)).createCondition(anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt());
+    verify(qualityGates).setDefault(anyLong());
+
     ArgumentCaptor<LoadedTemplateDto> templateArg = ArgumentCaptor.forClass(LoadedTemplateDto.class);
     verify(templateDao).insert(templateArg.capture());
     LoadedTemplateDto template = templateArg.getValue();
