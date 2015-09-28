@@ -10,7 +10,7 @@
           <div class="widget-measure widget-measure-main">
             <span class="widget-label"><%= message('metric.sqale_rating.name') -%></span>
             <span class="nowrap">
-              <%= format_measure(sqale_rating,sqaleOverview :url => url_for_drilldown(sqale_rating)) %>
+              <%= format_measure(sqale_rating, :url => url_for_drilldown(sqale_rating)) %>
             </span>
           </div>
         </div>
