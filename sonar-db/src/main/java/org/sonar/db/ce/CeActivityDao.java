@@ -20,7 +20,6 @@
 package org.sonar.db.ce;
 
 import com.google.common.base.Optional;
-import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
