@@ -33,6 +33,6 @@ public class CePropertyDefinitionsTest {
 
   @Test
   public void only_statics() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(CePropertyDefinitions.class));
+    assertThat(TestUtils.hasOnlyPrivateConstructors(CePropertyDefinitions.class)).isTrue();
   }
 }
