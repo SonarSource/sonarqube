@@ -204,6 +204,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
+
+    assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
+
     DbFileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
@@ -348,10 +351,21 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
           .build())
         .build())
       .setCreatedAt(past)
-      .setUpdatedAt(past));
+      .setUpdatedAt(past)
+      .setRevision("rev-0"));
     dbTester.getSession().commit();
 
     initBasicReport(1);
+
+    reportReader.putChangesets(BatchReport.Changesets.newBuilder()
+        .setComponentRef(FILE_REF)
+        .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+            .setAuthor("john")
+            .setDate(123456789L)
+            .setRevision("rev-1")
+            .build())
+        .addChangesetIndexByLine(0)
+        .build());
 
     underTest.execute();
 
@@ -359,6 +373,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
   }
 
   @Test

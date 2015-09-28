@@ -270,7 +270,7 @@ public class FileSourceDto {
     return revision;
   }
 
-  public FileSourceDto setRevision(String revision) {
+  public FileSourceDto setRevision(@Nullable String revision) {
     this.revision = revision;
     return this;
   }
