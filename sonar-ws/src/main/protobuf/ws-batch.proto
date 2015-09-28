@@ -21,11 +21,11 @@ syntax = "proto2";
 package sonarqube.ws.batch;
 
 option java_package = "org.sonarqube.ws";
-option java_outer_classname = "WsScanner";
+option java_outer_classname = "WsBatch";
 
 option optimize_for = SPEED;
 
-// WS api/scanner/project
+// WS api/batch/project
 message WsProjectResponse {
   optional int64 timestamp = 1;
   map<string, Settings> settingsByModule = 2;

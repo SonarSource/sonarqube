@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.scanner;
+package org.sonar.server.batch;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class ScannerWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ScannerIndex.class,
-      GlobalAction.class,
-      ProjectAction.class,
-      ProjectDataLoader.class,
-      IssuesAction.class,
-      UsersAction.class,
-      ScannerWs.class);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class BatchWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new BatchWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(9);
   }
+
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.scanner;
+package org.sonar.server.batch;
 
 import java.io.File;
 import org.apache.commons.io.FileUtils;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ScannerWsTest {
+public class BatchWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -52,13 +52,13 @@ public class ScannerWsTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Mock
-  ScannerIndex scannerIndex;
+  BatchIndex batchIndex;
 
   WsTester tester;
 
   @Before
   public void before() {
-    tester = new WsTester(new ScannerWs(scannerIndex,
+    tester = new WsTester(new BatchWs(batchIndex,
       new GlobalAction(mock(DbClient.class), mock(PropertiesDao.class), userSessionRule),
       new ProjectAction(mock(ProjectDataLoader.class)),
       new IssuesAction(mock(DbClient.class), mock(IssueIndex.class), userSessionRule, mock(ComponentFinder.class))));
@@ -66,9 +66,9 @@ public class ScannerWsTest {
 
   @Test
   public void download_index() throws Exception {
-    when(scannerIndex.getIndex()).thenReturn("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8");
+    when(batchIndex.getIndex()).thenReturn("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8");
 
-    String index = tester.newGetRequest("scanner", "index").execute().outputAsString();
+    String index = tester.newGetRequest("batch", "index").execute().outputAsString();
     assertThat(index).isEqualTo("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8");
   }
 
@@ -78,9 +78,9 @@ public class ScannerWsTest {
 
     File file = temp.newFile(filename);
     FileUtils.writeStringToFile(file, "foo");
-    when(scannerIndex.getFile(filename)).thenReturn(file);
+    when(batchIndex.getFile(filename)).thenReturn(file);
 
-    String jar = tester.newGetRequest("scanner", "file").setParam("name", filename).execute().outputAsString();
+    String jar = tester.newGetRequest("batch", "file").setParam("name", filename).execute().outputAsString();
     assertThat(jar).isEqualTo("foo");
   }
 

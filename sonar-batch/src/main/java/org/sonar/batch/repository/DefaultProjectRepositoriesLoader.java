@@ -19,26 +19,23 @@
  */
 package org.sonar.batch.repository;
 
-import org.apache.commons.io.IOUtils;
-
-import org.sonar.batch.util.BatchUtils;
-import org.sonarqube.ws.WsScanner.WsProjectResponse.FileDataByPath;
-import org.sonarqube.ws.WsScanner.WsProjectResponse.Settings;
-import org.sonarqube.ws.WsScanner.WsProjectResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.google.common.collect.Table;
 import com.google.common.collect.HashBasedTable;
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
-import org.apache.commons.lang.mutable.MutableBoolean;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Table;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.util.BatchUtils;
+import org.sonarqube.ws.WsBatch.WsProjectResponse;
+import org.sonarqube.ws.WsBatch.WsProjectResponse.FileDataByPath;
+import org.sonarqube.ws.WsBatch.WsProjectResponse.Settings;
 
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
@@ -90,7 +87,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
 
       Map<String, FileDataByPath> fileDataByModuleAndPath = response.getFileDataByModuleAndPath();
       for (Map.Entry<String, FileDataByPath> e1 : fileDataByModuleAndPath.entrySet()) {
-        for (Map.Entry<String, org.sonarqube.ws.WsScanner.WsProjectResponse.FileData> e2 : e1.getValue().getFileDataByPath().entrySet()) {
+        for (Map.Entry<String, org.sonarqube.ws.WsBatch.WsProjectResponse.FileData> e2 : e1.getValue().getFileDataByPath().entrySet()) {
           FileData fd = new FileData(e2.getValue().getHash(), e2.getValue().getRevision());
           fileDataTable.put(e1.getKey(), e2.getKey(), fd);
         }

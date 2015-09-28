@@ -3824,23 +3824,20 @@ public final class WsCe {
      * <code>optional string executedAt = 10;</code>
      */
     boolean hasExecutedAt();
-    
     /**
      * <code>optional string executedAt = 10;</code>
      */
     java.lang.String getExecutedAt();
-    
     /**
      * <code>optional string executedAt = 10;</code>
      */
     com.google.protobuf.ByteString
- getExecutedAtBytes();
+        getExecutedAtBytes();
 
     /**
      * <code>optional bool isLastExecuted = 11;</code>
      */
     boolean hasIsLastExecuted();
-    
     /**
      * <code>optional bool isLastExecuted = 11;</code>
      */
@@ -4378,14 +4375,12 @@ public final class WsCe {
 
     public static final int EXECUTEDAT_FIELD_NUMBER = 10;
     private volatile java.lang.Object executedAt_;
-    
     /**
      * <code>optional string executedAt = 10;</code>
      */
     public boolean hasExecutedAt() {
       return ((bitField0_ & 0x00000200) == 0x00000200);
     }
-    
     /**
      * <code>optional string executedAt = 10;</code>
      */
@@ -4403,12 +4398,11 @@ public final class WsCe {
         return s;
       }
     }
-    
     /**
      * <code>optional string executedAt = 10;</code>
      */
     public com.google.protobuf.ByteString
- getExecutedAtBytes() {
+        getExecutedAtBytes() {
       java.lang.Object ref = executedAt_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
@@ -4423,14 +4417,12 @@ public final class WsCe {
 
     public static final int ISLASTEXECUTED_FIELD_NUMBER = 11;
     private boolean isLastExecuted_;
-    
     /**
      * <code>optional bool isLastExecuted = 11;</code>
      */
     public boolean hasIsLastExecuted() {
       return ((bitField0_ & 0x00000400) == 0x00000400);
     }
-    
     /**
      * <code>optional bool isLastExecuted = 11;</code>
      */
@@ -5540,14 +5532,12 @@ public final class WsCe {
       }
 
       private java.lang.Object executedAt_ = "";
-      
       /**
        * <code>optional string executedAt = 10;</code>
        */
       public boolean hasExecutedAt() {
         return ((bitField0_ & 0x00000200) == 0x00000200);
       }
-      
       /**
        * <code>optional string executedAt = 10;</code>
        */
@@ -5565,12 +5555,11 @@ public final class WsCe {
           return (java.lang.String) ref;
         }
       }
-      
       /**
        * <code>optional string executedAt = 10;</code>
        */
       public com.google.protobuf.ByteString
- getExecutedAtBytes() {
+          getExecutedAtBytes() {
         java.lang.Object ref = executedAt_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
@@ -5582,7 +5571,6 @@ public final class WsCe {
           return (com.google.protobuf.ByteString) ref;
         }
       }
-      
       /**
        * <code>optional string executedAt = 10;</code>
        */
@@ -5596,7 +5584,6 @@ public final class WsCe {
         onChanged();
         return this;
       }
-      
       /**
        * <code>optional string executedAt = 10;</code>
        */
@@ -5606,7 +5593,6 @@ public final class WsCe {
         onChanged();
         return this;
       }
-      
       /**
        * <code>optional string executedAt = 10;</code>
        */
@@ -5621,22 +5607,19 @@ public final class WsCe {
         return this;
       }
 
-      private boolean isLastExecuted_;
-      
+      private boolean isLastExecuted_ ;
       /**
        * <code>optional bool isLastExecuted = 11;</code>
        */
       public boolean hasIsLastExecuted() {
         return ((bitField0_ & 0x00000400) == 0x00000400);
       }
-      
       /**
        * <code>optional bool isLastExecuted = 11;</code>
        */
       public boolean getIsLastExecuted() {
         return isLastExecuted_;
       }
-      
       /**
        * <code>optional bool isLastExecuted = 11;</code>
        */
@@ -5646,7 +5629,6 @@ public final class WsCe {
         onChanged();
         return this;
       }
-      
       /**
        * <code>optional bool isLastExecuted = 11;</code>
        */
@@ -5689,7 +5671,7 @@ public final class WsCe {
         return this;
       }
 
-      private boolean logs_;
+      private boolean logs_ ;
       /**
        * <code>optional bool logs = 13;</code>
        */
@@ -5818,11 +5800,11 @@ public final class WsCe {
       "ey\030\004 \001(\t\022\025\n\rcomponentName\030\005 \001(\t\022+\n\006statu" +
       "s\030\006 \001(\0162\033.sonarqube.ws.ce.TaskStatus\022\023\n\013" +
       "submittedAt\030\007 \001(\t\022\026\n\016submitterLogin\030\010 \001(" +
-        "\t\022\021\n\tstartedAt\030\t \001(\t\022\022\n\nexecutedAt\030\n \001(\t" +
-        "\022\026\n\016isLastExecuted\030\013 \001(\010\022\027\n\017executionTim" +
-        "eMs\030\014 \001(\003\022\014\n\004logs\030\r \001(\010*Q\n\nTaskStatus\022\013\n" +
-        "\007PENDING\020\000\022\017\n\013IN_PROGRESS\020\001\022\013\n\007SUCCESS\020\002" +
-        "\022\n\n\006FAILED\020\003\022\014\n\010CANCELED\020\004B\032\n\020org.sonarq",
+      "\t\022\021\n\tstartedAt\030\t \001(\t\022\022\n\nexecutedAt\030\n \001(\t" +
+      "\022\026\n\016isLastExecuted\030\013 \001(\010\022\027\n\017executionTim" +
+      "eMs\030\014 \001(\003\022\014\n\004logs\030\r \001(\010*Q\n\nTaskStatus\022\013\n" +
+      "\007PENDING\020\000\022\017\n\013IN_PROGRESS\020\001\022\013\n\007SUCCESS\020\002" +
+      "\022\n\n\006FAILED\020\003\022\014\n\010CANCELED\020\004B\032\n\020org.sonarq",
       "ube.wsB\004WsCeH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
@@ -5873,8 +5855,7 @@ public final class WsCe {
     internal_static_sonarqube_ws_ce_Task_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_ce_Task_descriptor,
-      new java.lang.String[] {"Id", "Type", "ComponentId", "ComponentKey", "ComponentName", "Status", "SubmittedAt", "SubmitterLogin", "StartedAt", "ExecutedAt", "IsLastExecuted",
-        "ExecutionTimeMs", "Logs",});
+        new java.lang.String[] { "Id", "Type", "ComponentId", "ComponentKey", "ComponentName", "Status", "SubmittedAt", "SubmitterLogin", "StartedAt", "ExecutedAt", "IsLastExecuted", "ExecutionTimeMs", "Logs", });
     org.sonarqube.ws.Common.getDescriptor();
   }
 

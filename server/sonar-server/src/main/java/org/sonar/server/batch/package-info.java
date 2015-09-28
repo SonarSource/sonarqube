@@ -17,12 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.scanner;
 
-public class Messages {
-  private Messages() {
-    // constants
-  }
+@ParametersAreNonnullByDefault
+package org.sonar.server.batch;
 
-  static String NO_PERMISSION = "You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.";
-}
+import javax.annotation.ParametersAreNonnullByDefault;

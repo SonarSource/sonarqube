@@ -19,21 +19,20 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonarqube.ws.WsScanner.WsProjectResponse;
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
-import org.apache.commons.lang.mutable.MutableBoolean;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
+import org.sonarqube.ws.WsBatch.WsProjectResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

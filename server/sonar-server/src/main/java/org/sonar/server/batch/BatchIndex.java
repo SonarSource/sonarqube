@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.scanner;
+package org.sonar.server.batch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -38,13 +38,13 @@ import java.util.Collection;
  * JAR files to be downloaded by sonar-runner.
  */
 @ServerSide
-public class ScannerIndex implements Startable {
+public class BatchIndex implements Startable {
 
   private final Server server;
   private String index;
   private File batchDir;
 
-  public ScannerIndex(Server server) {
+  public BatchIndex(Server server) {
     this.server = server;
   }
 

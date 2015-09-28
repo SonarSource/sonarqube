@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.scanner;
+package org.sonar.server.batch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharUtils;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ScannerIndexTest {
+public class BatchIndexTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -60,21 +60,21 @@ public class ScannerIndexTest {
 
   @Test
   public void get_index() {
-    ScannerIndex scannerIndex = new ScannerIndex(server);
-    scannerIndex.start();
+    BatchIndex batchIndex = new BatchIndex(server);
+    batchIndex.start();
 
-    String index = scannerIndex.getIndex();
+    String index = batchIndex.getIndex();
     assertThat(index).isEqualTo("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8" + CharUtils.LF);
 
-    scannerIndex.stop();
+    batchIndex.stop();
   }
 
   @Test
   public void get_file() {
-    ScannerIndex scannerIndex = new ScannerIndex(server);
-    scannerIndex.start();
+    BatchIndex batchIndex = new BatchIndex(server);
+    batchIndex.start();
 
-    File file = scannerIndex.getFile("sonar-batch.jar");
+    File file = batchIndex.getFile("sonar-batch.jar");
     assertThat(file).isEqualTo(jar);
   }
 
@@ -87,10 +87,10 @@ public class ScannerIndexTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: ../sonar-batch.jar");
 
-    ScannerIndex scannerIndex = new ScannerIndex(server);
-    scannerIndex.start();
+    BatchIndex batchIndex = new BatchIndex(server);
+    batchIndex.start();
 
-    scannerIndex.getFile("../sonar-batch.jar");
+    batchIndex.getFile("../sonar-batch.jar");
   }
 
   @Test
@@ -98,9 +98,9 @@ public class ScannerIndexTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: other.jar");
 
-    ScannerIndex scannerIndex = new ScannerIndex(server);
-    scannerIndex.start();
+    BatchIndex batchIndex = new BatchIndex(server);
+    batchIndex.start();
 
-    scannerIndex.getFile("other.jar");
+    batchIndex.getFile("other.jar");
   }
 }
