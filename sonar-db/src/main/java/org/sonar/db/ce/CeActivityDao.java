@@ -20,6 +20,7 @@
 package org.sonar.db.ce;
 
 import com.google.common.base.Optional;
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
@@ -52,8 +53,12 @@ public class CeActivityDao implements Dao {
     }
   }
 
-  public void deleteOlderThan(DbSession dbSession, long beforeDate) {
-    mapper(dbSession).deleteOlderThan(beforeDate);
+  public List<CeActivityDto> selectOlderThan(DbSession dbSession, long beforeDate) {
+    return mapper(dbSession).selectOlderThan(beforeDate);
+  }
+
+  public void deleteByUuid(DbSession dbSession, String uuid) {
+    mapper(dbSession).deleteByUuid(uuid);
   }
 
   /**

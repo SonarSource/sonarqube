@@ -93,6 +93,12 @@
     </where>
   </select>
 
+  <select id="selectOlderThan" parameterType="long" resultType="org.sonar.db.ce.CeActivityDto">
+    select <include refid="columns"/>
+    from ce_activity ca
+    where ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
+  </select>
+
   <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
     insert into ce_activity
     (uuid, component_uuid, status, task_type, is_last, is_last_key, submitter_login, submitted_at, started_at,
@@ -128,9 +134,8 @@
     where uuid=#{uuid}
   </update>
 
-  <delete id="deleteOlderThan" parameterType="long">
+  <delete id="deleteByUuid" parameterType="string">
     delete from ce_activity
-    where created_at &lt; #{beforeDate,jdbcType=BIGINT}
+    where uuid=#{uuid}
   </delete>
-
 </mapper>

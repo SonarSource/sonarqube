@@ -20,6 +20,7 @@
 package org.sonar.server.computation.queue;
 
 import java.util.Calendar;
+import java.util.List;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.server.ServerSide;
@@ -28,6 +29,9 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.server.computation.log.CeLogging;
+import org.sonar.server.computation.log.LogFileRef;
 
 @ServerSide
 public class PurgeCeActivities implements ServerStartHandler {
@@ -36,22 +40,28 @@ public class PurgeCeActivities implements ServerStartHandler {
 
   private final DbClient dbClient;
   private final System2 system2;
+  private final CeLogging ceLogging;
 
-  public PurgeCeActivities(DbClient dbClient, System2 system2) {
+  public PurgeCeActivities(DbClient dbClient, System2 system2, CeLogging ceLogging) {
     this.dbClient = dbClient;
     this.system2 = system2;
+    this.ceLogging = ceLogging;
   }
 
   @Override
   public void onServerStart(Server server) {
-    DbSession dbSession = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(true);
     try {
       Calendar sixMonthsAgo = Calendar.getInstance();
       sixMonthsAgo.setTimeInMillis(system2.now());
       sixMonthsAgo.add(Calendar.DATE, -180);
 
-      LOGGER.info("Delete the Compute Engine tasks created before " + sixMonthsAgo.getTime());
-      dbClient.ceActivityDao().deleteOlderThan(dbSession, sixMonthsAgo.getTimeInMillis());
+      LOGGER.info("Delete the Compute Engine tasks created before {}", sixMonthsAgo.getTime());
+      List<CeActivityDto> dtos = dbClient.ceActivityDao().selectOlderThan(dbSession, sixMonthsAgo.getTimeInMillis());
+      for (CeActivityDto dto : dtos) {
+        dbClient.ceActivityDao().deleteByUuid(dbSession, dto.getUuid());
+        ceLogging.deleteIfExists(LogFileRef.from(dto));
+      }
       dbSession.commit();
 
     } finally {
