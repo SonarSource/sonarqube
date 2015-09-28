@@ -64,18 +64,37 @@ public class CeWorkerRunnableImpl implements CeWorkerRunnable {
   }
 
   private void executeTask(CeTask task) {
+    // logging twice: once in sonar.log and once in CE appender
+    Profiler regularProfiler = startProfiler(task);
     ceLogging.initForTask(task);
-    Profiler profiler = Profiler.create(LOG).startInfo(format("Analysis of project %s (report %s)", task.getComponentKey(), task.getUuid()));
+    Profiler ceProfiler = startProfiler(task);
+
+    CeActivityDto.Status status = CeActivityDto.Status.FAILED;
     try {
       // TODO delegate the message to the related task processor, according to task type
       reportTaskProcessor.process(task);
-      queue.remove(task, CeActivityDto.Status.SUCCESS);
+      status = CeActivityDto.Status.SUCCESS;
+      queue.remove(task, status);
     } catch (Throwable e) {
       LOG.error(format("Failed to process task %s", task.getUuid()), e);
-      queue.remove(task, CeActivityDto.Status.FAILED);
+      queue.remove(task, status);
     } finally {
-      profiler.stopInfo(String.format("Total thread execution of project %s (report %s)", task.getComponentUuid(), task.getUuid()));
+      // logging twice: once in sonar.log and once in CE appender
+      stopProfiler(ceProfiler, task, status);
       ceLogging.clearForTask();
+      stopProfiler(regularProfiler, task, status);
+    }
+  }
+
+  private static Profiler startProfiler(CeTask task) {
+    return Profiler.create(LOG).startInfo("Process task | project={} | id={}", task.getComponentKey(), task.getUuid());
+  }
+
+  private static void stopProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
+    if (status == CeActivityDto.Status.FAILED) {
+      profiler.stopError("Processed task | project={} | id={}", task.getComponentKey(), task.getUuid());
+    } else {
+      profiler.stopInfo("Processed task | project={} | id={}", task.getComponentKey(), task.getUuid());
     }
   }
 }

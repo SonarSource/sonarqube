@@ -119,6 +119,11 @@ class NullProfiler extends Profiler {
   }
 
   @Override
+  public long stopError(String message, Object... args) {
+    return 0;
+  }
+
+  @Override
   public Profiler addContext(String key, @Nullable Object value) {
     // nothing to do
     return this;
