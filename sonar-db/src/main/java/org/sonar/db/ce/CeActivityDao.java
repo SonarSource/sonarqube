@@ -52,8 +52,12 @@ public class CeActivityDao implements Dao {
     }
   }
 
-  public void deleteOlderThan(DbSession dbSession, long beforeDate) {
-    mapper(dbSession).deleteOlderThan(beforeDate);
+  public List<CeActivityDto> selectOlderThan(DbSession dbSession, long beforeDate) {
+    return mapper(dbSession).selectOlderThan(beforeDate);
+  }
+
+  public void deleteByUuid(DbSession dbSession, String uuid) {
+    mapper(dbSession).deleteByUuid(uuid);
   }
 
   /**

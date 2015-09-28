@@ -80,7 +80,7 @@ public class CeActivityDaoTest {
   }
 
   @Test
-  public void test_selectByQuery() throws Exception {
+  public void test_selectByQuery() {
     insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insert("TASK_2", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED);
     insert("TASK_3", REPORT, "PROJECT_2", CeActivityDto.Status.SUCCESS);
@@ -116,7 +116,7 @@ public class CeActivityDaoTest {
   }
 
   @Test
-  public void test_countByQuery() throws Exception {
+  public void test_countByQuery() {
     insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insert("TASK_2", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED);
     insert("TASK_3", REPORT, "PROJECT_2", CeActivityDto.Status.SUCCESS);
@@ -146,7 +146,7 @@ public class CeActivityDaoTest {
   }
 
   @Test
-  public void select_and_count_by_date() throws Exception {
+  public void select_and_count_by_date() {
     insertWithDates("UUID1", 1_450_000_000_000L, 1_470_000_000_000L);
     insertWithDates("UUID2", 1_460_000_000_000L, 1_480_000_000_000L);
 
@@ -181,17 +181,33 @@ public class CeActivityDaoTest {
   }
 
   @Test
-  public void deleteOlderThan() throws Exception {
+  public void selectOlderThan() {
     insertWithCreationDate("TASK_1", 1_450_000_000_000L);
     insertWithCreationDate("TASK_2", 1_460_000_000_000L);
     insertWithCreationDate("TASK_3", 1_470_000_000_000L);
 
-    underTest.deleteOlderThan(db.getSession(), 1_465_000_000_000L);
-    db.getSession().commit();
+    List<CeActivityDto> dtos = underTest.selectOlderThan(db.getSession(), 1_465_000_000_000L);
+    assertThat(dtos).extracting("uuid").containsOnly("TASK_1", "TASK_2");
+  }
 
+  @Test
+  public void deleteByUuid() {
+    insert("TASK_1", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
+    insert("TASK_2", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
+
+    underTest.deleteByUuid(db.getSession(), "TASK_1");
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").isPresent()).isFalse();
-    assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").isPresent()).isFalse();
-    assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").isPresent()).isTrue();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").isPresent()).isTrue();
+  }
+
+  @Test
+  public void deleteByUuid_does_nothing_if_uuid_does_not_exist() {
+    insert("TASK_1", "REPORT", "COMPONENT1", CeActivityDto.Status.SUCCESS);
+
+    // must not fail
+    underTest.deleteByUuid(db.getSession(), "TASK_2");
+
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").isPresent()).isTrue();
   }
 
   private void insert(String uuid, String type, String componentUuid, CeActivityDto.Status status) {

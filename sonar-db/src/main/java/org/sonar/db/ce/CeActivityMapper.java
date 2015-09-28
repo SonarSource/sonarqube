@@ -35,6 +35,8 @@ public interface CeActivityMapper {
 
   List<CeActivityDto> selectByQuery(@Param("query") CeActivityQuery query, RowBounds rowBounds);
 
+  List<CeActivityDto> selectOlderThan(@Param("beforeDate") long beforeDate);
+
   int countByQuery(@Param("query") CeActivityQuery query);
 
   void insert(CeActivityDto dto);
@@ -43,5 +45,5 @@ public interface CeActivityMapper {
 
   void updateIsLastToTrueForUuid(@Param("uuid") String uuid, @Param("updatedAt") long updatedAt);
 
-  void deleteOlderThan(@Param("beforeDate") long beforeDate);
+  void deleteByUuid(@Param("uuid") String uuid);
 }

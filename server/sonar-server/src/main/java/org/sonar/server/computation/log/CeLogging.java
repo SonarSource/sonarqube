@@ -78,6 +78,11 @@ public class CeLogging {
     return Optional.absent();
   }
 
+  public void deleteIfExists(LogFileRef ref) {
+    File logFile = new File(logsDir, ref.getRelativePath());
+    logFile.delete();
+  }
+
   /**
    * Initialize logging of a Compute Engine task. Must be called
    * before first writing of log.

@@ -26,10 +26,15 @@ import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.computation.log.CeLogging;
+import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.computation.queue.PurgeCeActivities;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class PurgeCeActivitiesTest {
 
@@ -37,7 +42,8 @@ public class PurgeCeActivitiesTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
-  PurgeCeActivities underTest = new PurgeCeActivities(dbTester.getDbClient(), system2);
+  CeLogging ceLogging = mock(CeLogging.class);
+  PurgeCeActivities underTest = new PurgeCeActivities(dbTester.getDbClient(), system2, ceLogging);
 
   @Test
   public void delete_older_than_6_months() throws Exception {
@@ -49,12 +55,14 @@ public class PurgeCeActivitiesTest {
 
     assertThat(dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "VERY_OLD").isPresent()).isFalse();
     assertThat(dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "RECENT").isPresent()).isTrue();
+    verify(ceLogging).deleteIfExists(new LogFileRef(CeTaskTypes.REPORT, "VERY_OLD", null));
+    verify(ceLogging, never()).deleteIfExists(new LogFileRef(CeTaskTypes.REPORT, "RECENT", null));
   }
 
   private void insertWithDate(String uuid, long date) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(uuid);
-    queueDto.setTaskType("fake");
+    queueDto.setTaskType(CeTaskTypes.REPORT);
 
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(CeActivityDto.Status.SUCCESS);

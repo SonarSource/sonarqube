@@ -19,7 +19,7 @@
  */
 package org.sonar.db.ce;
 
-public class CeTaskTypes {
+public final class CeTaskTypes {
 
   private CeTaskTypes() {
     // only statics
