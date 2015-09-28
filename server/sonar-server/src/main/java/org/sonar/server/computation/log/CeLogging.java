@@ -90,6 +90,8 @@ public class CeLogging {
   /**
    * Initialize logging of a Compute Engine task. Must be called
    * before first writing of log.
+   * <p>After this method is executed, then Compute Engine logs are
+   * written to a dedicated appender and are removed from sonar.log.</p>
    */
   public void initForTask(CeTask task) {
     LogFileRef ref = LogFileRef.from(task);
@@ -101,6 +103,8 @@ public class CeLogging {
   /**
    * Clean-up the logging of a task. Must be called after the last writing
    * of log.
+   * <p>After this method is executed, then Compute Engine logs are
+   * written to sonar.log only.</p>
    */
   public void clearForTask() {
     String relativePath = (String) MDC.get(MDC_LOG_PATH);

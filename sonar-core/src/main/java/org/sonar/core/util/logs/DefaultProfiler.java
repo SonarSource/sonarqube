@@ -135,6 +135,11 @@ class DefaultProfiler extends Profiler {
     return doStop(LoggerLevel.INFO, message, args, "");
   }
 
+  @Override
+  public long stopError(String message, Object... args) {
+    return doStop(LoggerLevel.ERROR, message, args, "");
+  }
+
   private Profiler doStart(LoggerLevel logLevel, String message, Object... args) {
     init(message, args);
     logStartMessage(logLevel, message, args);
@@ -159,7 +164,7 @@ class DefaultProfiler extends Profiler {
       StringBuilder sb = new StringBuilder();
       sb.append(message);
       appendContext(sb);
-      logger.trace(sb.toString(), args);
+      log(loggerLevel, sb.toString(), args);
     }
   }
 

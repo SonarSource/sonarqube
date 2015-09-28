@@ -48,6 +48,7 @@ public class NullProfilerTest {
     assertThat(underTest.stopDebug("msg")).isEqualTo(0);
     assertThat(underTest.stopTrace()).isEqualTo(0);
     assertThat(underTest.stopTrace("msg")).isEqualTo(0);
+    assertThat(underTest.stopError("msg")).isEqualTo(0);
 
   }
 }

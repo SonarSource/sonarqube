@@ -85,9 +85,10 @@ public abstract class Profiler {
 
   public abstract long stopInfo(String message, Object... args);
 
+  public abstract long stopError(String message, Object... args);
+
   /**
    * Context information is removed if value is <code>null</code>.
    */
   public abstract Profiler addContext(String key, @Nullable Object value);
-
 }
