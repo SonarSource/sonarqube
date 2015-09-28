@@ -39,7 +39,12 @@ export default React.createClass({
   },
 
   initTooltips() {
-    $('[data-toggle="tooltip"]', React.findDOMNode(this)).tooltip({ container: 'body', placement: 'bottom' });
+    $('[data-toggle="tooltip"]', React.findDOMNode(this)).tooltip({
+      container: 'body',
+      placement: 'bottom',
+      delay: { show: 0, hide: 1000 },
+      html: true
+    });
   },
 
   render() {
