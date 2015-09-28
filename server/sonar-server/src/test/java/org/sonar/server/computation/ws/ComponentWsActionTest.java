@@ -44,7 +44,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ProjectWsActionTest {
+public class ComponentWsActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -54,7 +54,7 @@ public class ProjectWsActionTest {
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging);
-  ProjectWsAction underTest = new ProjectWsAction(userSession, dbTester.getDbClient(), formatter);
+  ComponentWsAction underTest = new ComponentWsAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -64,7 +64,7 @@ public class ProjectWsActionTest {
 
   @Test
   public void empty_queue_and_empty_activity() {
-    userSession.addProjectUuidPermissions(UserRole.USER, "PROJECT_1");
+    userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("componentId", "PROJECT_1")
@@ -78,7 +78,7 @@ public class ProjectWsActionTest {
 
   @Test
   public void project_tasks() {
-    userSession.addProjectUuidPermissions(UserRole.USER, "PROJECT_1");
+    userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertActivity("T3", "PROJECT_1", CeActivityDto.Status.FAILED);

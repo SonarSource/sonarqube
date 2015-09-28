@@ -36,7 +36,7 @@ import org.sonar.server.ws.WsUtils;
 
 import static org.sonarqube.ws.WsCe.ProjectResponse;
 
-public class ProjectWsAction implements CeWsAction {
+public class ComponentWsAction implements CeWsAction {
 
   public static final String PARAM_COMPONENT_UUID = "componentId";
 
@@ -44,7 +44,7 @@ public class ProjectWsAction implements CeWsAction {
   private final DbClient dbClient;
   private final TaskFormatter formatter;
 
-  public ProjectWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
+  public ComponentWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;
@@ -52,10 +52,10 @@ public class ProjectWsAction implements CeWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("project")
-      .setDescription("Get the pending and last executed tasks of a given project")
+    WebService.NewAction action = controller.createAction("component")
+      .setDescription("Get the pending and last executed tasks of a given component (usually a project)")
       .setInternal(true)
-      .setResponseExample(getClass().getResource("project-example.json"))
+      .setResponseExample(getClass().getResource("component-example.json"))
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_UUID)
@@ -66,7 +66,7 @@ public class ProjectWsAction implements CeWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     String componentUuid = wsRequest.mandatoryParam(PARAM_COMPONENT_UUID);
-    userSession.checkProjectUuidPermission(UserRole.USER, componentUuid);
+    userSession.checkComponentUuidPermission(UserRole.USER, componentUuid);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
