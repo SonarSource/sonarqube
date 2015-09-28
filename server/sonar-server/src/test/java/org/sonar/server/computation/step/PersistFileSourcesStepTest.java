@@ -20,12 +20,10 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.resources.Language;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -39,7 +37,6 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.source.SourceLinesRepositoryRule;
 import org.sonar.test.DbTests;
 
@@ -129,10 +126,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
-        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
-    fileSourceRepository.addLine("line1").addLine("line2");
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
 
     underTest.execute();
 
@@ -442,14 +439,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .build());
 
     for (int i = 1; i <= numberOfLines; i++) {
-      fileSourceRepository.addLine("line" + i);
+      fileSourceRepository.addLine(FILE_REF, "line" + i);
     }
   }
 
-  private static class EmptyLanguageRepository implements LanguageRepository {
-    @Override
-    public Optional<Language> find(String languageKey) {
-      return Optional.absent();
-    }
-  }
 }

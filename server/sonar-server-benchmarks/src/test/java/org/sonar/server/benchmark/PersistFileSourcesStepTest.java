@@ -82,8 +82,7 @@ public class PersistFileSourcesStepTest {
     BatchReportDirectoryHolderImpl batchReportDirectoryHolder = new BatchReportDirectoryHolderImpl();
     batchReportDirectoryHolder.setDirectory(reportDir);
     org.sonar.server.computation.batch.BatchReportReader batchReportReader = new BatchReportReaderImpl(batchReportDirectoryHolder);
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader,
-      new SourceLinesRepositoryImpl(dbClient, batchReportReader));
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader, new SourceLinesRepositoryImpl(batchReportReader));
     step.execute();
 
     long end = System.currentTimeMillis();

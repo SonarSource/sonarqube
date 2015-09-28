@@ -26,11 +26,11 @@ import org.sonar.server.computation.component.Component;
 public interface SourceLinesRepository {
 
   /**
-   * Return lines from a given component. If file sources is not in the report then we read it from the database.
+   * Return lines from a given component from the report.
    *
    * @throws NullPointerException if argument is {@code null}
    * @throws IllegalArgumentException if component is not a {@link org.sonar.server.computation.component.Component.Type#FILE}
-   * @throws IllegalStateException if the file has no source code in the report and in the database
+   * @throws IllegalStateException if the file has no source code in the report
    */
   CloseableIterator<String> readLines(Component component);
 }

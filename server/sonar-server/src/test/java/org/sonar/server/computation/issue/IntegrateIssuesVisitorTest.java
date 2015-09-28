@@ -134,7 +134,7 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, asList(reportIssue));
-    reportReader.putFileSourceLines(FILE_REF, "line1");
+    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
@@ -164,7 +164,7 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, asList(reportIssue));
-    reportReader.putFileSourceLines(FILE_REF, "line1");
+    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
@@ -213,7 +213,7 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, asList(reportIssue));
-    reportReader.putFileSourceLines(FILE_REF, "line1");
+    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
@@ -252,7 +252,7 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, asList(reportIssue));
-    reportReader.putFileSourceLines(FILE_REF, "line1");
+    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
 
@@ -270,7 +270,7 @@ public class IntegrateIssuesVisitorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
     reportReader.putIssues(FILE_REF, asList(reportIssue));
-    reportReader.putFileSourceLines(FILE_REF, "line1");
+    fileSourceRepository.addLine(FILE_REF, "line1");
 
     underTest.visitAny(FILE);
     assertThat(componentIssuesRepository.getIssues(FILE_REF)).hasSize(1);

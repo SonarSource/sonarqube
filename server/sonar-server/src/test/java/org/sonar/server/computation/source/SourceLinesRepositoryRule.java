@@ -20,18 +20,21 @@
 
 package org.sonar.server.computation.source;
 
-import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import java.util.Arrays;
+import java.util.Collection;
 import org.junit.rules.ExternalResource;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.component.Component;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 
 public class SourceLinesRepositoryRule extends ExternalResource implements SourceLinesRepository {
 
-  private List<String> lines = new ArrayList<>();
+  private Multimap<Integer, String> lines = ArrayListMultimap.create();
 
   @Override
   protected void after() {
@@ -40,15 +43,22 @@ public class SourceLinesRepositoryRule extends ExternalResource implements Sourc
 
   @Override
   public CloseableIterator<String> readLines(Component component) {
-    Preconditions.checkNotNull(component, "Component should not be bull");
+    checkNotNull(component, "Component should not be bull");
     if (!component.getType().equals(FILE)) {
       throw new IllegalArgumentException(String.format("Component '%s' is not a file", component));
     }
-    return CloseableIterator.from(lines.iterator());
+    Collection<String> componentLines = lines.get(component.getReportAttributes().getRef());
+    checkState(!componentLines.isEmpty(), String.format("File '%s' has no source code", component));
+    return CloseableIterator.from(componentLines.iterator());
   }
 
-  public SourceLinesRepositoryRule addLine(String line){
-    lines.add(line);
+  public SourceLinesRepositoryRule addLine(int componentRef, String line) {
+    this.lines.put(componentRef, line);
+    return this;
+  }
+
+  public SourceLinesRepositoryRule addLines(int componentRef, String... lines) {
+    this.lines.putAll(componentRef, Arrays.asList(lines));
     return this;
   }
 

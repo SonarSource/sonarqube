@@ -23,18 +23,13 @@ package org.sonar.server.computation.source;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
-public class SourceLinesRepositoryTest {
+public class SourceLinesRepositoryImplTest {
 
   static final String FILE_UUID = "FILE_UUID";
   static final String FILE_KEY = "FILE_KEY";
@@ -49,14 +44,9 @@ public class SourceLinesRepositoryTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-
-  @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  DbSession session = db.getSession();
-
-  SourceLinesRepositoryImpl underTest = new SourceLinesRepositoryImpl(db.getDbClient(), reportReader);
+  SourceLinesRepositoryImpl underTest = new SourceLinesRepositoryImpl(reportReader);
 
   @Test
   public void read_lines_from_report() throws Exception {
@@ -75,18 +65,11 @@ public class SourceLinesRepositoryTest {
   }
 
   @Test
-  public void read_lines_from_database() throws Exception {
-    insertFileSourceInDb("line1", "line2");
+  public void fail_with_ISE_when_file_has_no_source() throws Exception {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("File 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has no source code");
 
-    assertThat(underTest.readLines(FILE)).containsOnly("line1", "line2");
-  }
-
-  @Test
-  public void read_from_report_even_if_source_exist_in_db() throws Exception {
-    reportReader.putFileSourceLines(FILE_REF, "report line1", "report line2");
-    insertFileSourceInDb("db line1", "db line2");
-
-    assertThat(underTest.readLines(FILE)).containsOnly("report line1", "report line2");
+    underTest.readLines(FILE);
   }
 
   @Test
@@ -105,16 +88,4 @@ public class SourceLinesRepositoryTest {
     underTest.readLines(builder(Component.Type.PROJECT, 123).setKey("NotFile").build());
   }
 
-  private void insertFileSourceInDb(String... lines) {
-    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
-    for (int i = 0; i < lines.length; i++) {
-      dataBuilder.addLinesBuilder().setLine(i + 1).setSource(lines[i]).build();
-    }
-    db.getDbClient().fileSourceDao().insert(session,
-      new FileSourceDto()
-        .setFileUuid(FILE_UUID).setProjectUuid("PROJECT_UUID")
-        .setSourceData(dataBuilder.build()));
-    session.commit();
-  }
 }
-

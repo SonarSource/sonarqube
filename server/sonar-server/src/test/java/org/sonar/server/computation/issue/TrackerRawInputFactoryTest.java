@@ -45,8 +45,10 @@ import static org.mockito.Mockito.when;
 
 public class TrackerRawInputFactoryTest {
 
+  static int FILE_REF = 2;
+
   static ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).setKey("PROJECT_KEY_2").setUuid("PROJECT_UUID_1").build();
-  static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 2).setKey("FILE_KEY_2").setUuid("FILE_UUID_2").build();
+  static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY_2").setUuid("FILE_UUID_2").build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
@@ -63,7 +65,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_source_hash_sequences() throws Exception {
-    fileSourceRepository.addLine("line 1;").addLine("line 2;");
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     Input<DefaultIssue> input = underTest.create(FILE);
 
     assertThat(input.getLineHashSequence()).isNotNull();
@@ -84,7 +86,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues() throws Exception {
-    fileSourceRepository.addLine("line 1;").addLine("line 2;");
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
       .setLine(2)
       .setMsg("the message")
@@ -115,7 +117,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void ignore_report_issues_on_common_rules() throws Exception {
-    fileSourceRepository.addLine("line 1;").addLine("line 2;");
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(CommonRuleKeys.commonRepositoryForLang("java"))
@@ -131,7 +133,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues_of_compute_engine_common_rules() throws Exception {
-    fileSourceRepository.addLine("line 1;").addLine("line 2;");
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
       .setMessage("not enough coverage")

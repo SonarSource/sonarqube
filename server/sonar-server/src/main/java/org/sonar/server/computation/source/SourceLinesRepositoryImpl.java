@@ -20,28 +20,20 @@
 
 package org.sonar.server.computation.source;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import javax.annotation.Nonnull;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 
-import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 
 public class SourceLinesRepositoryImpl implements SourceLinesRepository {
 
-  private final DbClient dbClient;
   private final BatchReportReader reportReader;
 
-  public SourceLinesRepositoryImpl(DbClient dbClient, BatchReportReader reportReader) {
-    this.dbClient = dbClient;
+  public SourceLinesRepositoryImpl(BatchReportReader reportReader) {
     this.reportReader = reportReader;
   }
 
@@ -53,33 +45,7 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
     }
 
     Optional<CloseableIterator<String>> linesIteratorOptional = reportReader.readFileSource(component.getReportAttributes().getRef());
-    if (linesIteratorOptional.isPresent()) {
-      return linesIteratorOptional.get();
-    }
-    DbSession session = dbClient.openSession(false);
-    try {
-      return readLinesFromDb(session, component);
-    } finally {
-      dbClient.closeSession(session);
-    }
+    checkState(linesIteratorOptional.isPresent(), String.format("File '%s' has no source code", component));
+    return linesIteratorOptional.get();
   }
-
-  private CloseableIterator<String> readLinesFromDb(DbSession session, Component component) {
-    FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(session, component.getUuid());
-    if (dto == null) {
-      throw new IllegalStateException(String.format("The file '%s' has no source", component));
-    }
-    DbFileSources.Data data = dto.getSourceData();
-    return CloseableIterator.from(from(data.getLinesList()).transform(LineToRaw.INSTANCE).iterator());
-  }
-
-  private enum LineToRaw implements Function<DbFileSources.Line, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull DbFileSources.Line line) {
-      return line.getSource();
-    }
-  }
-
 }
