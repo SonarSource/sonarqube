@@ -84,13 +84,20 @@ export default React.createClass({
   renderCancelButton(task) {
     if (task.status === STATUSES.PENDING) {
       return (
-          <td className="thin">
-            <a onClick={this.onTaskCanceled.bind(this, task)} className="icon-delete" title="Cancel Task"
-               data-toggle="tooltip" href="#"></a>
-          </td>
+          <a onClick={this.onTaskCanceled.bind(this, task)} className="icon-delete" title="Cancel Task"
+             data-toggle="tooltip" href="#"></a>
       );
     } else {
-      return <td className="thin"></td>;
+      return null;
+    }
+  },
+
+  renderLogsLink(task) {
+    if (task.logs) {
+      let url = `${window.baseUrl}/api/ce/logs?taskId=${task.id}`;
+      return <a target="_blank" href={url}>Logs</a>;
+    } else {
+      return null;
     }
   },
 
@@ -105,7 +112,10 @@ export default React.createClass({
           {this.renderTaskDate(task, 'startedAt', 'LTS')}
           {this.renderTaskDate(task, 'finishedAt', 'LTS')}
           {this.renderTaskExecutionTime(task)}
-          {this.renderCancelButton(task)}
+          <td className="thin nowrap text-right">
+            {this.renderLogsLink(task)}
+            {this.renderCancelButton(task)}
+          </td>
         </tr>
     );
   },
