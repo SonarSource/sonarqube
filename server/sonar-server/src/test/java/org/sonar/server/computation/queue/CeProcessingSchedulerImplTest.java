@@ -21,27 +21,23 @@ package org.sonar.server.computation.queue;
 
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import org.sonar.server.computation.queue.report.ReportTaskProcessor;
-import org.sonar.server.computation.log.CeLogging;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class CeProcessingSchedulerImplTest {
   private CeProcessingSchedulerExecutorService processingExecutorService = mock(CeProcessingSchedulerExecutorService.class);
-  private CeQueue ceQueue = mock(CeQueue.class);
-  private ReportTaskProcessor reportTaskProcessor = mock(ReportTaskProcessor.class);
-  private CeLogging ceLogging = mock(CeLogging.class);
-  private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(processingExecutorService, ceQueue, reportTaskProcessor, ceLogging);
+  private CeWorkerRunnable workerRunnable = mock(CeWorkerRunnable.class);
+  private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(processingExecutorService, workerRunnable);
 
   @Test
   public void startScheduling_schedules_CeWorkerRunnable_at_fixed_rate_run_head_of_queue() {
     underTest.startScheduling();
 
-    verify(processingExecutorService).scheduleAtFixedRate(any(CeWorkerRunnable.class), eq(0L), eq(10L), eq(TimeUnit.SECONDS));
+    verify(processingExecutorService).scheduleAtFixedRate(same(workerRunnable), eq(0L), eq(10L), eq(TimeUnit.SECONDS));
     verifyNoMoreInteractions(processingExecutorService);
   }
 

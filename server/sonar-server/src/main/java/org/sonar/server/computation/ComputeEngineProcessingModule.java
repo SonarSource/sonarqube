@@ -23,6 +23,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.server.computation.container.ContainerFactoryImpl;
 import org.sonar.server.computation.queue.CeProcessingSchedulerExecutorServiceImpl;
 import org.sonar.server.computation.queue.CeProcessingSchedulerImpl;
+import org.sonar.server.computation.queue.CeWorkerRunnableImpl;
 import org.sonar.server.computation.queue.report.ReportTaskProcessor;
 
 public class ComputeEngineProcessingModule extends Module {
@@ -33,6 +34,7 @@ public class ComputeEngineProcessingModule extends Module {
       ComputationStepExecutor.class,
       ReportTaskProcessor.class,
       CeProcessingSchedulerExecutorServiceImpl.class,
+      CeWorkerRunnableImpl.class,
       CeProcessingSchedulerImpl.class);
   }
 }

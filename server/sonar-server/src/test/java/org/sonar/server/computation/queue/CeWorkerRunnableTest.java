@@ -38,7 +38,7 @@ public class CeWorkerRunnableTest {
   CeQueue queue = mock(CeQueueImpl.class);
   ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
   CeLogging ceLogging = mock(CeLogging.class);
-  CeWorkerRunnable underTest = new CeWorkerRunnable(queue, taskProcessor, ceLogging);
+  CeWorkerRunnable underTest = new CeWorkerRunnableImpl(queue, taskProcessor, ceLogging);
 
   @Test
   public void no_pending_tasks_in_queue() throws Exception {

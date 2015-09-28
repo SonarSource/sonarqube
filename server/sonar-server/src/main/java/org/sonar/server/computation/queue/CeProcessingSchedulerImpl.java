@@ -20,24 +20,18 @@
 package org.sonar.server.computation.queue;
 
 import java.util.concurrent.TimeUnit;
-import org.sonar.server.computation.queue.report.ReportTaskProcessor;
-import org.sonar.server.computation.log.CeLogging;
 
 public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   private final CeProcessingSchedulerExecutorService executorService;
-  private final CeQueue ceQueue;
-  private final ReportTaskProcessor reportTaskProcessor;
-  private final CeLogging ceLogging;
+  private final CeWorkerRunnable workerRunnable;
 
   private final long delayBetweenTasks;
   private final long delayForFirstStart;
   private final TimeUnit timeUnit;
 
-  public CeProcessingSchedulerImpl(CeProcessingSchedulerExecutorService processingExecutorService, CeQueue ceQueue, ReportTaskProcessor reportTaskProcessor, CeLogging ceLogging) {
+  public CeProcessingSchedulerImpl(CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerRunnable workerRunnable) {
     this.executorService = processingExecutorService;
-    this.ceQueue = ceQueue;
-    this.reportTaskProcessor = reportTaskProcessor;
-    this.ceLogging = ceLogging;
+    this.workerRunnable = workerRunnable;
 
     this.delayBetweenTasks = 10;
     this.delayForFirstStart = 0;
@@ -46,7 +40,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
 
   @Override
   public void startScheduling() {
-    executorService.scheduleAtFixedRate(new CeWorkerRunnable(ceQueue, reportTaskProcessor, ceLogging), delayForFirstStart, delayBetweenTasks, timeUnit);
+    executorService.scheduleAtFixedRate(workerRunnable, delayForFirstStart, delayBetweenTasks, timeUnit);
   }
 
 }
