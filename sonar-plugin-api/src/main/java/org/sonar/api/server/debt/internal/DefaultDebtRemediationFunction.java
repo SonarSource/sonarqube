@@ -21,13 +21,14 @@
 package org.sonar.api.server.debt.internal;
 
 import com.google.common.base.Objects;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
@@ -75,24 +76,16 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   }
 
   private void validate() {
-    if (type == null) {
-      throw new IllegalArgumentException("Remediation function type cannot be null");
-    }
+    checkArgument(type != null, "Remediation function type cannot be null");
     switch (type) {
       case LINEAR:
-        if (this.coefficient == null || this.offset != null) {
-          throw new IllegalArgumentException("Linear functions must only have a non empty coefficient");
-        }
+        checkArgument(this.coefficient != null && this.offset == null, "Linear functions must only have a non empty coefficient");
         break;
       case LINEAR_OFFSET:
-        if (this.coefficient == null || this.offset == null) {
-          throw new IllegalArgumentException("Linear with offset functions must have both non null coefficient and offset");
-        }
+        checkArgument(this.coefficient != null && this.offset != null, "Linear with offset functions must have both non null coefficient and offset");
         break;
       case CONSTANT_ISSUE:
-        if (this.coefficient != null || this.offset == null) {
-          throw new IllegalArgumentException("Constant/issue functions must only have a non empty offset");
-        }
+        checkArgument(this.coefficient == null && this.offset != null, "Constant/issue functions must only have a non empty offset");
         break;
       default:
         throw new IllegalArgumentException(String.format("Unknown type on %s", this));
