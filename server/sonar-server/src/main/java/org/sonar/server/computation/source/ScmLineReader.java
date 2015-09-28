@@ -20,12 +20,17 @@
 
 package org.sonar.server.computation.source;
 
+import javax.annotation.CheckForNull;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class ScmLineReader implements LineReader {
 
   private final BatchReport.Changesets scmReport;
+  @CheckForNull
+  private BatchReport.Changesets.Changeset latestChange;
 
   public ScmLineReader(BatchReport.Changesets scmReport) {
     this.scmReport = scmReport;
@@ -48,9 +53,23 @@ public class ScmLineReader implements LineReader {
       lineBuilder.setScmDate(changeset.getDate());
     }
 
-    if (!hasAuthor && !hasRevision && !hasDate) {
-      throw new IllegalArgumentException("A changeset must contains at least one of : author, revision or date");
+    checkArgument(
+      hasAuthor || hasRevision || hasDate,
+      "A changeset must contain at least one of : author, revision or date");
+    updateLatestChange(changeset);
+  }
+
+  private void updateLatestChange(BatchReport.Changesets.Changeset newChangeSet) {
+    if (this.latestChange == null) {
+      this.latestChange = newChangeSet;
+    } else if (newChangeSet.hasDate() && this.latestChange.hasDate()
+      && newChangeSet.getDate() > this.latestChange.getDate()) {
+      this.latestChange = newChangeSet;
     }
   }
 
+  @CheckForNull
+  public BatchReport.Changesets.Changeset getLatestChange() {
+    return latestChange;
+  }
 }
