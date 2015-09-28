@@ -21,13 +21,12 @@
 package org.sonar.server.debt;
 
 import com.google.common.io.Resources;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.ValidationMessages;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -178,6 +177,14 @@ public class DebtRulesXMLImporterTest {
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(ruleDebt.coefficient()).isNull();
     assertThat(ruleDebt.offset()).isEqualTo("3h");
+  }
+
+  @Test
+  public void ignore_remediation_cost_having_zero_value() throws Exception {
+    String xml = getFileContent("ignore_remediation_cost_having_zero_value.xml");
+
+    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    assertThat(results).isEmpty();
   }
 
   @Test
