@@ -30,6 +30,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
@@ -39,13 +40,15 @@ public class ReportSubmitter {
   private final UserSession userSession;
   private final ReportFiles reportFiles;
   private final ComponentService componentService;
+  private final PermissionService permissionService;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ReportFiles reportFiles,
-    ComponentService componentService) {
+    ComponentService componentService, PermissionService permissionService) {
     this.queue = queue;
     this.userSession = userSession;
     this.reportFiles = reportFiles;
     this.componentService = componentService;
+    this.permissionService = permissionService;
   }
 
   public CeTask submit(String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
@@ -60,6 +63,7 @@ public class ReportSubmitter {
       newProject.setQualifier(Qualifiers.PROJECT);
       // no need to verify the permission "provisioning" as it's already handled by componentService
       project = componentService.create(newProject);
+      permissionService.applyDefaultPermissionTemplate(project.getKey());
     }
 
     // the report file must be saved before submitting the task

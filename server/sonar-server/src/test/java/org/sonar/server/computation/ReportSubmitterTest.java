@@ -29,12 +29,14 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ReportSubmitterTest {
@@ -45,7 +47,8 @@ public class ReportSubmitterTest {
   CeQueue queue = mock(CeQueueImpl.class);
   ReportFiles reportFiles = mock(ReportFiles.class);
   ComponentService componentService = mock(ComponentService.class);
-  ReportSubmitter underTest = new ReportSubmitter(queue, userSession, reportFiles, componentService);
+  PermissionService permissionService = mock(PermissionService.class);
+  ReportSubmitter underTest = new ReportSubmitter(queue, userSession, reportFiles, componentService, permissionService);
 
   @Test
   public void submit_a_report_on_existing_project() {
@@ -55,6 +58,7 @@ public class ReportSubmitterTest {
 
     underTest.submit("MY_PROJECT", null, "My Project", IOUtils.toInputStream("{binary}"));
 
+    verifyZeroInteractions(permissionService);
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
@@ -74,10 +78,11 @@ public class ReportSubmitterTest {
     when(queue.prepareSubmit()).thenReturn(new CeTaskSubmit.Builder("TASK_1"));
     userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PROVISIONING);
     when(componentService.getNullableByKey("MY_PROJECT")).thenReturn(null);
-    when(componentService.create(any(NewComponent.class))).thenReturn(new ComponentDto().setUuid("P1"));
+    when(componentService.create(any(NewComponent.class))).thenReturn(new ComponentDto().setUuid("P1").setKey("MY_PROJECT"));
 
     underTest.submit("MY_PROJECT", null, "My Project", IOUtils.toInputStream("{binary}"));
 
+    verify(permissionService).applyDefaultPermissionTemplate("MY_PROJECT");
     verify(queue).submit(argThat(new TypeSafeMatcher<CeTaskSubmit>() {
       @Override
       protected boolean matchesSafely(CeTaskSubmit submit) {
