@@ -36,12 +36,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueDtoTest {
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void set_data_check_maximal_length() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Value is too long for column ISSUES.ATTRIBUTES:");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value is too long for issue attributes:");
 
     StringBuilder s = new StringBuilder(4500);
     for (int i = 0; i < 4500; i++) {

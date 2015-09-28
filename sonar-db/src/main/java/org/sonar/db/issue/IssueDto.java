@@ -245,6 +245,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setActionPlanKey(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 50, "Value is too long for issue action plan: %s", s);
     this.actionPlanKey = s;
     return this;
   }
@@ -254,8 +255,9 @@ public final class IssueDto implements Serializable {
     return severity;
   }
 
-  public IssueDto setSeverity(@Nullable String severity) {
-    this.severity = severity;
+  public IssueDto setSeverity(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 10, "Value is too long for issue severity: %s", s);
+    this.severity = s;
     return this;
   }
 
@@ -274,7 +276,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setMessage(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 4000, "Value is too long for column ISSUES.MESSAGE: %s", s);
+    checkArgument(s == null || s.length() <= 4000, "Value is too long for issue message: %s", s);
     this.message = s;
     return this;
   }
@@ -284,8 +286,9 @@ public final class IssueDto implements Serializable {
     return line;
   }
 
-  public IssueDto setLine(@Nullable Integer line) {
-    this.line = line;
+  public IssueDto setLine(@Nullable Integer i) {
+    checkArgument(i == null || i >= 0, "Value of issue line must be positive: %d", i);
+    this.line = i;
     return this;
   }
 
@@ -295,6 +298,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setEffortToFix(@Nullable Double d) {
+    checkArgument(d == null || d >= 0, "Value of issue effort to fix must be positive: %d", d);
     this.effortToFix = d;
     return this;
   }
@@ -304,8 +308,9 @@ public final class IssueDto implements Serializable {
     return debt;
   }
 
-  public IssueDto setDebt(@Nullable Long debt) {
-    this.debt = debt;
+  public IssueDto setDebt(@Nullable Long l) {
+    checkArgument(l == null || l >= 0, "Value of issue debt must be positive: %d", l);
+    this.debt = l;
     return this;
   }
 
@@ -313,8 +318,9 @@ public final class IssueDto implements Serializable {
     return status;
   }
 
-  public IssueDto setStatus(@Nullable String status) {
-    this.status = status;
+  public IssueDto setStatus(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 20, "Value is too long for issue status: %s", s);
+    this.status = s;
     return this;
   }
 
@@ -324,6 +330,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setResolution(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 20, "Value is too long for issue resolution: %s", s);
     this.resolution = s;
     return this;
   }
@@ -333,8 +340,9 @@ public final class IssueDto implements Serializable {
     return checksum;
   }
 
-  public IssueDto setChecksum(@Nullable String checksum) {
-    this.checksum = checksum;
+  public IssueDto setChecksum(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 1000, "Value is too long for issue checksum: %s", s);
+    this.checksum = s;
     return this;
   }
 
@@ -344,7 +352,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setReporter(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value is too long for column ISSUES.REPORTER: %s", s);
+    checkArgument(s == null || s.length() <= 255, "Value is too long for issue reporter: %s", s);
     this.reporter = s;
     return this;
   }
@@ -355,7 +363,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setAssignee(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value is too long for column ISSUES.ASSIGNEE: %s", s);
+    checkArgument(s == null || s.length() <= 255, "Value is too long for issue assignee: %s", s);
     this.assignee = s;
     return this;
   }
@@ -366,7 +374,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setAuthorLogin(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value is too long for column ISSUES.AUTHOR_LOGIN: %s", s);
+    checkArgument(s == null || s.length() <= 255, "Value is too long for issue author login: %s", s);
     this.authorLogin = s;
     return this;
   }
@@ -377,7 +385,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setIssueAttributes(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 4000, "Value is too long for column ISSUES.ATTRIBUTES: %s", s);
+    checkArgument(s == null || s.length() <= 4000, "Value is too long for issue attributes: %s", s);
     this.issueAttributes = s;
     return this;
   }

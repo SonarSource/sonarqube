@@ -45,7 +45,7 @@ public class CeQueueDto {
   }
 
   public void setUuid(String s) {
-    checkArgument(s.length() <= 40, "Value is too long for column CE_QUEUE.UUID: %s", s);
+    checkArgument(s.length() <= 40, "Value of UUID is too long: %s", s);
     this.uuid = s;
   }
 
@@ -55,7 +55,7 @@ public class CeQueueDto {
   }
 
   public void setComponentUuid(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 40, "Value is too long for column CE_QUEUE.COMPONENT_UUID: %s", s);
+    checkArgument(s == null || s.length() <= 40, "Value of component UUID is too long: %s", s);
     this.componentUuid = s;
   }
 
@@ -72,7 +72,7 @@ public class CeQueueDto {
   }
 
   public void setTaskType(String s) {
-    checkArgument(s.length() <= 15, "Value is too long for column CE_QUEUE.TASK_TYPE: %s", s);
+    checkArgument(s.length() <= 15, "Value of task type is too long: %s", s);
     this.taskType = s;
   }
 
@@ -82,7 +82,7 @@ public class CeQueueDto {
   }
 
   public void setSubmitterLogin(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value is too long for column CE_QUEUE.SUBMITTER_LOGIN: %s", s);
+    checkArgument(s == null || s.length() <= 255, "Value of submitter login is too long: %s", s);
     this.submitterLogin = s;
   }
 
@@ -126,7 +126,7 @@ public class CeQueueDto {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
