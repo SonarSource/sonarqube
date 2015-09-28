@@ -22,8 +22,26 @@ export default React.createClass({
     };
   },
 
+  filterQueueForComponent(queue) {
+    if (this.props.options.componentId) {
+      return queue.filter(task => {
+        return task.componentId === this.props.options.componentId
+      });
+    } else {
+      return queue;
+    }
+  },
+
   componentDidMount() {
     this.requestData();
+  },
+
+  getComponentFilter() {
+    if (this.props.options.componentId) {
+      return { componentId: this.props.options.componentId };
+    } else {
+      return {};
+    }
   },
 
   getCurrentFilters() {
@@ -46,10 +64,11 @@ export default React.createClass({
   requestQueue() {
     if (!Object.keys(this.getCurrentFilters()).length) {
       getQueue().done(queue => {
+        let tasks = this.filterQueueForComponent(queue.tasks);
         this.setState({
-          queue: this.orderTasks(queue.tasks),
-          pendingCount: this.countPending(queue.tasks),
-          inProgressDuration: this.getInProgressDuration(queue.tasks)
+          queue: this.orderTasks(tasks),
+          pendingCount: this.countPending(tasks),
+          inProgressDuration: this.getInProgressDuration(tasks)
         });
       });
     } else {
@@ -58,7 +77,10 @@ export default React.createClass({
   },
 
   requestActivity() {
-    let filters = _.extend(this.getCurrentFilters(), { p: this.state.activityPage, ps: PAGE_SIZE });
+    let filters = _.extend(
+        this.getCurrentFilters(),
+        this.getComponentFilter(),
+        { p: this.state.activityPage, ps: PAGE_SIZE });
     getActivity(filters).done(activity => {
       let newActivity = activity.paging.pageIndex === 1 ?
           activity.tasks : [].concat(this.state.activity, activity.tasks);
@@ -71,7 +93,9 @@ export default React.createClass({
   },
 
   requestFailures() {
-    let filters = { ps: 1, onlyCurrents: true, status: STATUSES.FAILED };
+    let filters = _.extend(
+        this.getComponentFilter(),
+        { ps: 1, onlyCurrents: true, status: STATUSES.FAILED });
     getActivity(filters).done(failures => {
       this.setState({ failuresCount: failures.paging.total });
     });

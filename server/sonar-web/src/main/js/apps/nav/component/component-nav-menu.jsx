@@ -71,6 +71,7 @@ export default React.createClass({
             {this.renderLinksLink()}
             {this.renderPermissionsLink()}
             {this.renderHistoryLink()}
+            {this.renderBackgroundTasksLink()}
             {this.renderUpdateKeyLink()}
             {this.renderDeletionLink()}
             {this.renderExtensions()}
@@ -141,6 +142,12 @@ export default React.createClass({
     }
     const url = `/project/history?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, window.t('project_history.page'), '/project/history');
+  },
+
+  renderBackgroundTasksLink() {
+    // TODO check permissions
+    const url = `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
+    return this.renderLink(url, 'Background Tasks', '/project/background_tasks');
   },
 
   renderUpdateKeyLink() {

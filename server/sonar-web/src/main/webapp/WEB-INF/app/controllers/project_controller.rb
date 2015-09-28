@@ -225,6 +225,10 @@ class ProjectController < ApplicationController
                               :include => 'events', :order => 'snapshots.created_at DESC')
   end
 
+  def background_tasks
+    @project = get_current_project(params[:id])
+  end
+
   def delete_snapshot_history
     @project = get_current_project(params[:id])
 
