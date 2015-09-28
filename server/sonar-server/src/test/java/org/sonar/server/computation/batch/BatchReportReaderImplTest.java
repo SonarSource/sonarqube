@@ -21,7 +21,9 @@ package org.sonar.server.computation.batch;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -78,6 +80,21 @@ public class BatchReportReaderImplTest {
     BatchReport.Metadata res = underTest.readMetadata();
     assertThat(res).isEqualTo(metadata);
     assertThat(underTest.readMetadata()).isSameAs(res);
+  }
+
+  @Test
+  public void readScannerLogs() throws IOException {
+    File scannerLogFile = writer.getFileStructure().analysisLog();
+    FileUtils.write(scannerLogFile, "{logs}");
+
+    Reader logReader = underTest.readScannerLogs();
+    assertThat(IOUtils.toString(logReader)).isEqualTo("{logs}");
+  }
+
+  @Test
+  public void readScannerLogs_no_logs() {
+    Reader logReader = underTest.readScannerLogs();
+    assertThat(logReader).isNull();
   }
 
   @Test

@@ -20,12 +20,16 @@
 package org.sonar.server.computation.batch;
 
 import com.google.common.base.Optional;
+import java.io.Reader;
 import javax.annotation.CheckForNull;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 
 public interface BatchReportReader {
   BatchReport.Metadata readMetadata();
+
+  @CheckForNull
+  Reader readScannerLogs();
 
   CloseableIterator<BatchReport.ActiveRule> readActiveRules();
 

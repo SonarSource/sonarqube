@@ -152,4 +152,8 @@ public class BatchReportReader {
   private static boolean fileExists(File file) {
     return file.exists() && file.isFile();
   }
+
+  public FileStructure getFileStructure() {
+    return fileStructure;
+  }
 }

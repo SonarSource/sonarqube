@@ -26,6 +26,8 @@ import com.google.protobuf.Parser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
@@ -50,6 +52,19 @@ public class BatchReportReaderImpl implements BatchReportReader {
       this.metadata = delegate.readMetadata();
     }
     return this.metadata;
+  }
+
+  @Override
+  public Reader readScannerLogs() {
+    File file = delegate.getFileStructure().analysisLog();
+    if (!file.exists()) {
+      return null;
+    }
+    try {
+      return new InputStreamReader(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to open file " + file, e);
+    }
   }
 
   @Override

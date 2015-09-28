@@ -21,6 +21,7 @@ package org.sonar.server.computation.batch;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import org.sonar.core.util.CloseableIterator;
 
 public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private BatchReport.Metadata metadata;
+  private Reader scannerLogs;
   private List<BatchReport.ActiveRule> activeRules = new ArrayList<>();
   private Map<Integer, List<BatchReport.Measure>> measures = new HashMap<>();
   private Map<Integer, BatchReport.Changesets> changesets = new HashMap<>();
@@ -65,6 +67,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   private void clear() {
     this.metadata = null;
+    this.scannerLogs = null;
     this.measures.clear();
     this.changesets.clear();
     this.components.clear();
@@ -88,6 +91,15 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   public void setMetadata(BatchReport.Metadata metadata) {
     this.metadata = metadata;
+  }
+
+  @Override
+  public Reader readScannerLogs() {
+    return scannerLogs;
+  }
+
+  public void setScannerLogs(@Nullable Reader reader) {
+    this.scannerLogs = reader;
   }
 
   @Override
