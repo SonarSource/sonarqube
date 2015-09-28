@@ -57,22 +57,13 @@ public class CeLogging {
   public static final String MAX_LOGS_PROPERTY = "sonar.ce.maxLogsPerTask";
 
   private final File logsDir;
-  private final int maxLogs;
+  private final Settings settings;
 
   public CeLogging(Settings settings) {
     String dataDir = settings.getString(ProcessProperties.PATH_DATA);
     checkArgument(dataDir != null, "Property %s is not set", ProcessProperties.PATH_DATA);
     this.logsDir = logsDirFromDataDir(new File(dataDir));
-    this.maxLogs = settings.getInt(MAX_LOGS_PROPERTY);
-    if (maxLogs < 0) {
-      throw new IllegalArgumentException(format("Property %s must be positive. Got: %d", MAX_LOGS_PROPERTY, maxLogs));
-    }
-  }
-
-  @VisibleForTesting
-  CeLogging(File logsDir, int maxLogs) {
-    this.logsDir = logsDir;
-    this.maxLogs = maxLogs;
+    this.settings = settings;
   }
 
   /**
@@ -114,6 +105,10 @@ public class CeLogging {
   @VisibleForTesting
   void purgeDir(File dir) {
     if (dir.exists()) {
+      int maxLogs = settings.getInt(MAX_LOGS_PROPERTY);
+      if (maxLogs < 0) {
+        throw new IllegalArgumentException(format("Property %s must be positive. Got: %d", MAX_LOGS_PROPERTY, maxLogs));
+      }
       List<File> logFiles = newArrayList(FileUtils.listFiles(dir, FileFilterUtils.fileFileFilter(), FileFilterUtils.falseFileFilter()));
       if (logFiles.size() > maxLogs) {
         Collections.sort(logFiles, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);

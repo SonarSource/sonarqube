@@ -51,8 +51,7 @@ public class CeLoggingTest {
   @Test
   public void getFile() throws IOException {
     File dataDir = temp.newFolder();
-    Settings settings = new Settings();
-    settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
+    Settings settings = newSettings(dataDir, 10);
 
     CeLogging underTest = new CeLogging(settings);
     LogFileRef ref = new LogFileRef("TYPE1", "TASK1", "COMPONENT1");
@@ -75,7 +74,7 @@ public class CeLoggingTest {
 
   @Test
   public void use_MDC_to_store_path_to_in_progress_task_logs() throws IOException {
-    CeLogging underTest = new CeLogging(temp.newFolder(), 5);
+    CeLogging underTest = new CeLogging(newSettings(temp.newFolder(), 5));
 
     CeTask task = new CeTask.Builder().setType("TYPE1").setUuid("U1").build();
     underTest.initForTask(task);
@@ -97,7 +96,7 @@ public class CeLoggingTest {
     assertThat(dir.listFiles()).hasSize(5);
 
     // keep 3 files in each dir
-    CeLogging underTest = new CeLogging(dir, 3);
+    CeLogging underTest = new CeLogging(newSettings(dir, 3));
     underTest.purgeDir(dir);
 
     assertThat(dir.listFiles()).hasSize(3);
@@ -110,7 +109,7 @@ public class CeLoggingTest {
     File dir = temp.newFolder();
     FileUtils.touch(new File(dir, "U1.log"));
 
-    CeLogging underTest = new CeLogging(dir, 5);
+    CeLogging underTest = new CeLogging(newSettings(dir, 5));
     underTest.purgeDir(dir);
 
     assertThat(dir.listFiles()).extracting("name").containsOnly("U1.log");
@@ -121,7 +120,7 @@ public class CeLoggingTest {
     File dir = temp.newFolder();
     FileUtils.touch(new File(dir, "U1.log"));
 
-    CeLogging underTest = new CeLogging(dir, 0);
+    CeLogging underTest = new CeLogging(newSettings(temp.newFolder(), 0));
     underTest.purgeDir(dir);
 
     assertThat(dir.listFiles()).isEmpty();
@@ -132,10 +131,9 @@ public class CeLoggingTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property sonar.ce.maxLogsPerTask must be positive. Got: -1");
 
-    Settings settings = new Settings();
-    settings.setProperty(ProcessProperties.PATH_DATA, temp.newFolder().getAbsolutePath());
-    settings.setProperty(CeLogging.MAX_LOGS_PROPERTY, -1);
-    new CeLogging(settings);
+    Settings settings = newSettings(temp.newFolder(), -1);
+    CeLogging logging = new CeLogging(settings);
+    logging.purgeDir(temp.newFolder());
   }
 
   @Test
@@ -151,4 +149,10 @@ public class CeLoggingTest {
     assertThat(siftingAppender.getDiscriminator().getKey()).isEqualTo(CeLogging.MDC_LOG_PATH);
   }
 
+  private static Settings newSettings(File dataDir, int maxLogs) {
+    Settings settings = new Settings();
+    settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
+    settings.setProperty(CeLogging.MAX_LOGS_PROPERTY, maxLogs);
+    return settings;
+  }
 }
