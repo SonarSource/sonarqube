@@ -231,8 +231,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
   /**
    * @return the metric formula
-   * @deprecated since 5.2 there's no more decorator on batch side
-   * TODO add link to new API
+   * @deprecated since 5.2 there's no more decorator on batch side, please use {@link org.sonar.api.ce.measure.MeasureComputer} instead
    */
   @Deprecated
   public Formula getFormula() {
@@ -244,8 +243,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    *
    * @param formula the formula
    * @return this
-   * @deprecated since 5.2 there's no more decorator on batch side
-   * TODO add link to new API
+   * @deprecated since 5.2 there's no more decorator on batch side, please use {@link org.sonar.api.ce.measure.MeasureComputer} instead
    */
   @Deprecated
   public Metric<G> setFormula(Formula formula) {
@@ -657,8 +655,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      * @param f the formula
      * @return the builder
      *
-     * @deprecated since 5.2, it's no more possible to define a formula on a metric
-     * TODO add a link to the new API to declare formulas
+     * @deprecated since 5.2, it's no more possible to define a formula on a metric, please use {@link org.sonar.api.ce.measure.MeasureComputer} instead
      */
     @Deprecated
     public Builder setFormula(Formula f) {

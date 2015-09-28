@@ -23,8 +23,7 @@ import java.util.List;
 
 /**
  * @since 1.11
- * @deprecated since 5.2 there's no more decorator on batch side
- * TODO add link to new API
+ * @deprecated since 5.2 there's no more decorator on batch side, please use {@link org.sonar.api.ce.measure.MeasureComputer} instead
  */
 @Deprecated
 public interface Formula {
