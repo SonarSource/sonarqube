@@ -143,9 +143,10 @@ public class PermissionService {
     }
   }
 
+  /**
+   * Important - this method checks caller permissions
+   */
   public void applyDefaultPermissionTemplate(final String componentKey) {
-    userSession.checkLoggedIn();
-
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
@@ -172,6 +173,9 @@ public class PermissionService {
     applyPermissionTemplate(query);
   }
 
+  /**
+   * Important - this method checks caller permissions
+   */
   public void applyPermissionTemplate(ApplyPermissionTemplateQuery query) {
     DbSession dbSession = dbClient.openSession(false);
     try {
