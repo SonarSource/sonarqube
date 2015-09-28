@@ -1,6 +1,7 @@
 import React from 'react';
 import {getProjectUrl} from '../../helpers/Url';
 import QualifierIcon from '../../components/shared/qualifier-icon';
+import PendingIcon from '../../components/shared/pending-icon';
 import {STATUSES} from './constants';
 
 export default React.createClass({
@@ -16,6 +17,9 @@ export default React.createClass({
   renderTaskStatus(task) {
     let inner;
     switch (task.status) {
+      case STATUSES.PENDING:
+        inner = <PendingIcon/>;
+        break;
       case STATUSES.IN_PROGRESS:
         inner = <i className="spinner"/>;
         break;
@@ -81,7 +85,8 @@ export default React.createClass({
     if (task.status === STATUSES.PENDING) {
       return (
           <td className="thin">
-            <button onClick={this.onTaskCanceled.bind(this, task)}>Cancel</button>
+            <a onClick={this.onTaskCanceled.bind(this, task)} className="icon-delete" title="Cancel Task"
+               data-toggle="tooltip" href="#"></a>
           </td>
       );
     } else {

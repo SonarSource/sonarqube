@@ -1,6 +1,11 @@
 import React from 'react';
 
 export default React.createClass({
+  onFailuresClick(e) {
+    e.preventDefault();
+    this.props.showFailures();
+  },
+
   renderInProgressDuration() {
     if (!this.props.inProgressDuration) {
       return null;
@@ -13,6 +18,17 @@ export default React.createClass({
     );
   },
 
+  renderFailures() {
+    if (this.props.failuresCount == null) {
+      return null;
+    }
+    if (this.props.failuresCount > 0) {
+      return <span><a onClick={this.onFailuresClick} className="emphasised-measure" href="#">{this.props.failuresCount}</a> failures</span>;
+    } else {
+      return <span><span className="emphasised-measure">{this.props.failuresCount}</span> failures</span>;
+    }
+  },
+
   render() {
     return (
         <section className="big-spacer-top big-spacer-bottom">
@@ -20,7 +36,7 @@ export default React.createClass({
             <span className="emphasised-measure">{this.props.pendingCount}</span> pending
           </span>
           <span className="huge-spacer-left">
-            <span className="emphasised-measure">{this.props.failuresCount}</span> failures
+            {this.renderFailures()}
           </span>
           {this.renderInProgressDuration()}
         </section>

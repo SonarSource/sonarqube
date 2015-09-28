@@ -18,7 +18,6 @@ export default React.createClass({
       activityTotal: 0,
       activityPage: 1,
       pendingCount: 0,
-      failuresCount: 0,
       statusFilter: STATUSES.ALL,
       currentsFilter: CURRENTS.ALL
     };
@@ -42,6 +41,7 @@ export default React.createClass({
   requestData() {
     this.requestQueue();
     this.requestActivity();
+    this.requestFailures();
   },
 
   requestQueue() {
@@ -68,6 +68,13 @@ export default React.createClass({
         activityTotal: activity.paging.total,
         activityPage: activity.paging.pageIndex
       });
+    });
+  },
+
+  requestFailures() {
+    let filters = { ps: 1, onlyCurrents: true, status: STATUSES.FAILED };
+    getActivity(filters).done(failures => {
+      this.setState({ failuresCount: failures.paging.total });
     });
   },
 
@@ -98,6 +105,15 @@ export default React.createClass({
     this.setState({ activityPage: this.state.activityPage + 1 }, this.requestActivity);
   },
 
+  showFailures() {
+    this.setState({
+          statusFilter: STATUSES.FAILED,
+          currentsFilter: CURRENTS.ONLY_CURRENTS,
+          activityPage: 1
+        },
+        this.requestActivity);
+  },
+
   onTaskCanceled(task) {
     cancelTask(task.id).done(data => {
       _.extend(task, data.task);
@@ -109,7 +125,7 @@ export default React.createClass({
     return (
         <div className="page">
           <Header/>
-          <Stats {...this.state}/>
+          <Stats {...this.state} showFailures={this.showFailures}/>
           <Search {...this.state} onStatusChange={this.onStatusChange} onCurrentsChange={this.onCurrentsChange}/>
           <Tasks tasks={[].concat(this.state.queue, this.state.activity)} onTaskCanceled={this.onTaskCanceled}/>
           <ListFooter count={this.state.queue.length + this.state.activity.length}
