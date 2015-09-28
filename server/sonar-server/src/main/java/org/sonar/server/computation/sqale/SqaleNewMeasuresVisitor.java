@@ -141,7 +141,7 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
     if (measure.hasVariations() && measure.getVariations().hasVariation(period.getIndex())) {
       return (long) measure.getVariations().getVariation(period.getIndex());
     }
-    return 0l;
+    return 0L;
   }
 
   private void initNewDebtRatioCounter(Component file, Path<NewDevelopmentCostCounter> path) {

@@ -193,42 +193,62 @@ class DefaultProfiler extends Profiler {
   void log(LoggerLevel level, String msg, @Nullable Object[] args) {
     switch (level) {
       case TRACE:
-        if (args == null) {
-          logger.trace(msg);
-        } else {
-          logger.trace(msg, args);
-        }
+        logTrace(msg, args);
         break;
       case DEBUG:
-        if (args == null) {
-          logger.debug(msg);
-        } else {
-          logger.debug(msg, args);
-        }
+        logDebug(msg, args);
         break;
       case INFO:
-        if (args == null) {
-          logger.info(msg);
-        } else {
-          logger.info(msg, args);
-        }
+        logInfo(msg, args);
         break;
       case WARN:
-        if (args == null) {
-          logger.warn(msg);
-        } else {
-          logger.warn(msg, args);
-        }
+        logWarn(msg, args);
         break;
       case ERROR:
-        if (args == null) {
-          logger.error(msg);
-        } else {
-          logger.error(msg, args);
-        }
+        logError(msg, args);
         break;
       default:
         throw new IllegalArgumentException("Unsupported LoggerLevel value: " + level);
+    }
+  }
+
+  private void logTrace(String msg, @Nullable Object[] args) {
+    if (args == null) {
+      logger.trace(msg);
+    } else {
+      logger.trace(msg, args);
+    }
+  }
+
+  private void logDebug(String msg, @Nullable Object[] args) {
+    if (args == null) {
+      logger.debug(msg);
+    } else {
+      logger.debug(msg, args);
+    }
+  }
+
+  private void logInfo(String msg, @Nullable Object[] args) {
+    if (args == null) {
+      logger.info(msg);
+    } else {
+      logger.info(msg, args);
+    }
+  }
+
+  private void logWarn(String msg, @Nullable Object[] args) {
+    if (args == null) {
+      logger.warn(msg);
+    } else {
+      logger.warn(msg, args);
+    }
+  }
+
+  private void logError(String msg, @Nullable Object[] args) {
+    if (args == null) {
+      logger.error(msg);
+    } else {
+      logger.error(msg, args);
     }
   }
 
