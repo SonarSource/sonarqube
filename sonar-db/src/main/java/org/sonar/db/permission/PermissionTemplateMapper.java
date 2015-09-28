@@ -57,7 +57,7 @@ public interface PermissionTemplateMapper {
 
   void deleteByGroupId(long groupId);
 
-  List<GroupWithPermissionDto> selectGroups(Map<String, Object> params);
+  List<GroupWithPermissionDto> selectGroups(Map<String, Object> params, RowBounds rowBounds);
 
   List<UserWithPermissionDto> selectUsers(Map<String, Object> params, RowBounds rowBounds);
 

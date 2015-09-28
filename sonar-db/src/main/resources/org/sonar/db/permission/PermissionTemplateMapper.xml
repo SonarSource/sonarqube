@@ -107,13 +107,16 @@
     AND ptg.template_id=#{templateId}
     UNION
     -- Add Anyone group permission
-    SELECT #{anyoneGroup} as name, NULL as description, ptg.permission_reference as permission
-    FROM perm_templates_groups ptg
-    <where>
-      AND ptg.permission_reference=#{query.permission}
-      AND ptg.template_id=#{templateId}
-      AND ptg.group_id IS NULL
-    </where>
+    SELECT
+      #{anyoneGroup} as name,
+      NULL as description,
+      (select ptg.permission_reference
+      FROM perm_templates_groups ptg
+      <where>
+        AND ptg.permission_reference=#{query.permission}
+        AND ptg.template_id=#{templateId}
+        AND ptg.group_id IS NULL
+      </where>) as permission
     ) groups
     <where>
       <if test="query.search() != null">

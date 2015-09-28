@@ -27,53 +27,17 @@ option java_outer_classname = "WsPermissions";
 option optimize_for = SPEED;
 
 // WS api/permissions/users for internal use only
+// and WS api/permissions/template_users for internal use only
 message WsUsersResponse {
-
-  message User {
-    optional string login = 1;
-    optional string name = 2;
-    optional string email = 3;
-    optional bool selected = 4;
-  }
-
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated User users = 2;
 }
 
 // WS api/permissions/groups for internal use only
+// and WS api/permissions/template_groups for internal use only
 message WsGroupsResponse {
-
-  message Group {
-    optional string id = 1;
-    optional string name = 2;
-    optional string description = 3;
-    optional bool selected = 4;
-  }
-
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated Group groups = 2;
-}
-
-// WS api/permissions/template_users for internal use only
-message WsTemplateUsersResponse {
-
-  message User {
-    optional string login = 1;
-    optional string name = 2;
-    optional string email = 3;
-    optional bool selected = 4;
-  }
-
-  optional sonarqube.ws.commons.Paging paging = 1;
-  repeated User users = 2;
-}
-
-message Permission {
-  optional string key = 1;
-  optional string name = 2;
-  optional string description = 3;
-  optional int32 usersCount = 4;
-  optional int32 groupsCount = 5;
 }
 
 message WsSearchGlobalPermissionsResponse {
@@ -94,18 +58,6 @@ message WsSearchProjectPermissionsResponse {
   repeated Permission permissions = 3;
 }
 
-message PermissionTemplate {
-  optional string id = 1;
-  optional string name = 2;
-  optional string description = 3;
-  optional string projectKeyPattern = 4;
-  // ex: 2015-08-25T16:18:48+0200
-  optional string createdAt = 5;
-  // ex: 2015-08-25T16:18:48+0200
-  optional string updatedAt = 6;
-  repeated Permission permissions = 7;
-}
-
 message WsCreatePermissionTemplateResponse {
   optional PermissionTemplate permissionTemplate = 1;
 }
@@ -123,4 +75,38 @@ message WsSearchTemplatesResponse {
   repeated PermissionTemplate permissionTemplates = 1;
   repeated TemplateIdQualifier defaultTemplates = 2;
   repeated Permission permissions = 3;
+}
+
+message Permission {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional int32 usersCount = 4;
+  optional int32 groupsCount = 5;
+}
+
+message PermissionTemplate {
+  optional string id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string projectKeyPattern = 4;
+  // ex: 2015-08-25T16:18:48+0200
+  optional string createdAt = 5;
+  // ex: 2015-08-25T16:18:48+0200
+  optional string updatedAt = 6;
+  repeated Permission permissions = 7;
+}
+
+message User {
+  optional string login = 1;
+  optional string name = 2;
+  optional string email = 3;
+  optional bool selected = 4;
+}
+
+message Group {
+  optional string id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional bool selected = 4;
 }

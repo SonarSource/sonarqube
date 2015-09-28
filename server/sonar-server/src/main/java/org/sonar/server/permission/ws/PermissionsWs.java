@@ -24,8 +24,8 @@ import com.google.common.collect.ImmutableSet;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.permission.ProjectPermissions;
 
 public class PermissionsWs implements WebService {
 

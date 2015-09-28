@@ -96,8 +96,12 @@ public class PermissionTemplateDao implements Dao {
    * @return a non paginated list of groups.
    */
   public List<GroupWithPermissionDto> selectGroups(DbSession session, PermissionQuery query, Long templateId) {
+    return selectGroups(session, query, templateId, 0, Integer.MAX_VALUE);
+  }
+
+  public List<GroupWithPermissionDto> selectGroups(DbSession session, PermissionQuery query, Long templateId, int offset, int limit) {
     Map<String, Object> params = groupsParameters(query, templateId);
-    return mapper(session).selectGroups(params);
+    return mapper(session).selectGroups(params, new RowBounds(offset, limit));
   }
 
   public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, Long templateId) {
@@ -355,6 +359,10 @@ public class PermissionTemplateDao implements Dao {
       .setUpdatedAt(now());
     mapper(session).insertGroupPermission(permissionTemplateGroup);
     session.commit();
+  }
+
+  public void insertGroupPermission(DbSession session, PermissionTemplateGroupDto permissionTemplateGroup) {
+    mapper(session).insertGroupPermission(permissionTemplateGroup);
   }
 
   /**

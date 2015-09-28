@@ -53,9 +53,10 @@ public class PermissionQuery {
 
   // max results per page
   private final int pageSize;
-
   // index of selected page. Start with 1.
   private final int pageIndex;
+  // offset. Starts with 0.
+  private final int pageOffset;
 
   private PermissionQuery(Builder builder) {
     this.permission = builder.permission;
@@ -67,6 +68,7 @@ public class PermissionQuery {
 
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
+    this.pageOffset = (builder.pageIndex - 1) * builder.pageSize;
   }
 
   private static String searchToSql(@Nullable String s) {
@@ -110,6 +112,10 @@ public class PermissionQuery {
 
   public int pageSize() {
     return pageSize;
+  }
+
+  public int pageOffset() {
+    return pageOffset;
   }
 
   public int pageIndex() {

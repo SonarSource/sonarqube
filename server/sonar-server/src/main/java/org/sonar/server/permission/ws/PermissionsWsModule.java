@@ -58,6 +58,7 @@ public class PermissionsWsModule extends Module {
       SetDefaultTemplateAction.class,
       SearchTemplatesAction.class,
       TemplateUsersAction.class,
+      TemplateGroupsAction.class,
       // utility classes
       PermissionChangeBuilder.class,
       SearchProjectPermissionsDataLoader.class,

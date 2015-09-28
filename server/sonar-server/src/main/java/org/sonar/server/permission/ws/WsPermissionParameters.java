@@ -35,7 +35,7 @@ public class WsPermissionParameters {
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_USER_LOGIN = "login";
-  public static final String PARAM_TEMPLATE_ID = "templateId";
+  public static final String PARAM_TEMPLATE_UUID = "templateId";
   public static final String PARAM_TEMPLATE_NAME = "templateName";
 
   public static final String PARAM_ID = "id";
@@ -116,7 +116,7 @@ public class WsPermissionParameters {
   }
 
   private static void createTemplateIdParameter(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_ID)
+    action.createParam(PARAM_TEMPLATE_UUID)
       .setDescription("Template id")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }

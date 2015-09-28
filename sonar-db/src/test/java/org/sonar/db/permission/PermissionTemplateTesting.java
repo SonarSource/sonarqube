@@ -44,4 +44,11 @@ public class PermissionTemplateTesting {
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
   }
+
+  public static PermissionTemplateGroupDto newPermissionTemplateGroupDto() {
+    return new PermissionTemplateGroupDto()
+      .setPermission(ProjectPermissions.ALL.get(RandomUtils.nextInt(ProjectPermissions.ALL.size())))
+      .setCreatedAt(new Date())
+      .setUpdatedAt(new Date());
+  }
 }

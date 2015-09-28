@@ -55,7 +55,6 @@ import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.permission.ws.template.ApplyTemplateAction;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -72,7 +71,7 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_ID;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_UUID;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
@@ -235,7 +234,7 @@ public class ApplyTemplateActionTest {
   private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
     TestRequest request = ws.newRequest();
     if (templateUuid != null) {
-      request.setParam(PARAM_TEMPLATE_ID, templateUuid);
+      request.setParam(PARAM_TEMPLATE_UUID, templateUuid);
     }
     if (projectUuid != null) {
       request.setParam(PARAM_PROJECT_ID, projectUuid);

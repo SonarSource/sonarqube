@@ -37,6 +37,7 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.WsPermissions.Group;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
@@ -101,7 +102,7 @@ public class GroupsAction implements PermissionsWsAction {
 
   private static WsGroupsResponse buildResponse(List<GroupWithPermissionDto> groupsWithPermission, PermissionRequest permissionRequest, int total) {
     WsGroupsResponse.Builder groupsResponse = WsGroupsResponse.newBuilder();
-    WsGroupsResponse.Group.Builder group = WsGroupsResponse.Group.newBuilder();
+    Group.Builder group = Group.newBuilder();
     Common.Paging.Builder paging = Common.Paging.newBuilder();
 
     for (GroupWithPermissionDto groupWithPermission : groupsWithPermission) {

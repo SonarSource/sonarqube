@@ -78,20 +78,20 @@ public class GroupWithPermissionTemplateDaoTest {
   public void anyone_group_is_not_returned_when_it_has_no_permission() {
     dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
-    // Anyone group has not the permission 'admin', so it's not returned
+    // Anyone group is returned even if it doesn't have the permission
     PermissionQuery query = PermissionQuery.builder().permission("admin").build();
     List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, TEMPLATE_ID);
-    assertThat(result).hasSize(3);
+    assertThat(result).hasSize(4);
 
-    GroupWithPermissionDto group1 = result.get(0);
+    GroupWithPermissionDto group1 = result.get(1);
     assertThat(group1.getName()).isEqualTo("sonar-administrators");
     assertThat(group1.getPermission()).isNotNull();
 
-    GroupWithPermissionDto group2 = result.get(1);
+    GroupWithPermissionDto group2 = result.get(2);
     assertThat(group2.getName()).isEqualTo("sonar-reviewers");
     assertThat(group2.getPermission()).isNull();
 
-    GroupWithPermissionDto group3 = result.get(2);
+    GroupWithPermissionDto group3 = result.get(3);
     assertThat(group3.getName()).isEqualTo("sonar-users");
     assertThat(group3.getPermission()).isNull();
   }

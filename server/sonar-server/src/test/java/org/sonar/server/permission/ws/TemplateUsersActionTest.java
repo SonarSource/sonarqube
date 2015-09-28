@@ -47,7 +47,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
-import org.sonarqube.ws.WsPermissions.WsTemplateUsersResponse;
+import org.sonarqube.ws.WsPermissions.WsUsersResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -55,7 +55,7 @@ import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTem
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateUserDto;
 import static org.sonar.server.plugins.MimeTypes.PROTOBUF;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.WsPermissions.WsTemplateUsersResponse.parseFrom;
+import static org.sonarqube.ws.WsPermissions.WsUsersResponse.parseFrom;
 
 @Category(DbTests.class)
 public class TemplateUsersActionTest {
@@ -122,7 +122,7 @@ public class TemplateUsersActionTest {
       .setMediaType(PROTOBUF)
       .execute().getInputStream();
 
-    WsTemplateUsersResponse response = parseFrom(responseStream);
+    WsUsersResponse response = parseFrom(responseStream);
 
     assertThat(response.getUsersList()).extracting("login").containsExactly("login-1", "login-2");
   }
@@ -135,7 +135,7 @@ public class TemplateUsersActionTest {
       .setMediaType(PROTOBUF)
       .execute().getInputStream();
 
-    WsTemplateUsersResponse response = parseFrom(responseStream);
+    WsUsersResponse response = parseFrom(responseStream);
 
     assertThat(response.getUsersList()).extracting("login").containsOnly("login-1");
   }
@@ -148,7 +148,7 @@ public class TemplateUsersActionTest {
       .setMediaType(PROTOBUF)
       .execute().getInputStream();
 
-    WsTemplateUsersResponse response = parseFrom(responseStream);
+    WsUsersResponse response = parseFrom(responseStream);
 
     assertThat(response.getUsersList()).extracting("login").containsExactly("login-1", "login-2", "login-3");
     assertThat(response.getUsers(2).getSelected()).isFalse();
@@ -164,7 +164,7 @@ public class TemplateUsersActionTest {
       .setMediaType(PROTOBUF)
       .execute().getInputStream();
 
-    WsTemplateUsersResponse response = parseFrom(responseStream);
+    WsUsersResponse response = parseFrom(responseStream);
 
     assertThat(response.getUsersList()).extracting("login").containsOnly("login-2");
   }
@@ -234,7 +234,7 @@ public class TemplateUsersActionTest {
     TestRequest request = ws.newRequest();
     request.setParam(WsPermissionParameters.PARAM_PERMISSION, permission);
     if (templateUuid != null) {
-      request.setParam(WsPermissionParameters.PARAM_TEMPLATE_ID, templateUuid);
+      request.setParam(WsPermissionParameters.PARAM_TEMPLATE_UUID, templateUuid);
     }
 
     return request;

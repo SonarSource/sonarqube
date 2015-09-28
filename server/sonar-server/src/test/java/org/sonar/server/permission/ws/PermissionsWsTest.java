@@ -37,8 +37,13 @@ public class PermissionsWsTest {
 
   @Before
   public void setUp() {
+    DbClient dbClient = mock(DbClient.class);
+    UserSession userSession = mock(UserSession.class);
+    PermissionDependenciesFinder permissionDependenciesFinder = mock(PermissionDependenciesFinder.class);
+
     ws = new WsTester(new PermissionsWs(
-      new TemplateUsersAction(mock(DbClient.class), mock(UserSession.class), mock(PermissionDependenciesFinder.class))
+      new TemplateUsersAction(dbClient, userSession, permissionDependenciesFinder),
+      new TemplateGroupsAction(dbClient, userSession, permissionDependenciesFinder)
       ));
   }
 
@@ -48,7 +53,7 @@ public class PermissionsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.7");
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(4);
   }
 
   @Test
@@ -74,6 +79,17 @@ public class PermissionsWsTest {
   @Test
   public void define_template_users() {
     WebService.Action action = controller().action("template_users");
+
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.since()).isEqualTo("5.2");
+    assertThat(action.param(WsPermissionParameters.PARAM_PERMISSION).isRequired()).isTrue();
+  }
+
+  @Test
+  public void define_template_groups() {
+    WebService.Action action = controller().action("template_groups");
 
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();

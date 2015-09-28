@@ -36,6 +36,7 @@ import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.WsUsersResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
@@ -102,7 +103,7 @@ public class UsersAction implements PermissionsWsAction {
 
   private static WsUsersResponse buildResponse(List<UserWithPermissionDto> usersWithPermission, Paging paging) {
     WsUsersResponse.Builder userResponse = WsUsersResponse.newBuilder();
-    WsUsersResponse.User.Builder user = WsUsersResponse.User.newBuilder();
+    WsPermissions.User.Builder user = WsPermissions.User.newBuilder();
     for (UserWithPermissionDto userWithPermission : usersWithPermission) {
       userResponse.addUsers(
         user

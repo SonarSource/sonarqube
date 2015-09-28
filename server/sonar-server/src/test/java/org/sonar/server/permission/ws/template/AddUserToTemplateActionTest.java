@@ -185,7 +185,7 @@ public class AddUserToTemplateActionTest {
       request.setParam(PARAM_USER_LOGIN, userLogin);
     }
     if (templateKey != null) {
-      request.setParam(WsPermissionParameters.PARAM_TEMPLATE_ID, templateKey);
+      request.setParam(WsPermissionParameters.PARAM_TEMPLATE_UUID, templateKey);
     }
     if (permission != null) {
       request.setParam(WsPermissionParameters.PARAM_PERMISSION, permission);
