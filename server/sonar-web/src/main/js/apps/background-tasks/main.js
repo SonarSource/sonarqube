@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React from 'react';
-import {getQueue, getActivity, cancelTask} from '../../api/ce';
+import {getQueue, getActivity, cancelTask, cancelAllTasks} from '../../api/ce';
 import {STATUSES, CURRENTS} from './constants';
 import Header from './header';
 import Stats from './stats';
@@ -17,7 +17,6 @@ export default React.createClass({
       activity: [],
       activityTotal: 0,
       activityPage: 1,
-      pendingCount: 0,
       statusFilter: STATUSES.ALL,
       currentsFilter: CURRENTS.ALL
     };
@@ -121,11 +120,15 @@ export default React.createClass({
     });
   },
 
+  cancelPending() {
+    cancelAllTasks().then(this.requestData);
+  },
+
   render() {
     return (
         <div className="page">
           <Header/>
-          <Stats {...this.state} showFailures={this.showFailures}/>
+          <Stats {...this.state} cancelPending={this.cancelPending} showFailures={this.showFailures}/>
           <Search {...this.state} onStatusChange={this.onStatusChange} onCurrentsChange={this.onCurrentsChange}/>
           <Tasks tasks={[].concat(this.state.queue, this.state.activity)} onTaskCanceled={this.onTaskCanceled}/>
           <ListFooter count={this.state.queue.length + this.state.activity.length}

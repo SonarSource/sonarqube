@@ -1,6 +1,11 @@
 import React from 'react';
 
 export default React.createClass({
+  onPendingCanceled(e) {
+    e.preventDefault();
+    this.props.cancelPending();
+  },
+
   onFailuresClick(e) {
     e.preventDefault();
     this.props.showFailures();
@@ -18,6 +23,23 @@ export default React.createClass({
     );
   },
 
+  renderPending() {
+    if (this.props.pendingCount == null) {
+      return null;
+    }
+    if (this.props.pendingCount > 0) {
+      return (
+          <span>
+            <span className="emphasised-measure">{this.props.pendingCount}</span> pending
+            <a onClick={this.onPendingCanceled} className="icon-delete spacer-left" title="Cancel Pending Tasks"
+               data-toggle="tooltip" href="#"></a>
+          </span>
+      );
+    } else {
+      return <span><span className="emphasised-measure">{this.props.pendingCount}</span> pending</span>;
+    }
+  },
+
   renderFailures() {
     if (this.props.failuresCount == null) {
       return null;
@@ -33,7 +55,7 @@ export default React.createClass({
     return (
         <section className="big-spacer-top big-spacer-bottom">
           <span>
-            <span className="emphasised-measure">{this.props.pendingCount}</span> pending
+            {this.renderPending()}
           </span>
           <span className="huge-spacer-left">
             {this.renderFailures()}

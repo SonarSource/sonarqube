@@ -20,6 +20,11 @@ export function cancelTask (id) {
   return $.post(url, { id }).then(getTask.bind(null, id));
 }
 
+export function cancelAllTasks () {
+  let url = baseUrl + '/api/ce/cancel_all';
+  return $.post(url);
+}
+
 export function getTasksForComponent(componentId) {
   let url = baseUrl + '/api/ce/project';
   return $.get(url, { componentId });
