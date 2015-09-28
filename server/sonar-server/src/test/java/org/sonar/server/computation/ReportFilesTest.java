@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.computation.queue.report.ReportFiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

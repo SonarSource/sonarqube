@@ -22,7 +22,6 @@ package org.sonar.server.computation.queue.report;
 import org.junit.Test;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.ReportFiles;
 import org.sonar.server.computation.queue.CeTask;
 
 import static org.mockito.Mockito.mock;

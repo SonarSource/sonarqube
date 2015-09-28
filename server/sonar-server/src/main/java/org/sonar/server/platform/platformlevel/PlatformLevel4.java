@@ -67,7 +67,7 @@ import org.sonar.server.computation.queue.CeQueueCleaner;
 import org.sonar.server.computation.queue.CeQueueInitializer;
 import org.sonar.server.computation.queue.report.CleanReportQueueListener;
 import org.sonar.server.computation.ComputeEngineProcessingModule;
-import org.sonar.server.computation.ReportFiles;
+import org.sonar.server.computation.queue.report.ReportFiles;
 import org.sonar.server.computation.queue.report.ReportSubmitter;
 import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;

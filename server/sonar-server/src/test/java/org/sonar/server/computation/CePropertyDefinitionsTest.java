@@ -20,6 +20,7 @@
 package org.sonar.server.computation;
 
 import org.junit.Test;
+import org.sonar.server.computation.property.CePropertyDefinitions;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

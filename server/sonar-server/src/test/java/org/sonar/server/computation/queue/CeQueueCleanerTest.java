@@ -31,9 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.ReportFiles;
-import org.sonar.server.computation.queue.CeQueueCleaner;
-import org.sonar.server.computation.queue.CeQueueImpl;
+import org.sonar.server.computation.queue.report.ReportFiles;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -29,7 +29,6 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.NewComponent;
-import org.sonar.server.computation.ReportFiles;
 import org.sonar.server.computation.queue.CeQueue;
 import org.sonar.server.computation.queue.CeQueueImpl;
 import org.sonar.server.computation.queue.CeTaskSubmit;

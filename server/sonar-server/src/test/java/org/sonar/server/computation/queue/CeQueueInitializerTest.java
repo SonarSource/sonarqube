@@ -31,12 +31,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.ReportFiles;
+import org.sonar.server.computation.queue.report.ReportFiles;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.queue.CeProcessingScheduler;
-import org.sonar.server.computation.queue.CeQueueCleaner;
-import org.sonar.server.computation.queue.CeQueueInitializer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

@@ -25,6 +25,7 @@ import org.sonar.server.computation.queue.CeProcessingSchedulerExecutorServiceIm
 import org.sonar.server.computation.queue.CeProcessingSchedulerImpl;
 import org.sonar.server.computation.queue.CeWorkerRunnableImpl;
 import org.sonar.server.computation.queue.report.ReportTaskProcessor;
+import org.sonar.server.computation.step.ComputationStepExecutor;
 
 public class ComputeEngineProcessingModule extends Module {
   @Override

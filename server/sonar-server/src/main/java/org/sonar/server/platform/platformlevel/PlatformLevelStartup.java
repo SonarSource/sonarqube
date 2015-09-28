@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.server.computation.PurgeCeActivities;
+import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.qualitygate.RegisterQualityGates;

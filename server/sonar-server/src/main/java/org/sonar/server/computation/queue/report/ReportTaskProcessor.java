@@ -20,7 +20,7 @@
 package org.sonar.server.computation.queue.report;
 
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.ComputationStepExecutor;
+import org.sonar.server.computation.step.ComputationStepExecutor;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
 import org.sonar.server.computation.queue.CeTask;

@@ -33,7 +33,7 @@ import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.db.version.MigrationStepModule;
-import org.sonar.server.computation.CePropertyDefinitions;
+import org.sonar.server.computation.property.CePropertyDefinitions;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.index.IssueIndex;

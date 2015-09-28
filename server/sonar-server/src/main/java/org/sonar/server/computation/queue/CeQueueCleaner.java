@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.ReportFiles;
+import org.sonar.server.computation.queue.report.ReportFiles;
 
 /**
  * Cleans-up the Compute Engine queue and resets the JMX counters.
