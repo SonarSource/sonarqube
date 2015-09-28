@@ -111,7 +111,7 @@ module.exports = (grunt) ->
         baseUrl: '<%= BUILD_PATH %>/js/'
         preserveLicenseComments: false
         paths:
-          'react': 'libs/third-party/react-with-addons'
+          'react': 'libs/third-party/react.min'
           'underscore': 'libs/third-party/shim/underscore-shim'
           'jquery': 'libs/third-party/shim/jquery-shim'
           'backbone': 'libs/third-party/shim/backbone-shim'
