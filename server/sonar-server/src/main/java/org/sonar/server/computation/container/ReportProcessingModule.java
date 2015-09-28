@@ -17,25 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.computation.container.ContainerFactoryImpl;
-import org.sonar.server.computation.queue.CeProcessingSchedulerExecutorServiceImpl;
-import org.sonar.server.computation.queue.CeProcessingSchedulerImpl;
-import org.sonar.server.computation.queue.CeWorkerRunnableImpl;
+import org.sonar.server.computation.queue.report.ReportSubmitter;
 import org.sonar.server.computation.queue.report.ReportTaskProcessor;
 import org.sonar.server.computation.step.ComputationStepExecutor;
 
-public class ComputeEngineProcessingModule extends Module {
+public class ReportProcessingModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      ContainerFactoryImpl.class,
-      ComputationStepExecutor.class,
-      ReportTaskProcessor.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeWorkerRunnableImpl.class,
-      CeProcessingSchedulerImpl.class);
+        ContainerFactoryImpl.class,
+        ComputationStepExecutor.class,
+        ReportTaskProcessor.class,
+        ReportSubmitter.class
+    );
   }
 }

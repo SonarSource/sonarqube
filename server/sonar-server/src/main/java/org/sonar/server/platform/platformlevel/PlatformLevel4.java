@@ -38,7 +38,6 @@ import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.DeprecatedUserFinder;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
@@ -62,18 +61,9 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ResourcesWs;
-import org.sonar.server.computation.queue.CeQueueImpl;
-import org.sonar.server.computation.queue.CeQueueCleaner;
-import org.sonar.server.computation.queue.CeQueueInitializer;
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
-import org.sonar.server.computation.ComputeEngineProcessingModule;
-import org.sonar.server.computation.queue.report.ReportFiles;
-import org.sonar.server.computation.queue.report.ReportSubmitter;
-import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
-import org.sonar.server.computation.log.CeLogging;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
+import org.sonar.server.computation.CeModule;
+import org.sonar.server.computation.container.ReportProcessingModule;
+import org.sonar.server.computation.queue.CeQueueModule;
 import org.sonar.server.computation.ws.CeWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
@@ -209,7 +199,6 @@ import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
-import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.qualitygate.ws.CreateConditionAction;
@@ -712,21 +701,11 @@ public class PlatformLevel4 extends PlatformLevel {
       PluginsWs.class,
 
       // Compute engine
-      CEQueueStatusImpl.class,
-      ComputeEngineQueueMonitor.class,
-      CeQueueImpl.class,
-      CleanReportQueueListener.class,
-      ReportFiles.class,
-      ComputeEngineProcessingModule.class,
+      CeModule.class,
+      CeQueueModule.class,
       CeWsModule.class,
-      CeLogging.class,
-      DefaultPeriodCleaner.class,
-      ProjectCleaner.class,
-      ProjectSettingsFactory.class,
-      IndexPurgeListener.class,
-      ReportSubmitter.class,
-      CeQueueCleaner.class,
-      CeQueueInitializer.class,
+      ReportProcessingModule.class,
+
       // Views plugin
       ViewsBootstrap.class,
       ViewsStopper.class,
