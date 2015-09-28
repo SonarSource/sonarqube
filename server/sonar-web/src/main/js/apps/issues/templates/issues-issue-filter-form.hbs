@@ -30,7 +30,9 @@
   <li>
     {{#if assignee}}
       <a href="#" class="issue-action-option" data-property="assignees" data-value="{{assignee}}">
-      {{t "assigned_to"}} {{assigneeName}}
+        {{t "assigned_to"}}
+        {{#ifShowAvatars}}<span class="spacer-left">{{avatarHelper assigneeEmail 16}}</span>{{/ifShowAvatars}}
+        {{assigneeName}}
       </a>
     {{else}}
       <a href="#" data-property="assigned" data-value="false">
