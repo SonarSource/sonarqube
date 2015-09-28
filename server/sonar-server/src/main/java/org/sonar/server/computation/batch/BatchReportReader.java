@@ -27,6 +27,8 @@ import org.sonar.core.util.CloseableIterator;
 public interface BatchReportReader {
   BatchReport.Metadata readMetadata();
 
+  CloseableIterator<String> readScannerLogs();
+
   CloseableIterator<BatchReport.ActiveRule> readActiveRules();
 
   CloseableIterator<BatchReport.Measure> readComponentMeasures(int componentRef);
