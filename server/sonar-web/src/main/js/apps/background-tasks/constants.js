@@ -12,3 +12,13 @@ export const CURRENTS = {
   ALL: '__ALL__',
   ONLY_CURRENTS: 'CURRENTS'
 };
+
+
+export const DATE = {
+  ANY: 'ANY',
+  TODAY: 'TODAY',
+  CUSTOM: 'CUSTOM'
+};
+
+
+export const DATE_FORMAT = 'YYYY-MM-DD';

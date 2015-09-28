@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React from 'react';
 import {getQueue, getActivity, cancelTask, cancelAllTasks} from '../../api/ce';
-import {STATUSES, CURRENTS} from './constants';
+import {STATUSES, CURRENTS, DATE} from './constants';
 import Header from './header';
 import Stats from './stats';
 import Search from './search';
@@ -18,14 +18,15 @@ export default React.createClass({
       activityTotal: 0,
       activityPage: 1,
       statusFilter: STATUSES.ALL,
-      currentsFilter: CURRENTS.ALL
+      currentsFilter: CURRENTS.ALL,
+      dateFilter: DATE.ANY
     };
   },
 
   filterQueueForComponent(queue) {
     if (this.props.options.componentId) {
       return queue.filter(task => {
-        return task.componentId === this.props.options.componentId
+        return task.componentId === this.props.options.componentId;
       });
     } else {
       return queue;
@@ -44,6 +45,27 @@ export default React.createClass({
     }
   },
 
+  getDateFilter() {
+    const DATE_FORMAT = 'YYYY-MM-DD';
+    let filter = {};
+    switch (this.state.dateFilter) {
+      case DATE.TODAY:
+        filter.minSubmittedAt = moment().startOf('day').format(DATE_FORMAT);
+        break;
+      case DATE.CUSTOM:
+        if (this.state.minDate) {
+          filter.minSubmittedAt = moment(this.state.minDate).format(DATE_FORMAT);
+        }
+        if (this.state.maxDate) {
+          filter.maxFinishedAt = moment(this.state.maxDate).format(DATE_FORMAT);
+        }
+        break;
+      default:
+      // do nothing
+    }
+    return filter;
+  },
+
   getCurrentFilters() {
     let filters = {};
     if (this.state.statusFilter !== STATUSES.ALL) {
@@ -51,6 +73,9 @@ export default React.createClass({
     }
     if (this.state.currentsFilter !== STATUSES.ALL) {
       filters.onlyCurrents = true;
+    }
+    if (this.state.dateFilter !== DATE.ANY) {
+      _.extend(filters, this.getDateFilter());
     }
     return filters;
   },
@@ -124,6 +149,15 @@ export default React.createClass({
     this.setState({ currentsFilter: newCurrents, activityPage: 1 }, this.requestData);
   },
 
+  onDateChange(newDate, minDate, maxDate) {
+    this.setState({
+      dateFilter: newDate,
+      minDate: minDate,
+      maxDate: maxDate,
+      activityPage: 1
+    }, this.requestData);
+  },
+
   loadMore() {
     this.setState({ activityPage: this.state.activityPage + 1 }, this.requestActivity);
   },
@@ -153,7 +187,7 @@ export default React.createClass({
         <div className="page">
           <Header/>
           <Stats {...this.state} cancelPending={this.cancelPending} showFailures={this.showFailures}/>
-          <Search {...this.state} onStatusChange={this.onStatusChange} onCurrentsChange={this.onCurrentsChange}/>
+          <Search {...this.state} onStatusChange={this.onStatusChange} onCurrentsChange={this.onCurrentsChange} onDateChange={this.onDateChange}/>
           <Tasks tasks={[].concat(this.state.queue, this.state.activity)} onTaskCanceled={this.onTaskCanceled}/>
           <ListFooter count={this.state.queue.length + this.state.activity.length}
                       total={this.state.queue.length + this.state.activityTotal}

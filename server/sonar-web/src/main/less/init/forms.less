@@ -10,6 +10,7 @@ input[type=text],
 input[type=password],
 input[type=email],
 input[type=search],
+input[type=date],
 textarea {
   border: 1px solid @darkGrey;
   .box-sizing(border-box);
@@ -31,7 +32,8 @@ textarea {
 input[type=text],
 input[type=password],
 input[type=email],
-input[type=search] {
+input[type=search],
+input[type=date] {
   height: @formControlHeight;
   padding: 0 6px;
 }
@@ -204,6 +206,7 @@ label[for] {
 
 .radio-toggle {
   display: inline-block;
+  vertical-align: middle;
   font-size: 0;
 
   & > li {
