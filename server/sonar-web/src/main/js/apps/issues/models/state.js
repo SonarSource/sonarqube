@@ -6,14 +6,14 @@ export default State.extend({
     page: 1,
     maxResultsReached: false,
     query: {},
-    facets: ['facetMode', 'severities', 'resolutions'],
+    facets: ['facetMode', 'severities'],
     isContext: false,
     allFacets: [
       'facetMode',
       'issues',
       'severities',
-      'resolutions',
       'statuses',
+      'resolutions',
       'createdAt',
       'rules',
       'tags',
@@ -45,7 +45,6 @@ export default State.extend({
       'createdAt'
     ],
     transform: {
-      'resolved': 'resolutions',
       'assigned': 'assignees',
       'planned': 'actionPlans',
       'createdBefore': 'createdAt',

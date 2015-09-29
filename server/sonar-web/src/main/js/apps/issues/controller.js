@@ -38,6 +38,12 @@ export default Controller.extend({
     }
   },
 
+  ensureResolution(query) {
+    return query.resolutions ?
+        _.omit(query, 'resolved') :
+        _.extend({}, query, { resolved: false });
+  },
+
   fetchList: function (firstPage) {
     var that = this;
     if (firstPage == null) {
@@ -48,8 +54,9 @@ export default Controller.extend({
       this.hideHomePage();
       this.closeComponentViewer();
     }
-    var data = this._issuesParameters();
-    _.extend(data, this.options.app.state.get('query'));
+    var data = this._issuesParameters(),
+        query = this.ensureResolution(this.options.app.state.get('query'));
+    _.extend(data, query);
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
@@ -148,7 +155,7 @@ export default Controller.extend({
 
   newSearch: function () {
     this.options.app.state.unset('filter');
-    return this.options.app.state.setQuery({ resolved: 'false' });
+    return this.options.app.state.setQuery({});
   },
 
   applyFilter: function (filter, ignoreQuery) {
@@ -176,7 +183,7 @@ export default Controller.extend({
     if (addContext == null) {
       addContext = false;
     }
-    var filter = this.options.app.state.get('query');
+    var filter = this.ensureResolution(this.options.app.state.get('query'));
     if (addContext && this.options.app.state.get('isContext')) {
       _.extend(filter, this.options.app.state.get('contextQuery'));
     }
