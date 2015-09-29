@@ -593,8 +593,16 @@ public class ProjectReactorBuilderTest {
   public void shouldGetList() {
     Map<String, String> props = new HashMap<>();
 
-    props.put("prop", "  foo  ,  bar  , \n\ntoto,tutu");
+    props.put("prop", "  foo  ,,  bar  , \n\ntoto,tutu");
     assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
+  }
+
+  @Test
+  public void shouldGetEmptyList() {
+    Map<String, String> props = new HashMap<>();
+
+    props.put("prop", "");
+    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).isEmpty();
   }
 
   @Test
