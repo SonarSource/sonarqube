@@ -1,9 +1,8 @@
-define([
-  'components/navigator/models/facet'
-], function (Facet) {
+import Backbone from 'backbone';
+import Facet from 'components/navigator/models/facet';
 
-  return Backbone.Collection.extend({
-    model: Facet
-  });
-
+export default Backbone.Collection.extend({
+  model: Facet
 });
+
+

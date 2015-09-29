@@ -1,26 +1,23 @@
-define([
-  'components/common/action-options-view',
-  '../templates'
-], function (ActionOptionsView) {
+import $ from 'jquery';
+import ActionOptionsView from 'components/common/action-options-view';
+import '../templates';
 
-  var $ = jQuery;
+export default ActionOptionsView.extend({
+  template: Templates['issue-transitions-form'],
 
-  return ActionOptionsView.extend({
-    template: Templates['issue-transitions-form'],
+  selectInitialOption: function () {
+    this.makeActive(this.getOptions().first());
+  },
 
-    selectInitialOption: function () {
-      this.makeActive(this.getOptions().first());
-    },
+  selectOption: function (e) {
+    var transition = $(e.currentTarget).data('value');
+    this.submit(transition);
+    return ActionOptionsView.prototype.selectOption.apply(this, arguments);
+  },
 
-    selectOption: function (e) {
-      var transition = $(e.currentTarget).data('value');
-      this.submit(transition);
-      return ActionOptionsView.prototype.selectOption.apply(this, arguments);
-    },
-
-    submit: function (transition) {
-      return this.model.transition(transition);
-    }
-  });
-
+  submit: function (transition) {
+    return this.model.transition(transition);
+  }
 });
+
+

@@ -1,22 +1,20 @@
-define([
-  'components/common/popup',
-  '../templates'
-], function (Popup) {
+import Popup from 'components/common/popup';
+import '../templates';
 
-  return Popup.extend({
-    template: Templates['source-viewer-scm-popup'],
+export default Popup.extend({
+  template: Templates['source-viewer-scm-popup'],
 
-    events: {
-      'click': 'onClick'
-    },
+  events: {
+    'click': 'onClick'
+  },
 
-    onRender: function () {
-      Popup.prototype.onRender.apply(this, arguments);
-      this.$('.bubble-popup-container').isolatedScroll();
-    },
+  onRender: function () {
+    Popup.prototype.onRender.apply(this, arguments);
+    this.$('.bubble-popup-container').isolatedScroll();
+  },
 
-    onClick: function (e) {
-      e.stopPropagation();
-    }
-  });
+  onClick: function (e) {
+    e.stopPropagation();
+  }
 });
+

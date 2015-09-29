@@ -1,5 +1,4 @@
 import React from 'react';
-import Checkbox from '../shared/checkbox';
 
 export default React.createClass({
   propTypes: {

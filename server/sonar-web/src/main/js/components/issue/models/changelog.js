@@ -1,13 +1,13 @@
-define([], function () {
+import Backbone from 'backbone';
 
-  return Backbone.Collection.extend({
-    url: function () {
-      return baseUrl + '/api/issues/changelog';
-    },
+export default Backbone.Collection.extend({
+  url: function () {
+    return baseUrl + '/api/issues/changelog';
+  },
 
-    parse: function (r) {
-      return r.changelog;
-    }
-  });
-
+  parse: function (r) {
+    return r.changelog;
+  }
 });
+
+

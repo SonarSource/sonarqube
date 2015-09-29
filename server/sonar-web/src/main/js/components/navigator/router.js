@@ -1,27 +1,27 @@
-define(function () {
+import Backbone from 'backbone';
 
-  return Backbone.Router.extend({
-    routeSeparator: '|',
+export default Backbone.Router.extend({
+  routeSeparator: '|',
 
-    routes: {
-      '': 'index',
-      ':query': 'index'
-    },
+  routes: {
+    '': 'index',
+    ':query': 'index'
+  },
 
-    initialize: function (options) {
-      this.options = options;
-      this.listenTo(this.options.app.state, 'change:query', this.updateRoute);
-    },
+  initialize: function (options) {
+    this.options = options;
+    this.listenTo(this.options.app.state, 'change:query', this.updateRoute);
+  },
 
-    index: function (query) {
-      query = this.options.app.controller.parseQuery(query);
-      this.options.app.state.setQuery(query);
-    },
+  index: function (query) {
+    query = this.options.app.controller.parseQuery(query);
+    this.options.app.state.setQuery(query);
+  },
 
-    updateRoute: function () {
-      var route = this.options.app.controller.getRoute();
-      this.navigate(route);
-    }
-  });
-
+  updateRoute: function () {
+    var route = this.options.app.controller.getRoute();
+    this.navigate(route);
+  }
 });
+
+

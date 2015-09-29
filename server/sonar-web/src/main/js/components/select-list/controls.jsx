@@ -1,5 +1,5 @@
+import _ from 'underscore';
 import React from 'react';
-import classNames from '../../libs/third-party/classNames';
 import RadioToggle from '../shared/radio-toggle';
 
 export default React.createClass({
@@ -21,7 +21,7 @@ export default React.createClass({
         this.props.loadDeselected();
         break;
       default:
-        this.props.loadAll()
+        this.props.loadAll();
     }
   },
 

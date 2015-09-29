@@ -47,6 +47,7 @@ module.exports = (grunt) ->
             '**/*.jsx'
             '**/api/**/*.js'
             '**/apps/**/*.js'
+            '**/components/**/*.js'
           ]
           dest: '<%= BUILD_PATH %>/js'
           ext: '.js'

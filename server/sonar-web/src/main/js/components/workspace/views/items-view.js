@@ -1,17 +1,16 @@
-define([
-  './item-view',
-  '../templates'
-], function (ItemView) {
+import Marionette from 'backbone.marionette';
+import ItemView from './item-view';
+import '../templates';
 
-  return Marionette.CompositeView.extend({
-    className: 'workspace-nav',
-    template: Templates['workspace-items'],
-    childViewContainer: '.workspace-nav-list',
-    childView: ItemView,
+export default Marionette.CompositeView.extend({
+  className: 'workspace-nav',
+  template: Templates['workspace-items'],
+  childViewContainer: '.workspace-nav-list',
+  childView: ItemView,
 
-    childViewOptions: function () {
-      return { collectionView: this };
-    }
-  });
-
+  childViewOptions: function () {
+    return { collectionView: this };
+  }
 });
+
+

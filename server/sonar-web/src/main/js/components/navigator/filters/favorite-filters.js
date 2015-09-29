@@ -1,84 +1,82 @@
-define([
-  'jquery',
-  './base-filters',
-  './choice-filters',
-  '../templates'
-], function ($, BaseFilters, ChoiceFilters) {
+import $ from 'jquery';
+import _ from 'underscore';
+import BaseFilters from './base-filters';
+import ChoiceFilters from './choice-filters';
+import '../templates';
 
-  var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
-    template: Templates['favorite-details-filter'],
-
-
-    events: {
-      'click label[data-id]': 'applyFavorite',
-      'click .manage label': 'manage'
-    },
+var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
+  template: Templates['favorite-details-filter'],
 
 
-    applyFavorite: function(e) {
-      var id = $(e.target).data('id');
-      window.location = baseUrl + this.model.get('favoriteUrl') + '/' + id;
-    },
+  events: {
+    'click label[data-id]': 'applyFavorite',
+    'click .manage label': 'manage'
+  },
 
 
-    manage: function() {
-      window.location = baseUrl + this.model.get('manageUrl');
-    },
+  applyFavorite: function (e) {
+    var id = $(e.target).data('id');
+    window.location = baseUrl + this.model.get('favoriteUrl') + '/' + id;
+  },
 
 
-    serializeData: function() {
-      var choices = this.model.get('choices'),
-          choicesArray =
-              _.sortBy(
-                  _.map(choices, function (v, k) {
-                    return { v: v, k: k };
-                  }),
-                  'v');
-
-      return _.extend({}, this.model.toJSON(), {
-        choicesArray: choicesArray
-      });
-    }
-
-  });
+  manage: function () {
+    window.location = baseUrl + this.model.get('manageUrl');
+  },
 
 
+  serializeData: function () {
+    var choices = this.model.get('choices'),
+        choicesArray =
+            _.sortBy(
+                _.map(choices, function (v, k) {
+                  return { v: v, k: k };
+                }),
+                'v');
 
-  var FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
-    template: Templates['favorite-filter'],
-    className: 'navigator-filter navigator-filter-favorite',
-
-
-    initialize: function() {
-      ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
-        detailsView: DetailsFavoriteFilterView
-      });
-    },
-
-
-    renderValue: function() {
-      return '';
-    },
-
-
-    renderInput: function() {},
-
-
-    isDefaultValue: function() {
-      return false;
-    }
-
-  });
-
-
-
-  /*
-   * Export public classes
-   */
-
-  return {
-    DetailsFavoriteFilterView: DetailsFavoriteFilterView,
-    FavoriteFilterView: FavoriteFilterView
-  };
+    return _.extend({}, this.model.toJSON(), {
+      choicesArray: choicesArray
+    });
+  }
 
 });
+
+
+var FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
+  template: Templates['favorite-filter'],
+  className: 'navigator-filter navigator-filter-favorite',
+
+
+  initialize: function () {
+    ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
+      detailsView: DetailsFavoriteFilterView
+    });
+  },
+
+
+  renderValue: function () {
+    return '';
+  },
+
+
+  renderInput: function () {
+  },
+
+
+  isDefaultValue: function () {
+    return false;
+  }
+
+});
+
+
+/*
+ * Export public classes
+ */
+
+export default {
+  DetailsFavoriteFilterView: DetailsFavoriteFilterView,
+  FavoriteFilterView: FavoriteFilterView
+};
+
+

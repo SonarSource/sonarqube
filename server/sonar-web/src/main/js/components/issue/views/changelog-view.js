@@ -1,20 +1,19 @@
-define([
-  'components/common/popup',
-  '../templates'
-], function (PopupView) {
+import _ from 'underscore';
+import PopupView from 'components/common/popup';
+import '../templates';
 
-  return PopupView.extend({
-    template: Templates['issue-changelog'],
+export default PopupView.extend({
+  template: Templates['issue-changelog'],
 
-    collectionEvents: {
-      'sync': 'render'
-    },
+  collectionEvents: {
+    'sync': 'render'
+  },
 
-    serializeData: function () {
-      return _.extend(PopupView.prototype.serializeData.apply(this, arguments), {
-        issue: this.options.issue.toJSON()
-      });
-    }
-  });
-
+  serializeData: function () {
+    return _.extend(PopupView.prototype.serializeData.apply(this, arguments), {
+      issue: this.options.issue.toJSON()
+    });
+  }
 });
+
+

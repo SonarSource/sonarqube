@@ -1,33 +1,31 @@
-define([
-  'components/common/popup'
-], function (PopupView) {
+import PopupView from 'components/common/popup';
 
-  return PopupView.extend({
-    className: 'bubble-popup issue-bubble-popup',
+export default PopupView.extend({
+  className: 'bubble-popup issue-bubble-popup',
 
-    template: function () {
-      return '<div class="bubble-popup-arrow"></div>';
-    },
+  template: function () {
+    return '<div class="bubble-popup-arrow"></div>';
+  },
 
-    events: function () {
-      return {
-        'click .js-issue-form-cancel': 'destroy'
-      };
-    },
+  events: function () {
+    return {
+      'click .js-issue-form-cancel': 'destroy'
+    };
+  },
 
-    onRender: function () {
-      PopupView.prototype.onRender.apply(this, arguments);
-      this.options.view.$el.appendTo(this.$el);
-      this.options.view.render();
-    },
+  onRender: function () {
+    PopupView.prototype.onRender.apply(this, arguments);
+    this.options.view.$el.appendTo(this.$el);
+    this.options.view.render();
+  },
 
-    onDestroy: function () {
-      this.options.view.destroy();
-    },
+  onDestroy: function () {
+    this.options.view.destroy();
+  },
 
-    attachCloseEvents: function () {
+  attachCloseEvents: function () {
 
-    }
-  });
-
+  }
 });
+
+

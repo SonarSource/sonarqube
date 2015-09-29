@@ -10,7 +10,11 @@ export default React.createClass({
   },
 
   onCheck(checked) {
-    checked ? this.props.selectItem(this.props.item) : this.props.deselectItem(this.props.item);
+    if (checked) {
+      this.props.selectItem(this.props.item);
+    } else {
+      this.props.deselectItem(this.props.item);
+    }
   },
 
   render() {

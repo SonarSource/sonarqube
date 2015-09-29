@@ -1,41 +1,40 @@
-define([
-  '../templates'
-], function () {
+import Marionette from 'backbone.marionette';
+import '../templates';
 
-  return Marionette.ItemView.extend({
-    tagName: 'li',
-    className: 'workspace-nav-item',
-    template: Templates['workspace-item'],
+export default Marionette.ItemView.extend({
+  tagName: 'li',
+  className: 'workspace-nav-item',
+  template: Templates['workspace-item'],
 
-    modelEvents: {
-      'change': 'render',
-      'showViewer': 'onViewerShow',
-      'hideViewer': 'onViewerHide'
-    },
+  modelEvents: {
+    'change': 'render',
+    'showViewer': 'onViewerShow',
+    'hideViewer': 'onViewerHide'
+  },
 
-    events: {
-      'click': 'onClick',
-      'click .js-close': 'onCloseClick'
-    },
+  events: {
+    'click': 'onClick',
+    'click .js-close': 'onCloseClick'
+  },
 
-    onClick: function (e) {
-      e.preventDefault();
-      this.options.collectionView.trigger('click', this.model);
-    },
+  onClick: function (e) {
+    e.preventDefault();
+    this.options.collectionView.trigger('click', this.model);
+  },
 
-    onCloseClick: function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.model.destroy();
-    },
+  onCloseClick: function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.model.destroy();
+  },
 
-    onViewerShow: function () {
-      this.$el.addClass('hidden');
-    },
+  onViewerShow: function () {
+    this.$el.addClass('hidden');
+  },
 
-    onViewerHide: function () {
-      this.$el.removeClass('hidden');
-    }
-  });
-
+  onViewerHide: function () {
+    this.$el.removeClass('hidden');
+  }
 });
+
+
