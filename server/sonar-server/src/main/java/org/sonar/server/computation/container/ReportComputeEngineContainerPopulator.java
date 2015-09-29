@@ -23,9 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.computation.step.ComputationStepExecutor;
-import org.sonar.server.computation.filesystem.ComputationTempFolderProvider;
 import org.sonar.server.computation.analysis.ReportAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
@@ -34,6 +31,7 @@ import org.sonar.server.computation.component.ReportTreeRootHolderImpl;
 import org.sonar.server.computation.component.SettingsRepositoryImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
+import org.sonar.server.computation.filesystem.ComputationTempFolderProvider;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
 import org.sonar.server.computation.issue.CloseIssuesOnRemovedComponentsVisitor;
 import org.sonar.server.computation.issue.ComponentIssuesRepositoryImpl;
@@ -76,11 +74,14 @@ import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImp
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
+import org.sonar.server.computation.queue.CeTask;
+import org.sonar.server.computation.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.source.LastCommitVisitor;
 import org.sonar.server.computation.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
-import org.sonar.server.computation.sqale.SqaleRatingSettings;
 import org.sonar.server.computation.sqale.SqaleNewMeasuresVisitor;
+import org.sonar.server.computation.sqale.SqaleRatingSettings;
+import org.sonar.server.computation.step.ComputationStepExecutor;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.computation.step.ReportComputationSteps;
 import org.sonar.server.view.index.ViewIndex;
@@ -134,6 +135,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       QualityGateServiceImpl.class,
       EvaluationResultTextConverterImpl.class,
       SourceLinesRepositoryImpl.class,
+      ScmInfoRepositoryImpl.class,
 
       // issues
       RuleCacheLoader.class,
