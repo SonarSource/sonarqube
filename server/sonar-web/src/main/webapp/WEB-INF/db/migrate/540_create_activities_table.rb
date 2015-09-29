@@ -31,7 +31,7 @@ class CreateActivitiesTable < ActiveRecord::Migration
       t.column 'log_type', :string, :limit => 50
       t.column 'log_action', :string, :limit => 50
       t.column 'log_message', :string, :limit => 4000
-      t.column 'log_key', :string
+      t.column 'log_key', :string, :limit => 250
     end
     add_index 'activities', :log_key, :name => 'activities_log_key', :unique => true
   end

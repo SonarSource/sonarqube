@@ -369,7 +369,8 @@ module ActiveRecord
 
         unless tables.detect { |t| t == sm_table }
           create_table(sm_table, :id => false) do |schema_migrations_table|
-            schema_migrations_table.column :version, :string, :null => false
+            # sonar: add missing :limit => 255 to not break mysql on some windows environments
+            schema_migrations_table.column :version, :string, :null => false, :limit => 255
           end
           add_index sm_table, :version, :unique => true,
             :name => "#{Base.table_name_prefix}unique_schema_migrations#{Base.table_name_suffix}"
