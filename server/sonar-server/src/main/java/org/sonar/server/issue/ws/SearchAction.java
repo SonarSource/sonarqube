@@ -145,8 +145,8 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Comma-separated list of languages. Available since 4.4")
       .setExampleValue("java,js");
     action.createParam(IssueFilterParameters.CREATED_AT)
-      .setDescription("To retrieve issues created at a given date. Format: date or datetime ISO formats")
-      .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
+      .setDescription("To retrieve issues created in a specific analysis, identified by an ISO-formatted datetime stamp.")
+      .setExampleValue("2013-05-01T13:00:00+0100");
     action.createParam(IssueFilterParameters.CREATED_AFTER)
       .setDescription("To retrieve issues created after the given date (exclusive). Format: date or datetime ISO formats. If this parameter is set, createdSince must not be set")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
