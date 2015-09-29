@@ -31,7 +31,9 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
@@ -52,13 +54,15 @@ public class SearchDataLoader {
   private final QProfileLoader profileLoader;
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
+  private final ComponentFinder componentFinder;
 
-  public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, DbClient dbClient) {
+  public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, DbClient dbClient, ComponentFinder componentFinder) {
     this.languages = languages;
     this.profileLookup = profileLookup;
     this.profileLoader = profileLoader;
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
+    this.componentFinder = componentFinder;
   }
 
   SearchData load(Request request) {
@@ -101,7 +105,7 @@ public class SearchDataLoader {
   }
 
   private List<QProfile> findProjectProfiles(Request request) {
-    String projectKey = request.param(PARAM_PROJECT_KEY);
+    String moduleKey = request.param(PARAM_PROJECT_KEY);
     String profileName = request.param(PARAM_PROFILE_NAME);
 
     List<QProfile> profiles = new ArrayList<>();
@@ -110,13 +114,23 @@ public class SearchDataLoader {
     try {
       for (Language language : languages.all()) {
         String languageKey = language.getKey();
-        profiles.add(getProfile(dbSession, languageKey, projectKey, profileName));
+        ComponentDto project = getProject(moduleKey, dbSession);
+        profiles.add(getProfile(dbSession, languageKey, project.key(), profileName));
       }
     } finally {
       dbClient.closeSession(dbSession);
     }
 
     return profiles;
+  }
+
+  private ComponentDto getProject(String moduleKey, DbSession session) {
+    ComponentDto module = componentFinder.getByKey(session, moduleKey);
+    if (!module.isRootProject()) {
+      return dbClient.componentDao().selectOrFailByUuid(session, module.projectUuid());
+    } else {
+      return module;
+    }
   }
 
   private List<QProfile> findDefaultProfiles() {

@@ -37,6 +37,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
@@ -93,7 +94,14 @@ public class SearchActionTest {
         new RuleDao(System2.INSTANCE),
         System2.INSTANCE));
     ws = new WsActionTester(new SearchAction(
-      new SearchDataLoader(languages, new QProfileLookup(dbClient), profileLoader, new QProfileFactory(oldDbClient), dbClient), languages));
+      new SearchDataLoader(
+        languages,
+        new QProfileLookup(dbClient),
+        profileLoader,
+        new QProfileFactory(oldDbClient),
+        dbClient,
+        new ComponentFinder(dbClient)),
+      languages));
   }
 
   @Test

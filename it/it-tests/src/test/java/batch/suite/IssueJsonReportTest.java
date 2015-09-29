@@ -5,25 +5,24 @@
  */
 package batch.suite;
 
-import com.sonar.orchestrator.locator.ResourceLocation;
-import util.ItUtils;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-
+import com.sonar.orchestrator.locator.ResourceLocation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
+import util.ItUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueJsonReportTest {
 
