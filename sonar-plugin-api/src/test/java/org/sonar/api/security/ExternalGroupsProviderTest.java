@@ -20,90 +20,88 @@
 package org.sonar.api.security;
 
 import com.google.common.base.Preconditions;
-import org.junit.Test;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ExternalGroupsProviderTest {
-    @Test
-    public void doGetGroupsNoOverride() {
-        ExternalGroupsProvider groupsProvider = new ExternalGroupsProvider() {
-        };
+  @Test
+  public void doGetGroupsNoOverride() {
+    ExternalGroupsProvider groupsProvider = new ExternalGroupsProvider() {
+    };
 
-        String userName = "foo";
-        assertThat(groupsProvider.doGetGroups(userName)).isNull();
-        assertThat(groupsProvider.doGetGroups(new ExternalGroupsProvider.Context(userName,
-                mock(HttpServletRequest.class)))).isNull();
+    String userName = "foo";
+    assertThat(groupsProvider.doGetGroups(userName)).isNull();
+    assertThat(groupsProvider.doGetGroups(new ExternalGroupsProvider.Context(userName,
+      mock(HttpServletRequest.class)))).isNull();
+  }
+
+  @Test
+  public void doGetGroupsTests() {
+    final Map<String, Collection<String>> userGroupsMap = getTestUserGroupMapping();
+
+    ExternalGroupsProvider groupsProvider = new ExternalGroupsProvider() {
+      @Override
+      public Collection<String> doGetGroups(Context context) {
+        Preconditions.checkNotNull(context.getUsername());
+        Preconditions.checkNotNull(context.getRequest());
+
+        return userGroupsMap.get(context.getUsername());
+      }
+    };
+
+    runDoGetGroupsTests(groupsProvider, userGroupsMap);
+  }
+
+  @Test
+  public void doGetGroupsDeprecatedApi() {
+    final Map<String, Collection<String>> userGroupsMap = getTestUserGroupMapping();
+
+    ExternalGroupsProvider groupsProvider = new ExternalGroupsProvider() {
+      @Override
+      public Collection<String> doGetGroups(String username) {
+        Preconditions.checkNotNull(username);
+
+        return userGroupsMap.get(username);
+      }
+    };
+
+    runDoGetGroupsTests(groupsProvider, userGroupsMap);
+  }
+
+  private static void runDoGetGroupsTests(ExternalGroupsProvider groupsProvider, Map<String, Collection<String>> userGroupsMap) {
+    for (Map.Entry<String, Collection<String>> userGroupMapEntry : userGroupsMap.entrySet()) {
+      Collection<String> groups = groupsProvider.doGetGroups(new ExternalGroupsProvider.Context(
+        userGroupMapEntry.getKey(), mock(HttpServletRequest.class)));
+      assertThat(groups).isEqualTo(userGroupMapEntry.getValue());
+    }
+  }
+
+  private static Map<String, Collection<String>> getTestUserGroupMapping() {
+    Map<String, Collection<String>> userGroupsMap = new HashMap<String, Collection<String>>();
+    addUserGroupMapping(userGroupsMap, "userWithOneGroups", new String[] {"group1"});
+    addUserGroupMapping(userGroupsMap, "userWithTwoGroups", new String[] {"group1", "group2"});
+    addUserGroupMapping(userGroupsMap, "userWithNoGroup", new String[] {});
+    addUserGroupMapping(userGroupsMap, "userWithNullGroup", null);
+
+    return userGroupsMap;
+  }
+
+  private static void addUserGroupMapping(Map<String, Collection<String>> userGroupsMap, String user, @Nullable String[] groups) {
+    Collection<String> groupsCollection = null;
+    if (groups != null) {
+      groupsCollection = new ArrayList<String>();
+      groupsCollection.addAll(Arrays.asList(groups));
     }
 
-    @Test
-    public void doGetGroupsTests() {
-        final Map<String, Collection<String>> userGroupsMap = getTestUserGroupMapping();
-
-        ExternalGroupsProvider groupsProvider = new ExternalGroupsProvider() {
-            @Override
-            public Collection<String> doGetGroups(Context context) {
-                Preconditions.checkNotNull(context.getUsername());
-                Preconditions.checkNotNull(context.getRequest());
-
-                return userGroupsMap.get(context.getUsername());
-            }
-        };
-
-        runDoGetGroupsTests(groupsProvider, userGroupsMap);
-    }
-
-    @Test
-    public void doGetGroupsDeprecatedApi() {
-        final Map<String, Collection<String>> userGroupsMap = getTestUserGroupMapping();
-
-        ExternalGroupsProvider groupsProvider = new ExternalGroupsProvider() {
-            @Override
-            public Collection<String> doGetGroups(String username) {
-                Preconditions.checkNotNull(username);
-
-                return userGroupsMap.get(username);
-            }
-        };
-
-        runDoGetGroupsTests(groupsProvider, userGroupsMap);
-    }
-
-    private static void runDoGetGroupsTests(ExternalGroupsProvider groupsProvider, Map<String, Collection<String>> userGroupsMap) {
-        for (Map.Entry<String, Collection<String>> userGroupMapEntry : userGroupsMap.entrySet()) {
-            Collection<String> groups = groupsProvider.doGetGroups(new ExternalGroupsProvider.Context(
-                    userGroupMapEntry.getKey(), mock(HttpServletRequest.class)));
-            assertThat(groups).isEqualTo(userGroupMapEntry.getValue());
-        }
-    }
-
-    private static Map<String, Collection<String>> getTestUserGroupMapping() {
-        Map<String, Collection<String>> userGroupsMap = new HashMap<String, Collection<String>>();
-        addUserGroupMapping(userGroupsMap, "userWithOneGroups", new String[]{"group1"});
-        addUserGroupMapping(userGroupsMap, "userWithTwoGroups", new String[]{"group1", "group2"});
-        addUserGroupMapping(userGroupsMap, "userWithNoGroup", new String[]{});
-        addUserGroupMapping(userGroupsMap, "userWithNullGroup", null);
-
-        return userGroupsMap;
-    }
-
-    private static void addUserGroupMapping(Map<String, Collection<String>> userGroupsMap, String user, @Nullable String[] groups) {
-        Collection<String> groupsCollection = null;
-        if (groups != null) {
-            groupsCollection = new ArrayList<String>();
-            groupsCollection.addAll(Arrays.asList(groups));
-        }
-
-        userGroupsMap.put(user, groupsCollection);
-    }
+    userGroupsMap.put(user, groupsCollection);
+  }
 }
