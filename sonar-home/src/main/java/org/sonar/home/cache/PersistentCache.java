@@ -90,6 +90,9 @@ public class PersistentCache {
     try {
       lock();
       Path path = getCacheCopy(key);
+      if (path == null) {
+        return null;
+      }
       return new DeleteFileOnCloseInputStream(new FileInputStream(path.toFile()), path);
 
     } finally {

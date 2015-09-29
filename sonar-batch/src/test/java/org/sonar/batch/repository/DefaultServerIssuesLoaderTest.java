@@ -58,7 +58,7 @@ public class DefaultServerIssuesLoaderTest {
       .writeDelimitedTo(bos);
 
     InputStream is = new ByteArrayInputStream(bos.toByteArray());
-    when(wsLoader.loadStream("/batch/issues?key=foo")).thenReturn(new WSLoaderResult<>(is, true));
+    when(wsLoader.loadStream("/batch/issues.protobuf?key=foo")).thenReturn(new WSLoaderResult<>(is, true));
 
     final List<ServerIssue> result = new ArrayList<>();
     loader.load("foo", new Function<BatchInput.ServerIssue, Void>() {
@@ -77,7 +77,7 @@ public class DefaultServerIssuesLoaderTest {
   public void testError() throws IOException {
     InputStream is = mock(InputStream.class);
     when(is.read()).thenThrow(IOException.class);
-    when(wsLoader.loadStream("/batch/issues?key=foo")).thenReturn(new WSLoaderResult<InputStream>(is, true));
+    when(wsLoader.loadStream("/batch/issues.protobuf?key=foo")).thenReturn(new WSLoaderResult<InputStream>(is, true));
     loader.load("foo", mock(Function.class));
   }
 }

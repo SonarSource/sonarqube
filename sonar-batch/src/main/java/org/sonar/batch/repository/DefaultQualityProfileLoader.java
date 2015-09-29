@@ -36,7 +36,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
-  private static final String WS_URL = "/qualityprofiles/search";
+  private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
   private WSLoader wsLoader;
 

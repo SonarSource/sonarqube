@@ -19,7 +19,11 @@
  */
 package org.sonar.home.cache;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,6 +73,15 @@ public class PersistentCacheTest {
     assertCacheHit(false);
     // lock file should not get deleted
     assertThat(new String(Files.readAllBytes(lockFile), StandardCharsets.UTF_8)).isEqualTo("test");
+  }
+
+  @Test
+  public void testStream() throws IOException {
+    cache.put("id", "test".getBytes());
+    InputStream stream = cache.getStream("id");
+    assertThat(IOUtils.toString(stream)).isEqualTo("test");
+
+    assertThat(cache.getStream("non existing")).isNull();
   }
 
   @Test

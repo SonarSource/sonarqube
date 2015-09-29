@@ -35,7 +35,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/search?f=repo,name,severity,lang,internalKey,templateKey";
+  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params&activation=true";
 
   private final WSLoader wsLoader;
 

@@ -20,16 +20,18 @@
 
 package org.sonar.server.batch;
 
+import org.sonarqube.ws.WsBatch.WsProjectResponse.FileData.Builder;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
-
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProjectAction implements BatchWsAction {
@@ -147,10 +149,14 @@ public class ProjectAction implements BatchWsAction {
   }
 
   private static WsProjectResponse.FileData toFileDataResponse(FileData fileData) {
-    return WsProjectResponse.FileData.newBuilder()
-      .setHash(fileData.hash())
-      .setRevision(fileData.revision())
-      .build();
-  }
+    Builder fileDataBuilder = WsProjectResponse.FileData.newBuilder();
+    if (fileData.hash() != null) {
+      fileDataBuilder.setHash(fileData.hash());
+    }
+    if (fileData.revision() != null) {
+      fileDataBuilder.setRevision(fileData.revision());
+    }
 
+    return fileDataBuilder.build();
+  }
 }

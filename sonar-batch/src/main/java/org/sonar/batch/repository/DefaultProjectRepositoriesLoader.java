@@ -39,7 +39,7 @@ import org.sonarqube.ws.WsBatch.WsProjectResponse.Settings;
 
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
-  private static final String BATCH_PROJECT_URL = "/batch/project";
+  private static final String BATCH_PROJECT_URL = "/batch/project.protobuf";
   private final WSLoader loader;
 
   public DefaultProjectRepositoriesLoader(WSLoader loader) {

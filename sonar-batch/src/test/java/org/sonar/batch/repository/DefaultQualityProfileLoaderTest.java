@@ -67,7 +67,7 @@ public class DefaultQualityProfileLoaderTest {
     when(ws.loadStream(anyString())).thenReturn(result);
 
     List<QualityProfile> loaded = qpLoader.load("foo#2", "my-profile#2", null);
-    verify(ws).loadStream("/qualityprofiles/search?projectKey=foo%232&profileName=my-profile%232");
+    verify(ws).loadStream("/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232");
     verifyNoMoreInteractions(ws);
     assertThat(loaded).hasSize(1);
   }
@@ -90,7 +90,7 @@ public class DefaultQualityProfileLoaderTest {
     when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, false));
 
     List<QualityProfile> loaded = qpLoader.loadDefault(null);
-    verify(ws).loadStream("/qualityprofiles/search?defaults=true");
+    verify(ws).loadStream("/api/qualityprofiles/search.protobuf?defaults=true");
     verifyNoMoreInteractions(ws);
     assertThat(loaded).hasSize(1);
   }

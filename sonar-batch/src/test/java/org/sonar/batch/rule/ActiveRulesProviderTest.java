@@ -89,6 +89,6 @@ public class ActiveRulesProviderTest {
   }
 
   private static Rule mockRule(String name) {
-    return Rule.newBuilder().setName(name).setRepo(name).setKey(name).build();
+    return Rule.newBuilder().setName(name).setRepo(name).setKey(name + ":" + name).build();
   }
 }

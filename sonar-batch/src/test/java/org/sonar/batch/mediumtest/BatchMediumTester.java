@@ -33,7 +33,6 @@ import org.apache.commons.lang.mutable.MutableBoolean;
 
 import javax.annotation.Nullable;
 
-import org.sonar.batch.cache.ProjectCacheStatus;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
@@ -228,7 +227,10 @@ public class BatchMediumTester {
 
       org.sonarqube.ws.Rules.Rule.Builder builder = org.sonarqube.ws.Rules.Rule.newBuilder();
       builder.setRepo(repositoryKey);
-      builder.setKey(ruleKey);
+      if (internalKey != null) {
+        builder.setInternalKey(internalKey);
+      }
+      builder.setKey(repositoryKey + ":" + ruleKey);
       builder.setName(name);
 
       if (templateRuleKey != null) {
@@ -236,9 +238,6 @@ public class BatchMediumTester {
       }
       if (languag != null) {
         builder.setLang(languag);
-      }
-      if (internalKey != null) {
-        builder.setInternalKey(internalKey);
       }
       if (severity != null) {
         builder.setSeverity(severity);

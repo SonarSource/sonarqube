@@ -113,7 +113,7 @@ public class ChecksMediumTest {
     @Nullable String internalKey, @Nullable String languag, String paramKey, String paramValue) {
     org.sonarqube.ws.Rules.Rule.Builder builder = org.sonarqube.ws.Rules.Rule.newBuilder();
     builder.setRepo(repositoryKey);
-    builder.setKey(ruleKey);
+    builder.setKey(repositoryKey + ":" + ruleKey);
     if (templateRuleKey != null) {
       builder.setTemplateKey(templateRuleKey);
     }

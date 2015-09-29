@@ -35,7 +35,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public class DefaultRulesLoader implements RulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/list";
+  private static final String RULES_SEARCH_URL = "/api/rules/list.protobuf";
 
   private final WSLoader wsLoader;
 

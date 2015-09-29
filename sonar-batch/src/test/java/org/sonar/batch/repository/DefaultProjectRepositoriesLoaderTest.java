@@ -64,10 +64,10 @@ public class DefaultProjectRepositoriesLoaderTest {
   @Test
   public void passIssuesModeParameter() {
     loader.load(PROJECT_KEY, false, null);
-    verify(wsLoader).loadStream("/batch/project?key=foo%3F");
+    verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F");
 
     loader.load(PROJECT_KEY, true, null);
-    verify(wsLoader).loadStream("/batch/project?key=foo%3F&issues=true");
+    verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F&issues=true");
   }
 
   @Test
@@ -80,7 +80,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   @Test
   public void passAndEncodeProjectKeyParameter() {
     loader.load(PROJECT_KEY, false, null);
-    verify(wsLoader).loadStream("/batch/project?key=foo%3F");
+    verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F");
   }
 
   private InputStream mockData() throws IOException {

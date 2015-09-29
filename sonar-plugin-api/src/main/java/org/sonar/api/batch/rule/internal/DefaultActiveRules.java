@@ -65,7 +65,11 @@ public class DefaultActiveRules implements ActiveRules {
 
   @Override
   public ActiveRule find(RuleKey ruleKey) {
-    return activeRulesByRepositoryAndKey.containsKey(ruleKey.repository()) ? activeRulesByRepositoryAndKey.get(ruleKey.repository()).get(ruleKey.rule()) : null;
+    Map<String, ActiveRule> map = activeRulesByRepositoryAndKey.get(ruleKey.repository());
+    if(map != null) {
+      return map.get(ruleKey.rule());
+    }
+    return null;
   }
 
   @Override

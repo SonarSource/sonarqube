@@ -55,7 +55,7 @@ public class DefaultActiveRulesLoaderTest {
     Collection<Rule> activeRules = loader.load("java-sonar-way-26368", null);
     assertThat(activeRules).hasSize(100);
 
-    verify(ws).loadStream("/api/rules/search?f=repo,name,severity,lang,internalKey,templateKey&qprofile=java-sonar-way-26368");
+    verify(ws).loadStream("/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params&activation=true&qprofile=java-sonar-way-26368");
     verifyNoMoreInteractions(ws);
 
   }
