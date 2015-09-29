@@ -19,15 +19,17 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
+import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
 
 /**
  * This servlet filter sets response headers that enable browser protection against several classes if Web attacks.
@@ -35,18 +37,26 @@ import java.io.IOException;
  */
 public class SecurityServletFilter implements Filter {
 
-  @Override
+  private static final Set<String> ALLOWED_HTTP_METHODS = ImmutableSet.of("DELETE", "GET", "POST", "PUT");
+
   public void init(FilterConfig filterConfig) throws ServletException {
     // nothing
   }
 
   @Override
   public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+    HttpServletResponse httpResponse = (HttpServletResponse) resp;
+
+    // SONAR-6881 Disable OPTIONS, HEAD and TRACE methods
+    if (!ALLOWED_HTTP_METHODS.contains(((HttpServletRequest) req).getMethod())) {
+      httpResponse.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+      return;
+    }
+
     chain.doFilter(req, resp);
 
     // Clickjacking protection
     // See https://www.owasp.org/index.php/Clickjacking_Protection_for_Java_EE
-    HttpServletResponse httpResponse = (HttpServletResponse) resp;
     httpResponse.addHeader("X-Frame-Options", "SAMEORIGIN");
 
     // Cross-site scripting
