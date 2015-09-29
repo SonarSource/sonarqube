@@ -27,9 +27,9 @@ public interface DatabaseProperties {
   String PROP_DRIVER = "sonar.jdbc.driverClassName";
   String PROP_USER = "sonar.jdbc.username";
   String PROP_USER_DEPRECATED = "sonar.jdbc.user";
-  String PROP_USER_DEFAULT_VALUE = "sonar";
+  String PROP_USER_DEFAULT_VALUE = "";
   String PROP_PASSWORD = "sonar.jdbc.password";
-  String PROP_PASSWORD_DEFAULT_VALUE = "sonar";
+  String PROP_PASSWORD_DEFAULT_VALUE = "";
   String PROP_DIALECT = "sonar.jdbc.dialect";
 
   /**
