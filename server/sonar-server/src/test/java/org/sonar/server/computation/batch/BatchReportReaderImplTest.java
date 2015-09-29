@@ -19,11 +19,10 @@
  */
 package org.sonar.server.computation.batch;
 
+import com.google.common.base.Optional;
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -85,16 +84,16 @@ public class BatchReportReaderImplTest {
   @Test
   public void readScannerLogs() throws IOException {
     File scannerLogFile = writer.getFileStructure().analysisLog();
-    FileUtils.write(scannerLogFile, "{logs}");
+    FileUtils.write(scannerLogFile, "log1\nlog2");
 
-    Reader logReader = underTest.readScannerLogs();
-    assertThat(IOUtils.toString(logReader)).isEqualTo("{logs}");
+    Optional<CloseableIterator<String>> logs = underTest.readScannerLogs();
+    assertThat(logs.get()).containsExactly("log1", "log2");
   }
 
   @Test
   public void readScannerLogs_no_logs() {
-    Reader logReader = underTest.readScannerLogs();
-    assertThat(logReader).isNull();
+    Optional<CloseableIterator<String>> logs = underTest.readScannerLogs();
+    assertThat(logs.isPresent()).isFalse();
   }
 
   @Test

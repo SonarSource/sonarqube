@@ -37,7 +37,7 @@ import org.sonar.core.util.CloseableIterator;
 
 public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private BatchReport.Metadata metadata;
-  private Reader scannerLogs;
+  private List<String> scannerLogs;
   private List<BatchReport.ActiveRule> activeRules = new ArrayList<>();
   private Map<Integer, List<BatchReport.Measure>> measures = new HashMap<>();
   private Map<Integer, BatchReport.Changesets> changesets = new HashMap<>();
@@ -94,12 +94,15 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public Reader readScannerLogs() {
-    return scannerLogs;
+  public Optional<CloseableIterator<String>> readScannerLogs() {
+    if (scannerLogs == null) {
+      return Optional.absent();
+    }
+    return Optional.of(CloseableIterator.from(scannerLogs.iterator()));
   }
 
-  public void setScannerLogs(@Nullable Reader reader) {
-    this.scannerLogs = reader;
+  public void setScannerLogs(@Nullable List<String> logs) {
+    this.scannerLogs = logs;
   }
 
   @Override

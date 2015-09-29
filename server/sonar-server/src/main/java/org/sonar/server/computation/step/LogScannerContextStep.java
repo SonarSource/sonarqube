@@ -19,12 +19,10 @@
  */
 package org.sonar.server.computation.step;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import org.apache.commons.io.IOUtils;
+import com.google.common.base.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.batch.BatchReportReader;
 
 public class LogScannerContextStep implements ComputationStep {
@@ -39,30 +37,24 @@ public class LogScannerContextStep implements ComputationStep {
 
   @Override
   public void execute() {
-    Reader logReader = reportReader.readScannerLogs();
-    if (logReader != null) {
-      log(logReader);
+    Optional<CloseableIterator<String>> linesIt = reportReader.readScannerLogs();
+    if (linesIt.isPresent()) {
+      log(linesIt.get());
     }
   }
 
-  private void log(Reader logReader) {
-    BufferedReader linesReader = null;
+  private static void log(CloseableIterator<String> logs) {
     try {
-      linesReader = new BufferedReader(logReader);
-      String line = linesReader.readLine();
-      while (line != null) {
-        LOGGER.info(line);
-        line = linesReader.readLine();
+      while (logs.hasNext()) {
+        LOGGER.info(logs.next());
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to read scanner logs", e);
     } finally {
-      IOUtils.closeQuietly(linesReader);
+      logs.close();
     }
   }
 
   @Override
   public String getDescription() {
-    return "Log Scanner Context";
+    return "Log scanner context";
   }
 }

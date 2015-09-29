@@ -19,15 +19,13 @@
  */
 package org.sonar.server.computation.step;
 
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogScannerContextStepTest {
@@ -48,12 +46,11 @@ public class LogScannerContextStepTest {
 
   @Test
   public void log_scanner_logs() {
-    reportReader.setScannerLogs(new StringReader("log1\nlog2"));
+    reportReader.setScannerLogs(asList("log1", "log2"));
 
     underTest.execute();
 
     assertThat(logTester.logs(LoggerLevel.INFO)).containsExactly("log1", "log2");
   }
-
 
 }
