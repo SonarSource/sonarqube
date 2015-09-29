@@ -21,8 +21,15 @@ export default Marionette.LayoutView.extend({
     this.showProjects();
   },
 
+  orderByName: function (conditions) {
+    let metrics = this.options.metrics;
+    return _.sortBy(conditions, (condition) => {
+      return _.findWhere(metrics, { key: condition.metric }).name;
+    });
+  },
+
   showConditions: function () {
-    var conditions = new Conditions(this.model.get('conditions')),
+    var conditions = new Conditions(this.orderByName(this.model.get('conditions'))),
         view = new DetailConditionsView({
           canEdit: this.options.canEdit,
           collection: conditions,
