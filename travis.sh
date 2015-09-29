@@ -60,7 +60,7 @@ PRANALYSIS)
   ;;
 
 ITS)
-  if [ "$IT_CATEGORY" == "plugins" ] && [ "$TRAVIS_PULL_REQUEST" == "true" ]; then
+  if [ "$IT_CATEGORY" == "plugins" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
     echo "Ignore this job since it needs access to private test licenses."
   else
     installTravisTools
