@@ -49,20 +49,22 @@ public class PersistentCacheBuilder {
   }
 
   public PersistentCacheBuilder setAreaForProject(String serverUrl, String serverVersion, String projectKey) {
-    relativePath = Paths.get(sanitizeFilename(serverUrl + "-" + serverVersion))
+    relativePath = Paths.get(sanitizeFilename(serverUrl))
+      .resolve(sanitizeFilename(serverVersion))
       .resolve("projects")
       .resolve(sanitizeFilename(projectKey));
     return this;
   }
   
-  public PersistentCacheBuilder setAreaForGlobal(String serverUrl, String serverVersion) {
-    relativePath = Paths.get(sanitizeFilename(serverUrl + "-" + serverVersion))
+  public PersistentCacheBuilder setAreaForGlobal(String serverUrl) {
+    relativePath = Paths.get(sanitizeFilename(serverUrl))
       .resolve("global");
     return this;
   }
   
   public PersistentCacheBuilder setAreaForLocalProject(String serverUrl, String serverVersion) {
-    relativePath = Paths.get(sanitizeFilename(serverUrl + "-" + serverVersion))
+    relativePath = Paths.get(sanitizeFilename(serverUrl))
+      .resolve(sanitizeFilename(serverVersion))
       .resolve("local");
     return this;
   }

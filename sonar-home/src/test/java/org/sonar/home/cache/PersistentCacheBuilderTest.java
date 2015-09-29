@@ -36,14 +36,14 @@ public class PersistentCacheBuilderTest {
 
   @Test
   public void user_home_property_can_be_null() {
-    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setSonarHome(null).setAreaForGlobal("url", "0").build();
+    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setSonarHome(null).setAreaForGlobal("url").build();
     assertTrue(Files.isDirectory(cache.getDirectory()));
-    assertThat(cache.getDirectory()).endsWith(Paths.get("url-0", "global"));
+    assertThat(cache.getDirectory()).endsWith(Paths.get("url", "global"));
   }
 
   @Test
   public void set_user_home() {
-    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setSonarHome(temp.getRoot().toPath()).setAreaForGlobal("url", "0").build();
+    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setSonarHome(temp.getRoot().toPath()).setAreaForGlobal("url").build();
 
     assertThat(cache.getDirectory()).isDirectory();
     assertThat(cache.getDirectory()).startsWith(temp.getRoot().toPath());
@@ -56,7 +56,7 @@ public class PersistentCacheBuilderTest {
 
     System.setProperty("user.home", temp.getRoot().getAbsolutePath());
 
-    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setAreaForGlobal("url", "0").build();
+    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setAreaForGlobal("url").build();
     assertTrue(Files.isDirectory(cache.getDirectory()));
     assertThat(cache.getDirectory()).startsWith(temp.getRoot().toPath());
   }
@@ -66,12 +66,12 @@ public class PersistentCacheBuilderTest {
     System.setProperty("user.home", temp.getRoot().getAbsolutePath());
 
     PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setAreaForProject("url", "0", "proj").build();
-    assertThat(cache.getDirectory()).endsWith(Paths.get(".sonar", "ws_cache", "url-0", "projects", "proj"));
+    assertThat(cache.getDirectory()).endsWith(Paths.get(".sonar", "ws_cache", "url", "0", "projects", "proj"));
 
     cache = new PersistentCacheBuilder(mock(Logger.class)).setAreaForLocalProject("url", "0").build();
-    assertThat(cache.getDirectory()).endsWith(Paths.get(".sonar", "ws_cache", "url-0", "local"));
+    assertThat(cache.getDirectory()).endsWith(Paths.get(".sonar", "ws_cache", "url", "0", "local"));
 
-    cache = new PersistentCacheBuilder(mock(Logger.class)).setAreaForGlobal("url", "0").build();
-    assertThat(cache.getDirectory()).endsWith(Paths.get(".sonar", "ws_cache", "url-0", "global"));
+    cache = new PersistentCacheBuilder(mock(Logger.class)).setAreaForGlobal("url").build();
+    assertThat(cache.getDirectory()).endsWith(Paths.get(".sonar", "ws_cache", "url", "global"));
   }
 }

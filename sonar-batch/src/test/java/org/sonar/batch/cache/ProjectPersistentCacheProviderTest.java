@@ -22,8 +22,6 @@ package org.sonar.batch.cache;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 
 import org.sonar.batch.util.BatchUtils;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -34,7 +32,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Collections;
 
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import org.junit.Before;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,7 +70,8 @@ public class ProjectPersistentCacheProviderTest {
     props.properties().put("sonar.userHome", f.getAbsolutePath());
     Path expected = f.toPath()
       .resolve("ws_cache")
-      .resolve("http%3A%2F%2Flocalhost%3A9000-" + BatchUtils.getServerVersion())
+      .resolve("http%3A%2F%2Flocalhost%3A9000")
+      .resolve( BatchUtils.getServerVersion())
       .resolve("projects")
       .resolve("proj");
 

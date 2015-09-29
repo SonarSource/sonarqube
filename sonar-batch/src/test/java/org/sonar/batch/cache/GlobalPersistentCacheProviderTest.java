@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.util.BatchUtils;
-
 import org.sonar.home.cache.PersistentCache;
 
 import java.util.HashMap;
@@ -35,10 +33,10 @@ import org.junit.rules.TemporaryFolder;
 public class GlobalPersistentCacheProviderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  
+
   private GlobalPersistentCacheProvider provider;
   private GlobalProperties globalProperties;
-  
+
   @Before
   public void setUp() {
     HashMap<String, String> map = new HashMap<String, String>();
@@ -46,13 +44,13 @@ public class GlobalPersistentCacheProviderTest {
     globalProperties = new GlobalProperties(map);
     provider = new GlobalPersistentCacheProvider();
   }
-  
+
   @Test
   public void test_path() {
     PersistentCache cache = provider.provide(globalProperties);
     assertThat(cache.getDirectory()).isEqualTo(temp.getRoot().toPath()
       .resolve("ws_cache")
-      .resolve("http%3A%2F%2Flocalhost%3A9000-" + BatchUtils.getServerVersion())
+      .resolve("http%3A%2F%2Flocalhost%3A9000")
       .resolve("global"));
   }
 }

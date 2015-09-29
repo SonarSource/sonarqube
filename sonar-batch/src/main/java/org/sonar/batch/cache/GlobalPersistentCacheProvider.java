@@ -21,7 +21,6 @@ package org.sonar.batch.cache;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.bootstrap.Slf4jLogger;
-import org.sonar.batch.util.BatchUtils;
 import org.sonar.home.cache.PersistentCacheBuilder;
 
 import java.nio.file.Paths;
@@ -43,7 +42,7 @@ public class GlobalPersistentCacheProvider extends ProviderAdapter {
         builder.setSonarHome(Paths.get(home));
       }
       
-      builder.setAreaForGlobal(serverUrl, BatchUtils.getServerVersion());
+      builder.setAreaForGlobal(serverUrl);
       cache = builder.build();
     }
 
