@@ -88,7 +88,7 @@ public class ClearRulesOverloadedDebtTest {
     verifyRuleHasNotOverriddenDebt(RULE_KEY_2);
     verifyRuleHasNotOverriddenDebt(RULE_KEY_3);
     verifyTaskRegistered();
-    verifyLog(3);
+    verifyLog();
   }
 
   @Test
@@ -128,7 +128,7 @@ public class ClearRulesOverloadedDebtTest {
   public void not_execute_task_when_already_executed() throws Exception {
     insertRuleDto(RULE_KEY_1, SUB_CHARACTERISTIC_ID, "LINEAR", null, "1d");
     underTest.start();
-    verifyLog(1);
+    verifyLog();
     verifyTaskRegistered();
 
     logTester.clear();
@@ -169,11 +169,10 @@ public class ClearRulesOverloadedDebtTest {
     assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(ONE_SHOT_TASK_TYPE, "ClearRulesOverloadedDebt")).isEqualTo(1);
   }
 
-  private void verifyLog(int nbOfUpdatedRules) {
+  private void verifyLog() {
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
-      "The SQALE model has been cleaned to remove useless data left over by previous migrations. The technical debt of " + nbOfUpdatedRules
-        + " rules was reset to their default values.",
-      "=> As a consequence, the overall technical debt of your projects might slightly evolve during the next analysis.");
+      "The SQALE model has been cleaned to remove any redundant data left over from previous migrations.",
+      "=> As a result, the technical debt of existing issues in your projects may change slightly when those projects are reanalyzed.");
   }
 
   private void verifyEmptyLog() {
