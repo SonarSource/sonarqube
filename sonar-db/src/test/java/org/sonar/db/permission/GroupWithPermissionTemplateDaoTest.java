@@ -75,7 +75,7 @@ public class GroupWithPermissionTemplateDaoTest {
   }
 
   @Test
-  public void anyone_group_is_not_returned_when_it_has_no_permission() {
+  public void anyone_group_is_returned_when_it_has_no_permission() {
     dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
     // Anyone group is returned even if it doesn't have the permission
