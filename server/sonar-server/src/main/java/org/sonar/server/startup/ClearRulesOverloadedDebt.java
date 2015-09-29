@@ -82,9 +82,8 @@ public class ClearRulesOverloadedDebt implements Startable {
       }
     }
     if (countClearedRules > 0) {
-      LOG.warn("The SQALE model has been cleaned to remove useless data left over by previous migrations. The technical debt of {} rules was reset to their default values.",
-        countClearedRules);
-      LOG.warn("=> As a consequence, the overall technical debt of your projects might slightly evolve during the next analysis.");
+      LOG.warn("The SQALE model has been cleaned to remove any redundant data left over from previous migrations.");
+      LOG.warn("=> As a result, the technical debt of existing issues in your projects may change slightly when those projects are reanalyzed.");
     }
   }
 
