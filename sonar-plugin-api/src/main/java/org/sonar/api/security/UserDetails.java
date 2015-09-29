@@ -29,49 +29,49 @@ import com.google.common.base.Objects;
  */
 public final class UserDetails {
 
-    private String name = "";
-    private String email = "";
-    private String userId = "";
+  private String name = "";
+  private String email = "";
+  private String userId = "";
 
-    public UserDetails() {
-    }
+  public UserDetails() {
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @since 5.2
-     */
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+  /**
+   * @since 5.2
+   */
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
 
-    /**
-     * @since 5.2
-     */
-    public String getUserId() {
-        return userId;
-    }
+  /**
+   * @since 5.2
+   */
+  public String getUserId() {
+    return userId;
+  }
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("name", name)
-                .add("email", email)
-                .add("userId", userId)
-                .toString();
-    }
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("name", name)
+      .add("email", email)
+      .add("userId", userId)
+      .toString();
+  }
 }

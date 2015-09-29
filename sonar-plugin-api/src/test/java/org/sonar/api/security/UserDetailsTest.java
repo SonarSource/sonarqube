@@ -25,55 +25,55 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDetailsTest {
-    private UserDetails userDetails;
+  private UserDetails userDetails;
 
-    @Before
-    public void init() {
-        userDetails = new UserDetails();
-    }
+  @Before
+  public void init() {
+    userDetails = new UserDetails();
+  }
 
-    @Test
-    public void getNameTest() {
-        userDetails.setName(null);
-        assertThat(userDetails.getName()).isNull();
+  @Test
+  public void getNameTest() {
+    userDetails.setName(null);
+    assertThat(userDetails.getName()).isNull();
 
-        userDetails.setName("");
-        assertThat(userDetails.getName()).isEqualTo("");
+    userDetails.setName("");
+    assertThat(userDetails.getName()).isEqualTo("");
 
-        userDetails.setName("foo");
-        assertThat(userDetails.getName()).isEqualTo("foo");
-    }
+    userDetails.setName("foo");
+    assertThat(userDetails.getName()).isEqualTo("foo");
+  }
 
-    @Test
-    public void getEmailTest() {
-        userDetails.setEmail(null);
-        assertThat(userDetails.getEmail()).isNull();
+  @Test
+  public void getEmailTest() {
+    userDetails.setEmail(null);
+    assertThat(userDetails.getEmail()).isNull();
 
-        userDetails.setEmail("");
-        assertThat(userDetails.getEmail()).isEqualTo("");
+    userDetails.setEmail("");
+    assertThat(userDetails.getEmail()).isEqualTo("");
 
-        userDetails.setEmail("foo@example.com");
-        assertThat(userDetails.getEmail()).isEqualTo("foo@example.com");
-    }
+    userDetails.setEmail("foo@example.com");
+    assertThat(userDetails.getEmail()).isEqualTo("foo@example.com");
+  }
 
-    @Test
-    public void getUserIdTest() {
-        userDetails.setUserId(null);
-        assertThat(userDetails.getUserId()).isNull();
+  @Test
+  public void getUserIdTest() {
+    userDetails.setUserId(null);
+    assertThat(userDetails.getUserId()).isNull();
 
-        userDetails.setUserId("");
-        assertThat(userDetails.getUserId()).isEqualTo("");
+    userDetails.setUserId("");
+    assertThat(userDetails.getUserId()).isEqualTo("");
 
-        userDetails.setUserId("foo@example");
-        assertThat(userDetails.getUserId()).isEqualTo("foo@example");
-    }
+    userDetails.setUserId("foo@example");
+    assertThat(userDetails.getUserId()).isEqualTo("foo@example");
+  }
 
-    @Test
-    public void toStringTest() {
-        userDetails.setName("foo");
-        userDetails.setEmail("foo@example.com");
-        userDetails.setUserId("foo@example");
+  @Test
+  public void toStringTest() {
+    userDetails.setName("foo");
+    userDetails.setEmail("foo@example.com");
+    userDetails.setUserId("foo@example");
 
-        assertThat(userDetails.toString()).isEqualTo("UserDetails{name=foo, email=foo@example.com, userId=foo@example}");
-    }
+    assertThat(userDetails.toString()).isEqualTo("UserDetails{name=foo, email=foo@example.com, userId=foo@example}");
+  }
 }
