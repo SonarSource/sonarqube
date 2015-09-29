@@ -47,6 +47,19 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
+  ensureTextRange: function (issue) {
+    if (issue.line && !issue.textRange) {
+      // FIXME 999999
+      issue.textRange = {
+        startLine: issue.line,
+        endLine: issue.line,
+        startOffset: 0,
+        endOffset: 999999
+      };
+    }
+    return issue;
+  },
+
   parseIssues: function (r) {
     var that = this;
     return r.issues.map(function (issue, index) {
@@ -60,6 +73,7 @@ export default Backbone.Collection.extend({
       issue = that._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
       issue = that._injectCommentsRelational(issue, r.users);
       issue = that._prepareClosed(issue);
+      issue = that.ensureTextRange(issue);
       return issue;
     });
   },

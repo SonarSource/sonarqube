@@ -30,6 +30,7 @@ export default Backbone.Model.extend({
       issue = this._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
       issue = this._injectCommentsRelational(issue, r.users);
       issue = this._prepareClosed(issue);
+      issue = this.ensureTextRange(issue);
       return issue;
     } else {
       return r;
@@ -70,6 +71,19 @@ export default Backbone.Model.extend({
     if (issue.status === 'CLOSED') {
       issue.flows = [];
       delete issue.textRange;
+    }
+    return issue;
+  },
+
+  ensureTextRange: function (issue) {
+    if (issue.line && !issue.textRange) {
+      // FIXME 999999
+      issue.textRange = {
+        startLine: issue.line,
+        endLine: issue.line,
+        startOffset: 0,
+        endOffset: 999999
+      };
     }
     return issue;
   },
