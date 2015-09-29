@@ -24,13 +24,14 @@ import com.google.common.base.Objects;
 /**
  * This class is not intended to be subclassed by clients.
  *
- * @since 2.14
  * @see ExternalUsersProvider
+ * @since 2.14
  */
 public final class UserDetails {
 
   private String name = "";
   private String email = "";
+  private String userId = "";
 
   public UserDetails() {
   }
@@ -51,11 +52,26 @@ public final class UserDetails {
     return name;
   }
 
+  /**
+   * @since 5.2
+   */
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
+  /**
+   * @since 5.2
+   */
+  public String getUserId() {
+    return userId;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
-        .add("name", name)
-        .add("email", email)
-        .toString();
+      .add("name", name)
+      .add("email", email)
+      .add("userId", userId)
+      .toString();
   }
 }
