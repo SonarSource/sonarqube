@@ -21,7 +21,7 @@ package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.computation.queue.report.ReportSubmitter;
-import org.sonar.server.computation.queue.report.ReportTaskProcessor;
+import org.sonar.server.computation.taskprocessor.report.ReportTaskProcessor;
 import org.sonar.server.computation.step.ComputationStepExecutor;
 
 public class ReportProcessingModule extends Module {

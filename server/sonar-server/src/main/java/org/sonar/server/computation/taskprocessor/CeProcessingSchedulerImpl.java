@@ -17,31 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.server.computation.taskprocessor;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
-import org.sonar.server.computation.queue.report.ReportFiles;
+import java.util.concurrent.TimeUnit;
 
-public class CeQueueModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      CeQueueImpl.class,
+public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
+  private final CeProcessingSchedulerExecutorService executorService;
+  private final CeWorkerRunnable workerRunnable;
 
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      ComputeEngineQueueMonitor.class,
+  private final long delayBetweenTasks;
+  private final long delayForFirstStart;
+  private final TimeUnit timeUnit;
 
-      // queue cleaning
-      CeQueueCleaner.class,
-      CleanReportQueueListener.class,
-      ReportFiles.class,
+  public CeProcessingSchedulerImpl(CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerRunnable workerRunnable) {
+    this.executorService = processingExecutorService;
+    this.workerRunnable = workerRunnable;
 
-      // init queue state and queue processing
-      CeQueueInitializer.class);
+    this.delayBetweenTasks = 10;
+    this.delayForFirstStart = 0;
+    this.timeUnit = TimeUnit.SECONDS;
   }
+
+  @Override
+  public void startScheduling() {
+    executorService.scheduleAtFixedRate(workerRunnable, delayForFirstStart, delayBetweenTasks, timeUnit);
+  }
+
 }

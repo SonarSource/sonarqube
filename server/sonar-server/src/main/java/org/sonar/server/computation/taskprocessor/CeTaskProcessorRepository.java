@@ -17,30 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue.report;
+package org.sonar.server.computation.taskprocessor;
 
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.step.ComputationStepExecutor;
-import org.sonar.server.computation.container.ComputeEngineContainer;
-import org.sonar.server.computation.container.ContainerFactory;
+import com.google.common.base.Optional;
 import org.sonar.server.computation.queue.CeTask;
 
-public class ReportTaskProcessor {
+public interface CeTaskProcessorRepository {
 
-  private final ContainerFactory containerFactory;
-  private final ComponentContainer serverContainer;
+  /**
+   * @throws NullPointerException if the specified {@link CeTask} is {@code null}
+   * @throws IllegalStateException if there is no {@link CeTaskProcessor} for the specified {@link CeTask} in the repository
+   */
+  Optional<CeTaskProcessor> getForCeTask(CeTask ceTask);
 
-  public ReportTaskProcessor(ContainerFactory containerFactory, ComponentContainer serverContainer) {
-    this.containerFactory = containerFactory;
-    this.serverContainer = serverContainer;
-  }
-
-  public void process(CeTask task) {
-    ComputeEngineContainer ceContainer = containerFactory.create(serverContainer, task);
-    try {
-      ceContainer.getComponentByType(ComputationStepExecutor.class).execute();
-    } finally {
-      ceContainer.cleanup();
-    }
-  }
 }

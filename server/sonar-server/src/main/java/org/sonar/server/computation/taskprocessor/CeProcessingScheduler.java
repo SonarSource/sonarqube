@@ -17,31 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.server.computation.taskprocessor;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
-import org.sonar.server.computation.queue.report.ReportFiles;
+public interface CeProcessingScheduler {
 
-public class CeQueueModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      CeQueueImpl.class,
+  void startScheduling();
 
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      ComputeEngineQueueMonitor.class,
-
-      // queue cleaning
-      CeQueueCleaner.class,
-      CleanReportQueueListener.class,
-      ReportFiles.class,
-
-      // init queue state and queue processing
-      CeQueueInitializer.class);
-  }
 }

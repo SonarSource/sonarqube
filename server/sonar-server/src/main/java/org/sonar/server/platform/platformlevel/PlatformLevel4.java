@@ -64,6 +64,7 @@ import org.sonar.server.component.ws.ResourcesWs;
 import org.sonar.server.computation.CeModule;
 import org.sonar.server.computation.container.ReportProcessingModule;
 import org.sonar.server.computation.queue.CeQueueModule;
+import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.computation.ws.CeWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
@@ -701,6 +702,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // Compute engine
       CeModule.class,
       CeQueueModule.class,
+      CeTaskProcessorModule.class,
       CeWsModule.class,
       ReportProcessingModule.class,
 

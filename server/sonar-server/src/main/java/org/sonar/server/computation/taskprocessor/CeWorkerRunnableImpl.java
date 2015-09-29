@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.queue;
+package org.sonar.server.computation.taskprocessor;
 
 import com.google.common.base.Optional;
 import org.sonar.api.utils.log.Logger;
@@ -26,7 +26,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.server.computation.log.CeLogging;
-import org.sonar.server.computation.queue.report.ReportTaskProcessor;
+import org.sonar.server.computation.queue.CeQueue;
+import org.sonar.server.computation.queue.CeTask;
 
 import static java.lang.String.format;
 
@@ -35,13 +36,13 @@ public class CeWorkerRunnableImpl implements CeWorkerRunnable {
   private static final Logger LOG = Loggers.get(CeWorkerRunnableImpl.class);
 
   private final CeQueue queue;
-  private final ReportTaskProcessor reportTaskProcessor;
   private final CeLogging ceLogging;
+  private final CeTaskProcessorRepository taskProcessorRepository;
 
-  public CeWorkerRunnableImpl(CeQueue queue, ReportTaskProcessor reportTaskProcessor, CeLogging ceLogging) {
+  public CeWorkerRunnableImpl(CeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository) {
     this.queue = queue;
-    this.reportTaskProcessor = reportTaskProcessor;
     this.ceLogging = ceLogging;
+    this.taskProcessorRepository = taskProcessorRepository;
   }
 
   @Override
@@ -72,8 +73,14 @@ public class CeWorkerRunnableImpl implements CeWorkerRunnable {
     CeActivityDto.Status status = CeActivityDto.Status.FAILED;
     try {
       // TODO delegate the message to the related task processor, according to task type
-      reportTaskProcessor.process(task);
-      status = CeActivityDto.Status.SUCCESS;
+      Optional<CeTaskProcessor> taskProcessor = taskProcessorRepository.getForCeTask(task);
+      if (taskProcessor.isPresent()) {
+        taskProcessor.get().process(task);
+        status = CeActivityDto.Status.SUCCESS;
+      } else {
+        LOG.error("No CeTaskProcessor is defined for task of type {}. Plugin configuration may have changed", task.getType());
+        status = CeActivityDto.Status.FAILED;
+      }
       queue.remove(task, status);
     } catch (Throwable e) {
       LOG.error(format("Failed to execute task %s", task.getUuid()), e);

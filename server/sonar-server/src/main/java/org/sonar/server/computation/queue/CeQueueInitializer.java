@@ -24,6 +24,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
+import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
 
 /**
  * Cleans-up the queue, initializes JMX counters then schedule

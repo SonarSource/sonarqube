@@ -17,30 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.server.computation.taskprocessor;
 
-import java.util.concurrent.TimeUnit;
+import org.sonar.core.platform.Module;
 
-public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
-  private final CeProcessingSchedulerExecutorService executorService;
-  private final CeWorkerRunnable workerRunnable;
-
-  private final long delayBetweenTasks;
-  private final long delayForFirstStart;
-  private final TimeUnit timeUnit;
-
-  public CeProcessingSchedulerImpl(CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerRunnable workerRunnable) {
-    this.executorService = processingExecutorService;
-    this.workerRunnable = workerRunnable;
-
-    this.delayBetweenTasks = 10;
-    this.delayForFirstStart = 0;
-    this.timeUnit = TimeUnit.SECONDS;
-  }
-
+public class CeTaskProcessorModule extends Module {
   @Override
-  public void startScheduling() {
-    executorService.scheduleAtFixedRate(workerRunnable, delayForFirstStart, delayBetweenTasks, timeUnit);
+  protected void configureModule() {
+    add(
+      CeTaskProcessorRepositoryImpl.class,
+      CeWorkerRunnableImpl.class,
+      CeProcessingSchedulerExecutorServiceImpl.class,
+      CeProcessingSchedulerImpl.class);
   }
-
 }

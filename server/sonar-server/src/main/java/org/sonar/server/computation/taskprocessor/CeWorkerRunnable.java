@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.server.computation.taskprocessor;
+
+import org.sonar.server.computation.queue.CeQueue;
+import org.sonar.server.computation.queue.CeTask;
 
 /**
  * Marker interface of the runnable in charge of polling the {@link CeQueue} and executing {@link CeTask}.

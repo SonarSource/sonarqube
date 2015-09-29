@@ -17,10 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.server.computation.taskprocessor;
 
-public interface CeProcessingScheduler {
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
-  void startScheduling();
+public class CeProcessingSchedulerExecutorServiceImpl extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
+  implements CeProcessingSchedulerExecutorService {
+  private static final String THREAD_NAME_PREFIX = "ce-processor-";
+
+  public CeProcessingSchedulerExecutorServiceImpl() {
+    super(
+      Executors.newSingleThreadScheduledExecutor(
+        new ThreadFactoryBuilder()
+          .setNameFormat(THREAD_NAME_PREFIX + "%d")
+          .setPriority(Thread.MIN_PRIORITY)
+          .build()));
+  }
 
 }
