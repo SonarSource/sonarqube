@@ -37,7 +37,7 @@ import org.sonar.test.DbTests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
-public class FeedDebtModelStepTest extends BaseStepTest {
+public class LoadDebtModelStepTest extends BaseStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

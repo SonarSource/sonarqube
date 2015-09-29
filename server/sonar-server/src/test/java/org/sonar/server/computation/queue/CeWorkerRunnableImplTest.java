@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class CeWorkerRunnableTest {
+public class CeWorkerRunnableImplTest {
 
   CeQueue queue = mock(CeQueueImpl.class);
   ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);

@@ -44,7 +44,7 @@ import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
 
-public class FeedMeasureComputersTest {
+public class LoadMeasureComputersStepTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

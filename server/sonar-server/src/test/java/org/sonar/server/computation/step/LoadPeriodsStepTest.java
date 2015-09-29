@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
 @RunWith(DataProviderRunner.class)
-public class FeedPeriodsStepTest extends BaseStepTest {
+public class LoadPeriodsStepTest extends BaseStepTest {
 
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
   private static final String ROOT_KEY = "ROOT_KEY";
