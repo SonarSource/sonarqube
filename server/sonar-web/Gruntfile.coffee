@@ -93,10 +93,10 @@ module.exports = (grunt) ->
             '<%= BUILD_PATH %>/js/libs/sortable.js'
 
             '<%= BUILD_PATH %>/js/libs/inputs.js'
-            '<%= BUILD_PATH %>/js/components/common/dialogs.js'
-            '<%= BUILD_PATH %>/js/components/common/processes.js'
-            '<%= BUILD_PATH %>/js/components/common/jquery-isolated-scroll.js'
-            '<%= BUILD_PATH %>/js/components/common/handlebars-extensions.js'
+            '<%= BUILD_PATH %>/js/libs/dialogs.js'
+            '<%= BUILD_PATH %>/js/libs/processes.js'
+            '<%= BUILD_PATH %>/js/libs/jquery-isolated-scroll.js'
+            '<%= BUILD_PATH %>/js/libs/handlebars-extensions.js'
 
             '<%= BUILD_PATH %>/js/libs/application.js'
             '<%= BUILD_PATH %>/js/libs/csv.js'
