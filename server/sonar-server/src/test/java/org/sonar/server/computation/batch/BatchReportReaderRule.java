@@ -36,6 +36,7 @@ import org.sonar.core.util.CloseableIterator;
 
 public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private BatchReport.Metadata metadata;
+  private List<String> scannerLogs;
   private List<BatchReport.ActiveRule> activeRules = new ArrayList<>();
   private Map<Integer, List<BatchReport.Measure>> measures = new HashMap<>();
   private Map<Integer, BatchReport.Changesets> changesets = new HashMap<>();
@@ -65,6 +66,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   private void clear() {
     this.metadata = null;
+    this.scannerLogs = null;
     this.measures.clear();
     this.changesets.clear();
     this.components.clear();
@@ -88,6 +90,18 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   public void setMetadata(BatchReport.Metadata metadata) {
     this.metadata = metadata;
+  }
+
+  @Override
+  public CloseableIterator<String> readScannerLogs() {
+    if (scannerLogs == null) {
+      throw new IllegalStateException("Scanner logs are missing");
+    }
+    return CloseableIterator.from(scannerLogs.iterator());
+  }
+
+  public void setScannerLogs(@Nullable List<String> logs) {
+    this.scannerLogs = logs;
   }
 
   @Override

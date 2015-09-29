@@ -26,6 +26,7 @@ import com.google.protobuf.Parser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
@@ -34,6 +35,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.LineReaderIterator;
 
 public class BatchReportReaderImpl implements BatchReportReader {
   private final org.sonar.batch.protocol.output.BatchReportReader delegate;
@@ -50,6 +52,20 @@ public class BatchReportReaderImpl implements BatchReportReader {
       this.metadata = delegate.readMetadata();
     }
     return this.metadata;
+  }
+
+  @Override
+  public CloseableIterator<String> readScannerLogs() {
+    File file = delegate.getFileStructure().analysisLog();
+    if (!file.exists()) {
+      return CloseableIterator.emptyCloseableIterator();
+    }
+    try {
+      InputStreamReader reader = new InputStreamReader(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
+      return new LineReaderIterator(reader);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to open file " + file, e);
+    }
   }
 
   @Override

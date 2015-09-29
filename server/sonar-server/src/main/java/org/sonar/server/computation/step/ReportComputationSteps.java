@@ -38,8 +38,8 @@ public class ReportComputationSteps implements ComputationSteps {
   @Override
   public List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
-      // extract report to a temp directory
       ExtractReportStep.class,
+      LogScannerContextStep.class,
 
       // Builds Component tree
       BuildComponentTreeStep.class,

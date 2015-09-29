@@ -81,6 +81,21 @@ public class BatchReportReaderImplTest {
   }
 
   @Test
+  public void readScannerLogs() throws IOException {
+    File scannerLogFile = writer.getFileStructure().analysisLog();
+    FileUtils.write(scannerLogFile, "log1\nlog2");
+
+    CloseableIterator<String> logs = underTest.readScannerLogs();
+    assertThat(logs).containsExactly("log1", "log2");
+  }
+
+  @Test
+  public void readScannerLogs_no_logs() {
+    CloseableIterator<String> logs = underTest.readScannerLogs();
+    assertThat(logs.hasNext()).isFalse();
+  }
+
+  @Test
   public void readComponentMeasures_returns_empty_list_if_there_is_no_measure() {
     assertThat(underTest.readComponentMeasures(COMPONENT_REF)).isEmpty();
   }
