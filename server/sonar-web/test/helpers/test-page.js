@@ -130,7 +130,7 @@ define(function (require) {
   };
 
   Command.prototype.mockFromFile = function (url, file, options) {
-    var response = fs.readFileSync('src/test/json/' + file, 'utf-8');
+    var response = fs.readFileSync('test/json/' + file, 'utf-8');
     return new this.constructor(this, function () {
       return this.parent
           .execute(function (url, response, options) {
