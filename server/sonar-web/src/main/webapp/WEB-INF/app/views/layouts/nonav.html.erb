@@ -1,6 +1,14 @@
 <%= render :partial => 'layouts/head' %>
 
-<nav class="navbar navbar-global page-container" id="global-navigation"></nav>
+<nav class="navbar navbar-global page-container" id="global-navigation">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="<%= ApplicationController.root_context -%>/">
+      <img src="<%= ApplicationController.root_context -%>/images/logo.svg" height="30"
+           alt="<%= h message('layout.sonar.slogan') -%>"
+           title="<%= h message('layout.sonar.slogan') -%>">
+    </a>
+  </div>
+</nav>
 
 <div>
   <div id="bd">

@@ -162,7 +162,7 @@
 
   $(function () {
 
-    processesView.render().$el.appendTo(document.body);
+    processesView.render().$el.insertBefore('#footer');
 
   });
 
