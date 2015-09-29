@@ -8,7 +8,7 @@
         <% if @server_id %>
           <p>
             <br/>
-            <span class="<%= @bad_id ? 'error' : 'notice' -%>" id="server_id"><big><%= @server_id -%></big></span>
+            <span class="<%= @bad_id ? 'error' : 'notice' -%>" id="server_id"><big><%= h @server_id -%></big></span>
           <% if @bad_id %>
             <span class="error"><%= message('server_id_configuration.bad_key') -%></span>
           <% end %>
@@ -23,7 +23,7 @@
         <h3><%= message('server_id_configuration.organisation.title') -%></h3>
       </th>
       <td>
-        <input type="text" name="organisation" value="<%= @organisation -%>" size="50"/>
+        <input type="text" name="organisation" value="<%= h @organisation -%>" size="50"/>
         <br/>
         <p class="marginbottom10"><%= message('server_id_configuration.organisation.desc') -%></p>
         <span class="note"><%= message('server_id_configuration.organisation.pattern') -%></span>
@@ -34,7 +34,7 @@
         <h3><%= message('server_id_configuration.ip.title') -%></h3>
       </th>
       <td>
-        <input type="text" name="address" value="<%= @address -%>"/>
+        <input type="text" name="address" value="<%= h @address -%>"/>
         <p class="marginbottom10"><%= message('server_id_configuration.ip.desc') -%></p>
         <ul class="marginbottom10 bullet">
           <% @valid_addresses.each_with_index do |ip_address, index| %>
