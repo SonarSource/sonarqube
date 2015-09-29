@@ -162,8 +162,10 @@ public class DefaultDatabase implements Database {
 
   private static void completeDefaultProperties(Properties props) {
     completeDefaultProperty(props, DatabaseProperties.PROP_URL, DEFAULT_URL);
-    completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED, DatabaseProperties.PROP_USER_DEFAULT_VALUE));
-    completeDefaultProperty(props, DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
+
+    if (props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED) != null) {
+      completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED));
+    }
   }
 
   private static void completeDefaultProperty(Properties props, String key, String defaultValue) {
