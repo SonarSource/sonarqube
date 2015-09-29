@@ -78,6 +78,10 @@ public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor
     // load SCM blame information from report. It can be absent when the file was not touched
     // since previous analysis (optimization to decrease execution of blame commands). In this case
     // the date is loaded from database, as it did not change from previous analysis.
+
+    // TODO We should use ScmInfoRepository instead of reading the report
+    // (but should only be done when the repo is only used once per component,
+    // as it's done with ComponentIssuesRepository, to not increase number of calls to file_sources)
     BatchReport.Changesets changesets = reportReader.readChangesets(file.getReportAttributes().getRef());
     if (changesets == null) {
       Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(file, lastCommitDateMetric);
