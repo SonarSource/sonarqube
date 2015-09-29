@@ -49,7 +49,7 @@ class Api::JavaWsController < Api::ApiController
 
 
   def skip_authentication_check_for_batch
-    (params[:wspath]=='scanner' && params[:wsaction]=='index') || (params[:wspath]=='scanner' && params[:wsaction]=='file')
+    (params[:wspath]=='batch' && params[:wsaction]=='index') || (params[:wspath]=='batch' && params[:wsaction]=='file')
   end
 
 end
