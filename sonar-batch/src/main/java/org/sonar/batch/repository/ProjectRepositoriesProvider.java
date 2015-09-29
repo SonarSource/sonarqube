@@ -58,7 +58,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
     if (mode.isIssues()) {
       if (!project.exists()) {
         LOG.warn("Project doesn't exist on the server. All issues will be marked as 'new'.");
-      } else if (project.lastAnalysisDate() == null) {
+      } else if (project.lastAnalysisDate() == null && !mode.isNotAssociated()) {
         LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
       }
     }
