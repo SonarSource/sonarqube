@@ -55,14 +55,14 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public Optional<CloseableIterator<String>> readScannerLogs() {
+  public CloseableIterator<String> readScannerLogs() {
     File file = delegate.getFileStructure().analysisLog();
     if (!file.exists()) {
-      return Optional.absent();
+      return CloseableIterator.emptyCloseableIterator();
     }
     try {
       InputStreamReader reader = new InputStreamReader(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
-      return Optional.of((CloseableIterator<String>) new LineReaderIterator(reader));
+      return new LineReaderIterator(reader);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to open file " + file, e);
     }

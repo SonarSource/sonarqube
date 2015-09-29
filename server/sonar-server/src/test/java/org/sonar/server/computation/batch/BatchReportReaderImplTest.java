@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.batch;
 
-import com.google.common.base.Optional;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
@@ -86,14 +85,14 @@ public class BatchReportReaderImplTest {
     File scannerLogFile = writer.getFileStructure().analysisLog();
     FileUtils.write(scannerLogFile, "log1\nlog2");
 
-    Optional<CloseableIterator<String>> logs = underTest.readScannerLogs();
-    assertThat(logs.get()).containsExactly("log1", "log2");
+    CloseableIterator<String> logs = underTest.readScannerLogs();
+    assertThat(logs).containsExactly("log1", "log2");
   }
 
   @Test
   public void readScannerLogs_no_logs() {
-    Optional<CloseableIterator<String>> logs = underTest.readScannerLogs();
-    assertThat(logs.isPresent()).isFalse();
+    CloseableIterator<String> logs = underTest.readScannerLogs();
+    assertThat(logs.hasNext()).isFalse();
   }
 
   @Test

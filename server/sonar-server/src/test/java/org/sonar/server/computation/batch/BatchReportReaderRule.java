@@ -21,7 +21,6 @@ package org.sonar.server.computation.batch;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -94,11 +93,11 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public Optional<CloseableIterator<String>> readScannerLogs() {
+  public CloseableIterator<String> readScannerLogs() {
     if (scannerLogs == null) {
-      return Optional.absent();
+      throw new IllegalStateException("Scanner logs are missing");
     }
-    return Optional.of(CloseableIterator.from(scannerLogs.iterator()));
+    return CloseableIterator.from(scannerLogs.iterator());
   }
 
   public void setScannerLogs(@Nullable List<String> logs) {

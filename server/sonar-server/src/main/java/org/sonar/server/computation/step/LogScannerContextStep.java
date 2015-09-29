@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.CloseableIterator;
@@ -37,13 +36,7 @@ public class LogScannerContextStep implements ComputationStep {
 
   @Override
   public void execute() {
-    Optional<CloseableIterator<String>> linesIt = reportReader.readScannerLogs();
-    if (linesIt.isPresent()) {
-      log(linesIt.get());
-    }
-  }
-
-  private static void log(CloseableIterator<String> logs) {
+    CloseableIterator<String> logs = reportReader.readScannerLogs();
     try {
       while (logs.hasNext()) {
         LOGGER.info(logs.next());

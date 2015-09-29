@@ -39,12 +39,6 @@ public class LogScannerContextStepTest {
   LogScannerContextStep underTest = new LogScannerContextStep(reportReader);
 
   @Test
-  public void do_nothing_if_no_scanner_logs() {
-    underTest.execute();
-    assertThat(logTester.logs()).isEmpty();
-  }
-
-  @Test
   public void log_scanner_logs() {
     reportReader.setScannerLogs(asList("log1", "log2"));
 

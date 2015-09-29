@@ -27,7 +27,7 @@ import org.sonar.core.util.CloseableIterator;
 public interface BatchReportReader {
   BatchReport.Metadata readMetadata();
 
-  Optional<CloseableIterator<String>> readScannerLogs();
+  CloseableIterator<String> readScannerLogs();
 
   CloseableIterator<BatchReport.ActiveRule> readActiveRules();
 
