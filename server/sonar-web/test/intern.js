@@ -30,7 +30,11 @@ define(['intern'], function (intern) {
 
     loaderOptions: {
       paths: {
-        'react': '../../build/js/libs/third-party/react-with-addons'
+        'react': '../../build/js/libs/third-party/react-with-addons',
+        'underscore': '../../build/js/libs/third-party/shim/underscore-shim',
+        'jquery': '../../build/js/libs/third-party/shim/jquery-shim',
+        'backbone': '../../build/js/libs/third-party/shim/backbone-shim',
+        'backbone.marionette': '../../build/js/libs/third-party/shim/marionette-shim'
       },
       map: {
         '*': {
