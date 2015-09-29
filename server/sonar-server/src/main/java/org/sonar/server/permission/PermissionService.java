@@ -21,7 +21,6 @@
 package org.sonar.server.permission;
 
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -60,7 +59,7 @@ public class PermissionService {
     return GlobalPermissions.ALL;
   }
 
-  public void applyDefaultPermissionTemplate(final String componentKey) {
+  public void applyDefaultPermissionTemplate(String componentKey) {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
@@ -102,13 +101,9 @@ public class PermissionService {
     indexProjectPermissions();
   }
 
-  private void checkProjectAdminPermission(@Nullable String projectKey) {
-    if (projectKey == null) {
-      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-    } else {
-      if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, projectKey)) {
-        throw new ForbiddenException("Insufficient privileges");
-      }
+  private void checkProjectAdminPermission(String projectKey) {
+    if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, projectKey)) {
+      throw new ForbiddenException("Insufficient privileges");
     }
   }
 
