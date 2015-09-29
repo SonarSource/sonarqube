@@ -23,7 +23,6 @@ export default Controller.extend({
       ps: this.pageSize,
       s: 'FILE_LINE',
       asc: true,
-      f: FIELDS,
       additionalFields: '_all',
       facets: this._facetsFromServer().join()
     };
