@@ -29,12 +29,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityQuery;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
@@ -125,8 +127,11 @@ public class ActivityWsAction implements CeWsAction {
     if (componentUuid == null) {
       userSession.checkGlobalPermission(UserRole.ADMIN);
     } else {
-      userSession.checkProjectUuidPermission(UserRole.USER, componentUuid);
-      query.setComponentUuid(componentUuid);
+      if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
+        query.setComponentUuid(componentUuid);
+      } else {
+        throw new ForbiddenException("Requires administration permission");
+      }
     }
     return query;
   }

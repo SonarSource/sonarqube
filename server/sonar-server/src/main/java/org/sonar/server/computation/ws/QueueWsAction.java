@@ -24,14 +24,16 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
-public class CeQueueWsAction implements CeWsAction {
+public class QueueWsAction implements CeWsAction {
 
   public static final String PARAM_COMPONENT_UUID = "componentId";
 
@@ -39,7 +41,7 @@ public class CeQueueWsAction implements CeWsAction {
   private final DbClient dbClient;
   private final TaskFormatter formatter;
 
-  public CeQueueWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
+  public QueueWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;
@@ -69,8 +71,11 @@ public class CeQueueWsAction implements CeWsAction {
         dtos = dbClient.ceQueueDao().selectAllInAscOrder(dbSession);
       } else {
         // filter by component
-        userSession.checkProjectUuidPermission(UserRole.USER, componentUuid);
-        dtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
+        if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
+          dtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
+        } else {
+          throw new ForbiddenException("Requires administration permission");
+        }
       }
 
       WsCe.QueueResponse.Builder wsResponseBuilder = WsCe.QueueResponse.newBuilder();

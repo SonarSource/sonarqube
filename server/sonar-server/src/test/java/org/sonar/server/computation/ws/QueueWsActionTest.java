@@ -32,6 +32,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -53,7 +54,7 @@ public class QueueWsActionTest {
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging);
-  CeQueueWsAction underTest = new CeQueueWsAction(userSession, dbTester.getDbClient(), formatter);
+  QueueWsAction underTest = new QueueWsAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -84,7 +85,7 @@ public class QueueWsActionTest {
 
   @Test
   public void get_queue_of_project() {
-    userSession.addProjectUuidPermissions(UserRole.USER, "PROJECT_1");
+    userSession.addComponentUuidPermission(UserRole.ADMIN, "PROJECT_1", "PROJECT_1");
     insert("T1", "PROJECT_1", CeQueueDto.Status.PENDING);
     insert("T2", "PROJECT_2", CeQueueDto.Status.PENDING);
     insert("T3", "PROJECT_2", CeQueueDto.Status.IN_PROGRESS);
@@ -98,6 +99,13 @@ public class QueueWsActionTest {
     WsCe.QueueResponse queueResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.QueueResponse.PARSER);
     assertThat(queueResponse.getTasksCount()).isEqualTo(1);
     assertThat(queueResponse.getTasks(0).getId()).isEqualTo("T1");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void requires_admin_permission() {
+    tester.newRequest()
+      .setMediaType(MimeTypes.PROTOBUF)
+      .execute();
   }
 
   private CeQueueDto insert(String taskUuid, String componentUuid, CeQueueDto.Status status) {
