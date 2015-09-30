@@ -389,8 +389,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
-    // Updated at is not updated to not reindex the file source in E/S as the src hash is not indexed
-    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(past);
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
   }
 

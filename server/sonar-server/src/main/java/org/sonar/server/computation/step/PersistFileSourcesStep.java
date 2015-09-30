@@ -21,10 +21,6 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -51,6 +47,11 @@ import org.sonar.server.computation.source.LineReader;
 import org.sonar.server.computation.source.ScmLineReader;
 import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.computation.source.SymbolsLineReader;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -156,11 +157,8 @@ public class PersistFileSourcesStep implements ComputationStep {
             .setBinaryData(data)
             .setDataHash(dataHash)
             .setSrcHash(srcHash)
-            .setLineHashes(lineHashes);
-          // Optimization only change updated at when updating binary data to avoid unnecessary indexation by E/S
-          if (binaryDataUpdated) {
-            previousDto.setUpdatedAt(system2.now());
-          }
+            .setLineHashes(lineHashes)
+            .setUpdatedAt(system2.now());
           dbClient.fileSourceDao().update(previousDto);
           session.commit();
         }
