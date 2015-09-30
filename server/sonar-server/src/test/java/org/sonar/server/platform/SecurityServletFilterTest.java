@@ -19,33 +19,69 @@
  */
 package org.sonar.server.platform;
 
-import org.junit.Test;
-
+import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.junit.Test;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SecurityServletFilterTest {
 
-  @Test
-  public void set_secured_headers() throws Exception {
-    SecurityServletFilter filter = new SecurityServletFilter();
-    filter.init(mock(FilterConfig.class));
+  SecurityServletFilter underTest = new SecurityServletFilter();
+  HttpServletResponse response = mock(HttpServletResponse.class);
+  FilterChain chain = mock(FilterChain.class);
 
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
-    filter.doFilter(request, response, chain);
+  @Test
+  public void accept_GET_method() throws IOException, ServletException {
+    HttpServletRequest request = newRequest("GET");
+    underTest.doFilter(request, response, chain);
+    verify(response, never()).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    verify(chain).doFilter(request, response);
+  }
+
+  @Test
+  public void deny_HEAD_method() throws IOException, ServletException {
+    underTest.doFilter(newRequest("HEAD"), response, chain);
+    verify(response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+  }
+
+  @Test
+  public void deny_OPTIONS_method() throws IOException, ServletException {
+    underTest.doFilter(newRequest("OPTIONS"), response, chain);
+    verify(response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+  }
+
+  @Test
+  public void deny_TRACE_method() throws IOException, ServletException {
+    underTest.doFilter(newRequest("TRACE"), response, chain);
+    verify(response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+  }
+
+  @Test
+  public void set_secured_headers() throws ServletException, IOException {
+    underTest.init(mock(FilterConfig.class));
+    HttpServletRequest request = newRequest("GET");
+
+    underTest.doFilter(request, response, chain);
 
     verify(response, times(3)).addHeader(startsWith("X-"), anyString());
 
-    filter.destroy();
+    underTest.destroy();
+  }
+
+  private HttpServletRequest newRequest(String httpMethod) {
+    HttpServletRequest req = mock(HttpServletRequest.class);
+    when(req.getMethod()).thenReturn(httpMethod);
+    return req;
   }
 }
