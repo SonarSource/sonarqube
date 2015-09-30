@@ -21,6 +21,7 @@
 package org.sonar.server.issue.notification;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Locale;
@@ -95,8 +96,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String file = loadTestFile("MyNewIssuesEmailTemplateTest/email_with_all_details.txt");
-    assertThat(message.getMessage()).startsWith(file);
+    assertStartsWithFile(message.getMessage(), getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_all_details.txt"));
   }
 
   @Test
@@ -124,8 +124,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String file = loadTestFile("MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt");
-    assertThat(message.getMessage()).startsWith(file);
+    assertStartsWithFile(message.getMessage(), getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt"));
   }
 
   @Test
@@ -178,9 +177,15 @@ public class MyNewIssuesEmailTemplateTest {
       .setFieldValue(RULE + ".2.count", "5");
   }
 
-  private static String loadTestFile(String path) throws IOException {
-    String file = IOUtils.toString(MyNewIssuesEmailTemplateTest.class.getResource(path), StandardCharsets.UTF_8);
-    // sanitize EOL characters if git clone is badly configured
-    return file.replaceAll("\\r\\n|\\r", "");
+  private static void assertStartsWithFile(String message, URL file) throws IOException {
+    String fileContent = IOUtils.toString(file, StandardCharsets.UTF_8);
+    assertThat(sanitizeString(message)).startsWith(sanitizeString(fileContent));
+  }
+
+  /**
+   * sanitize EOL and tabs if git clone is badly configured
+   */
+  private static String sanitizeString(String s) {
+    return s.replaceAll("\\r\\n|\\r|\\s+", "");
   }
 }
