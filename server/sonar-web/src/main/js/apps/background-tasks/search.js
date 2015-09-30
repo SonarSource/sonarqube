@@ -1,9 +1,17 @@
-import _ from 'underscore';
+import $ from 'jquery';
 import React from 'react';
 import RadioToggle from '../../components/shared/radio-toggle';
 import {STATUSES, CURRENTS, DATE, DATE_FORMAT} from './constants';
 
 export default React.createClass({
+  componentDidUpdate() {
+    this.attachDatePicker();
+  },
+
+  componentDidMount() {
+    this.attachDatePicker();
+  },
+
   getCurrentsOptions() {
     return [
       { value: CURRENTS.ALL, label: 'All' },
@@ -28,6 +36,17 @@ export default React.createClass({
     ];
   },
 
+  attachDatePicker() {
+    let opts = {
+      dateFormat: 'yy-mm-dd',
+      changeMonth: true,
+      changeYear: true,
+      onSelect: this.onDateInputChange
+    };
+    $(React.findDOMNode(this.refs.minDate)).datepicker(opts);
+    $(React.findDOMNode(this.refs.maxDate)).datepicker(opts);
+  },
+
   onDateChange(newDate) {
     if (newDate === DATE.CUSTOM) {
       let minDateRaw = React.findDOMNode(this.refs.minDate).value,
@@ -42,11 +61,8 @@ export default React.createClass({
     }
   },
 
-  onDateInputChange(e) {
-    let value = e.target.value;
-    if (moment(value, DATE_FORMAT, true).isValid() || !value) {
-      this.onDateChange(DATE.CUSTOM);
-    }
+  onDateInputChange() {
+    this.onDateChange(DATE.CUSTOM);
   },
 
   renderCustomDateInput() {
@@ -55,11 +71,9 @@ export default React.createClass({
     return (
         <div className={className}>
           from&nbsp;
-          <input onChange={this.onDateInputChange} ref="minDate" type="date" placeholder={DATE_FORMAT}
-                 placeholder={DATE_FORMAT}/>
+          <input onChange={this.onDateInputChange} ref="minDate" type="text"/>
           &nbsp;to&nbsp;
-          <input onChange={this.onDateInputChange} ref="maxDate" type="date" placeholder={DATE_FORMAT}
-                 placeholder={DATE_FORMAT}/>
+          <input onChange={this.onDateInputChange} ref="maxDate" type="text"/>
         </div>
     );
   },
