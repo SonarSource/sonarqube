@@ -1,7 +1,8 @@
 {
   "env": {
     "browser": true,
-    "es6": true
+    "es6": true,
+    "mocha": true
   },
   "ecmaFeatures": {
     "modules": true,
@@ -19,7 +20,7 @@
     "no-debugger": 2,             // disallow use of debugger
     "no-dupe-keys": 2,            // disallow duplicate keys when creating object literals
     "no-empty": 2,                // disallow empty statements
-    "no-empty-class": 2,          // disallow the use of empty character classes in regular expressions
+    "no-empty-character-class": 2, // disallow the use of empty character classes in regular expressions
     "no-ex-assign": 2,            // disallow assigning to the exception in a catch block
     "no-extra-boolean-cast": 0,   // disallow double-negation boolean casts in a boolean context
     "no-extra-parens": 0,         // disallow unnecessary parentheses (off by default)
@@ -31,7 +32,7 @@
     "no-negated-in-lhs": 2,       // disallow negation of the left operand of an in expression
     "no-obj-calls": 2,            // disallow the use of object properties of the global object (Math and JSON) as functions
     "no-regex-spaces": 2,         // disallow multiple spaces in a regular expression literal
-    "no-reserved-keys": 2,        // disallow reserved words being used as object literal keys (off by default)
+    "quote-props": 2,             // disallow reserved words being used as object literal keys (off by default)
     "no-sparse-arrays": 2,        // disallow sparse arrays
     "no-unreachable": 2,          // disallow unreachable statements after a return, throw, continue, or break statement
     "use-isnan": 2,               // disallow comparisons with the value NaN
@@ -143,7 +144,7 @@
     "no-multiple-empty-lines": 0,   // disallow multiple empty lines (off by default)
     "no-nested-ternary": 1,         // disallow nested ternary expressions (off by default)
     "no-new-object": 0,             // disallow use of the Object constructor
-    "no-space-before-semi": 2,      // disallow space before semicolon
+    "semi-spacing": [2, { "before": false, "after": true }],
     "no-spaced-func": 0,            // disallow space between function identifier and application
     "no-ternary": 0,                // disallow the use of ternary operators (off by default)
     "no-trailing-spaces": 2,        // disallow trailing whitespace at the end of lines
@@ -198,6 +199,7 @@
     "tp": true
   },
   "plugins": [
-    "react"
+    "react",
+    "mocha"
   ]
 }
