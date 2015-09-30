@@ -52,16 +52,16 @@ import org.sonar.core.util.UuidFactoryImpl;
 public class GlobalContainer extends ComponentContainer {
 
   private final Map<String, String> bootstrapProperties;
-  private boolean forceSync;
+  private boolean preferCache;
 
-  private GlobalContainer(Map<String, String> bootstrapProperties, boolean forceSync) {
+  private GlobalContainer(Map<String, String> bootstrapProperties, boolean preferCache) {
     super();
     this.bootstrapProperties = bootstrapProperties;
-    this.forceSync = forceSync;
+    this.preferCache = preferCache;
   }
 
-  public static GlobalContainer create(Map<String, String> bootstrapProperties, List<?> extensions, boolean forceSync) {
-    GlobalContainer container = new GlobalContainer(bootstrapProperties, forceSync);
+  public static GlobalContainer create(Map<String, String> bootstrapProperties, List<?> extensions, boolean preferCache) {
+    GlobalContainer container = new GlobalContainer(bootstrapProperties, preferCache);
     container.add(extensions);
     return container;
   }
@@ -69,10 +69,21 @@ public class GlobalContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     GlobalProperties bootstrapProps = new GlobalProperties(bootstrapProperties);
-    StrategyWSLoaderProvider wsLoaderProvider = forceSync ? new StrategyWSLoaderProvider(LoadStrategy.SERVER_ONLY) : new StrategyWSLoaderProvider(LoadStrategy.SERVER_FIRST);
+    GlobalMode globalMode = new GlobalMode(bootstrapProps);
+    LoadStrategy strategy = getDataLoadingStrategy(globalMode, preferCache);
+    StrategyWSLoaderProvider wsLoaderProvider = new StrategyWSLoaderProvider(strategy);
     add(wsLoaderProvider);
     add(bootstrapProps);
+    add(globalMode);
     addBootstrapComponents();
+  }
+
+  private static LoadStrategy getDataLoadingStrategy(GlobalMode mode, boolean preferCache) {
+    if (!mode.isIssues()) {
+      return LoadStrategy.SERVER_ONLY;
+    }
+
+    return preferCache ? LoadStrategy.CACHE_FIRST : LoadStrategy.SERVER_FIRST;
   }
 
   private void addBootstrapComponents() {
@@ -86,7 +97,6 @@ public class GlobalContainer extends ComponentContainer {
       ExtensionInstaller.class,
 
       CachesManager.class,
-      GlobalMode.class,
       GlobalSettings.class,
       new RulesProvider(),
       ServerClient.class,
