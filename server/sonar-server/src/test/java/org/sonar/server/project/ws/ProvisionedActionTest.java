@@ -37,7 +37,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -74,7 +74,7 @@ public class ProvisionedActionTest {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     ComponentDto analyzedProject = ComponentTesting.newProjectDto("analyzed-uuid-1");
     componentDao.insert(db.getSession(), newProvisionedProject("1"), newProvisionedProject("2"), analyzedProject);
-    SnapshotDto snapshot = SnapshotTesting.createForProject(analyzedProject);
+    SnapshotDto snapshot = SnapshotTesting.newSnapshotForProject(analyzedProject);
     dbClient.snapshotDao().insert(db.getSession(), snapshot);
     db.getSession().commit();
 

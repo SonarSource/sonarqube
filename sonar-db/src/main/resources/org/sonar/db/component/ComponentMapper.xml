@@ -250,6 +250,40 @@
     ORDER BY UPPER(p.name), p.name
   </select>
 
+  <select id="selectByQuery" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    <include refid="sqlSelectByQuery" />
+    ORDER BY LOWER(p.name), p.name
+  </select>
+
+  <select id="countByQuery" resultType="int">
+    select count(p.id)
+    <include refid="sqlSelectByQuery" />
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from projects p
+    <if test="nameOrKeyQuery!=null">
+      inner join resource_index ri on p.id = ri.resource_id
+    </if>
+    <where>
+      AND p.enabled=${_true}
+      AND p.copy_resource_id is null
+      AND p.qualifier in
+      <foreach collection="qualifiers" item="qualifier" open="(" close=")" separator=",">
+        #{qualifier}
+      </foreach>
+      <if test="nameOrKeyQuery!=null">
+        AND ri.qualifier in
+        <foreach collection="qualifiers" item="qualifier" open="(" close=")" separator=",">
+          #{qualifier}
+        </foreach>
+        AND (ri.kee like #{nameOrKeyQuery}
+        OR LOWER(p.kee) like #{nameOrKeyQuery})
+      </if>
+    </where>
+  </sql>
   <select id="countRootComponents" resultType="int">
     select count(p.id)
     from projects p

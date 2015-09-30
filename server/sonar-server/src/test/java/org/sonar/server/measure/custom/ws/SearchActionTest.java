@@ -45,7 +45,7 @@ import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -208,7 +208,7 @@ public class SearchActionTest {
     dbClient.customMeasureDao().insert(dbSession, newCustomMeasure(1, metric)
       .setCreatedAt(yesterday)
       .setUpdatedAt(yesterday));
-    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(defaultProject));
+    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newSnapshotForProject(defaultProject));
     dbSession.commit();
 
     String response = newRequest()

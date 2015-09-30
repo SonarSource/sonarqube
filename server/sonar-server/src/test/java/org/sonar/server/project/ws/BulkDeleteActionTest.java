@@ -52,7 +52,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.SnapshotTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -226,7 +226,7 @@ public class BulkDeleteActionTest {
     dbClient.deprecatedRuleDao().insert(dbSession, rule);
     IssueDto issue = IssueTesting.newDto(rule, project, project).setKee("issue-key-" + suffix);
     dbClient.componentDao().insert(dbSession, project);
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newSnapshotForProject(project));
     dbClient.issueDao().insert(dbSession, issue);
     dbSession.commit();
 

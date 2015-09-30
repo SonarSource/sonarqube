@@ -42,6 +42,8 @@ import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForView;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 
 @Category(DbTests.class)
 public class ComponentDaoTest {
@@ -59,7 +61,7 @@ public class ComponentDaoTest {
   @Test
   public void get_by_uuid() {
     db.prepareDbUnit(getClass(), "shared.xml");
-    
+
     ComponentDto result = underTest.selectByUuid(dbSession, "KLMN").get();
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo("KLMN");
@@ -609,8 +611,8 @@ public class ComponentDaoTest {
 
   @Test
   public void delete() throws Exception {
-    ComponentDto project1= insertProject(newProjectDto().setKey("PROJECT_1"));
-    insertProject(newProjectDto().setKey("PROJECT_2"));
+    ComponentDto project1 = insertComponent(newProjectDto().setKey("PROJECT_1"));
+    insertComponent(newProjectDto().setKey("PROJECT_2"));
 
     underTest.delete(dbSession, project1.getId());
     dbSession.commit();
@@ -635,9 +637,45 @@ public class ComponentDaoTest {
     assertThat(result).extracting("name").containsExactly("project-2", "project-3", "project-4");
   }
 
-  private ComponentDto insertProject(ComponentDto project) {
+  @Test
+  public void select_by_query_with_paging_query_and_qualifiers() {
+    ComponentDto project = newProjectDto().setName("aaaa-name");
+    ComponentDto view = newView();
+    ComponentDto developer = newDeveloper("project-name");
+    insertComponent(project);
+    insertSnapshot(newSnapshotForProject(project));
+    insertComponent(view);
+    insertSnapshot(newSnapshotForView(view));
+    insertComponent(developer);
+    insertSnapshot(newSnapshotForView(developer));
+    for (int i = 9; i >= 1; i--) {
+      project = newProjectDto().setName("project-" + i);
+      insertComponent(project);
+      insertSnapshot(newSnapshotForProject(project));
+    }
+    commit();
+    db.getDbClient().componentIndexDao().indexProjects();
+    commit();
+
+    ComponentQuery query = new ComponentQuery(db.database(), "oject", Qualifiers.PROJECT);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
+
+    assertThat(result).hasSize(3);
+    assertThat(underTest.countByQuery(dbSession, query)).isEqualTo(9);
+    assertThat(result).extracting("name").containsExactly("project-2", "project-3", "project-4");
+  }
+
+  private ComponentDto insertComponent(ComponentDto project) {
     underTest.insert(dbSession, project);
     dbSession.commit();
     return project;
+  }
+
+  private void insertSnapshot(SnapshotDto snapshot) {
+    db.getDbClient().snapshotDao().insert(dbSession, snapshot);
+  }
+
+  private void commit() {
+    dbSession.commit();
   }
 }

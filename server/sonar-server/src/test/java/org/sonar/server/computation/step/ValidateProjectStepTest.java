@@ -33,7 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -247,7 +247,7 @@ public class ValidateProjectStepTest {
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project).setCreatedAt(1420088400000L)); // 2015-01-01
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newSnapshotForProject(project).setCreatedAt(1420088400000L)); // 2015-01-01
     dbTester.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
@@ -274,7 +274,7 @@ public class ValidateProjectStepTest {
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project).setCreatedAt(1433131200000L)); // 2015-06-01
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newSnapshotForProject(project).setCreatedAt(1433131200000L)); // 2015-06-01
     dbTester.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());

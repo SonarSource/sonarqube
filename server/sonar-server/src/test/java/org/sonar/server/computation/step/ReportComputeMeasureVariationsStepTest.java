@@ -46,8 +46,8 @@ import org.sonar.server.computation.period.PeriodsHolderRule;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.component.SnapshotTesting.createForComponent;
-import static org.sonar.server.component.SnapshotTesting.createForProject;
+import static org.sonar.db.component.SnapshotTesting.createForComponent;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 
 @Category(DbTests.class)
 public class ReportComputeMeasureVariationsStepTest {
@@ -100,7 +100,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Test
   public void do_nothing_when_no_raw_measure() {
-    SnapshotDto period1ProjectSnapshot = createForProject(PROJECT_DTO);
+    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
     session.commit();
@@ -128,7 +128,7 @@ public class ReportComputeMeasureVariationsStepTest {
   @Test
   public void set_variation() {
     // Project
-    SnapshotDto period1ProjectSnapshot = createForProject(PROJECT_DTO);
+    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
 
@@ -157,11 +157,11 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Test
   public void set_variations_on_all_periods() {
-    SnapshotDto period1ProjectSnapshot = createForProject(PROJECT_DTO).setLast(false);
-    SnapshotDto period2ProjectSnapshot = createForProject(PROJECT_DTO).setLast(false);
-    SnapshotDto period3ProjectSnapshot = createForProject(PROJECT_DTO).setLast(false);
-    SnapshotDto period4ProjectSnapshot = createForProject(PROJECT_DTO).setLast(false);
-    SnapshotDto period5ProjectSnapshot = createForProject(PROJECT_DTO).setLast(false);
+    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
+    SnapshotDto period2ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
+    SnapshotDto period3ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
+    SnapshotDto period4ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
+    SnapshotDto period5ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot, period2ProjectSnapshot, period3ProjectSnapshot, period4ProjectSnapshot, period5ProjectSnapshot);
 
     dbClient.measureDao().insert(session,
@@ -197,7 +197,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Test
   public void set_variation_on_all_numeric_metrics() {
-    SnapshotDto period1ProjectSnapshot = createForProject(PROJECT_DTO);
+    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session,
       newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d),
