@@ -38,7 +38,7 @@ export default Controller.extend({
   },
 
   ensureResolution(query) {
-    return query.resolutions ?
+    return query.resolutions || query.statuses ?
         _.omit(query, 'resolved') :
         _.extend({}, query, { resolved: false });
   },
