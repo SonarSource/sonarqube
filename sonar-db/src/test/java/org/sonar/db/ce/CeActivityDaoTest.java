@@ -58,7 +58,7 @@ public class CeActivityDaoTest {
     assertThat(saved.get().getSubmittedAt()).isEqualTo(1_300_000_000_000L);
     assertThat(saved.get().getCreatedAt()).isEqualTo(1_450_000_000_000L);
     assertThat(saved.get().getStartedAt()).isEqualTo(1_500_000_000_000L);
-    assertThat(saved.get().getFinishedAt()).isEqualTo(1_500_000_000_500L);
+    assertThat(saved.get().getExecutedAt()).isEqualTo(1_500_000_000_500L);
     assertThat(saved.get().getExecutionTimeMs()).isEqualTo(500L);
   }
 
@@ -155,28 +155,28 @@ public class CeActivityDaoTest {
     assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID2");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
-    // search by max finished date
-    query = new CeActivityQuery().setMaxFinishedAt(1_475_000_000_000L);
+    // search by max executed date
+    query = new CeActivityQuery().setMaxExecutedAt(1_475_000_000_000L);
     assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID1");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
     // search by both dates
     query = new CeActivityQuery()
       .setMinSubmittedAt(1_400_000_000_000L)
-      .setMaxFinishedAt(1_475_000_000_000L);
+      .setMaxExecutedAt(1_475_000_000_000L);
     assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID1");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
   }
 
-  private void insertWithDates(String uuid, long submittedAt, long finishedAt) {
+  private void insertWithDates(String uuid, long submittedAt, long executedAt) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setUuid(uuid);
     queueDto.setTaskType("fake");
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(CeActivityDto.Status.SUCCESS);
     dto.setSubmittedAt(submittedAt);
-    dto.setFinishedAt(finishedAt);
+    dto.setExecutedAt(executedAt);
     underTest.insert(db.getSession(), dto);
   }
 
@@ -221,7 +221,7 @@ public class CeActivityDaoTest {
     CeActivityDto dto = new CeActivityDto(queueDto);
     dto.setStatus(status);
     dto.setStartedAt(1_500_000_000_000L);
-    dto.setFinishedAt(1_500_000_000_500L);
+    dto.setExecutedAt(1_500_000_000_500L);
     dto.setExecutionTimeMs(500L);
     underTest.insert(db.getSession(), dto);
   }

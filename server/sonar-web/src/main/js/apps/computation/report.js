@@ -7,7 +7,7 @@ export default Backbone.Model.extend({
     var duration = null;
     if (this.has('startedAt')) {
       var startedAtMoment = moment(this.get('startedAt')),
-          finishedAtMoment = moment(this.get('finishedAt') || new Date()),
+          finishedAtMoment = moment(this.get('executedAt') || new Date()),
           diff = finishedAtMoment.diff(startedAtMoment);
       duration = {
         seconds: Math.floor(diff / 1000) % 60,

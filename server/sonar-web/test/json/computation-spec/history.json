@@ -14,7 +14,7 @@
       "status": "SUCCESS",
       "submittedAt": "2015-09-18T11:20:43+0200",
       "startedAt": "2015-09-18T11:20:37+0200",
-      "finishedAt": "2015-09-18T11:20:43+0200",
+      "executedAt": "2015-09-18T11:20:43+0200",
       "executionTimeMs": 6030
     },
     {
@@ -26,7 +26,7 @@
       "status": "SUCCESS",
       "submittedAt": "2015-09-18T11:16:56+0200",
       "startedAt": "2015-09-18T11:16:47+0200",
-      "finishedAt": "2015-09-18T11:16:56+0200",
+      "executedAt": "2015-09-18T11:16:56+0200",
       "executionTimeMs": 8671
     }
   ]

@@ -29,7 +29,7 @@ public class CeActivityQuery {
   private CeActivityDto.Status status;
   private String type;
   private Long minSubmittedAt;
-  private Long maxFinishedAt;
+  private Long maxExecutedAt;
 
   @CheckForNull
   public String getComponentUuid() {
@@ -71,12 +71,12 @@ public class CeActivityQuery {
   }
 
   @CheckForNull
-  public Long getMaxFinishedAt() {
-    return maxFinishedAt;
+  public Long getMaxExecutedAt() {
+    return maxExecutedAt;
   }
 
-  public CeActivityQuery setMaxFinishedAt(@Nullable Long l) {
-    this.maxFinishedAt = l;
+  public CeActivityQuery setMaxExecutedAt(@Nullable Long l) {
+    this.maxExecutedAt = l;
     return this;
   }
 

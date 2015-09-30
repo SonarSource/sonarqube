@@ -64,8 +64,8 @@ message Task {
   optional string submittedAt = 7;
   optional string submitterLogin = 8;
   optional string startedAt = 9;
-  optional string finishedAt = 10;
-  optional bool isLastFinished = 11;
+  optional string executedAt = 10;
+  optional bool isLastExecuted = 11;
   optional int64 executionTimeMs = 12;
   optional bool logs = 13;
 }

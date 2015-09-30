@@ -11,7 +11,7 @@
     ca.submitter_login as submitterLogin,
     ca.submitted_at as submittedAt,
     ca.started_at as startedAt,
-    ca.finished_at as finishedAt,
+    ca.executed_at as executedAt,
     ca.created_at as createdAt,
     ca.updated_at as updatedAt,
     ca.is_last as isLast,
@@ -61,8 +61,8 @@
       <if test="query.minSubmittedAt != null">
         and ca.submitted_at &gt;= #{query.minSubmittedAt}
       </if>
-      <if test="query.maxFinishedAt != null">
-        and ca.finished_at &lt;= #{query.maxFinishedAt}
+      <if test="query.maxExecutedAt != null">
+        and ca.executed_at &lt;= #{query.maxExecutedAt}
       </if>
     </where>
     order by ca.id desc
@@ -87,8 +87,8 @@
       <if test="query.minSubmittedAt != null">
         and ca.submitted_at &gt;= #{query.minSubmittedAt}
       </if>
-      <if test="query.maxFinishedAt != null">
-        and ca.finished_at &lt;= #{query.maxFinishedAt}
+      <if test="query.maxExecutedAt != null">
+        and ca.executed_at &lt;= #{query.maxExecutedAt}
       </if>
     </where>
   </select>
@@ -102,7 +102,7 @@
   <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
     insert into ce_activity
     (uuid, component_uuid, status, task_type, is_last, is_last_key, submitter_login, submitted_at, started_at,
-    finished_at, created_at, updated_at, execution_time_ms)
+    executed_at, created_at, updated_at, execution_time_ms)
     values (
     #{uuid,jdbcType=VARCHAR},
     #{componentUuid,jdbcType=VARCHAR},
@@ -113,7 +113,7 @@
     #{submitterLogin,jdbcType=VARCHAR},
     #{submittedAt,jdbcType=BIGINT},
     #{startedAt,jdbcType=BIGINT},
-    #{finishedAt,jdbcType=BIGINT},
+    #{executedAt,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT},
     #{executionTimeMs,jdbcType=BIGINT}

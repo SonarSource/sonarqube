@@ -57,7 +57,7 @@ export default React.createClass({
           filter.minSubmittedAt = moment(this.state.minDate).format(DATE_FORMAT);
         }
         if (this.state.maxDate) {
-          filter.maxFinishedAt = moment(this.state.maxDate).format(DATE_FORMAT);
+          filter.maxExecutedAt = moment(this.state.maxDate).format(DATE_FORMAT);
         }
         break;
       default:

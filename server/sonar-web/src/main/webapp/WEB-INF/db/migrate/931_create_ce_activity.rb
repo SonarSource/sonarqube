@@ -33,7 +33,7 @@ class CreateCeActivity < ActiveRecord::Migration
       t.column 'submitter_login', :string, :limit => 255, :null => true
       t.column 'submitted_at', :big_integer, :null => false
       t.column 'started_at', :big_integer, :null => true
-      t.column 'finished_at', :big_integer, :null => true
+      t.column 'executed_at', :big_integer, :null => true
       t.column 'created_at', :big_integer, :null => false
       t.column 'updated_at', :big_integer, :null => false
       t.column 'execution_time_ms', :big_integer, :null => true

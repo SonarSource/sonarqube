@@ -110,7 +110,7 @@ export default React.createClass({
           {this.renderTaskDay(task, previousTask)}
           {this.renderTaskDate(task, 'submittedAt', 'LTS')}
           {this.renderTaskDate(task, 'startedAt', 'LTS')}
-          {this.renderTaskDate(task, 'finishedAt', 'LTS')}
+          {this.renderTaskDate(task, 'executedAt', 'LTS')}
           {this.renderTaskExecutionTime(task)}
           <td className="thin nowrap text-right">
             {this.renderLogsLink(task)}

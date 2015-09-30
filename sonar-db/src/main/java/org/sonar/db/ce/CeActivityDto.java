@@ -42,7 +42,7 @@ public class CeActivityDto {
   private String submitterLogin;
   private long submittedAt;
   private Long startedAt;
-  private Long finishedAt;
+  private Long executedAt;
   private long createdAt;
   private long updatedAt;
   private Long executionTimeMs;
@@ -131,12 +131,12 @@ public class CeActivityDto {
   }
 
   @CheckForNull
-  public Long getFinishedAt() {
-    return finishedAt;
+  public Long getExecutedAt() {
+    return executedAt;
   }
 
-  public void setFinishedAt(@Nullable Long l) {
-    this.finishedAt = l;
+  public void setExecutedAt(@Nullable Long l) {
+    this.executedAt = l;
   }
 
   public long getCreatedAt() {
@@ -177,7 +177,7 @@ public class CeActivityDto {
       .add("submitterLogin", submitterLogin)
       .add("submittedAt", submittedAt)
       .add("startedAt", startedAt)
-      .add("finishedAt", finishedAt)
+      .add("executedAt", executedAt)
       .add("createdAt", createdAt)
       .add("updatedAt", updatedAt)
       .add("executionTimeMs", executionTimeMs)

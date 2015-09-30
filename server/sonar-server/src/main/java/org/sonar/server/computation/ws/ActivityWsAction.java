@@ -49,7 +49,7 @@ public class ActivityWsAction implements CeWsAction {
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_ONLY_CURRENTS = "onlyCurrents";
   private static final String PARAM_MIN_SUBMITTED_AT = "minSubmittedAt";
-  private static final String PARAM_MAX_FINISHED_AT = "maxFinishedAt";
+  private static final String PARAM_MAX_EXECUTED_AT = "maxExecutedAt";
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -83,7 +83,7 @@ public class ActivityWsAction implements CeWsAction {
     action.createParam(PARAM_MIN_SUBMITTED_AT)
       .setDescription("Optional filter on minimum date of task submission")
       .setExampleValue(DateUtils.formatDateTime(new Date()));
-    action.createParam(PARAM_MAX_FINISHED_AT)
+    action.createParam(PARAM_MAX_EXECUTED_AT)
       .setDescription("Optional filter on the maximum date of end of task processing")
       .setExampleValue(DateUtils.formatDateTime(new Date()));
     action.addPagingParams(10);
@@ -116,7 +116,7 @@ public class ActivityWsAction implements CeWsAction {
     query.setType(wsRequest.param(PARAM_TYPE));
     query.setOnlyCurrents(wsRequest.mandatoryParamAsBoolean(PARAM_ONLY_CURRENTS));
     query.setMinSubmittedAt(toTime(wsRequest.paramAsDateTime(PARAM_MIN_SUBMITTED_AT)));
-    query.setMaxFinishedAt(toTime(wsRequest.paramAsDateTime(PARAM_MAX_FINISHED_AT)));
+    query.setMaxExecutedAt(toTime(wsRequest.paramAsDateTime(PARAM_MAX_EXECUTED_AT)));
 
     String status = wsRequest.param(PARAM_STATUS);
     if (status != null) {

@@ -194,8 +194,8 @@ public class CeQueueImpl implements CeQueue {
     if (startedAt == null) {
       return;
     }
-    activityDto.setFinishedAt(system2.now());
-    long executionTime = activityDto.getFinishedAt() - startedAt;
+    activityDto.setExecutedAt(system2.now());
+    long executionTime = activityDto.getExecutedAt() - startedAt;
     activityDto.setExecutionTimeMs(executionTime);
     if (status == CeActivityDto.Status.SUCCESS) {
       queueStatus.addSuccess(executionTime);

@@ -76,7 +76,7 @@ public class CeWorkerRunnableImpl implements CeWorkerRunnable {
       status = CeActivityDto.Status.SUCCESS;
       queue.remove(task, status);
     } catch (Throwable e) {
-      LOG.error(format("Failed to process task %s", task.getUuid()), e);
+      LOG.error(format("Failed to execute task %s", task.getUuid()), e);
       queue.remove(task, status);
     } finally {
       // logging twice: once in sonar.log and once in CE appender
@@ -87,14 +87,14 @@ public class CeWorkerRunnableImpl implements CeWorkerRunnable {
   }
 
   private static Profiler startProfiler(CeTask task) {
-    return Profiler.create(LOG).startInfo("Process task | project={} | id={}", task.getComponentKey(), task.getUuid());
+    return Profiler.create(LOG).startInfo("Execute task | project={} | id={}", task.getComponentKey(), task.getUuid());
   }
 
   private static void stopProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
     if (status == CeActivityDto.Status.FAILED) {
-      profiler.stopError("Processed task | project={} | id={}", task.getComponentKey(), task.getUuid());
+      profiler.stopError("Executed task | project={} | id={}", task.getComponentKey(), task.getUuid());
     } else {
-      profiler.stopInfo("Processed task | project={} | id={}", task.getComponentKey(), task.getUuid());
+      profiler.stopInfo("Executed task | project={} | id={}", task.getComponentKey(), task.getUuid());
     }
   }
 }

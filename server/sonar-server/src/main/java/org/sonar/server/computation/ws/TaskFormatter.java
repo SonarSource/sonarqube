@@ -114,8 +114,8 @@ public class TaskFormatter {
     if (dto.getStartedAt() != null) {
       builder.setStartedAt(DateUtils.formatDateTime(new Date(dto.getStartedAt())));
     }
-    if (dto.getFinishedAt() != null) {
-      builder.setFinishedAt(DateUtils.formatDateTime(new Date(dto.getFinishedAt())));
+    if (dto.getExecutedAt() != null) {
+      builder.setExecutedAt(DateUtils.formatDateTime(new Date(dto.getExecutedAt())));
     }
     if (dto.getExecutionTimeMs() != null) {
       builder.setExecutionTimeMs(dto.getExecutionTimeMs());

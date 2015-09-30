@@ -76,7 +76,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.hasComponentId()).isFalse();
     assertThat(wsTask.hasComponentKey()).isFalse();
     assertThat(wsTask.hasComponentName()).isFalse();
-    assertThat(wsTask.hasFinishedAt()).isFalse();
+    assertThat(wsTask.hasExecutedAt()).isFalse();
   }
 
   @Test
@@ -105,7 +105,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getSubmitterLogin()).isEqualTo("rob");
 
     assertThat(wsTask.hasExecutionTimeMs()).isFalse();
-    assertThat(wsTask.hasFinishedAt()).isFalse();
+    assertThat(wsTask.hasExecutedAt()).isFalse();
   }
 
   @Test
