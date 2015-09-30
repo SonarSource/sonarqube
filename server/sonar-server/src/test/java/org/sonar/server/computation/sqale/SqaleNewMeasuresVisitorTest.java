@@ -30,8 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
@@ -44,6 +42,8 @@ import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
+import org.sonar.server.computation.scm.Changeset;
+import org.sonar.server.computation.scm.ScmInfoRepositoryRule;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.mockito.Mockito.mock;
@@ -69,7 +69,7 @@ public class SqaleNewMeasuresVisitorTest {
   private static final Offset<Double> VARIATION_COMPARISON_OFFSET = Offset.offset(0.01);
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
@@ -84,7 +84,7 @@ public class SqaleNewMeasuresVisitorTest {
 
   private SqaleRatingSettings sqaleRatingSettings = mock(SqaleRatingSettings.class);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new SqaleNewMeasuresVisitor(metricRepository, measureRepository, reportReader,
+  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new SqaleNewMeasuresVisitor(metricRepository, measureRepository, scmInfoRepository,
     periodsHolder, sqaleRatingSettings)));
 
   @Before
@@ -136,7 +136,7 @@ public class SqaleNewMeasuresVisitorTest {
       );
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
-    reportReader.putChangesets(createChangesets(LANGUAGE_1_FILE_REF, PERIOD_2_SNAPSHOT_DATE - 100, 4));
+    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 4));
 
     underTest.visit(treeRootHolder.getRoot());
 
@@ -200,17 +200,6 @@ public class SqaleNewMeasuresVisitorTest {
   }
 
   @Test
-  public void new_debt_ratio_is_0_when_file_has_empty_changesets() {
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
-    setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_DATE_CHANGESET);
-
-    underTest.visit(treeRootHolder.getRoot());
-
-    assertNewDebtRatioValues(LANGUAGE_1_FILE_REF, 0, 0);
-    assertNewDebtRatioValues(ROOT_REF, 0, 0);
-  }
-
-  @Test
   public void new_debt_ratio_is_0_when_there_is_no_ncloc_in_file() {
     when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_CHANGESET);
@@ -256,7 +245,7 @@ public class SqaleNewMeasuresVisitorTest {
     // 4 lines file, only first one is not ncloc
     measureRepository.addRawMeasure(LANGUAGE_1_FILE_REF, NCLOC_DATA_KEY, createNclocDataMeasure(2, 3, 4));
     // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
-    reportReader.putChangesets(createChangesets(LANGUAGE_1_FILE_REF, PERIOD_2_SNAPSHOT_DATE - 100, 2, PERIOD_2_SNAPSHOT_DATE + 100, 2));
+    scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 2, PERIOD_2_SNAPSHOT_DATE + 100, 2));
 
     underTest.visit(treeRootHolder.getRoot());
 
@@ -269,7 +258,7 @@ public class SqaleNewMeasuresVisitorTest {
   private void setupOneFileAloneInAProject(int newDebtPeriod2, int newDebtPeriod4, Flag isUnitTest, Flag withNclocLines, Flag withChangeSets) {
     checkArgument(isUnitTest == Flag.UT_FILE || isUnitTest == Flag.SRC_FILE);
     checkArgument(withNclocLines == Flag.WITH_NCLOC || withNclocLines == Flag.NO_NCLOC || withNclocLines == Flag.MISSING_MEASURE_NCLOC);
-    checkArgument(withChangeSets == Flag.WITH_CHANGESET || withChangeSets == Flag.NO_CHANGESET || withChangeSets == Flag.NO_DATE_CHANGESET);
+    checkArgument(withChangeSets == Flag.WITH_CHANGESET || withChangeSets == Flag.NO_CHANGESET);
 
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
@@ -291,14 +280,12 @@ public class SqaleNewMeasuresVisitorTest {
     }
     if (withChangeSets == Flag.WITH_CHANGESET) {
       // first 2 lines are before all snapshots, 2 last lines are after PERIOD 2's snapshot date
-      reportReader.putChangesets(createChangesets(LANGUAGE_1_FILE_REF, PERIOD_2_SNAPSHOT_DATE - 100, 2, PERIOD_2_SNAPSHOT_DATE + 100, 2));
-    } else if (withChangeSets == Flag.NO_DATE_CHANGESET) {
-      reportReader.putChangesets(createNoDateChangesets(LANGUAGE_1_FILE_REF, 4));
+      scmInfoRepository.setScmInfo(LANGUAGE_1_FILE_REF, createChangesets(PERIOD_2_SNAPSHOT_DATE - 100, 2, PERIOD_2_SNAPSHOT_DATE + 100, 2));
     }
   }
 
   private enum Flag {
-    UT_FILE, SRC_FILE, NO_CHANGESET, WITH_CHANGESET, NO_DATE_CHANGESET, WITH_NCLOC, NO_NCLOC, MISSING_MEASURE_NCLOC
+    UT_FILE, SRC_FILE, NO_CHANGESET, WITH_CHANGESET, WITH_NCLOC, NO_NCLOC, MISSING_MEASURE_NCLOC
   }
 
   public static ReportComponent.Builder builder(Component.Type type, int ref) {
@@ -328,48 +315,32 @@ public class SqaleNewMeasuresVisitorTest {
   }
 
   /**
-   * Creates a changeset of {@code lines} lines which all have the same date {@code scmDate}.
+   * Creates changesets of {@code lines} lines which all have the same date {@code scmDate}.
    */
-  private static BatchReport.Changesets createChangesets(int componentRef, long scmDate, int lines) {
-    BatchReport.Changesets.Builder builder = BatchReport.Changesets.newBuilder()
-      .setComponentRef(componentRef);
-    addChangeSet(builder, scmDate, lines);
-    return builder.build();
+  private static Changeset[] createChangesets(long scmDate, int lines) {
+    Changeset changetset = Changeset.newChangesetBuilder().setDate(scmDate).setRevision("rev-1").build();
+    Changeset[] changesets = new Changeset[lines];
+    for (int i = 0; i < lines; i++) {
+      changesets[i] = changetset;
+    }
+    return changesets;
   }
 
   /**
    * Creates a changeset of {@code lineCount} lines which have the date {@code scmDate} and {@code otherLineCount} lines which
    * have the date {@code otherScmDate}.
    */
-  private static BatchReport.Changesets createChangesets(int componentRef, long scmDate, int lineCount, long otherScmDate, int otherLineCount) {
-    BatchReport.Changesets.Builder builder = BatchReport.Changesets.newBuilder()
-      .setComponentRef(componentRef);
-    addChangeSet(builder, scmDate, lineCount);
-    addChangeSet(builder, otherScmDate, otherLineCount);
-    return builder.build();
-  }
-
-  private static void addChangeSet(BatchReport.Changesets.Builder builder, long scmDate, int lines) {
-    BatchReport.Changesets.Changeset.Builder changesetBuilder = BatchReport.Changesets.Changeset.newBuilder();
-    changesetBuilder.setRevision("rev" + scmDate);
-    changesetBuilder.setDate(scmDate);
-    builder.addChangeset(changesetBuilder.build());
-    for (int i = 0; i < lines; i++) {
-      builder.addChangesetIndexByLine(builder.getChangesetCount() - 1);
-    }
-  }
-
-  private BatchReport.Changesets createNoDateChangesets(int componentRef, int lineCount) {
-    BatchReport.Changesets.Builder builder = BatchReport.Changesets.newBuilder().setComponentRef(componentRef);
-
-    BatchReport.Changesets.Changeset.Builder changesetBuilder = BatchReport.Changesets.Changeset.newBuilder();
-    changesetBuilder.setRevision("rev");
-    builder.addChangeset(changesetBuilder.build());
+  private static Changeset[] createChangesets(long scmDate, int lineCount, long otherScmDate, int otherLineCount) {
+    Changeset[] changesets = new Changeset[lineCount + otherLineCount];
+    Changeset changetset1 = Changeset.newChangesetBuilder().setDate(scmDate).setRevision("rev-1").build();
     for (int i = 0; i < lineCount; i++) {
-      builder.addChangesetIndexByLine(builder.getChangesetCount() - 1);
+      changesets[i] = changetset1;
     }
-
-    return builder.build();
+    Changeset changetset2 = Changeset.newChangesetBuilder().setDate(otherScmDate).setRevision("rev-2").build();
+    for (int i = lineCount; i < lineCount + otherLineCount; i++) {
+      changesets[i] = changetset2;
+    }
+    return changesets;
   }
 
   private void assertNoNewDebtRatioMeasure(int componentRef) {
