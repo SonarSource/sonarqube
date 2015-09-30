@@ -35,7 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -282,7 +282,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
   public void persist_snapshots_with_periods() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
-    SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
+    SnapshotDto snapshotDto = SnapshotTesting.newSnapshotForProject(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
     periodsHolder.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
@@ -305,7 +305,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(projectDto);
+    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
 
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
@@ -355,7 +355,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
   public void set_no_period_on_snapshots_when_no_period() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);
-    SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto);
+    SnapshotDto snapshotDto = SnapshotTesting.newSnapshotForProject(projectDto);
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
 

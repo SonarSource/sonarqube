@@ -51,7 +51,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.server.component.SnapshotTesting.createForProject;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
@@ -182,8 +182,8 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
   public void persist_snapshots_with_periods() {
     ComponentDto viewDto = save(newView("ABCD").setKey(valueOf(PROJECT_KEY)).setName("Project"));
     ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "key").setKey("2"));
-    SnapshotDto viewSnapshotDto = save(createForProject(viewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
-    SnapshotDto subViewSnapshotDto = save(createForProject(subViewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
+    SnapshotDto viewSnapshotDto = save(newSnapshotForProject(viewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
+    SnapshotDto subViewSnapshotDto = save(newSnapshotForProject(subViewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
     dbTester.getSession().commit();
 
     Component subView = ViewsComponent.builder(SUBVIEW, 2).setUuid("ABCD").build();

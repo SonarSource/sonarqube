@@ -87,4 +87,44 @@ abstract class AbstractDialect implements Dialect {
   public int getScrollSingleRowFetchSize() {
     return 1;
   }
+
+  @Override
+  public String buildLikeValue(String value, WildcardPosition wildcardPosition) {
+    String escapedValue = escapePercentAndUnderscore(value);
+    String wildcard = "%";
+    switch (wildcardPosition) {
+      case BEFORE:
+        escapedValue = wildcard + escapedValue;
+        break;
+      case AFTER:
+        escapedValue += wildcard;
+        break;
+      case BEFORE_AND_AFTER:
+        escapedValue = wildcard + escapedValue + wildcard;
+        break;
+      default:
+        throw new UnsupportedOperationException("Unhandled WildcardPosition: " + wildcardPosition);
+    }
+
+    return appendEscapeBackslachForSomeDb(escapedValue);
+  }
+
+  /**
+   * Replace escape percent and underscore by adding a slash just before
+   */
+  private static String escapePercentAndUnderscore(String value) {
+    return value
+      .replaceAll("%", "\\\\%")
+      .replaceAll("_", "\\\\_");
+  }
+
+  private String appendEscapeBackslachForSomeDb(String value) {
+    return isOracleOrMsSql()
+      ? (value + " ESCAPE '\\'")
+      : value;
+  }
+
+  private boolean isOracleOrMsSql() {
+    return getId().equals(Oracle.ID) || getId().equals(MsSql.ID);
+  }
 }

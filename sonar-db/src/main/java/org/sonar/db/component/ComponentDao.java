@@ -66,6 +66,14 @@ public class ComponentDao implements Dao {
     return componentDto.get();
   }
 
+  public List<ComponentDto> selectByQuery(DbSession session, ComponentQuery query, int offset, int limit) {
+    return mapper(session).selectByQuery(query, new RowBounds(offset, limit));
+  }
+
+  public int countByQuery(DbSession session, ComponentQuery query) {
+    return mapper(session).countByQuery(query);
+  }
+
   public boolean existsById(Long id, DbSession session) {
     return mapper(session).countById(id) > 0;
   }
@@ -186,7 +194,7 @@ public class ComponentDao implements Dao {
    * Does not return component copies
    */
   public List<ComponentDto> selectComponents(DbSession session, Collection<String> qualifiers, int offset, int limit, @Nullable String query) {
-    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
+    Map<String, Object> parameters = newHashMapWithExpectedSize(3);
     addProjectQualifier(parameters);
     addPartialQueryParameterIfNotNull(parameters, query);
     addQualifiers(parameters, qualifiers);

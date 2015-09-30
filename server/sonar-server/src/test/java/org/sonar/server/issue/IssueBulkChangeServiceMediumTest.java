@@ -45,7 +45,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
@@ -88,7 +88,7 @@ public class IssueBulkChangeServiceMediumTest {
 
     project = ComponentTesting.newProjectDto().setKey("MyProject");
     tester.get(ComponentDao.class).insert(session, project);
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(project);
     tester.get(SnapshotDao.class).insert(session, projectSnapshot);
 
     file = ComponentTesting.newFileDto(project).setKey("MyComponent");

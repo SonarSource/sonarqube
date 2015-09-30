@@ -57,6 +57,10 @@ public interface ComponentMapper {
 
   List<String> selectExistingUuids(@Param("uuids") Collection<String> uuids);
 
+  List<ComponentDto> selectByQuery(ComponentQuery query, RowBounds rowBounds);
+
+  int countByQuery(ComponentQuery query);
+
   /**
    * Return all project (PRJ/TRK) uuids
    */
@@ -127,5 +131,4 @@ public interface ComponentMapper {
   void update(ComponentDto componentDto);
 
   void delete(long componentId);
-
 }

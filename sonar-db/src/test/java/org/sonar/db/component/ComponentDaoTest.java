@@ -51,6 +51,7 @@ public class ComponentDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  ComponentDbTester componentDb = new ComponentDbTester(db);
 
   DbSession dbSession = db.getSession();
 
@@ -59,7 +60,7 @@ public class ComponentDaoTest {
   @Test
   public void get_by_uuid() {
     db.prepareDbUnit(getClass(), "shared.xml");
-    
+
     ComponentDto result = underTest.selectByUuid(dbSession, "KLMN").get();
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo("KLMN");
@@ -612,8 +613,8 @@ public class ComponentDaoTest {
 
   @Test
   public void delete() throws Exception {
-    ComponentDto project1= insertProject(newProjectDto().setKey("PROJECT_1"));
-    insertProject(newProjectDto().setKey("PROJECT_2"));
+    ComponentDto project1 = componentDb.insertComponent(newProjectDto().setKey("PROJECT_1"));
+    componentDb.insertComponent(newProjectDto().setKey("PROJECT_2"));
 
     underTest.delete(dbSession, project1.getId());
     dbSession.commit();
@@ -624,23 +625,62 @@ public class ComponentDaoTest {
 
   @Test
   public void select_components_with_paging_query_and_qualifiers() {
-    DbSession session = dbSession;
-    underTest.insert(session, newProjectDto().setName("aaaa-name"));
-    underTest.insert(session, newView());
-    underTest.insert(session, newDeveloper("project-name"));
+    underTest.insert(dbSession, newProjectDto().setName("aaaa-name"));
+    underTest.insert(dbSession, newView());
+    underTest.insert(dbSession, newDeveloper("project-name"));
     for (int i = 9; i >= 1; i--) {
-      underTest.insert(session, newProjectDto().setName("project-" + i));
+      underTest.insert(dbSession, newProjectDto().setName("project-" + i));
     }
 
-    List<ComponentDto> result = underTest.selectComponents(session, singleton(Qualifiers.PROJECT), 1, 3, "project");
+    List<ComponentDto> result = underTest.selectComponents(dbSession, singleton(Qualifiers.PROJECT), 1, 3, "project");
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting("name").containsExactly("project-2", "project-3", "project-4");
   }
 
-  private ComponentDto insertProject(ComponentDto project) {
-    underTest.insert(dbSession, project);
-    dbSession.commit();
-    return project;
+  @Test
+  public void select_by_query_with_paging_query_and_qualifiers() {
+    componentDb.insertProjectAndSnapshot(dbSession, newProjectDto().setName("aaaa-name"));
+    componentDb.insertProjectAndSnapshot(dbSession, newView());
+    componentDb.insertProjectAndSnapshot(dbSession, newDeveloper("project-name"));
+    for (int i = 9; i >= 1; i--) {
+      componentDb.insertProjectAndSnapshot(dbSession, newProjectDto().setName("project-" + i));
+    }
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentQuery query = new ComponentQuery(db.database(), "oJect", Qualifiers.PROJECT);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
+
+    assertThat(result).hasSize(3);
+    assertThat(underTest.countByQuery(dbSession, query)).isEqualTo(9);
+    assertThat(result).extracting("name").containsExactly("project-2", "project-3", "project-4");
+  }
+
+  @Test
+  public void select_by_query_name_with_special_characters() {
+    componentDb.insertProjectAndSnapshot(dbSession, newProjectDto().setName("project-_%-name"));
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentQuery query = new ComponentQuery(db.database(), "-_%-", Qualifiers.PROJECT);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).name()).isEqualTo("project-_%-name");
+  }
+
+  @Test
+  public void select_by_query_key_with_special_characters() {
+    componentDb.insertProjectAndSnapshot(dbSession, newProjectDto()
+      .setKey("project-_%-key"));
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentQuery query = new ComponentQuery(db.database(), "project-_%-", Qualifiers.PROJECT);
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).key()).isEqualTo("project-_%-key");
   }
 }

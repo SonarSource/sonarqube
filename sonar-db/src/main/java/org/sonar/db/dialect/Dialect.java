@@ -89,4 +89,10 @@ public interface Dialect {
    * @return a boolean
    */
   boolean supportsMigration();
+
+  /**
+   * Returns an escaped value in parameter, with the desired wildcards.
+   * Suitable to be used in a like sql query
+   */
+  String buildLikeValue(String value, WildcardPosition wildcardPosition);
 }

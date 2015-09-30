@@ -35,7 +35,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -142,14 +142,14 @@ public class GhostsActionTest {
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
-    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.createForProject(hBaseProject)
+    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshotForProject(hBaseProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
     ComponentDto roslynProject = ComponentTesting.newProjectDto("c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), roslynProject);
-    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.createForProject(roslynProject)
+    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newSnapshotForProject(roslynProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
     db.getSession().commit();
 
@@ -171,7 +171,7 @@ public class GhostsActionTest {
       .setName("ghost-name-" + id)
       .setKey("ghost-key-" + id);
     dbClient.componentDao().insert(db.getSession(), project);
-    SnapshotDto snapshot = SnapshotTesting.createForProject(project)
+    SnapshotDto snapshot = SnapshotTesting.newSnapshotForProject(project)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED);
     dbClient.snapshotDao().insert(db.getSession(), snapshot);
     db.getSession().commit();
@@ -183,7 +183,7 @@ public class GhostsActionTest {
       .setName("analyzed-name-" + id)
       .setKey("analyzed-key-" + id);
     dbClient.componentDao().insert(db.getSession(), project);
-    SnapshotDto snapshot = SnapshotTesting.createForProject(project);
+    SnapshotDto snapshot = SnapshotTesting.newSnapshotForProject(project);
     dbClient.snapshotDao().insert(db.getSession(), snapshot);
     db.getSession().commit();
   }

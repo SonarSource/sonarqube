@@ -50,7 +50,7 @@ import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -194,7 +194,7 @@ public class ComponentNavigationActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage("xoo");
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project));
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newSnapshotForProject(project));
     dbTester.getSession().commit();
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
@@ -208,7 +208,7 @@ public class ComponentNavigationActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage("xoo");
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project));
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newSnapshotForProject(project));
     dbTester.getSession().commit();
 
     userSessionRule
@@ -354,7 +354,7 @@ public class ComponentNavigationActionTest {
       .setPath(directory.path());
     dbClient.componentDao().insert(dbTester.getSession(), project, module, directory, file);
 
-    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    SnapshotDto projectSnapshot = SnapshotTesting.newSnapshotForProject(project);
     dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
     SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
     dbClient.snapshotDao().insert(dbTester.getSession(), moduleSnapshot);

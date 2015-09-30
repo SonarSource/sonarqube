@@ -46,9 +46,9 @@ import org.sonar.server.computation.period.PeriodsHolderRule;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.component.SnapshotTesting.createForComponent;
-import static org.sonar.server.component.SnapshotTesting.createForProject;
-import static org.sonar.server.component.SnapshotTesting.createForView;
+import static org.sonar.db.component.SnapshotTesting.createForComponent;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForView;
 
 @Category(DbTests.class)
 public class ViewsComputeMeasureVariationsStepTest {
@@ -101,7 +101,7 @@ public class ViewsComputeMeasureVariationsStepTest {
 
   @Test
   public void do_nothing_when_no_raw_measure() {
-    SnapshotDto period1ViewSnapshot = createForView(VIEW_DTO);
+    SnapshotDto period1ViewSnapshot = newSnapshotForView(VIEW_DTO);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.getId(), period1ViewSnapshot.getId(), 60d));
     session.commit();
@@ -129,7 +129,7 @@ public class ViewsComputeMeasureVariationsStepTest {
   @Test
   public void set_variation() {
     // View
-    SnapshotDto period1ViewSnapshot = createForView(VIEW_DTO);
+    SnapshotDto period1ViewSnapshot = newSnapshotForView(VIEW_DTO);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot);
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.getId(), period1ViewSnapshot.getId(), 60d));
 
@@ -158,11 +158,11 @@ public class ViewsComputeMeasureVariationsStepTest {
 
   @Test
   public void set_variations_on_all_periods() {
-    SnapshotDto period1ViewSnapshot = createForProject(VIEW_DTO).setLast(false);
-    SnapshotDto period2ViewSnapshot = createForProject(VIEW_DTO).setLast(false);
-    SnapshotDto period3ViewSnapshot = createForProject(VIEW_DTO).setLast(false);
-    SnapshotDto period4ViewSnapshot = createForProject(VIEW_DTO).setLast(false);
-    SnapshotDto period5ViewSnapshot = createForProject(VIEW_DTO).setLast(false);
+    SnapshotDto period1ViewSnapshot = newSnapshotForProject(VIEW_DTO).setLast(false);
+    SnapshotDto period2ViewSnapshot = newSnapshotForProject(VIEW_DTO).setLast(false);
+    SnapshotDto period3ViewSnapshot = newSnapshotForProject(VIEW_DTO).setLast(false);
+    SnapshotDto period4ViewSnapshot = newSnapshotForProject(VIEW_DTO).setLast(false);
+    SnapshotDto period5ViewSnapshot = newSnapshotForProject(VIEW_DTO).setLast(false);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot, period2ViewSnapshot, period3ViewSnapshot, period4ViewSnapshot, period5ViewSnapshot);
 
     dbClient.measureDao().insert(session,
@@ -198,7 +198,7 @@ public class ViewsComputeMeasureVariationsStepTest {
 
   @Test
   public void set_variation_on_all_numeric_metrics() {
-    SnapshotDto period1ViewSnapshot = createForProject(VIEW_DTO);
+    SnapshotDto period1ViewSnapshot = newSnapshotForProject(VIEW_DTO);
     dbClient.snapshotDao().insert(session, period1ViewSnapshot);
     dbClient.measureDao().insert(session,
       newMeasureDto(ISSUES_METRIC.getId(), VIEW_DTO.getId(), period1ViewSnapshot.getId(), 60d),

@@ -18,12 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.component;
+package org.sonar.db.component;
 
 import com.google.common.base.Preconditions;
 import org.assertj.core.util.Strings;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 
 public class SnapshotTesting {
 
@@ -39,12 +37,12 @@ public class SnapshotTesting {
       .setPath(Strings.isNullOrEmpty(parentSnapshot.getPath()) ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".");
   }
 
-  public static SnapshotDto createForProject(ComponentDto project) {
+  public static SnapshotDto newSnapshotForProject(ComponentDto project) {
     return createBasicSnapshot(project, project.getId())
         .setPath("");
   }
 
-  public static SnapshotDto createForView(ComponentDto view) {
+  public static SnapshotDto newSnapshotForView(ComponentDto view) {
     return createBasicSnapshot(view, view.getId())
         .setPath("");
   }
