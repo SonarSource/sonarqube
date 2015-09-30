@@ -42,28 +42,44 @@ public class SecurityServletFilterTest {
   FilterChain chain = mock(FilterChain.class);
 
   @Test
-  public void accept_GET_method() throws IOException, ServletException {
-    HttpServletRequest request = newRequest("GET");
+  public void allow_GET_method() throws IOException, ServletException {
+    assertThatMethodIsAllowed("GET");
+  }
+
+  @Test
+  public void allow_HEAD_method() throws IOException, ServletException {
+    assertThatMethodIsAllowed("HEAD");
+  }
+
+  @Test
+  public void allow_PUT_method() throws IOException, ServletException {
+    assertThatMethodIsAllowed("PUT");
+  }
+
+  @Test
+  public void allow_POST_method() throws IOException, ServletException {
+    assertThatMethodIsAllowed("POST");
+  }
+
+  private void assertThatMethodIsAllowed(String httpMethod) throws IOException, ServletException {
+    HttpServletRequest request = newRequest(httpMethod);
     underTest.doFilter(request, response, chain);
     verify(response, never()).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     verify(chain).doFilter(request, response);
   }
 
   @Test
-  public void deny_HEAD_method() throws IOException, ServletException {
-    underTest.doFilter(newRequest("HEAD"), response, chain);
-    verify(response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-  }
-
-  @Test
   public void deny_OPTIONS_method() throws IOException, ServletException {
-    underTest.doFilter(newRequest("OPTIONS"), response, chain);
-    verify(response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    assertThatMethodIsDenied("OPTIONS");
   }
 
   @Test
   public void deny_TRACE_method() throws IOException, ServletException {
-    underTest.doFilter(newRequest("TRACE"), response, chain);
+    assertThatMethodIsDenied("TRACE");
+  }
+
+  private void assertThatMethodIsDenied(String httpMethod) throws IOException, ServletException {
+    underTest.doFilter(newRequest(httpMethod), response, chain);
     verify(response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
   }
 

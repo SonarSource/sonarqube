@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SecurityServletFilter implements Filter {
 
-  private static final Set<String> ALLOWED_HTTP_METHODS = ImmutableSet.of("DELETE", "GET", "POST", "PUT");
+  private static final Set<String> ALLOWED_HTTP_METHODS = ImmutableSet.of("DELETE", "GET", "HEAD", "POST", "PUT");
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
@@ -50,7 +50,7 @@ public class SecurityServletFilter implements Filter {
   }
 
   private static void doHttpFilter(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
-    // SONAR-6881 Disable OPTIONS, HEAD and TRACE methods
+    // SONAR-6881 Disable OPTIONS and TRACE methods
     if (!ALLOWED_HTTP_METHODS.contains(httpRequest.getMethod())) {
       httpResponse.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
       return;
