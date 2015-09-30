@@ -20,7 +20,6 @@
 package org.sonar.batch.cache;
 
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
-
 import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 import com.google.common.base.Function;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +35,7 @@ import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.rule.ActiveRulesLoader;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -63,22 +63,48 @@ public class ProjectCacheSynchronizer {
     this.cacheStatus = cacheStatus;
   }
 
+  private static boolean isToday(Date d) {
+    Calendar c1 = Calendar.getInstance();
+    Calendar c2 = Calendar.getInstance();
+    c2.setTime(d);
+
+    return c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR) &&
+      c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR);
+  }
+
+  private static boolean shouldUpdate(Date lastUpdate) {
+    return !isToday(lastUpdate);
+  }
+
   public void load(String projectKey, boolean force) {
     Date lastSync = cacheStatus.getSyncStatus();
+    boolean failOnError = true;
 
     if (lastSync != null) {
-      if (!force) {
+      if (force) {
+        LOG.info("-- Found project [{}] cache [{}], synchronizing data (forced)..", projectKey, lastSync);
+      } else if (shouldUpdate(lastSync)) {
+        LOG.info("-- Found project [{}] cache [{}], synchronizing data..", projectKey, lastSync);
+        failOnError = false;
+      } else {
         LOG.info("Found project [{}] cache [{}]", projectKey, lastSync);
         return;
-      } else {
-        LOG.info("-- Found project [{}] cache [{}], synchronizing data..", projectKey, lastSync);
       }
-      cacheStatus.delete();
     } else {
       LOG.info("-- Cache for project [{}] not found, synchronizing data..", projectKey);
     }
 
-    loadData(projectKey);
+    try {
+      loadData(projectKey);
+    } catch (Exception e) {
+      if (failOnError) {
+        throw e;
+      }
+
+      LOG.warn("-- Cache update for project [{}] failed, continuing from cache..", projectKey, e);
+      return;
+    }
+
     saveStatus();
   }
 
@@ -121,7 +147,7 @@ public class ProjectCacheSynchronizer {
       issuesLoader.load(projectKey, consumer);
       profiler.stopInfo();
 
-      profiler.startInfo("Load user information (" + consumer.loginSet.size() + " users)");
+      profiler.startInfo("Load user information");
       for (String login : consumer.loginSet) {
         userRepository.load(login, null);
       }

@@ -55,13 +55,11 @@ public class NonAssociatedCacheSynchronizer {
       } else {
         LOG.info("-- Found cache [{}], synchronizing data..", lastSync);
       }
-      cacheStatus.delete();
     } else {
       LOG.info("-- Cache not found, synchronizing data..");
     }
 
     loadData();
-
     cacheStatus.save();
     LOG.info("-- Succesfully synchronized cache");
   }

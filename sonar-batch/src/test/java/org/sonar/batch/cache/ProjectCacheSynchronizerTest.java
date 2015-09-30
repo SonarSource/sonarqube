@@ -147,4 +147,52 @@ public class ProjectCacheSynchronizerTest {
 
     verifyNoMoreInteractions(issuesLoader, userRepositoryLoader, qualityProfileLoader, activeRulesLoader, projectRepositoriesLoader);
   }
+
+  @Test
+  public void testLastAnalysisToday() {
+    ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
+    
+    when(cacheStatus.getSyncStatus()).thenReturn(new Date());
+    synchronizer.load(PROJECT_KEY, false);
+
+    verify(cacheStatus).getSyncStatus();
+    verifyNoMoreInteractions(issuesLoader, userRepositoryLoader, qualityProfileLoader, activeRulesLoader, projectRepositoriesLoader, cacheStatus);
+  }
+
+  @Test
+  public void testLastAnalysisYesterday() {
+    ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
+    
+    Date d = new Date(new Date().getTime() - 60 * 60 * 24 * 1000);
+    when(cacheStatus.getSyncStatus()).thenReturn(d);
+    synchronizer.load(PROJECT_KEY, false);
+
+    verify(cacheStatus).save();
+    verify(cacheStatus).getSyncStatus();
+  }
+  
+  @Test
+  public void testDontFailOnError() {
+    ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
+    
+    Date d = new Date(new Date().getTime() - 60 * 60 * 24 * 1000);
+    when(cacheStatus.getSyncStatus()).thenReturn(d);
+    
+    when(projectRepositoriesLoader.load(anyString(), anyBoolean(), any(MutableBoolean.class))).thenThrow(IllegalStateException.class);
+    synchronizer.load(PROJECT_KEY, false);
+    
+    verify(cacheStatus).getSyncStatus();
+    verifyNoMoreInteractions(cacheStatus);
+  }
+  
+  @Test
+  public void testForce() {
+    ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
+    
+    when(cacheStatus.getSyncStatus()).thenReturn(new Date());
+    synchronizer.load(PROJECT_KEY, true);
+
+    verify(cacheStatus).save();
+    verify(cacheStatus).getSyncStatus();
+  }
 }

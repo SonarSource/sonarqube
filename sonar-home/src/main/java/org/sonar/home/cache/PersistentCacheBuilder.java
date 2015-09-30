@@ -37,7 +37,7 @@ import javax.annotation.Nullable;
  * </pre>
  */
 public class PersistentCacheBuilder {
-  private static final long DEFAULT_EXPIRE_DURATION = TimeUnit.MILLISECONDS.convert(1L, TimeUnit.DAYS);
+  private static final long DEFAULT_EXPIRE_DURATION = TimeUnit.MILLISECONDS.convert(9999L, TimeUnit.DAYS);
   private static final String DIR_NAME = "ws_cache";
 
   private Path cacheBasePath;

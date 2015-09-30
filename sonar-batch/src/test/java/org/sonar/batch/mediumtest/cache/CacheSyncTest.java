@@ -119,7 +119,7 @@ public class CacheSyncTest {
     tester.syncProject("test-project");
     assertThat(logOutput.getAsString()).contains("-- Found project [test-project]");
     assertThat(logOutput.getAsString()).contains("not found, synchronizing data");
-    assertThat(logOutput.getAsString()).contains("], synchronizing data..");
+    assertThat(logOutput.getAsString()).contains("], synchronizing data (forced)..");
   }
 
   @Test
