@@ -26,7 +26,6 @@ import org.sonar.home.cache.PersistentCache;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
@@ -46,11 +45,9 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
     Date now = new Date();
 
     try {
-      FileOutputStream fos = new FileOutputStream(getStatusFilePath().toFile());
-      try (ObjectOutputStream objOutput = new ObjectOutputStream(fos)) {
+      try (ObjectOutputStream objOutput = new ObjectOutputStream(new FileOutputStream(getStatusFilePath().toFile()))) {
         objOutput.writeObject(now);
       }
-
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write cache sync status", e);
     }
@@ -69,8 +66,7 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
       if (!Files.isRegularFile(p)) {
         return null;
       }
-      InputStream is = new FileInputStream(p.toFile());
-      try (ObjectInputStream objInput = new ObjectInputStream(is)) {
+      try (ObjectInputStream objInput = new ObjectInputStream(new FileInputStream(p.toFile()))) {
         return (Date) objInput.readObject();
       }
     } catch (IOException | ClassNotFoundException e) {

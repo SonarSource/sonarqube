@@ -61,7 +61,7 @@ public class ProjectPersistentCacheProvider extends ProviderAdapter {
     return cache;
   }
 
-  private String getServerUrl(GlobalProperties props) {
+  private static String getServerUrl(GlobalProperties props) {
     return StringUtils.removeEnd(StringUtils.defaultIfBlank(props.property("sonar.host.url"), "http://localhost:9000"), "/");
   }
 }

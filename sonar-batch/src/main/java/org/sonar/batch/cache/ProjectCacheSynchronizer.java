@@ -89,10 +89,9 @@ public class ProjectCacheSynchronizer {
 
   private void loadData(String projectKey) {
     Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
-    ProjectRepositories projectRepo = null;
 
     profiler.startInfo("Load project settings");
-    projectRepo = projectRepositoriesLoader.load(projectKey, true, null);
+    ProjectRepositories projectRepo = projectRepositoriesLoader.load(projectKey, true, null);
 
     if (!projectRepo.exists()) {
       LOG.debug("Project doesn't exist in the server");

@@ -99,7 +99,7 @@ public class PersistentCacheBuilder {
     return Paths.get(home, ".sonar");
   }
 
-  private String sanitizeFilename(String name) {
+  private static String sanitizeFilename(String name) {
     try {
       return URLEncoder.encode(name, StandardCharsets.UTF_8.name());
     } catch (UnsupportedEncodingException e) {

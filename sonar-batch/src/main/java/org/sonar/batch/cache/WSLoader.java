@@ -149,7 +149,7 @@ public class WSLoader {
 
   @Nonnull
   private <T> WSLoaderResult<T> loadFromCache(String id, DataLoader<T> loader) throws NotAvailableException {
-    T result = null;
+    T result;
 
     try {
       result = loader.load(id);
