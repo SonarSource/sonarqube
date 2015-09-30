@@ -23,6 +23,7 @@
     "grunt-rename": "^0.1.4",
     "grunt-text-replace": "0.4.0",
     "intern": "3.0.0",
+    "isparta": "^3.0.4",
     "jit-grunt": "0.9.1",
     "jquery": "2.1.4",
     "jsdom": "^6.5.1",
@@ -36,6 +37,7 @@
   "scripts": {
     "build-fast": "./node_modules/.bin/grunt build-fast",
     "build": "./node_modules/.bin/grunt build",
-    "test": "./node_modules/.bin/mocha --opts tests/mocha.opts tests"
+    "test": "./node_modules/.bin/mocha --opts tests/mocha.opts tests",
+    "coverage": "./node_modules/.bin/babel-node ./node_modules/.bin/isparta cover --dir './target/coverage' --include '**/*.js' --include '**/*.jsx' ./node_modules/.bin/_mocha -- --opts tests/mocha.opts tests"
   }
 }
