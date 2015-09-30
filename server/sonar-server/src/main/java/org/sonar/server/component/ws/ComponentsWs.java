@@ -27,11 +27,13 @@ import org.sonar.api.server.ws.WebService;
 public class ComponentsWs implements WebService {
 
   private final AppAction appAction;
-  private final SearchAction searchAction;
+  private final SearchViewComponentsAction searchViewComponentsAction;
+  private final ComponentsWsAction[] actions;
 
-  public ComponentsWs(AppAction appAction, SearchAction searchAction) {
+  public ComponentsWs(AppAction appAction, SearchViewComponentsAction searchViewComponentsAction, ComponentsWsAction... actions) {
     this.appAction = appAction;
-    this.searchAction = searchAction;
+    this.searchViewComponentsAction = searchViewComponentsAction;
+    this.actions = actions;
   }
 
   @Override
@@ -40,8 +42,11 @@ public class ComponentsWs implements WebService {
       .setSince("4.2")
       .setDescription("Components management");
 
+    for (ComponentsWsAction action : actions) {
+      action.define(controller);
+    }
     appAction.define(controller);
-    searchAction.define(controller);
+    searchViewComponentsAction.define(controller);
     defineSuggestionsAction(controller);
 
     controller.done();

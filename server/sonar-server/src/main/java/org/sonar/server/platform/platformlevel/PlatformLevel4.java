@@ -61,6 +61,7 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ResourcesWs;
+import org.sonar.server.component.ws.SearchViewComponentsAction;
 import org.sonar.server.computation.CeModule;
 import org.sonar.server.computation.container.ReportProcessingModule;
 import org.sonar.server.computation.queue.CeQueueModule;
@@ -560,7 +561,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ResourcesWs.class,
       ComponentsWs.class,
       org.sonar.server.component.ws.AppAction.class,
-      org.sonar.server.component.ws.SearchAction.class,
+      SearchViewComponentsAction.class,
       EventsWs.class,
       NewAlerts.class,
       NewAlerts.newMetadata(),

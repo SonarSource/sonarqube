@@ -108,7 +108,7 @@ public class AppActionTest {
 
     when(measureDao.selectByComponentKeyAndMetricKeys(eq(session), anyString(), anyListOf(String.class))).thenReturn(measures);
 
-    tester = new WsTester(new ComponentsWs(new AppAction(dbClient, durations, i18n, userSessionRule, new ComponentFinder(dbClient)), mock(SearchAction.class)));
+    tester = new WsTester(new ComponentsWs(new AppAction(dbClient, durations, i18n, userSessionRule, new ComponentFinder(dbClient)), mock(SearchViewComponentsAction.class)));
   }
 
   @Test

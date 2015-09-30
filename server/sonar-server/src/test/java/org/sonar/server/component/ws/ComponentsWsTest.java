@@ -45,8 +45,8 @@ public class ComponentsWsTest {
   public void setUp() {
     WsTester tester = new WsTester(new ComponentsWs(
       new AppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class), userSessionRule, mock(ComponentFinder.class)),
-      new SearchAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)))
-    );
+      new SearchViewComponentsAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)))
+      );
     controller = tester.controller("api/components");
   }
 
@@ -81,7 +81,7 @@ public class ComponentsWsTest {
 
   @Test
   public void define_search_action() {
-    WebService.Action action = controller.action("search");
+    WebService.Action action = controller.action("search_view_components");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();

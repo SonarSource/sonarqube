@@ -20,24 +20,8 @@
 
 package org.sonar.server.component.ws;
 
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsAction;
 
-public class SearchAction implements ComponentsWsAction {
-  @Override
-  public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("search")
-      .setSince("5.2")
-      .setDescription("Search for components")
-      .addPagingParams(100)
-      .addSearchQuery("sona", "project names")
-      .setResponseExample(getClass().getResource("search-example.json"))
-      .setHandler(this);
-  }
-
-  @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
-
-  }
+public interface ComponentsWsAction extends WsAction {
+  // marker interface
 }

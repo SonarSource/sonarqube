@@ -64,7 +64,8 @@
     <where>
       <if test="qualifiers != null and qualifiers.length!=0">
         and p.qualifier in
-        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">
+          #{qualifier}
         </foreach>
       </if>
       <if test="key != null">

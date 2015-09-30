@@ -38,68 +38,68 @@ import org.sonar.test.DbTests;
 import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
-public class SearchActionTest {
+public class SearchViewComponentsActionTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  WsTester tester;
+  WsTester ws;
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-    tester = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient()))));
+    db.truncateTables();
+    ws = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchViewComponentsAction(db.getDbClient(), userSessionRule, new ComponentFinder(db.getDbClient()))));
   }
 
   @Test
   public void return_projects_from_view() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st");
+    WsTester.TestRequest request = newRequest().setParam("componentId", "EFGH").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_projects_from_view.json");
   }
 
   @Test
   public void return_projects_from_subview() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, "EFGH", "FGHI");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "FGHI").setParam("q", "st");
+    WsTester.TestRequest request = newRequest().setParam("componentId", "FGHI").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_projects_from_subview.json");
   }
 
   @Test
   public void return_only_authorized_projects_from_view() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "return_only_authorized_projects_from_view.xml");
+    db.prepareDbUnit(getClass(), "return_only_authorized_projects_from_view.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st");
+    WsTester.TestRequest request = newRequest().setParam("componentId", "EFGH").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_only_authorized_projects_from_view.json");
   }
 
   @Test
   public void return_paged_result() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam(Param.PAGE, "2")
+    WsTester.TestRequest request = newRequest().setParam("componentId", "EFGH").setParam("q", "st").setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "1");
     request.execute().assertJson(getClass(), "return_paged_result.json");
   }
 
   @Test
   public void return_only_first_page() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam(Param.PAGE, "1")
+    WsTester.TestRequest request = newRequest().setParam("componentId", "EFGH").setParam("q", "st").setParam(Param.PAGE, "1")
       .setParam(Param.PAGE_SIZE, "1");
     request.execute().assertJson(getClass(), "return_only_first_page.json");
   }
@@ -109,11 +109,10 @@ public class SearchActionTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Minimum search is 2 characters");
 
-
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "s");
+    WsTester.TestRequest request = newRequest().setParam("componentId", "EFGH").setParam("q", "s");
     request.execute();
   }
 
@@ -122,10 +121,14 @@ public class SearchActionTest {
     thrown.expect(NotFoundException.class);
     thrown.expectMessage("Component id 'UNKNOWN' not found");
 
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "UNKNOWN").setParam("q", "st");
+    WsTester.TestRequest request = newRequest().setParam("componentId", "UNKNOWN").setParam("q", "st");
     request.execute();
+  }
+
+  private WsTester.TestRequest newRequest() {
+    return ws.newGetRequest("api/components", "search_view_components");
   }
 }
