@@ -1,14 +1,14 @@
 package sample;
 
 public class Sample {
-	
+
 	public Sample(int i) {
 		int j = i++;
 	}
 	
 	private String myMethod() {
-		if (foo == bar) {
-			return "hello";
+		if (foo2 == bar2) {
+			return "hello2";
 		} else {
 			throw new IllegalStateException();
 		}
