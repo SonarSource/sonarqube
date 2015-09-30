@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.batch.analysis.AnalysisProperties;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 
@@ -31,7 +30,7 @@ import java.nio.file.Files;
 public class MutableProjectReactorProvider extends ProviderAdapter {
   private ProjectReactor reactor = null;
 
-  public ProjectReactor provide(ProjectReactorBuilder builder, AnalysisProperties settings) {
+  public ProjectReactor provide(ProjectReactorBuilder builder) {
     if (reactor == null) {
       reactor = builder.execute();
       cleanDirectory(reactor.getRoot().getWorkDir());

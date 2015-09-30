@@ -31,7 +31,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
@@ -67,8 +66,6 @@ public class ProjectCacheSynchronizerTest {
 
   @Mock
   private ProjectDefinition project;
-  @Mock
-  private ProjectReactor projectReactor;
   @Mock
   private ProjectCacheStatus cacheStatus;
   @Mock
