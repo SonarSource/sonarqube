@@ -1,9 +1,10 @@
+import _ from 'underscore';
 import Modal from '../../components/common/modals';
 import '../../components/common/select-list';
 import './templates';
 
 function getSearchUrl (permission, permissionTemplate) {
-  return baseUrl + '/api/permissions/template_groups?ps=100&permission=' + permission +
+  return baseUrl + '/api/permissions/template_groups?ps=100&permission=' + permission.key +
       '&templateId=' + permissionTemplate.id;
 }
 
@@ -25,7 +26,7 @@ export default Modal.extend({
       selectUrl: baseUrl + '/api/permissions/add_group_to_template',
       deselectUrl: baseUrl + '/api/permissions/remove_group_from_template',
       extra: {
-        permission: this.options.permission,
+        permission: this.options.permission.key,
         templateId: this.options.permissionTemplate.id
       },
       selectParameter: 'groupName',
@@ -46,6 +47,7 @@ export default Modal.extend({
 
   serializeData: function () {
     return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
+      permissionName: this.options.permission.name,
       permissionTemplateName: this.options.permissionTemplate.name
     });
   }

@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import Modal from '../../components/common/modals';
 import '../../components/common/select-list';
 import './templates';
@@ -7,7 +8,7 @@ export default Modal.extend({
 
   onRender: function () {
     this._super();
-    var searchUrl = baseUrl + '/api/permissions/template_users?ps=100&permission=' + this.options.permission +
+    var searchUrl = baseUrl + '/api/permissions/template_users?ps=100&permission=' + this.options.permission.key +
         '&templateId=' + this.options.permissionTemplate.id;
     new window.SelectList({
       el: this.$('#permission-templates-users'),
@@ -22,7 +23,7 @@ export default Modal.extend({
       selectUrl: baseUrl + '/api/permissions/add_user_to_template',
       deselectUrl: baseUrl + '/api/permissions/remove_user_from_template',
       extra: {
-        permission: this.options.permission,
+        permission: this.options.permission.key,
         templateId: this.options.permissionTemplate.id
       },
       selectParameter: 'login',
@@ -43,6 +44,7 @@ export default Modal.extend({
 
   serializeData: function () {
     return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
+      permissionName: this.options.permission.name,
       permissionTemplateName: this.options.permissionTemplate.name
     });
   }

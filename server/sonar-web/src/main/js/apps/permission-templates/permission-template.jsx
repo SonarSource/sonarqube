@@ -72,7 +72,7 @@ export default React.createClass({
                 <td className="spacer-right">Users</td>
                 <td className="spacer-left bordered-left">{p.usersCount}</td>
                 <td className="spacer-left">
-                  <a onClick={this.showUsers.bind(this, p.key)} className="icon-bullet-list" title="Update Users"
+                  <a onClick={this.showUsers.bind(this, p)} className="icon-bullet-list" title="Update Users"
                      data-toggle="tooltip" href="#"></a>
                 </td>
               </tr>
@@ -80,7 +80,7 @@ export default React.createClass({
                 <td className="spacer-right">Groups</td>
                 <td className="spacer-left bordered-left">{p.groupsCount}</td>
                 <td className="spacer-left">
-                  <a onClick={this.showGroups.bind(this, p.key)} className="icon-bullet-list" title="Update Users"
+                  <a onClick={this.showGroups.bind(this, p)} className="icon-bullet-list" title="Update Users"
                      data-toggle="tooltip" href="#"></a>
                 </td>
               </tr>
@@ -97,7 +97,9 @@ export default React.createClass({
           {permissions}
           <td className="thin text-right">
             {this.renderAssociation()}
-            <Defaults permissionTemplate={this.props.permissionTemplate}/>
+            <Defaults
+                permissionTemplate={this.props.permissionTemplate}
+                topQualifiers={this.props.topQualifiers}/>
             <div className="nowrap">
               <SetDefaults
                   permissionTemplate={this.props.permissionTemplate}
