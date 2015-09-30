@@ -5,10 +5,7 @@ import Controller from 'components/navigator/controller';
 import ComponentViewer from './component-viewer/main';
 import HomeView from './workspace-home-view';
 
-var FIELDS = 'component,componentId,project,subProject,rule,status,resolution,author,reporter,assignee,debt,line,' +
-        'message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,transitions,' +
-        'actionPlanName',
-    FACET_DATA_FIELDS = ['components', 'users', 'rules', 'actionPlans', 'languages'];
+const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'actionPlans', 'languages'];
 
 export default Controller.extend({
   _facetsFromServer: function () {
