@@ -1,0 +1,33 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 4
+  },
+  "components": [
+    {
+      "id": "directory-uuid",
+      "key": "directory-key",
+      "qualifier": "DIR",
+      "name": "Directory Name"
+    },
+    {
+      "id": "file-uuid",
+      "key": "file-key",
+      "qualifier": "FIL",
+      "name": "File Name"
+    },
+    {
+      "id": "module-uuid",
+      "key": "module-key",
+      "qualifier": "BRC",
+      "name": "Module Name"
+    },
+    {
+      "id": "project-uuid",
+      "key": "project-key",
+      "qualifier": "TRK",
+      "name": "Project Name"
+    }
+  ]
+}

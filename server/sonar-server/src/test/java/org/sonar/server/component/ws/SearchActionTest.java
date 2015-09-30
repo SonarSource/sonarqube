@@ -1,0 +1,191 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.component.ws;
+
+import com.google.common.base.Joiner;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.i18n.I18nRule;
+import org.sonar.server.plugins.MimeTypes;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.WsComponents.WsSearchResponse;
+
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.server.component.ws.WsComponentsParameters.PARAM_QUALIFIERS;
+import static org.sonar.test.JsonAssert.assertJson;
+
+public class SearchActionTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  ComponentDbTester componentDb = new ComponentDbTester(db);
+  I18nRule i18n = new I18nRule();
+
+  WsActionTester ws;
+  ResourceTypes resourceTypes;
+
+  @Before
+  public void setUp() {
+    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    resourceTypes = mock(ResourceTypes.class);
+    when(resourceTypes.getAll()).thenReturn(resourceTypes());
+
+    ws = new WsActionTester(new SearchAction(db.getDbClient(), resourceTypes, i18n, userSession));
+
+  }
+
+  @Test
+  public void search_json_example() {
+    componentDb.insertComponent(newView());
+    ComponentDto project = componentDb.insertComponent(
+      newProjectDto("project-uuid")
+        .setName("Project Name")
+        .setKey("project-key")
+      );
+    ComponentDto module = componentDb.insertComponent(
+      newModuleDto("module-uuid", project)
+        .setName("Module Name")
+        .setKey("module-key")
+      );
+    componentDb.insertComponent(
+      newDirectory(module, "path/to/directoy")
+        .setUuid("directory-uuid")
+        .setKey("directory-key")
+        .setName("Directory Name")
+      );
+    componentDb.insertComponent(
+      newFileDto(module, "file-uuid")
+        .setKey("file-key")
+        .setName("File Name")
+      );
+    db.commit();
+
+    String response = newRequest(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.FILE)
+      .setMediaType(MimeTypes.JSON)
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo(getClass().getResource("search-components-example.json"));
+  }
+
+  @Test
+  public void search_with_pagination() throws IOException {
+    for (int i = 1; i <= 9; i++) {
+      componentDb.insertComponent(
+        newProjectDto("project-uuid-" + i)
+          .setName("Project Name " + i));
+    }
+    db.commit();
+
+    InputStream responseStream = newRequest(Qualifiers.PROJECT)
+      .setParam(Param.PAGE, "2")
+      .setParam(Param.PAGE_SIZE, "3")
+      .execute()
+      .getInputStream();
+    WsSearchResponse response = WsSearchResponse.parseFrom(responseStream);
+
+    assertThat(response.getComponentsCount()).isEqualTo(3);
+    assertThat(response.getComponentsList()).extracting("id").containsExactly("project-uuid-4", "project-uuid-5", "project-uuid-6");
+  }
+
+  @Test
+  public void search_with_key_query() throws IOException {
+    componentDb.insertComponent(newProjectDto().setKey("project-_%-key"));
+    componentDb.insertComponent(newProjectDto().setKey("project-key-without-escaped-characters"));
+    db.commit();
+
+    InputStream responseStream = newRequest(Qualifiers.PROJECT)
+      .setParam(Param.TEXT_QUERY, "project-_%")
+      .execute().getInputStream();
+    WsSearchResponse response = WsSearchResponse.parseFrom(responseStream);
+
+    assertThat(response.getComponentsCount()).isEqualTo(1);
+    assertThat(response.getComponentsList()).extracting("key").containsExactly("project-_%-key");
+  }
+
+  @Test
+  public void fail_if_unknown_qualifier_provided() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The 'qualifier' parameter must be one of [BRC, DIR, FIL, TRK]. 'Unknown-Qualifier' was passed.");
+
+    newRequest("Unknown-Qualifier").execute();
+  }
+
+  @Test
+  public void fail_if_not_logged_in() {
+    expectedException.expect(UnauthorizedException.class);
+    userSession.anonymous();
+
+    newRequest(Qualifiers.PROJECT).execute();
+  }
+
+  @Test
+  public void fail_if_insufficient_privileges() {
+    expectedException.expect(ForbiddenException.class);
+    userSession.login().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    newRequest(Qualifiers.PROJECT).execute();
+  }
+
+  private TestRequest newRequest(String... qualifiers) {
+    return ws.newRequest()
+      .setMediaType(MimeTypes.PROTOBUF)
+      .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(qualifiers));
+  }
+
+  private static List<ResourceType> resourceTypes() {
+    return asList(
+      ResourceType.builder(Qualifiers.PROJECT).build(),
+      ResourceType.builder(Qualifiers.MODULE).build(),
+      ResourceType.builder(Qualifiers.DIRECTORY).build(),
+      ResourceType.builder(Qualifiers.FILE).build());
+  }
+}

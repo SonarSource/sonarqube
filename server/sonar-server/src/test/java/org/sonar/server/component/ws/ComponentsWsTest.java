@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
@@ -45,8 +46,9 @@ public class ComponentsWsTest {
   public void setUp() {
     WsTester tester = new WsTester(new ComponentsWs(
       new AppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class), userSessionRule, mock(ComponentFinder.class)),
-      new SearchViewComponentsAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)))
-      );
+      new SearchViewComponentsAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
+      new SearchAction(mock(org.sonar.db.DbClient.class), mock(ResourceTypes.class), mock(I18n.class), userSessionRule)
+      ));
     controller = tester.controller("api/components");
   }
 
@@ -55,7 +57,7 @@ public class ComponentsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(4);
   }
 
   @Test
@@ -80,8 +82,9 @@ public class ComponentsWsTest {
   }
 
   @Test
-  public void define_search_action() {
+  public void define_search_view_components_action() {
     WebService.Action action = controller.action("search_view_components");
+
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
@@ -89,4 +92,16 @@ public class ComponentsWsTest {
     assertThat(action.params()).hasSize(4);
   }
 
+  @Test
+  public void define_search_action() {
+    WebService.Action action = controller.action("search");
+
+    assertThat(action).isNotNull();
+    assertThat(action.param("qualifiers").isRequired()).isTrue();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.description()).isNotEmpty();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.since()).isEqualTo("5.2");
+  }
 }

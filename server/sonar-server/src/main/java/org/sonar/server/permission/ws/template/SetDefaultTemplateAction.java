@@ -44,7 +44,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_QUALIFIER;
 import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
-import static org.sonar.server.permission.ws.ResourceTypeToQualifier.RESOURCE_TYPE_TO_QUALIFIER;
+import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 
 public class SetDefaultTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;

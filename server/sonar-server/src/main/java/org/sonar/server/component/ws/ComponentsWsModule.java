@@ -18,22 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.server.component.ws;
 
-import com.google.common.base.Function;
-import javax.annotation.Nonnull;
-import org.sonar.api.resources.ResourceType;
+import org.sonar.core.platform.Module;
 
-public class ResourceTypeToQualifier {
-
-  public static final Function<ResourceType, String> RESOURCE_TYPE_TO_QUALIFIER = Singleton.INSTANCE;
-
-  private enum Singleton implements Function<ResourceType, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull ResourceType resourceType) {
-      return resourceType.getQualifier();
-    }
+public class ComponentsWsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      ResourcesWs.class,
+      ComponentsWs.class,
+      EventsWs.class,
+      // actions
+      AppAction.class,
+      SearchAction.class,
+      SearchViewComponentsAction.class);
   }
 }
