@@ -12,12 +12,17 @@ const SETTINGS_URLS = [
 export default React.createClass({
   mixins: [DashboardNameMixin, LinksMixin],
 
+  periodParameter() {
+    let params = window.getQueryParams();
+    return params.period ? `&period=${params.period}` : '';
+  },
+
   renderOverviewLink() {
     if (_.size(this.props.component.dashboards) === 0) {
       return null;
     }
     let firstDashboard = _.first(this.props.component.dashboards);
-    let url = `/dashboard/index?id=${encodeURIComponent(this.props.component.key)}`;
+    let url = `/dashboard/index?id=${encodeURIComponent(this.props.component.key)}${this.periodParameter()}`;
     let name = this.getLocalizedDashboardName(firstDashboard.name);
     return this.renderLink(url, name, () => {
       /* eslint eqeqeq: 0 */
@@ -190,7 +195,7 @@ export default React.createClass({
 
   renderDashboards() {
     let dashboards = _.rest(this.props.component.dashboards || []).map(d => {
-      let url = `/dashboard?id=${encodeURIComponent(this.props.component.key)}&did=${d.key}`;
+      let url = `/dashboard?id=${encodeURIComponent(this.props.component.key)}&did=${d.key}${this.periodParameter()}`;
       let name = this.getLocalizedDashboardName(d.name);
       return this.renderLink(url, name);
     });
