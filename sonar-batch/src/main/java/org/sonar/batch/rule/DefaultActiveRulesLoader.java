@@ -102,7 +102,6 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       Active active = activeList.getActiveList(0);
 
       LoadedActiveRule loadedRule = new LoadedActiveRule();
-      Map<String, String> params = new HashMap<>();
 
       loadedRule.setRuleKey(RuleKey.parse(r.getKey()));
       loadedRule.setName(r.getName());
@@ -111,6 +110,13 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       loadedRule.setInternalKey(r.getInternalKey());
       loadedRule.setTemplateRuleKey(r.getTemplateKey());
 
+      Map<String, String> params = new HashMap<>();
+
+      for (org.sonarqube.ws.Rules.Rule.Param param : r.getParams().getParamsList()) {
+        params.put(param.getKey(), param.getDefaultValue());
+      }
+
+      // overrides defaultValue if the key is the same
       for (Param param : active.getParamsList()) {
         params.put(param.getKey(), param.getValue());
       }
