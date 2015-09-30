@@ -19,28 +19,28 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
-import org.sonarqube.ws.Rules.Rule.Param;
-
-import org.sonarqube.ws.Rules.Rule.Params;
-
-import javax.annotation.Nullable;
-
 import com.google.common.collect.ImmutableMap;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.output.BatchReport.Issue;
+import org.sonar.batch.rule.LoadedActiveRule;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
+
+import javax.annotation.Nullable;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ChecksMediumTest {
@@ -109,29 +109,21 @@ public class ChecksMediumTest {
     assertThat(foundIssueAtLine2).isTrue();
   }
 
-  private org.sonarqube.ws.Rules.Rule createActiveRuleWithParam(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,
+  private LoadedActiveRule createActiveRuleWithParam(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,
     @Nullable String internalKey, @Nullable String languag, String paramKey, String paramValue) {
-    org.sonarqube.ws.Rules.Rule.Builder builder = org.sonarqube.ws.Rules.Rule.newBuilder();
-    builder.setRepo(repositoryKey);
-    builder.setKey(repositoryKey + ":" + ruleKey);
-    if (templateRuleKey != null) {
-      builder.setTemplateKey(templateRuleKey);
-    }
-    if (languag != null) {
-      builder.setLang(languag);
-    }
-    if (internalKey != null) {
-      builder.setInternalKey(internalKey);
-    }
-    if (severity != null) {
-      builder.setSeverity(severity);
-    }
-    builder.setName(name);
+    LoadedActiveRule r = new LoadedActiveRule();
 
-    Param param = Param.newBuilder().setKey(paramKey).setDefaultValue(paramValue).build();
-    Params params = Params.newBuilder().addParams(param).build();
-    builder.setParams(params);
-    return builder.build();
+    r.setInternalKey(internalKey);
+    r.setRuleKey(RuleKey.of(repositoryKey, ruleKey));
+    r.setName(name);
+    r.setTemplateRuleKey(templateRuleKey);
+    r.setLanguage(languag);
+    r.setSeverity(severity);
+
+    Map<String, String> params = new HashMap<>();
+    params.put(paramKey, paramValue);
+    r.setParams(params);
+    return r;
   }
 
 }

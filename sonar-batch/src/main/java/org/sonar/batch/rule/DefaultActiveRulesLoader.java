@@ -19,8 +19,11 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonarqube.ws.Rules.Active.Param;
+import org.sonarqube.ws.Rules.Active;
+import org.sonar.api.rule.RuleKey;
+import org.sonarqube.ws.Rules.ActiveList;
 import org.sonarqube.ws.Rules.SearchResponse;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.batch.cache.WSLoader;
@@ -32,10 +35,13 @@ import org.sonarqube.ws.Rules.Rule;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?ps=500&f=repo,name,severity,lang,internalKey,templateKey,params&activation=true";
+  private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true";
 
   private final WSLoader wsLoader;
 
@@ -44,23 +50,40 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   }
 
   @Override
-  public List<Rule> load(String qualityProfileKey, @Nullable MutableBoolean fromCache) {
-    WSLoaderResult<InputStream> result = wsLoader.loadStream(getUrl(qualityProfileKey));
-    List<Rule> ruleList = loadFromStream(result.get());
-    if (fromCache != null) {
-      fromCache.setValue(result.isFromCache());
+  public List<LoadedActiveRule> load(String qualityProfileKey, @Nullable MutableBoolean fromCache) {
+    List<LoadedActiveRule> ruleList = new LinkedList<>();
+    int page = 1;
+    int pageSize = 500;
+    int loaded = 0;
+
+    while (true) {
+      WSLoaderResult<InputStream> result = wsLoader.loadStream(getUrl(qualityProfileKey, page, pageSize));
+      SearchResponse response = loadFromStream(result.get());
+      List<LoadedActiveRule> pageRules = readPage(response);
+      ruleList.addAll(pageRules);
+      loaded += response.getPs();
+
+      if (response.getTotal() <= loaded) {
+        break;
+      }
+      page++;
     }
+
     return ruleList;
   }
 
-  private static String getUrl(String qualityProfileKey) {
-    return RULES_SEARCH_URL + "&qprofile=" + qualityProfileKey;
+  private static String getUrl(String qualityProfileKey, int page, int pageSize) {
+    StringBuilder builder = new StringBuilder(1024);
+    builder.append(RULES_SEARCH_URL);
+    builder.append("&qprofile=").append(qualityProfileKey);
+    builder.append("&p=").append(page);
+    builder.append("&ps=").append(pageSize);
+    return builder.toString();
   }
 
-  private static List<Rule> loadFromStream(InputStream is) {
+  private static SearchResponse loadFromStream(InputStream is) {
     try {
-      SearchResponse response = SearchResponse.parseFrom(is);
-      return response.getRulesList();
+      return SearchResponse.parseFrom(is);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to load quality profiles", e);
     } finally {
@@ -68,4 +91,33 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
     }
   }
 
+  private static List<LoadedActiveRule> readPage(SearchResponse response) {
+    List<LoadedActiveRule> loadedRules = new LinkedList<>();
+
+    List<Rule> rulesList = response.getRulesList();
+    Map<String, ActiveList> actives = response.getActives().getActives();
+
+    for (Rule r : rulesList) {
+      ActiveList activeList = actives.get(r.getKey());
+      Active active = activeList.getActiveList(0);
+
+      LoadedActiveRule loadedRule = new LoadedActiveRule();
+      Map<String, String> params = new HashMap<>();
+
+      loadedRule.setRuleKey(RuleKey.parse(r.getKey()));
+      loadedRule.setName(r.getName());
+      loadedRule.setSeverity(active.getSeverity());
+      loadedRule.setLanguage(r.getLang());
+      loadedRule.setInternalKey(r.getInternalKey());
+      loadedRule.setTemplateRuleKey(r.getTemplateKey());
+
+      for (Param param : active.getParamsList()) {
+        params.put(param.getKey(), param.getValue());
+      }
+      loadedRule.setParams(params);
+      loadedRules.add(loadedRule);
+    }
+
+    return loadedRules;
+  }
 }

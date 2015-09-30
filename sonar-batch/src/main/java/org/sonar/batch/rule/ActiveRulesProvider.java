@@ -23,8 +23,6 @@ import org.sonar.api.utils.log.Profiler;
 
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonarqube.ws.Rules.Rule.Param;
-import org.sonarqube.ws.Rules.Rule;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -59,16 +57,16 @@ public class ActiveRulesProvider extends ProviderAdapter {
   private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
 
     Collection<String> qProfileKeys = getKeys(qProfiles);
-    Map<String, Rule> loadedRulesByKey = new HashMap<>();
+    Map<RuleKey, LoadedActiveRule> loadedRulesByKey = new HashMap<>();
 
     try {
       for (String qProfileKey : qProfileKeys) {
-        Collection<Rule> qProfileRules;
+        Collection<LoadedActiveRule> qProfileRules;
         qProfileRules = load(loader, qProfileKey);
 
-        for (Rule r : qProfileRules) {
-          if (!loadedRulesByKey.containsKey(r.getKey())) {
-            loadedRulesByKey.put(r.getKey(), r);
+        for (LoadedActiveRule r : qProfileRules) {
+          if (!loadedRulesByKey.containsKey(r.getRuleKey())) {
+            loadedRulesByKey.put(r.getRuleKey(), r);
           }
         }
       }
@@ -79,20 +77,22 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return transform(loadedRulesByKey.values());
   }
 
-  private static ActiveRules transform(Collection<Rule> loadedRules) {
+  private static ActiveRules transform(Collection<LoadedActiveRule> loadedRules) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
 
-    for (Rule activeRule : loadedRules) {
-      NewActiveRule newActiveRule = builder.create(RuleKey.parse(activeRule.getKey()));
+    for (LoadedActiveRule activeRule : loadedRules) {
+      NewActiveRule newActiveRule = builder.create(activeRule.getRuleKey());
       newActiveRule.setName(activeRule.getName());
       newActiveRule.setSeverity(activeRule.getSeverity());
-      newActiveRule.setLanguage(activeRule.getLang());
+      newActiveRule.setLanguage(activeRule.getLanguage());
       newActiveRule.setInternalKey(activeRule.getInternalKey());
-      newActiveRule.setTemplateRuleKey(activeRule.getTemplateKey());
+      newActiveRule.setTemplateRuleKey(activeRule.getTemplateRuleKey());
 
       // load parameters
-      for (Param param : activeRule.getParams().getParamsList()) {
-        newActiveRule.setParam(param.getKey(), param.getDefaultValue());
+      if (activeRule.getParams() != null) {
+        for (Map.Entry<String, String> params : activeRule.getParams().entrySet()) {
+          newActiveRule.setParam(params.getKey(), params.getValue());
+        }
       }
 
       newActiveRule.activate();
@@ -100,7 +100,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return builder.build();
   }
 
-  private static List<Rule> load(ActiveRulesLoader loader, String qProfileKey) throws IOException {
+  private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey) throws IOException {
     return loader.load(qProfileKey, null);
   }
 

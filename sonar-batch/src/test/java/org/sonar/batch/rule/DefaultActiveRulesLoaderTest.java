@@ -19,7 +19,8 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonarqube.ws.Rules.Rule;
+import org.sonar.api.rule.RuleKey;
+
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 import com.google.common.io.Resources;
@@ -30,8 +31,6 @@ import java.io.InputStream;
 import java.util.Collection;
 
 import static org.mockito.Mockito.verify;
-
-import static org.mockito.Matchers.anyString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -50,14 +49,33 @@ public class DefaultActiveRulesLoaderTest {
 
   @Test
   public void feed_real_response() throws IOException {
-    InputStream response = loadResource("active_rule_search.protobuf");
-    when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(response, false));
-    Collection<Rule> activeRules = loader.load("java-sonar-way-26368", null);
-    assertThat(activeRules).hasSize(100);
+    InputStream response1 = loadResource("active_rule_search1.protobuf");
+    InputStream response2 = loadResource("active_rule_search2.protobuf");
 
-    verify(ws).loadStream("/api/rules/search.protobuf?ps=500&f=repo,name,severity,lang,internalKey,templateKey,params&activation=true&qprofile=java-sonar-way-26368");
+    String req1 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=java-sonar-way-26368&p=1&ps=500";
+    String req2 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=java-sonar-way-26368&p=2&ps=500";
+    when(ws.loadStream(req1)).thenReturn(new WSLoaderResult<InputStream>(response1, false));
+    when(ws.loadStream(req2)).thenReturn(new WSLoaderResult<InputStream>(response2, false));
+
+    Collection<LoadedActiveRule> activeRules = loader.load("java-sonar-way-26368", null);
+    assertThat(activeRules).hasSize(226);
+    assertActiveRule(activeRules);
+    
+    verify(ws).loadStream(req1);
+    verify(ws).loadStream(req2);
     verifyNoMoreInteractions(ws);
+  }
 
+  private static void assertActiveRule(Collection<LoadedActiveRule> activeRules) {
+    RuleKey key = RuleKey.of("squid", "S3008");
+    for (LoadedActiveRule r : activeRules) {
+      if (!r.getRuleKey().equals(key)) {
+        continue;
+      }
+
+      assertThat(r.getParams().get("format")).isEqualTo("^[a-z][a-zA-Z0-9]*$");
+      assertThat(r.getSeverity()).isEqualTo("MINOR");
+    }
   }
 
   private InputStream loadResource(String name) throws IOException {

@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonarqube.ws.Rules.Rule;
 import org.apache.commons.lang.mutable.MutableBoolean;
 
 import javax.annotation.Nullable;
@@ -27,5 +26,5 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface ActiveRulesLoader {
-  List<Rule> load(String qualityProfileKey, @Nullable MutableBoolean fromCache);
+  List<LoadedActiveRule> load(String qualityProfileKey, @Nullable MutableBoolean fromCache);
 }

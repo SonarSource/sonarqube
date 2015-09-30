@@ -19,23 +19,21 @@
  */
 package org.sonar.batch.cache;
 
-import static org.mockito.Mockito.when;
-
-import org.sonarqube.ws.Rules.Rule;
-
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 import com.google.common.collect.ImmutableList;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sonar.batch.repository.QualityProfileLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
+import org.sonar.batch.rule.LoadedActiveRule;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 
 import java.util.Date;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import org.mockito.MockitoAnnotations;
-import org.junit.Before;
-import org.mockito.Mock;
-import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonar.batch.repository.QualityProfileLoader;
+import static org.mockito.Mockito.when;
 
 public class NonAssociatedCacheSynchronizerTest {
   private NonAssociatedCacheSynchronizer synchronizer;
@@ -52,7 +50,7 @@ public class NonAssociatedCacheSynchronizerTest {
     MockitoAnnotations.initMocks(this);
 
     QualityProfile pf = QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").build();
-    Rule ar = Rule.newBuilder().build();
+    LoadedActiveRule ar = new LoadedActiveRule();
 
     when(qualityProfileLoader.loadDefault(null)).thenReturn(ImmutableList.of(pf));
     when(activeRulesLoader.load("profile", null)).thenReturn(ImmutableList.of(ar));

@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
-import org.sonarqube.ws.Rules.Rule;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -52,13 +51,13 @@ public class ActiveRulesProviderTest {
 
   @Test
   public void testCombinationOfRules() {
-    Rule r1 = mockRule("rule1");
-    Rule r2 = mockRule("rule2");
-    Rule r3 = mockRule("rule3");
+    LoadedActiveRule r1 = mockRule("rule1");
+    LoadedActiveRule r2 = mockRule("rule2");
+    LoadedActiveRule r3 = mockRule("rule3");
 
-    List<Rule> qp1Rules = ImmutableList.of(r1, r2);
-    List<Rule> qp2Rules = ImmutableList.of(r2, r3);
-    List<Rule> qp3Rules = ImmutableList.of(r1, r3);
+    List<LoadedActiveRule> qp1Rules = ImmutableList.of(r1, r2);
+    List<LoadedActiveRule> qp2Rules = ImmutableList.of(r2, r3);
+    List<LoadedActiveRule> qp3Rules = ImmutableList.of(r1, r3);
 
     when(loader.load("qp1", null)).thenReturn(qp1Rules);
     when(loader.load("qp2", null)).thenReturn(qp2Rules);
@@ -88,7 +87,10 @@ public class ActiveRulesProviderTest {
     return new ModuleQProfiles(profiles);
   }
 
-  private static Rule mockRule(String name) {
-    return Rule.newBuilder().setName(name).setRepo(name).setKey(name + ":" + name).build();
+  private static LoadedActiveRule mockRule(String name) {
+    LoadedActiveRule r = new LoadedActiveRule();
+    r.setName(name);
+    r.setRuleKey(RuleKey.of(name, name));
+    return r;
   }
 }

@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.batch.repository.FileData;
+import org.sonar.api.rule.RuleKey;
 
+import org.sonar.batch.rule.LoadedActiveRule;
+import org.sonar.batch.repository.FileData;
 import org.sonar.api.utils.DateUtils;
 import com.google.common.collect.Table;
 import com.google.common.collect.HashBasedTable;
@@ -217,33 +219,23 @@ public class BatchMediumTester {
       return this;
     }
 
-    public BatchMediumTesterBuilder activateRule(org.sonarqube.ws.Rules.Rule activeRule) {
+    public BatchMediumTesterBuilder activateRule(LoadedActiveRule activeRule) {
       activeRules.addActiveRule(activeRule);
       return this;
     }
 
     public BatchMediumTesterBuilder addActiveRule(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,
       @Nullable String internalKey, @Nullable String languag) {
+      LoadedActiveRule r = new LoadedActiveRule();
 
-      org.sonarqube.ws.Rules.Rule.Builder builder = org.sonarqube.ws.Rules.Rule.newBuilder();
-      builder.setRepo(repositoryKey);
-      if (internalKey != null) {
-        builder.setInternalKey(internalKey);
-      }
-      builder.setKey(repositoryKey + ":" + ruleKey);
-      builder.setName(name);
-
-      if (templateRuleKey != null) {
-        builder.setTemplateKey(templateRuleKey);
-      }
-      if (languag != null) {
-        builder.setLang(languag);
-      }
-      if (severity != null) {
-        builder.setSeverity(severity);
-      }
-
-      activeRules.addActiveRule(builder.build());
+      r.setInternalKey(internalKey);
+      r.setRuleKey(RuleKey.of(repositoryKey, ruleKey));
+      r.setName(name);
+      r.setTemplateRuleKey(templateRuleKey);
+      r.setLanguage(languag);
+      r.setSeverity(severity);
+      
+      activeRules.addActiveRule(r);
       return this;
     }
 
@@ -379,14 +371,14 @@ public class BatchMediumTester {
   }
 
   private static class FakeActiveRulesLoader implements ActiveRulesLoader {
-    private List<org.sonarqube.ws.Rules.Rule> activeRules = new LinkedList<>();
+    private List<LoadedActiveRule> activeRules = new LinkedList<>();
 
-    public void addActiveRule(org.sonarqube.ws.Rules.Rule activeRule) {
+    public void addActiveRule(LoadedActiveRule activeRule) {
       this.activeRules.add(activeRule);
     }
 
     @Override
-    public List<org.sonarqube.ws.Rules.Rule> load(String qualityProfileKey, MutableBoolean fromCache) {
+    public List<LoadedActiveRule> load(String qualityProfileKey, MutableBoolean fromCache) {
       return activeRules;
     }
   }

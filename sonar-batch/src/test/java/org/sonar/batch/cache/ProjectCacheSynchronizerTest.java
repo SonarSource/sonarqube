@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.cache;
 
+import org.sonar.batch.rule.LoadedActiveRule;
+
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.mutable.MutableBoolean;
@@ -49,7 +51,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import static org.mockito.Matchers.anyBoolean;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -97,7 +98,7 @@ public class ProjectCacheSynchronizerTest {
     projectRepositoriesLoader = mock(DefaultProjectRepositoriesLoader.class);
 
     QualityProfile pf = QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").build();
-    org.sonarqube.ws.Rules.Rule ar = org.sonarqube.ws.Rules.Rule.newBuilder().build();
+    LoadedActiveRule ar = new LoadedActiveRule();
     ProjectRepositories repo = mock(ProjectRepositories.class);
 
     when(qualityProfileLoader.load(PROJECT_KEY, null, null)).thenReturn(ImmutableList.of(pf));
