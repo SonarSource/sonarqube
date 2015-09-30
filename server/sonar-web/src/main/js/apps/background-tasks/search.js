@@ -1,7 +1,8 @@
 import $ from 'jquery';
+import _ from 'underscore';
 import React from 'react';
 import RadioToggle from '../../components/shared/radio-toggle';
-import {STATUSES, CURRENTS, DATE, DATE_FORMAT} from './constants';
+import {STATUSES, CURRENTS, DATE, DATE_FORMAT, DEBOUNCE_DELAY} from './constants';
 
 export default React.createClass({
   componentDidUpdate() {
@@ -10,6 +11,10 @@ export default React.createClass({
 
   componentDidMount() {
     this.attachDatePicker();
+  },
+
+  componentWillMount() {
+    this.onSearch = _.debounce(this.onSearch, DEBOUNCE_DELAY);
   },
 
   getCurrentsOptions() {
@@ -36,17 +41,6 @@ export default React.createClass({
     ];
   },
 
-  attachDatePicker() {
-    let opts = {
-      dateFormat: 'yy-mm-dd',
-      changeMonth: true,
-      changeYear: true,
-      onSelect: this.onDateInputChange
-    };
-    $(React.findDOMNode(this.refs.minDate)).datepicker(opts);
-    $(React.findDOMNode(this.refs.maxDate)).datepicker(opts);
-  },
-
   onDateChange(newDate) {
     if (newDate === DATE.CUSTOM) {
       let minDateRaw = React.findDOMNode(this.refs.minDate).value,
@@ -65,6 +59,19 @@ export default React.createClass({
     this.onDateChange(DATE.CUSTOM);
   },
 
+  attachDatePicker() {
+    let opts = {
+      dateFormat: 'yy-mm-dd',
+      changeMonth: true,
+      changeYear: true,
+      onSelect: this.onDateInputChange
+    };
+    if ($.fn.datepicker) {
+      $(React.findDOMNode(this.refs.minDate)).datepicker(opts);
+      $(React.findDOMNode(this.refs.maxDate)).datepicker(opts);
+    }
+  },
+
   renderCustomDateInput() {
     let shouldBeVisible = this.props.dateFilter === DATE.CUSTOM,
         className = shouldBeVisible ? 'spacer-top' : 'spacer-top hidden';
@@ -75,6 +82,33 @@ export default React.createClass({
           &nbsp;to&nbsp;
           <input onChange={this.onDateInputChange} ref="maxDate" type="text"/>
         </div>
+    );
+  },
+
+  onSearchFormSubmit(e) {
+    e.preventDefault();
+    this.onSearch();
+  },
+
+  onSearch() {
+    let searchInput = React.findDOMNode(this.refs.searchInput),
+        query = searchInput.value;
+    this.props.onSearch(query);
+  },
+
+  renderSearchBox() {
+    if (this.props.options.componentId) {
+      // do not render search form on the project-level page
+      return null;
+    }
+    return (
+        <form onSubmit={this.onSearchFormSubmit} className="search-box">
+          <button className="search-box-submit button-clean">
+            <i className="icon-search"></i>
+          </button>
+          <input onChange={this.onSearch} ref="searchInput" className="search-box-input" type="search"
+                 placeholder="Search"/>
+        </form>
     );
   },
 
@@ -95,6 +129,7 @@ export default React.createClass({
                            name="background-task-date" onCheck={this.onDateChange}/>
               {this.renderCustomDateInput()}
             </li>
+            <li>{this.renderSearchBox()}</li>
           </ul>
         </section>
     );

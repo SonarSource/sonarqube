@@ -19,7 +19,8 @@ export default React.createClass({
       activityPage: 1,
       statusFilter: STATUSES.ALL,
       currentsFilter: CURRENTS.ALL,
-      dateFilter: DATE.ANY
+      dateFilter: DATE.ANY,
+      searchQuery: ''
     };
   },
 
@@ -76,6 +77,9 @@ export default React.createClass({
     }
     if (this.state.dateFilter !== DATE.ANY) {
       _.extend(filters, this.getDateFilter());
+    }
+    if (this.state.searchQuery) {
+      _.extend(filters, { componentQuery: this.state.searchQuery });
     }
     return filters;
   },
@@ -158,6 +162,10 @@ export default React.createClass({
     }, this.requestData);
   },
 
+  onSearch(query) {
+    this.setState({ searchQuery: query }, this.requestData);
+  },
+
   loadMore() {
     this.setState({ activityPage: this.state.activityPage + 1 }, this.requestActivity);
   },
@@ -186,9 +194,17 @@ export default React.createClass({
     return (
         <div className="page">
           <Header/>
+
           <Stats {...this.state} cancelPending={this.cancelPending} showFailures={this.showFailures}/>
-          <Search {...this.state} onStatusChange={this.onStatusChange} onCurrentsChange={this.onCurrentsChange} onDateChange={this.onDateChange}/>
+
+          <Search {...this.props} {...this.state}
+              onStatusChange={this.onStatusChange}
+              onCurrentsChange={this.onCurrentsChange}
+              onDateChange={this.onDateChange}
+              onSearch={this.onSearch}/>
+
           <Tasks tasks={[].concat(this.state.queue, this.state.activity)} onTaskCanceled={this.onTaskCanceled}/>
+
           <ListFooter count={this.state.queue.length + this.state.activity.length}
                       total={this.state.queue.length + this.state.activityTotal}
                       loadMore={this.loadMore}/>

@@ -22,3 +22,6 @@ export const DATE = {
 
 
 export const DATE_FORMAT = 'YYYY-MM-DD';
+
+
+export const DEBOUNCE_DELAY = 250;
