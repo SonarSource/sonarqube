@@ -4,8 +4,8 @@ import Defaults from '../../src/main/js/apps/permission-templates/permission-tem
 import SetDefaults from '../../src/main/js/apps/permission-templates/permission-template-set-defaults';
 
 let TestUtils = React.addons.TestUtils;
-let chai = require('chai');
-let expect = chai.expect;
+let expect = require('chai').expect;
+let sinon = require('sinon');
 
 describe('Permission Templates', function () {
   describe('Defaults', () => {
@@ -29,6 +29,16 @@ describe('Permission Templates', function () {
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-qualifier-vw')).to.have.length(1);
     });
 
+    it('should not display qualifiers', () => {
+      let permissionTemplate = { defaultFor: [] },
+          topQualifiers = ['TRK', 'VW'];
+      let result = TestUtils.renderIntoDocument(
+          <Defaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers}/>
+      );
+      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-qualifier-trk')).to.be.empty;
+      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-qualifier-vw')).to.be.empty;
+    });
+
     it('should omit "project" if there is only one qualifier', () => {
       let permissionTemplate = { defaultFor: ['TRK'] },
           topQualifiers = ['TRK'];
@@ -40,7 +50,7 @@ describe('Permission Templates', function () {
   });
 
   describe('SetDefaults', () => {
-    var refresh = function () {};
+    var refresh = sinon.spy();
 
     it('should display a dropdown with one option', () => {
       let permissionTemplate = { defaultFor: ['VW'] },
