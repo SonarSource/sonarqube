@@ -21,9 +21,15 @@
 package org.sonar.server.computation.source;
 
 import org.junit.Test;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.scm.Changeset;
+import org.sonar.server.computation.scm.ScmInfo;
+import org.sonar.server.computation.scm.ScmInfoImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
@@ -31,16 +37,15 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_scm() {
-    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
-      .addChangeset(newChangeSetBuilder()
+    ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
+      Changeset.newChangesetBuilder()
         .setAuthor("john")
         .setDate(123456789L)
         .setRevision("rev-1")
-        .build())
-      .addChangesetIndexByLine(0)
-      .build();
+        .build()
+      ));
 
-    ScmLineReader lineScm = new ScmLineReader(scmReport);
+    ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     lineScm.read(lineBuilder);
@@ -52,14 +57,13 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_only_author() {
-    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
-      .addChangeset(newChangeSetBuilder()
+    ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
+      Changeset.newChangesetBuilder()
         .setAuthor("john")
-        .build())
-      .addChangesetIndexByLine(0)
-      .build();
+        .build()
+      ));
 
-    ScmLineReader lineScm = new ScmLineReader(scmReport);
+    ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     lineScm.read(lineBuilder);
@@ -71,14 +75,13 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_only_date() {
-    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
-      .addChangeset(newChangeSetBuilder()
+    ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
+      Changeset.newChangesetBuilder()
         .setDate(123456789L)
-        .build())
-      .addChangesetIndexByLine(0)
-      .build();
+        .build()
+      ));
 
-    ScmLineReader lineScm = new ScmLineReader(scmReport);
+    ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     lineScm.read(lineBuilder);
@@ -90,14 +93,13 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_only_revision() {
-    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
-      .addChangeset(newChangeSetBuilder()
+    ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
+      Changeset.newChangesetBuilder()
         .setRevision("rev-1")
-        .build())
-      .addChangesetIndexByLine(0)
-      .build();
+        .build()
+      ));
 
-    ScmLineReader lineScm = new ScmLineReader(scmReport);
+    ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     lineScm.read(lineBuilder);
@@ -109,13 +111,11 @@ public class ScmLineReaderTest {
 
   @Test
   public void fail_when_changeset_is_empty() {
-    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
-      .addChangeset(newChangeSetBuilder()
-        .build())
-      .addChangesetIndexByLine(0)
-      .build();
+    ScmInfo scmInfo = new ScmInfoImpl(newArrayList(
+      Changeset.newChangesetBuilder().build()
+      ));
 
-    ScmLineReader lineScm = new ScmLineReader(scmReport);
+    ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     try {
@@ -129,12 +129,12 @@ public class ScmLineReaderTest {
   @Test
   public void getLatestChange_returns_changeset_with_highest_date_of_read_lines() {
     long refDate = 123456789L;
-    BatchReport.Changesets.Changeset changeset0 = newChangeSetBuilder().setDate(refDate - 636).build();
-    BatchReport.Changesets.Changeset changeset1 = newChangeSetBuilder().setDate(refDate + 1).build();
-    BatchReport.Changesets.Changeset changeset2 = newChangeSetBuilder().setDate(refDate + 2).build();
-    BatchReport.Changesets scmReport = setup8LinesChangeset(changeset0, changeset1, changeset2);
+    Changeset changeset0 = Changeset.newChangesetBuilder().setDate(refDate - 636).build();
+    Changeset changeset1 = Changeset.newChangesetBuilder().setDate(refDate + 1).build();
+    Changeset changeset2 = Changeset.newChangesetBuilder().setDate(refDate + 2).build();
+    ScmInfo scmInfo = new ScmInfoImpl(setup8LinesChangeset(changeset0, changeset1, changeset2));
 
-    ScmLineReader lineScm = new ScmLineReader(scmReport);
+    ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     // before any line is read, the latest change is null
     assertThat(lineScm.getLatestChange()).isNull();
@@ -160,12 +160,12 @@ public class ScmLineReaderTest {
 
   @Test
   public void getLatestChange_returns_first_changeset_when_none_have_dates() {
-    BatchReport.Changesets.Changeset changeset0 = newChangeSetBuilder().setRevision("0").build();
-    BatchReport.Changesets.Changeset changeset1 = newChangeSetBuilder().setRevision("1").build();
-    BatchReport.Changesets.Changeset changeset2 = newChangeSetBuilder().setRevision("2").build();
-    BatchReport.Changesets scmReport = setup8LinesChangeset(changeset0, changeset1, changeset2);
+    Changeset changeset0 = Changeset.newChangesetBuilder().setRevision("0").build();
+    Changeset changeset1 = Changeset.newChangesetBuilder().setRevision("1").build();
+    Changeset changeset2 = Changeset.newChangesetBuilder().setRevision("2").build();
+    ScmInfo scmInfo = new ScmInfoImpl(setup8LinesChangeset(changeset0, changeset1, changeset2));
 
-    ScmLineReader lineScm = new ScmLineReader(scmReport);
+    ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     // before any line is read, the latest change is null
     assertThat(lineScm.getLatestChange()).isNull();
@@ -183,12 +183,12 @@ public class ScmLineReaderTest {
 
   @Test
   public void getLatestChange_returns_first_changeset_when_the_first_one_has_no_date() {
-    BatchReport.Changesets.Changeset changeset0 = newChangeSetBuilder().setRevision("0").build();
-    BatchReport.Changesets.Changeset changeset1 = newChangeSetBuilder().setRevision("1").setDate(95454154L).build();
-    BatchReport.Changesets.Changeset changeset2 = newChangeSetBuilder().setRevision("2").setDate(9654545444L).build();
-    BatchReport.Changesets scmReport = setup8LinesChangeset(changeset0, changeset1, changeset2);
+    Changeset changeset0 = Changeset.newChangesetBuilder().setRevision("0").build();
+    Changeset changeset1 = Changeset.newChangesetBuilder().setRevision("1").setDate(95454154L).build();
+    Changeset changeset2 = Changeset.newChangesetBuilder().setRevision("2").setDate(9654545444L).build();
+    ScmInfo scmInfo = new ScmInfoImpl(setup8LinesChangeset(changeset0, changeset1, changeset2));
 
-    ScmLineReader lineScm = new ScmLineReader(scmReport);
+    ScmLineReader lineScm = new ScmLineReader(scmInfo);
 
     // before any line is read, the latest change is null
     assertThat(lineScm.getLatestChange()).isNull();
@@ -204,32 +204,23 @@ public class ScmLineReaderTest {
     readLineAndAssertLatestChangeDate(lineScm, 8, changeset0);
   }
 
-  private static BatchReport.Changesets setup8LinesChangeset(BatchReport.Changesets.Changeset changeset0,
-    BatchReport.Changesets.Changeset changeset1,
-    BatchReport.Changesets.Changeset changeset2) {
-    return BatchReport.Changesets.newBuilder()
-      .addChangeset(changeset0)
-      .addChangeset(changeset1)
-      .addChangeset(changeset2)
-      .addChangesetIndexByLine(0)
-      .addChangesetIndexByLine(1)
-      .addChangesetIndexByLine(1)
-      .addChangesetIndexByLine(2)
-      .addChangesetIndexByLine(0)
-      .addChangesetIndexByLine(1)
-      .addChangesetIndexByLine(0)
-      .addChangesetIndexByLine(0)
-      .build();
+  private static List<Changeset> setup8LinesChangeset(Changeset changeset0, Changeset changeset1, Changeset changeset2) {
+    List<Changeset> changesets = new ArrayList<>();
+    changesets.add(changeset0);
+    changesets.add(changeset1);
+    changesets.add(changeset1);
+    changesets.add(changeset2);
+    changesets.add(changeset0);
+    changesets.add(changeset1);
+    changesets.add(changeset0);
+    changesets.add(changeset0);
+    return changesets;
   }
 
-  private void readLineAndAssertLatestChangeDate(ScmLineReader lineScm, int line, BatchReport.Changesets.Changeset expectedChangeset) {
+  private void readLineAndAssertLatestChangeDate(ScmLineReader lineScm, int line, Changeset expectedChangeset) {
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(line);
     lineScm.read(lineBuilder);
     assertThat(lineScm.getLatestChange()).isSameAs(expectedChangeset);
-  }
-
-  private static BatchReport.Changesets.Changeset.Builder newChangeSetBuilder() {
-    return BatchReport.Changesets.Changeset.newBuilder();
   }
 
 }

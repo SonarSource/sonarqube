@@ -20,56 +20,65 @@
 
 package org.sonar.server.computation.source;
 
-import javax.annotation.CheckForNull;
-import org.sonar.batch.protocol.output.BatchReport;
+import com.google.common.base.Optional;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.scm.Changeset;
+import org.sonar.server.computation.scm.ScmInfo;
+
+import javax.annotation.CheckForNull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class ScmLineReader implements LineReader {
 
-  private final BatchReport.Changesets scmReport;
+  private final ScmInfo scmReport;
   @CheckForNull
-  private BatchReport.Changesets.Changeset latestChange;
+  private Changeset latestChange;
 
-  public ScmLineReader(BatchReport.Changesets scmReport) {
+  public ScmLineReader(ScmInfo scmReport) {
     this.scmReport = scmReport;
   }
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
-    int changeSetIndex = scmReport.getChangesetIndexByLine(lineBuilder.getLine() - 1);
-    BatchReport.Changesets.Changeset changeset = scmReport.getChangeset(changeSetIndex);
-    boolean hasAuthor = changeset.hasAuthor();
-    if (hasAuthor) {
-      lineBuilder.setScmAuthor(changeset.getAuthor());
+    Optional<Changeset> changesetOptional = scmReport.getForLine(lineBuilder.getLine());
+    if (!changesetOptional.isPresent()) {
+      return;
     }
-    boolean hasRevision = changeset.hasRevision();
-    if (hasRevision) {
-      lineBuilder.setScmRevision(changeset.getRevision());
+    Changeset changeset = changesetOptional.get();
+    String author = changeset.getAuthor();
+    if (author != null) {
+      lineBuilder.setScmAuthor(author);
     }
-    boolean hasDate = changeset.hasDate();
-    if (hasDate) {
-      lineBuilder.setScmDate(changeset.getDate());
+    String revision = changeset.getRevision();
+    if (revision != null) {
+      lineBuilder.setScmRevision(revision);
+    }
+    Long date = changeset.getDate();
+    if (date != null) {
+      lineBuilder.setScmDate(date);
     }
 
     checkArgument(
-      hasAuthor || hasRevision || hasDate,
+      author != null || revision != null || date != null,
       "A changeset must contain at least one of : author, revision or date");
     updateLatestChange(changeset);
   }
 
-  private void updateLatestChange(BatchReport.Changesets.Changeset newChangeSet) {
-    if (this.latestChange == null) {
-      this.latestChange = newChangeSet;
-    } else if (newChangeSet.hasDate() && this.latestChange.hasDate()
-      && newChangeSet.getDate() > this.latestChange.getDate()) {
-      this.latestChange = newChangeSet;
+  private void updateLatestChange(Changeset newChangeSet) {
+    if (latestChange == null) {
+      latestChange = newChangeSet;
+    } else {
+      Long newChangesetDate = newChangeSet.getDate();
+      Long latestChangeDate = latestChange.getDate();
+      if (newChangesetDate != null && latestChangeDate != null && newChangesetDate > latestChangeDate) {
+        latestChange = newChangeSet;
+      }
     }
   }
 
   @CheckForNull
-  public BatchReport.Changesets.Changeset getLatestChange() {
+  public Changeset getLatestChange() {
     return latestChange;
   }
 }

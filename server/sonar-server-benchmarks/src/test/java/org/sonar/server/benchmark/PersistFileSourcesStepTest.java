@@ -20,10 +20,6 @@
 
 package org.sonar.server.benchmark;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,8 +38,15 @@ import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
+import org.sonar.server.source.SourceService;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -82,7 +85,10 @@ public class PersistFileSourcesStepTest {
     BatchReportDirectoryHolderImpl batchReportDirectoryHolder = new BatchReportDirectoryHolderImpl();
     batchReportDirectoryHolder.setDirectory(reportDir);
     org.sonar.server.computation.batch.BatchReportReader batchReportReader = new BatchReportReaderImpl(batchReportDirectoryHolder);
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader, new SourceLinesRepositoryImpl(batchReportReader));
+    SourceService sourceService = new SourceService(dbClient, null);
+    ScmInfoRepositoryImpl scmInfoRepository = new ScmInfoRepositoryImpl(batchReportReader, dbClient, sourceService);
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader,
+      new SourceLinesRepositoryImpl(batchReportReader), scmInfoRepository);
     step.execute();
 
     long end = System.currentTimeMillis();
