@@ -26,6 +26,11 @@ public interface DatabaseProperties {
   String PROP_URL = "sonar.jdbc.url";
   String PROP_DRIVER = "sonar.jdbc.driverClassName";
   String PROP_USER = "sonar.jdbc.username";
+
+  /**
+   * @deprecated not documented for a while (before version 3.6) and not supported since version 5.2.
+   */
+  @Deprecated
   String PROP_USER_DEPRECATED = "sonar.jdbc.user";
   String PROP_USER_DEFAULT_VALUE = "";
   String PROP_PASSWORD = "sonar.jdbc.password";

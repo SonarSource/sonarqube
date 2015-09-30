@@ -75,7 +75,7 @@ public class DefaultDatabase implements Database {
   void initSettings() {
     properties = new Properties();
     completeProperties(settings, properties, SONAR_JDBC);
-    completeDefaultProperties(properties);
+    completeDefaultProperty(properties, DatabaseProperties.PROP_URL, DEFAULT_URL);
     doCompleteProperties(properties);
 
     dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(SONAR_JDBC_URL));
@@ -158,14 +158,6 @@ public class DefaultDatabase implements Database {
     // It directly uses the Connection implementation provided by the Oracle driver
     result.setProperty("accessToUnderlyingConnectionAllowed", "true");
     return result;
-  }
-
-  private static void completeDefaultProperties(Properties props) {
-    completeDefaultProperty(props, DatabaseProperties.PROP_URL, DEFAULT_URL);
-
-    if (props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED) != null) {
-      completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED));
-    }
   }
 
   private static void completeDefaultProperty(Properties props, String key, String defaultValue) {
