@@ -98,7 +98,13 @@ public class CeTask {
 
   @Override
   public int hashCode() {
-    return uuid.hashCode();
+    int result = type.hashCode();
+    result = 31 * result + uuid.hashCode();
+    result = 31 * result + componentUuid.hashCode();
+    result = 31 * result + (componentKey != null ? componentKey.hashCode() : 0);
+    result = 31 * result + (componentName != null ? componentName.hashCode() : 0);
+    result = 31 * result + (submitterLogin != null ? submitterLogin.hashCode() : 0);
+    return result;
   }
 
   public static final class Builder {

@@ -88,7 +88,7 @@ public class UserIndexDefinition implements IndexDefinition {
     mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).build();
   }
 
-  private SortedMap<String, String> buildGramSearchField() {
+  private static SortedMap<String, String> buildGramSearchField() {
     return ImmutableSortedMap.of(
       "type", "string",
       "index", "analyzed",

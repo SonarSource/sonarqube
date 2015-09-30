@@ -76,7 +76,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
   private final ComponentFinder componentFinder;
 
   public ComponentNavigationAction(DbClient dbClient, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession,
-                                   ComponentFinder componentFinder) {
+    ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.activeDashboardDao = dbClient.activeDashboardDao();
     this.views = views;
@@ -144,13 +144,14 @@ public class ComponentNavigationAction implements NavigationWsAction {
     if (dashboards.isEmpty()) {
       dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, ANONYMOUS);
     }
-    writeDashboards(json, component, dashboards, userSession.locale());
+    writeDashboards(json, dashboards);
 
     if (snapshot != null) {
       json.prop("version", snapshot.getVersion())
         .prop("snapshotDate", DateUtils.formatDateTime(new Date(snapshot.getCreatedAt())));
-      String[] availableMeasures = dbClient.measureDao().selectMetricKeysForSnapshot(session, snapshot.getId()).toArray(new String[0]);
-      List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE, component.scope(), component.qualifier(), component.language(), availableMeasures);
+      List<String> availableMeasures = dbClient.measureDao().selectMetricKeysForSnapshot(session, snapshot.getId());
+      List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE, component.scope(), component.qualifier(), component.language(),
+        availableMeasures.toArray(new String[availableMeasures.size()]));
       writeExtensions(json, component, pages, userSession.locale());
     }
   }
@@ -176,7 +177,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
   }
 
   private String getPageUrl(ViewProxy<Page> page, ComponentDto component) {
-    String result = null;
+    String result;
     String componentKey = encodeComponentKey(component);
     if (page.isController()) {
       result = String.format("%s?id=%s", page.getId(), componentKey);
@@ -196,7 +197,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     return componentKey;
   }
 
-  private void writeDashboards(JsonWriter json, ComponentDto component, List<DashboardDto> dashboards, Locale locale) {
+  private void writeDashboards(JsonWriter json, List<DashboardDto> dashboards) {
     json.name("dashboards").beginArray();
     for (DashboardDto dashboard : dashboards) {
       json.beginObject()
@@ -212,7 +213,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     Locale locale = userSession.locale();
 
     json.name("configuration").beginObject();
-    writeConfigPageAccess(json, isAdmin, component, userSession);
+    writeConfigPageAccess(json, isAdmin, component);
 
     if (isAdmin) {
       json.name("extensions").beginArray();
@@ -225,7 +226,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     json.endObject();
   }
 
-  private void writeConfigPageAccess(JsonWriter json, boolean isAdmin, ComponentDto component, UserSession userSession) {
+  private void writeConfigPageAccess(JsonWriter json, boolean isAdmin, ComponentDto component) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
 
     json.prop("showSettings", isAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
@@ -242,10 +243,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {
     ResourceType resourceType = resourceTypes.get(component.qualifier());
-    if (resourceType != null) {
-      return resourceType.getBooleanProperty(resourceTypeProperty);
-    }
-    return false;
+    return resourceType != null && resourceType.getBooleanProperty(resourceTypeProperty);
   }
 
   private void writePage(JsonWriter json, String url, String name) {

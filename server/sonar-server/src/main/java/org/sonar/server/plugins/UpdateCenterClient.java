@@ -46,19 +46,19 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
     key = UpdateCenterClient.ACTIVATION_PROPERTY,
     defaultValue = "true",
     name = "Enable Update Center",
+    category = "Update Center",
     project = false,
     // hidden from UI
     global = false,
-    category = "Update Center",
     type = PropertyType.BOOLEAN),
   @Property(
     key = UpdateCenterClient.URL_PROPERTY,
     defaultValue = "http://update.sonarsource.org/update-center.properties",
     name = "Update Center URL",
+    category = "Update Center",
     project = false,
     // hidden from UI
-    global = false,
-    category = "Update Center")
+    global = false)
 })
 public class UpdateCenterClient {
 
