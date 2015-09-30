@@ -28,7 +28,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -44,20 +43,19 @@ public class PersistentCache {
   private static final Charset ENCODING = StandardCharsets.UTF_8;
   private static final String DIGEST_ALGO = "MD5";
 
-  // eviction strategy is to expire entries after modification once a time duration has elapsed
-  private final long defaultDurationToExpireMs;
+  private final PersistentCacheInvalidation invalidation;
   private final Logger logger;
   private final Path dir;
   private DirectoryLock lock;
 
-  public PersistentCache(Path dir, long defaultDurationToExpireMs, Logger logger, DirectoryLock lock) {
+  public PersistentCache(Path dir, PersistentCacheInvalidation invalidation, Logger logger, DirectoryLock lock) {
     this.dir = dir;
-    this.defaultDurationToExpireMs = defaultDurationToExpireMs;
+    this.invalidation = invalidation;
     this.logger = logger;
     this.lock = lock;
 
     reconfigure();
-    logger.debug("cache: " + dir + ", default expiration time (ms): " + defaultDurationToExpireMs);
+    logger.debug("cache: " + dir);
   }
 
   public synchronized void reconfigure() {
@@ -149,7 +147,7 @@ public class PersistentCache {
     logger.info("cache: clearing");
     try {
       lock();
-      deleteCacheEntries(new DirectoryClearFilter(lock.getFileLockName()));
+      deleteCacheEntries(new DirectoryClearFilter());
     } catch (IOException e) {
       logger.error("Error clearing cache", e);
     } finally {
@@ -164,7 +162,7 @@ public class PersistentCache {
     logger.info("cache: cleaning");
     try {
       lock();
-      deleteCacheEntries(new DirectoryCleanFilter(defaultDurationToExpireMs, lock.getFileLockName()));
+      deleteCacheEntries(new DirectoryCleanFilter());
     } catch (IOException e) {
       logger.error("Error cleaning cache", e);
     } finally {
@@ -203,35 +201,21 @@ public class PersistentCache {
     }
   }
 
-  private static class DirectoryClearFilter implements DirectoryStream.Filter<Path> {
-    private String lockFileName;
-
-    DirectoryClearFilter(String lockFileName) {
-      this.lockFileName = lockFileName;
-    }
-
+  private class DirectoryClearFilter implements DirectoryStream.Filter<Path> {
     @Override
     public boolean accept(Path entry) throws IOException {
-      return !lockFileName.equals(entry.getFileName().toString());
+      return !lock.getFileLockName().equals(entry.getFileName().toString());
     }
   }
 
-  private static class DirectoryCleanFilter implements DirectoryStream.Filter<Path> {
-    private long defaultDurationToExpireMs;
-    private String lockFileName;
-
-    DirectoryCleanFilter(long defaultDurationToExpireMs, String lockFileName) {
-      this.defaultDurationToExpireMs = defaultDurationToExpireMs;
-      this.lockFileName = lockFileName;
-    }
-
+  private class DirectoryCleanFilter implements DirectoryStream.Filter<Path> {
     @Override
     public boolean accept(Path entry) throws IOException {
-      if (lockFileName.equals(entry.getFileName().toString())) {
+      if (lock.getFileLockName().equals(entry.getFileName().toString())) {
         return false;
       }
 
-      return isCacheEntryExpired(entry, defaultDurationToExpireMs);
+      return invalidation.test(entry);
     }
   }
 
@@ -248,7 +232,7 @@ public class PersistentCache {
   private byte[] getCache(String key) throws IOException {
     Path cachePath = getCacheEntryPath(key);
 
-    if (!validateCacheEntry(cachePath, this.defaultDurationToExpireMs)) {
+    if (!validateCacheEntry(cachePath)) {
       return null;
     }
 
@@ -258,7 +242,7 @@ public class PersistentCache {
   private Path getCacheCopy(String key) throws IOException {
     Path cachePath = getCacheEntryPath(key);
 
-    if (!validateCacheEntry(cachePath, this.defaultDurationToExpireMs)) {
+    if (!validateCacheEntry(cachePath)) {
       return null;
     }
 
@@ -267,31 +251,18 @@ public class PersistentCache {
     return temp;
   }
 
-  private boolean validateCacheEntry(Path cacheEntryPath, long durationToExpireMs) throws IOException {
+  private boolean validateCacheEntry(Path cacheEntryPath) throws IOException {
     if (!Files.exists(cacheEntryPath)) {
       return false;
     }
 
-    if (isCacheEntryExpired(cacheEntryPath, durationToExpireMs)) {
-      logger.debug("cache: expiring entry");
+    if (invalidation.test(cacheEntryPath)) {
+      logger.debug("cache: evicting entry");
       Files.delete(cacheEntryPath);
       return false;
     }
 
     return true;
-  }
-
-  private static boolean isCacheEntryExpired(Path cacheEntryPath, long durationToExpireMs) throws IOException {
-    BasicFileAttributes attr = Files.readAttributes(cacheEntryPath, BasicFileAttributes.class);
-    long modTime = attr.lastModifiedTime().toMillis();
-
-    long age = System.currentTimeMillis() - modTime;
-
-    if (age > durationToExpireMs) {
-      return true;
-    }
-
-    return false;
   }
 
   private Path getCacheEntryPath(String key) {

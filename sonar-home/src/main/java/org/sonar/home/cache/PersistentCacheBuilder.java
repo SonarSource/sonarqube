@@ -55,20 +55,20 @@ public class PersistentCacheBuilder {
       .resolve(sanitizeFilename(projectKey));
     return this;
   }
-  
+
   public PersistentCacheBuilder setAreaForGlobal(String serverUrl) {
     relativePath = Paths.get(sanitizeFilename(serverUrl))
       .resolve("global");
     return this;
   }
-  
+
   public PersistentCacheBuilder setAreaForLocalProject(String serverUrl, String serverVersion) {
     relativePath = Paths.get(sanitizeFilename(serverUrl))
       .resolve(sanitizeFilename(serverVersion))
       .resolve("local");
     return this;
   }
-  
+
   public PersistentCacheBuilder setSonarHome(@Nullable Path p) {
     if (p != null) {
       this.cacheBasePath = p.resolve(DIR_NAME);
@@ -77,7 +77,7 @@ public class PersistentCacheBuilder {
   }
 
   public PersistentCache build() {
-    if(relativePath == null) {
+    if (relativePath == null) {
       throw new IllegalStateException("area must be set before building");
     }
     if (cacheBasePath == null) {
@@ -85,7 +85,8 @@ public class PersistentCacheBuilder {
     }
     Path cachePath = cacheBasePath.resolve(relativePath);
     DirectoryLock lock = new DirectoryLock(cacheBasePath, logger);
-    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, logger, lock);
+    PersistentCacheInvalidation criteria = new TTLCacheInvalidation(DEFAULT_EXPIRE_DURATION);
+    return new PersistentCache(cachePath, criteria, logger, lock);
   }
 
   private static Path findHome() {

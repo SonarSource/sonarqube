@@ -28,6 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.mockito.Matchers.any;
+
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
@@ -44,15 +46,18 @@ public class PersistentCacheTest {
   private final static String VALUE = "cache content";
   private PersistentCache cache = null;
   private DirectoryLock lock = null;
+  private PersistentCacheInvalidation invalidation = null;
 
   @Rule
   public TemporaryFolder tmp = new TemporaryFolder();
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
+    invalidation = mock(PersistentCacheInvalidation.class);
+    when(invalidation.test(any(Path.class))).thenReturn(false);
     lock = mock(DirectoryLock.class);
     when(lock.getFileLockName()).thenReturn("lock");
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), lock);
+    cache = new PersistentCache(tmp.getRoot().toPath(), invalidation, mock(Logger.class), lock);
   }
 
   @Test
@@ -67,9 +72,9 @@ public class PersistentCacheTest {
     cache.put(URI, VALUE.getBytes(StandardCharsets.UTF_8));
     Files.write(lockFile, "test".getBytes(StandardCharsets.UTF_8));
     assertCacheHit(true);
-    // negative time to make sure it is expired
-    cache = new PersistentCache(tmp.getRoot().toPath(), -100, mock(Logger.class), lock);
+    when(invalidation.test(any(Path.class))).thenReturn(true);
     cache.clean();
+    when(invalidation.test(any(Path.class))).thenReturn(false);
     assertCacheHit(false);
     // lock file should not get deleted
     assertThat(new String(Files.readAllBytes(lockFile), StandardCharsets.UTF_8)).isEqualTo("test");
@@ -104,7 +109,6 @@ public class PersistentCacheTest {
 
   @Test
   public void testReconfigure() throws Exception {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), lock);
     assertCacheHit(false);
     cache.put(URI, VALUE.getBytes(StandardCharsets.UTF_8));
     assertCacheHit(true);
@@ -123,8 +127,7 @@ public class PersistentCacheTest {
 
   @Test
   public void testExpiration() throws Exception {
-    // negative time to make sure it is expired
-    cache = new PersistentCache(tmp.getRoot().toPath(), -100, mock(Logger.class), lock);
+    when(invalidation.test(any(Path.class))).thenReturn(true);
     cache.put(URI, VALUE.getBytes(StandardCharsets.UTF_8));
     assertCacheHit(false);
   }

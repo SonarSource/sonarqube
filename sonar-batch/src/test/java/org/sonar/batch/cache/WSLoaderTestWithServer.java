@@ -21,11 +21,12 @@ package org.sonar.batch.cache;
 
 import static org.mockito.Mockito.mock;
 
+import org.sonar.home.cache.TTLCacheInvalidation;
+
 import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.bootstrap.MockHttpServer;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.Slf4jLogger;
-
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.junit.Rule;
@@ -57,7 +58,7 @@ public class WSLoaderTestWithServer {
     when(bootstrapProps.property("sonar.host.url")).thenReturn("http://localhost:" + server.getPort());
 
     client = new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));
-    cache = new PersistentCache(temp.getRoot().toPath(), 1000 * 60, new Slf4jLogger(), null);
+    cache = new PersistentCache(temp.getRoot().toPath(), new TTLCacheInvalidation(100_000L), new Slf4jLogger(), null);
   }
 
   @After
