@@ -56,7 +56,8 @@ public class SearchDataLoader {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
 
-  public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, DbClient dbClient, ComponentFinder componentFinder) {
+  public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, DbClient dbClient,
+    ComponentFinder componentFinder) {
     this.languages = languages;
     this.profileLookup = profileLookup;
     this.profileLoader = profileLoader;
@@ -77,7 +78,7 @@ public class SearchDataLoader {
   private List<QProfile> findProfiles(Request request) {
     List<QProfile> profiles;
     if (askDefaultProfiles(request)) {
-      profiles = findDefaultProfiles();
+      profiles = findDefaultProfiles(request);
     } else if (hasComponentKey(request)) {
       profiles = findProjectProfiles(request);
     } else {
@@ -95,8 +96,7 @@ public class SearchDataLoader {
   private List<QProfile> findAllProfiles(Request request) {
     String language = request.param(PARAM_LANGUAGE);
 
-    List<QProfile> profiles = language != null ?
-      profileLookup.profiles(language)
+    List<QProfile> profiles = language != null ? profileLookup.profiles(language)
       : profileLookup.allProfiles();
 
     return from(profiles)
@@ -133,13 +133,14 @@ public class SearchDataLoader {
     }
   }
 
-  private List<QProfile> findDefaultProfiles() {
+  private List<QProfile> findDefaultProfiles(Request request) {
+    String profileName = request.param(PARAM_PROFILE_NAME);
     List<QProfile> profiles = new ArrayList<>();
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       for (Language language : languages.all()) {
-        profiles.add(getDefaultProfile(dbSession, language.getKey()));
+        profiles.add(getDefaultProfile(dbSession, language.getKey(), profileName));
       }
     } finally {
       dbClient.closeSession(dbSession);
@@ -175,8 +176,11 @@ public class SearchDataLoader {
     return profileDtoToQProfile(profileDto);
   }
 
-  private QProfile getDefaultProfile(DbSession dbSession, String languageKey) {
-    QualityProfileDto profile = profileFactory.getDefault(dbSession, languageKey);
+  private QProfile getDefaultProfile(DbSession dbSession, String languageKey, @Nullable String profileName) {
+    QualityProfileDto profile = profileName != null ? profileFactory.getByNameAndLanguage(dbSession, profileName, languageKey) : null;
+    if (profile == null) {
+      profile = profileFactory.getDefault(dbSession, languageKey);
+    }
     checkState(profile != null, format("No quality profile can been found on language '%s'", languageKey));
 
     return profileDtoToQProfile(profile);
@@ -190,7 +194,7 @@ public class SearchDataLoader {
 
     checkRequest(!hasLanguage || (!hasComponentKey && !hasProfileName && !isDefault),
       "The language parameter cannot be provided at the same time than the component key or profile name.");
-    checkRequest(!isDefault || (!hasComponentKey && !hasProfileName), "The default parameter cannot be provided at the same time than the component key or profile name");
+    checkRequest(!isDefault || !hasComponentKey, "The default parameter cannot be provided at the same time than the component key");
   }
 
   private static boolean hasProfileName(Request request) {

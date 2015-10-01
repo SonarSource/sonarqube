@@ -170,24 +170,25 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_for_default_qp() {
+  public void search_for_default_qp_with_profile_name() {
     QualityProfileDto qualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-12345")
       .setLanguage(xoo1.getKey())
       .setName("Sonar way")
-      .setDefault(true);
+      .setDefault(false);
     QualityProfileDto qualityProfileOnXoo2 = QualityProfileDto.createFor("sonar-way-xoo2-12345")
       .setLanguage(xoo2.getKey())
       .setName("Sonar way")
       .setDefault(true);
     QualityProfileDto anotherQualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-45678")
       .setLanguage(xoo1.getKey())
-      .setName("Sonar way")
-      .setDefault(false);
+      .setName("Another way")
+      .setDefault(true);
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
     commit();
 
     String result = ws.newRequest()
       .setParam(PARAM_DEFAULTS, Boolean.TRUE.toString())
+      .setParam(PARAM_PROFILE_NAME, "Sonar way")
       .execute().getInput();
 
     assertThat(result)
