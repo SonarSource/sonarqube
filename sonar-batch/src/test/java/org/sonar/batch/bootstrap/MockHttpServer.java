@@ -19,17 +19,17 @@
  */
 package org.sonar.batch.bootstrap;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.write;
@@ -40,7 +40,7 @@ public class MockHttpServer {
   private String requestBody;
   private String mockResponseData;
   private int mockResponseStatus = SC_OK;
-  private int numRequests = 0;
+  private List<String> targets = new ArrayList<>();
 
   public void start() throws Exception {
     server = new Server(0);
@@ -49,7 +49,7 @@ public class MockHttpServer {
   }
 
   public int getNumberRequests() {
-    return numRequests;
+    return targets.size();
   }
 
   /**
@@ -61,7 +61,7 @@ public class MockHttpServer {
     Handler handler = new AbstractHandler() {
 
       public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        numRequests++;
+        targets.add(target);
         setResponseBody(getMockResponseData());
         setRequestBody(IOUtils.toString(baseRequest.getInputStream()));
         response.setStatus(mockResponseStatus);
