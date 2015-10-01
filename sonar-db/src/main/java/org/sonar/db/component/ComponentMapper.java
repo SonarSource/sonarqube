@@ -57,6 +57,8 @@ public interface ComponentMapper {
 
   List<String> selectExistingUuids(@Param("uuids") Collection<String> uuids);
 
+  List<ComponentDto> selectComponentsByQualifiers(@Param("qualifiers") Collection<String> qualifiers);
+
   List<ComponentDto> selectByQuery(ComponentQuery query, RowBounds rowBounds);
 
   int countByQuery(ComponentQuery query);
@@ -131,4 +133,5 @@ public interface ComponentMapper {
   void update(ComponentDto componentDto);
 
   void delete(long componentId);
+
 }

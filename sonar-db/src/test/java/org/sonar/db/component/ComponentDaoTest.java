@@ -36,7 +36,9 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
@@ -178,7 +180,7 @@ public class ComponentDaoTest {
   public void get_by_keys() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentDto> results = underTest.selectByKeys(dbSession, Collections.singletonList("org.struts:struts-core:src/org/struts/RequestContext.java"));
+    List<ComponentDto> results = underTest.selectByKeys(dbSession, singletonList("org.struts:struts-core:src/org/struts/RequestContext.java"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -192,7 +194,7 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.parentProjectId()).isEqualTo(2);
 
-    assertThat(underTest.selectByKeys(dbSession, Collections.singletonList("unknown"))).isEmpty();
+    assertThat(underTest.selectByKeys(dbSession, singletonList("unknown"))).isEmpty();
   }
 
   @Test
@@ -301,6 +303,26 @@ public class ComponentDaoTest {
 
     assertThat(underTest.existsById(4L, dbSession)).isTrue();
     assertThat(underTest.existsById(111L, dbSession)).isFalse();
+  }
+
+  @Test
+  public void select_component_keys_by_qualifiers() {
+    db.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("TRK"))).extracting("kee").containsOnly("org.struts:struts", "org.disabled.project");
+    assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("BRC"))).extracting("kee").containsOnly("org.struts:struts-core");
+    assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("DIR"))).extracting("kee").containsOnly("org.struts:struts-core:src/org/struts");
+    assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("FIL"))).extracting("kee").containsOnly("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(underTest.selectComponentsByQualifiers(dbSession, newHashSet("unknown"))).isEmpty();
+  }
+
+  @Test
+  public void fail_with_IAE_select_component_keys_by_qualifiers_on_empty_qualifier() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Qualifiers cannot be empty");
+
+    db.prepareDbUnit(getClass(), "shared.xml");
+    underTest.selectComponentsByQualifiers(dbSession, Collections.<String>emptySet());
   }
 
   @Test

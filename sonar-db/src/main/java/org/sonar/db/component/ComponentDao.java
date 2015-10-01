@@ -25,8 +25,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
@@ -37,6 +39,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -249,6 +252,16 @@ public class ComponentDao implements Dao {
    */
   public List<ComponentDto> selectByProjectUuid(String projectUuid, DbSession dbSession) {
     return mapper(dbSession).selectByProjectUuid(projectUuid);
+  }
+
+  /**
+   * Retrieve enabled components keys with given qualifiers
+   *
+   * Used by Views plugin
+   */
+  public Set<ComponentDto> selectComponentsByQualifiers(DbSession dbSession, Set<String> qualifiers) {
+    checkArgument(!qualifiers.isEmpty(), "Qualifiers cannot be empty");
+    return new HashSet<>(mapper(dbSession).selectComponentsByQualifiers(qualifiers));
   }
 
   private static void addPartialQueryParameterIfNotNull(Map<String, Object> parameters, @Nullable String keyOrNameFilter) {

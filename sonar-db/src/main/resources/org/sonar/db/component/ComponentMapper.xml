@@ -229,6 +229,17 @@
     </where>
   </select>
 
+  <select id="selectComponentsByQualifiers" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator="OR ">
+        p.qualifier=#{qualifier}
+      </foreach>
+    </where>
+  </select>
+
   <select id="selectComponents" resultType="Component">
     select
     <include refid="componentColumns"/>
