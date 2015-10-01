@@ -105,7 +105,7 @@ public class ProjectCacheSynchronizer {
     if (projectRepo.exists()) {
       qProfiles = qualityProfileLoader.load(projectKey, null, null);
     } else {
-      qProfiles = qualityProfileLoader.loadDefault(null);
+      qProfiles = qualityProfileLoader.loadDefault(null, null);
     }
     profiler.stopInfo();
 

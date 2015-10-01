@@ -20,6 +20,9 @@
 package org.sonar.batch.repository;
 
 import static org.mockito.Mockito.when;
+
+import org.mockito.Matchers;
+
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
@@ -28,8 +31,8 @@ import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isNull;
-
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -84,11 +87,11 @@ public class QualityProfileProviderTest {
   @Test
   public void testNonAssociated() {
     when(mode.isNotAssociated()).thenReturn(true);
-    when(loader.loadDefault(any(MutableBoolean.class))).thenReturn(response);
+    when(loader.loadDefault(anyString(), any(MutableBoolean.class))).thenReturn(response);
     ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
     assertResponse(qps);
 
-    verify(loader).loadDefault(any(MutableBoolean.class));
+    verify(loader).loadDefault(anyString(), any(MutableBoolean.class));
     verifyNoMoreInteractions(loader);
   }
 
@@ -96,11 +99,11 @@ public class QualityProfileProviderTest {
   public void testProjectDoesntExist() {
     when(mode.isNotAssociated()).thenReturn(false);
     when(projectRepo.exists()).thenReturn(false);
-    when(loader.loadDefault(any(MutableBoolean.class))).thenReturn(response);
+    when(loader.loadDefault(anyString(), any(MutableBoolean.class))).thenReturn(response);
     ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
     assertResponse(qps);
 
-    verify(loader).loadDefault(any(MutableBoolean.class));
+    verify(loader).loadDefault(anyString(), any(MutableBoolean.class));
     verifyNoMoreInteractions(loader);
   }
 
@@ -114,6 +117,33 @@ public class QualityProfileProviderTest {
     assertResponse(qps);
 
     verify(loader).load(eq("project"), eq("custom"), any(MutableBoolean.class));
+    verifyNoMoreInteractions(loader);
+  }
+
+  @Test
+  public void testIgnoreSonarProfileIssuesMode() {
+    when(mode.isNotAssociated()).thenReturn(false);
+    when(mode.isIssues()).thenReturn(true);
+    when(loader.load(eq("project"), (String) eq(null), any(MutableBoolean.class))).thenReturn(response);
+    when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
+
+    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
+    assertResponse(qps);
+
+    verify(loader).load(eq("project"), (String) eq(null), any(MutableBoolean.class));
+    verifyNoMoreInteractions(loader);
+  }
+
+  @Test
+  public void testProfilePropDefault() {
+    when(mode.isNotAssociated()).thenReturn(true);
+    when(loader.loadDefault(eq("custom"), any(MutableBoolean.class))).thenReturn(response);
+    when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
+
+    ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
+    assertResponse(qps);
+
+    verify(loader).loadDefault(eq("custom"), any(MutableBoolean.class));
     verifyNoMoreInteractions(loader);
   }
 

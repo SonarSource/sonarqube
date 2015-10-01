@@ -45,8 +45,11 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   }
 
   @Override
-  public List<QualityProfile> loadDefault(@Nullable MutableBoolean fromCache) {
+  public List<QualityProfile> loadDefault(@Nullable String profileName, @Nullable MutableBoolean fromCache) {
     String url = WS_URL + "?defaults=true";
+    if(profileName != null) {
+      url += "&profileName=" + BatchUtils.encodeForUrl(profileName);
+    }
     return loadResource(url, fromCache);
   }
 

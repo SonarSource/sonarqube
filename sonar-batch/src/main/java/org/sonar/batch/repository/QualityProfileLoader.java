@@ -29,5 +29,5 @@ import java.util.List;
 public interface QualityProfileLoader {
   List<QualityProfile> load(String projectKey, @Nullable String profileName, @Nullable MutableBoolean fromCache);
   
-  List<QualityProfile> loadDefault(@Nullable MutableBoolean fromCache);
+  List<QualityProfile> loadDefault(@Nullable String profileName, @Nullable MutableBoolean fromCache);
 }

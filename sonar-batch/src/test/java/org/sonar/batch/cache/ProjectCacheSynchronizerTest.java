@@ -102,7 +102,7 @@ public class ProjectCacheSynchronizerTest {
     ProjectRepositories repo = mock(ProjectRepositories.class);
 
     when(qualityProfileLoader.load(PROJECT_KEY, null, null)).thenReturn(ImmutableList.of(pf));
-    when(qualityProfileLoader.loadDefault(null)).thenReturn(ImmutableList.of(pf));
+    when(qualityProfileLoader.loadDefault(null, null)).thenReturn(ImmutableList.of(pf));
     when(activeRulesLoader.load("profile", null)).thenReturn(ImmutableList.of(ar));
     when(repo.lastAnalysisDate()).thenReturn(lastAnalysisDate);
     when(repo.exists()).thenReturn(projectExists);
@@ -142,7 +142,7 @@ public class ProjectCacheSynchronizerTest {
     synchronizer.load(PROJECT_KEY, false);
 
     verify(projectRepositoriesLoader).load(eq(PROJECT_KEY), eq(true), any(MutableBoolean.class));
-    verify(qualityProfileLoader).loadDefault(null);
+    verify(qualityProfileLoader).loadDefault(null, null);
     verify(activeRulesLoader).load("profile", null);
 
     verifyNoMoreInteractions(issuesLoader, userRepositoryLoader, qualityProfileLoader, activeRulesLoader, projectRepositoriesLoader);

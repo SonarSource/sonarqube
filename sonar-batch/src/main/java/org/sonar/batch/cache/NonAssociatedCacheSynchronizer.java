@@ -79,7 +79,7 @@ public class NonAssociatedCacheSynchronizer {
     Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
 
     profiler.startInfo("Load default quality profiles");
-    Collection<QualityProfile> qProfiles = qualityProfileLoader.loadDefault(null);
+    Collection<QualityProfile> qProfiles = qualityProfileLoader.loadDefault(null, null);
     profiler.stopInfo();
 
     profiler.startInfo("Load default active rules");

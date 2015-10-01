@@ -52,7 +52,7 @@ public class NonAssociatedCacheSynchronizerTest {
     QualityProfile pf = QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").build();
     LoadedActiveRule ar = new LoadedActiveRule();
 
-    when(qualityProfileLoader.loadDefault(null)).thenReturn(ImmutableList.of(pf));
+    when(qualityProfileLoader.loadDefault(null, null)).thenReturn(ImmutableList.of(pf));
     when(activeRulesLoader.load("profile", null)).thenReturn(ImmutableList.of(ar));
 
     synchronizer = new NonAssociatedCacheSynchronizer(qualityProfileLoader, activeRulesLoader, cacheStatus);
@@ -81,7 +81,7 @@ public class NonAssociatedCacheSynchronizerTest {
   private void checkSync() {
     verify(cacheStatus).getSyncStatus();
     verify(cacheStatus).save();
-    verify(qualityProfileLoader).loadDefault(null);
+    verify(qualityProfileLoader).loadDefault(null, null);
     verify(activeRulesLoader).load("profile", null);
 
     verifyNoMoreInteractions(qualityProfileLoader, activeRulesLoader);

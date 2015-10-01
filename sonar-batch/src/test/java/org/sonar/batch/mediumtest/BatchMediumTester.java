@@ -459,7 +459,7 @@ public class BatchMediumTester {
     }
 
     @Override
-    public List<QualityProfile> loadDefault(MutableBoolean fromCache) {
+    public List<QualityProfile> loadDefault(String profileName, MutableBoolean fromCache) {
       return qualityProfiles;
     }
   }

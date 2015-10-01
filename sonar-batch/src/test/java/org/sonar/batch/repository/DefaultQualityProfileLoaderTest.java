@@ -89,7 +89,7 @@ public class DefaultQualityProfileLoaderTest {
     InputStream is = getTestResource("quality_profile_search_default");
     when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, false));
 
-    List<QualityProfile> loaded = qpLoader.loadDefault(null);
+    List<QualityProfile> loaded = qpLoader.loadDefault(null, null);
     verify(ws).loadStream("/api/qualityprofiles/search.protobuf?defaults=true");
     verifyNoMoreInteractions(ws);
     assertThat(loaded).hasSize(1);

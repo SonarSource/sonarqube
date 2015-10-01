@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.repository;
 
+import javax.annotation.CheckForNull;
+
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -45,7 +47,7 @@ public class QualityProfileProvider extends ProviderAdapter {
       
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       if (mode.isNotAssociated() || !projectRepositories.exists()) {
-        profileList = loader.loadDefault(fromCache);
+        profileList = loader.loadDefault(getSonarProfile(props, mode), fromCache);
       } else {
         profileList = loader.load(projectKey.get(), getSonarProfile(props, mode), fromCache);
       }
@@ -56,6 +58,7 @@ public class QualityProfileProvider extends ProviderAdapter {
     return profiles;
   }
 
+  @CheckForNull
   private static String getSonarProfile(AnalysisProperties props, DefaultAnalysisMode mode) {
     String profile = null;
     if (!mode.isIssues()) {
