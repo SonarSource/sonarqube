@@ -19,12 +19,12 @@
  */
 package org.sonar.batch.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public class ProgressReport implements Runnable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProgressReport.class);
+  private static final Logger LOG = Loggers.get(ProgressReport.class);
   private final long period;
   private String message = "";
   private final Thread thread;

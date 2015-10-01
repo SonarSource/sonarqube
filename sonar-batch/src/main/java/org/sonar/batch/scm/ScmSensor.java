@@ -19,15 +19,9 @@
  */
 package org.sonar.batch.scm;
 
-import org.sonar.batch.repository.FileData;
-
-import org.sonar.batch.repository.ProjectRepositories;
-
 import java.util.LinkedList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
@@ -36,27 +30,31 @@ import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.repository.FileData;
+import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
 public final class ScmSensor implements Sensor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ScmSensor.class);
+  private static final Logger LOG = Loggers.get(ScmSensor.class);
 
   private final ProjectDefinition projectDefinition;
   private final ScmConfiguration configuration;
   private final FileSystem fs;
-  private final ProjectRepositories projectSettings;
+  private final ProjectRepositories projectRepositories;
   private final BatchComponentCache resourceCache;
   private final ReportPublisher publishReportJob;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectRepositories projectSettings, FileSystem fs, InputPathCache inputPathCache, BatchComponentCache resourceCache,
+    ProjectRepositories projectRepositories, FileSystem fs, InputPathCache inputPathCache, BatchComponentCache resourceCache,
     ReportPublisher publishReportJob) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
-    this.projectSettings = projectSettings;
+    this.projectRepositories = projectRepositories;
     this.fs = fs;
     this.resourceCache = resourceCache;
     this.publishReportJob = publishReportJob;
@@ -95,11 +93,12 @@ public final class ScmSensor implements Sensor {
     }
     List<InputFile> filesToBlame = new LinkedList<>();
     for (InputFile f : fs.inputFiles(fs.predicates().all())) {
-      if (configuration.forceReloadAll()) {
+      if (configuration.forceReloadAll() || f.status() != Status.SAME) {
         addIfNotEmpty(filesToBlame, f);
       } else {
-        FileData fileData = projectSettings.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
-        if (f.status() != Status.SAME || fileData == null || fileData.revision() != null) {
+        // File status is SAME so that mean fileData exists
+        FileData fileData = projectRepositories.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
+        if (StringUtils.isEmpty(fileData.revision())) {
           addIfNotEmpty(filesToBlame, f);
         }
       }

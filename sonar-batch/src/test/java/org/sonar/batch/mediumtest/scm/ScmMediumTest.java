@@ -19,9 +19,9 @@
  */
 package org.sonar.batch.mediumtest.scm;
 
-import org.sonar.batch.repository.FileData;
-
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -30,21 +30,25 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.PathUtils;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskBuilder;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.repository.FileData;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScmMediumTest {
 
+  private static final String MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES = "Missing blame information for the following files:";
+  private static final String CHANGED_CONTENT_SCM_ON_SERVER_XOO = "src/changed_content_scm_on_server.xoo";
+  private static final String SAME_CONTENT_SCM_ON_SERVER_XOO = "src/same_content_scm_on_server.xoo";
+  private static final String SAME_CONTENT_NO_SCM_ON_SERVER_XOO = "src/same_content_no_scm_on_server.xoo";
   private static final String SAMPLE_XOO_CONTENT = "Sample xoo\ncontent";
 
   @org.junit.Rule
@@ -53,10 +57,15 @@ public class ScmMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  @Rule
+  public LogTester logTester = new LogTester();
+
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .addFileData("com.foo.project", "src/sample2.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
+    .addFileData("com.foo.project", CHANGED_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
+    .addFileData("com.foo.project", SAME_CONTENT_NO_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
+    .addFileData("com.foo.project", SAME_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), "1.1"))
     .build();
 
   @Before
@@ -87,7 +96,7 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    BatchReport.Changesets fileScm = getChangesets(baseDir, 0);
+    BatchReport.Changesets fileScm = getChangesets(baseDir, "src/sample.xoo");
 
     assertThat(fileScm.getChangesetIndexByLineList()).hasSize(5);
 
@@ -107,15 +116,19 @@ public class ScmMediumTest {
     assertThat(changesetLine5.getAuthor()).isEqualTo("simon");
   }
 
-  private BatchReport.Changesets getChangesets(File baseDir, int fileId) {
+  private BatchReport.Changesets getChangesets(File baseDir, String path) {
     File reportDir = new File(baseDir, ".sonar/batch-report");
     BatchReportReader reader = new BatchReportReader(reportDir);
 
     Component project = reader.readComponent(reader.readMetadata().getRootComponentRef());
     Component dir = reader.readComponent(project.getChildRef(0));
-    Component file = reader.readComponent(dir.getChildRef(fileId));
-    BatchReport.Changesets fileScm = reader.readChangesets(file.getRef());
-    return fileScm;
+    for (Integer fileRef : dir.getChildRefList()) {
+      Component file = reader.readComponent(fileRef);
+      if (file.getPath().equals(path)) {
+        return reader.readChangesets(file.getRef());
+      }
+    }
+    return null;
   }
 
   @Test
@@ -139,17 +152,17 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    BatchReport.Changesets changesets = getChangesets(baseDir, 0);
+    BatchReport.Changesets changesets = getChangesets(baseDir, "src/sample.xoo");
 
     assertThat(changesets).isNull();
   }
 
   @Test
-  public void sample2_dont_need_blame() throws IOException {
+  public void log_files_with_missing_blame() throws IOException {
 
     File baseDir = prepareProject();
-    File xooFile = new File(baseDir, "src/sample2.xoo");
-    FileUtils.write(xooFile, "Sample xoo\ncontent\n3\n4\n5");
+    File xooFileWithoutBlame = new File(baseDir, "src/sample_no_blame.xoo");
+    FileUtils.write(xooFileWithoutBlame, "Sample xoo\ncontent\n3\n4\n5");
 
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -164,25 +177,78 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    BatchReport.Changesets file1Scm = getChangesets(baseDir, 0);
+    BatchReport.Changesets file1Scm = getChangesets(baseDir, "src/sample.xoo");
     assertThat(file1Scm).isNotNull();
 
-    BatchReport.Changesets file2Scm = getChangesets(baseDir, 1);
-    assertThat(file2Scm).isNull();
+    BatchReport.Changesets fileWithoutBlameScm = getChangesets(baseDir, "src/sample_no_blame.xoo");
+    assertThat(fileWithoutBlameScm).isNull();
+
+    assertThat(logTester.logs()).containsSubsequence("2 files to be analyzed", "1/2 files analyzed", MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES,
+      "  * " + PathUtils.sanitize(xooFileWithoutBlame.toPath().toString()));
+  }
+
+  // SONAR-6397
+  @Test
+  public void optimize_blame() throws IOException {
+
+    File baseDir = prepareProject();
+    File changedContentScmOnServer = new File(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO);
+    FileUtils.write(changedContentScmOnServer, SAMPLE_XOO_CONTENT + "\nchanged");
+    File xooScmFile = new File(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO + ".scm");
+    FileUtils.write(xooScmFile,
+      // revision,author,dateTime
+      "1,foo,2013-01-04\n" +
+        "1,bar,2013-01-04\n" +
+        "2,biz,2014-01-04\n");
+
+    File sameContentScmOnServer = new File(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO);
+    FileUtils.write(sameContentScmOnServer, SAMPLE_XOO_CONTENT);
+    // No need to write .scm file since this file should not be blamed
+
+    File sameContentNoScmOnServer = new File(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO);
+    FileUtils.write(sameContentNoScmOnServer, SAMPLE_XOO_CONTENT);
+    xooScmFile = new File(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO + ".scm");
+    FileUtils.write(xooScmFile,
+      // revision,author,dateTime
+      "1,foo,2013-01-04\n" +
+        "1,bar,2013-01-04\n");
+
+    tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.scm.provider", "xoo")
+        .build())
+      .start();
+
+    assertThat(getChangesets(baseDir, "src/sample.xoo")).isNotNull();
+
+    assertThat(getChangesets(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO)).isNotNull();
+
+    assertThat(getChangesets(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO)).isNull();
+
+    assertThat(getChangesets(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO)).isNotNull();
+
+    assertThat(logTester.logs()).containsSubsequence("3 files to be analyzed", "3/3 files analyzed");
+    assertThat(logTester.logs()).doesNotContain(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES);
   }
 
   @Test
   public void forceReload() throws IOException {
 
     File baseDir = prepareProject();
-    File xooFileNoScm = new File(baseDir, "src/sample2.xoo");
+    File xooFileNoScm = new File(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO);
     FileUtils.write(xooFileNoScm, SAMPLE_XOO_CONTENT);
-    File xooScmFile = new File(baseDir, "src/sample2.xoo.scm");
+    File xooScmFile = new File(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO + ".scm");
     FileUtils.write(xooScmFile,
       // revision,author,dateTime
       "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n"
-      );
+        "1,bar,2013-01-04\n");
 
     TaskBuilder taskBuilder = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -200,10 +266,10 @@ public class ScmMediumTest {
 
     taskBuilder.start();
 
-    BatchReport.Changesets file1Scm = getChangesets(baseDir, 0);
+    BatchReport.Changesets file1Scm = getChangesets(baseDir, "src/sample.xoo");
     assertThat(file1Scm).isNotNull();
 
-    BatchReport.Changesets file2Scm = getChangesets(baseDir, 1);
+    BatchReport.Changesets file2Scm = getChangesets(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO);
     assertThat(file2Scm).isNotNull();
   }
 
@@ -225,7 +291,7 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    BatchReport.Changesets file1Scm = getChangesets(baseDir, 0);
+    BatchReport.Changesets file1Scm = getChangesets(baseDir, "src/sample.xoo");
     assertThat(file1Scm).isNotNull();
   }
 
@@ -247,7 +313,7 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    BatchReport.Changesets file1Scm = getChangesets(baseDir, 0);
+    BatchReport.Changesets file1Scm = getChangesets(baseDir, "src/sample.xoo");
     assertThat(file1Scm).isNotNull();
   }
 
@@ -265,8 +331,7 @@ public class ScmMediumTest {
         "2,julien,2013-01-04\n" +
         "3,julien,2013-02-03\n" +
         "3,julien,2013-02-03\n" +
-        "4,simon,2013-03-04\n"
-      );
+        "4,simon,2013-03-04\n");
 
     return baseDir;
   }
@@ -291,7 +356,7 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    BatchReport.Changesets changesets = getChangesets(baseDir, 0);
+    BatchReport.Changesets changesets = getChangesets(baseDir, "src/sample.xoo");
     assertThat(changesets).isNull();
   }
 

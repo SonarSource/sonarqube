@@ -23,8 +23,6 @@ import com.google.common.base.Joiner;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -34,6 +32,8 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 
 @Properties({
@@ -46,13 +46,12 @@ import org.sonar.batch.scan.ImmutableProjectReactor;
     module = false,
     project = false,
     global = false,
-    category = CoreProperties.CATEGORY_SCM
-  )
+    category = CoreProperties.CATEGORY_SCM)
 })
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @BatchSide
 public final class ScmConfiguration implements Startable {
-  private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
+  private static final Logger LOG = Loggers.get(ScmConfiguration.class);
 
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
 

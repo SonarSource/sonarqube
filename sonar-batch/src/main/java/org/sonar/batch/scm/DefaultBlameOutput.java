@@ -31,11 +31,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -45,7 +45,7 @@ import org.sonar.batch.util.ProgressReport;
 
 class DefaultBlameOutput implements BlameOutput {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultBlameOutput.class);
+  private static final Logger LOG = Loggers.get(DefaultBlameOutput.class);
 
   private static final Pattern NON_ASCII_CHARS = Pattern.compile("[^\\x00-\\x7F]");
   private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
