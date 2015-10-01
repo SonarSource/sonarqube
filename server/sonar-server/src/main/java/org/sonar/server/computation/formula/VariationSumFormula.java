@@ -38,15 +38,17 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 public class VariationSumFormula implements Formula<VariationSumFormula.VariationSumCounter> {
   private final String metricKey;
   private final Predicate<Period> supportedPeriods;
+  private final boolean ignoreZeroValue;
 
-  public VariationSumFormula(String metricKey, Predicate<Period> supportedPeriods) {
+  public VariationSumFormula(String metricKey, Predicate<Period> supportedPeriods, boolean ignoreZeroValue) {
     this.supportedPeriods = supportedPeriods;
     this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
+    this.ignoreZeroValue = ignoreZeroValue;
   }
 
   @Override
   public VariationSumCounter createNewCounter() {
-    return new VariationSumCounter(metricKey, supportedPeriods);
+    return new VariationSumCounter(metricKey, supportedPeriods, ignoreZeroValue);
   }
 
   @Override
@@ -81,10 +83,12 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
     private final DoubleVariationValue.Array array = DoubleVariationValue.newArray();
     private final String metricKey;
     private final Predicate<Period> supportedPeriods;
+    private final boolean ignoreZeroValue;
 
-    private VariationSumCounter(String metricKey, Predicate<Period> supportedPeriods) {
+    private VariationSumCounter(String metricKey, Predicate<Period> supportedPeriods, boolean ignoreZeroValue) {
       this.metricKey = metricKey;
       this.supportedPeriods = supportedPeriods;
+      this.ignoreZeroValue = ignoreZeroValue;
     }
 
     @Override
@@ -102,7 +106,7 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
       for (Period period : from(context.getPeriods()).filter(supportedPeriods)) {
         if (variations.hasVariation(period.getIndex())) {
           double variation = variations.getVariation(period.getIndex());
-          if (variation > 0) {
+          if (!ignoreZeroValue || variation > 0) {
             array.increment(period, variations.getVariation(period.getIndex()));
           }
         }
