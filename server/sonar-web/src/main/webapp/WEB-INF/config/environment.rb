@@ -52,6 +52,35 @@ class EagerPluginLoader < Rails::Plugin::Loader
   end
 end
 
+#
+# Put response headers on all HTTP calls. This is done by the Java SecurityServlerFilter,
+# but for some reason Rack swallows the headers set on Java side.
+# See middleware configuration below.
+#
+class SecurityHeaders
+  def initialize(app)
+    @app = app
+  end
+
+  def call(env)
+    status, headers, body = @app.call(env)
+
+    # Clickjacking protection
+    # See https://www.owasp.org/index.php/Clickjacking_Protection_for_Java_EE
+    headers['X-Frame-Options']='SAMEORIGIN'
+
+    # Cross-site scripting
+    # See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
+    headers['X-XSS-Protection']='1; mode=block'
+
+    # MIME-sniffing
+    # See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
+    headers['X-Content-Type-Options']='nosniff';
+
+    [status, headers, body]
+  end
+end
+
 Rails::Initializer.run do |config|
   # Settings in config/environments/* take precedence over those specified here.
   # Application configuration should go into files in config/initializers
@@ -108,6 +137,9 @@ Rails::Initializer.run do |config|
   # Activate observers that should always be running
   # Please note that observers generated using script/generate observer need to have an _observer suffix
   # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
+
+  # Add security related headers
+  config.middleware.use SecurityHeaders
 end
 
 
