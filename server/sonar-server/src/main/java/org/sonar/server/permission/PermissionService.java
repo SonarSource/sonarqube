@@ -62,18 +62,23 @@ public class PermissionService {
   public void applyDefaultPermissionTemplate(String componentKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = componentFinder.getByKey(session, componentKey);
-      ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
-      if (provisioned == null) {
-        checkProjectAdminPermission(componentKey);
-      } else {
-        userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
-      }
-      permissionRepository.grantDefaultRoles(session, component.getId(), component.qualifier());
-      session.commit();
+      applyDefaultPermissionTemplate(session, componentKey);
     } finally {
       session.close();
     }
+    indexProjectPermissions();
+  }
+
+  public void applyDefaultPermissionTemplate(DbSession session, String componentKey) {
+    ComponentDto component = componentFinder.getByKey(session, componentKey);
+    ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
+    if (provisioned == null) {
+      checkProjectAdminPermission(componentKey);
+    } else {
+      userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
+    }
+    permissionRepository.grantDefaultRoles(session, component.getId(), component.qualifier());
+    session.commit();
     indexProjectPermissions();
   }
 
