@@ -74,6 +74,15 @@ public class BatchTest {
     Resource branch = sonar.find(new ResourceQuery("com.sonarsource.it.samples:multi-modules-sample:branch/0.x"));
     assertThat(branch.getName()).isEqualTo("Sonar :: Integration Tests :: Multi-modules Sample branch/0.x");
   }
+  
+  @Test
+  public void use_sonar_profile_without_provisioning_project() {
+    scan("shared/xoo-multi-modules-sample",
+      "sonar.profile", "one-issue-per-line",
+      "sonar.verbose", "true");
+    Resource r = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("com.sonarsource.it.samples:multi-modules-sample", "violations"));
+    assertThat(r.getMeasureIntValue("violations")).isEqualTo(61);
+  }
 
   /**
    * SONAR-2907
