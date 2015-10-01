@@ -68,7 +68,7 @@ public class TasksMediumTest {
         .put("sonar.task", "views").build())
       .start();
 
-    assertThat(logTester.logs()).contains("Trigger views update");
+    assertThat(logTester.logs()).contains("Trigger Views update");
   }
 
   @Test(expected = MessageException.class)
