@@ -20,6 +20,7 @@
 package org.sonar.server.issue.notification;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -112,7 +113,7 @@ public class NewIssuesEmailTemplateTest {
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     String expectedContent = IOUtils.toString(getClass().getResource("NewIssuesEmailTemplateTest/email_with_all_details.txt"), StandardCharsets.UTF_8);
-    assertThat(message.getMessage()).startsWith(expectedContent);
+    assertThat(message.getMessage()).startsWith(StringUtils.remove(expectedContent, '\r'));
   }
 
   @Test
@@ -123,7 +124,7 @@ public class NewIssuesEmailTemplateTest {
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     String expectedContent = IOUtils.toString(getClass().getResource("NewIssuesEmailTemplateTest/email_with_partial_details.txt"), StandardCharsets.UTF_8);
-    assertThat(message.getMessage()).startsWith(expectedContent);
+    assertThat(message.getMessage()).startsWith(StringUtils.remove(expectedContent, '\r'));
   }
 
   @Test
