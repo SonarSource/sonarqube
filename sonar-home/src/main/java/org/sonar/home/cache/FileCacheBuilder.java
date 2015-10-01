@@ -49,7 +49,7 @@ public class FileCacheBuilder {
     return FileCache.create(cacheDir, logger);
   }
   
-  private File findHome() {
+  private static File findHome() {
     String path = System.getenv("SONAR_USER_HOME");
     if (path == null) {
       // Default

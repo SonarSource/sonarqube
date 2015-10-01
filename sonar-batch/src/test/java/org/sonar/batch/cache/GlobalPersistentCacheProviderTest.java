@@ -21,8 +21,11 @@ package org.sonar.batch.cache;
 
 import org.sonar.home.cache.PersistentCache;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
+import static org.junit.Assert.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.sonar.batch.bootstrap.GlobalProperties;
 import org.junit.Before;
@@ -52,5 +55,29 @@ public class GlobalPersistentCacheProviderTest {
       .resolve("ws_cache")
       .resolve("http%3A%2F%2Flocalhost%3A9000")
       .resolve("global"));
+  }
+
+  @Test
+  public void test_singleton() {
+    assertTrue(provider.provide(globalProperties) == provider.provide(globalProperties));
+  }
+
+  @Test
+  public void test_without_sonar_home() {
+    globalProperties = new GlobalProperties(new HashMap<String, String>());
+    PersistentCache cache = provider.provide(globalProperties);
+    assertThat(cache.getDirectory().toAbsolutePath().toString()).startsWith(findHome().toAbsolutePath().toString());
+
+  }
+
+  private static Path findHome() {
+    String home = System.getenv("SONAR_USER_HOME");
+
+    if (home != null) {
+      return Paths.get(home);
+    }
+
+    home = System.getProperty("user.home");
+    return Paths.get(home, ".sonar");
   }
 }
