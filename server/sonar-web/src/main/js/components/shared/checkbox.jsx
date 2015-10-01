@@ -3,7 +3,8 @@ import React from 'react';
 export default React.createClass({
   propTypes: {
     onCheck: React.PropTypes.func.isRequired,
-    initiallyChecked: React.PropTypes.bool
+    initiallyChecked: React.PropTypes.bool,
+    thirdState:  React.PropTypes.bool
   },
 
   getInitialState() {
@@ -23,7 +24,14 @@ export default React.createClass({
   },
 
   render() {
-    const className = this.state.checked ? 'icon-checkbox icon-checkbox-checked' : 'icon-checkbox';
+    let classNames = ['icon-checkbox'];
+    if (this.state.checked) {
+      classNames.push('icon-checkbox-checked');
+    }
+    if (this.props.thirdState) {
+      classNames.push('icon-checkbox-single');
+    }
+    let className = classNames.join(' ');
     return <a onClick={this.toggle} className={className} href="#"/>;
   }
 });
