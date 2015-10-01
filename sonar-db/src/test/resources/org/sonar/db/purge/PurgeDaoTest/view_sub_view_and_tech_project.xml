@@ -1,0 +1,30 @@
+<dataset>
+
+  <!-- view -->
+  <projects id="1" enabled="[true]" root_id="[null]"
+            uuid="A" project_uuid="A" module_uuid="[null]" module_uuid_path=".A."
+            long_name="[null]" scope="PRJ" qualifier="VW" kee="view" name="view"
+            description="[null]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            authorization_updated_at="[null]"/>
+
+  <!-- sub views -->
+  <projects id="2" enabled="[true]" root_id="1"
+            uuid="B" project_uuid="A" module_uuid="A" module_uuid_path=".A.B."
+            long_name="[null]" scope="PRJ" qualifier="SVW" kee="subview1" name="subview2"
+            description="[null]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            authorization_updated_at="[null]"/>
+
+  <projects id="3" enabled="[false]" root_id="1"
+            uuid="C" project_uuid="A" module_uuid="A" module_uuid_path=".A.C."
+            long_name="[null]" scope="PRJ" qualifier="SVW" kee="subview2" name="subview2"
+            description="[null]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            authorization_updated_at="[null]"/>
+
+  <!-- technical project of module 2-->
+  <projects id="4" enabled="[false]" root_id="3"
+            uuid="D" project_uuid="A" module_uuid="C" module_uuid_path=".A.C."
+            long_name="[null]" scope="FIL" qualifier="TRK" kee="TechProject" name="TechProject"
+            description="[null]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            authorization_updated_at="[null]"/>
+
+</dataset>

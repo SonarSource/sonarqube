@@ -83,7 +83,7 @@
   </select>
 
   <select id="selectComponentsByProjectUuid" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
-    select id, uuid from projects where project_uuid=#{uuid}
+    select id, uuid from projects where project_uuid=#{uuid} or uuid=#{uuid}
   </select>
 
   <delete id="deleteSnapshotMeasures" parameterType="map">

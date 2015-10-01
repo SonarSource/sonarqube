@@ -117,6 +117,36 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void delete_view_and_child() {
+    dbTester.prepareDbUnit(getClass(), "view_sub_view_and_tech_project.xml");
+
+    underTest.deleteProject(dbSession, "A");
+    dbSession.commit();
+    assertThat(dbTester.countSql("select count(id) from projects where uuid='A'")).isZero();
+    assertThat(dbTester.countRowsOfTable("projects")).isZero();
+  }
+
+  @Test
+  public void delete_view_sub_view_and_tech_project() {
+    dbTester.prepareDbUnit(getClass(), "view_sub_view_and_tech_project.xml");
+
+    // technical project
+    underTest.deleteProject(dbSession, "D");
+    dbSession.commit();
+    assertThat(dbTester.countSql("select count(id) from projects where uuid='D'")).isZero();
+
+    // sub view
+    underTest.deleteProject(dbSession, "B");
+    dbSession.commit();
+    assertThat(dbTester.countSql("select count(id) from projects where uuid='B'")).isZero();
+
+    // view
+    underTest.deleteProject(dbSession, "A");
+    dbSession.commit();
+    assertThat(dbTester.countSql("select count(id) from projects where uuid='A'")).isZero();
+  }
+
+  @Test
   public void should_delete_old_closed_issues() {
     dbTester.prepareDbUnit(getClass(), "should_delete_old_closed_issues.xml");
     underTest.purge(newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());

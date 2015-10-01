@@ -2,7 +2,7 @@
 
   <!-- root -->
   <projects id="1" enabled="[true]" root_id="[null]"
-            uuid="A" project_uuid="A" module_uuid="[null]" module_uuid_path="."
+            uuid="A" project_uuid="A" module_uuid="[null]" module_uuid_path=".A."
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
@@ -54,7 +54,7 @@
 
   <!-- modules -->
   <projects id="2" enabled="[true]" root_id="1"
-            uuid="B" project_uuid="A" module_uuid="A" module_uuid_path=".A."
+            uuid="B" project_uuid="A" module_uuid="A" module_uuid_path=".A.B."
             long_name="[null]" scope="PRJ" qualifier="BRC" kee="module1" name="module1"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
@@ -72,7 +72,7 @@
 
 
   <projects id="3" enabled="[false]" root_id="1"
-            uuid="C" project_uuid="A" module_uuid="A" module_uuid_path=".A."
+            uuid="C" project_uuid="A" module_uuid="A" module_uuid_path=".A.C."
             long_name="[null]" scope="PRJ" qualifier="BRC" kee="module2" name="module2"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
