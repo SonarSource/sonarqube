@@ -19,13 +19,18 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.api.utils.HttpDownloader.HttpException;
+
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.slf4j.Logger;
@@ -55,7 +60,11 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       }
       return processStream(result.get(), projectKey);
     } catch (IllegalStateException e) {
-      LOG.debug("Couldn't get project repositories - continuing without it", e);
+      if (shouldThrow(e)) {
+        throw e;
+      }
+
+      LOG.debug("Project repository not available - continuing without it", e);
       return new ProjectRepositories();
     }
   }
@@ -66,9 +75,18 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     builder.append(BATCH_PROJECT_URL)
       .append("?key=").append(BatchUtils.encodeForUrl(projectKey));
     if (issuesMode) {
-      builder.append("&issues=true");
+      builder.append("&issues_mode=true");
     }
     return builder.toString();
+  }
+
+  private static boolean shouldThrow(Exception e) {
+    if (e.getCause() != null && e.getCause() instanceof HttpException) {
+      HttpException http = (HttpException) e.getCause();
+      return http.getResponseCode() != 404;
+    }
+
+    return false;
   }
 
   private static ProjectRepositories processStream(InputStream is, String projectKey) {

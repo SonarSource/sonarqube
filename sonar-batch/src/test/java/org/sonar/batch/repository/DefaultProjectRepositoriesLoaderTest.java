@@ -23,6 +23,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+
+import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,7 +34,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -61,13 +63,21 @@ public class DefaultProjectRepositoriesLoaderTest {
     assertThat(proj.exists()).isEqualTo(false);
   }
 
+  @Test(expected = IllegalStateException.class)
+  public void failFastHttpError() {
+    HttpException http = new HttpException(URI.create("uri"), 403);
+    IllegalStateException e = new IllegalStateException("http error", http);
+    when(wsLoader.loadStream(anyString())).thenThrow(e);
+    loader.load(PROJECT_KEY, false, null);
+  }
+
   @Test
   public void passIssuesModeParameter() {
     loader.load(PROJECT_KEY, false, null);
     verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F");
 
     loader.load(PROJECT_KEY, true, null);
-    verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F&issues=true");
+    verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F&issues_mode=true");
   }
 
   @Test
