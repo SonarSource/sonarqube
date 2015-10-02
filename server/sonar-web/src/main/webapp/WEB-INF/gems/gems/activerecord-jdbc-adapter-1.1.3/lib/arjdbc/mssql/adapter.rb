@@ -79,9 +79,15 @@ module ::ArJdbc
       #
       # See: http://msdn.microsoft.com/en-us/library/ms186939.aspx
       if type.to_s == 'string' and limit == 1073741823 and sqlserver_version != "2000"
-        'NVARCHAR(MAX)'
+        # SONAR-6884 collation added
+        'NVARCHAR(MAX) COLLATE SQL_Latin1_General_CP1_CS_AS'
+        # /SONAR-6884
       elsif %w( boolean date datetime ).include?(type.to_s)
         super(type)   # cannot specify limit/precision/scale with these types
+      elsif type.to_s == 'string'
+        # SONAR-6884
+        super + ' COLLATE SQL_Latin1_General_CP1_CS_AS'
+        # /SONAR-6884
       else
         super
       end
