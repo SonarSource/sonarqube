@@ -1,0 +1,15 @@
+{
+  "task": {
+    "id": "AVAn5RKqYwETbXvgas-I",
+    "type": "REPORT",
+    "componentId": "AVAn5RJmYwETbXvgas-H",
+    "componentKey": "project_1",
+    "componentName": "Project One",
+    "status": "SUCCESS",
+    "submittedAt": "2015-10-02T11:32:15+0200",
+    "startedAt": "2015-10-02T11:32:16+0200",
+    "executedAt": "2015-10-02T11:32:22+0200",
+    "executionTimeMs": 5286,
+    "logs": true
+  }
+}

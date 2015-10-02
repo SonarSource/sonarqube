@@ -39,9 +39,10 @@ public class CancelAllWsAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("cancel_all")
-      .setDescription("Cancels all pending task. Requires system administration permission.")
+      .setDescription("Cancels all pending tasks. Requires system administration permission. In-progress tasks are not canceled.")
       .setInternal(true)
       .setPost(true)
+      .setSince("5.2")
       .setHandler(this);
   }
 

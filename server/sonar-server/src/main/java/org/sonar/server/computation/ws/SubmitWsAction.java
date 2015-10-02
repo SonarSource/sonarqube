@@ -45,9 +45,11 @@ public class SubmitWsAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("submit")
-      .setDescription("Submit an analysis report to the queue of Compute Engine. Report is processed asynchronously.")
+      .setDescription("Submits a scanner report to the queue. Report is processed asynchronously. Requires analysis permission. " +
+        "If the project does not exist, then the provisioning permission is also required.")
       .setPost(true)
       .setInternal(true)
+      .setSince("5.2")
       .setHandler(this)
       .setResponseExample(getClass().getResource("submit-example.json"));
 

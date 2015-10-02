@@ -39,6 +39,7 @@ import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,14 +79,13 @@ public class TaskWsActionTest {
     queueDto.setStatus(CeQueueDto.Status.PENDING);
     queueDto.setSubmitterLogin("john");
     dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.getSession().commit();
+    dbTester.commit();
 
     TestResponse wsResponse = tester.newRequest()
       .setMediaType(MimeTypes.PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
 
-    // verify the protobuf response
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     assertThat(taskResponse.getTask().getId()).isEqualTo("TASK_1");
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
@@ -112,14 +112,13 @@ public class TaskWsActionTest {
     activityDto.setStatus(CeActivityDto.Status.FAILED);
     activityDto.setExecutionTimeMs(500L);
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
-    dbTester.getSession().commit();
+    dbTester.commit();
 
     TestResponse wsResponse = tester.newRequest()
       .setMediaType(MimeTypes.PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
 
-    // verify the protobuf response
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
     assertThat(taskResponse.getTask().getId()).isEqualTo("TASK_1");
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
@@ -137,5 +136,23 @@ public class TaskWsActionTest {
     tester.newRequest()
       .setParam("id", "DOES_NOT_EXIST")
       .execute();
+  }
+
+  @Test
+  public void support_json_response() {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setTaskType("fake");
+    queueDto.setUuid("TASK_1");
+    queueDto.setStatus(CeQueueDto.Status.PENDING);
+    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
+    dbTester.commit();
+
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    TestResponse wsResponse = tester.newRequest()
+      .setMediaType(MimeTypes.JSON)
+      .setParam("id", "TASK_1")
+      .execute();
+
+    JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"task\":{}}");
   }
 }

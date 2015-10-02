@@ -42,9 +42,10 @@ public class CancelWsAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("cancel")
-      .setDescription("Cancels a pending task. Requires system administration permission.")
+      .setDescription("Cancels a pending task. Requires system administration permission. In-progress tasks can not be canceled.")
       .setInternal(true)
       .setPost(true)
+      .setSince("5.2")
       .setHandler(this);
 
     action

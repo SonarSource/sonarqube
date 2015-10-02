@@ -75,13 +75,16 @@ public class ActivityWsAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("activity")
       .setInternal(true)
+      .setDescription(format("Search for past task executions. Requires the system administration permission, " +
+        "or project administration permission if %s is set.", PARAM_COMPONENT_UUID))
       .setResponseExample(getClass().getResource("activity-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setSince("5.2");
     action.createParam(PARAM_COMPONENT_UUID)
       .setDescription("Optional id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
     action.createParam(PARAM_COMPONENT_QUERY)
-      .setDescription(format("Optional search by component name or key. Must not be set together with %s", PARAM_COMPONENT_UUID))
+      .setDescription(format("Optional search by component name or key. Must not be set together with %s.", PARAM_COMPONENT_UUID))
       .setExampleValue("Apache");
     action.createParam(PARAM_STATUS)
       .setDescription("Optional filter on task status")

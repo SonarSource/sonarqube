@@ -54,6 +54,8 @@ public class TaskWsAction implements CeWsAction {
     WebService.NewAction action = controller.createAction(ACTION)
       .setDescription("Task information")
       .setInternal(true)
+      .setResponseExample(getClass().getResource("task-example.json"))
+      .setSince("5.2")
       .setHandler(this);
 
     action

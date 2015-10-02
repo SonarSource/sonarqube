@@ -50,8 +50,9 @@ public class QueueWsAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("queue")
-      .setDescription("Gets the tasks of the Compute Engine queue")
+      .setDescription("Gets the pending and in-progress tasks. Requires system administration permission.")
       .setInternal(true)
+      .setSince("5.2")
       .setResponseExample(getClass().getResource("queue-example.json"))
       .setHandler(this);
 
@@ -74,7 +75,7 @@ public class QueueWsAction implements CeWsAction {
         if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
           dtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
         } else {
-          throw new ForbiddenException("Requires administration permission");
+          throw new ForbiddenException("Requires system administration permission");
         }
       }
 

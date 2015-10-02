@@ -44,6 +44,7 @@ import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.WsCe;
 
 import static java.util.Arrays.asList;
@@ -216,6 +217,16 @@ public class ActivityWsActionTest {
       .setParam("componentQuery", "apache")
       .setMediaType(MimeTypes.PROTOBUF)
       .execute();
+  }
+
+  @Test
+  public void support_json_response() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    TestResponse wsResponse = tester.newRequest()
+      .setMediaType(MimeTypes.JSON)
+      .execute();
+
+    JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[]}");
   }
 
   private CeActivityDto insert(String taskUuid, String componentUuid, CeActivityDto.Status status) {
