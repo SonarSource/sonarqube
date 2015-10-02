@@ -81,7 +81,7 @@ public class ActivityWsAction implements CeWsAction {
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
     action.createParam(PARAM_COMPONENT_QUERY)
       .setDescription("Optional search by component name or key")
-      .setExampleValue("");
+      .setExampleValue("Apache");
     action.createParam(PARAM_STATUS)
       .setDescription("Optional filter on task status")
       .setPossibleValues(CeActivityDto.Status.values());
