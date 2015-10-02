@@ -37,7 +37,6 @@ public class ProfilesWs implements WebService {
     defineIndexAction(controller);
     defineBackupAction(controller);
     defineRestoreAction(controller);
-    defineDestroyAction(controller);
 
     controller.done();
   }
@@ -87,22 +86,5 @@ public class ProfilesWs implements WebService {
       .setRequired(true)
       .setDescription("Path to the file containing the backup (HTML format)");
     RailsHandler.addJsonOnlyFormatParam(action);
-  }
-
-  private static void defineDestroyAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("destroy")
-      .setDescription("Delete a quality profile. Requires Administer Quality Profiles permission")
-      .setSince("3.3")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
-
-    action.createParam("language")
-      .setDescription("Profile language")
-      .setRequired(true)
-      .setExampleValue("java");
-    action.createParam("name")
-      .setDescription("Profile name")
-      .setRequired(true)
-      .setExampleValue("Sonar way");
   }
 }

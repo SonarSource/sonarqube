@@ -21,20 +21,6 @@ require 'json'
 
 class Api::ProfilesController < Api::ApiController
 
-  # POST /api/profiles/destroy?language=<language>&name=<name>
-  def destroy
-    verify_post_request
-    access_denied unless has_role?(:profileadmin)
-    require_parameters :language, :name
-
-    call_backend do
-      profile = Internal.quality_profiles.profile(params[:name], params[:language])
-      not_found('Profile not found') unless profile
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).delete(profile.key)
-    end
-    render_success('Profile destroyed')
-  end
-
   # GET /api/profiles?language=<language>[&name=<name>]
   def index
     require_parameters :language
