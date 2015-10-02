@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  CommonRulesTest.class, IssueWorkflowTest.class, ManualRulesTest.class,
+  CommonRulesTest.class, IssueWorkflowTest.class, ManualRulesTest.class, CustomRulesTest.class
 })
 public class IssueTestSuite {
 

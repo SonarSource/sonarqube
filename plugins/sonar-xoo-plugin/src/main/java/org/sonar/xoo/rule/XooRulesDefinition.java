@@ -19,11 +19,12 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.xoo.Xoo2;
-
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinitionAnnotationLoader;
 import org.sonar.xoo.Xoo;
+import org.sonar.xoo.Xoo2;
+import org.sonar.xoo.checks.Check;
 
 /**
  * Define all the coding rules that are supported on the repositories named "xoo" and "xoo2"
@@ -50,13 +51,15 @@ public class XooRulesDefinition implements RulesDefinition {
     oneIssuePerLine.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.MEMORY_EFFICIENCY)
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1min"))
       .setEffortToFixDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
-    
+
     repo.done();
   }
 
-  private static void defineRulesXoo(Context context) {
+  private void defineRulesXoo(Context context) {
     NewRepository repo = context.createRepository(XOO_REPOSITORY, Xoo.KEY).setName("Xoo");
-    
+
+    new RulesDefinitionAnnotationLoader().load(repo, Check.ALL);
+
     NewRule hasTag = repo.createRule(HasTagSensor.RULE_KEY).setName("Has Tag")
       .setHtmlDescription("Search for a given tag in Xoo files");
     hasTag.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)

@@ -20,10 +20,10 @@
 package org.sonar.xoo.rule;
 
 import org.junit.Before;
-
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class XooRulesDefinitionTest {
@@ -42,7 +42,7 @@ public class XooRulesDefinitionTest {
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
-    assertThat(repo.rules()).hasSize(11);
+    assertThat(repo.rules()).hasSize(12);
 
     RulesDefinition.Rule rule = repo.rule(OneIssuePerLineSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();
