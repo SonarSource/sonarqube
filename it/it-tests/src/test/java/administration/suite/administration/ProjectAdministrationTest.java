@@ -120,8 +120,8 @@ public class ProjectAdministrationTest {
         "permission", "admin");
 
       new SeleneseTest(
-        Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/administration/suite/ProjectAdministrationTest/project-deletion/project-deletion.html").build()
-      ).runOn(orchestrator);
+        Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/administration/suite/ProjectAdministrationTest/project-deletion/project-deletion.html").build())
+        .runOn(orchestrator);
     } finally {
       wsClient.userClient().deactivate(projectAdminUser);
     }

@@ -234,6 +234,8 @@ import org.sonar.server.qualityprofile.ws.ExportAction;
 import org.sonar.server.qualityprofile.ws.ExportersAction;
 import org.sonar.server.qualityprofile.ws.ImportersAction;
 import org.sonar.server.qualityprofile.ws.InheritanceAction;
+import org.sonar.server.qualityprofile.ws.OldRestoreAction;
+import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.ProjectAssociationActions;
 import org.sonar.server.qualityprofile.ws.ProjectsAction;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
@@ -334,16 +336,16 @@ public class PlatformLevel4 extends PlatformLevel {
       IndexDefinitions.class,
       IndexCreator.class,
 
-    // Activity
+      // Activity
       ActivityService.class,
       ActivityIndexDefinition.class,
       ActivityIndexer.class,
       ActivityIndex.class,
 
-    // batch
+      // batch
       BatchWsModule.class,
 
-    // Dashboard
+      // Dashboard
       DashboardsWs.class,
       org.sonar.server.dashboard.ws.ShowAction.class,
       ProjectDefaultDashboard.class,
@@ -381,12 +383,12 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectIssueFilterWidget.class,
       IssueTagCloudWidget.class,
 
-    // update center
+      // update center
       UpdateCenterClient.class,
       UpdateCenterMatrixFactory.class,
       UpdateCenterWs.class,
 
-    // quality profile
+      // quality profile
       XMLProfileParser.class,
       XMLProfileSerializer.class,
       AnnotationProfileParser.class,
@@ -415,6 +417,8 @@ public class PlatformLevel4 extends PlatformLevel {
       ExportAction.class,
       ExportersAction.class,
       QProfilesWs.class,
+      ProfilesWs.class,
+      OldRestoreAction.class,
       RuleActivationActions.class,
       BulkRuleActivationActions.class,
       ProjectAssociationActions.class,
@@ -429,7 +433,7 @@ public class PlatformLevel4 extends PlatformLevel {
       QProfileReset.class,
       RubyQProfileActivityService.class,
 
-    // rule
+      // rule
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,
@@ -457,17 +461,17 @@ public class PlatformLevel4 extends PlatformLevel {
       RepositoriesAction.class,
       org.sonar.server.rule.ws.AppAction.class,
 
-    // languages
+      // languages
       Languages.class,
       LanguageWs.class,
       org.sonar.server.language.ws.ListAction.class,
 
-    // activity
+      // activity
       ActivitiesWs.class,
       org.sonar.server.activity.ws.SearchAction.class,
       ActivityMapping.class,
 
-    // measure
+      // measure
       MeasureFilterFactory.class,
       MeasureFilterExecutor.class,
       MeasureFilterEngine.class,
@@ -479,14 +483,14 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultMetricFinder.class,
       TimeMachineWs.class,
 
-    // quality gates
+      // quality gates
       QualityGateDao.class,
       QualityGateConditionDao.class,
       QualityGates.class,
       ProjectQgateAssociationDao.class,
       QgateProjectFinder.class,
 
-    org.sonar.server.qualitygate.ws.ListAction.class,
+      org.sonar.server.qualitygate.ws.ListAction.class,
       org.sonar.server.qualitygate.ws.SearchAction.class,
       org.sonar.server.qualitygate.ws.ShowAction.class,
       org.sonar.server.qualitygate.ws.CreateAction.class,
@@ -503,17 +507,17 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.qualitygate.ws.AppAction.class,
       QGatesWs.class,
 
-    // web services
+      // web services
       WebServiceEngine.class,
       ListingWs.class,
 
-    // localization
+      // localization
       L10nWs.class,
 
-    // authentication
+      // authentication
       AuthenticationWs.class,
 
-    // users
+      // users
       SecurityRealmFactory.class,
       DeprecatedUserFinder.class,
       NewUserNotifier.class,
@@ -535,19 +539,19 @@ public class PlatformLevel4 extends PlatformLevel {
       UserIndex.class,
       UserUpdater.class,
 
-    // groups
+      // groups
       GroupMembershipService.class,
       GroupMembershipFinder.class,
       UserGroupsModule.class,
 
-    // permissions
+      // permissions
       PermissionRepository.class,
       PermissionService.class,
       PermissionUpdater.class,
       PermissionFinder.class,
       PermissionsWsModule.class,
 
-    // components
+      // components
       ProjectsWsModule.class,
       ComponentsWsModule.class,
       DefaultComponentFinder.class,
@@ -558,12 +562,12 @@ public class PlatformLevel4 extends PlatformLevel {
       NewAlerts.newMetadata(),
       ComponentCleanerService.class,
 
-    // views
+      // views
       ViewIndexDefinition.class,
       ViewIndexer.class,
       ViewIndex.class,
 
-    // issues
+      // issues
       IssueIndexDefinition.class,
       IssueIndexer.class,
       IssueAuthorizationIndexer.class,
@@ -597,13 +601,13 @@ public class PlatformLevel4 extends PlatformLevel {
       EmailNotificationChannel.class,
       AlertsEmailTemplate.class,
 
-    IssueFilterWsModule.class,
+      IssueFilterWsModule.class,
 
-    // action plan
+      // action plan
       ActionPlanWs.class,
       ActionPlanService.class,
 
-    // issues actions
+      // issues actions
       AssignAction.class,
       PlanAction.class,
       SetSeverityAction.class,
@@ -612,7 +616,7 @@ public class PlatformLevel4 extends PlatformLevel {
       AddTagsAction.class,
       RemoveTagsAction.class,
 
-    // technical debt
+      // technical debt
       DebtModelService.class,
       DebtModelOperations.class,
       DebtModelLookup.class,
@@ -622,7 +626,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DebtRulesXMLImporter.class,
       DebtCharacteristicsXMLImporter.class,
 
-    // source
+      // source
       HtmlSourceDecorator.class,
       SourceService.class,
       SourcesWs.class,
@@ -633,23 +637,23 @@ public class PlatformLevel4 extends PlatformLevel {
       IndexAction.class,
       ScmAction.class,
 
-    // Duplications
+      // Duplications
       DuplicationsParser.class,
       DuplicationsWs.class,
       DuplicationsJsonWriter.class,
       org.sonar.server.duplication.ws.ShowAction.class,
 
-    // text
+      // text
       MacroInterpreter.class,
       RubyTextService.class,
 
-    // Notifications
+      // Notifications
       EmailSettings.class,
       NotificationService.class,
       NotificationCenter.class,
       DefaultNotificationManager.class,
 
-    // Tests
+      // Tests
       CoverageService.class,
       TestsWs.class,
       CoveredFilesAction.class,
@@ -658,12 +662,12 @@ public class PlatformLevel4 extends PlatformLevel {
       TestIndex.class,
       TestIndexer.class,
 
-    // Properties
+      // Properties
       PropertiesWs.class,
 
-    TypeValidationModule.class,
+      TypeValidationModule.class,
 
-    // System
+      // System
       RestartAction.class,
       InfoAction.class,
       UpgradesAction.class,
@@ -678,7 +682,7 @@ public class PlatformLevel4 extends PlatformLevel {
       MigrateDbAction.class,
       DbMigrationStatusAction.class,
 
-    // Plugins WS
+      // Plugins WS
       PluginWSCommons.class,
       PluginUpdateAggregator.class,
       InstalledAction.class,
@@ -691,18 +695,18 @@ public class PlatformLevel4 extends PlatformLevel {
       CancelAllAction.class,
       PluginsWs.class,
 
-    // Compute engine
+      // Compute engine
       CeModule.class,
       CeQueueModule.class,
       CeTaskProcessorModule.class,
       CeWsModule.class,
       ReportProcessingModule.class,
 
-    // Views plugin
+      // Views plugin
       ViewsBootstrap.class,
       ViewsStopper.class,
 
-    // UI
+      // UI
       GlobalNavigationAction.class,
       SettingsNavigationAction.class,
       ComponentNavigationAction.class,
