@@ -22,16 +22,9 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.PathAwareCrawler;
@@ -53,6 +46,16 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
+import org.sonar.server.computation.scm.ScmInfo;
+import org.sonar.server.computation.scm.ScmInfoRepository;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.period.PeriodPredicates.viewsRestrictedPeriods;
@@ -77,21 +80,21 @@ public class NewCoverageMeasuresStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
   private final PeriodsHolder periodsHolder;
-  @CheckForNull
-  private final BatchReportReader batchReportReader;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
+  @CheckForNull
+  private final ScmInfoRepository scmInfoRepository;
 
   /**
    * Constructor used when processing a Report (ie. a {@link BatchReportReader} instance is available in the container)
    */
-  public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, BatchReportReader batchReportReader,
-    MeasureRepository measureRepository, final MetricRepository metricRepository) {
+  public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder,
+    MeasureRepository measureRepository, final MetricRepository metricRepository, ScmInfoRepository scmInfoRepository) {
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
-    this.batchReportReader = batchReportReader;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
+    this.scmInfoRepository = scmInfoRepository;
   }
 
   /**
@@ -101,9 +104,9 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     MeasureRepository measureRepository, final MetricRepository metricRepository) {
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
-    this.batchReportReader = null;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
+    this.scmInfoRepository = null;
   }
 
   @Override
@@ -113,11 +116,11 @@ public class NewCoverageMeasuresStep implements ComputationStep {
         .withVariationSupport(periodsHolder)
         .buildFor(
           Iterables.concat(
-            NewLinesAndConditionsCoverageFormula.from(batchReportReader),
-            NewItLinesAndConditionsCoverageFormula.from(batchReportReader),
-            NewOverallLinesAndConditionsCoverageFormula.from(batchReportReader),
+            NewLinesAndConditionsCoverageFormula.from(scmInfoRepository),
+            NewItLinesAndConditionsCoverageFormula.from(scmInfoRepository),
+            NewOverallLinesAndConditionsCoverageFormula.from(scmInfoRepository),
             FORMULAS)))
-              .visit(treeRootHolder.getRoot());
+      .visit(treeRootHolder.getRoot());
   }
 
   @Override
@@ -132,18 +135,18 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY);
     private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
 
-    private NewLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
-      super(batchReportReader,
+    private NewLinesAndConditionsCoverageFormula(ScmInfoRepository scmInfoRepository) {
+      super(scmInfoRepository,
         new NewCoverageInputMetricKeys(
           CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY),
         OUTPUT_METRIC_KEYS);
     }
 
-    public static Iterable<Formula<?>> from(@Nullable BatchReportReader batchReportReader) {
-      if (batchReportReader == null) {
+    public static Iterable<Formula<?>> from(@Nullable ScmInfoRepository scmInfoRepository) {
+      if (scmInfoRepository == null) {
         return VIEWS_FORMULAS;
       }
-      return Collections.<Formula<?>>singleton(new NewLinesAndConditionsCoverageFormula(batchReportReader));
+      return Collections.<Formula<?>>singleton(new NewLinesAndConditionsCoverageFormula(scmInfoRepository));
     }
   }
 
@@ -180,18 +183,18 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY);
     private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
 
-    private NewItLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
-      super(batchReportReader,
+    private NewItLinesAndConditionsCoverageFormula(ScmInfoRepository scmInfoRepository) {
+      super(scmInfoRepository,
         new NewCoverageInputMetricKeys(
           CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY),
         OUTPUT_METRIC_KEYS);
     }
 
-    public static Iterable<Formula<?>> from(@Nullable BatchReportReader batchReportReader) {
-      if (batchReportReader == null) {
+    public static Iterable<Formula<?>> from(@Nullable ScmInfoRepository scmInfoRepository) {
+      if (scmInfoRepository == null) {
         return VIEWS_FORMULAS;
       }
-      return Collections.<Formula<?>>singleton(new NewItLinesAndConditionsCoverageFormula(batchReportReader));
+      return Collections.<Formula<?>>singleton(new NewItLinesAndConditionsCoverageFormula(scmInfoRepository));
     }
   }
 
@@ -229,18 +232,18 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY);
     private static final Iterable<Formula<?>> VIEWS_FORMULAS = variationSumFormulas(OUTPUT_METRIC_KEYS);
 
-    private NewOverallLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
-      super(batchReportReader,
+    private NewOverallLinesAndConditionsCoverageFormula(ScmInfoRepository scmInfoRepository) {
+      super(scmInfoRepository,
         new NewCoverageInputMetricKeys(
           CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY),
         OUTPUT_METRIC_KEYS);
     }
 
-    public static Iterable<Formula<?>> from(@Nullable BatchReportReader batchReportReader) {
-      if (batchReportReader == null) {
+    public static Iterable<Formula<?>> from(@Nullable ScmInfoRepository scmInfoRepository) {
+      if (scmInfoRepository == null) {
         return VIEWS_FORMULAS;
       }
-      return Collections.<Formula<?>>singleton(new NewOverallLinesAndConditionsCoverageFormula(batchReportReader));
+      return Collections.<Formula<?>>singleton(new NewOverallLinesAndConditionsCoverageFormula(scmInfoRepository));
     }
   }
 
@@ -285,19 +288,19 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   }
 
   public static class NewLinesAndConditionsFormula implements Formula<NewCoverageCounter> {
-    private final BatchReportReader batchReportReader;
+    private final ScmInfoRepository scmInfoRepository;
     private final NewCoverageInputMetricKeys inputMetricKeys;
     private final NewCoverageOutputMetricKeys outputMetricKeys;
 
-    public NewLinesAndConditionsFormula(BatchReportReader batchReportReader, NewCoverageInputMetricKeys inputMetricKeys, NewCoverageOutputMetricKeys outputMetricKeys) {
-      this.batchReportReader = batchReportReader;
+    public NewLinesAndConditionsFormula(ScmInfoRepository scmInfoRepository, NewCoverageInputMetricKeys inputMetricKeys, NewCoverageOutputMetricKeys outputMetricKeys) {
+      this.scmInfoRepository = scmInfoRepository;
       this.inputMetricKeys = inputMetricKeys;
       this.outputMetricKeys = outputMetricKeys;
     }
 
     @Override
     public NewCoverageCounter createNewCounter() {
-      return new NewCoverageCounter(batchReportReader, inputMetricKeys);
+      return new NewCoverageCounter(scmInfoRepository, inputMetricKeys);
     }
 
     @Override
@@ -347,11 +350,11 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     private final IntVariationValue.Array newCoveredLines = IntVariationValue.newArray();
     private final IntVariationValue.Array newConditions = IntVariationValue.newArray();
     private final IntVariationValue.Array newCoveredConditions = IntVariationValue.newArray();
-    private final BatchReportReader batchReportReader;
+    private final ScmInfoRepository scmInfoRepository;
     private final NewCoverageInputMetricKeys metricKeys;
 
-    public NewCoverageCounter(BatchReportReader batchReportReader, NewCoverageInputMetricKeys metricKeys) {
-      this.batchReportReader = batchReportReader;
+    public NewCoverageCounter(ScmInfoRepository scmInfoRepository, NewCoverageInputMetricKeys metricKeys) {
+      this.scmInfoRepository = scmInfoRepository;
       this.metricKeys = metricKeys;
     }
 
@@ -366,10 +369,10 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     @Override
     public void initialize(CounterInitializationContext context) {
       Component fileComponent = context.getLeaf();
-      BatchReport.Changesets componentScm = batchReportReader.readChangesets(fileComponent.getReportAttributes().getRef());
-      if (componentScm == null) {
+      if (!scmInfoRepository.getScmInfo(fileComponent).isPresent()) {
         return;
       }
+      ScmInfo componentScm = scmInfoRepository.getScmInfo(fileComponent).get();
 
       Optional<Measure> hitsByLineMeasure = context.getMeasure(metricKeys.getCoverageLineHitsData());
       if (!hitsByLineMeasure.isPresent() || hitsByLineMeasure.get().getValueType() == Measure.ValueType.NO_VALUE) {
@@ -385,9 +388,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
         int hits = entry.getValue();
         int conditions = (Integer) ObjectUtils.defaultIfNull(conditionsByLine.get(lineId), 0);
         int coveredConditions = (Integer) ObjectUtils.defaultIfNull(coveredConditionsByLine.get(lineId), 0);
-        BatchReport.Changesets.Changeset changeset = componentScm.getChangeset(componentScm.getChangesetIndexByLine(lineId - 1));
-        Long date = changeset.hasDate() ? changeset.getDate() : null;
-
+        Long date = componentScm.getForLine(lineId).isPresent() ? componentScm.getForLine(lineId).get().getDate() : null;
         analyze(context.getPeriods(), date, hits, conditions, coveredConditions);
       }
     }

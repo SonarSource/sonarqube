@@ -37,6 +37,8 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.scm.Changeset;
+import org.sonar.server.computation.scm.ScmInfoRepositoryRule;
 import org.sonar.server.computation.source.SourceLinesRepositoryRule;
 import org.sonar.test.DbTests;
 
@@ -67,6 +69,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   @Rule
+  public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
+
+  @Rule
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
 
   DbClient dbClient = dbTester.getDbClient();
@@ -80,7 +85,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void setup() {
     dbTester.truncateTables();
     when(system2.now()).thenReturn(now);
-    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository);
+    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository, scmInfoRepository);
   }
 
   @Override
@@ -189,21 +194,19 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Test
   public void persist_scm() {
     initBasicReport(1);
-
-    reportReader.putChangesets(BatchReport.Changesets.newBuilder()
-      .setComponentRef(FILE_REF)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
-        .setAuthor("john")
-        .setDate(123456789L)
-        .setRevision("rev-1")
-        .build())
-      .addChangesetIndexByLine(0)
+    scmInfoRepository.setScmInfo(FILE_REF, Changeset.newChangesetBuilder()
+      .setAuthor("john")
+      .setDate(123456789L)
+      .setRevision("rev-1")
       .build());
 
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
+
+    assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
+
     DbFileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
@@ -348,10 +351,18 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
           .build())
         .build())
       .setCreatedAt(past)
-      .setUpdatedAt(past));
+      .setUpdatedAt(past)
+      .setRevision("rev-0"));
     dbTester.getSession().commit();
 
     initBasicReport(1);
+
+    scmInfoRepository.setScmInfo(FILE_REF, Changeset.newChangesetBuilder()
+      .setAuthor("john")
+      .setDate(123456789L)
+      .setRevision("rev-1")
+      .build());
+
 
     underTest.execute();
 
@@ -359,6 +370,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
   }
 
   @Test

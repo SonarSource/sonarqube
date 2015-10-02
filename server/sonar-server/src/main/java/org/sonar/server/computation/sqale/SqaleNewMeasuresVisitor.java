@@ -22,15 +22,10 @@ package org.sonar.server.computation.sqale;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
@@ -42,6 +37,14 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
+import org.sonar.server.computation.scm.Changeset;
+import org.sonar.server.computation.scm.ScmInfo;
+import org.sonar.server.computation.scm.ScmInfoRepository;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.util.Map;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
@@ -56,7 +59,7 @@ import static org.sonar.server.computation.measure.MeasureVariations.newMeasureV
 public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMeasuresVisitor.NewDevelopmentCostCounter> {
   private static final Logger LOG = Loggers.get(SqaleNewMeasuresVisitor.class);
 
-  private final BatchReportReader batchReportReader;
+  private final ScmInfoRepository scmInfoRepository;
   private final MeasureRepository measureRepository;
   private final PeriodsHolder periodsHolder;
   private final SqaleRatingSettings sqaleRatingSettings;
@@ -65,11 +68,11 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
   private final Metric nclocDataMetric;
   private final Metric newDebtRatioMetric;
 
-  public SqaleNewMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, BatchReportReader batchReportReader, PeriodsHolder periodsHolder,
+  public SqaleNewMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository, PeriodsHolder periodsHolder,
     SqaleRatingSettings sqaleRatingSettings) {
     super(CrawlerDepthLimit.FILE, POST_ORDER, NewDevelopmentCostCounterFactory.INSTANCE);
-    this.batchReportReader = batchReportReader;
     this.measureRepository = measureRepository;
+    this.scmInfoRepository = scmInfoRepository;
     this.periodsHolder = periodsHolder;
     this.sqaleRatingSettings = sqaleRatingSettings;
 
@@ -155,27 +158,25 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
       return;
     }
 
-    BatchReport.Changesets changesets = batchReportReader.readChangesets(file.getReportAttributes().getRef());
-    if (changesets == null) {
+    if (!scmInfoRepository.getScmInfo(file).isPresent()) {
       LOG.trace(String.format("No changeset for file %s. Dev cost will be zero.", file.getKey()));
       return;
     }
 
-    initNewDebtRatioCounter(path.current(), file.getFileAttributes().getLanguageKey(), nclocDataMeasure.get(), changesets);
+    ScmInfo scmInfo = scmInfoRepository.getScmInfo(file).get();
+    initNewDebtRatioCounter(path.current(), file.getFileAttributes().getLanguageKey(), nclocDataMeasure.get(), scmInfo);
   }
 
-  private void initNewDebtRatioCounter(NewDevelopmentCostCounter devCostCounter, String languageKey, Measure nclocDataMeasure, BatchReport.Changesets changesets) {
+  private void initNewDebtRatioCounter(NewDevelopmentCostCounter devCostCounter, String languageKey, Measure nclocDataMeasure, ScmInfo scmInfo) {
     long lineDevCost = sqaleRatingSettings.getDevCost(languageKey);
     for (Integer nclocLineIndex : nclocLineIndexes(nclocDataMeasure)) {
-      // lines are 0-based in changesetIndexByLine array
-      int changesetIndex = changesets.getChangesetIndexByLine(nclocLineIndex - 1);
-      BatchReport.Changesets.Changeset changeset = changesets.getChangeset(changesetIndex);
-      if (!changeset.hasDate()) {
+      Optional<Changeset> changeset = scmInfo.getForLine(nclocLineIndex);
+      if (!changeset.isPresent() || changeset.get().getDate() == null) {
         continue;
       }
 
       for (Period period : periodsHolder.getPeriods()) {
-        if (isLineInPeriod(changeset.getDate(), period)) {
+        if (isLineInPeriod(changeset.get().getDate(), period)) {
           devCostCounter.increment(period, lineDevCost);
         }
       }
