@@ -20,6 +20,7 @@
 package org.sonar.batch.cache;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -27,17 +28,19 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.rule.LoadedActiveRule;
+import org.sonar.batch.rule.RulesLoader;
 import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
-
-import java.util.Date;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class NonAssociatedCacheSynchronizerTest {
   private NonAssociatedCacheSynchronizer synchronizer;
 
+  @Mock
+  private RulesLoader rulesLoader;
   @Mock
   private QualityProfileLoader qualityProfileLoader;
   @Mock
@@ -55,14 +58,14 @@ public class NonAssociatedCacheSynchronizerTest {
     when(qualityProfileLoader.loadDefault(null, null)).thenReturn(ImmutableList.of(pf));
     when(activeRulesLoader.load("profile", null)).thenReturn(ImmutableList.of(ar));
 
-    synchronizer = new NonAssociatedCacheSynchronizer(qualityProfileLoader, activeRulesLoader, cacheStatus);
+    synchronizer = new NonAssociatedCacheSynchronizer(rulesLoader, qualityProfileLoader, activeRulesLoader, cacheStatus);
   }
 
   @Test
   public void dont_sync_if_exists() {
     when(cacheStatus.getSyncStatus()).thenReturn(new Date());
     synchronizer.execute(false);
-    verifyNoMoreInteractions(qualityProfileLoader, activeRulesLoader);
+    verifyZeroInteractions(rulesLoader, qualityProfileLoader, activeRulesLoader);
   }
 
   @Test
@@ -81,6 +84,7 @@ public class NonAssociatedCacheSynchronizerTest {
   private void checkSync() {
     verify(cacheStatus).getSyncStatus();
     verify(cacheStatus).save();
+    verify(rulesLoader).load(null);
     verify(qualityProfileLoader).loadDefault(null, null);
     verify(activeRulesLoader).load("profile", null);
 

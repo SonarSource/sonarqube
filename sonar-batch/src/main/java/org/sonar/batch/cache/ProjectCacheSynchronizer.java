@@ -19,21 +19,7 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.repository.ProjectRepositoriesLoader;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 import com.google.common.base.Function;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.batch.repository.ProjectRepositories;
-import org.sonar.batch.repository.QualityProfileLoader;
-import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.batch.repository.user.UserRepositoryLoader;
-import org.sonar.batch.rule.ActiveRulesLoader;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -41,6 +27,20 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
+import org.sonar.batch.repository.ProjectRepositories;
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.QualityProfileLoader;
+import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.repository.user.UserRepositoryLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
+import org.sonar.batch.rule.RulesLoader;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 
 public class ProjectCacheSynchronizer {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectCacheSynchronizer.class);
@@ -51,10 +51,12 @@ public class ProjectCacheSynchronizer {
   private final QualityProfileLoader qualityProfileLoader;
   private final ProjectRepositoriesLoader projectRepositoriesLoader;
   private final ActiveRulesLoader activeRulesLoader;
+  private final RulesLoader rulesLoader;
 
-  public ProjectCacheSynchronizer(QualityProfileLoader qualityProfileLoader, ProjectRepositoriesLoader projectSettingsLoader,
+  public ProjectCacheSynchronizer(RulesLoader rulesLoader, QualityProfileLoader qualityProfileLoader, ProjectRepositoriesLoader projectSettingsLoader,
     ActiveRulesLoader activeRulesLoader, ServerIssuesLoader issuesLoader,
     UserRepositoryLoader userRepository, ProjectCacheStatus cacheStatus) {
+    this.rulesLoader = rulesLoader;
     this.qualityProfileLoader = qualityProfileLoader;
     this.projectRepositoriesLoader = projectSettingsLoader;
     this.activeRulesLoader = activeRulesLoader;
@@ -115,6 +117,10 @@ public class ProjectCacheSynchronizer {
 
   private void loadData(String projectKey) {
     Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
+
+    profiler.startInfo("Load rules");
+    rulesLoader.load(null);
+    profiler.stopInfo();
 
     profiler.startInfo("Load project settings");
     ProjectRepositories projectRepo = projectRepositoriesLoader.load(projectKey, true, null);

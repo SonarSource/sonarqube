@@ -19,27 +19,29 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
-import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonar.batch.repository.QualityProfileLoader;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.batch.repository.QualityProfileLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
+import org.sonar.batch.rule.RulesLoader;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 
 public class NonAssociatedCacheSynchronizer {
   private static final Logger LOG = LoggerFactory.getLogger(NonAssociatedCacheSynchronizer.class);
 
-  private ProjectCacheStatus cacheStatus;
-  private QualityProfileLoader qualityProfileLoader;
-  private ActiveRulesLoader activeRulesLoader;
+  private final ProjectCacheStatus cacheStatus;
+  private final QualityProfileLoader qualityProfileLoader;
+  private final ActiveRulesLoader activeRulesLoader;
+  private final RulesLoader rulesLoader;
 
-  public NonAssociatedCacheSynchronizer(QualityProfileLoader qualityProfileLoader, ActiveRulesLoader activeRulesLoader, ProjectCacheStatus cacheStatus) {
+  public NonAssociatedCacheSynchronizer(RulesLoader rulesLoader, QualityProfileLoader qualityProfileLoader, ActiveRulesLoader activeRulesLoader, ProjectCacheStatus cacheStatus) {
+    this.rulesLoader = rulesLoader;
     this.qualityProfileLoader = qualityProfileLoader;
     this.activeRulesLoader = activeRulesLoader;
     this.cacheStatus = cacheStatus;
@@ -75,6 +77,10 @@ public class NonAssociatedCacheSynchronizer {
 
   private void loadData() {
     Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
+
+    profiler.startInfo("Load rules");
+    rulesLoader.load(null);
+    profiler.stopInfo();
 
     profiler.startInfo("Load default quality profiles");
     Collection<QualityProfile> qProfiles = qualityProfileLoader.loadDefault(null, null);

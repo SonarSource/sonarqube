@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.rule.LoadedActiveRule;
-
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,14 +44,12 @@ import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.rule.DefaultActiveRulesLoader;
+import org.sonar.batch.rule.LoadedActiveRule;
+import org.sonar.batch.rule.RulesLoader;
 import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -72,6 +71,8 @@ public class ProjectCacheSynchronizerTest {
   private DefaultAnalysisMode analysisMode;
   @Mock
   private AnalysisProperties properties;
+  @Mock
+  private RulesLoader rulesLoader;
 
   private ServerIssuesLoader issuesLoader;
   private UserRepositoryLoader userRepositoryLoader;
@@ -105,7 +106,7 @@ public class ProjectCacheSynchronizerTest {
     when(repo.exists()).thenReturn(projectExists);
     when(projectRepositoriesLoader.load(anyString(), anyBoolean(), any(MutableBoolean.class))).thenReturn(repo);
 
-    return new ProjectCacheSynchronizer(qualityProfileLoader, projectRepositoriesLoader, activeRulesLoader, issuesLoader, userRepositoryLoader, cacheStatus);
+    return new ProjectCacheSynchronizer(rulesLoader, qualityProfileLoader, projectRepositoriesLoader, activeRulesLoader, issuesLoader, userRepositoryLoader, cacheStatus);
   }
 
   @Test
@@ -114,6 +115,7 @@ public class ProjectCacheSynchronizerTest {
     synchronizer.load(PROJECT_KEY, false);
 
     verify(issuesLoader).load(eq(PROJECT_KEY), any(Function.class));
+    verify(rulesLoader).load(null);
     verify(qualityProfileLoader).load(PROJECT_KEY, null, null);
     verify(activeRulesLoader).load("profile", null);
     verify(projectRepositoriesLoader).load(eq(PROJECT_KEY), eq(true), any(MutableBoolean.class));
@@ -148,7 +150,7 @@ public class ProjectCacheSynchronizerTest {
   @Test
   public void testLastAnalysisToday() {
     ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
-    
+
     when(cacheStatus.getSyncStatus()).thenReturn(new Date());
     synchronizer.load(PROJECT_KEY, false);
 
@@ -159,7 +161,7 @@ public class ProjectCacheSynchronizerTest {
   @Test
   public void testLastAnalysisYesterday() {
     ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
-    
+
     Date d = new Date(new Date().getTime() - 60 * 60 * 24 * 1000);
     when(cacheStatus.getSyncStatus()).thenReturn(d);
     synchronizer.load(PROJECT_KEY, false);
@@ -167,25 +169,25 @@ public class ProjectCacheSynchronizerTest {
     verify(cacheStatus).save();
     verify(cacheStatus).getSyncStatus();
   }
-  
+
   @Test
   public void testDontFailOnError() {
     ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
-    
+
     Date d = new Date(new Date().getTime() - 60 * 60 * 24 * 1000);
     when(cacheStatus.getSyncStatus()).thenReturn(d);
-    
+
     when(projectRepositoriesLoader.load(anyString(), anyBoolean(), any(MutableBoolean.class))).thenThrow(IllegalStateException.class);
     synchronizer.load(PROJECT_KEY, false);
-    
+
     verify(cacheStatus).getSyncStatus();
     verifyNoMoreInteractions(cacheStatus);
   }
-  
+
   @Test
   public void testForce() {
     ProjectCacheSynchronizer synchronizer = createMockedLoaders(true, new Date());
-    
+
     when(cacheStatus.getSyncStatus()).thenReturn(new Date());
     synchronizer.load(PROJECT_KEY, true);
 
