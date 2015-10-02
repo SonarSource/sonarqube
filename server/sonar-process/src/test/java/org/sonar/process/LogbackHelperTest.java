@@ -102,9 +102,7 @@ public class LogbackHelperTest {
 
   @Test
   public void configureLogger() {
-    LoggerContext ctx = underTest.getRootContext();
-
-    Logger logger = underTest.configureLogger(ctx, "my_logger", Level.WARN);
+    Logger logger = underTest.configureLogger("my_logger", Level.WARN);
 
     assertThat(logger.getLevel()).isEqualTo(Level.WARN);
     assertThat(logger.getName()).isEqualTo("my_logger");

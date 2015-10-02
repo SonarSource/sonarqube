@@ -166,6 +166,7 @@ import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
+import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.platform.monitoring.DatabaseMonitor;
 import org.sonar.server.platform.monitoring.EsMonitor;
@@ -173,9 +174,11 @@ import org.sonar.server.platform.monitoring.JvmPropertiesMonitor;
 import org.sonar.server.platform.monitoring.PluginsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
+import org.sonar.server.platform.ws.ChangeLogLevelAction;
 import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.InfoAction;
 import org.sonar.server.platform.ws.L10nWs;
+import org.sonar.server.platform.ws.LogsAction;
 import org.sonar.server.platform.ws.MigrateDbAction;
 import org.sonar.server.platform.ws.RestartAction;
 import org.sonar.server.platform.ws.ServerWs;
@@ -668,6 +671,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TypeValidationModule.class,
 
       // System
+      ServerLogging.class,
       RestartAction.class,
       InfoAction.class,
       UpgradesAction.class,
@@ -680,6 +684,8 @@ public class PlatformLevel4 extends PlatformLevel {
       JvmPropertiesMonitor.class,
       DatabaseMonitor.class,
       MigrateDbAction.class,
+      LogsAction.class,
+      ChangeLogLevelAction.class,
       DbMigrationStatusAction.class,
 
       // Plugins WS

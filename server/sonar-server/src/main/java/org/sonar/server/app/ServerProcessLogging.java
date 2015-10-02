@@ -31,12 +31,13 @@ import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
 import org.sonar.server.computation.log.CeLogDenyFilter;
 import org.sonar.server.computation.log.CeLogging;
+import org.sonar.server.platform.ServerLogging;
 
 /**
  * Configure logback for web server process. Logs must be written to console, which is
  * forwarded to file logs/sonar.log by the app master process.
  */
-class WebLogging {
+class ServerProcessLogging {
 
   private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%logger{20}] %msg%n";
   public static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
@@ -49,7 +50,7 @@ class WebLogging {
 
     helper.enableJulChangePropagation(ctx);
     configureAppender(ctx, props);
-    configureLevels(ctx, props);
+    configureLevels(props);
 
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
     LogManager.getLogManager().reset();
@@ -64,17 +65,7 @@ class WebLogging {
 
   }
 
-  private void configureLevels(LoggerContext ctx, Props props) {
-    // override level of some loggers
-    helper.configureLogger(ctx, "rails", Level.WARN);
-    helper.configureLogger(ctx, "org.apache.ibatis", Level.WARN);
-    helper.configureLogger(ctx, "java.sql", Level.WARN);
-    helper.configureLogger(ctx, "java.sql.ResultSet", Level.WARN);
-    helper.configureLogger(ctx, "org.sonar.MEASURE_FILTER", Level.WARN);
-    helper.configureLogger(ctx, "org.elasticsearch", Level.INFO);
-    helper.configureLogger(ctx, "org.elasticsearch.node", Level.INFO);
-    helper.configureLogger(ctx, "org.elasticsearch.http", Level.INFO);
-    helper.configureLogger(ctx, "ch.qos.logback", Level.WARN);
+  private void configureLevels(Props props) {
     String levelCode = props.value(LOG_LEVEL_PROPERTY, "INFO");
     Level level;
     if ("TRACE".equals(levelCode)) {
@@ -86,6 +77,6 @@ class WebLogging {
     } else {
       throw MessageException.of(String.format("Unsupported log level: %s. Please check property %s", levelCode, LOG_LEVEL_PROPERTY));
     }
-    helper.configureLogger(ctx, Logger.ROOT_LOGGER_NAME, level);
+    ServerLogging.configureLevels(helper, level);
   }
 }

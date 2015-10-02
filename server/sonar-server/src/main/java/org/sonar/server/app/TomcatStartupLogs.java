@@ -26,12 +26,12 @@ import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.process.Props;
 
-class StartupLogs {
+class TomcatStartupLogs {
 
   private final Logger log;
   private final Props props;
 
-  StartupLogs(Props props, Logger log) {
+  TomcatStartupLogs(Props props, Logger log) {
     this.props = props;
     this.log = log;
   }

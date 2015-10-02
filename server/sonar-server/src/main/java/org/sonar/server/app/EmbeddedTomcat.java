@@ -20,6 +20,7 @@
 package org.sonar.server.app;
 
 import com.google.common.base.Throwables;
+import java.io.File;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -27,8 +28,6 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-
-import java.io.File;
 
 class EmbeddedTomcat {
 
@@ -60,7 +59,7 @@ class EmbeddedTomcat {
     webappContext = Webapp.configure(tomcat, props);
     try {
       tomcat.start();
-      new StartupLogs(props, Loggers.get(getClass())).log(tomcat);
+      new TomcatStartupLogs(props, Loggers.get(getClass())).log(tomcat);
     } catch (LifecycleException e) {
       Throwables.propagate(e);
     }

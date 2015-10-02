@@ -90,8 +90,8 @@ public class LogbackHelper {
     return consoleAppender;
   }
 
-  public Logger configureLogger(LoggerContext loggerContext, String loggerName, Level level) {
-    Logger logger = loggerContext.getLogger(loggerName);
+  public Logger configureLogger(String loggerName, Level level) {
+    Logger logger = getRootContext().getLogger(loggerName);
     logger.setLevel(level);
     return logger;
   }

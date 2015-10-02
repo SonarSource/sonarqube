@@ -19,6 +19,7 @@
  */
 package org.sonar.server.app;
 
+import java.util.Properties;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
@@ -27,17 +28,18 @@ import org.mockito.Mockito;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.process.Props;
 
-import java.util.Properties;
-
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class StartupLogsTest {
 
   Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
   Logger logger = mock(Logger.class);
   Props props = new Props(new Properties());
-  StartupLogs underTest = new StartupLogs(props, logger);
+  TomcatStartupLogs underTest = new TomcatStartupLogs(props, logger);
 
   @Test
   public void logAjp() {
