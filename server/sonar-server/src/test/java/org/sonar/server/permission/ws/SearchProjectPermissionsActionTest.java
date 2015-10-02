@@ -85,7 +85,7 @@ public class SearchProjectPermissionsActionTest {
     resourceTypes = mock(ResourceTypes.class);
     when(resourceTypes.getRoots()).thenReturn(rootResourceTypes());
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
-    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, componentFinder);
+    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, componentFinder, resourceTypes);
     i18n.setProjectPermissions();
 
     dataLoader = new SearchProjectPermissionsDataLoader(dbClient, finder, resourceTypes);
@@ -225,7 +225,7 @@ public class SearchProjectPermissionsActionTest {
     insertComponent(newDeveloper("developer-name"));
     insertComponent(newProjectDto("project-uuid"));
     commit();
-    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient)), resourceTypes);
+    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes), resourceTypes);
     underTest = new SearchProjectPermissionsAction(dbClient, userSession, i18n, dataLoader);
     ws = new WsActionTester(underTest);
 

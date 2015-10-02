@@ -68,7 +68,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionTemplateDto template = finder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
-      ComponentDto project = finder.getProject(dbSession, WsProjectRef.fromRequest(wsRequest));
+      ComponentDto project = finder.getRootComponentOrModule(dbSession, WsProjectRef.fromRequest(wsRequest));
 
       ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.create(
         template.getUuid(),

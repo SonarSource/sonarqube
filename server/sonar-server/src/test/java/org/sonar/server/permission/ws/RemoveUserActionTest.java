@@ -26,12 +26,14 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -48,6 +50,7 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
@@ -61,6 +64,7 @@ public class RemoveUserActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
   UserSessionRule userSession = UserSessionRule.standalone();
   WsTester ws;
   PermissionUpdater permissionUpdater;
@@ -75,7 +79,7 @@ public class RemoveUserActionTest {
     dbSession = db.getSession();
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     ws = new WsTester(new PermissionsWs(
-      new RemoveUserAction(dbClient, permissionUpdater, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder)))));
+      new RemoveUserAction(dbClient, permissionUpdater, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder, resourceTypes)))));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
@@ -120,6 +124,21 @@ public class RemoveUserActionTest {
     verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.componentKey()).isEqualTo("project-key");
+  }
+
+  @Test
+  public void remove_with_view_uuid() throws Exception {
+    insertComponent(newView("view-uuid").setKey("view-key"));
+
+    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+      .setParam(PARAM_PROJECT_ID, "view-uuid")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+
+    verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
+    PermissionChange permissionChange = permissionChangeCaptor.getValue();
+    assertThat(permissionChange.componentKey()).isEqualTo("view-key");
   }
 
   @Test

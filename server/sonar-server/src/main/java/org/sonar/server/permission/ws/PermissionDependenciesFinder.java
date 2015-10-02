@@ -22,6 +22,7 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -38,10 +39,12 @@ import static org.sonar.server.ws.WsUtils.checkFound;
 public class PermissionDependenciesFinder {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private final ResourceTypes resourceTypes;
 
-  public PermissionDependenciesFinder(DbClient dbClient, ComponentFinder componentFinder) {
+  public PermissionDependenciesFinder(DbClient dbClient, ComponentFinder componentFinder, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
+    this.resourceTypes = resourceTypes;
   }
 
   /**
@@ -53,11 +56,11 @@ public class PermissionDependenciesFinder {
     }
 
     WsProjectRef wsProjectRef = request.project().get();
-    return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, wsProjectRef.uuid(), wsProjectRef.key()));
+    return Optional.of(componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, wsProjectRef.uuid(), wsProjectRef.key(), resourceTypes));
   }
 
-  public ComponentDto getProject(DbSession dbSession, WsProjectRef projectRef) {
-    return componentFinder.getProjectByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
+  public ComponentDto getRootComponentOrModule(DbSession dbSession, WsProjectRef projectRef) {
+    return componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key(), resourceTypes);
   }
 
   public String getGroupName(DbSession dbSession, PermissionRequest request) {

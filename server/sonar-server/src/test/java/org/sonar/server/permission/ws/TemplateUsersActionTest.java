@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -35,6 +36,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.permission.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
@@ -66,6 +68,7 @@ public class TemplateUsersActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
   WsActionTester ws;
@@ -77,7 +80,7 @@ public class TemplateUsersActionTest {
 
   @Before
   public void setUp() {
-    PermissionDependenciesFinder dependenciesFinder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient));
+    PermissionDependenciesFinder dependenciesFinder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes);
     underTest = new TemplateUsersAction(dbClient, userSession, dependenciesFinder);
     ws = new WsActionTester(underTest);
 

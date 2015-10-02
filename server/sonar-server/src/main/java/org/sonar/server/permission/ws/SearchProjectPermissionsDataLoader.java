@@ -92,7 +92,7 @@ public class SearchProjectPermissionsDataLoader {
     Optional<WsProjectRef> project = WsProjectRef.optionalFromRequest(wsRequest);
 
     if (project.isPresent()) {
-      return singletonList(finder.getProject(dbSession, project.get()));
+      return singletonList(finder.getRootComponentOrModule(dbSession, project.get()));
     }
 
     return dbClient.componentDao().selectComponents(dbSession, rootQualifiers, paging.offset(), paging.pageSize(), query);

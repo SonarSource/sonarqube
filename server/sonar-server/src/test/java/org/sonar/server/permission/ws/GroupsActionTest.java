@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
@@ -35,7 +36,9 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.server.component.ComponentFinder;
@@ -53,6 +56,7 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
@@ -67,6 +71,8 @@ public class GroupsActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  ComponentDbTester componentDb = new ComponentDbTester(db);
+  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
 
   DbClient dbClient;
   DbSession dbSession;
@@ -79,7 +85,7 @@ public class GroupsActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
-    underTest = new GroupsAction(dbClient, userSession, permissionFinder, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient)));
+    underTest = new GroupsAction(dbClient, userSession, permissionFinder, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes));
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
@@ -161,6 +167,26 @@ public class GroupsActionTest {
     String result = ws.newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .execute().getInput();
+
+    assertThat(result).contains("project-group-name")
+      .doesNotContain("group-1")
+      .doesNotContain("group-2")
+      .doesNotContain("group-3");
+  }
+
+  @Test
+  public void search_groups_on_views() {
+    ComponentDto view = componentDb.insertComponent(newView("view-uuid").setKey("view-key"));
+    GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
+    insertGroupRole(new GroupRoleDto()
+      .setGroupId(group.getId())
+      .setRole(ISSUE_ADMIN)
+      .setResourceId(view.getId()));
+
+    String result = ws.newRequest()
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PROJECT_ID, "view-uuid")
       .execute().getInput();
 
     assertThat(result).contains("project-group-name")

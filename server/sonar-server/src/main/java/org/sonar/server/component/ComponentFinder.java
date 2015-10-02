@@ -21,15 +21,20 @@
 package org.sonar.server.component;
 
 import com.google.common.base.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
+import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class ComponentFinder {
 
@@ -49,21 +54,29 @@ public class ComponentFinder {
   }
 
   public ComponentDto getByKey(DbSession dbSession, String key) {
-    return getIfPresentOrFail(dbClient.componentDao().selectByKey(dbSession, key), String.format("Component key '%s' not found", key));
+    return getIfPresentOrFail(dbClient.componentDao().selectByKey(dbSession, key), format("Component key '%s' not found", key));
   }
 
   public ComponentDto getByUuid(DbSession dbSession, String uuid) {
-    return getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, uuid), String.format("Component id '%s' not found", uuid));
+    return getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, uuid), format("Component id '%s' not found", uuid));
   }
 
-  public ComponentDto getProjectByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
+  /**
+   * A project can be:
+   * <ul>
+   *   <li>a project – ex: SonarQube</li>
+   *   <li>a view – ex: Language Team</li>
+   *   <li>a developer – ex: Simon Brandhof</li>
+   * </ul>
+   */
+  public ComponentDto getRootComponentOrModuleByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey, ResourceTypes resourceTypes) {
     ComponentDto project;
     if (projectUuid != null) {
-      project = getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, projectUuid), String.format("Project id '%s' not found", projectUuid));
+      project = getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, projectUuid), format("Project id '%s' not found", projectUuid));
     } else {
-      project = getIfPresentOrFail(dbClient.componentDao().selectByKey(dbSession, projectKey), String.format("Project key '%s' not found", projectKey));
+      project = getIfPresentOrFail(dbClient.componentDao().selectByKey(dbSession, projectKey), format("Project key '%s' not found", projectKey));
     }
-    checkIsProjectOrModule(project);
+    checkIsProjectOrModule(project, resourceTypes);
 
     return project;
   }
@@ -75,9 +88,13 @@ public class ComponentFinder {
     return component.get();
   }
 
-  private static void checkIsProjectOrModule(ComponentDto component) {
-    if (!Qualifiers.PROJECT.equals(component.qualifier()) && !Qualifiers.MODULE.equals(component.qualifier())) {
-      throw new BadRequestException(String.format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
-    }
+  private void checkIsProjectOrModule(ComponentDto component, ResourceTypes resourceTypes) {
+    Set<String> rootQualifiers = from(resourceTypes.getRoots())
+      .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .toSet();
+    String qualifier = component.qualifier();
+
+    checkRequest(rootQualifiers.contains(qualifier) || Qualifiers.MODULE.equals(qualifier),
+      format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
   }
 }

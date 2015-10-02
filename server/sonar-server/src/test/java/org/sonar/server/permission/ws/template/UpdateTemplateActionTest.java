@@ -26,11 +26,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
@@ -66,6 +68,7 @@ public class UpdateTemplateActionTest {
   WsActionTester ws;
   DbClient dbClient;
   DbSession dbSession;
+  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
 
   PermissionTemplateDto templateDto;
 
@@ -77,7 +80,7 @@ public class UpdateTemplateActionTest {
 
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient));
+    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes);
 
     ws = new WsActionTester(new UpdateTemplateAction(dbClient, userSession, system, finder));
 

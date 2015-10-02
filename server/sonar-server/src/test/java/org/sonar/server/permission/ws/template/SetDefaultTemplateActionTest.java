@@ -94,7 +94,7 @@ public class SetDefaultTemplateActionTest {
 
     ws = new WsActionTester(new SetDefaultTemplateAction(
       dbClient,
-      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient)),
+      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes),
       resourceTypes,
       persistentSettings,
       userSession, i18n));
