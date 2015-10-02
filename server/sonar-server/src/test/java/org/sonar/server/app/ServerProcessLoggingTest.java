@@ -38,13 +38,13 @@ import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WebLoggingTest {
+public class ServerProcessLoggingTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   Props props = new Props(new Properties());
-  WebLogging underTest = new WebLogging();
+  ServerProcessLogging underTest = new ServerProcessLogging();
 
   /**
    * Path to data dir must be set for Compute Engine logging.
