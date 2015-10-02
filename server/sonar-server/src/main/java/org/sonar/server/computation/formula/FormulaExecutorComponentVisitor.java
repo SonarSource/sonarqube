@@ -104,37 +104,45 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
 
   @Override
   public void visitProject(Component project, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    processNotLeaf(project, path);
+    process(project, path);
   }
 
   @Override
   public void visitModule(Component module, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    processNotLeaf(module, path);
+    process(module, path);
   }
 
   @Override
   public void visitDirectory(Component directory, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    processNotLeaf(directory, path);
+    process(directory, path);
   }
 
   @Override
   public void visitFile(Component file, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    processLeaf(file, path);
+    process(file, path);
   }
 
   @Override
   public void visitView(Component view, Path<Counters> path) {
-    processNotLeaf(view, path);
+    process(view, path);
   }
 
   @Override
   public void visitSubView(Component subView, Path<Counters> path) {
-    processNotLeaf(subView, path);
+    process(subView, path);
   }
 
   @Override
   public void visitProjectView(Component projectView, Path<Counters> path) {
-    processLeaf(projectView, path);
+    process(projectView, path);
+  }
+
+  private void process(Component component, Path<FormulaExecutorComponentVisitor.Counters> path) {
+    if (component.getChildren().isEmpty()) {
+      processLeaf(component, path);
+    } else {
+      processNotLeaf(component, path);
+    }
   }
 
   private void processNotLeaf(Component component, Path<FormulaExecutorComponentVisitor.Counters> path) {

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.formula.coverage;
 
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.formula.counter.LongVariationValue;
@@ -38,7 +39,7 @@ public abstract class ElementsAndCoveredElementsVariationCounter implements Coun
 
   @Override
   public void initialize(CounterInitializationContext context) {
-    if (context.getLeaf().getType().isReportType() && context.getLeaf().getFileAttributes().isUnitTest()) {
+    if (context.getLeaf().getType() == Component.Type.FILE && context.getLeaf().getFileAttributes().isUnitTest()) {
       return;
     }
     initializeForSupportedLeaf(context);

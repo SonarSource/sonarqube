@@ -39,7 +39,7 @@ public abstract class ElementsAndCoveredElementsCounter implements Counter<Eleme
   @Override
   public void initialize(CounterInitializationContext context) {
     Component component = context.getLeaf();
-    if (component.getType().isReportType() && component.getFileAttributes().isUnitTest()) {
+    if (component.getType() == Component.Type.FILE && component.getFileAttributes().isUnitTest()) {
       return;
     }
     initializeForSupportedLeaf(context);

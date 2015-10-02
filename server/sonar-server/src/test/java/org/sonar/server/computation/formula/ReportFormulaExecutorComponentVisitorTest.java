@@ -39,7 +39,6 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_IT_COVERAGE_KEY;
@@ -53,24 +52,34 @@ import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
 public class ReportFormulaExecutorComponentVisitorTest {
-  private static final ReportComponent BALANCED_COMPONENT_TREE = ReportComponent.builder(PROJECT, 1)
+  private static final int ROOT_REF = 1;
+  private static final int MODULE_1_REF = 11;
+  private static final int DIRECTORY_1_REF = 111;
+  private static final int FILE_1_REF = 1111;
+  private static final int FILE_2_REF = 1112;
+  private static final int MODULE_2_REF = 12;
+  private static final int DIRECTORY_2_REF = 121;
+  private static final int FILE_3_REF = 1211;
+
+  private static final ReportComponent BALANCED_COMPONENT_TREE = ReportComponent.builder(PROJECT, ROOT_REF)
     .addChildren(
-      ReportComponent.builder(MODULE, 11)
+      ReportComponent.builder(MODULE, MODULE_1_REF)
         .addChildren(
-          ReportComponent.builder(DIRECTORY, 111)
+          ReportComponent.builder(DIRECTORY, DIRECTORY_1_REF)
             .addChildren(
-              builder(Component.Type.FILE, 1111).build(),
-              builder(Component.Type.FILE, 1112).build())
+              builder(Component.Type.FILE, FILE_1_REF).build(),
+              builder(Component.Type.FILE, FILE_2_REF).build())
             .build())
         .build(),
-      ReportComponent.builder(MODULE, 12)
+      ReportComponent.builder(MODULE, MODULE_2_REF)
         .addChildren(
-          ReportComponent.builder(DIRECTORY, 121)
+          ReportComponent.builder(DIRECTORY, DIRECTORY_2_REF)
             .addChildren(
-              builder(Component.Type.FILE, 1211).build())
+              builder(Component.Type.FILE, FILE_3_REF).build())
             .build())
         .build())
     .build();
+
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
@@ -85,66 +94,61 @@ public class ReportFormulaExecutorComponentVisitorTest {
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule()
     .setPeriods(new Period(2, "some mode", null, 95l, 756l), new Period(5, "some other mode", null, 756L, 956L));
 
-  FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-    .withVariationSupport(periodsHolder)
-    .buildFor(ImmutableList.<Formula>of(new FakeFormula(), new FakeVariationFormula()));
-
   @Test
   public void verify_aggregation_on_value() throws Exception {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
-    measureRepository.addRawMeasure(1111, LINES_KEY, newMeasureBuilder().create(10));
-    measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
-    measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
+    measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(10));
+    measureRepository.addRawMeasure(FILE_2_REF, LINES_KEY, newMeasureBuilder().create(8));
+    measureRepository.addRawMeasure(FILE_3_REF, LINES_KEY, newMeasureBuilder().create(2));
 
-    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(BALANCED_COMPONENT_TREE);
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(20)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(18)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(18)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1111))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(10)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1112))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(8)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(2)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(2)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1211))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(2)));
+    assertAddedRawMeasure(ROOT_REF, 20);
+    assertAddedRawMeasure(MODULE_1_REF, 18);
+    assertAddedRawMeasure(111, 18);
+    assertAddedRawMeasure(FILE_1_REF, 10);
+    assertAddedRawMeasure(FILE_2_REF, 8);
+    assertAddedRawMeasure(MODULE_2_REF, 2);
+    assertAddedRawMeasure(DIRECTORY_2_REF, 2);
+    assertAddedRawMeasure(FILE_3_REF, 2);
   }
 
   @Test
   public void verify_multi_metric_formula_support_and_aggregation() throws Exception {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
-    measureRepository.addRawMeasure(1111, LINES_KEY, newMeasureBuilder().create(10));
-    measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
-    measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
+    measureRepository.addRawMeasure(FILE_1_REF, LINES_KEY, newMeasureBuilder().create(10));
+    measureRepository.addRawMeasure(FILE_2_REF, LINES_KEY, newMeasureBuilder().create(8));
+    measureRepository.addRawMeasure(FILE_3_REF, LINES_KEY, newMeasureBuilder().create(2));
 
-    FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-      .withVariationSupport(periodsHolder)
-      .buildFor(ImmutableList.<Formula>of(new FakeMultiMetricFormula()));
-    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeMultiMetricFormula()))
+      .visit(BALANCED_COMPONENT_TREE);
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(30)),
       entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(120)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_1_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(28)),
       entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(118)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(28)),
       entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(118)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1111))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(20)),
       entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(110)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1112))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(18)),
       entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(108)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(
-      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(12)),
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_2_REF))).containsOnly(
+      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
       entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(
-      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(12)),
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_2_REF))).containsOnly(
+      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
       entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1211))).containsOnly(
-      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(12)),
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_3_REF))).containsOnly(
+      entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(MODULE_2_REF)),
       entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
   }
 
@@ -152,64 +156,81 @@ public class ReportFormulaExecutorComponentVisitorTest {
   public void verify_aggregation_on_variations() throws Exception {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
-    measureRepository.addRawMeasure(1111, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10, 20));
-    measureRepository.addRawMeasure(1112, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(8, 16));
-    measureRepository.addRawMeasure(1211, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(2, 4));
+    measureRepository.addRawMeasure(FILE_1_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10, 20));
+    measureRepository.addRawMeasure(FILE_2_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(8, 16));
+    measureRepository.addRawMeasure(FILE_3_REF, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(2, 4));
 
-    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeVariationFormula()))
+      .visit(BALANCED_COMPONENT_TREE);
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(20, 40)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(18, 36)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(18, 36)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1111))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(10, 20)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1112))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(8, 16)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2, 4)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2, 4)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1211))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2, 4)));
-  }
-
-  private static Measure createMeasureWithVariation(double variation2Value, double variation5Value) {
-    return newMeasureBuilder().setVariations(new MeasureVariations(null, variation2Value, null, null, variation5Value)).createNoValue();
+    assertAddedRawMeasure(ROOT_REF, 20, 40);
+    assertAddedRawMeasure(MODULE_1_REF, 18, 36);
+    assertAddedRawMeasure(DIRECTORY_1_REF, 18, 36);
+    assertAddedRawMeasure(FILE_1_REF, 10, 20);
+    assertAddedRawMeasure(FILE_2_REF, 8, 16);
+    assertAddedRawMeasure(MODULE_2_REF, 2, 4);
+    assertAddedRawMeasure(DIRECTORY_2_REF, 2, 4);
+    assertAddedRawMeasure(FILE_3_REF, 2, 4);
   }
 
   @Test
-  public void add_no_measure() throws Exception {
-    ReportComponent project = ReportComponent.builder(PROJECT, 1)
+  public void measures_are_0_when_there_is_no_input_measure() throws Exception {
+    ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
-        ReportComponent.builder(MODULE, 11)
+        ReportComponent.builder(MODULE, MODULE_1_REF)
           .addChildren(
-            ReportComponent.builder(DIRECTORY, 111)
+            ReportComponent.builder(DIRECTORY, DIRECTORY_1_REF)
               .addChildren(
-                builder(Component.Type.FILE, 1111).build())
+                builder(Component.Type.FILE, FILE_1_REF).build())
               .build())
           .build())
       .build();
     treeRootHolder.setRoot(project);
 
-    new PathAwareCrawler<>(underTest).visit(project);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(project);
 
-    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
+    assertAddedRawMeasure(ROOT_REF, 0);
+    assertAddedRawMeasure(MODULE_1_REF, 0);
+    assertAddedRawMeasure(DIRECTORY_1_REF, 0);
+    assertAddedRawMeasure(FILE_1_REF, 0);
   }
 
   @Test
-  public void add_no_measure_when_no_file() throws Exception {
-    ReportComponent project = ReportComponent.builder(PROJECT, 1)
+  public void add_measure_even_when_leaf_is_not_FILE() throws Exception {
+    ReportComponent project = ReportComponent.builder(PROJECT, ROOT_REF)
       .addChildren(
-        ReportComponent.builder(MODULE, 11)
+        ReportComponent.builder(MODULE, MODULE_1_REF)
           .addChildren(
             ReportComponent.builder(DIRECTORY, 111).build())
           .build())
       .build();
     treeRootHolder.setRoot(project);
 
-    new PathAwareCrawler<>(underTest).visit(project);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(project);
 
-    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
+    assertAddedRawMeasure(MODULE_1_REF, 0);
+    assertAddedRawMeasure(DIRECTORY_1_REF, 0);
+  }
+
+  private FormulaExecutorComponentVisitor formulaExecutorComponentVisitor(Formula formula) {
+    return FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+      .withVariationSupport(periodsHolder)
+      .buildFor(ImmutableList.of(formula));
+  }
+
+  private static Measure createMeasureWithVariation(double variation2Value, double variation5Value) {
+    return newMeasureBuilder().setVariations(new MeasureVariations(null, variation2Value, null, null, variation5Value)).createNoValue();
+  }
+
+  private void assertAddedRawMeasure(int componentRef, int expectedValue) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(expectedValue)));
+  }
+
+  private void assertAddedRawMeasure(int componentRef, int variation2Value, int variation5Value) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
+      .containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(variation2Value, variation5Value)));
   }
 
   private class FakeFormula implements Formula<FakeCounter> {
@@ -226,10 +247,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NCLOC_KEY));
 
-      // simplest computation
-      if (counter.value <= 0) {
-        return Optional.absent();
-      }
       return Optional.of(Measure.newMeasureBuilder().create(counter.value));
     }
 
@@ -254,10 +271,6 @@ public class ReportFormulaExecutorComponentVisitorTest {
       assertThat(context.getMetric())
         .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_IT_COVERAGE_KEY));
 
-      // simplest computation
-      if (counter.value <= 0) {
-        return Optional.absent();
-      }
       return Optional.of(Measure.newMeasureBuilder().create(counter.value + metricOffset(context.getMetric())));
     }
 
@@ -288,7 +301,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     @Override
     public void initialize(CounterInitializationContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getLeaf().getReportAttributes().getRef()).isIn(1111, 1112, 1211);
+      assertThat(context.getLeaf().getChildren()).isEmpty();
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
 
       Optional<Measure> measureOptional = context.getMeasure(LINES_KEY);
@@ -339,7 +352,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     @Override
     public void initialize(CounterInitializationContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getLeaf().getReportAttributes().getRef()).isIn(1111, 1112, 1211);
+      assertThat(context.getLeaf().getChildren()).isEmpty();
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
 
       Optional<Measure> measureOptional = context.getMeasure(NEW_LINES_TO_COVER_KEY);

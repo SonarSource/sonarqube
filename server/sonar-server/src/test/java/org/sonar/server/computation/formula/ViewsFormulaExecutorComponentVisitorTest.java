@@ -67,15 +67,15 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     .addChildren(
       ViewsComponent.builder(SUBVIEW, SUBVIEW_1_REF)
         .addChildren(
-            ViewsComponent.builder(SUBVIEW, SUB_SUBVIEW_REF)
-                .addChildren(
-                    builder(PROJECT_VIEW, PROJECT_VIEW_1_REF).build(),
-                    builder(PROJECT_VIEW, PROJECT_VIEW_2_REF).build())
-                .build())
+          ViewsComponent.builder(SUBVIEW, SUB_SUBVIEW_REF)
+            .addChildren(
+              builder(PROJECT_VIEW, PROJECT_VIEW_1_REF).build(),
+              builder(PROJECT_VIEW, PROJECT_VIEW_2_REF).build())
+            .build())
         .build(),
       ViewsComponent.builder(SUBVIEW, SUBVIEW_2_REF)
         .addChildren(
-            builder(PROJECT_VIEW, PROJECT_VIEW_3_REF).build())
+          builder(PROJECT_VIEW, PROJECT_VIEW_3_REF).build())
         .build(),
       builder(PROJECT_VIEW, PROJECT_VIEW_4_REF).build())
     .build();
@@ -94,10 +94,6 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule()
     .setPeriods(new Period(2, "some mode", null, 95l, 756l), new Period(5, "some other mode", null, 756L, 956L));
 
-  FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-    .withVariationSupport(periodsHolder)
-    .buildFor(ImmutableList.<Formula>of(new FakeFormula(), new FakeVariationFormula()));
-
   @Test
   public void verify_aggregation_on_value() throws Exception {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
@@ -106,7 +102,8 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     addRawMeasure(PROJECT_VIEW_3_REF, 3, LINES_KEY);
     addRawMeasure(PROJECT_VIEW_4_REF, 4, LINES_KEY);
 
-    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(BALANCED_COMPONENT_TREE);
 
     verifyProjectViewsHasNoAddedRawMeasures();
     verifySingleMetricValue(SUB_SUBVIEW_REF, 3);
@@ -127,10 +124,8 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     addRawMeasure(PROJECT_VIEW_3_REF, 5, LINES_KEY);
     addRawMeasure(PROJECT_VIEW_4_REF, 4, LINES_KEY);
 
-    FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-      .withVariationSupport(periodsHolder)
-      .buildFor(ImmutableList.<Formula>of(new FakeMultiMetricFormula()));
-    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeMultiMetricFormula()))
+      .visit(BALANCED_COMPONENT_TREE);
 
     verifyProjectViewsHasNoAddedRawMeasures();
     verifyMultiMetricValues(SUB_SUBVIEW_REF, 13, 103);
@@ -148,7 +143,8 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     addRawMeasureWithVariation(PROJECT_VIEW_3_REF, NEW_LINES_TO_COVER_KEY, 2, 4);
     addRawMeasureWithVariation(PROJECT_VIEW_4_REF, NEW_LINES_TO_COVER_KEY, 3, 7);
 
-    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeVariationFormula()))
+      .visit(BALANCED_COMPONENT_TREE);
 
     verifyProjectViewsHasNoAddedRawMeasures();
     verifySingleMetricWithVariations(SUB_SUBVIEW_REF, 18, 36);
@@ -157,8 +153,10 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     verifySingleMetricWithVariations(ROOT_REF, 23, 47);
   }
 
-  private AbstractIterableAssert<?, ? extends Iterable<? extends MeasureRepoEntry>, MeasureRepoEntry> verifySingleMetricWithVariations(int componentRef, int variation2Value, int variation5Value) {
-    return assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(variation2Value, variation5Value)));
+  private AbstractIterableAssert<?, ? extends Iterable<? extends MeasureRepoEntry>, MeasureRepoEntry> verifySingleMetricWithVariations(int componentRef, int variation2Value,
+    int variation5Value) {
+    return assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
+      .containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(variation2Value, variation5Value)));
   }
 
   private MeasureRepositoryRule addRawMeasureWithVariation(int componentRef, String metricKey, int variation2Value, int variation5Value) {
@@ -170,7 +168,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
   }
 
   @Test
-  public void add_no_measure() throws Exception {
+  public void verify_no_measure_added_on_projectView() throws Exception {
     ViewsComponent project = ViewsComponent.builder(VIEW, ROOT_REF)
       .addChildren(
         ViewsComponent.builder(SUBVIEW, SUBVIEW_1_REF)
@@ -183,16 +181,17 @@ public class ViewsFormulaExecutorComponentVisitorTest {
       .build();
     treeRootHolder.setRoot(project);
 
-    new PathAwareCrawler<>(underTest).visit(project);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(project);
 
-    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUBVIEW_1_REF)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_REF)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(PROJECT_VIEW_1_REF)).isEmpty();
+    assertNoAddedRawMeasure(PROJECT_VIEW_1_REF);
+    verifySingleMetricValue(SUB_SUBVIEW_REF, 0);
+    verifySingleMetricValue(SUBVIEW_1_REF, 0);
+    verifySingleMetricValue(ROOT_REF, 0);
   }
 
   @Test
-  public void add_no_measure_when_no_file() throws Exception {
+  public void add_measure_even_if_leaf_is_not_a_PROJECT_VIEW() throws Exception {
     ViewsComponent project = ViewsComponent.builder(VIEW, ROOT_REF)
       .addChildren(
         ViewsComponent.builder(SUBVIEW, SUBVIEW_1_REF)
@@ -202,11 +201,12 @@ public class ViewsFormulaExecutorComponentVisitorTest {
       .build();
     treeRootHolder.setRoot(project);
 
-    new PathAwareCrawler<>(underTest).visit(project);
+    new PathAwareCrawler<>(formulaExecutorComponentVisitor(new FakeFormula()))
+      .visit(project);
 
-    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUBVIEW_1_REF)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_REF)).isEmpty();
+    verifySingleMetricValue(SUB_SUBVIEW_REF, 0);
+    verifySingleMetricValue(SUBVIEW_1_REF, 0);
+    verifySingleMetricValue(ROOT_REF, 0);
   }
 
   private class FakeFormula implements Formula<FakeCounter> {
@@ -223,10 +223,6 @@ public class ViewsFormulaExecutorComponentVisitorTest {
       assertThat(context.getComponent()).isNotNull();
       assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NCLOC_KEY));
 
-      // simplest computation
-      if (counter.value <= 0) {
-        return Optional.absent();
-      }
       return Optional.of(Measure.newMeasureBuilder().create(counter.value));
     }
 
@@ -251,10 +247,6 @@ public class ViewsFormulaExecutorComponentVisitorTest {
       assertThat(context.getMetric())
         .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_IT_COVERAGE_KEY));
 
-      // simplest computation
-      if (counter.value <= 0) {
-        return Optional.absent();
-      }
       return Optional.of(Measure.newMeasureBuilder().create(counter.value + metricOffset(context.getMetric())));
     }
 
@@ -347,11 +339,21 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     }
   }
 
+  private FormulaExecutorComponentVisitor formulaExecutorComponentVisitor(Formula formula) {
+    return FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+      .withVariationSupport(periodsHolder)
+      .buildFor(ImmutableList.of(formula));
+  }
+
   private void verifyProjectViewsHasNoAddedRawMeasures() {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(PROJECT_VIEW_1_REF))).isEmpty();
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(PROJECT_VIEW_2_REF))).isEmpty();
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(PROJECT_VIEW_3_REF))).isEmpty();
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(PROJECT_VIEW_4_REF))).isEmpty();
+    assertNoAddedRawMeasure(PROJECT_VIEW_1_REF);
+    assertNoAddedRawMeasure(PROJECT_VIEW_2_REF);
+    assertNoAddedRawMeasure(PROJECT_VIEW_3_REF);
+    assertNoAddedRawMeasure(PROJECT_VIEW_4_REF);
+  }
+
+  private void assertNoAddedRawMeasure(int componentRef) {
+    assertThat(measureRepository.getAddedRawMeasures(componentRef)).isEmpty();
   }
 
   private void verifySingleMetricValue(int componentRef, int measureValue) {
@@ -361,14 +363,13 @@ public class ViewsFormulaExecutorComponentVisitorTest {
 
   private void verifyMultiMetricValues(int componentRef, int valueLinesToCover, int valueItCoverage) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
-        .containsOnly(
-            entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(valueLinesToCover)),
-            entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(valueItCoverage)));
+      .containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(valueLinesToCover)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(valueItCoverage)));
   }
 
   private void verifyLeafContext(CounterInitializationContext context) {
-    assertThat(context.getLeaf().getKey()).isIn(String.valueOf(PROJECT_VIEW_1_REF), String.valueOf(PROJECT_VIEW_2_REF), String.valueOf(PROJECT_VIEW_3_REF),
-      String.valueOf(PROJECT_VIEW_4_REF));
+    assertThat(context.getLeaf().getChildren()).isEmpty();
     assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
   }
 
