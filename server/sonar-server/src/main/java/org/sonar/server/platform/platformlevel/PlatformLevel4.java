@@ -234,7 +234,6 @@ import org.sonar.server.qualityprofile.ws.ExportAction;
 import org.sonar.server.qualityprofile.ws.ExportersAction;
 import org.sonar.server.qualityprofile.ws.ImportersAction;
 import org.sonar.server.qualityprofile.ws.InheritanceAction;
-import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.ProjectAssociationActions;
 import org.sonar.server.qualityprofile.ws.ProjectsAction;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
@@ -416,7 +415,6 @@ public class PlatformLevel4 extends PlatformLevel {
       ExportAction.class,
       ExportersAction.class,
       QProfilesWs.class,
-      ProfilesWs.class,
       RuleActivationActions.class,
       BulkRuleActivationActions.class,
       ProjectAssociationActions.class,
