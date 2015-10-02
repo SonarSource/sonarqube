@@ -9,66 +9,66 @@
 <table cellpadding="1" cellspacing="1" border="1">
     <tbody>
     <tr>
-        <td>open</td>
-        <td>/sonar/sessions/logout</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>open</td>
-        <td>/sonar/sessions/login</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>type</td>
-        <td>login</td>
-        <td>admin</td>
-    </tr>
-    <tr>
-        <td>type</td>
-        <td>password</td>
-        <td>admin</td>
-    </tr>
-    <tr>
-        <td>clickAndWait</td>
-        <td>commit</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>open</td>
-        <td>/sonar/bulk_deletion</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>assertText</td>
-        <td>content</td>
-        <td>*Bar-Sonar-Plugin*Foo-Application*Sample-Project*</td>
-    </tr>
-    <tr>
-        <td>type</td>
-        <td>id=resource_filter</td>
-        <td>s</td>
-    </tr>
-    <tr>
-        <td>clickAndWait</td>
-        <td>id=filter_resources</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>assertText</td>
-        <td>content</td>
-        <td>*Bar-Sonar-Plugin*Sample-Project*</td>
-    </tr>
-    <tr>
-        <td>assertText</td>
-        <td>content</td>
-        <td>*cameleon-3*cameleon-1*</td>
-    </tr>
-    <tr>
-        <td>assertTextNotPresent</td>
-        <td>content</td>
-        <td>*Foo-Application*</td>
-    </tr>
-    </tbody>
+	<td>open</td>
+	<td>/sonar/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/sessions/login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/projects</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*Bar-Sonar-Plugin*Foo-Application*Sample-Project*</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=.search-box-input</td>
+	<td>s</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=.search-box-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*Bar-Sonar-Plugin*Sample-Project*</td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*cameleon-3*cameleon-1*</td>
+</tr>
+<tr>
+	<td>assertTextNotPresent</td>
+	<td>content</td>
+	<td>*Foo-Application*</td>
+</tr>
+</tbody>
 </table>
 </body>
 </html>

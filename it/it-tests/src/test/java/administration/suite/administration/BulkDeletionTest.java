@@ -56,21 +56,6 @@ public class BulkDeletionTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
-  /**
-   * SONAR-4560
-   */
-  @Test
-  public void should_support_two_letters_long_project_name() throws Exception {
-    executeBuild("xo", "xo");
-
-    Selenese selenese = Selenese.builder()
-      .setHtmlTestsInClasspath("bulk-delete-projects-with-short-name",
-        "/administration/suite/BulkDeletionTest/project-bulk-deletion/display-two-letters-long-project.html",
-        "/administration/suite/BulkDeletionTest/project-bulk-deletion/filter-two-letters-long-project.html"
-      ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
   private void executeBuild(String projectKey, String projectName) {
     orchestrator.executeBuild(
       SonarRunner.create(projectDir("shared/xoo-sample"))
