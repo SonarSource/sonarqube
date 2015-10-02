@@ -44,39 +44,26 @@
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
     select
     <include refid="columns"/>
-    from ce_activity ca
-    <where>
-      <if test="query.onlyCurrents">
-        and ca.is_last=${_true}
-      </if>
-      <if test="query.componentUuid != null">
-        and ca.component_uuid=#{query.componentUuid}
-      </if>
-      <if test="query.status != null">
-        and ca.status=#{query.status}
-      </if>
-      <if test="query.type != null">
-        and ca.task_type=#{query.type}
-      </if>
-      <if test="query.minSubmittedAt != null">
-        and ca.submitted_at &gt;= #{query.minSubmittedAt}
-      </if>
-      <if test="query.maxExecutedAt != null">
-        and ca.executed_at &lt;= #{query.maxExecutedAt}
-      </if>
-    </where>
+    <include refid="sqlSelectByQuery" />
     order by ca.id desc
   </select>
 
   <select id="countByQuery" parameterType="map" resultType="int">
     select count(ca.id)
+    <include refid="sqlSelectByQuery" />
+  </select>
+
+  <sql id="sqlSelectByQuery">
     from ce_activity ca
     <where>
       <if test="query.onlyCurrents">
         and ca.is_last=${_true}
       </if>
-      <if test="query.componentUuid != null">
-        and ca.component_uuid=#{query.componentUuid}
+      <if test="query.componentUuids != null and query.componentUuids.size()>0">
+        and ca.component_uuid in
+        <foreach collection="query.componentUuids" open="(" close=")" item="cUuid" separator=",">
+          #{cUuid}
+        </foreach>
       </if>
       <if test="query.status != null">
         and ca.status=#{query.status}
@@ -91,7 +78,7 @@
         and ca.executed_at &lt;= #{query.maxExecutedAt}
       </if>
     </where>
-  </select>
+  </sql>
 
   <select id="selectOlderThan" parameterType="long" resultType="org.sonar.db.ce.CeActivityDto">
     select <include refid="columns"/>

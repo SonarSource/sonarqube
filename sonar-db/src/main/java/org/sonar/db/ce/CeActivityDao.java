@@ -20,6 +20,7 @@
 package org.sonar.db.ce;
 
 import com.google.common.base.Optional;
+import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
@@ -64,10 +65,16 @@ public class CeActivityDao implements Dao {
    * Ordered by id desc -> newest to oldest
    */
   public List<CeActivityDto> selectByQuery(DbSession dbSession, CeActivityQuery query, RowBounds rowBounds) {
+    if (query.isShortCircuitedByComponentUuids()) {
+      return Collections.emptyList();
+    }
     return mapper(dbSession).selectByQuery(query, rowBounds);
   }
 
   public int countByQuery(DbSession dbSession, CeActivityQuery query) {
+    if (query.isShortCircuitedByComponentUuids()) {
+      return 0;
+    }
     return mapper(dbSession).countByQuery(query);
   }
 
