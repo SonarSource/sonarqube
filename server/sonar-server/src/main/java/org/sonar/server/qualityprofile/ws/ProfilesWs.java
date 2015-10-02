@@ -38,7 +38,6 @@ public class ProfilesWs implements WebService {
     defineBackupAction(controller);
     defineRestoreAction(controller);
     defineDestroyAction(controller);
-    defineSetAsDefaultAction(controller);
 
     controller.done();
   }
@@ -106,22 +105,4 @@ public class ProfilesWs implements WebService {
       .setRequired(true)
       .setExampleValue("Sonar way");
   }
-
-  private static void defineSetAsDefaultAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("set_as_default")
-      .setDescription("Set a quality profile as Default. Requires Administer Quality Profiles permission")
-      .setSince("3.3")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
-
-    action.createParam("language")
-      .setDescription("Profile language")
-      .setRequired(true)
-      .setExampleValue("java");
-    action.createParam("name")
-      .setDescription("Profile name")
-      .setRequired(true)
-      .setExampleValue("Sonar way");
-  }
-
 }

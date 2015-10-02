@@ -35,17 +35,6 @@ class Api::ProfilesController < Api::ApiController
     render_success('Profile destroyed')
   end
 
-  # POST /api/profiles/set_as_default?language=<language>&name=<name>
-  #
-  # Since v.3.3
-  def set_as_default
-    verify_post_request
-    profile = Internal.quality_profiles.profile(params[:name], params[:language])
-    not_found('Profile not found') unless profile
-    Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).setDefault(profile.key)
-    render_success
-  end
-
   # GET /api/profiles?language=<language>[&name=<name>]
   def index
     require_parameters :language
