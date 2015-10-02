@@ -1,8 +1,8 @@
 import $ from 'jquery';
 
-export function getQueue () {
+export function getQueue (data) {
   let url = baseUrl + '/api/ce/queue';
-  return $.get(url);
+  return $.get(url, data);
 }
 
 export function getActivity (data) {

@@ -24,16 +24,6 @@ export default React.createClass({
     };
   },
 
-  filterQueueForComponent(queue) {
-    if (this.props.options.componentId) {
-      return queue.filter(task => {
-        return task.componentId === this.props.options.componentId;
-      });
-    } else {
-      return queue;
-    }
-  },
-
   componentDidMount() {
     this.requestData();
   },
@@ -91,9 +81,10 @@ export default React.createClass({
   },
 
   requestQueue() {
+    let filters = this.getComponentFilter();
     if (!Object.keys(this.getCurrentFilters()).length) {
-      getQueue().done(queue => {
-        let tasks = this.filterQueueForComponent(queue.tasks);
+      getQueue(filters).done(queue => {
+        let tasks = queue.tasks;
         this.setState({
           queue: this.orderTasks(tasks),
           pendingCount: this.countPending(tasks),
