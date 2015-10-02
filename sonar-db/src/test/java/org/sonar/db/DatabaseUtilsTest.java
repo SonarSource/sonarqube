@@ -44,6 +44,10 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.db.DatabaseUtils.buildLikeValue;
+import static org.sonar.db.WildcardPosition.AFTER;
+import static org.sonar.db.WildcardPosition.BEFORE;
+import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
 @Category(DbTests.class)
 public class DatabaseUtilsTest {
@@ -217,5 +221,15 @@ public class DatabaseUtilsTest {
     DatabaseUtils.log(Loggers.get(getClass()), root);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("SQL error: 456. Message: this is next");
+  }
+
+  @Test
+  public void buildLikeValue_with_special_characters() {
+    String escapedValue = "like-\\/_/%//-value";
+    String wildcard = "%";
+
+    assertThat(buildLikeValue("like-\\_%/-value", BEFORE)).isEqualTo(wildcard + escapedValue);
+    assertThat(buildLikeValue("like-\\_%/-value", AFTER)).isEqualTo(escapedValue + wildcard);
+    assertThat(buildLikeValue("like-\\_%/-value", BEFORE_AND_AFTER)).isEqualTo(wildcard + escapedValue + wildcard);
   }
 }

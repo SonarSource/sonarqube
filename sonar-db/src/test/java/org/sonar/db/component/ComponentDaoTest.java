@@ -649,7 +649,7 @@ public class ComponentDaoTest {
     db.commit();
     componentDb.indexProjects();
 
-    ComponentQuery query = new ComponentQuery(db.database(), "oJect", Qualifiers.PROJECT);
+    ComponentQuery query = new ComponentQuery("oJect", Qualifiers.PROJECT);
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
 
     assertThat(result).hasSize(3);
@@ -659,15 +659,15 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_name_with_special_characters() {
-    componentDb.insertProjectAndSnapshot(dbSession, newProjectDto().setName("project-_%-name"));
+    componentDb.insertProjectAndSnapshot(dbSession, newProjectDto().setName("project-\\_%/-name"));
     db.commit();
     componentDb.indexProjects();
 
-    ComponentQuery query = new ComponentQuery(db.database(), "-_%-", Qualifiers.PROJECT);
+    ComponentQuery query = new ComponentQuery("-\\_%/-", Qualifiers.PROJECT);
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).name()).isEqualTo("project-_%-name");
+    assertThat(result.get(0).name()).isEqualTo("project-\\_%/-name");
   }
 
   @Test
@@ -677,7 +677,7 @@ public class ComponentDaoTest {
     db.commit();
     componentDb.indexProjects();
 
-    ComponentQuery query = new ComponentQuery(db.database(), "project-_%-", Qualifiers.PROJECT);
+    ComponentQuery query = new ComponentQuery("project-_%-", Qualifiers.PROJECT);
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);

@@ -76,6 +76,45 @@ public class DatabaseUtils {
   }
 
   /**
+   * Returns an escaped value in parameter, with the desired wildcards. Suitable to be used in a like sql query<br />
+   * Escapes the "/", "%" and "_" characters.<br/>
+   * 
+   * You <strong>must</strong> add "ESCAPE '/'" after your like query. It defines '/' as the escape character.
+   */
+  /**
+   * 
+   */
+  public static String buildLikeValue(String value, WildcardPosition wildcardPosition) {
+    String escapedValue = escapePercentAndUnderscore(value);
+    String wildcard = "%";
+    switch (wildcardPosition) {
+      case BEFORE:
+        escapedValue = wildcard + escapedValue;
+        break;
+      case AFTER:
+        escapedValue += wildcard;
+        break;
+      case BEFORE_AND_AFTER:
+        escapedValue = wildcard + escapedValue + wildcard;
+        break;
+      default:
+        throw new UnsupportedOperationException("Unhandled WildcardPosition: " + wildcardPosition);
+    }
+
+    return escapedValue;
+  }
+
+  /**
+   * Replace escape percent and underscore by adding a slash just before
+   */
+  private static String escapePercentAndUnderscore(String value) {
+    return value
+      .replaceAll("/", "//")
+      .replaceAll("%", "/%")
+      .replaceAll("_", "/_");
+  }
+
+  /**
    * Partition by 1000 elements a list of input and execute a function on each part.
    *
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'

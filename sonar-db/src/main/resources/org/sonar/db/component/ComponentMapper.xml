@@ -281,8 +281,8 @@
         <foreach collection="qualifiers" item="qualifier" open="(" close=")" separator=",">
           #{qualifier}
         </foreach>
-        AND ri.kee like #{nameOrKeyQueryToSqlForResourceIndex})
-        OR p.kee like #{nameOrKeyQueryToSqlForProjectKey})
+        AND ri.kee like #{nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
+        OR p.kee like #{nameOrKeyQueryToSqlForProjectKey} ESCAPE '/')
       </if>
     </where>
   </sql>

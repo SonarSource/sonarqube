@@ -22,20 +22,18 @@ package org.sonar.db.component;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.db.Database;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.db.dialect.WildcardPosition.AFTER;
+import static org.sonar.db.DatabaseUtils.buildLikeValue;
+import static org.sonar.db.WildcardPosition.AFTER;
 
 public class ComponentQuery {
-  private final Database database;
   private final String nameOrKeyQuery;
   private final String[] qualifiers;
 
-  public ComponentQuery(Database database, @Nullable String nameOrKeyQuery, String... qualifiers) {
+  public ComponentQuery(@Nullable String nameOrKeyQuery, String... qualifiers) {
     checkArgument(qualifiers.length > 0, "At least one qualifier must be provided");
 
-    this.database = database;
     this.nameOrKeyQuery = nameOrKeyQuery;
     this.qualifiers = qualifiers;
   }
@@ -51,11 +49,11 @@ public class ComponentQuery {
 
   @CheckForNull
   public String getNameOrKeyQueryToSqlForResourceIndex() {
-    return database.getDialect().buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase();
+    return buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase();
   }
 
   @CheckForNull
   public String getNameOrKeyQueryToSqlForProjectKey() {
-    return database.getDialect().buildLikeValue(nameOrKeyQuery, AFTER);
+    return buildLikeValue(nameOrKeyQuery, AFTER);
   }
 }

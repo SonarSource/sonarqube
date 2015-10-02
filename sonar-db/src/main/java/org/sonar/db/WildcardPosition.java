@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.db.dialect;
+package org.sonar.db;
 
 public enum WildcardPosition {
   BEFORE, AFTER, BEFORE_AND_AFTER

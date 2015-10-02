@@ -132,7 +132,6 @@ public class SearchAction implements ComponentsWsAction {
 
   private ComponentQuery buildQuery(Request wsRequest, List<String> qualifiers) {
     return new ComponentQuery(
-      dbClient.getDatabase(),
       wsRequest.param(Param.TEXT_QUERY),
       qualifiers.toArray(new String[qualifiers.size()]));
   }
