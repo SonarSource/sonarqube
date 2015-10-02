@@ -20,7 +20,8 @@
 package org.sonar.batch.rule;
 
 import java.util.Map;
-
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 
 public class LoadedActiveRule {
@@ -72,11 +73,12 @@ public class LoadedActiveRule {
     this.params = params;
   }
 
+  @CheckForNull
   public String getTemplateRuleKey() {
     return templateRuleKey;
   }
 
-  public void setTemplateRuleKey(String templateRuleKey) {
+  public void setTemplateRuleKey(@Nullable String templateRuleKey) {
     this.templateRuleKey = templateRuleKey;
   }
 

@@ -19,26 +19,23 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonarqube.ws.Rules.Active.Param;
-import org.sonarqube.ws.Rules.Active;
-import org.sonar.api.rule.RuleKey;
-import org.sonarqube.ws.Rules.ActiveList;
-import org.sonarqube.ws.Rules.SearchResponse;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoaderResult;
-
-import javax.annotation.Nullable;
-
-import org.sonarqube.ws.Rules.Rule;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
+import org.sonarqube.ws.Rules.Active;
+import org.sonarqube.ws.Rules.Active.Param;
+import org.sonarqube.ws.Rules.ActiveList;
+import org.sonarqube.ws.Rules.Rule;
+import org.sonarqube.ws.Rules.SearchResponse;
 
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true";
@@ -108,7 +105,10 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
       loadedRule.setSeverity(active.getSeverity());
       loadedRule.setLanguage(r.getLang());
       loadedRule.setInternalKey(r.getInternalKey());
-      loadedRule.setTemplateRuleKey(r.getTemplateKey());
+      if (r.hasTemplateKey()) {
+        RuleKey templateRuleKey = RuleKey.parse(r.getTemplateKey());
+        loadedRule.setTemplateRuleKey(templateRuleKey.rule());
+      }
 
       Map<String, String> params = new HashMap<>();
 
