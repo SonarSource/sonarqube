@@ -21,67 +21,6 @@ require 'json'
 
 class Api::ProfilesController < Api::ApiController
 
-  # GET /api/profiles/list?[language=<language][&project=<project id or key>]
-  #
-  # Since v.3.3
-  #
-  # ==== Examples
-  # - get all the profiles : GET /api/profiles/list
-  # - get all the Java profiles : GET /api/profiles/list?language=java
-  # - get the profiles used by the project 'foo' : GET /api/profiles/list?project=foo
-  # - get the Java profile used by the project 'foo' : GET /api/profiles/list?project=foo&language=java
-  def list
-    language = params[:language]
-    project_key = params[:project]
-
-    profiles = []
-    default_profile_by_language = {}
-    if project_key.present?
-      project = Project.by_key(project_key)
-      not_found('Unknown project') unless project
-      if language.present?
-        default_profile_by_language[language] = Internal.qprofile_service.getDefault(language)
-        profile = Internal.quality_profiles.findProfileByProjectAndLanguage(project.id, language)
-        profiles << profile if profile
-        # Return default profile if the project is not associate to a profile
-        profiles << default_profile_by_language[language] unless profile
-      else
-        Api::Utils.languages.each do |language|
-          default_profile_by_language[language.getKey()] = Internal.qprofile_service.getDefault(language.getKey())
-          profile = Internal.quality_profiles.findProfileByProjectAndLanguage(project.id, language.getKey())
-          profiles << profile if profile
-          # Return default profile if the project is not associate to a profile
-          profiles << default_profile_by_language[language.getKey()] unless profile
-        end
-      end
-    elsif language.present?
-      profiles = Internal.quality_profiles.profilesByLanguage(language).to_a
-    else
-      profiles = Internal.quality_profiles.allProfiles().to_a
-    end
-
-    # Populate the map of default profile by language by searching for all profiles languages
-    # We have to do that as the profiles list do not contain this information (maybe we should add it?)
-    profiles.each do |p|
-      lang = p.language
-      unless default_profile_by_language[lang]
-        default_profile_by_language[lang] = Internal.qprofile_service.getDefault(lang.to_s)
-      end
-    end
-
-    json = profiles.compact.map { |profile| {
-      :key => profile.key,
-      :name => profile.name,
-      :language => profile.language,
-      :default => default_profile_by_language[profile.language].name == profile.name
-    } }
-    respond_to do |format|
-      format.json { render :json => jsonp(json) }
-      format.xml { render :xml => xml_not_supported }
-      format.text { render :text => text_not_supported }
-    end
-  end
-
   # POST /api/profiles/destroy?language=<language>&name=<name>
   def destroy
     verify_post_request

@@ -46,18 +46,7 @@ public class ProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/profiles");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(6);
-  }
-
-  @Test
-  public void define_list_action() {
-    WebService.Controller controller = tester.controller("api/profiles");
-
-    WebService.Action restoreProfiles = controller.action("list");
-    assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(restoreProfiles.responseExampleAsString()).isNotEmpty();
-    assertThat(restoreProfiles.params()).hasSize(3);
+    assertThat(controller.actions()).hasSize(5);
   }
 
   @Test

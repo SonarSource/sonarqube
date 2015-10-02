@@ -34,7 +34,6 @@ public class ProfilesWs implements WebService {
     NewController controller = context.createController("api/profiles")
       .setDescription("Former quality profiles web service");
 
-    defineListAction(controller);
     defineIndexAction(controller);
     defineBackupAction(controller);
     defineRestoreAction(controller);
@@ -42,22 +41,6 @@ public class ProfilesWs implements WebService {
     defineSetAsDefaultAction(controller);
 
     controller.done();
-  }
-
-  private static void defineListAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("list")
-      .setDescription("Get a list of profiles")
-      .setSince("3.3")
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(ProfilesWs.class, "example-list.json"));
-
-    action.createParam("language")
-      .setDescription("Profile language")
-      .setExampleValue("java");
-    action.createParam("project")
-      .setDescription("Project key or id")
-      .setExampleValue("org.codehaus.sonar:sonar");
-    RailsHandler.addJsonOnlyFormatParam(action);
   }
 
   private static void defineIndexAction(NewController controller) {
