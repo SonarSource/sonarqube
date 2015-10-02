@@ -19,11 +19,13 @@
  */
 package org.sonar.server.computation.ws;
 
+import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -36,15 +38,23 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityQuery;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentDtoFunctions;
+import org.sonar.db.component.ComponentQuery;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsCe;
 
+import static java.lang.String.format;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+
 public class ActivityWsAction implements CeWsAction {
 
   private static final String PARAM_COMPONENT_UUID = "componentId";
+  private static final String PARAM_COMPONENT_QUERY = "componentQuery";
   private static final String PARAM_TYPE = "type";
   private static final String PARAM_STATUS = "status";
   private static final String PARAM_ONLY_CURRENTS = "onlyCurrents";
@@ -70,6 +80,9 @@ public class ActivityWsAction implements CeWsAction {
     action.createParam(PARAM_COMPONENT_UUID)
       .setDescription("Optional id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
+    action.createParam(PARAM_COMPONENT_QUERY)
+      .setDescription(format("Optional search by component name or key. Must not be set together with %s", PARAM_COMPONENT_UUID))
+      .setExampleValue("Apache");
     action.createParam(PARAM_STATUS)
       .setDescription("Optional filter on task status")
       .setPossibleValues(CeActivityDto.Status.values());
@@ -93,7 +106,9 @@ public class ActivityWsAction implements CeWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      CeActivityQuery query = readQuery(wsRequest);
+      CeActivityQuery query = buildQuery(dbSession, wsRequest);
+      checkPermissions(query);
+
       RowBounds rowBounds = readMyBatisRowBounds(wsRequest);
       List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, rowBounds);
       int total = dbClient.ceActivityDao().countByQuery(dbSession, query);
@@ -111,7 +126,24 @@ public class ActivityWsAction implements CeWsAction {
     }
   }
 
-  private CeActivityQuery readQuery(Request wsRequest) {
+  private void checkPermissions(CeActivityQuery query) {
+    List<String> componentUuids = query.getComponentUuids();
+    if (componentUuids != null && componentUuids.size() == 1) {
+      if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) &&
+        !userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuids.get(0))) {
+        throw new ForbiddenException("Requires administration permission");
+      }
+    } else {
+      userSession.checkGlobalPermission(UserRole.ADMIN);
+    }
+  }
+
+  private CeActivityQuery buildQuery(DbSession dbSession, Request wsRequest) {
+    String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
+    String componentQuery = wsRequest.param(PARAM_COMPONENT_QUERY);
+    checkRequest(componentUuid == null || componentQuery == null,
+      format("Only one of following parameters is accepted: %s or %s", PARAM_COMPONENT_UUID, PARAM_COMPONENT_QUERY));
+
     CeActivityQuery query = new CeActivityQuery();
     query.setType(wsRequest.param(PARAM_TYPE));
     query.setOnlyCurrents(wsRequest.mandatoryParamAsBoolean(PARAM_ONLY_CURRENTS));
@@ -123,17 +155,25 @@ public class ActivityWsAction implements CeWsAction {
       query.setStatus(CeActivityDto.Status.valueOf(status));
     }
 
-    String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
-    if (componentUuid == null) {
-      userSession.checkGlobalPermission(UserRole.ADMIN);
-    } else {
-      if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
-        query.setComponentUuid(componentUuid);
-      } else {
-        throw new ForbiddenException("Requires administration permission");
-      }
-    }
+    loadComponentUuids(dbSession, wsRequest, query);
     return query;
+  }
+
+  private void loadComponentUuids(DbSession dbSession, Request wsRequest, CeActivityQuery query) {
+    String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
+    String componentQuery = wsRequest.param(PARAM_COMPONENT_QUERY);
+    if (componentUuid != null && componentQuery != null) {
+      throw new BadRequestException(format("Only one of parameters must be set: %s or %s", PARAM_COMPONENT_UUID, PARAM_COMPONENT_QUERY));
+    }
+
+    if (componentUuid != null) {
+      query.setComponentUuid(componentUuid);
+    }
+    if (componentQuery != null) {
+      ComponentQuery componentDtoQuery = new ComponentQuery(dbClient.getDatabase(), componentQuery, Qualifiers.PROJECT, Qualifiers.VIEW);
+      List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeActivityQuery.MAX_COMPONENT_UUIDS);
+      query.setComponentUuids(Lists.transform(componentDtos, ComponentDtoFunctions.toUuid()));
+    }
   }
 
   private static RowBounds readMyBatisRowBounds(Request wsRequest) {

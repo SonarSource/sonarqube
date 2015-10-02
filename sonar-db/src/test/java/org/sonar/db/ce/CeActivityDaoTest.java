@@ -21,6 +21,7 @@
 package org.sonar.db.ce;
 
 import com.google.common.base.Optional;
+import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.session.RowBounds;
 import org.junit.Rule;
@@ -143,6 +144,24 @@ public class CeActivityDaoTest {
     // select by multiple conditions
     query = new CeActivityQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
+  }
+
+  @Test
+  public void selectByQuery_no_results_if_shortcircuited_by_component_uuids() {
+    insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
+
+    CeActivityQuery query = new CeActivityQuery();
+    query.setComponentUuids(Collections.<String>emptyList());
+    assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).isEmpty();
+  }
+
+  @Test
+  public void countByQuery_no_results_if_shortcircuited_by_component_uuids() {
+    insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
+
+    CeActivityQuery query = new CeActivityQuery();
+    query.setComponentUuids(Collections.<String>emptyList());
+    assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(0);
   }
 
   @Test

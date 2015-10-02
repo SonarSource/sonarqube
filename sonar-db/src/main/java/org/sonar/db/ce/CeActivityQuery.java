@@ -19,25 +19,44 @@
  */
 package org.sonar.db.ce;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.DatabaseUtils;
+
+import static java.util.Collections.singletonList;
 
 public class CeActivityQuery {
 
+  public static final int MAX_COMPONENT_UUIDS = DatabaseUtils.PARTITION_SIZE_FOR_ORACLE;
+
   private boolean onlyCurrents = false;
-  private String componentUuid;
+  private List<String> componentUuids;
   private CeActivityDto.Status status;
   private String type;
   private Long minSubmittedAt;
   private Long maxExecutedAt;
 
   @CheckForNull
-  public String getComponentUuid() {
-    return componentUuid;
+  public List<String> getComponentUuids() {
+    return componentUuids;
   }
 
-  public CeActivityQuery setComponentUuid(@Nullable String componentUuid) {
-    this.componentUuid = componentUuid;
+  public CeActivityQuery setComponentUuids(@Nullable List<String> l) {
+    this.componentUuids = l;
+    return this;
+  }
+
+  public boolean isShortCircuitedByComponentUuids() {
+    return componentUuids != null && (componentUuids.isEmpty() || componentUuids.size() > MAX_COMPONENT_UUIDS);
+  }
+
+  public CeActivityQuery setComponentUuid(@Nullable String s) {
+    if (s == null) {
+      this.componentUuids = null;
+    } else {
+      this.componentUuids = singletonList(s);
+    }
     return this;
   }
 

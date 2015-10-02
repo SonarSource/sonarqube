@@ -32,6 +32,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.plugins.MimeTypes;
 
+import static java.lang.String.format;
+
 public class WsUtils {
 
   private WsUtils() {
@@ -58,9 +60,9 @@ public class WsUtils {
   /**
    * @throws BadRequestException
    */
-  public static void checkRequest(boolean expression, String message) {
+  public static void checkRequest(boolean expression, String message, Object... messageArguments) {
     if (!expression) {
-      throw new BadRequestException(message);
+      throw new BadRequestException(format(message, messageArguments));
     }
   }
 

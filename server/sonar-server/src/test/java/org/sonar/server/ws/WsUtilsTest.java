@@ -19,13 +19,19 @@
  */
 package org.sonar.server.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonarqube.ws.Issues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WsUtilsTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void write_json_by_default() throws Exception {
@@ -54,4 +60,19 @@ public class WsUtilsTest {
     assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.PROTOBUF);
     assertThat(Issues.Issue.parseFrom(response.getFlushedOutput()).getKey()).isEqualTo("I1");
   }
+
+  @Test
+  public void checkRequest_ok() {
+    WsUtils.checkRequest(true, "Missing param: %s", "foo");
+    // do not fail
+  }
+
+  @Test
+  public void checkRequest_ko() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Missing param: foo");
+
+    WsUtils.checkRequest(false, "Missing param: %s", "foo");
+  }
+
 }
