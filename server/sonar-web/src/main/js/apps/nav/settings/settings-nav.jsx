@@ -55,13 +55,10 @@ export default React.createClass({
                 {window.t('sidebar.projects')}&nbsp;<i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
-                {this.renderNewLink('/projects', 'Management')}
-                {this.renderNewLink('/background_tasks', 'Background Tasks')}
+                {this.renderLink('/projects', 'Management')}
+                {this.renderLink('/background_tasks', 'Background Tasks')}
                 <li className="divider"/>
-                {this.state.showProvisioning ? this.renderLink('/provisioning', window.t('provisioning.page')) : null}
-                {this.renderLink('/bulk_deletion', window.t('bulk_deletion.page'))}
                 {this.renderLink('/computation', window.t('analysis_reports.page'))}
-
               </ul>
             </li>
 
