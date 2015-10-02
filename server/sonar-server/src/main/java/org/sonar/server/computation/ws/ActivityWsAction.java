@@ -80,7 +80,7 @@ public class ActivityWsAction implements CeWsAction {
       .setDescription("Optional id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
     action.createParam(PARAM_COMPONENT_QUERY)
-      .setDescription("Optional search by component name or key")
+      .setDescription(format("Optional search by component name or key. Must not be set together with %s", PARAM_COMPONENT_UUID))
       .setExampleValue("Apache");
     action.createParam(PARAM_STATUS)
       .setDescription("Optional filter on task status")
@@ -141,7 +141,7 @@ public class ActivityWsAction implements CeWsAction {
     String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
     String componentQuery = wsRequest.param(PARAM_COMPONENT_QUERY);
     if (componentUuid != null && componentQuery != null) {
-      throw new BadRequestException("");
+      throw new BadRequestException(format("Only one of following parameters is accepted: %s or %s", PARAM_COMPONENT_UUID, PARAM_COMPONENT_QUERY));
     }
 
     CeActivityQuery query = new CeActivityQuery();
