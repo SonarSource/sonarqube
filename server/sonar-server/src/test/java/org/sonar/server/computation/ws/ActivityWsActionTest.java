@@ -26,6 +26,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -34,8 +35,10 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -47,14 +50,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ActivityWsActionTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  ComponentDbTester componentDb = new ComponentDbTester(dbTester);
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging);
@@ -93,7 +102,7 @@ public class ActivityWsActionTest {
   }
 
   @Test
-   public void filter_by_status() {
+  public void filter_by_status() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
     insert("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insert("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -157,7 +166,8 @@ public class ActivityWsActionTest {
   }
 
   @Test
-  public void get_project_activity() {
+  public void project_administrator_can_access_his_project_activity() {
+    // no need to be a system admin
     userSession.addComponentUuidPermission(UserRole.ADMIN, "PROJECT_1", "PROJECT_1");
     insert("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insert("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -167,12 +177,44 @@ public class ActivityWsActionTest {
       .setMediaType(MimeTypes.PROTOBUF)
       .execute();
 
-    // verify the protobuf response
     WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
     assertThat(activityResponse.getTasksCount()).isEqualTo(1);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
     assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo("PROJECT_1");
+  }
+
+  @Test
+  public void search_activity_by_component_name() {
+    componentDb.insertProjectAndSnapshot(dbTester.getSession(), newProjectDto().setName("apache struts").setUuid("P1"));
+    componentDb.insertProjectAndSnapshot(dbTester.getSession(), newProjectDto().setName("apache zookeeper").setUuid("P2"));
+    componentDb.insertProjectAndSnapshot(dbTester.getSession(), newProjectDto().setName("eclipse").setUuid("P3"));
+    dbTester.getSession().commit();
+    componentDb.indexProjects();
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    insert("T1", "P1", CeActivityDto.Status.SUCCESS);
+    insert("T2", "P2", CeActivityDto.Status.SUCCESS);
+    insert("T3", "P3", CeActivityDto.Status.SUCCESS);
+
+    TestResponse wsResponse = tester.newRequest()
+      .setParam("componentQuery", "apac")
+      .setMediaType(MimeTypes.PROTOBUF)
+      .execute();
+
+    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
+    assertThat(activityResponse.getTasksList()).extracting("id").containsOnly("T1", "T2");
+  }
+
+  @Test
+  public void fail_if_both_filters_on_component_id_and_name() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Only one of following parameters is accepted: componentId or componentQuery");
+
+    tester.newRequest()
+      .setParam("componentId", "ID1")
+      .setParam("componentQuery", "apache")
+      .setMediaType(MimeTypes.PROTOBUF)
+      .execute();
   }
 
   private CeActivityDto insert(String taskUuid, String componentUuid, CeActivityDto.Status status) {

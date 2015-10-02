@@ -40,7 +40,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class DatabaseUtils {
 
-  private static final int PARTITION_SIZE_FOR_ORACLE = 1000;
+  public static final int PARTITION_SIZE_FOR_ORACLE = 1000;
 
   public static void closeQuietly(@Nullable Connection connection) {
     if (connection != null) {
