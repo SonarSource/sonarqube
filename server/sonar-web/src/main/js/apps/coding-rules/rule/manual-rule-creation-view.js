@@ -1,10 +1,11 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ModalFormView from 'components/common/modal-form';
-import '../templates';
+import ModalFormView from '../../../components/common/modal-form';
+import Template from '../templates/rule/coding-rules-manual-rule-creation.hbs';
+import latinize from '../../../helpers/latinize';
 
 export default ModalFormView.extend({
-  template: Templates['coding-rules-manual-rule-creation'],
+  template: Template,
 
   ui: function () {
     return _.extend(ModalFormView.prototype.ui.apply(this.arguments), {
@@ -44,7 +45,7 @@ export default ModalFormView.extend({
 
   generateKey: function () {
     if (!this.keyModifiedByUser && this.ui.manualRuleCreationKey) {
-      var generatedKey = this.ui.manualRuleCreationName.val().latinize().replace(/[^A-Za-z0-9]/g, '_');
+      var generatedKey = latinize(this.ui.manualRuleCreationName.val()).replace(/[^A-Za-z0-9]/g, '_');
       this.ui.manualRuleCreationKey.val(generatedKey);
     }
   },

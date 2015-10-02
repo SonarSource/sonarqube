@@ -1,8 +1,8 @@
-import Popup from 'components/common/popup';
-import '../templates';
+import Popup from '../../common/popup';
+import Template from '../templates/source-viewer-scm-popup.hbs';
 
 export default Popup.extend({
-  template: Templates['source-viewer-scm-popup'],
+  template: Template,
 
   events: {
     'click': 'onClick'

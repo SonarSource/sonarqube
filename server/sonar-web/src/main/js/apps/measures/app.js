@@ -1,14 +1,15 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import FilterBar from './measures-filter-bar';
-import BaseFilters from 'components/navigator/filters/base-filters';
-import CheckboxFilterView from 'components/navigator/filters/checkbox-filters';
-import ChoiceFilters from 'components/navigator/filters/choice-filters';
-import AjaxSelectFilters from 'components/navigator/filters/ajax-select-filters';
-import FavoriteFilters from 'components/navigator/filters/favorite-filters';
-import RangeFilters from 'components/navigator/filters/range-filters';
-import StringFilterView from 'components/navigator/filters/string-filters';
-import MetricFilterView from 'components/navigator/filters/metric-filters';
+import BaseFilters from '../../components/navigator/filters/base-filters';
+import CheckboxFilterView from '../../components/navigator/filters/checkbox-filters';
+import ChoiceFilters from '../../components/navigator/filters/choice-filters';
+import AjaxSelectFilters from '../../components/navigator/filters/ajax-select-filters';
+import FavoriteFilters from '../../components/navigator/filters/favorite-filters';
+import RangeFilters from '../../components/navigator/filters/range-filters';
+import StringFilterView from '../../components/navigator/filters/string-filters';
+import MetricFilterView from '../../components/navigator/filters/metric-filters';
+import '../../helpers/handlebars-helpers';
 
 var NavigatorApp = new Marionette.Application(),
     init = function () {
@@ -161,4 +162,4 @@ NavigatorApp.on('start', function () {
   init.call(NavigatorApp);
 });
 
-export default NavigatorApp;
+window.sonarqube.appStarted.then(options => NavigatorApp.start(options));

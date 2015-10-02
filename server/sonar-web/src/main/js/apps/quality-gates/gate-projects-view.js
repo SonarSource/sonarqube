@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import 'components/common/select-list';
-import './templates';
+import Template from './templates/quality-gate-detail-projects.hbs';
+import '../../components/common/select-list';
 
 export default Marionette.ItemView.extend({
-  template: Templates['quality-gate-detail-projects'],
+  template: Template,
 
   onRender: function () {
     if (!this.model.isDefault()) {

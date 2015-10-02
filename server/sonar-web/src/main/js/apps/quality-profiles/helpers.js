@@ -1,3 +1,5 @@
+import Handlebars from 'hbsfy/runtime';
+
 Handlebars.registerHelper('profileUrl', function (key) {
   return baseUrl + '/profiles/show?key=' + encodeURIComponent(key);
 });

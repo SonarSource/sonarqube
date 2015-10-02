@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import ActionOptionsView from 'components/common/action-options-view';
-import '../templates';
+import ActionOptionsView from '../../../components/common/action-options-view';
+import Template from '../templates/issue-more-actions.hbs';
 
 export default ActionOptionsView.extend({
-  template: Templates['issue-more-actions'],
+  template: Template,
 
   selectOption: function (e) {
     var action = $(e.currentTarget).data('action');

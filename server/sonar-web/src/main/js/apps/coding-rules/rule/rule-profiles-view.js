@@ -2,10 +2,10 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import ProfileView from './rule-profile-view';
 import ProfileActivationView from './profile-activation-view';
-import '../templates';
+import Template from '../templates/rule/coding-rules-rule-profiles.hbs';
 
   export default Marionette.CompositeView.extend({
-    template: Templates['coding-rules-rule-profiles'],
+    template: Template,
     childView: ProfileView,
     childViewContainer: '#coding-rules-detail-quality-profiles',
 

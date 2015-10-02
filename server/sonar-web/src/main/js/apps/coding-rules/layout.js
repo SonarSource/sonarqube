@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/coding-rules-layout.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['coding-rules-layout'],
+  template: Template,
 
   regions: {
     filtersRegion: '.search-navigator-filters',

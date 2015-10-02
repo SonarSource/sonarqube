@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import Controller from 'components/navigator/controller';
+import Controller from '../../components/navigator/controller';
 import Rule from './models/rule';
 import RuleDetailsView from './rule-details-view';
 

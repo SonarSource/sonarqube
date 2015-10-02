@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import CustomValuesFacet from './custom-values-facet';
-import '../templates';
+import Template from '../templates/facets/issues-assignee-facet.hbs';
 
 export default CustomValuesFacet.extend({
-  template: Templates['issues-assignee-facet'],
+  template: Template,
 
   getUrl: function () {
     return baseUrl + '/api/users/search';

@@ -1,8 +1,8 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/custom-measures-layout.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['custom-measures-layout'],
+  template: Template,
 
   regions: {
     headerRegion: '#custom-measures-header',

@@ -135,8 +135,7 @@
 
 <% content_for :extra_script do %>
   <script>
-    require(['apps/drilldown/app'], function (App) {
-      App.start({ el: '#source-viewer' });
-    });
+    window.sonarqube.el = '#source-viewer';
   </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/drilldown.js?v=<%= sonar_version -%>"></script>
 <% end %>

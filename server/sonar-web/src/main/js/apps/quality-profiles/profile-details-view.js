@@ -4,12 +4,12 @@ import Marionette from 'backbone.marionette';
 import ChangeProfileParentView from './change-profile-parent-view';
 import ProfileChangelogView from './profile-changelog-view';
 import ProfileComparisonView from './profile-comparison-view';
-import 'components/common/select-list';
+import '../../components/common/select-list';
 import './helpers';
-import './templates';
+import Template from './templates/quality-profiles-profile-details.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['quality-profiles-profile-details'],
+  template: Template,
 
   regions: {
     changelogRegion: '#quality-profile-changelog',

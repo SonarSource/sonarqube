@@ -1,10 +1,12 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ModalFormView from 'components/common/modal-form';
-import '../templates';
+import ModalFormView from '../../../components/common/modal-form';
+import Template from '../templates/rule/coding-rules-custom-rule-creation.hbs';
+import {csvEscape} from '../../../helpers/csv';
+import latinize from '../../../helpers/latinize';
 
 export default ModalFormView.extend({
-  template: Templates['coding-rules-custom-rule-creation'],
+  template: Template,
 
   ui: function () {
     return _.extend(ModalFormView.prototype.ui.apply(this, arguments), {
@@ -38,7 +40,7 @@ export default ModalFormView.extend({
 
   generateKey: function () {
     if (!this.keyModifiedByUser && this.ui.customRuleCreationKey) {
-      var generatedKey = this.ui.customRuleCreationName.val().latinize().replace(/[^A-Za-z0-9]/g, '_');
+      var generatedKey = latinize(this.ui.customRuleCreationName.val()).replace(/[^A-Za-z0-9]/g, '_');
       this.ui.customRuleCreationKey.val(generatedKey);
     }
   },
@@ -107,7 +109,7 @@ export default ModalFormView.extend({
       };
     }).get();
     options.params = params.map(function (param) {
-      return param.key + '=' + window.csvEscape(param.value);
+      return param.key + '=' + csvEscape(param.value);
     }).join(';');
     this.sendRequest(action, options);
   },

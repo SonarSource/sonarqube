@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/api-documentation-search.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['api-documentation-search'],
+  template: Template,
 
   ui: {
     input: '.search-box-input'

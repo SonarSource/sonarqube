@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/issues-layout.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['issues-layout'],
+  template: Template,
 
   regions: {
     filtersRegion: '.search-navigator-filters',

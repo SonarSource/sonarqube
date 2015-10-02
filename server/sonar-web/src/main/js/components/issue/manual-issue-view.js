@@ -2,10 +2,10 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Issue from './models/issue';
-import './templates';
+import Template from './templates/manual-issue.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['manual-issue'],
+  template: Template,
 
   events: {
     'submit .js-manual-issue-form': 'formSubmit',

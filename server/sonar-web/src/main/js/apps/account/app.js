@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import ChangePasswordView from './change-password-view';
+import '../../helpers/handlebars-helpers';
 
 var shouldShowAvatars = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
 var favorites = $('.js-account-favorites tr');
@@ -8,8 +9,8 @@ function showExtraFavorites () {
   favorites.removeClass('hidden');
 }
 
-export default {
-  start: function () {
+class App {
+  start () {
     $('html').addClass('dashboard-page');
 
     if (shouldShowAvatars) {
@@ -28,4 +29,6 @@ export default {
       new ChangePasswordView().render();
     });
   }
-};
+}
+
+window.sonarqube.appStarted.then(options => new App().start(options));

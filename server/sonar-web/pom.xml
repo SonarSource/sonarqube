@@ -15,7 +15,7 @@
     <!-- self-analysis -->
     <sonar.sources>src/main/js,src/main/less</sonar.sources>
     <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js</sonar.exclusions>
-    <grunt.arguments>maven-build --no-color</grunt.arguments>
+    <npm.script>build</npm.script>
   </properties>
   
   <dependencies>
@@ -117,12 +117,12 @@
           </execution>
           <execution>
             <phase>generate-resources</phase>
-            <id>grunt build</id>
+            <id>npm script</id>
             <goals>
-              <goal>grunt</goal>
+              <goal>npm</goal>
             </goals>
             <configuration>
-              <arguments>${grunt.arguments}</arguments>
+              <arguments>run-script ${npm.script}</arguments>
             </configuration>
           </execution>
         </executions>
@@ -222,7 +222,7 @@
     <profile>
       <id>dev</id>
       <properties>
-        <grunt.arguments>maven-quick-build</grunt.arguments>
+        <npm.script>build-fast</npm.script>
       </properties>
     </profile>
   </profiles>

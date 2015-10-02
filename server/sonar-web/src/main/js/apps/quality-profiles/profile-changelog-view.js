@@ -1,8 +1,8 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/quality-profile-changelog.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['quality-profile-changelog'],
+  template: Template,
 
   events: {
     'submit #quality-profile-changelog-form': 'onFormSubmit',

@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import BaseFacet from 'components/navigator/facets/base-facet';
-import '../templates';
+import BaseFacet from '../../../components/navigator/facets/base-facet';
+import Template from '../templates/facets/issues-base-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['issues-base-facet'],
+  template: Template,
 
   onRender: function () {
     BaseFacet.prototype.onRender.apply(this, arguments);

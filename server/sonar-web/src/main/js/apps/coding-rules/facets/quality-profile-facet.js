@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/coding-rules-quality-profile-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['coding-rules-quality-profile-facet'],
+  template: Template,
 
   events: function () {
     return _.extend(BaseFacet.prototype.events.apply(this, arguments), {

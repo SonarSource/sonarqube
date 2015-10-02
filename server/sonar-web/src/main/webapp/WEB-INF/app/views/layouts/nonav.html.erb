@@ -10,11 +10,9 @@
   </div>
 </nav>
 
-<div>
-  <div id="bd">
-    <div id="nonav" class="page-simple">
-      <div id="content"><%= yield %></div>
-    </div>
+<div id="bd" class="page-wrapper page-wrapper-simple">
+  <div id="nonav" class="page-simple">
+    <div id="content"><%= yield %></div>
   </div>
 </div>
 
@@ -37,6 +35,7 @@
   })(window.jQuery);
 </script>
 
+<script src="<%= ApplicationController.root_context -%>/js/bundles/main.js?v=<%= sonar_version -%>"></script>
 <%= yield :extra_script -%>
 
 </body></html>

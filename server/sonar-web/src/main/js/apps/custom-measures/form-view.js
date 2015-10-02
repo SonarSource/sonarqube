@@ -1,10 +1,10 @@
 import _ from 'underscore';
-import ModalForm from 'components/common/modal-form';
-import Metrics from 'apps/metrics/metrics';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
+import Metrics from '../metrics/metrics';
+import Template from './templates/custom-measures-form.hbs';
 
 export default ModalForm.extend({
-  template: Templates['custom-measures-form'],
+  template: Template,
 
   initialize: function () {
     this.metrics = new Metrics();

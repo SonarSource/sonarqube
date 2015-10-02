@@ -1,10 +1,10 @@
 import Marionette from 'backbone.marionette';
 import ItemView from './gate-view';
-import './templates';
+import Template from './templates/quality-gates-gates.hbs';
 
 export default Marionette.CompositeView.extend({
   className: 'list-group',
-  template: Templates['quality-gates-gates'],
+  template: Template,
   childView: ItemView,
   childViewContainer: '.js-list',
 

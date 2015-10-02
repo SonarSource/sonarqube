@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import Modal from '../../components/common/modals';
 import '../../components/common/select-list';
-import './templates';
+import Template from './templates/permission-templates-users.hbs';
 
 export default Modal.extend({
-  template: Templates['permission-templates-users'],
+  template: Template,
 
   onRender: function () {
     this._super();

@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/api-documentation-filters.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['api-documentation-filters'],
+  template: Template,
 
   events: {
     'change .js-toggle-internal': 'toggleInternal'

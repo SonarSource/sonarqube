@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/issues-mode-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['issues-mode-facet'],
+  template: Template,
 
   events: {
     'change [name="issues-page-mode"]': 'onModeChange'

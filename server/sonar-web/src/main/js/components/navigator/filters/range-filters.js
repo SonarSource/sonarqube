@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseFilters from './base-filters';
-import '../templates';
+import Template from '../templates/range-filter.hbs';
 
 var DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
-  template: Templates['range-filter'],
+  template: Template,
 
 
   events: {

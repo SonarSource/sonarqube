@@ -2,10 +2,11 @@ import $ from 'jquery';
 import _ from 'underscore';
 import BaseFilters from './base-filters';
 import ChoiceFilters from './choice-filters';
-import '../templates';
+import Template from '../templates/favorite-filter.hbs';
+import DetailsTemplate from '../templates/favorite-details-filter.hbs';
 
 var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
-  template: Templates['favorite-details-filter'],
+  template: DetailsTemplate,
 
 
   events: {
@@ -43,7 +44,7 @@ var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
 
 
 var FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
-  template: Templates['favorite-filter'],
+  template: Template,
   className: 'navigator-filter navigator-filter-favorite',
 
 

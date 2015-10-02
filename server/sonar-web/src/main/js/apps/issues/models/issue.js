@@ -1,4 +1,4 @@
-import Issue from 'components/issue/models/issue';
+import Issue from '../../../components/issue/models/issue';
 
 export default Issue.extend({
   reset: function (attrs, options) {

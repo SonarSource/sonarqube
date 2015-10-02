@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import FilterBarView from 'components/navigator/filters/filter-bar';
+import FilterBarView from '../../components/navigator/filters/filter-bar';
 
 export default FilterBarView.extend({
   template: function () {

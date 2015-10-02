@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ActionOptionsView from 'components/common/action-options-view';
-import '../templates';
+import ActionOptionsView from '../../common/action-options-view';
+import Template from '../templates/issue-plan-form.hbs';
 
 export default ActionOptionsView.extend({
-  template: Templates['issue-plan-form'],
+  template: Template,
 
   getActionPlan: function () {
     return this.model.get('actionPlan') || '';

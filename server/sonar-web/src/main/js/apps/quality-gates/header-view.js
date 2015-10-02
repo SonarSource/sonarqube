@@ -3,10 +3,10 @@ import Marionette from 'backbone.marionette';
 import RenameView from './rename-view';
 import CopyView from './copy-view';
 import DeleteView from './delete-view';
-import './templates';
+import Template from './templates/quality-gate-detail-header.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['quality-gate-detail-header'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

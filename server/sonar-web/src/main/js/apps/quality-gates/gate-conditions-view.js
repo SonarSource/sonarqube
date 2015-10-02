@@ -3,10 +3,10 @@ import Marionette from 'backbone.marionette';
 import Condition from './condition';
 import ConditionView from './gate-condition-view';
 import ConditionsEmptyView from './gate-conditions-empty-view';
-import './templates';
+import Template from './templates/quality-gate-detail-conditions.hbs';
 
 export default Marionette.CompositeView.extend({
-  template: Templates['quality-gate-detail-conditions'],
+  template: Template,
   childView: ConditionView,
   emptyView: ConditionsEmptyView,
   childViewContainer: '.js-conditions',

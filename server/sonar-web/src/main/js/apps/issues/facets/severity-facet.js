@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/issues-severity-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['issues-severity-facet'],
+  template: Template,
 
   sortValues: function (values) {
     var order = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];

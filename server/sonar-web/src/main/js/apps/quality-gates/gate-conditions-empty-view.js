@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/quality-gate-detail-conditions-empty.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'tr',
-  template: Templates['quality-gate-detail-conditions-empty'],
+  template: Template,
 
   serializeData: function () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {

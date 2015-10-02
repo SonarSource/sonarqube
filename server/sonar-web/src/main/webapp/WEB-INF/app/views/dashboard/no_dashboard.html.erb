@@ -7,15 +7,14 @@
     (function () {
       jQuery('.navbar-context').remove();
       jQuery('.page-wrapper-context').addClass('page-wrapper-global').removeClass('page-wrapper-context');
-      var file = {
+      window.sonarqube.el = '#source-viewer';
+      window.sonarqube.file = {
         uuid: '<%= @resource.uuid -%>',
         key: '<%= @resource.key -%>'
       };
-      require(['apps/source-viewer/app'], function (App) {
-        App.start({ el: '#source-viewer', file: file })
-      });
     })();
   </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/source-viewer.js?v=<%= sonar_version -%>"></script>
 <% end %>
 
 

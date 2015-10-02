@@ -1,9 +1,9 @@
-import Modal from 'components/common/modals';
-import 'components/common/select-list';
-import './templates';
+import Modal from '../../components/common/modals';
+import '../../components/common/select-list';
+import Template from './templates/groups-users.hbs';
 
 export default Modal.extend({
-  template: Templates['groups-users'],
+  template: Template,
 
   onRender: function () {
     this._super();

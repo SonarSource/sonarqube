@@ -2,10 +2,10 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import RuleFilterMixin from './rule-filter-mixin';
-import '../templates';
+import Template from '../templates/rule/coding-rules-rule-meta.hbs';
 
 export default Marionette.ItemView.extend(RuleFilterMixin).extend({
-  template: Templates['coding-rules-rule-meta'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

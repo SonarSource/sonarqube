@@ -1,8 +1,8 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/metrics-layout.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['metrics-layout'],
+  template: Template,
 
   regions: {
     headerRegion: '#metrics-header',

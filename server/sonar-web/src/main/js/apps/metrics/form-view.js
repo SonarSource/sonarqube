@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ModalForm from 'components/common/modal-form';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
+import Template from './templates/metrics-form.hbs';
 
 export default ModalForm.extend({
-  template: Templates['metrics-form'],
+  template: Template,
 
   onRender: function () {
     var that = this;

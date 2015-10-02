@@ -1,11 +1,11 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import WorkspaceHeaderView from 'components/navigator/workspace-header-view';
+import WorkspaceHeaderView from '../../components/navigator/workspace-header-view';
 import BulkChangePopup from './bulk-change-popup-view';
-import './templates';
+import Template from './templates/coding-rules-workspace-header.hbs';
 
 export default WorkspaceHeaderView.extend({
-  template: Templates['coding-rules-workspace-header'],
+  template: Template,
 
   events: function () {
     return _.extend(WorkspaceHeaderView.prototype.events.apply(this, arguments), {

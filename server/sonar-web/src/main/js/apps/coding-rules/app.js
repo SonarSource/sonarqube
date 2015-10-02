@@ -5,16 +5,20 @@ import Marionette from 'backbone.marionette';
 import State from './models/state';
 import Layout from './layout';
 import Rules from './models/rules';
-import Facets from 'components/navigator/models/facets';
+import Facets from '../../components/navigator/models/facets';
 import Controller from './controller';
-import Router from 'components/navigator/router';
+import Router from '../../components/navigator/router';
 import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
 import FiltersView from './filters-view';
+import './partials';
+import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
-    init = function (options) {
+    init = function () {
+      let options = window.sonarqube;
+
       this.layout = new Layout({ el: options.el });
       this.layout.render();
       $('#footer').addClass('search-navigator-footer');
@@ -92,9 +96,9 @@ var appXHR = $.get(baseUrl + '/api/rules/app').done(function (r) {
 });
 
 App.on('start', function (options) {
-  $.when(window.requestMessages(), appXHR).done(function () {
+  appXHR.done(function () {
     init.call(App, options);
   });
 });
 
-export default App;
+window.sonarqube.appStarted.then(options => App.start(options));

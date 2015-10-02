@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import Handlebars from 'hbsfy/runtime';
 
 /**
  * Intersect two ranges
@@ -113,14 +114,13 @@ function doTheStuff (code, issueLocations, optionalClassName) {
 }
 
 
-if (typeof Handlebars !== 'undefined') {
-  /**
-   * Handlebars helper to highlight issue locations in the source code
-   */
-  Handlebars.registerHelper('codeWithIssueLocations', function (code, issueLocations) {
-    return doTheStuff(code, issueLocations);
-  });
-}
+/**
+ * Handlebars helper to highlight issue locations in the source code
+ */
+Handlebars.registerHelper('codeWithIssueLocations', function (code, issueLocations) {
+  return doTheStuff(code, issueLocations);
+});
+
 
 export default doTheStuff;
 

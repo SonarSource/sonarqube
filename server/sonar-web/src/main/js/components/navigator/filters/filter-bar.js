@@ -3,7 +3,6 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import BaseFilters from './base-filters';
 import MoreCriteriaFilters from './more-criteria-filters';
-import './favorite-filters';
 
 export default Marionette.CompositeView.extend({
   childViewContainer: '.navigator-filters-list',

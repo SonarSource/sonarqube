@@ -1,6 +1,8 @@
 <div id="markdown-full-help"></div>
-<script>
-  require(['apps/markdown/app'], function (App) {
-    App.start({ el: '#markdown-full-help' });
-  });
-</script>
+
+<% content_for :extra_script do %>
+  <script>
+    window.sonarqube.el = '#markdown-full-help';
+  </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/markdown.js?v=<%= sonar_version -%>"></script>
+<% end %>

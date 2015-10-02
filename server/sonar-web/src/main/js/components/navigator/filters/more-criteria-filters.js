@@ -1,10 +1,11 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import ChoiceFilters from './choice-filters';
-import '../templates';
+import Template from '../templates/more-criteria-filter.hbs';
+import DetailsTemplate from '../templates/more-criteria-details-filter.hbs';
 
 var DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
-  template: Templates['more-criteria-details-filter'],
+  template: DetailsTemplate,
 
 
   events: {
@@ -56,7 +57,7 @@ var DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend
 
 
 var MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
-  template: Templates['more-criteria-filter'],
+  template: Template,
   className: 'navigator-filter navigator-filter-more-criteria',
 
 

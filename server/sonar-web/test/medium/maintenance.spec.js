@@ -7,7 +7,7 @@ define(function (require) {
       return this.remote
           .open()
           .mockFromFile('/api/system/status', 'maintenance-spec/status-up.json')
-          .startApp('maintenance', { setup: false })
+          .startAppBrowserify('maintenance', { setup: false })
           .checkElementExist('.maintenance-title')
           .checkElementExist('.maintenance-title')
           .checkElementExist('.maintenance-text');
@@ -17,7 +17,7 @@ define(function (require) {
       return this.remote
           .open()
           .mockFromFile('/api/system/status', 'maintenance-spec/status-up.json')
-          .startApp('maintenance', { setup: false })
+          .startAppBrowserify('maintenance', { setup: false })
           .checkElementExist('.maintenance-title')
           .checkElementNotExist('.maintenance-title.text-danger')
           .clearMocks()

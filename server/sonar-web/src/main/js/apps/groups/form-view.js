@@ -1,8 +1,8 @@
-import ModalForm from 'components/common/modal-form';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
+import Template from './templates/groups-form.hbs';
 
 export default ModalForm.extend({
-  template: Templates['groups-form'],
+  template: Template,
 
   onRender: function () {
     this._super();

@@ -1,5 +1,5 @@
 import Marionette from 'backbone.marionette';
-import BaseFacet from 'components/navigator/facets/base-facet';
+import BaseFacet from './facets/base-facet';
 
 export default Marionette.CollectionView.extend({
   className: 'search-navigator-facets-list',

@@ -2,10 +2,10 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/maintenance-main.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['maintenance-main'],
+  template: Template,
 
   events: {
     'click #start-migration': 'startMigration'

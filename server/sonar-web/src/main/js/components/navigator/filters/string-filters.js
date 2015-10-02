@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseFilters from './base-filters';
-import '../templates';
+import Template from '../templates/string-filter.hbs';
 
 var DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
-  template: Templates['string-filter'],
+  template: Template,
 
 
   events: {

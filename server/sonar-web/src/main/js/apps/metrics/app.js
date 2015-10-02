@@ -5,9 +5,12 @@ import Metrics from './metrics';
 import HeaderView from './header-view';
 import ListView from './list-view';
 import ListFooterView from './list-footer-view';
+import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
-    init = function (options) {
+    init = function () {
+      let options = window.sonarqube;
+
       // Layout
       this.layout = new Layout({ el: options.el });
       this.layout.render();
@@ -52,12 +55,12 @@ App.requestTypes = function () {
   });
 };
 
-App.on('start', function (options) {
-  $.when(window.requestMessages(), App.requestDomains(), App.requestTypes()).done(function () {
-    init.call(App, options);
+App.on('start', function () {
+  $.when(App.requestDomains(), App.requestTypes()).done(function () {
+    init.call(App);
   });
 });
 
-export default App;
+window.sonarqube.appStarted.then(options => App.start(options));
 
 

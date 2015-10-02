@@ -3,12 +3,12 @@ import Marionette from 'backbone.marionette';
 import UpdateView from './update-view';
 import DeleteView from './delete-view';
 import UsersView from './users-view';
-import './templates';
+import Template from './templates/groups-list-item.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'li',
   className: 'panel panel-vertical',
-  template: Templates['groups-list-item'],
+  template: Template,
 
   events: {
     'click .js-group-update': 'onUpdateClick',

@@ -1,4 +1,4 @@
-import Router from 'components/navigator/router';
+import Router from '../../components/navigator/router';
 
 export default Router.extend({
   routes: {

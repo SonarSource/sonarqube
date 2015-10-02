@@ -27,5 +27,6 @@ export function cancelAllTasks () {
 
 export function getTasksForComponent(componentId) {
   let url = baseUrl + '/api/ce/component';
-  return $.get(url, { componentId });
+  let data = { componentId };
+  return new Promise((resolve) => $.get(url, data).done(resolve));
 }

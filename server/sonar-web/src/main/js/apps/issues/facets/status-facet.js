@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/issues-status-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['issues-status-facet'],
+  template: Template,
 
   sortValues: function (values) {
     var order = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED'];

@@ -1,11 +1,11 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/quality-profiles-profile.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'a',
   className: 'list-group-item',
-  template: Templates['quality-profiles-profile'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

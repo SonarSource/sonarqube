@@ -125,9 +125,5 @@
     ];
   </script>
 
-  <script>
-    require(['apps/measures/app'], function (App) {
-      App.start();
-    });
-  </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/measures.js?v=<%= sonar_version -%>"></script>
 <% end %>

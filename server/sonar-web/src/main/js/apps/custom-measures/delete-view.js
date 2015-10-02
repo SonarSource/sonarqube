@@ -1,8 +1,8 @@
-import ModalForm from 'components/common/modal-form';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
+import Template from './templates/custom-measures-delete.hbs';
 
 export default ModalForm.extend({
-  template: Templates['custom-measures-delete'],
+  template: Template,
 
   onFormSubmit: function (e) {
     this._super(e);

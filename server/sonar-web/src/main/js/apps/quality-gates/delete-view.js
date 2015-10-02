@@ -1,8 +1,8 @@
-import ModalForm from 'components/common/modal-form';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
+import Template from './templates/quality-gates-delete.hbs';
 
 export default ModalForm.extend({
-  template: Templates['quality-gates-delete'],
+  template: Template,
 
   onFormSubmit: function () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);

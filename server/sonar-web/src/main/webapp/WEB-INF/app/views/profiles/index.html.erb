@@ -1,7 +1,6 @@
 <% content_for :extra_script do %>
   <script>
-    require(['apps/quality-profiles/app'], function (App) {
-      App.start({ el: '#content', urlRoot: baseUrl + '/profiles' });
-    });
+    window.sonarqube.urlRoot = baseUrl + '/profiles';
   </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/quality-profiles.js?v=<%= sonar_version -%>"></script>
 <% end %>

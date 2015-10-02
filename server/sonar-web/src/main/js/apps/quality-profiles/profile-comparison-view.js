@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/quality-profile-comparison.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['quality-profile-comparison'],
+  template: Template,
 
   events: {
     'submit #quality-profile-comparison-form': 'onFormSubmit'

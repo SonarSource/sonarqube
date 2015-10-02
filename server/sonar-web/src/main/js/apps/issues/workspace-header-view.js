@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import WorkspaceHeaderView from 'components/navigator/workspace-header-view';
-import './templates';
+import WorkspaceHeaderView from '../../components/navigator/workspace-header-view';
+import Template from './templates/issues-workspace-header.hbs';
 
 export default WorkspaceHeaderView.extend({
-  template: Templates['issues-workspace-header'],
+  template: Template,
 
   events: function () {
     return _.extend(WorkspaceHeaderView.prototype.events.apply(this, arguments), {

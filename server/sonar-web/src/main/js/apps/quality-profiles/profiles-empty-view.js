@@ -1,9 +1,9 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/quality-profiles-empty.hbs';
 
 export default Marionette.ItemView.extend({
   className: 'list-group-item',
-  template: Templates['quality-profiles-empty']
+  template: Template
 });
 
 

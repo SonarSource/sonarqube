@@ -1,9 +1,9 @@
-import Popup from 'components/common/popup';
-import ManualIssueView from 'components/issue/manual-issue-view';
-import '../templates';
+import Popup from '../../common/popup';
+import ManualIssueView from '../../issue/manual-issue-view';
+import Template from '../templates/source-viewer-line-options-popup.hbs';
 
 export default Popup.extend({
-  template: Templates['source-viewer-line-options-popup'],
+  template: Template,
 
   events: {
     'click .js-get-permalink': 'getPermalink',

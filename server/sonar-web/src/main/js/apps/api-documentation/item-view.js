@@ -1,11 +1,11 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/api-documentation-web-service.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'a',
   className: 'list-group-item',
-  template: Templates['api-documentation-web-service'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

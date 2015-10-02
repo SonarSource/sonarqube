@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/issues-custom-values-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['issues-custom-values-facet'],
+  template: Template,
 
   events: function () {
     return _.extend(BaseFacet.prototype.events.apply(this, arguments), {

@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import Popup from 'components/common/popup';
-import './templates';
+import Popup from '../../components/common/popup';
+import Template from './templates/update-center-plugin-changelog.hbs';
 
 export default Popup.extend({
-  template: Templates['update-center-plugin-changelog'],
+  template: Template,
 
   onRender: function () {
     this._super();

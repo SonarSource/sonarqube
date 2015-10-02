@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import '../templates';
+import Template from '../templates/rule/coding-rules-rule-parameters.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['coding-rules-rule-parameters'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

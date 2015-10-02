@@ -1,12 +1,12 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import Workspace from 'components/workspace/main';
-import './templates';
+import Workspace from '../workspace/main';
+import Template from './templates/source-viewer-more-actions.hbs';
 
 export default Marionette.ItemView.extend({
   className: 'source-viewer-header-more-actions',
-  template: Templates['source-viewer-more-actions'],
+  template: Template,
 
   events: {
     'click .js-measures': 'showMeasures',
@@ -33,8 +33,7 @@ export default Marionette.ItemView.extend({
 
   openInWorkspace: function () {
     var uuid = this.options.parent.model.id;
-    var RealWorkspace = Workspace.openComponent ? Workspace : require('components/workspace/main');
-    RealWorkspace.openComponent({ uuid: uuid });
+    Workspace.openComponent({ uuid: uuid });
   },
 
   showRawSource: function () {

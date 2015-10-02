@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import BaseFilters from './base-filters';
-import '../templates';
+import Template from '../templates/checkbox-filter.hbs';
 
 export default BaseFilters.BaseFilterView.extend({
-  template: Templates['checkbox-filter'],
+  template: Template,
   className: 'navigator-filter navigator-filter-inline',
 
 

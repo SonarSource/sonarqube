@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/groups-list-footer.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['groups-list-footer'],
+  template: Template,
 
   collectionEvents: {
     'all': 'render'

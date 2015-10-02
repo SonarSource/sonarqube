@@ -8,9 +8,12 @@ import List from './list';
 import ListView from './list-view';
 import FiltersView from './filters-view';
 import SearchView from './search-view';
+import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
-    init = function (options) {
+    init = function () {
+      let options = window.sonarqube;
+
       // State
       this.state = new Backbone.Model({ internal: false });
       this.state.match = function (test) {
@@ -61,9 +64,7 @@ var App = new Marionette.Application(),
     };
 
 App.on('start', function (options) {
-  window.requestMessages().done(function () {
-    init.call(App, options);
-  });
+  init.call(App, options);
 });
 
-export default App;
+window.sonarqube.appStarted.then(options => App.start(options));

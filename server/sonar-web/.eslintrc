@@ -188,8 +188,6 @@
   "globals": {
     "define": true,
     "require": true,
-    "Templates": true,
-    "Handlebars": true,
     "moment": true,
     "numeral": true,
     "key": true,

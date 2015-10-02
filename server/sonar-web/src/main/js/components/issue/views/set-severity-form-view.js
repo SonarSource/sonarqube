@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ActionOptionsView from 'components/common/action-options-view';
-import '../templates';
+import ActionOptionsView from '../../common/action-options-view';
+import Template from '../templates/issue-set-severity-form.hbs';
 
 export default ActionOptionsView.extend({
-  template: Templates['issue-set-severity-form'],
+  template: Template,
 
   getTransition: function () {
     return this.model.get('severity');

@@ -1,16 +1,15 @@
 <% content_for :extra_script do %>
   <script type="text/javascript">
     (function () {
-      var file = {
+      window.sonarqube.el = '#body';
+      window.sonarqube.file = {
         uuid: '<%= @resource.uuid -%>',
         key: '<%= @resource.key -%>'
         <% if @line %>, line: <%= @line -%><% end %>
       };
-      require(['apps/source-viewer/app'], function (App) {
-        App.start({ el: '#body', file: file })
-      });
     })();
   </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/source-viewer.js?v=<%= sonar_version -%>"></script>
 <% end %>
 
 

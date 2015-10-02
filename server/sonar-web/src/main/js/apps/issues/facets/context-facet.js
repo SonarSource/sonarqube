@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/issues-context-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['issues-context-facet'],
+  template: Template,
 
   serializeData: function () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {

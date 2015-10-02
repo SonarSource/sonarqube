@@ -1,8 +1,7 @@
 <% content_for :extra_script do %>
   <script>
-    require(['apps/maintenance/app'], function (App) {
-      App.start({ el: '#content', setup: false });
-    });
+    window.sonarqube.setup = false;
   </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/maintenance.js?v=<%= sonar_version -%>"></script>
 <% end %>
 

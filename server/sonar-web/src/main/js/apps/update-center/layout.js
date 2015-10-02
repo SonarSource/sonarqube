@@ -1,8 +1,8 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/update-center-layout.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['update-center-layout'],
+  template: Template,
 
   regions: {
     headerRegion: '#update-center-header',

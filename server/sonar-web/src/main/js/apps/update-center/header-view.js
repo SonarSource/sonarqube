@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/update-center-header.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['update-center-header'],
+  template: Template,
 
   collectionEvents: {
     all: 'render'

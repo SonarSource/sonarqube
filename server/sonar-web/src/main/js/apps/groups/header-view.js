@@ -1,9 +1,9 @@
 import Marionette from 'backbone.marionette';
 import CreateView from './create-view';
-import './templates';
+import Template from './templates/groups-header.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['groups-header'],
+  template: Template,
 
   events: {
     'click #groups-create': 'onCreateClick'

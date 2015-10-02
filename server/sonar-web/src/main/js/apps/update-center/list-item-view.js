@@ -2,13 +2,14 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import PluginChangelogView from './plugin-changelog-view';
-import './templates';
+import Template from './templates/update-center-plugin.hbs';
+import SystemTemplate from './templates/update-center-system-update.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'li',
   className: 'panel panel-vertical',
-  template: Templates['update-center-plugin'],
-  systemTemplate: Templates['update-center-system-update'],
+  template: Template,
+  systemTemplate: SystemTemplate,
 
   modelEvents: {
     'change:_hidden': 'toggleDisplay',

@@ -2,7 +2,8 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
-import '../templates';
+import Template from '../templates/base-filter.hbs';
+import DetailsTemplate from '../templates/base-details-filter.hbs';
 
 var Filter = Backbone.Model.extend({
 
@@ -22,7 +23,7 @@ var Filters = Backbone.Collection.extend({
 
 
 var DetailsFilterView = Marionette.ItemView.extend({
-  template: Templates['base-details-filter'],
+  template: DetailsTemplate,
   className: 'navigator-filter-details',
 
 
@@ -42,7 +43,7 @@ var DetailsFilterView = Marionette.ItemView.extend({
 
 
 var BaseFilterView = Marionette.ItemView.extend({
-  template: Templates['base-filter'],
+  template: Template,
   className: 'navigator-filter',
 
 

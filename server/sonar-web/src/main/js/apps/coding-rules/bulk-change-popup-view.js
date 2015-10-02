@@ -1,11 +1,11 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import PopupView from 'components/common/popup';
+import PopupView from '../../components/common/popup';
 import BulkChangeModalView from './bulk-change-modal-view';
-import './templates';
+import Template from './templates/coding-rules-bulk-change-popup.hbs';
 
 export default PopupView.extend({
-  template: Templates['coding-rules-bulk-change-popup'],
+  template: Template,
 
   events: {
     'click .js-bulk-change': 'doAction'

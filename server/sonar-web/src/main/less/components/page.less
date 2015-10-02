@@ -2,6 +2,11 @@
 @import (reference) "../mixins";
 @import (reference) "../init/links";
 
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
 .page {
   .clearfix;
@@ -14,8 +19,14 @@
 }
 
 .page-wrapper {
-  min-height: ~"calc(100vh - @{pageFooterHeight})";
-  .box-sizing(border-box);
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.page-wrapper-simple {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .page-wrapper-global {
@@ -27,12 +38,10 @@
 }
 
 .page-simple {
-  max-width: 400px;
-  margin: 10vh auto;
+  width: 400px;
   padding: 40px;
   border: 1px solid @barBorderColor;
   background-color: #fff;
-  text-align: left;
 }
 
 .page-header {
@@ -75,23 +84,5 @@
 
   a {
     .link-base-color;
-  }
-}
-
-@supports (display: flex) {
-  body {
-    min-height: 100vh;
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: space-between;
-  }
-
-  .page-wrapper {
-    flex: 1;
-    min-height: 0 !important;
-  }
-
-  .page-simple {
-    margin-bottom: 0;
   }
 }

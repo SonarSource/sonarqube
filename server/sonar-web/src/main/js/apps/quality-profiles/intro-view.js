@@ -1,8 +1,8 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/quality-profiles-intro.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['quality-profiles-intro']
+  template: Template
 });
 
 

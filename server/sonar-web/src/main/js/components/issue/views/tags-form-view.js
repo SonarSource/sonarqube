@@ -1,11 +1,12 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ActionOptionsView from 'components/common/action-options-view';
-import '../templates';
+import ActionOptionsView from '../../common/action-options-view';
+import Template from '../templates/issue-tags-form.hbs';
+import OptionTemplate from '../templates/issue-tags-form-option.hbs';
 
 export default ActionOptionsView.extend({
-  template: Templates['issue-tags-form'],
-  optionTemplate: Templates['issue-tags-form-option'],
+  template: Template,
+  optionTemplate: OptionTemplate,
 
   modelEvents: {
     'change:tags': 'renderTags'

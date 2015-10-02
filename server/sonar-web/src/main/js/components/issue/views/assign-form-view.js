@@ -1,11 +1,12 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ActionOptionsView from 'components/common/action-options-view';
-import '../templates';
+import ActionOptionsView from '../../common/action-options-view';
+import Template from '../templates/issue-assign-form.hbs';
+import OptionTemplate from '../templates/issue-assign-form-option.hbs';
 
 export default ActionOptionsView.extend({
-  template: Templates['issue-assign-form'],
-  optionTemplate: Templates['issue-assign-form-option'],
+  template: Template,
+  optionTemplate: OptionTemplate,
 
   events: function () {
     return _.extend(ActionOptionsView.prototype.events.apply(this, arguments), {

@@ -1,10 +1,10 @@
 import Marionette from 'backbone.marionette';
-import '../templates';
+import Template from '../templates/workspace-item.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'li',
   className: 'workspace-nav-item',
-  template: Templates['workspace-item'],
+  template: Template,
 
   modelEvents: {
     'change': 'render',

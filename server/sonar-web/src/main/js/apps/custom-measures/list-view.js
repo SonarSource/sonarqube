@@ -1,9 +1,9 @@
 import Marionette from 'backbone.marionette';
 import ListItemView from './list-item-view';
-import './templates';
+import Template from './templates/custom-measures-list.hbs';
 
 export default Marionette.CompositeView.extend({
-  template: Templates['custom-measures-list'],
+  template: Template,
   childView: ListItemView,
   childViewContainer: 'tbody'
 });

@@ -1,12 +1,12 @@
 import Marionette from 'backbone.marionette';
 import UpdateView from './update-view';
 import DeleteView from './delete-view';
-import './templates';
+import Template from './templates/metrics-list-item.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'li',
   className: 'panel panel-vertical',
-  template: Templates['metrics-list-item'],
+  template: Template,
 
   events: {
     'click .js-metric-update': 'onUpdateClick',

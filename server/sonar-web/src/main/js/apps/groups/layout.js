@@ -1,8 +1,8 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/groups-layout.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['groups-layout'],
+  template: Template,
 
   regions: {
     headerRegion: '#groups-header',

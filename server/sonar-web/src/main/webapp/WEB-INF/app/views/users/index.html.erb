@@ -1,7 +1,3 @@
 <% content_for :extra_script do %>
-  <script>
-    require(['apps/users/app'], function (App) {
-      App.start({ el: '#content' });
-    });
-  </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/users.js?v=<%= sonar_version -%>"></script>
 <% end %>

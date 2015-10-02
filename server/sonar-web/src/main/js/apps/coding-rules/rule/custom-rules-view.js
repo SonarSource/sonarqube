@@ -2,10 +2,10 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import CustomRuleView from './custom-rule-view';
 import CustomRuleCreationView from './custom-rule-creation-view';
-import '../templates';
+import Template from '../templates/rule/coding-rules-custom-rules.hbs';
 
 export default Marionette.CompositeView.extend({
-  template: Templates['coding-rules-custom-rules'],
+  template: Template,
   childView: CustomRuleView,
   childViewContainer: '#coding-rules-detail-custom-rules',
 

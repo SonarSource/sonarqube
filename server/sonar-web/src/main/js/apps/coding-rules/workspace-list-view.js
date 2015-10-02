@@ -1,10 +1,10 @@
-import WorkspaceListView from 'components/navigator/workspace-list-view';
+import WorkspaceListView from '../../components/navigator/workspace-list-view';
 import WorkspaceListItemView from './workspace-list-item-view';
 import WorkspaceListEmptyView from './workspace-list-empty-view';
-import './templates';
+import Template from './templates/coding-rules-workspace-list.hbs';
 
 export default WorkspaceListView.extend({
-  template: Templates['coding-rules-workspace-list'],
+  template: Template,
   childView: WorkspaceListItemView,
   childViewContainer: '.js-list',
   emptyView: WorkspaceListEmptyView,

@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import BaseView from './base-viewer-view';
-import '../templates';
+import Template from '../templates/workspace-rule.hbs';
 
 export default BaseView.extend({
-  template: Templates['workspace-rule'],
+  template: Template,
 
   onRender: function () {
     BaseView.prototype.onRender.apply(this, arguments);

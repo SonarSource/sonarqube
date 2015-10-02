@@ -3,12 +3,12 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import MoreActionsView from './more-actions';
 import MeasuresOverlay from './measures-overlay';
-import './templates';
+import Template from './templates/source-viewer-header.hbs';
 
 var API_FAVORITE = baseUrl + '/api/favourites';
 
 export default Marionette.ItemView.extend({
-  template: Templates['source-viewer-header'],
+  template: Template,
 
   events: function () {
     return {

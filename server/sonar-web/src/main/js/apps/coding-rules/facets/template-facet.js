@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/coding-rules-template-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['coding-rules-template-facet'],
+  template: Template,
 
   onRender: function () {
     BaseFacet.prototype.onRender.apply(this, arguments);

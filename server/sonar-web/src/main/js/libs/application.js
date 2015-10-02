@@ -631,20 +631,6 @@ function closeModalWindow () {
     return params;
   };
 
-
-  /**
-   * Return an md5 hash of a string
-   * @param s
-   * @returns {*}
-   */
-  window.getMD5Hash = function (s) {
-    if (typeof s === 'string') {
-      return window.md5(s.trim());
-    } else {
-      return null;
-    }
-  };
-
 })();
 
 (function () {

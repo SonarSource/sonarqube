@@ -1,10 +1,10 @@
 import Marionette from 'backbone.marionette';
 import ItemView from './item-view';
-import '../templates';
+import Template from '../templates/workspace-items.hbs';
 
 export default Marionette.CompositeView.extend({
   className: 'workspace-nav',
-  template: Templates['workspace-items'],
+  template: Template,
   childViewContainer: '.workspace-nav-list',
   childView: ItemView,
 

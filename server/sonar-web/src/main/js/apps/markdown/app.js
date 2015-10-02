@@ -3,10 +3,11 @@ import MarkdownView from './markdown-help-view';
 
 var App = new Marionette.Application();
 
-App.on('start', function (options) {
+App.on('start', function () {
+  let options = window.sonarqube;
   new MarkdownView({ el: options.el }).render();
 });
 
-export default App;
+window.sonarqube.appStarted.then(options => App.start(options));
 
 

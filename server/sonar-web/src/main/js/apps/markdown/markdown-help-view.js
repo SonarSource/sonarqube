@@ -1,8 +1,8 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/markdown-help.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['markdown-help']
+  template: Template
 });
 
 

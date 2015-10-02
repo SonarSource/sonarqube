@@ -1,11 +1,11 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import DeleteConditionView from './gate-conditions-delete-view';
-import './templates';
+import Template from './templates/quality-gate-detail-condition.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'tr',
-  template: Templates['quality-gate-detail-condition'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

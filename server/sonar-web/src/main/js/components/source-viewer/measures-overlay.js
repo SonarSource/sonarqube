@@ -1,11 +1,11 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ModalView from 'components/common/modals';
-import './templates';
+import ModalView from '../common/modals';
+import Template from './templates/source-viewer-measures.hbs';
 
 
 export default ModalView.extend({
-  template: Templates['source-viewer-measures'],
+  template: Template,
   testsOrder: ['ERROR', 'FAILURE', 'OK', 'SKIPPED'],
 
   initialize: function () {

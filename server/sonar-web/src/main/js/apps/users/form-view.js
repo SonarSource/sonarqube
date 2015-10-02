@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ModalForm from 'components/common/modal-form';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
+import Template from './templates/users-form.hbs';
 
 export default ModalForm.extend({
-  template: Templates['users-form'],
+  template: Template,
 
   events: function () {
     return _.extend(this._super(), {

@@ -3,7 +3,8 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import BaseFilters from './base-filters';
 import ChoiceFilters from './choice-filters';
-import '../templates';
+import Template from '../templates/ajax-select-filter.hbs';
+import ListTemplate from '../templates/choice-filter-item.hbs';
 
 var PAGE_SIZE = 100;
 
@@ -98,8 +99,8 @@ var ComponentSuggestions = Suggestions.extend({
 
 
 var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
-  template: Templates['ajax-select-filter'],
-  listTemplate: Templates['choice-filter-template'],
+  template: Template,
+  listTemplate: ListTemplate,
   searchKey: 's',
 
 

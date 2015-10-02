@@ -1,8 +1,8 @@
 import ModalForm from '../../components/common/modal-form';
-import './templates';
+import Template from './templates/permission-templates-form.hbs';
 
 export default ModalForm.extend({
-  template: Templates['permission-templates-form'],
+  template: Template,
 
   onRender: function () {
     this._super();

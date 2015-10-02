@@ -69,9 +69,5 @@
 </div>
 
 <% content_for :extra_script do %>
-  <script>
-    require(['apps/account/app'], function (App) {
-      App.start();
-    });
-  </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/account.js?v=<%= sonar_version -%>"></script>
 <% end %>

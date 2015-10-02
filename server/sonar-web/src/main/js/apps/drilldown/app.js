@@ -1,9 +1,11 @@
 import $ from 'jquery';
 import Marionette from 'backbone.marionette';
 import SourceViewer from '../../components/source-viewer/main';
+import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
-    init = function (options) {
+    init = function () {
+      let options = window.sonarqube;
       App.addRegions({ viewerRegion: options.el });
       $('.js-drilldown-link').on('click', function (e) {
         e.preventDefault();
@@ -22,9 +24,7 @@ var App = new Marionette.Application(),
     };
 
 App.on('start', function (options) {
-  window.requestMessages().done(function () {
-    init.call(App, options);
-  });
+  init.call(App, options);
 });
 
-export default App;
+window.sonarqube.appStarted.then(options => App.start(options));

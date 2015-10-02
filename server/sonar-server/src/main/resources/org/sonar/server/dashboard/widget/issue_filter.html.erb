@@ -18,7 +18,7 @@
 
     <div id="<%= container_id -%>"></div>
     <script>
-      (function () {
+      jQuery(function () {
         var query = '<%= filter.data -%>';
 
         // do not show widget if the filter contains "my" criterion,
@@ -28,17 +28,16 @@
           return;
         }
 
-        require(['widgets/issue-filter/widget'], function (IssueFilter) {
-          window.requestMessages().done(function () {
-            new IssueFilter({
-              el: '#<%= container_id -%>',
-              query: query,
-              distributionAxis: '<%= distribution_axis -%>',
-              displayMode: '<%= display_mode -%>'
-            });
+        var IssueFilterWidget = require('issue-filter-widget');
+        window.requestMessages().done(function () {
+          new IssueFilterWidget({
+            el: '#<%= container_id -%>',
+            query: query,
+            distributionAxis: '<%= distribution_axis -%>',
+            displayMode: '<%= display_mode -%>'
           });
         });
-      })();
+      });
     </script>
 
   <% else %>

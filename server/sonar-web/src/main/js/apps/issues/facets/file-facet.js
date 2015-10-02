@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/issues-file-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['issues-file-facet'],
+  template: Template,
 
   onRender: function () {
     BaseFacet.prototype.onRender.apply(this, arguments);

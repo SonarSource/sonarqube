@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import Controller from 'components/navigator/controller';
+import Controller from '../../components/navigator/controller';
 import ComponentViewer from './component-viewer/main';
 import HomeView from './workspace-home-view';
 

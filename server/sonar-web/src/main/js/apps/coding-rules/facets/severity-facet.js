@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/coding-rules-severity-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['coding-rules-severity-facet'],
+  template: Template,
   severities: ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'],
 
   sortValues: function (values) {

@@ -1,12 +1,13 @@
 import Marionette from 'backbone.marionette';
 import ProfileView from './profile-view';
 import ProfilesEmptyView from './profiles-empty-view';
-import './templates';
+import Template from './templates/quality-profiles-profiles.hbs';
+import LanguageTemplate from './templates/quality-profiles-profiles-language.hbs';
 
 export default Marionette.CompositeView.extend({
   className: 'list-group',
-  template: Templates['quality-profiles-profiles'],
-  languageTemplate: Templates['quality-profiles-profiles-language'],
+  template: Template,
+  languageTemplate: LanguageTemplate,
   childView: ProfileView,
   childViewContainer: '.js-list',
   emptyView: ProfilesEmptyView,

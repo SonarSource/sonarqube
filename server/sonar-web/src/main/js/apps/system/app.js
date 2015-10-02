@@ -3,7 +3,7 @@ import {setLogLevel} from '../../api/system';
 
 const LOG_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 
-window.requestMessages().done(() => {
+window.sonarqube.appStarted.then(() => {
   let cell = $('#sonarqube-logs-level').find('td:last-child');
   if (cell.length) {
     let currentValue = cell.text().trim();
@@ -53,3 +53,5 @@ window.requestMessages().done(() => {
         });
   }
 });
+
+

@@ -1,6 +1,6 @@
-import Modal from 'components/common/modals';
-import 'components/common/select-list';
-import './templates';
+import Modal from '../../components/common/modals';
+import Template from './templates/global-permissions-users.hbs';
+import '../../components/common/select-list';
 
 function getSearchUrl (permission, project) {
   var url = baseUrl + '/api/permissions/users?ps=100&permission=' + permission;
@@ -19,7 +19,7 @@ function getExtra (permission, project) {
 }
 
 export default Modal.extend({
-  template: Templates['global-permissions-users'],
+  template: Template,
 
   onRender: function () {
     this._super();

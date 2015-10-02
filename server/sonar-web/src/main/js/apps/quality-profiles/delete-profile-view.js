@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import ModalFormView from 'components/common/modal-form';
-import './templates';
+import ModalFormView from '../../components/common/modal-form';
+import Template from './templates/quality-profiles-delete-profile.hbs';
 
 export default ModalFormView.extend({
-  template: Templates['quality-profiles-delete-profile'],
+  template: Template,
 
   modelEvents: {
     'destroy': 'destroy'

@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/groups-search.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['groups-search'],
+  template: Template,
 
   events: {
     'submit #groups-search-form': 'onFormSubmit',

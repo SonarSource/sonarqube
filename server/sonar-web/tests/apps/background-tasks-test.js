@@ -1,6 +1,5 @@
 /* eslint no-unused-expressions: 0 */
 import React from 'react/addons';
-import App from '../../src/main/js/apps/background-tasks/app';
 import Header from '../../src/main/js/apps/background-tasks/header';
 import Stats from '../../src/main/js/apps/background-tasks/stats';
 import Search from '../../src/main/js/apps/background-tasks/search';
@@ -15,12 +14,6 @@ let sinon = require('sinon');
 chai.use(require('sinon-chai'));
 
 describe('Background Tasks', function () {
-  describe('App', () => {
-    it('should have #start()', () => {
-      expect(App.start).to.be.a('function');
-    });
-  });
-
   describe('Constants', () => {
     it('should have STATUSES', () => {
       expect(STATUSES).to.be.a('object');

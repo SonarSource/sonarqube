@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import ModalForm from 'components/common/modal-form';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
+import Template from './templates/quality-gates-condition-delete.hbs';
 
 export default ModalForm.extend({
-  template: Templates['quality-gates-condition-delete'],
+  template: Template,
 
   onFormSubmit: function () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);

@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/api-documentation-action.hbs';
 
 export default Marionette.ItemView.extend({
   className: 'panel panel-vertical',
-  template: Templates['api-documentation-action'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

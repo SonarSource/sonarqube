@@ -1,9 +1,9 @@
 import BaseView from './base-viewer-view';
-import SourceViewer from 'components/source-viewer/main';
-import '../templates';
+import SourceViewer from '../../source-viewer/main';
+import Template from '../templates/workspace-viewer.hbs';
 
 export default BaseView.extend({
-  template: Templates['workspace-viewer'],
+  template: Template,
 
   onRender: function () {
     BaseView.prototype.onRender.apply(this, arguments);
@@ -11,9 +11,8 @@ export default BaseView.extend({
   },
 
   showViewer: function () {
-    var RealSourceViewer = SourceViewer.on ? SourceViewer : require('components/source-viewer/main');
     var that = this,
-        viewer = new RealSourceViewer(),
+        viewer = new SourceViewer(),
         options = this.model.toJSON();
     viewer.open(this.model.get('uuid'), { workspace: true });
     viewer.on('loaded', function () {

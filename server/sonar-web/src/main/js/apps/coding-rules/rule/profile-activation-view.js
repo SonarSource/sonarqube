@@ -1,11 +1,12 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import ModalForm from 'components/common/modal-form';
-import '../templates';
+import ModalForm from '../../../components/common/modal-form';
+import Template from '../templates/rule/coding-rules-profile-activation.hbs';
+import {csvEscape} from '../../../helpers/csv';
 
 export default ModalForm.extend({
-  template: Templates['coding-rules-profile-activation'],
+  template: Template,
 
   ui: function () {
     return _.extend(this._super(), {
@@ -62,7 +63,7 @@ export default ModalForm.extend({
           };
         }).get(),
         paramsHash = (params.map(function (param) {
-          return param.key + '=' + window.csvEscape(param.value);
+          return param.key + '=' + csvEscape(param.value);
         })).join(';');
 
     if (this.model) {

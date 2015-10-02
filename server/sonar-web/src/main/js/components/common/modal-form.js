@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import ModalView from 'components/common/modals';
+import ModalView from './modals';
 
 export default ModalView.extend({
 

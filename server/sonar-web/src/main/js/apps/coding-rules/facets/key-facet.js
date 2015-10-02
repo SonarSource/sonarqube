@@ -1,9 +1,9 @@
 import BaseFacet from './base-facet';
 import _ from 'underscore';
-import '../templates';
+import Template from '../templates/facets/coding-rules-key-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['coding-rules-key-facet'],
+  template: Template,
 
   onRender: function () {
     this.$el.toggleClass('hidden', !this.options.app.state.get('query').rule_key);

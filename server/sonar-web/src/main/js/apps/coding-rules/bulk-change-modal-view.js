@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ModalFormView from 'components/common/modal-form';
-import './templates';
+import ModalFormView from '../../components/common/modal-form';
+import Template from './templates/coding-rules-bulk-change-modal.hbs';
 
 export default ModalFormView.extend({
-  template: Templates['coding-rules-bulk-change-modal'],
+  template: Template,
 
   ui: function () {
     return _.extend(ModalFormView.prototype.ui.apply(this, arguments), {

@@ -2,10 +2,10 @@ import Marionette from 'backbone.marionette';
 import Conditions from './conditions';
 import DetailConditionsView from './gate-conditions-view';
 import ProjectsView from './gate-projects-view';
-import './templates';
+import Template from './templates/quality-gate-detail.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['quality-gate-detail'],
+  template: Template,
 
   regions: {
     conditionsRegion: '#quality-gate-conditions',

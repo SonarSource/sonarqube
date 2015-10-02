@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import State from 'components/navigator/models/state';
+import State from '../../../components/navigator/models/state';
 
 export default State.extend({
   defaults: {

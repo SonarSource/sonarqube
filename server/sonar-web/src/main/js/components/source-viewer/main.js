@@ -3,22 +3,23 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import Source from './source';
-import Issues from 'components/issue/collections/issues';
-import IssueView from 'components/issue/issue-view';
+import Issues from '../issue/collections/issues';
+import IssueView from '../issue/issue-view';
 import HeaderView from './header';
 import SCMPopupView from './popups/scm-popup';
 import CoveragePopupView from './popups/coverage-popup';
 import DuplicationPopupView from './popups/duplication-popup';
 import LineActionsPopupView from './popups/line-actions-popup';
 import highlightLocations from './helpers/code-with-issue-locations-helper';
-import './templates';
+import Template from './templates/source-viewer.hbs';
+import IssueLocationTemplate from './templates/source-viewer-issue-location.hbs';
 
 var HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
 
 export default Marionette.LayoutView.extend({
   className: 'source-viewer',
-  template: Templates['source-viewer'],
-  issueLocationTemplate: Templates['source-viewer-issue-location'],
+  template: Template,
+  issueLocationTemplate: IssueLocationTemplate,
 
   ISSUES_LIMIT: 3000,
   LINES_LIMIT: 1000,

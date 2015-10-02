@@ -4,7 +4,7 @@ define(['intern'], function (intern) {
       tunnel = useBrowserStack ? 'BrowserStackTunnel' : 'NullTunnel';
 
   return {
-    excludeInstrumentation: /(((test|third-party|node_modules)\/)|(templates.js$))/,
+    excludeInstrumentation: true,
 
     defaultTimeout: 60 * 1000,
 
@@ -19,7 +19,6 @@ define(['intern'], function (intern) {
     functionalSuites: [
       'test/medium/api-documentation.spec',
       'test/medium/coding-rules.spec',
-      'test/medium/computation.spec',
       'test/medium/custom-measures.spec',
       'test/medium/global-permissions.spec',
       'test/medium/groups.spec',

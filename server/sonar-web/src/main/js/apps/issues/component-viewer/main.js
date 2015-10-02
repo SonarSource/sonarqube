@@ -1,8 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import SourceViewer from 'components/source-viewer/main';
+import SourceViewer from '../../../components/source-viewer/main';
 import IssueView from './issue-view';
-import '../templates';
 
 export default SourceViewer.extend({
   events: function () {

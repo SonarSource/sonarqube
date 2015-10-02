@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ActionOptionsView from 'components/common/action-options-view';
-import './templates';
+import ActionOptionsView from '../../components/common/action-options-view';
+import Template from './templates/issues-issue-filter-form.hbs';
 
 export default ActionOptionsView.extend({
-  template: Templates['issues-issue-filter-form'],
+  template: Template,
 
   selectOption: function (e) {
     var property = $(e.currentTarget).data('property'),

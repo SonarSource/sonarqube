@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/metrics-list-footer.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['metrics-list-footer'],
+  template: Template,
 
   collectionEvents: {
     'all': 'render'

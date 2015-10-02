@@ -1,9 +1,9 @@
 import Marionette from 'backbone.marionette';
 import CreateView from './create-view';
-import './templates';
+import Template from './templates/metrics-header.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['metrics-header'],
+  template: Template,
 
   events: {
     'click #metrics-create': 'onCreateClick'

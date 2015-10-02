@@ -12,12 +12,12 @@ import PlanFormView from './views/plan-form-view';
 import SetSeverityFormView from './views/set-severity-form-view';
 import MoreActionsView from './views/more-actions-view';
 import TagsFormView from './views/tags-form-view';
-import Workspace from 'components/workspace/main';
-import './templates';
+import Workspace from '../workspace/main';
+import Template from './templates/issue.hbs';
 
 export default Marionette.ItemView.extend({
   className: 'issue',
-  template: Templates.issue,
+  template: Template,
 
   modelEvents: {
     'change': 'render',
@@ -206,8 +206,7 @@ export default Marionette.ItemView.extend({
 
   showRule: function () {
     var ruleKey = this.model.get('rule');
-    var RealWorkspace = Workspace.openComponent ? Workspace : require('components/workspace/main');
-    RealWorkspace.openRule({ key: ruleKey });
+    Workspace.openRule({ key: ruleKey });
   },
 
   showMoreActions: function (e) {

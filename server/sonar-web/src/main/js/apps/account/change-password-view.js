@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import ModalForm from '../../components/common/modal-form';
-import './templates';
+import Template from './templates/account-change-password.hbs';
 
 export default ModalForm.extend({
-  template: Templates['account-change-password'],
+  template: Template,
 
   onFormSubmit: function (e) {
     this._super(e);

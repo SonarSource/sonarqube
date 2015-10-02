@@ -1,9 +1,9 @@
 import Marionette from 'backbone.marionette';
 import IntroView from './intro-view';
-import './templates';
+import Template from './templates/quality-gates-layout.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['quality-gates-layout'],
+  template: Template,
 
   regions: {
     headerRegion: '.search-navigator-workspace-header',

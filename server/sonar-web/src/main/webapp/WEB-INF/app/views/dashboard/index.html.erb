@@ -1,3 +1,9 @@
+<% content_for :script do %>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/dashboard.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/widgets.js?v=<%= sonar_version -%>"></script>
+<% end %>
+
+
 <div class="page" id="dashboard">
   <% if @resource -%>
   <span class="hidden" id="is-project-dashboard">&nbsp;</span>

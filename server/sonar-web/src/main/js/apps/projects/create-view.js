@@ -1,9 +1,9 @@
-import ModalForm from 'components/common/modal-form';
+import ModalForm from '../../components/common/modal-form';
 import {createProject} from '../../api/components';
-import './templates';
+import Template from './templates/projects-create-form.hbs';
 
 export default ModalForm.extend({
-  template: Templates['projects-create-form'],
+  template: Template,
 
   onRender: function () {
     this._super();

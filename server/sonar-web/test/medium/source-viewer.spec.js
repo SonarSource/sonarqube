@@ -14,7 +14,7 @@ define(function (require) {
             .mockFromFile('/api/issues/search',
             'source-viewer-spec/issues-with-precise-location.json',
             { data: { componentUuids: 'uuid' } })
-            .startApp('source-viewer', { file: file })
+            .startAppBrowserify('source-viewer', { file: file })
 
             .checkElementExist('.source-line-code[data-line-number="3"] .source-line-code-issue')
             .checkElementInclude('.source-line-code[data-line-number="3"] .source-line-code-issue', '14 So')
@@ -37,7 +37,7 @@ define(function (require) {
             .mockFromFile('/api/issues/search',
             'source-viewer-spec/issues-with-precise-location.json',
             { data: { componentUuids: 'uuid' } })
-            .startApp('source-viewer', { file: file })
+            .startAppBrowserify('source-viewer', { file: file })
             .checkElementExist('.source-line-code[data-line-number="3"] .source-line-code-issue')
             .checkElementInclude('.source-line-code[data-line-number="3"] .source-line-code-issue', '14 So')
             .clickElement('.source-line-with-issues[data-line-number="3"]')
@@ -56,7 +56,7 @@ define(function (require) {
             .mockFromFile('/api/issues/search',
             'source-viewer-spec/issues-with-precise-location.json',
             { data: { componentUuids: 'uuid' } })
-            .startApp('source-viewer', { file: file })
+            .startAppBrowserify('source-viewer', { file: file })
             .checkElementExist('.source-line-code[data-line-number="9"] .source-line-code-issue')
             .checkElementInclude('.source-line-code[data-line-number="9"] .source-line-code-issue', 'sion')
             .clickElement('.source-line-with-issues[data-line-number="9"]')
@@ -75,7 +75,7 @@ define(function (require) {
             .mockFromFile('/api/components/app', 'source-viewer-spec/app.json', { data: { uuid: 'uuid' } })
             .mockFromFile('/api/sources/lines', 'source-viewer-spec/lines.json', { data: { uuid: 'uuid' } })
             .mockFromFile('/api/issues/search', 'source-viewer-spec/several-issues-on-a-line.json')
-            .startApp('source-viewer', { file: file })
+            .startAppBrowserify('source-viewer', { file: file })
             .checkElementExist('.source-line-issues[data-line-number="3"] .icon-severity-critical')
             .checkElementExist('.source-line-issues[data-line-number="3"] .source-line-issues-counter')
             .checkElementInclude('.source-line-issues[data-line-number="3"] .source-line-issues-counter', 2)

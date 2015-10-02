@@ -1,8 +1,8 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/users-layout.hbs';
 
 export default Marionette.LayoutView.extend({
-  template: Templates['users-layout'],
+  template: Template,
 
   regions: {
     headerRegion: '#users-header',

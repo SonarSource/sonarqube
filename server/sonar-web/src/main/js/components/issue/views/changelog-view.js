@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import PopupView from 'components/common/popup';
-import '../templates';
+import PopupView from '../../common/popup';
+import Template from '../templates/issue-changelog.hbs';
 
 export default PopupView.extend({
-  template: Templates['issue-changelog'],
+  template: Template,
 
   collectionEvents: {
     'sync': 'render'

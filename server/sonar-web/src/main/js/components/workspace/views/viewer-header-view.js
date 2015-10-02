@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import '../templates';
+import Template from '../templates/workspace-viewer-header.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['workspace-viewer-header'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

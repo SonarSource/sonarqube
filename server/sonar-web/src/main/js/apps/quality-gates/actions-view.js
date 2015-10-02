@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import CreateView from './create-view';
-import './templates';
+import Template from './templates/quality-gate-actions.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['quality-gate-actions'],
+  template: Template,
 
   events: {
     'click #quality-gate-add': 'add'

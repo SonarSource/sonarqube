@@ -2,11 +2,12 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import BaseFilters from './base-filters';
-import '../templates';
+import Template from '../templates/choice-filter.hbs';
+import ItemTemplate from '../templates/choice-filter-item.hbs';
 
 var DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
-  template: Templates['choice-filter'],
-  itemTemplate: Templates['choice-filter-item'],
+  template: Template,
+  itemTemplate: ItemTemplate,
 
 
   events: function () {

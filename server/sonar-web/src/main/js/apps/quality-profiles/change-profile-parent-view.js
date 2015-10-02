@@ -1,11 +1,11 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import ModalFormView from 'components/common/modal-form';
-import './templates';
+import ModalFormView from '../../components/common/modal-form';
+import Template from './templates/quality-profiles-change-profile-parent.hbs';
 
 export default ModalFormView.extend({
-  template: Templates['quality-profiles-change-profile-parent'],
+  template: Template,
 
   onRender: function () {
     ModalFormView.prototype.onRender.apply(this, arguments);

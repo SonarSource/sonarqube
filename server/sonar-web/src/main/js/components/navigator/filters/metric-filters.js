@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseFilters from './base-filters';
-import '../templates';
+import Template from '../templates/metric-filter.hbs';
 
 var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
-  template: Templates['metric-filter'],
+  template: Template,
 
 
   events: {

@@ -1,4 +1,4 @@
-import FacetsView from 'components/navigator/facets-view';
+import FacetsView from '../../components/navigator/facets-view';
 import BaseFacet from './facets/base-facet';
 import QueryFacet from './facets/query-facet';
 import KeyFacet from './facets/key-facet';

@@ -1,11 +1,11 @@
 import Marionette from 'backbone.marionette';
 import UpdateView from './update-view';
 import DeleteView from './delete-view';
-import './templates';
+import Template from './templates/custom-measures-list-item.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'tr',
-  template: Templates['custom-measures-list-item'],
+  template: Template,
 
   events: {
     'click .js-custom-measure-update': 'onUpdateClick',

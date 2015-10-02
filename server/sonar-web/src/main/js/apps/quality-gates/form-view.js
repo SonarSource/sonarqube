@@ -1,11 +1,11 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
-import ModalForm from 'components/common/modal-form';
+import ModalForm from '../../components/common/modal-form';
 import Gate from './gate';
-import './templates';
+import Template from './templates/quality-gate-form.hbs';
 
 export default ModalForm.extend({
-  template: Templates['quality-gate-form'],
+  template: Template,
 
   onFormSubmit: function () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);

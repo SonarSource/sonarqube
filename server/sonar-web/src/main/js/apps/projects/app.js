@@ -1,21 +1,14 @@
-import $ from 'jquery';
 import React from 'react';
 import Main from './main';
 import {getCurrentUser} from '../../api/users';
-import {getGlobalNavigation} from '../../api/nav';
+import '../../helpers/handlebars-helpers';
 
-export default {
-  start(options) {
-    $.when(
-        getCurrentUser(),
-        getGlobalNavigation(),
-        window.requestMessages()
-    ).then((user, nav) => {
-          let el = document.querySelector(options.el),
-              hasProvisionPermission = user[0].permissions.global.indexOf('provisioning') !== -1,
-              topLevelQualifiers = nav[0].qualifiers;
-          React.render(<Main hasProvisionPermission={hasProvisionPermission}
-                             topLevelQualifiers={topLevelQualifiers}/>, el);
-        });
-  }
-};
+window.sonarqube.appStarted.then(options => {
+  getCurrentUser().done(user => {
+    let el = document.querySelector(options.el),
+        hasProvisionPermission = user.permissions.global.indexOf('provisioning') !== -1,
+        topLevelQualifiers = options.rootQualifiers;
+    React.render(<Main hasProvisionPermission={hasProvisionPermission}
+                       topLevelQualifiers={topLevelQualifiers}/>, el);
+  });
+});

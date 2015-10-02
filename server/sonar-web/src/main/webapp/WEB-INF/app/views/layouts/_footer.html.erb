@@ -16,6 +16,7 @@
   </script>
 <% end %>
 
+<script src="<%= ApplicationController.root_context -%>/js/bundles/main.js?v=<%= sonar_version -%>"></script>
 <%= yield :extra_script -%>
 
 </body>

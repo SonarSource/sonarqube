@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ActionOptionsView from 'components/common/action-options-view';
-import './templates';
+import ActionOptionsView from '../../components/common/action-options-view';
+import Template from './templates/coding-rules-rule-filter-form.hbs';
 
 export default ActionOptionsView.extend({
-  template: Templates['coding-rules-rule-filter-form'],
+  template: Template,
 
   selectOption: function (e) {
     var property = $(e.currentTarget).data('property'),

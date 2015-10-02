@@ -1,4 +1,4 @@
-import PopupView from 'components/common/popup';
+import PopupView from '../../common/popup';
 
 export default PopupView.extend({
   className: 'bubble-popup issue-bubble-popup',

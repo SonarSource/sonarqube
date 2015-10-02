@@ -1,7 +1,3 @@
 <% content_for :extra_script do %>
-  <script>
-    require(['apps/coding-rules/app'], function (App) {
-      App.start({ el: '#content' });
-    });
-  </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/coding-rules.js?v=<%= sonar_version -%>"></script>
 <% end %>

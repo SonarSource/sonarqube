@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import PopupView from 'components/common/popup';
+import PopupView from './popup';
 
 export default PopupView.extend({
   className: 'bubble-popup bubble-popup-menu',

@@ -1,15 +1,13 @@
 <% content_for :extra_script do %>
   <script>
     (function () {
-      var config = {
+      window.sonarqube.config = {
         resource: '<%= escape_javascript @resource.uuid -%>',
         resourceQualifier: '<%= escape_javascript @resource.qualifier -%>',
         resourceName: '<%= escape_javascript @resource.name -%>',
         periodDate: <% if @period %>'<%= escape_javascript @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
       };
-      require(['apps/issues/app-context'], function (App) {
-        App.start({ el: '#content', config: config });
-      });
     })();
   </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/component-issues.js?v=<%= sonar_version -%>"></script>
 <% end %>

@@ -1,12 +1,12 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import ModalFormView from 'components/common/modal-form';
-import uploader from 'components/common/file-upload';
+import ModalFormView from '../../components/common/modal-form';
+import uploader from '../../components/common/file-upload';
 import Profile from './profile';
-import './templates';
+import Template from './templates/quality-profiles-create-profile.hbs';
 
 export default ModalFormView.extend({
-  template: Templates['quality-profiles-create-profile'],
+  template: Template,
 
   events: function () {
     return _.extend(ModalFormView.prototype.events.apply(this, arguments), {

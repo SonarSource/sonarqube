@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import Modal from '../../components/common/modals';
 import '../../components/common/select-list';
-import './templates';
+import Template from './templates/permission-templates-groups.hbs';
 
 function getSearchUrl (permission, permissionTemplate) {
   return baseUrl + '/api/permissions/template_groups?ps=100&permission=' + permission.key +
@@ -9,7 +9,7 @@ function getSearchUrl (permission, permissionTemplate) {
 }
 
 export default Modal.extend({
-  template: Templates['permission-templates-groups'],
+  template: Template,
 
   onRender: function () {
     this._super();

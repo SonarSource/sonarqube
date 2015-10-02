@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import '../templates';
+import Template from '../templates/rule/coding-rules-rule-issues.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['coding-rules-rule-issues'],
+  template: Template,
 
   initialize: function () {
     var that = this;

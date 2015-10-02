@@ -1,8 +1,8 @@
-import ModalForm from 'components/common/modal-form';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
+import Template from './templates/users-deactivate.hbs';
 
 export default ModalForm.extend({
-  template: Templates['users-deactivate'],
+  template: Template,
 
   onFormSubmit: function (e) {
     this._super(e);

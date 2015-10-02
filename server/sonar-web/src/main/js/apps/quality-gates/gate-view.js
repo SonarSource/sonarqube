@@ -1,10 +1,10 @@
 import Marionette from 'backbone.marionette';
-import './templates';
+import Template from './templates/quality-gates-gate.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'a',
   className: 'list-group-item',
-  template: Templates['quality-gates-gate'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

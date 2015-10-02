@@ -29,8 +29,8 @@ export default React.createClass({
   },
 
   getComponentFilter() {
-    if (this.props.options.componentId) {
-      return { componentId: this.props.options.componentId };
+    if (this.props.options.component) {
+      return { componentId: this.props.options.component.id };
     } else {
       return {};
     }

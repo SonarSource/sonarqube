@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import ActionOptionsView from 'components/common/action-options-view';
-import '../templates';
+import ActionOptionsView from '../../common/action-options-view';
+import Template from '../templates/issue-transitions-form.hbs';
 
 export default ActionOptionsView.extend({
-  template: Templates['issue-transitions-form'],
+  template: Template,
 
   selectInitialOption: function () {
     this.makeActive(this.getOptions().first());

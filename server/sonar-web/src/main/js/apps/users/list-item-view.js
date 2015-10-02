@@ -4,12 +4,12 @@ import UpdateView from './update-view';
 import ChangePasswordView from './change-password-view';
 import DeactivateView from './deactivate-view';
 import GroupsView from './groups-view';
-import './templates';
+import Template from './templates/users-list-item.hbs';
 
 export default Marionette.ItemView.extend({
   tagName: 'li',
   className: 'panel panel-vertical',
-  template: Templates['users-list-item'],
+  template: Template,
 
   events: {
     'click .js-user-more-scm': 'onMoreScmClick',

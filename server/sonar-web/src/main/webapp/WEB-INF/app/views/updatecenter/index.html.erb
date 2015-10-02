@@ -1,7 +1,7 @@
 <% content_for :extra_script do %>
   <script>
-    require(['apps/update-center/app'], function (App) {
-      App.start({ el: '#content', urlRoot: baseUrl + '/updatecenter' });
-    });
+    window.sonarqube.urlRoot = baseUrl + '/updatecenter';
   </script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/update-center.js?v=<%= sonar_version -%>"></script>
 <% end %>
+

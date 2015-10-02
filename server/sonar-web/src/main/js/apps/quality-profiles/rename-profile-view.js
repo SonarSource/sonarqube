@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import ModalFormView from 'components/common/modal-form';
-import './templates';
+import ModalFormView from '../../components/common/modal-form';
+import Template from './templates/quality-profiles-rename-profile.hbs';
 
 export default ModalFormView.extend({
-  template: Templates['quality-profiles-rename-profile'],
+  template: Template,
 
   onFormSubmit: function () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);

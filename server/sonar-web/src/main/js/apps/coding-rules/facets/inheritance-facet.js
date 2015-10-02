@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseFacet from './base-facet';
-import '../templates';
+import Template from '../templates/facets/coding-rules-inheritance-facet.hbs';
 
 export default BaseFacet.extend({
-  template: Templates['coding-rules-inheritance-facet'],
+  template: Template,
 
   initialize: function (options) {
     this.listenTo(options.app.state, 'change:query', this.onQueryChange);

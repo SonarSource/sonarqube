@@ -169,15 +169,26 @@ define(function (require) {
     });
   };
 
+  Command.prototype.startAppBrowserify = function (app) {
+    return new this.constructor(this, function () {
+      return this.parent
+          .execute(function (app) {
+            var appScript = document.createElement('script');
+            appScript.setAttribute('src', '../../src/main/webapp/js/bundles/' + app + '.js');
+            document.body.appendChild(appScript);
+          }, [app])
+          .sleep(1000);
+    });
+  };
+
   Command.prototype.open = function (hash) {
-    var url = 'test/medium/base.html?' + Date.now();
+    var url = 'test/medium/base.html';
     if (hash) {
       url += hash;
     }
     return new this.constructor(this, function () {
       return this.parent
           .get(require.toUrl(url))
-          .mockFromString('/api/l10n/index', '{}')
           .checkElementExist('#content');
     });
   };

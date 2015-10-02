@@ -4,10 +4,10 @@ import Marionette from 'backbone.marionette';
 import CreateProfileView from './create-profile-view';
 import RestoreProfileView from './restore-profile-view';
 import RestoreBuiltInProfilesView from './restore-built-in-profiles-view';
-import './templates';
+import Template from './templates/quality-profiles-actions.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['quality-profiles-actions'],
+  template: Template,
 
   events: {
     'click #quality-profiles-create': 'onCreateClick',

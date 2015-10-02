@@ -4,10 +4,10 @@ import Marionette from 'backbone.marionette';
 import ProfileCopyView from './copy-profile-view';
 import ProfileRenameView from './rename-profile-view';
 import ProfileDeleteView from './delete-profile-view';
-import './templates';
+import Template from './templates/quality-profiles-profile-header.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['quality-profiles-profile-header'],
+  template: Template,
 
   modelEvents: {
     'change': 'render'

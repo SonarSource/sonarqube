@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import ManualRuleCreationView from './rule/manual-rule-creation-view';
-import './templates';
+import Template from './templates/coding-rules-filters.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Templates['coding-rules-filters'],
+  template: Template,
 
   events: {
     'click .js-create-manual-rule': 'createManualRule'
