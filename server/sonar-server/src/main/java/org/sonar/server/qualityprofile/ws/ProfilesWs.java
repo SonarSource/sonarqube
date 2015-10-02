@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
@@ -34,28 +33,10 @@ public class ProfilesWs implements WebService {
     NewController controller = context.createController("api/profiles")
       .setDescription("Former quality profiles web service");
 
-    defineIndexAction(controller);
     defineBackupAction(controller);
     defineRestoreAction(controller);
 
     controller.done();
-  }
-
-  private static void defineIndexAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("index")
-      .setDescription("Get a profile")
-      .setSince("3.3")
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(ProfilesWs.class, "example-index.json"));
-
-    action.createParam("language")
-      .setDescription("Profile language")
-      .setRequired(true)
-      .setExampleValue("java");
-    action.createParam("name")
-      .setDescription("Profile name. If no profile name is given, default profile for the given language will be returned")
-      .setExampleValue("Sonar way");
-    RailsHandler.addFormatParam(action);
   }
 
   private static void defineBackupAction(NewController controller) {
