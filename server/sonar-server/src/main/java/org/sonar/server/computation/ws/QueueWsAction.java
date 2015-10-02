@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
@@ -56,7 +57,10 @@ public class QueueWsAction implements CeWsAction {
       .setResponseExample(getClass().getResource("queue-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_COMPONENT_UUID);
+    action
+      .createParam(PARAM_COMPONENT_UUID)
+      .setDescription("Optional filter on component. Requires administration permission of the component.")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }
 
   @Override
