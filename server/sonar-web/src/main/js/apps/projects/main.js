@@ -154,7 +154,7 @@ export default React.createClass({
   deleteProjects() {
     let ids = this.state.selection.join(',');
     deleteComponents({ ids }).done(() => {
-      this.setState({ selection: [] }, this.requestProjects);
+      this.setState({ page: 1, selection: [] }, this.requestProjects);
     });
   },
 
