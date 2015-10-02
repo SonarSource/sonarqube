@@ -21,8 +21,12 @@
 package org.sonar.server.computation.formula.counter;
 
 import com.google.common.base.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.measure.Measure;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Simple counter that do the sum of an integer measure
@@ -30,12 +34,19 @@ import org.sonar.server.computation.measure.Measure;
 public class IntSumCounter implements SumCounter<Integer, IntSumCounter> {
 
   private final String metricKey;
+  @CheckForNull
+  private final Integer defaultInputValue;
 
   private int value = 0;
   private boolean initialized = false;
 
   public IntSumCounter(String metricKey) {
-    this.metricKey = metricKey;
+    this(metricKey, null);
+  }
+
+  public IntSumCounter(String metricKey, @Nullable Integer defaultInputValue) {
+    this.metricKey = requireNonNull(metricKey, "metricKey can not be null");
+    this.defaultInputValue = defaultInputValue;
   }
 
   @Override
@@ -50,6 +61,8 @@ public class IntSumCounter implements SumCounter<Integer, IntSumCounter> {
     Optional<Measure> measureOptional = context.getMeasure(metricKey);
     if (measureOptional.isPresent()) {
       addValue(measureOptional.get().getIntValue());
+    } else if (defaultInputValue != null) {
+      addValue(defaultInputValue);
     }
   }
 

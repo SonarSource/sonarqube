@@ -21,6 +21,8 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.formula.counter.IntSumCounter;
 import org.sonar.server.computation.formula.counter.LongSumCounter;
@@ -31,23 +33,30 @@ import static java.util.Objects.requireNonNull;
 
 public abstract class SumFormula<T extends SumCounter<U, T>, U extends Number> implements Formula<T> {
   protected final String metricKey;
+  @CheckForNull
+  protected final U defaultInputValue;
 
-  public SumFormula(String metricKey) {
+  public SumFormula(String metricKey, @Nullable U defaultInputValue) {
     this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
+    this.defaultInputValue = defaultInputValue;
   }
 
   public static IntSumFormula createIntSumFormula(String metricKey) {
-    return new IntSumFormula(metricKey);
+    return createIntSumFormula(metricKey, null);
+  }
+
+  public static IntSumFormula createIntSumFormula(String metricKey, @Nullable Integer defaultInputValue) {
+    return new IntSumFormula(metricKey, defaultInputValue);
   }
 
   public static class IntSumFormula extends SumFormula<IntSumCounter, Integer> {
-    private IntSumFormula(String metricKey) {
-      super(metricKey);
+    private IntSumFormula(String metricKey, @Nullable Integer defaultInputValue) {
+      super(metricKey, defaultInputValue);
     }
 
     @Override
     public IntSumCounter createNewCounter() {
-      return new IntSumCounter(metricKey);
+      return new IntSumCounter(metricKey, defaultInputValue);
     }
 
     @Override
@@ -61,17 +70,21 @@ public abstract class SumFormula<T extends SumCounter<U, T>, U extends Number> i
   }
 
   public static LongSumFormula createLongSumFormula(String metricKey) {
-    return new LongSumFormula(metricKey);
+    return createLongSumFormula(metricKey, null);
+  }
+
+  public static LongSumFormula createLongSumFormula(String metricKey, @Nullable Long defaultInputValue) {
+    return new LongSumFormula(metricKey, defaultInputValue);
   }
 
   public static class LongSumFormula extends SumFormula<LongSumCounter, Long> {
-    private LongSumFormula(String metricKey) {
-      super(metricKey);
+    private LongSumFormula(String metricKey, @Nullable Long defaultInputValue) {
+      super(metricKey, defaultInputValue);
     }
 
     @Override
     public LongSumCounter createNewCounter() {
-      return new LongSumCounter(metricKey);
+      return new LongSumCounter(metricKey, defaultInputValue);
     }
 
     @Override
