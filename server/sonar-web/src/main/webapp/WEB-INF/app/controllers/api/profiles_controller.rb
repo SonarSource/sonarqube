@@ -42,22 +42,6 @@ class Api::ProfilesController < Api::ApiController
     end
   end
 
-  # Restore a profile backup.
-  # curl -X POST -u admin:admin -F 'backup=<my>backup</my>' -v http://localhost:9000/api/profiles/restore
-  # curl -X POST -u admin:admin -F 'backup=@backup.xml' -v http://localhost:9000/api/profiles/restore
-  def restore
-    verify_post_request
-    require_parameters :backup
-
-    backup = Api::Utils.read_post_request_param(params[:backup])
-    Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).restore(backup)
-
-    respond_to do |format|
-      #TODO format.json { render :json => jsonp(validation_result_to_json(result)), :status => 200 }
-      format.json { render :json => jsonp({}), :status => 200 }
-    end
-  end
-
   private
 
   def validation_messages_to_json(messages)

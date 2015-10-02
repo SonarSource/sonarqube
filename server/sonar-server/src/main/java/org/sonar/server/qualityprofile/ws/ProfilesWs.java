@@ -34,7 +34,6 @@ public class ProfilesWs implements WebService {
       .setDescription("Former quality profiles web service");
 
     defineBackupAction(controller);
-    defineRestoreAction(controller);
 
     controller.done();
   }
@@ -54,18 +53,5 @@ public class ProfilesWs implements WebService {
       .setDescription("Profile name. If not set, the default profile for the selected language is used")
       .setExampleValue("Sonar way");
     RailsHandler.addFormatParam(action);
-  }
-
-  private static void defineRestoreAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("restore")
-      .setDescription("Restore a quality profile backup. Requires Administer Quality Profiles permission")
-      .setSince("3.1")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
-
-    action.createParam("backup")
-      .setRequired(true)
-      .setDescription("Path to the file containing the backup (HTML format)");
-    RailsHandler.addJsonOnlyFormatParam(action);
   }
 }
