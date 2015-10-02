@@ -144,7 +144,6 @@ module.exports = (grunt) ->
           'build-app:api-documentation'
           'build-app:background-tasks'
           'build-app:coding-rules'
-          'build-app:computation'
           'build-app:custom-measures'
           'build-app:drilldown'
           'build-app:global-permissions'
@@ -227,9 +226,6 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/groups/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/groups/templates/**/*.hbs'
-          ]
-          '<%= BUILD_PATH %>/js/apps/computation/templates.js': [
-            '<%= SOURCE_PATH %>/js/apps/computation/templates/**/*.hbs'
           ]
           '<%= BUILD_PATH %>/js/apps/metrics/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/metrics/templates/**/*.hbs'

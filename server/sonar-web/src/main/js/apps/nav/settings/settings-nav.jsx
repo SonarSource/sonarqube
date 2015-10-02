@@ -57,8 +57,6 @@ export default React.createClass({
               <ul className="dropdown-menu">
                 {this.renderLink('/projects', 'Management')}
                 {this.renderLink('/background_tasks', 'Background Tasks')}
-                <li className="divider"/>
-                {this.renderLink('/computation', window.t('analysis_reports.page'))}
               </ul>
             </li>
 
