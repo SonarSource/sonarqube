@@ -9,6 +9,7 @@
       "id": "0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a",
       "key": "net.java.openjdk:jdk7",
       "name": "JDK 7",
+      "qualifier": "TRK",
       "permissions": [
         {
           "key": "admin",
@@ -26,6 +27,7 @@
       "id": "ce4c03d6-430f-40a9-b777-ad877c00aa4d",
       "key": "clang",
       "name": "Clang",
+      "qualifier": "TRK",
       "permissions": [
         {
           "key": "issueadmin",
@@ -38,6 +40,7 @@
       "id": "4e607bf9-7ed0-484a-946d-d58ba7dab2fb",
       "key": "simon-brandhof",
       "name": "Simon Brandhof",
+      "qualifier": "DEV",
       "permissions": [
         {
           "key": "admin",
@@ -55,6 +58,7 @@
       "id": "752d8bfd-420c-4a83-a4e5-8ab19b13c8fc",
       "key": "Java",
       "name": "Java",
+      "qualifier": "VW",
       "permissions": [
         {
           "key": "admin",

@@ -111,6 +111,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
         .clear()
         .setId(rootComponent.uuid())
         .setKey(rootComponent.key())
+        .setQualifier(rootComponent.qualifier())
         .setName(rootComponent.name());
       for (String permission : data.permissions(rootComponent.getId())) {
         rootComponentBuilder.addPermissions(
