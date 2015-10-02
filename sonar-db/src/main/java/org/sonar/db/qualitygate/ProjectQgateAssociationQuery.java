@@ -42,7 +42,7 @@ public class ProjectQgateAssociationQuery {
   private final String projectSearch;
 
   // for internal use in MyBatis
-  final String projectSearchSql;
+  private final String projectSearchSql;
 
   // max results per page
   private final int pageSize;
@@ -60,14 +60,15 @@ public class ProjectQgateAssociationQuery {
     this.pageIndex = builder.pageIndex;
   }
 
-  private String projectSearchToSql(@Nullable String s) {
-    String sql = null;
-    if (s != null) {
-      sql = StringUtils.replace(StringUtils.lowerCase(s), "%", "/%");
-      sql = StringUtils.replace(sql, "_", "/_");
-      sql = sql + "%";
+  private String projectSearchToSql(@Nullable String value) {
+    if (value == null) {
+      return null;
     }
-    return sql;
+
+    return value
+      .replaceAll("%", "\\\\%")
+      .replaceAll("_", "\\\\_")
+      .toLowerCase() + "%";
   }
 
   public String gateId() {
@@ -85,6 +86,10 @@ public class ProjectQgateAssociationQuery {
   @CheckForNull
   public String projectSearch() {
     return projectSearch;
+  }
+
+  public String projectSearchSql() {
+    return projectSearchSql;
   }
 
   public int pageSize() {
@@ -140,7 +145,7 @@ public class ProjectQgateAssociationQuery {
         membership = ProjectQgateAssociationQuery.ANY;
       } else {
         Preconditions.checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
-          "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIP);
+          "Membership is not valid (got " + membership + "). Available values are " + AVAILABLE_MEMBERSHIP);
       }
     }
 
@@ -158,7 +163,7 @@ public class ProjectQgateAssociationQuery {
     }
 
     public ProjectQgateAssociationQuery build() {
-      Preconditions.checkNotNull(gateId, "Gate ID cant be null.");
+      Preconditions.checkNotNull(gateId, "Gate ID cannot be null.");
       initMembership();
       initPageIndex();
       initPageSize();

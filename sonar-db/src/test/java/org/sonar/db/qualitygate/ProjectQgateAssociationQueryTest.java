@@ -20,38 +20,46 @@
 
 package org.sonar.db.qualitygate;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class ProjectQgateAssociationQueryTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Test
+  public void handle_underscore_and_percent() {
+    ProjectQgateAssociationQuery underTest = ProjectQgateAssociationQuery.builder()
+      .projectSearch("project-_%-search")
+      .gateId("1").build();
+
+    assertThat(underTest.projectSearchSql()).isEqualTo("project-\\_\\%-search%");
+  }
+
   @Test
   public void fail_on_null_login() {
-    ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder();
-    builder.gateId(null);
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Gate ID cannot be null");
 
-    try {
-      builder.build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NullPointerException.class).hasMessage("Gate ID cant be null.");
-    }
+    ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder()
+      .gateId(null);
+
+    builder.build();
   }
 
   @Test
   public void fail_on_invalid_membership() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Membership is not valid (got unknown). Available values are [all, selected, deselected]");
+
     ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder();
     builder.gateId("nelson");
-    builder.membership("unknwown");
+    builder.membership("unknown");
 
-    try {
-      builder.build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Membership is not valid (got unknwown). Availables values are [all, selected, deselected]");
-    }
+    builder.build();
   }
-
 }
