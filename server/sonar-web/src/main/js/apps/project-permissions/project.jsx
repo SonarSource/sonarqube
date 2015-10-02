@@ -3,6 +3,7 @@ import UsersView from './users-view';
 import GroupsView from './groups-view';
 import ApplyTemplateView from './apply-template-view';
 import {getProjectUrl} from '../../helpers/Url';
+import QualifierIcon from '../../components/shared/qualifier-icon';
 
 export default React.createClass({
   propTypes: {
@@ -68,9 +69,10 @@ export default React.createClass({
     return (
         <tr>
           <td>
-            <strong>
-              <a href={getProjectUrl(this.props.project.key)}>{this.props.project.name}</a>
-            </strong>
+            <span className="little-spacer-right">
+              <QualifierIcon qualifier={this.props.project.qualifier}/>
+            </span>
+            <a href={getProjectUrl(this.props.project.key)}>{this.props.project.name}</a>
           </td>
           {permissions}
           <td className="thin nowrap text-right">
