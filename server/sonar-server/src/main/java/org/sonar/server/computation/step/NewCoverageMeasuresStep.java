@@ -280,10 +280,10 @@ public class NewCoverageMeasuresStep implements ComputationStep {
    */
   private static Iterable<Formula<?>> variationSumFormulas(NewCoverageOutputMetricKeys outputMetricKeys) {
     return ImmutableList.<Formula<?>>of(
-      new VariationSumFormula(outputMetricKeys.getNewLinesToCover(), viewsRestrictedPeriods()),
-      new VariationSumFormula(outputMetricKeys.getNewUncoveredLines(), viewsRestrictedPeriods()),
-      new VariationSumFormula(outputMetricKeys.getNewConditionsToCover(), viewsRestrictedPeriods()),
-      new VariationSumFormula(outputMetricKeys.getNewUncoveredConditions(), viewsRestrictedPeriods()));
+      new VariationSumFormula(outputMetricKeys.getNewLinesToCover(), viewsRestrictedPeriods(), true),
+      new VariationSumFormula(outputMetricKeys.getNewUncoveredLines(), viewsRestrictedPeriods(), true),
+      new VariationSumFormula(outputMetricKeys.getNewConditionsToCover(), viewsRestrictedPeriods(), true),
+      new VariationSumFormula(outputMetricKeys.getNewUncoveredConditions(), viewsRestrictedPeriods(), true));
   }
 
   public static class NewLinesAndConditionsFormula implements Formula<NewCoverageCounter> {
