@@ -45,7 +45,6 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.db.Database;
-import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
@@ -300,10 +299,6 @@ public final class JRubyFacade {
 
   public String getMessage(String rubyLocale, String key, String defaultValue, Object... parameters) {
     return getJRubyI18n().message(rubyLocale, key, defaultValue, parameters);
-  }
-
-  public void indexProjects() {
-    get(ResourceIndexDao.class).indexProjects();
   }
 
   /*

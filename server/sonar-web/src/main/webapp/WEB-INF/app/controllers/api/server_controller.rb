@@ -91,14 +91,6 @@ class Api::ServerController < Api::ApiController
     end
   end
 
-  def index_projects
-    verify_post_request
-    access_denied unless has_role?(:admin)
-    logger.info 'Indexing projects'
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().indexProjects()
-    render_success('Projects indexed')
-  end
-
   private
 
   def server_properties_to_json(properties)
