@@ -63,6 +63,10 @@ export default React.createClass({
     this.requestPermissions(1, query);
   },
 
+  refresh() {
+    this.requestPermissions(1, this.state.query);
+  },
+
   bulkApplyTemplate(e) {
     e.preventDefault();
     new ApplyTemplateView({
@@ -90,7 +94,7 @@ export default React.createClass({
               projects={this.state.projects}
               permissions={this.state.permissions}
               permissionTemplates={this.props.permissionTemplates}
-              refresh={this.requestPermissions}/>
+              refresh={this.refresh}/>
 
           <PermissionsFooter
               count={this.state.projects.length}
