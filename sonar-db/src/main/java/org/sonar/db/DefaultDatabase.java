@@ -36,7 +36,11 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.DialectUtils;
+import org.sonar.db.profiling.NullConnectionInterceptor;
+import org.sonar.db.profiling.ProfiledConnectionInterceptor;
 import org.sonar.db.profiling.ProfiledDataSource;
+
+import static java.lang.String.format;
 
 /**
  * @since 2.12
@@ -51,7 +55,7 @@ public class DefaultDatabase implements Database {
   private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
 
   private Settings settings;
-  private BasicDataSource datasource;
+  private ProfiledDataSource datasource;
   private Dialect dialect;
   private Properties properties;
 
@@ -63,7 +67,7 @@ public class DefaultDatabase implements Database {
   public void start() {
     try {
       initSettings();
-      initDatasource();
+      initDataSource();
       checkConnection();
 
     } catch (Exception e) {
@@ -82,15 +86,14 @@ public class DefaultDatabase implements Database {
     properties.setProperty(DatabaseProperties.PROP_DRIVER, dialect.getDefaultDriverClassName());
   }
 
-  private void initDatasource() throws Exception {// NOSONAR this exception is thrown by BasicDataSourceFactory
+  private void initDataSource() throws Exception {
     // but it's correctly caught by start()
-    LOG.info("Create JDBC datasource for " + properties.getProperty(DatabaseProperties.PROP_URL, DEFAULT_URL));
-    datasource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
+    LOG.info("Create JDBC data source for {}", properties.getProperty(DatabaseProperties.PROP_URL, DEFAULT_URL));
+    BasicDataSource basicDataSource = (BasicDataSource) BasicDataSourceFactory.createDataSource(extractCommonsDbcpProperties(properties));
+    datasource = new ProfiledDataSource(basicDataSource, NullConnectionInterceptor.INSTANCE);
     datasource.setConnectionInitSqls(dialect.getConnectionInitStatements());
     datasource.setValidationQuery(dialect.getValidationQuery());
-    if ("TRACE".equals(settings.getString("sonar.log.level"))) {
-      datasource = new ProfiledDataSource(datasource);
-    }
+    enableSqlLogging(datasource, "TRACE".equals(settings.getString("sonar.log.level")));
   }
 
   private void checkConnection() {
@@ -127,6 +130,15 @@ public class DefaultDatabase implements Database {
 
   public final Properties getProperties() {
     return properties;
+  }
+
+  @Override
+  public void enableSqlLogging(boolean enable) {
+    enableSqlLogging(datasource, enable);
+  }
+
+  private static void enableSqlLogging(ProfiledDataSource ds, boolean enable) {
+    ds.setConnectionInterceptor(enable ? ProfiledConnectionInterceptor.INSTANCE : NullConnectionInterceptor.INSTANCE);
   }
 
   /**
@@ -168,6 +180,6 @@ public class DefaultDatabase implements Database {
 
   @Override
   public String toString() {
-    return "Database[" + (properties != null ? properties.getProperty(SONAR_JDBC_URL) : "?") + "]";
+    return format("Database[%s]", properties != null ? properties.getProperty(SONAR_JDBC_URL) : "?");
   }
 }

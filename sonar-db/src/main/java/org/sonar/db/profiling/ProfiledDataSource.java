@@ -20,7 +20,6 @@
 package org.sonar.db.profiling;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -33,9 +32,20 @@ public class ProfiledDataSource extends BasicDataSource {
   static final Logger SQL_LOGGER = Loggers.get("sql");
 
   private final BasicDataSource delegate;
+  private ConnectionInterceptor connectionInterceptor;
 
-  public ProfiledDataSource(BasicDataSource delegate) {
+
+  public ProfiledDataSource(BasicDataSource delegate, ConnectionInterceptor connectionInterceptor) {
     this.delegate = delegate;
+    this.connectionInterceptor = connectionInterceptor;
+  }
+
+  public BasicDataSource getDelegate() {
+    return delegate;
+  }
+
+  public synchronized void setConnectionInterceptor(ConnectionInterceptor ci) {
+    this.connectionInterceptor = ci;
   }
 
   @Override
@@ -310,14 +320,12 @@ public class ProfiledDataSource extends BasicDataSource {
 
   @Override
   public Connection getConnection() throws SQLException {
-    return (Connection) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] {Connection.class},
-      new ProfilingConnectionHandler(delegate.getConnection()));
+    return connectionInterceptor.getConnection(delegate);
   }
 
   @Override
-  public Connection getConnection(String user, String pass) throws SQLException {
-    return (Connection) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] {Connection.class},
-      new ProfilingConnectionHandler(delegate.getConnection(user, pass)));
+  public Connection getConnection(String login, String password) throws SQLException {
+    return connectionInterceptor.getConnection(delegate, login, password);
   }
 
   @Override

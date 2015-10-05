@@ -17,25 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.profiling;
 
-import javax.sql.DataSource;
-import org.picocontainer.Startable;
-import org.sonar.db.dialect.Dialect;
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.apache.commons.dbcp.BasicDataSource;
 
-/**
- * @since 2.12
- */
-public interface Database extends Startable {
-  /**
-   * Returns the configured datasource. Null as long as start() is not executed.
-   */
-  DataSource getDataSource();
+public enum NullConnectionInterceptor implements ConnectionInterceptor {
+  INSTANCE;
 
-  /**
-   * @return the dialect or null if start() has not been executed
-   */
-  Dialect getDialect();
+  @Override
+  public Connection getConnection(BasicDataSource dataSource) throws SQLException {
+    return dataSource.getConnection();
+  }
 
-  void enableSqlLogging(boolean enable);
+  @Override
+  public Connection getConnection(BasicDataSource dataSource, String user, String password) throws SQLException {
+    return dataSource.getConnection(user, password);
+  }
 }
