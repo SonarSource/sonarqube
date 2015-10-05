@@ -32,6 +32,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.exceptions.NotFoundException;
@@ -69,7 +70,7 @@ public class TaskWsActionTest {
   public void task_is_in_queue() throws Exception {
     userSession.setGlobalPermissions(UserRole.ADMIN);
 
-    ComponentDto project = new ComponentDto().setUuid("PROJECT_1").setName("Project One").setKey("P1");
+    ComponentDto project = ComponentTesting.newProjectDto().setUuid("PROJECT_1").setName("Project One").setKey("P1");
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
 
     CeQueueDto queueDto = new CeQueueDto();
@@ -101,7 +102,7 @@ public class TaskWsActionTest {
   public void task_is_archived() throws Exception {
     userSession.setGlobalPermissions(UserRole.ADMIN);
 
-    ComponentDto project = new ComponentDto().setUuid("PROJECT_1").setName("Project One").setKey("P1");
+    ComponentDto project = ComponentTesting.newProjectDto().setUuid("PROJECT_1").setName("Project One").setKey("P1");
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
 
     CeQueueDto queueDto = new CeQueueDto();

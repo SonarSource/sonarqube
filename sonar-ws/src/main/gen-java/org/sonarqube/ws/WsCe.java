@@ -3770,94 +3770,108 @@ public final class WsCe {
         getComponentNameBytes();
 
     /**
-     * <code>optional .sonarqube.ws.ce.TaskStatus status = 6;</code>
+     * <code>optional string componentQualifier = 6;</code>
+     */
+    boolean hasComponentQualifier();
+    /**
+     * <code>optional string componentQualifier = 6;</code>
+     */
+    java.lang.String getComponentQualifier();
+    /**
+     * <code>optional string componentQualifier = 6;</code>
+     */
+    com.google.protobuf.ByteString
+        getComponentQualifierBytes();
+
+    /**
+     * <code>optional .sonarqube.ws.ce.TaskStatus status = 7;</code>
      */
     boolean hasStatus();
     /**
-     * <code>optional .sonarqube.ws.ce.TaskStatus status = 6;</code>
+     * <code>optional .sonarqube.ws.ce.TaskStatus status = 7;</code>
      */
     org.sonarqube.ws.WsCe.TaskStatus getStatus();
 
     /**
-     * <code>optional string submittedAt = 7;</code>
+     * <code>optional string submittedAt = 8;</code>
      */
     boolean hasSubmittedAt();
     /**
-     * <code>optional string submittedAt = 7;</code>
+     * <code>optional string submittedAt = 8;</code>
      */
     java.lang.String getSubmittedAt();
     /**
-     * <code>optional string submittedAt = 7;</code>
+     * <code>optional string submittedAt = 8;</code>
      */
     com.google.protobuf.ByteString
         getSubmittedAtBytes();
 
     /**
-     * <code>optional string submitterLogin = 8;</code>
+     * <code>optional string submitterLogin = 9;</code>
      */
     boolean hasSubmitterLogin();
     /**
-     * <code>optional string submitterLogin = 8;</code>
+     * <code>optional string submitterLogin = 9;</code>
      */
     java.lang.String getSubmitterLogin();
     /**
-     * <code>optional string submitterLogin = 8;</code>
+     * <code>optional string submitterLogin = 9;</code>
      */
     com.google.protobuf.ByteString
         getSubmitterLoginBytes();
 
     /**
-     * <code>optional string startedAt = 9;</code>
+     * <code>optional string startedAt = 10;</code>
      */
     boolean hasStartedAt();
     /**
-     * <code>optional string startedAt = 9;</code>
+     * <code>optional string startedAt = 10;</code>
      */
     java.lang.String getStartedAt();
     /**
-     * <code>optional string startedAt = 9;</code>
+     * <code>optional string startedAt = 10;</code>
      */
     com.google.protobuf.ByteString
         getStartedAtBytes();
 
     /**
-     * <code>optional string executedAt = 10;</code>
+     * <code>optional string executedAt = 11;</code>
      */
     boolean hasExecutedAt();
     /**
-     * <code>optional string executedAt = 10;</code>
+     * <code>optional string executedAt = 11;</code>
      */
     java.lang.String getExecutedAt();
     /**
-     * <code>optional string executedAt = 10;</code>
+     * <code>optional string executedAt = 11;</code>
      */
     com.google.protobuf.ByteString
         getExecutedAtBytes();
 
     /**
-     * <code>optional bool isLastExecuted = 11;</code>
+     * <code>optional bool isLastExecuted = 12;</code>
      */
     boolean hasIsLastExecuted();
     /**
-     * <code>optional bool isLastExecuted = 11;</code>
+     * <code>optional bool isLastExecuted = 12;</code>
      */
     boolean getIsLastExecuted();
 
     /**
-     * <code>optional int64 executionTimeMs = 12;</code>
+     * <code>optional int64 executionTimeMs = 13;</code>
      */
     boolean hasExecutionTimeMs();
     /**
-     * <code>optional int64 executionTimeMs = 12;</code>
+     * <code>optional int64 executionTimeMs = 13;</code>
      */
     long getExecutionTimeMs();
 
     /**
-     * <code>optional bool logs = 13;</code>
+     * <code>optional bool logs = 14;</code>
      */
     boolean hasLogs();
     /**
-     * <code>optional bool logs = 13;</code>
+     * <code>optional bool logs = 14;</code>
      */
     boolean getLogs();
   }
@@ -3878,6 +3892,7 @@ public final class WsCe {
       componentId_ = "";
       componentKey_ = "";
       componentName_ = "";
+      componentQualifier_ = "";
       status_ = 0;
       submittedAt_ = "";
       submitterLogin_ = "";
@@ -3945,53 +3960,59 @@ public final class WsCe {
               componentName_ = bs;
               break;
             }
-            case 48: {
+            case 50: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000020;
+              componentQualifier_ = bs;
+              break;
+            }
+            case 56: {
               int rawValue = input.readEnum();
               org.sonarqube.ws.WsCe.TaskStatus value = org.sonarqube.ws.WsCe.TaskStatus.valueOf(rawValue);
               if (value == null) {
-                unknownFields.mergeVarintField(6, rawValue);
+                unknownFields.mergeVarintField(7, rawValue);
               } else {
-                bitField0_ |= 0x00000020;
+                bitField0_ |= 0x00000040;
                 status_ = rawValue;
               }
-              break;
-            }
-            case 58: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000040;
-              submittedAt_ = bs;
               break;
             }
             case 66: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000080;
-              submitterLogin_ = bs;
+              submittedAt_ = bs;
               break;
             }
             case 74: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000100;
-              startedAt_ = bs;
+              submitterLogin_ = bs;
               break;
             }
             case 82: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000200;
-              executedAt_ = bs;
+              startedAt_ = bs;
               break;
             }
-            case 88: {
+            case 90: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000400;
-              isLastExecuted_ = input.readBool();
+              executedAt_ = bs;
               break;
             }
             case 96: {
               bitField0_ |= 0x00000800;
-              executionTimeMs_ = input.readInt64();
+              isLastExecuted_ = input.readBool();
               break;
             }
             case 104: {
               bitField0_ |= 0x00001000;
+              executionTimeMs_ = input.readInt64();
+              break;
+            }
+            case 112: {
+              bitField0_ |= 0x00002000;
               logs_ = input.readBool();
               break;
             }
@@ -4231,32 +4252,74 @@ public final class WsCe {
       }
     }
 
-    public static final int STATUS_FIELD_NUMBER = 6;
-    private int status_;
+    public static final int COMPONENTQUALIFIER_FIELD_NUMBER = 6;
+    private volatile java.lang.Object componentQualifier_;
     /**
-     * <code>optional .sonarqube.ws.ce.TaskStatus status = 6;</code>
+     * <code>optional string componentQualifier = 6;</code>
      */
-    public boolean hasStatus() {
+    public boolean hasComponentQualifier() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>optional .sonarqube.ws.ce.TaskStatus status = 6;</code>
+     * <code>optional string componentQualifier = 6;</code>
+     */
+    public java.lang.String getComponentQualifier() {
+      java.lang.Object ref = componentQualifier_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          componentQualifier_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string componentQualifier = 6;</code>
+     */
+    public com.google.protobuf.ByteString
+        getComponentQualifierBytes() {
+      java.lang.Object ref = componentQualifier_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        componentQualifier_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int STATUS_FIELD_NUMBER = 7;
+    private int status_;
+    /**
+     * <code>optional .sonarqube.ws.ce.TaskStatus status = 7;</code>
+     */
+    public boolean hasStatus() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional .sonarqube.ws.ce.TaskStatus status = 7;</code>
      */
     public org.sonarqube.ws.WsCe.TaskStatus getStatus() {
       org.sonarqube.ws.WsCe.TaskStatus result = org.sonarqube.ws.WsCe.TaskStatus.valueOf(status_);
       return result == null ? org.sonarqube.ws.WsCe.TaskStatus.PENDING : result;
     }
 
-    public static final int SUBMITTEDAT_FIELD_NUMBER = 7;
+    public static final int SUBMITTEDAT_FIELD_NUMBER = 8;
     private volatile java.lang.Object submittedAt_;
     /**
-     * <code>optional string submittedAt = 7;</code>
+     * <code>optional string submittedAt = 8;</code>
      */
     public boolean hasSubmittedAt() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
-     * <code>optional string submittedAt = 7;</code>
+     * <code>optional string submittedAt = 8;</code>
      */
     public java.lang.String getSubmittedAt() {
       java.lang.Object ref = submittedAt_;
@@ -4273,7 +4336,7 @@ public final class WsCe {
       }
     }
     /**
-     * <code>optional string submittedAt = 7;</code>
+     * <code>optional string submittedAt = 8;</code>
      */
     public com.google.protobuf.ByteString
         getSubmittedAtBytes() {
@@ -4289,16 +4352,16 @@ public final class WsCe {
       }
     }
 
-    public static final int SUBMITTERLOGIN_FIELD_NUMBER = 8;
+    public static final int SUBMITTERLOGIN_FIELD_NUMBER = 9;
     private volatile java.lang.Object submitterLogin_;
     /**
-     * <code>optional string submitterLogin = 8;</code>
+     * <code>optional string submitterLogin = 9;</code>
      */
     public boolean hasSubmitterLogin() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
-     * <code>optional string submitterLogin = 8;</code>
+     * <code>optional string submitterLogin = 9;</code>
      */
     public java.lang.String getSubmitterLogin() {
       java.lang.Object ref = submitterLogin_;
@@ -4315,7 +4378,7 @@ public final class WsCe {
       }
     }
     /**
-     * <code>optional string submitterLogin = 8;</code>
+     * <code>optional string submitterLogin = 9;</code>
      */
     public com.google.protobuf.ByteString
         getSubmitterLoginBytes() {
@@ -4331,16 +4394,16 @@ public final class WsCe {
       }
     }
 
-    public static final int STARTEDAT_FIELD_NUMBER = 9;
+    public static final int STARTEDAT_FIELD_NUMBER = 10;
     private volatile java.lang.Object startedAt_;
     /**
-     * <code>optional string startedAt = 9;</code>
+     * <code>optional string startedAt = 10;</code>
      */
     public boolean hasStartedAt() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
-     * <code>optional string startedAt = 9;</code>
+     * <code>optional string startedAt = 10;</code>
      */
     public java.lang.String getStartedAt() {
       java.lang.Object ref = startedAt_;
@@ -4357,7 +4420,7 @@ public final class WsCe {
       }
     }
     /**
-     * <code>optional string startedAt = 9;</code>
+     * <code>optional string startedAt = 10;</code>
      */
     public com.google.protobuf.ByteString
         getStartedAtBytes() {
@@ -4373,16 +4436,16 @@ public final class WsCe {
       }
     }
 
-    public static final int EXECUTEDAT_FIELD_NUMBER = 10;
+    public static final int EXECUTEDAT_FIELD_NUMBER = 11;
     private volatile java.lang.Object executedAt_;
     /**
-     * <code>optional string executedAt = 10;</code>
+     * <code>optional string executedAt = 11;</code>
      */
     public boolean hasExecutedAt() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
-     * <code>optional string executedAt = 10;</code>
+     * <code>optional string executedAt = 11;</code>
      */
     public java.lang.String getExecutedAt() {
       java.lang.Object ref = executedAt_;
@@ -4399,7 +4462,7 @@ public final class WsCe {
       }
     }
     /**
-     * <code>optional string executedAt = 10;</code>
+     * <code>optional string executedAt = 11;</code>
      */
     public com.google.protobuf.ByteString
         getExecutedAtBytes() {
@@ -4415,46 +4478,46 @@ public final class WsCe {
       }
     }
 
-    public static final int ISLASTEXECUTED_FIELD_NUMBER = 11;
+    public static final int ISLASTEXECUTED_FIELD_NUMBER = 12;
     private boolean isLastExecuted_;
     /**
-     * <code>optional bool isLastExecuted = 11;</code>
+     * <code>optional bool isLastExecuted = 12;</code>
      */
     public boolean hasIsLastExecuted() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
-     * <code>optional bool isLastExecuted = 11;</code>
+     * <code>optional bool isLastExecuted = 12;</code>
      */
     public boolean getIsLastExecuted() {
       return isLastExecuted_;
     }
 
-    public static final int EXECUTIONTIMEMS_FIELD_NUMBER = 12;
+    public static final int EXECUTIONTIMEMS_FIELD_NUMBER = 13;
     private long executionTimeMs_;
     /**
-     * <code>optional int64 executionTimeMs = 12;</code>
+     * <code>optional int64 executionTimeMs = 13;</code>
      */
     public boolean hasExecutionTimeMs() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00001000) == 0x00001000);
     }
     /**
-     * <code>optional int64 executionTimeMs = 12;</code>
+     * <code>optional int64 executionTimeMs = 13;</code>
      */
     public long getExecutionTimeMs() {
       return executionTimeMs_;
     }
 
-    public static final int LOGS_FIELD_NUMBER = 13;
+    public static final int LOGS_FIELD_NUMBER = 14;
     private boolean logs_;
     /**
-     * <code>optional bool logs = 13;</code>
+     * <code>optional bool logs = 14;</code>
      */
     public boolean hasLogs() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     /**
-     * <code>optional bool logs = 13;</code>
+     * <code>optional bool logs = 14;</code>
      */
     public boolean getLogs() {
       return logs_;
@@ -4488,28 +4551,31 @@ public final class WsCe {
         output.writeBytes(5, getComponentNameBytes());
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeEnum(6, status_);
+        output.writeBytes(6, getComponentQualifierBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(7, getSubmittedAtBytes());
+        output.writeEnum(7, status_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeBytes(8, getSubmitterLoginBytes());
+        output.writeBytes(8, getSubmittedAtBytes());
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeBytes(9, getStartedAtBytes());
+        output.writeBytes(9, getSubmitterLoginBytes());
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeBytes(10, getExecutedAtBytes());
+        output.writeBytes(10, getStartedAtBytes());
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeBool(11, isLastExecuted_);
+        output.writeBytes(11, getExecutedAtBytes());
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeInt64(12, executionTimeMs_);
+        output.writeBool(12, isLastExecuted_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        output.writeBool(13, logs_);
+        output.writeInt64(13, executionTimeMs_);
+      }
+      if (((bitField0_ & 0x00002000) == 0x00002000)) {
+        output.writeBool(14, logs_);
       }
       unknownFields.writeTo(output);
     }
@@ -4542,35 +4608,39 @@ public final class WsCe {
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(6, status_);
+          .computeBytesSize(6, getComponentQualifierBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(7, getSubmittedAtBytes());
+          .computeEnumSize(7, status_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(8, getSubmitterLoginBytes());
+          .computeBytesSize(8, getSubmittedAtBytes());
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(9, getStartedAtBytes());
+          .computeBytesSize(9, getSubmitterLoginBytes());
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(10, getExecutedAtBytes());
+          .computeBytesSize(10, getStartedAtBytes());
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(11, isLastExecuted_);
+          .computeBytesSize(11, getExecutedAtBytes());
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(12, executionTimeMs_);
+          .computeBoolSize(12, isLastExecuted_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(13, logs_);
+          .computeInt64Size(13, executionTimeMs_);
+      }
+      if (((bitField0_ & 0x00002000) == 0x00002000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(14, logs_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
@@ -4694,22 +4764,24 @@ public final class WsCe {
         bitField0_ = (bitField0_ & ~0x00000008);
         componentName_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
-        status_ = 0;
+        componentQualifier_ = "";
         bitField0_ = (bitField0_ & ~0x00000020);
-        submittedAt_ = "";
+        status_ = 0;
         bitField0_ = (bitField0_ & ~0x00000040);
-        submitterLogin_ = "";
+        submittedAt_ = "";
         bitField0_ = (bitField0_ & ~0x00000080);
-        startedAt_ = "";
+        submitterLogin_ = "";
         bitField0_ = (bitField0_ & ~0x00000100);
-        executedAt_ = "";
+        startedAt_ = "";
         bitField0_ = (bitField0_ & ~0x00000200);
-        isLastExecuted_ = false;
+        executedAt_ = "";
         bitField0_ = (bitField0_ & ~0x00000400);
-        executionTimeMs_ = 0L;
+        isLastExecuted_ = false;
         bitField0_ = (bitField0_ & ~0x00000800);
-        logs_ = false;
+        executionTimeMs_ = 0L;
         bitField0_ = (bitField0_ & ~0x00001000);
+        logs_ = false;
+        bitField0_ = (bitField0_ & ~0x00002000);
         return this;
       }
 
@@ -4757,33 +4829,37 @@ public final class WsCe {
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
-        result.status_ = status_;
+        result.componentQualifier_ = componentQualifier_;
         if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.submittedAt_ = submittedAt_;
+        result.status_ = status_;
         if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
           to_bitField0_ |= 0x00000080;
         }
-        result.submitterLogin_ = submitterLogin_;
+        result.submittedAt_ = submittedAt_;
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.startedAt_ = startedAt_;
+        result.submitterLogin_ = submitterLogin_;
         if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.executedAt_ = executedAt_;
+        result.startedAt_ = startedAt_;
         if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000400;
         }
-        result.isLastExecuted_ = isLastExecuted_;
+        result.executedAt_ = executedAt_;
         if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000800;
         }
-        result.executionTimeMs_ = executionTimeMs_;
+        result.isLastExecuted_ = isLastExecuted_;
         if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
           to_bitField0_ |= 0x00001000;
+        }
+        result.executionTimeMs_ = executionTimeMs_;
+        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+          to_bitField0_ |= 0x00002000;
         }
         result.logs_ = logs_;
         result.bitField0_ = to_bitField0_;
@@ -4827,26 +4903,31 @@ public final class WsCe {
           componentName_ = other.componentName_;
           onChanged();
         }
+        if (other.hasComponentQualifier()) {
+          bitField0_ |= 0x00000020;
+          componentQualifier_ = other.componentQualifier_;
+          onChanged();
+        }
         if (other.hasStatus()) {
           setStatus(other.getStatus());
         }
         if (other.hasSubmittedAt()) {
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000080;
           submittedAt_ = other.submittedAt_;
           onChanged();
         }
         if (other.hasSubmitterLogin()) {
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000100;
           submitterLogin_ = other.submitterLogin_;
           onChanged();
         }
         if (other.hasStartedAt()) {
-          bitField0_ |= 0x00000100;
+          bitField0_ |= 0x00000200;
           startedAt_ = other.startedAt_;
           onChanged();
         }
         if (other.hasExecutedAt()) {
-          bitField0_ |= 0x00000200;
+          bitField0_ |= 0x00000400;
           executedAt_ = other.executedAt_;
           onChanged();
         }
@@ -5267,37 +5348,113 @@ public final class WsCe {
         return this;
       }
 
-      private int status_ = 0;
+      private java.lang.Object componentQualifier_ = "";
       /**
-       * <code>optional .sonarqube.ws.ce.TaskStatus status = 6;</code>
+       * <code>optional string componentQualifier = 6;</code>
        */
-      public boolean hasStatus() {
+      public boolean hasComponentQualifier() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional .sonarqube.ws.ce.TaskStatus status = 6;</code>
+       * <code>optional string componentQualifier = 6;</code>
+       */
+      public java.lang.String getComponentQualifier() {
+        java.lang.Object ref = componentQualifier_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            componentQualifier_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string componentQualifier = 6;</code>
+       */
+      public com.google.protobuf.ByteString
+          getComponentQualifierBytes() {
+        java.lang.Object ref = componentQualifier_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          componentQualifier_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string componentQualifier = 6;</code>
+       */
+      public Builder setComponentQualifier(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+        componentQualifier_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string componentQualifier = 6;</code>
+       */
+      public Builder clearComponentQualifier() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        componentQualifier_ = getDefaultInstance().getComponentQualifier();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string componentQualifier = 6;</code>
+       */
+      public Builder setComponentQualifierBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+        componentQualifier_ = value;
+        onChanged();
+        return this;
+      }
+
+      private int status_ = 0;
+      /**
+       * <code>optional .sonarqube.ws.ce.TaskStatus status = 7;</code>
+       */
+      public boolean hasStatus() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional .sonarqube.ws.ce.TaskStatus status = 7;</code>
        */
       public org.sonarqube.ws.WsCe.TaskStatus getStatus() {
         org.sonarqube.ws.WsCe.TaskStatus result = org.sonarqube.ws.WsCe.TaskStatus.valueOf(status_);
         return result == null ? org.sonarqube.ws.WsCe.TaskStatus.PENDING : result;
       }
       /**
-       * <code>optional .sonarqube.ws.ce.TaskStatus status = 6;</code>
+       * <code>optional .sonarqube.ws.ce.TaskStatus status = 7;</code>
        */
       public Builder setStatus(org.sonarqube.ws.WsCe.TaskStatus value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000040;
         status_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.ce.TaskStatus status = 6;</code>
+       * <code>optional .sonarqube.ws.ce.TaskStatus status = 7;</code>
        */
       public Builder clearStatus() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000040);
         status_ = 0;
         onChanged();
         return this;
@@ -5305,13 +5462,13 @@ public final class WsCe {
 
       private java.lang.Object submittedAt_ = "";
       /**
-       * <code>optional string submittedAt = 7;</code>
+       * <code>optional string submittedAt = 8;</code>
        */
       public boolean hasSubmittedAt() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
-       * <code>optional string submittedAt = 7;</code>
+       * <code>optional string submittedAt = 8;</code>
        */
       public java.lang.String getSubmittedAt() {
         java.lang.Object ref = submittedAt_;
@@ -5328,7 +5485,7 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string submittedAt = 7;</code>
+       * <code>optional string submittedAt = 8;</code>
        */
       public com.google.protobuf.ByteString
           getSubmittedAtBytes() {
@@ -5344,36 +5501,36 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string submittedAt = 7;</code>
+       * <code>optional string submittedAt = 8;</code>
        */
       public Builder setSubmittedAt(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000080;
         submittedAt_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string submittedAt = 7;</code>
+       * <code>optional string submittedAt = 8;</code>
        */
       public Builder clearSubmittedAt() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000080);
         submittedAt_ = getDefaultInstance().getSubmittedAt();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string submittedAt = 7;</code>
+       * <code>optional string submittedAt = 8;</code>
        */
       public Builder setSubmittedAtBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000080;
         submittedAt_ = value;
         onChanged();
         return this;
@@ -5381,13 +5538,13 @@ public final class WsCe {
 
       private java.lang.Object submitterLogin_ = "";
       /**
-       * <code>optional string submitterLogin = 8;</code>
+       * <code>optional string submitterLogin = 9;</code>
        */
       public boolean hasSubmitterLogin() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
-       * <code>optional string submitterLogin = 8;</code>
+       * <code>optional string submitterLogin = 9;</code>
        */
       public java.lang.String getSubmitterLogin() {
         java.lang.Object ref = submitterLogin_;
@@ -5404,7 +5561,7 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string submitterLogin = 8;</code>
+       * <code>optional string submitterLogin = 9;</code>
        */
       public com.google.protobuf.ByteString
           getSubmitterLoginBytes() {
@@ -5420,36 +5577,36 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string submitterLogin = 8;</code>
+       * <code>optional string submitterLogin = 9;</code>
        */
       public Builder setSubmitterLogin(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000100;
         submitterLogin_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string submitterLogin = 8;</code>
+       * <code>optional string submitterLogin = 9;</code>
        */
       public Builder clearSubmitterLogin() {
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000100);
         submitterLogin_ = getDefaultInstance().getSubmitterLogin();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string submitterLogin = 8;</code>
+       * <code>optional string submitterLogin = 9;</code>
        */
       public Builder setSubmitterLoginBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000100;
         submitterLogin_ = value;
         onChanged();
         return this;
@@ -5457,13 +5614,13 @@ public final class WsCe {
 
       private java.lang.Object startedAt_ = "";
       /**
-       * <code>optional string startedAt = 9;</code>
+       * <code>optional string startedAt = 10;</code>
        */
       public boolean hasStartedAt() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
-       * <code>optional string startedAt = 9;</code>
+       * <code>optional string startedAt = 10;</code>
        */
       public java.lang.String getStartedAt() {
         java.lang.Object ref = startedAt_;
@@ -5480,7 +5637,7 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string startedAt = 9;</code>
+       * <code>optional string startedAt = 10;</code>
        */
       public com.google.protobuf.ByteString
           getStartedAtBytes() {
@@ -5496,36 +5653,36 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string startedAt = 9;</code>
+       * <code>optional string startedAt = 10;</code>
        */
       public Builder setStartedAt(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000100;
+  bitField0_ |= 0x00000200;
         startedAt_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string startedAt = 9;</code>
+       * <code>optional string startedAt = 10;</code>
        */
       public Builder clearStartedAt() {
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000200);
         startedAt_ = getDefaultInstance().getStartedAt();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string startedAt = 9;</code>
+       * <code>optional string startedAt = 10;</code>
        */
       public Builder setStartedAtBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000100;
+  bitField0_ |= 0x00000200;
         startedAt_ = value;
         onChanged();
         return this;
@@ -5533,13 +5690,13 @@ public final class WsCe {
 
       private java.lang.Object executedAt_ = "";
       /**
-       * <code>optional string executedAt = 10;</code>
+       * <code>optional string executedAt = 11;</code>
        */
       public boolean hasExecutedAt() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
-       * <code>optional string executedAt = 10;</code>
+       * <code>optional string executedAt = 11;</code>
        */
       public java.lang.String getExecutedAt() {
         java.lang.Object ref = executedAt_;
@@ -5556,7 +5713,7 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string executedAt = 10;</code>
+       * <code>optional string executedAt = 11;</code>
        */
       public com.google.protobuf.ByteString
           getExecutedAtBytes() {
@@ -5572,36 +5729,36 @@ public final class WsCe {
         }
       }
       /**
-       * <code>optional string executedAt = 10;</code>
+       * <code>optional string executedAt = 11;</code>
        */
       public Builder setExecutedAt(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000200;
+  bitField0_ |= 0x00000400;
         executedAt_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string executedAt = 10;</code>
+       * <code>optional string executedAt = 11;</code>
        */
       public Builder clearExecutedAt() {
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000400);
         executedAt_ = getDefaultInstance().getExecutedAt();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string executedAt = 10;</code>
+       * <code>optional string executedAt = 11;</code>
        */
       public Builder setExecutedAtBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000200;
+  bitField0_ |= 0x00000400;
         executedAt_ = value;
         onChanged();
         return this;
@@ -5609,31 +5766,31 @@ public final class WsCe {
 
       private boolean isLastExecuted_ ;
       /**
-       * <code>optional bool isLastExecuted = 11;</code>
+       * <code>optional bool isLastExecuted = 12;</code>
        */
       public boolean hasIsLastExecuted() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
-       * <code>optional bool isLastExecuted = 11;</code>
+       * <code>optional bool isLastExecuted = 12;</code>
        */
       public boolean getIsLastExecuted() {
         return isLastExecuted_;
       }
       /**
-       * <code>optional bool isLastExecuted = 11;</code>
+       * <code>optional bool isLastExecuted = 12;</code>
        */
       public Builder setIsLastExecuted(boolean value) {
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00000800;
         isLastExecuted_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional bool isLastExecuted = 11;</code>
+       * <code>optional bool isLastExecuted = 12;</code>
        */
       public Builder clearIsLastExecuted() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000800);
         isLastExecuted_ = false;
         onChanged();
         return this;
@@ -5641,31 +5798,31 @@ public final class WsCe {
 
       private long executionTimeMs_ ;
       /**
-       * <code>optional int64 executionTimeMs = 12;</code>
+       * <code>optional int64 executionTimeMs = 13;</code>
        */
       public boolean hasExecutionTimeMs() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00001000) == 0x00001000);
       }
       /**
-       * <code>optional int64 executionTimeMs = 12;</code>
+       * <code>optional int64 executionTimeMs = 13;</code>
        */
       public long getExecutionTimeMs() {
         return executionTimeMs_;
       }
       /**
-       * <code>optional int64 executionTimeMs = 12;</code>
+       * <code>optional int64 executionTimeMs = 13;</code>
        */
       public Builder setExecutionTimeMs(long value) {
-        bitField0_ |= 0x00000800;
+        bitField0_ |= 0x00001000;
         executionTimeMs_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int64 executionTimeMs = 12;</code>
+       * <code>optional int64 executionTimeMs = 13;</code>
        */
       public Builder clearExecutionTimeMs() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00001000);
         executionTimeMs_ = 0L;
         onChanged();
         return this;
@@ -5673,31 +5830,31 @@ public final class WsCe {
 
       private boolean logs_ ;
       /**
-       * <code>optional bool logs = 13;</code>
+       * <code>optional bool logs = 14;</code>
        */
       public boolean hasLogs() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
-       * <code>optional bool logs = 13;</code>
+       * <code>optional bool logs = 14;</code>
        */
       public boolean getLogs() {
         return logs_;
       }
       /**
-       * <code>optional bool logs = 13;</code>
+       * <code>optional bool logs = 14;</code>
        */
       public Builder setLogs(boolean value) {
-        bitField0_ |= 0x00001000;
+        bitField0_ |= 0x00002000;
         logs_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional bool logs = 13;</code>
+       * <code>optional bool logs = 14;</code>
        */
       public Builder clearLogs() {
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00002000);
         logs_ = false;
         onChanged();
         return this;
@@ -5795,17 +5952,18 @@ public final class WsCe {
       "asks\030\002 \003(\0132\025.sonarqube.ws.ce.Task\"_\n\017Pro" +
       "jectResponse\022$\n\005queue\030\001 \003(\0132\025.sonarqube." +
       "ws.ce.Task\022&\n\007current\030\002 \001(\0132\025.sonarqube.",
-      "ws.ce.Task\"\242\002\n\004Task\022\n\n\002id\030\001 \001(\t\022\014\n\004type\030" +
+      "ws.ce.Task\"\276\002\n\004Task\022\n\n\002id\030\001 \001(\t\022\014\n\004type\030" +
       "\002 \001(\t\022\023\n\013componentId\030\003 \001(\t\022\024\n\014componentK" +
-      "ey\030\004 \001(\t\022\025\n\rcomponentName\030\005 \001(\t\022+\n\006statu" +
-      "s\030\006 \001(\0162\033.sonarqube.ws.ce.TaskStatus\022\023\n\013" +
-      "submittedAt\030\007 \001(\t\022\026\n\016submitterLogin\030\010 \001(" +
-      "\t\022\021\n\tstartedAt\030\t \001(\t\022\022\n\nexecutedAt\030\n \001(\t" +
-      "\022\026\n\016isLastExecuted\030\013 \001(\010\022\027\n\017executionTim" +
-      "eMs\030\014 \001(\003\022\014\n\004logs\030\r \001(\010*Q\n\nTaskStatus\022\013\n" +
-      "\007PENDING\020\000\022\017\n\013IN_PROGRESS\020\001\022\013\n\007SUCCESS\020\002" +
-      "\022\n\n\006FAILED\020\003\022\014\n\010CANCELED\020\004B\032\n\020org.sonarq",
-      "ube.wsB\004WsCeH\001"
+      "ey\030\004 \001(\t\022\025\n\rcomponentName\030\005 \001(\t\022\032\n\022compo" +
+      "nentQualifier\030\006 \001(\t\022+\n\006status\030\007 \001(\0162\033.so" +
+      "narqube.ws.ce.TaskStatus\022\023\n\013submittedAt\030" +
+      "\010 \001(\t\022\026\n\016submitterLogin\030\t \001(\t\022\021\n\tstarted" +
+      "At\030\n \001(\t\022\022\n\nexecutedAt\030\013 \001(\t\022\026\n\016isLastEx" +
+      "ecuted\030\014 \001(\010\022\027\n\017executionTimeMs\030\r \001(\003\022\014\n" +
+      "\004logs\030\016 \001(\010*Q\n\nTaskStatus\022\013\n\007PENDING\020\000\022\017" +
+      "\n\013IN_PROGRESS\020\001\022\013\n\007SUCCESS\020\002\022\n\n\006FAILED\020\003",
+      "\022\014\n\010CANCELED\020\004B\032\n\020org.sonarqube.wsB\004WsCe" +
+      "H\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5855,7 +6013,7 @@ public final class WsCe {
     internal_static_sonarqube_ws_ce_Task_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_ce_Task_descriptor,
-        new java.lang.String[] { "Id", "Type", "ComponentId", "ComponentKey", "ComponentName", "Status", "SubmittedAt", "SubmitterLogin", "StartedAt", "ExecutedAt", "IsLastExecuted", "ExecutionTimeMs", "Logs", });
+        new java.lang.String[] { "Id", "Type", "ComponentId", "ComponentKey", "ComponentName", "ComponentQualifier", "Status", "SubmittedAt", "SubmitterLogin", "StartedAt", "ExecutedAt", "IsLastExecuted", "ExecutionTimeMs", "Logs", });
     org.sonarqube.ws.Common.getDescriptor();
   }
 

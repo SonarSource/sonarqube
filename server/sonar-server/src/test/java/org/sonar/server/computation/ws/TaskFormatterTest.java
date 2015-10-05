@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -82,7 +83,8 @@ public class TaskFormatterTest {
   @Test
   public void formatQueue_with_component_and_other_fields() throws IOException {
     when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.of(temp.newFile()));
-    db.getDbClient().componentDao().insert(db.getSession(), new ComponentDto().setUuid("COMPONENT_UUID").setKey("COMPONENT_KEY").setName("Component Name"));
+    db.getDbClient().componentDao().insert(db.getSession(), new ComponentDto()
+      .setUuid("COMPONENT_UUID").setKey("COMPONENT_KEY").setName("Component Name").setQualifier(Qualifiers.PROJECT));
 
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");
@@ -100,6 +102,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getComponentId()).isEqualTo("COMPONENT_UUID");
     assertThat(wsTask.getComponentKey()).isEqualTo("COMPONENT_KEY");
     assertThat(wsTask.getComponentName()).isEqualTo("Component Name");
+    assertThat(wsTask.getComponentQualifier()).isEqualTo("TRK");
     assertThat(wsTask.getStatus()).isEqualTo(WsCe.TaskStatus.IN_PROGRESS);
     assertThat(wsTask.getLogs()).isTrue();
     assertThat(wsTask.getSubmitterLogin()).isEqualTo("rob");

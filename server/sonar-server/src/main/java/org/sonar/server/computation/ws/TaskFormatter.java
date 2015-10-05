@@ -127,6 +127,7 @@ public class TaskFormatter {
     if (componentDto != null) {
       builder.setComponentKey(componentDto.getKey());
       builder.setComponentName(componentDto.name());
+      builder.setComponentQualifier(componentDto.qualifier());
     }
   }
 
