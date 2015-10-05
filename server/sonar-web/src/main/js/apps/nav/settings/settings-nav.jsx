@@ -56,7 +56,7 @@ export default React.createClass({
               </a>
               <ul className="dropdown-menu">
                 {this.renderLink('/projects', 'Management')}
-                {this.renderLink('/background_tasks', 'Background Tasks')}
+                {this.renderLink('/background_tasks', window.t('background_tasks.page'))}
               </ul>
             </li>
 

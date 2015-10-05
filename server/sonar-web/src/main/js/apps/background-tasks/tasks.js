@@ -1,8 +1,10 @@
+import moment from 'moment';
 import React from 'react';
 import {getProjectUrl} from '../../helpers/Url';
 import QualifierIcon from '../../components/shared/qualifier-icon';
 import PendingIcon from '../../components/shared/pending-icon';
 import {STATUSES} from './constants';
+import {formatDuration} from './helpers';
 
 export default React.createClass({
   propTypes: {
@@ -35,7 +37,8 @@ export default React.createClass({
       default:
         inner = '';
     }
-    return <td className="thin spacer-right">{inner}</td>;
+    return <td className="thin spacer-right" title={window.t('background_task.status', task.status)}
+               data-toggle="tooltip">{inner}</td>;
   },
 
   renderTaskComponent(task) {
@@ -43,11 +46,10 @@ export default React.createClass({
       return <td><span className="note">{task.id}</span></td>;
     }
 
-    let qualifier = task.type === 'REPORT' ? 'TRK' : null;
     return (
         <td>
           <span className="little-spacer-right">
-            <QualifierIcon qualifier={qualifier}/>
+            <QualifierIcon qualifier={task.componentQualifier}/>
           </span>
           <a href={getProjectUrl(task.componentKey)}>{task.componentName}</a>
         </td>
@@ -73,8 +75,7 @@ export default React.createClass({
   },
 
   renderTaskExecutionTime(task) {
-    let inner = task.executionTimeMs ? `${task.executionTimeMs} ms` : '';
-    return <td className="thin nowrap text-right">{inner}</td>;
+    return <td className="thin nowrap text-right">{formatDuration(task.executionTimeMs)}</td>;
   },
 
   isAnotherDay(a, b) {
@@ -84,8 +85,8 @@ export default React.createClass({
   renderCancelButton(task) {
     if (task.status === STATUSES.PENDING) {
       return (
-          <a onClick={this.onTaskCanceled.bind(this, task)} className="icon-delete" title="Cancel Task"
-             data-toggle="tooltip" href="#"></a>
+          <a onClick={this.onTaskCanceled.bind(this, task)} className="icon-delete"
+             title={window.t('background_tasks.cancel_task')} data-toggle="tooltip" href="#"></a>
       );
     } else {
       return null;
@@ -95,7 +96,7 @@ export default React.createClass({
   renderLogsLink(task) {
     if (task.logs) {
       let url = `${window.baseUrl}/api/ce/logs?taskId=${task.id}`;
-      return <a target="_blank" href={url}>Logs</a>;
+      return <a target="_blank" href={url}>{window.t('background_tasks.logs')}</a>;
     } else {
       return null;
     }
@@ -132,10 +133,10 @@ export default React.createClass({
             <th>&nbsp;</th>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
-            <th>Submitted</th>
-            <th>Started</th>
-            <th>Finished</th>
-            <th>Duration</th>
+            <th>{window.t('background_tasks.table.submitted')}</th>
+            <th>{window.t('background_tasks.table.started')}</th>
+            <th>{window.t('background_tasks.table.finished')}</th>
+            <th>{window.t('background_tasks.table.duration')}</th>
             <th>&nbsp;</th>
           </tr>
           </thead>

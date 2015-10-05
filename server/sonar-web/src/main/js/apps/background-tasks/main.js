@@ -171,10 +171,7 @@ export default React.createClass({
   },
 
   onTaskCanceled(task) {
-    cancelTask(task.id).done(data => {
-      _.extend(task, data.task);
-      this.forceUpdate();
-    });
+    cancelTask(task.id).then(this.requestData);
   },
 
   cancelPending() {
@@ -189,6 +186,7 @@ export default React.createClass({
           <Stats {...this.state} cancelPending={this.cancelPending} showFailures={this.showFailures}/>
 
           <Search {...this.props} {...this.state}
+              refresh={this.requestData}
               onStatusChange={this.onStatusChange}
               onCurrentsChange={this.onCurrentsChange}
               onDateChange={this.onDateChange}

@@ -152,7 +152,7 @@ export default React.createClass({
   renderBackgroundTasksLink() {
     // TODO check permissions
     const url = `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, 'Background Tasks', '/project/background_tasks');
+    return this.renderLink(url, window.t('background_tasks.page'), '/project/background_tasks');
   },
 
   renderUpdateKeyLink() {

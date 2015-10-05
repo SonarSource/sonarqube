@@ -1,4 +1,5 @@
 import React from 'react';
+import {formatDuration} from './helpers';
 
 export default React.createClass({
   onPendingCanceled(e) {
@@ -16,9 +17,12 @@ export default React.createClass({
       return null;
     }
     return (
-        <span className="huge-spacer-left">
+        <span className="huge-spacer-left" title={window.t('background_tasks.in_progress_duration')}
+              data-toggle="tooltip">
           <i className="spinner spacer-right" style={{ verticalAlign: 'text-top' }}/>
-          <span className="emphasised-measure">{this.props.inProgressDuration} ms</span>
+          <span ref="inProgressDuration" className="emphasised-measure">
+            {formatDuration(this.props.inProgressDuration)}
+          </span>
         </span>
     );
   },
@@ -30,13 +34,21 @@ export default React.createClass({
     if (this.props.pendingCount > 0) {
       return (
           <span>
-            <span className="emphasised-measure">{this.props.pendingCount}</span> pending
-            <a onClick={this.onPendingCanceled} className="icon-delete spacer-left" title="Cancel Pending Tasks"
-               data-toggle="tooltip" href="#"></a>
+            <span ref="pendingCount" className="emphasised-measure">{this.props.pendingCount}</span>
+            &nbsp;
+            {window.t('background_tasks.pending')}
+            <a ref="cancelPending" onClick={this.onPendingCanceled} className="icon-delete spacer-left"
+               title={window.t('background_tasks.cancel_all_tasks')} data-toggle="tooltip" href="#"></a>
           </span>
       );
     } else {
-      return <span><span className="emphasised-measure">{this.props.pendingCount}</span> pending</span>;
+      return (
+          <span>
+            <span ref="pendingCount" className="emphasised-measure">{this.props.pendingCount}</span>
+            &nbsp;
+            {window.t('background_tasks.pending')}
+          </span>
+      );
     }
   },
 
@@ -45,9 +57,22 @@ export default React.createClass({
       return null;
     }
     if (this.props.failuresCount > 0) {
-      return <span><a onClick={this.onFailuresClick} className="emphasised-measure" href="#">{this.props.failuresCount}</a> failures</span>;
+      return (
+          <span>
+            <a ref="failureCount" onClick={this.onFailuresClick} className="emphasised-measure"
+               href="#">{this.props.failuresCount}</a>
+            &nbsp;
+            {window.t('background_tasks.failures')}
+          </span>
+      );
     } else {
-      return <span><span className="emphasised-measure">{this.props.failuresCount}</span> failures</span>;
+      return (
+          <span>
+            <span ref="failureCount" className="emphasised-measure">{this.props.failuresCount}</span>
+            &nbsp;
+            {window.t('background_tasks.failures')}
+          </span>
+      );
     }
   },
 

@@ -117,6 +117,7 @@ module.exports = (grunt) ->
           'jquery': 'libs/third-party/shim/jquery-shim'
           'backbone': 'libs/third-party/shim/backbone-shim'
           'backbone.marionette': 'libs/third-party/shim/marionette-shim'
+          'moment': 'libs/third-party/shim/moment-shim'
 
       issuesContext: options:
         name: 'apps/issues/app-context'

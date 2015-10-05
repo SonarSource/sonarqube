@@ -3,7 +3,9 @@ import Main from './main';
 
 export default {
   start (options) {
-    var el = document.querySelector(options.el);
-    React.render(<Main options={options}/>, el);
+    window.requestMessages().done(() => {
+      let el = document.querySelector(options.el);
+      React.render(<Main options={options}/>, el);
+    });
   }
 };

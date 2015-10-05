@@ -19,25 +19,25 @@ export default React.createClass({
 
   getCurrentsOptions() {
     return [
-      { value: CURRENTS.ALL, label: 'All' },
-      { value: CURRENTS.ONLY_CURRENTS, label: 'Only Currents' }
+      { value: CURRENTS.ALL, label: window.t('background_tasks.currents_filter.ALL') },
+      { value: CURRENTS.ONLY_CURRENTS, label: window.t('background_tasks.currents_filter.ONLY_CURRENTS') }
     ];
   },
 
   getStatusOptions() {
     return [
-      { value: STATUSES.ALL, label: 'All' },
-      { value: STATUSES.SUCCESS, label: 'Success' },
-      { value: STATUSES.FAILED, label: 'Failed' },
-      { value: STATUSES.CANCELED, label: 'Canceled' }
+      { value: STATUSES.ALL, label: window.t('background_task.status.ALL') },
+      { value: STATUSES.SUCCESS, label: window.t('background_task.status.SUCCESS') },
+      { value: STATUSES.FAILED, label: window.t('background_task.status.FAILED') },
+      { value: STATUSES.CANCELED, label: window.t('background_task.status.CANCELED') }
     ];
   },
 
   getDateOptions() {
     return [
-      { value: DATE.ANY, label: 'Any Date' },
-      { value: DATE.TODAY, label: 'Today' },
-      { value: DATE.CUSTOM, label: 'Custom' }
+      { value: DATE.ANY, label: window.t('background_tasks.date_filter.ALL') },
+      { value: DATE.TODAY, label: window.t('background_tasks.date_filter.TODAY') },
+      { value: DATE.CUSTOM, label: window.t('background_tasks.date_filter.CUSTOM') }
     ];
   },
 
@@ -112,6 +112,14 @@ export default React.createClass({
     );
   },
 
+  refresh(e) {
+    e.preventDefault();
+    this.props.refresh();
+    let btn = e.target;
+    btn.disabled = true;
+    setTimeout(() => btn.disabled = false, 500);
+  },
+
   render() {
     return (
         <section className="big-spacer-top big-spacer-bottom">
@@ -130,6 +138,9 @@ export default React.createClass({
               {this.renderCustomDateInput()}
             </li>
             <li>{this.renderSearchBox()}</li>
+            <li className="pull-right">
+              <button onClick={this.refresh} ref="reloadButton">{window.t('reload')}</button>
+            </li>
           </ul>
         </section>
     );
