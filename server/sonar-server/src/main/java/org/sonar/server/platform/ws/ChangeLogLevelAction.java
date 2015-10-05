@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
 
@@ -33,10 +34,12 @@ public class ChangeLogLevelAction implements SystemWsAction {
 
   private final UserSession userSession;
   private final ServerLogging logging;
+  private final Database db;
 
-  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging) {
+  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging, Database db) {
     this.userSession = userSession;
     this.logging = logging;
+    this.db = db;
   }
 
   @Override
@@ -56,7 +59,9 @@ public class ChangeLogLevelAction implements SystemWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
     userSession.checkGlobalPermission(UserRole.ADMIN);
-    logging.changeLevel(Level.toLevel(wsRequest.mandatoryParam(PARAM_LEVEL)));
+    Level level = Level.toLevel(wsRequest.mandatoryParam(PARAM_LEVEL));
+    db.enableSqlLogging(level.equals(Level.TRACE));
+    logging.changeLevel(level);
     wsResponse.noContent();
   }
 }
