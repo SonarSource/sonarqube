@@ -108,7 +108,8 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
 
   @Override
   public IssueBuilder attribute(String key, String value) {
-    throw new UnsupportedOperationException("Unused");
+    newIssue.addAttribute(key, value);
+    return this;
   }
 
   @Override
