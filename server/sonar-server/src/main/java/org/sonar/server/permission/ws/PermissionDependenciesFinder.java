@@ -30,6 +30,7 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.usergroups.ws.WsGroupRef;
 
 import static java.lang.String.format;
@@ -40,11 +41,13 @@ import static org.sonar.server.ws.WsUtils.checkFound;
 public class PermissionDependenciesFinder {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private final UserGroupFinder userGroupFinder;
   private final ResourceTypes resourceTypes;
 
-  public PermissionDependenciesFinder(DbClient dbClient, ComponentFinder componentFinder, ResourceTypes resourceTypes) {
+  public PermissionDependenciesFinder(DbClient dbClient, ComponentFinder componentFinder, UserGroupFinder userGroupFinder, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
+    this.userGroupFinder = userGroupFinder;
     this.resourceTypes = resourceTypes;
   }
 
@@ -76,26 +79,11 @@ public class PermissionDependenciesFinder {
    */
   @CheckForNull
   public GroupDto getGroup(DbSession dbSession, WsGroupRef group) {
-    Long groupId = group.id();
-    String groupName = group.name();
-
-    if (isAnyone(groupName)) {
+    if (isAnyone(group.name())) {
       return null;
     }
 
-    GroupDto groupDto = null;
-
-    if (groupId != null) {
-      groupDto = checkFound(dbClient.groupDao().selectById(dbSession, groupId),
-        format("Group with id '%d' is not found", groupId));
-    }
-
-    if (groupName != null) {
-      groupDto = checkFound(dbClient.groupDao().selectByName(dbSession, groupName),
-        format("Group with name '%s' is not found", groupName));
-    }
-
-    return groupDto;
+    return userGroupFinder.getGroup(dbSession, group);
   }
 
   public UserDto getUser(DbSession dbSession, String userLogin) {

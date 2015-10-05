@@ -19,64 +19,67 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_GROUP_ID;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_GROUP_NAME;
 
 public class DeleteAction implements UserGroupsWsAction {
 
-  private static final String PARAM_ID = "id";
-
   private final DbClient dbClient;
+  private final UserGroupFinder userGroupFinder;
   private final UserSession userSession;
   private final Settings settings;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession, Settings settings) {
+  public DeleteAction(DbClient dbClient, UserGroupFinder userGroupFinder, UserSession userSession, Settings settings) {
     this.dbClient = dbClient;
+    this.userGroupFinder = userGroupFinder;
     this.userSession = userSession;
     this.settings = settings;
   }
 
   @Override
   public void define(NewController context) {
-    context.createAction("delete")
-      .setDescription("Delete a group. The default group cannot be deleted. Requires System Administrator permission.")
+    WebService.NewAction action = context.createAction("delete")
+      .setDescription(format("Delete a group. The default groups cannot be deleted.<br/>" +
+        "'%s' or '%s' must be provided." +
+        "Requires System Administrator permission.",
+        PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
       .setSince("5.2")
-      .setPost(true)
-      .createParam(PARAM_ID)
-      .setDescription("ID of the group to delete.")
-      .setRequired(true);
+      .setPost(true);
+
+    UserGroupsWsParameters.createGroupParameters(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    long groupId = request.mandatoryParamAsLong(PARAM_ID);
-
+    WsGroupRef groupRef = WsGroupRef.fromUserGroupsRequest(request);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      if (dbClient.groupDao().selectById(dbSession, groupId) == null) {
-        throw new NotFoundException(String.format("Could not find a group with id=%d", groupId));
-      }
+      GroupDto group = userGroupFinder.getGroup(dbSession, groupRef);
+      long groupId = group.getId();
 
       checkNotTryingToDeleteDefaultGroup(dbSession, groupId);
-
-      removeGroupMembers(groupId, dbSession);
-      removeGroupPermissions(groupId, dbSession);
-      removeFromPermissionTemplates(groupId, dbSession);
+      removeGroupMembers(dbSession, groupId);
+      removeGroupPermissions(dbSession, groupId);
+      removeFromPermissionTemplates(dbSession, groupId);
       dbClient.groupDao().deleteById(dbSession, groupId);
 
       dbSession.commit();
@@ -89,19 +92,19 @@ public class DeleteAction implements UserGroupsWsAction {
   private void checkNotTryingToDeleteDefaultGroup(DbSession dbSession, long groupId) {
     String defaultGroupName = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
     GroupDto defaultGroup = dbClient.groupDao().selectOrFailByName(dbSession, defaultGroupName);
-    Preconditions.checkArgument(groupId != defaultGroup.getId(),
-      String.format("Default group '%s' cannot be deleted", defaultGroupName));
+    checkArgument(groupId != defaultGroup.getId(),
+      format("Default group '%s' cannot be deleted", defaultGroupName));
   }
 
-  private void removeGroupMembers(long groupId, DbSession dbSession) {
+  private void removeGroupMembers(DbSession dbSession, long groupId) {
     dbClient.userGroupDao().deleteMembersByGroupId(dbSession, groupId);
   }
 
-  private void removeGroupPermissions(long groupId, DbSession dbSession) {
+  private void removeGroupPermissions(DbSession dbSession, long groupId) {
     dbClient.roleDao().deleteGroupRolesByGroupId(dbSession, groupId);
   }
 
-  private void removeFromPermissionTemplates(long groupId, DbSession dbSession) {
+  private void removeFromPermissionTemplates(DbSession dbSession, long groupId) {
     dbClient.permissionTemplateDao().deleteByGroup(dbSession, groupId);
   }
 }

@@ -31,18 +31,18 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.MyBatis.closeQuietly;
-import static org.sonar.server.usergroups.ws.GroupUpdater.DESCRIPTION_MAX_LENGTH;
-import static org.sonar.server.usergroups.ws.GroupUpdater.NAME_MAX_LENGTH;
-import static org.sonar.server.usergroups.ws.GroupUpdater.PARAM_DESCRIPTION;
-import static org.sonar.server.usergroups.ws.GroupUpdater.PARAM_NAME;
+import static org.sonar.server.usergroups.ws.UserGroupUpdater.DESCRIPTION_MAX_LENGTH;
+import static org.sonar.server.usergroups.ws.UserGroupUpdater.NAME_MAX_LENGTH;
+import static org.sonar.server.usergroups.ws.UserGroupUpdater.PARAM_DESCRIPTION;
+import static org.sonar.server.usergroups.ws.UserGroupUpdater.PARAM_NAME;
 
 public class CreateAction implements UserGroupsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final GroupUpdater groupUpdater;
+  private final UserGroupUpdater groupUpdater;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, GroupUpdater groupUpdater) {
+  public CreateAction(DbClient dbClient, UserSession userSession, UserGroupUpdater groupUpdater) {
     this.dbClient = dbClient;
     this.groupUpdater = groupUpdater;
     this.userSession = userSession;

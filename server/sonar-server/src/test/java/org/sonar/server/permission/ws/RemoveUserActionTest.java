@@ -41,6 +41,7 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -79,7 +80,7 @@ public class RemoveUserActionTest {
     dbSession = db.getSession();
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     ws = new WsTester(new PermissionsWs(
-      new RemoveUserAction(dbClient, permissionUpdater, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder, resourceTypes)))));
+      new RemoveUserAction(dbClient, permissionUpdater, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes)))));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 

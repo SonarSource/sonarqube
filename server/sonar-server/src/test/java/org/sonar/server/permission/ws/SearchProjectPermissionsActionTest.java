@@ -45,6 +45,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Arrays.asList;
@@ -85,7 +86,7 @@ public class SearchProjectPermissionsActionTest {
     resourceTypes = mock(ResourceTypes.class);
     when(resourceTypes.getRoots()).thenReturn(rootResourceTypes());
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
-    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, componentFinder, resourceTypes);
+    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes);
     i18n.setProjectPermissions();
 
     dataLoader = new SearchProjectPermissionsDataLoader(dbClient, finder, resourceTypes);
@@ -225,7 +226,8 @@ public class SearchProjectPermissionsActionTest {
     insertComponent(newDeveloper("developer-name"));
     insertComponent(newProjectDto("project-uuid"));
     commit();
-    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes), resourceTypes);
+    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes),
+      resourceTypes);
     underTest = new SearchProjectPermissionsAction(dbClient, userSession, i18n, dataLoader);
     ws = new WsActionTester(underTest);
 

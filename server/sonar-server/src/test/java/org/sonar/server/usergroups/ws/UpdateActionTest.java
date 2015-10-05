@@ -76,7 +76,7 @@ public class UpdateActionTest {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       groupDao, new GroupMembershipDao(dbTester.myBatis()), userGroupDao);
 
-    tester = new WsTester(new UserGroupsWs(new UpdateAction(dbClient, userSession, new GroupUpdater(dbClient))));
+    tester = new WsTester(new UserGroupsWs(new UpdateAction(dbClient, userSession, new UserGroupUpdater(dbClient))));
 
     session = dbClient.openSession(false);
   }

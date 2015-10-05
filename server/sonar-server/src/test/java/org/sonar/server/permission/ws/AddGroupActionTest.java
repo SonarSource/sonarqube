@@ -42,6 +42,7 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -52,12 +53,12 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
+import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
-import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
 
 @Category(DbTests.class)
 public class AddGroupActionTest {
@@ -79,7 +80,12 @@ public class AddGroupActionTest {
     dbClient = db.getDbClient();
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     ws = new WsTester(new PermissionsWs(
-      new AddGroupAction(dbClient, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder, resourceTypes)), permissionUpdater)));
+      new AddGroupAction(dbClient, new PermissionChangeBuilder(new PermissionDependenciesFinder(
+        dbClient,
+        componentFinder,
+        new UserGroupFinder(dbClient),
+        resourceTypes)),
+        permissionUpdater)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 

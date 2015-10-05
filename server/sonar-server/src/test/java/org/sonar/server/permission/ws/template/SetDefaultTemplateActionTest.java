@@ -48,6 +48,7 @@ import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
@@ -94,7 +95,7 @@ public class SetDefaultTemplateActionTest {
 
     ws = new WsActionTester(new SetDefaultTemplateAction(
       dbClient,
-      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes),
+      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes),
       resourceTypes,
       persistentSettings,
       userSession, i18n));

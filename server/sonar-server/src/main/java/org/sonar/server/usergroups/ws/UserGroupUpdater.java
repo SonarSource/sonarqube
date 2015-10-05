@@ -29,7 +29,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 
 @ServerSide
-public class GroupUpdater {
+public class UserGroupUpdater {
 
   static final String PARAM_ID = "id";
   static final String PARAM_DESCRIPTION = "description";
@@ -43,7 +43,7 @@ public class GroupUpdater {
 
   private final DbClient dbClient;
 
-  public GroupUpdater(DbClient dbClient) {
+  public UserGroupUpdater(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 

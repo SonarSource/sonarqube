@@ -47,6 +47,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 
@@ -85,7 +86,7 @@ public class GroupsActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
-    underTest = new GroupsAction(dbClient, userSession, permissionFinder, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes));
+    underTest = new GroupsAction(dbClient, userSession, permissionFinder, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes));
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);

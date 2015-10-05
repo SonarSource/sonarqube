@@ -17,26 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.usergroups.ws;
 
-import org.sonar.core.platform.Module;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.GroupDto;
 
-public class UserGroupsModule extends Module {
+import static java.lang.String.format;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
-  @Override
-  protected void configureModule() {
-    add(
-      UserGroupsWs.class,
-      UserGroupUpdater.class,
-      UserGroupFinder.class,
-      // actions
-      SearchAction.class,
-      CreateAction.class,
-      DeleteAction.class,
-      UpdateAction.class,
-      UsersAction.class,
-      AddUserAction.class,
-      RemoveUserAction.class);
+public class UserGroupFinder {
+  private final DbClient dbClient;
+
+  public UserGroupFinder(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
+  public GroupDto getGroup(DbSession dbSession, WsGroupRef group) {
+    Long groupId = group.id();
+    String groupName = group.name();
+
+    GroupDto groupDto = null;
+
+    if (groupId != null) {
+      groupDto = checkFound(dbClient.groupDao().selectById(dbSession, groupId),
+        format("Group with id '%d' is not found", groupId));
+    }
+
+    if (groupName != null) {
+      groupDto = checkFound(dbClient.groupDao().selectByName(dbSession, groupName),
+        format("Group with name '%s' is not found", groupName));
+    }
+
+    return groupDto;
+  }
 }

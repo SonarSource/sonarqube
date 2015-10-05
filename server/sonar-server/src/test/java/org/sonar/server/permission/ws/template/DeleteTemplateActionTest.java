@@ -47,6 +47,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.DeleteTemplateAction;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -86,7 +87,7 @@ public class DeleteTemplateActionTest {
     dbSession = db.getSession();
     defaultTemplatePermissionFinder = mock(DefaultPermissionTemplateFinder.class);
     when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(Collections.<String>emptySet());
-    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes);
+    PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes);
     ws = new WsActionTester(new DeleteTemplateAction(dbClient, userSession, finder, defaultTemplatePermissionFinder));
 
     permissionTemplate = insertTemplateAndAssociatedPermissions(newPermissionTemplateDto().setUuid(TEMPLATE_UUID));

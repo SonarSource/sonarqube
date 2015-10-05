@@ -58,6 +58,7 @@ import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -110,7 +111,7 @@ public class ApplyTemplateActionTest {
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     PermissionService permissionService = new PermissionService(dbClient, repository, issueAuthorizationIndexer, userSession, componentFinder);
-    PermissionDependenciesFinder permissionDependenciesFinder = new PermissionDependenciesFinder(dbClient, componentFinder, resourceTypes);
+    PermissionDependenciesFinder permissionDependenciesFinder = new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes);
 
     ApplyTemplateAction underTest = new ApplyTemplateAction(dbClient, permissionService, permissionDependenciesFinder);
     ws = new WsActionTester(underTest);

@@ -47,6 +47,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
@@ -61,8 +62,8 @@ import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTem
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateGroupDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_UUID;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @Category(DbTests.class)
@@ -88,7 +89,12 @@ public class TemplateGroupsActionTest {
   public void setUp() {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    underTest = new TemplateGroupsAction(dbClient, userSession, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes));
+    underTest = new TemplateGroupsAction(dbClient, userSession,
+      new PermissionDependenciesFinder(
+        dbClient,
+        new ComponentFinder(dbClient),
+        new UserGroupFinder(dbClient),
+        resourceTypes));
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);

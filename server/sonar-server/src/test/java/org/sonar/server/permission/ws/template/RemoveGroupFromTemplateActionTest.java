@@ -48,6 +48,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.WsPermissionParameters;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
@@ -62,8 +63,8 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_UUID;
 import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_UUID;
 
 @Category(DbTests.class)
 public class RemoveGroupFromTemplateActionTest {
@@ -90,7 +91,7 @@ public class RemoveGroupFromTemplateActionTest {
     dbSession = db.getSession();
     userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    PermissionDependenciesFinder dependenciesFinder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), resourceTypes);
+    PermissionDependenciesFinder dependenciesFinder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes);
     ws = new WsActionTester(new RemoveGroupFromTemplateAction(dbClient, dependenciesFinder, userSession));
 
     group = insertGroup(newGroupDto().setName(GROUP_NAME));

@@ -17,26 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.usergroups.ws;
 
-import org.sonar.core.platform.Module;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class UserGroupsModule extends Module {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  protected void configureModule() {
-    add(
-      UserGroupsWs.class,
-      UserGroupUpdater.class,
-      UserGroupFinder.class,
-      // actions
-      SearchAction.class,
-      CreateAction.class,
-      DeleteAction.class,
-      UpdateAction.class,
-      UsersAction.class,
-      AddUserAction.class,
-      RemoveUserAction.class);
+public class UserGroupsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new UserGroupsModule().configure(container);
+    assertThat(container.size()).isEqualTo(12);
   }
-
 }
