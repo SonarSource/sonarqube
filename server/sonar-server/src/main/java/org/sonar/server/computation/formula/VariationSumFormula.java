@@ -21,6 +21,8 @@ package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.formula.counter.DoubleVariationValue;
 import org.sonar.server.computation.measure.Measure;
@@ -38,15 +40,22 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 public class VariationSumFormula implements Formula<VariationSumFormula.VariationSumCounter> {
   private final String metricKey;
   private final Predicate<Period> supportedPeriods;
+  @CheckForNull
+  private final Double defaultInputValue;
 
   public VariationSumFormula(String metricKey, Predicate<Period> supportedPeriods) {
-    this.supportedPeriods = supportedPeriods;
+    this(metricKey, supportedPeriods, null);
+  }
+
+  public VariationSumFormula(String metricKey, Predicate<Period> supportedPeriods, @Nullable Double defaultInputValue) {
     this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
+    this.supportedPeriods = requireNonNull(supportedPeriods, "Period predicate can not be null");
+    this.defaultInputValue = defaultInputValue;
   }
 
   @Override
   public VariationSumCounter createNewCounter() {
-    return new VariationSumCounter(metricKey, supportedPeriods);
+    return new VariationSumCounter(metricKey, supportedPeriods, defaultInputValue);
   }
 
   @Override
@@ -78,13 +87,16 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
   }
 
   public static final class VariationSumCounter implements Counter<VariationSumCounter> {
+    @CheckForNull
+    private final Double defaultInputValue;
     private final DoubleVariationValue.Array array = DoubleVariationValue.newArray();
     private final String metricKey;
     private final Predicate<Period> supportedPeriods;
 
-    private VariationSumCounter(String metricKey, Predicate<Period> supportedPeriods) {
+    private VariationSumCounter(String metricKey, Predicate<Period> supportedPeriods, @Nullable Double defaultInputValue) {
       this.metricKey = metricKey;
       this.supportedPeriods = supportedPeriods;
+      this.defaultInputValue = defaultInputValue;
     }
 
     @Override
@@ -96,6 +108,7 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
     public void initialize(CounterInitializationContext context) {
       Optional<Measure> measure = context.getMeasure(metricKey);
       if (!measure.isPresent() || !measure.get().hasVariations()) {
+        initializeWithDefaultInputValue(context);
         return;
       }
       MeasureVariations variations = measure.get().getVariations();
@@ -103,9 +116,20 @@ public class VariationSumFormula implements Formula<VariationSumFormula.Variatio
         if (variations.hasVariation(period.getIndex())) {
           double variation = variations.getVariation(period.getIndex());
           if (variation > 0) {
-            array.increment(period, variations.getVariation(period.getIndex()));
+            array.increment(period, variation);
+          } else if (defaultInputValue != null) {
+            array.increment(period, defaultInputValue);
           }
         }
+      }
+    }
+
+    private void initializeWithDefaultInputValue(CounterInitializationContext context) {
+      if (defaultInputValue == null) {
+        return;
+      }
+      for (Period period : from(context.getPeriods()).filter(supportedPeriods)) {
+        array.increment(period, defaultInputValue);
       }
     }
   }
