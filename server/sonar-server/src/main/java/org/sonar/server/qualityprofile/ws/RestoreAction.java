@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -83,15 +84,20 @@ public class RestoreAction implements QProfileWsAction {
   private void writeResponse(JsonWriter json, BulkChangeResult result) {
     QualityProfileDto profile = result.profile();
     if (profile != null) {
-      String language = profile.getLanguage();
-      json.beginObject().name("profile").beginObject()
+      String languageKey = profile.getLanguage();
+      Language language = languages.get(languageKey);
+
+      JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
+      jsonProfile
         .prop("key", profile.getKey())
         .prop("name", profile.getName())
-        .prop("language", language)
-        .prop("languageName", languages.get(profile.getLanguage()).getName())
+        .prop("language", languageKey)
         .prop("isDefault", false)
-        .prop("isInherited", false)
-        .endObject();
+        .prop("isInherited", false);
+      if (language != null) {
+        jsonProfile.prop("languageName", language.getName());
+      }
+      jsonProfile.endObject();
     }
     json.prop("ruleSuccesses", result.countSucceeded());
     json.prop("ruleFailures", result.countFailed());
