@@ -33,7 +33,6 @@
   <modules>
     <module>access-secured-props-plugin</module>
     <module>batch-plugin</module>
-    <module>crash-plugin</module>
     <module>extension-lifecycle-plugin</module>
     <module>global-property-change-plugin</module>
     <module>l10n-fr-pack</module>

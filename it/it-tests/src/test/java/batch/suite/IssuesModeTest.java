@@ -3,7 +3,7 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package batch;
+package batch.suite;
 
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
@@ -47,13 +47,7 @@ import static org.junit.Assert.fail;
 public class IssuesModeTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setSonarVersion("DEV")
-    .addPlugin(ItUtils.xooPlugin())
-    .setContext("/")
-
-  .addPlugin(ItUtils.pluginArtifact("access-secured-props-plugin"))
-    .build();
+  public static Orchestrator orchestrator = BatchTestSuite.ORCHESTRATOR;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

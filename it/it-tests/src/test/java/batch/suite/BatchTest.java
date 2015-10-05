@@ -3,7 +3,7 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package batch;
+package batch.suite;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
@@ -34,16 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BatchTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setSonarVersion("DEV")
-    .addPlugin(ItUtils.xooPlugin())
-    .setContext("/")
-
-    .addPlugin(ItUtils.pluginArtifact("batch-plugin"))
-    // Java is only used in convert_library_into_module test
-    .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
-
-    .build();
+  public static Orchestrator orchestrator = BatchTestSuite.ORCHESTRATOR;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

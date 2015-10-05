@@ -3,28 +3,23 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package batch;
+package batch.suite;
 
-import util.ItUtils;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 import java.io.File;
 import java.net.URL;
+import org.junit.ClassRule;
+import org.junit.Test;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SettingsEncryptionTest {
   @ClassRule
-  public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setSonarVersion("DEV")
-    .addPlugin(ItUtils.pluginArtifact("settings-encryption-plugin"))
-    .addPlugin(ItUtils.xooPlugin())
-    .build();
+  public static Orchestrator orchestrator = BatchTestSuite.ORCHESTRATOR;
 
   /**
    * SONAR-2084

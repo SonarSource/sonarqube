@@ -11,11 +11,13 @@ public class EncryptionVerifier implements BatchExtension {
   }
 
   public void start() {
-    System.out.println("Start EncryptionVerifier");
-
-    String decryptedValue = settings.getString("encryptedProperty");
-    if (!"this is a secret".equals(decryptedValue)) {
-      throw new IllegalStateException("The property 'encryptedProperty' can not be decrypted");
+    if (settings.hasKey("encryptedProperty")) {
+      System.out.println("Start EncryptionVerifier");
+  
+      String decryptedValue = settings.getString("encryptedProperty");
+      if (!"this is a secret".equals(decryptedValue)) {
+        throw new IllegalStateException("The property 'encryptedProperty' can not be decrypted");
+      }
     }
   }
 }
