@@ -20,9 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.ImmutableMap;
-
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -43,8 +41,7 @@ public class GlobalSettings extends Settings {
   private static final Map<String, String> DROPPED_PROPERTIES = ImmutableMap.of(
     "sonar.jdbc.url", JDBC_SPECIFIC_MESSAGE,
     "sonar.jdbc.username", JDBC_SPECIFIC_MESSAGE,
-    "sonar.jdbc.password", JDBC_SPECIFIC_MESSAGE
-    );
+    "sonar.jdbc.password", JDBC_SPECIFIC_MESSAGE);
 
   private final GlobalProperties bootstrapProps;
   private final GlobalRepositories globalReferentials;
@@ -66,7 +63,9 @@ public class GlobalSettings extends Settings {
     addProperties(globalReferentials.globalSettings());
     addProperties(bootstrapProps.properties());
 
-    LOG.info("Server id: " + getString(CoreProperties.SERVER_ID));
+    if (hasKey(CoreProperties.PERMANENT_SERVER_ID)) {
+      LOG.info("Server id: " + getString(CoreProperties.PERMANENT_SERVER_ID));
+    }
   }
 
   @Override
