@@ -27,10 +27,6 @@ class Api::ServerController < Api::ApiController
   # execute database setup
   skip_before_filter :check_database_version, :setup
 
-  def key
-    render :text => Java::OrgSonarServerPlatform::Platform.getServer().getId()
-  end
-
   def version
     render :text => Java::OrgSonarServerPlatform::Platform.getServer().getVersion()
   end
