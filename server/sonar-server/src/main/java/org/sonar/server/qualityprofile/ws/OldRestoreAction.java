@@ -37,11 +37,11 @@ import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsAction;
 
-@Deprecated
 /**
  * @deprecated will be deleted once Orchestrator do not rely on this WS
  * It is duplicated to enable 
  */
+@Deprecated
 public class OldRestoreAction implements WsAction {
 
   private static final String PARAM_BACKUP = "backup";
