@@ -131,7 +131,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
-      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
@@ -296,6 +296,31 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   }
 
   @Test
+  public void save_revision() {
+    initBasicReport(1);
+    scmInfoRepository.setScmInfo(FILE_REF, Changeset.newChangesetBuilder()
+      .setAuthor("john")
+      .setDate(123456789L)
+      .setRevision("rev-1")
+      .build());
+
+    underTest.execute();
+
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
+    assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
+  }
+
+  @Test
+  public void not_save_revision() {
+    initBasicReport(1);
+
+    underTest.execute();
+
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
+    assertThat(fileSourceDto.getRevision()).isNull();
+  }
+
+  @Test
   public void not_update_sources_when_nothing_has_changed() {
     // Existing sources
     long past = 150000L;
@@ -363,7 +388,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setRevision("rev-1")
       .build());
 
-
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
@@ -381,7 +405,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setDataType(Type.SOURCE)
-      // Source hash is missing, update will be made
+        // Source hash is missing, update will be made
       .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
       .setDataHash("29f25900140c94db38035128cb6de6a2")
       .setSourceData(DbFileSources.Data.newBuilder()
@@ -403,6 +427,45 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
+  }
+
+  @Test
+  public void update_sources_when_revision_is_missing() {
+    // Existing sources
+    long past = 150000L;
+    dbClient.fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setDataType(Type.SOURCE)
+      .setSrcHash("137f72c3708c6bd0de00a0e5a69c699b")
+      .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
+      .setDataHash("8e84c0d961cfe364e43833c4cc4ddef5")
+      // Revision is missing, update will be made
+      .setSourceData(DbFileSources.Data.newBuilder()
+        .addLines(DbFileSources.Line.newBuilder()
+          .setLine(1)
+          .setSource("line")
+          .build())
+        .build())
+      .setCreatedAt(past)
+      .setUpdatedAt(past));
+    dbTester.getSession().commit();
+
+    scmInfoRepository.setScmInfo(FILE_REF, Changeset.newChangesetBuilder()
+      .setAuthor("john")
+      .setDate(123456789L)
+      .setRevision("rev-1")
+      .build());
+
+    initBasicReport(1);
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
   }
 
   @Test

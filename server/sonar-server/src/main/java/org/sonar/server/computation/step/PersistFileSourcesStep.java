@@ -22,7 +22,14 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
@@ -51,14 +58,6 @@ import org.sonar.server.computation.source.LineReader;
 import org.sonar.server.computation.source.ScmLineReader;
 import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.computation.source.SymbolsLineReader;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -136,8 +135,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       }
     }
 
-    private void persistSource(ComputeFileSourceData.Data fileSourceData, String componentUuid,
-      @Nullable Changeset latestChange) {
+    private void persistSource(ComputeFileSourceData.Data fileSourceData, String componentUuid, @Nullable Changeset latestChange) {
       DbFileSources.Data fileData = fileSourceData.getFileSourceData();
 
       byte[] data = FileSourceDto.encodeSourceData(fileData);
@@ -161,16 +159,18 @@ public class PersistFileSourcesStep implements ComputationStep {
         dbClient.fileSourceDao().insert(session, dto);
         session.commit();
       } else {
-        // Update only if data_hash has changed or if src_hash is missing (progressive migration)
+        // Update only if data_hash has changed or if src_hash is missing or revision is missing (progressive migration)
         boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
         boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
-        if (binaryDataUpdated || srcHashUpdated) {
+        String revision = computeRevision(previousDto, latestChange);
+        boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
+        if (binaryDataUpdated || srcHashUpdated || revisionUpdated) {
           previousDto
             .setBinaryData(data)
             .setDataHash(dataHash)
             .setSrcHash(srcHash)
             .setLineHashes(lineHashes)
-            .setRevision(computeRevision(previousDto, latestChange))
+            .setRevision(revision)
             .setUpdatedAt(system2.now());
           dbClient.fileSourceDao().update(previousDto);
           session.commit();
