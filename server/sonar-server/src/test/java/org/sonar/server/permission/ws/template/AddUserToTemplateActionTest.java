@@ -46,7 +46,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.permission.ws.WsPermissionParameters;
+import org.sonar.server.permission.ws.PermissionsWsParameters;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -60,9 +60,9 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_TEMPLATE_NAME;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 @Category(DbTests.class)
 public class AddUserToTemplateActionTest {
@@ -189,10 +189,10 @@ public class AddUserToTemplateActionTest {
       request.setParam(PARAM_USER_LOGIN, userLogin);
     }
     if (templateKey != null) {
-      request.setParam(WsPermissionParameters.PARAM_TEMPLATE_UUID, templateKey);
+      request.setParam(PermissionsWsParameters.PARAM_TEMPLATE_UUID, templateKey);
     }
     if (permission != null) {
-      request.setParam(WsPermissionParameters.PARAM_PERMISSION, permission);
+      request.setParam(PermissionsWsParameters.PARAM_PERMISSION, permission);
     }
 
     request.execute();

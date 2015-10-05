@@ -23,7 +23,7 @@ package org.sonar.server.usergroups.ws;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
-import org.sonar.server.permission.ws.WsPermissionParameters;
+import org.sonar.server.permission.ws.PermissionsWsParameters;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -43,8 +43,8 @@ public class WsGroupRef {
   }
 
   public static WsGroupRef fromPermissionRequest(Request wsRequest) {
-    Long id = wsRequest.paramAsLong(WsPermissionParameters.PARAM_GROUP_ID);
-    String name = wsRequest.param(WsPermissionParameters.PARAM_GROUP_NAME);
+    Long id = wsRequest.paramAsLong(PermissionsWsParameters.PARAM_GROUP_ID);
+    String name = wsRequest.param(PermissionsWsParameters.PARAM_GROUP_NAME);
 
     return new WsGroupRef(id, name);
   }

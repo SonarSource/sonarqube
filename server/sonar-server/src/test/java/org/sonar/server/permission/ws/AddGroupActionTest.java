@@ -54,11 +54,11 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
 import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_ID;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
 @Category(DbTests.class)
 public class AddGroupActionTest {

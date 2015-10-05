@@ -33,11 +33,11 @@ import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_USER_LOGIN;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createUserLoginParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createUserLoginParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 
 public class RemoveUserFromTemplateAction implements PermissionsWsAction {

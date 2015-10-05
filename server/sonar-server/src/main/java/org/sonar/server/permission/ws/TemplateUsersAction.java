@@ -39,9 +39,9 @@ import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createTemplateParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class TemplateUsersAction implements PermissionsWsAction {

@@ -40,11 +40,11 @@ import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createGroupIdParameter;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createGroupNameParameter;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.WsPermissionParameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createGroupIdParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createGroupNameParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.createTemplateParameters;
 
 public class AddGroupToTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;

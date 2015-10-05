@@ -84,7 +84,7 @@ public class PermissionsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("5.2");
-    assertThat(action.param(WsPermissionParameters.PARAM_PERMISSION).isRequired()).isTrue();
+    assertThat(action.param(PermissionsWsParameters.PARAM_PERMISSION).isRequired()).isTrue();
   }
 
   @Test
@@ -95,7 +95,7 @@ public class PermissionsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("5.2");
-    assertThat(action.param(WsPermissionParameters.PARAM_PERMISSION).isRequired()).isTrue();
+    assertThat(action.param(PermissionsWsParameters.PARAM_PERMISSION).isRequired()).isTrue();
   }
 
   private WebService.Controller controller() {

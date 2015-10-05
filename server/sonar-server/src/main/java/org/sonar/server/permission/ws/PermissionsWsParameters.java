@@ -27,7 +27,7 @@ import org.sonar.core.util.Uuids;
 
 import static java.lang.String.format;
 
-public class WsPermissionParameters {
+public class PermissionsWsParameters {
 
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_GROUP_NAME = "groupName";
@@ -58,7 +58,7 @@ public class WsPermissionParameters {
     "</ul>",
     ProjectPermissions.ALL_ON_ONE_LINE);
 
-  private WsPermissionParameters() {
+  private PermissionsWsParameters() {
     // static methods only
   }
 
