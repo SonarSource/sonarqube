@@ -23,6 +23,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -30,25 +34,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.search.IndexField;
 
-import javax.annotation.CheckForNull;
-
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import static java.lang.String.format;
 
 public class NewIndex {
 
   public void refreshHandledByIndexer() {
     getSettings().put("index.refresh_interval", "-1");
-  }
-
-  public void setShards(Settings settings) {
-    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
-    if (clusterMode) {
-      getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 4);
-      getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1);
-      // else keep defaults (one shard)
-    }
   }
 
   public static class NewIndexType {
@@ -303,5 +294,19 @@ public class NewIndex {
 
   public SortedMap<String, NewIndexType> getTypes() {
     return types;
+  }
+
+  public void setShards(Settings settings) {
+    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
+    int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
+    if (shards == 0) {
+      shards = (clusterMode ? 4 : 1);
+    }
+    int replicas = settings.getInt(format("sonar.search.%s.replicas", indexName));
+    if (replicas == 0) {
+      replicas = (clusterMode ? 1 : 0);
+    }
+    getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
+    getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
   }
 }

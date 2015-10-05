@@ -28,7 +28,7 @@ import java.util.Map;
 @ServerSide
 public interface IndexDefinition {
 
-  public static class IndexDefinitionContext {
+  class IndexDefinitionContext {
     private final Map<String, NewIndex> byKey = Maps.newHashMap();
 
     public NewIndex create(String key) {

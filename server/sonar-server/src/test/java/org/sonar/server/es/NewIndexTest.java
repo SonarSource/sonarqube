@@ -20,6 +20,7 @@
 package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableMap;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 
@@ -143,5 +144,45 @@ public class NewIndexTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Can't mix searchable and non-searchable arguments on field: my_field");
     }
+  }
+
+  @Test
+  public void one_shard_and_zero_replica_by_default() {
+    NewIndex index = new NewIndex("issues");
+    index.setShards(new org.sonar.api.config.Settings());
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("1");
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+  }
+
+  @Test
+  public void four_shards_and_one_replica_by_default_on_cluster() {
+    NewIndex index = new NewIndex("issues");
+    org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
+    settings.setProperty("sonar.cluster.activate", "true");
+    index.setShards(settings);
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("4");
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
+  }
+
+  @Test
+  public void customize_number_of_shards() {
+    NewIndex index = new NewIndex("issues");
+    org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
+    settings.setProperty("sonar.search.issues.shards", "3");
+    index.setShards(settings);
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
+    // keep default value
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+  }
+
+  @Test
+  public void customize_number_of_shards_and_replicas() {
+    NewIndex index = new NewIndex("issues");
+    org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
+    settings.setProperty("sonar.search.issues.shards", "3");
+    settings.setProperty("sonar.search.issues.replicas", "1");
+    index.setShards(settings);
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
 }
