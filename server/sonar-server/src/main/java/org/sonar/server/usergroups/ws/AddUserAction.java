@@ -25,64 +25,61 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.sonar.db.MyBatis.closeQuietly;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_GROUP_ID;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_GROUP_NAME;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_LOGIN;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.createGroupParameters;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.createLoginParameter;
 
 public class AddUserAction implements UserGroupsWsAction {
 
-  private static final String PARAM_ID = "id";
-  private static final String PARAM_LOGIN = "login";
-
   private final DbClient dbClient;
+  private final UserGroupFinder userGroupFinder;
   private final UserSession userSession;
 
-  public AddUserAction(DbClient dbClient, UserSession userSession) {
+  public AddUserAction(DbClient dbClient, UserGroupFinder userGroupFinder, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userGroupFinder = userGroupFinder;
     this.userSession = userSession;
   }
 
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("add_user")
-      .setDescription("Add a user to a group.")
+      .setDescription(format("Add a user to a group.<br />" +
+        "'%s' or '%s' must be provided", PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
       .setSince("5.2");
 
-    action.createParam(PARAM_ID)
-      .setDescription("ID of the group")
-      .setExampleValue("42")
-      .setRequired(true);
-
-    action.createParam(PARAM_LOGIN)
-      .setDescription("Login of the user.")
-      .setExampleValue("g.hopper")
-      .setRequired(true);
+    createGroupParameters(action);
+    createLoginParameter(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    Long groupId = request.mandatoryParamAsLong(PARAM_ID);
+    WsGroupRef wsGroupRef = WsGroupRef.fromUserGroupsRequest(request);
     String login = request.mandatoryParam(PARAM_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
+      GroupDto group = userGroupFinder.getGroup(dbSession, wsGroupRef);
+
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
-      if (group == null) {
-        throw new NotFoundException(String.format("Could not find a user group with group id '%s'", groupId));
-      }
       if (user == null) {
-        throw new NotFoundException(String.format("Could not find a user with login '%s'", login));
+        throw new NotFoundException(format("Could not find a user with login '%s'", login));
       }
 
       if (userIsNotYetMemberOf(dbSession, login, group)) {
