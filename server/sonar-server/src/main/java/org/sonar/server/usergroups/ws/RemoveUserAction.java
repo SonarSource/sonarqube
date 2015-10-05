@@ -19,25 +19,31 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import javax.annotation.CheckForNull;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.db.MyBatis.closeQuietly;
+import static java.lang.String.format;
+import static org.sonar.api.security.DefaultGroups.isAnyone;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_GROUP_ID;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_GROUP_NAME;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_LOGIN;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.createGroupParameters;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.createLoginParameter;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class RemoveUserAction implements UserGroupsWsAction {
-
-  private static final String PARAM_ID = "id";
-  private static final String PARAM_LOGIN = "login";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -50,47 +56,69 @@ public class RemoveUserAction implements UserGroupsWsAction {
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("remove_user")
-      .setDescription("Remove a user from a group.")
+      .setDescription(format("Remove a user from a group.<br />" +
+        "'%s' or '%s' must be provided.", PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
       .setPost(true)
       .setSince("5.2");
 
-    action.createParam(PARAM_ID)
-      .setDescription("ID of the group")
-      .setExampleValue("42")
-      .setRequired(true);
-
-    action.createParam(PARAM_LOGIN)
-      .setDescription("Login of the user.")
-      .setExampleValue("g.hopper")
-      .setRequired(true);
+    createGroupParameters(action);
+    createLoginParameter(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    Long groupId = request.mandatoryParamAsLong(PARAM_ID);
+    WsGroupRef wsGroupRef = WsGroupRef.fromUserGroupsRequest(request);
     String login = request.mandatoryParam(PARAM_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
-      if (group == null) {
-        throw new NotFoundException(String.format("Could not find a user group with id '%s'", groupId));
-      }
-      UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
-      if (user == null) {
-        throw new NotFoundException(String.format("Could not find a user with login '%s'", login));
-      }
+      GroupDto group = getGroup(dbSession, wsGroupRef);
+      checkRequest(group != null, "It is not possible to remove a user from the '%s' group.", DefaultGroups.ANYONE);
+      UserDto user = getUser(dbSession, login);
 
       UserGroupDto userGroup = new UserGroupDto().setGroupId(group.getId()).setUserId(user.getId());
       dbClient.userGroupDao().delete(dbSession, userGroup);
       dbSession.commit();
       response.noContent();
     } finally {
-      closeQuietly(dbSession);
+      dbClient.closeSession(dbSession);
     }
 
+  }
+
+  /**
+   *
+   * @return null if it's the anyone group
+   */
+  @CheckForNull
+  private GroupDto getGroup(DbSession dbSession, WsGroupRef group) {
+    Long groupId = group.id();
+    String groupName = group.name();
+
+    if (isAnyone(groupName)) {
+      return null;
+    }
+
+    GroupDto groupDto = null;
+
+    if (groupId != null) {
+      groupDto = checkFound(dbClient.groupDao().selectById(dbSession, groupId),
+        format("Group with id '%d' is not found", groupId));
+    }
+
+    if (groupName != null) {
+      groupDto = checkFound(dbClient.groupDao().selectByName(dbSession, groupName),
+        format("Group with name '%s' is not found", groupName));
+    }
+
+    return groupDto;
+  }
+
+  private UserDto getUser(DbSession dbSession, String userLogin) {
+    return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin),
+      format("User with login '%s' is not found'", userLogin));
   }
 }

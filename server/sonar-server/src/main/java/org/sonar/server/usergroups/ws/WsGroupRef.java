@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.server.usergroups.ws;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
+import org.sonar.server.permission.ws.WsPermissionParameters;
 
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.WsPermissionParameters.PARAM_GROUP_NAME;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -43,9 +42,16 @@ public class WsGroupRef {
     this.name = name;
   }
 
-  public static WsGroupRef fromRequest(Request wsRequest) {
-    Long id = wsRequest.paramAsLong(PARAM_GROUP_ID);
-    String name = wsRequest.param(PARAM_GROUP_NAME);
+  public static WsGroupRef fromPermissionRequest(Request wsRequest) {
+    Long id = wsRequest.paramAsLong(WsPermissionParameters.PARAM_GROUP_ID);
+    String name = wsRequest.param(WsPermissionParameters.PARAM_GROUP_NAME);
+
+    return new WsGroupRef(id, name);
+  }
+
+  public static WsGroupRef fromUserGroupsRequest(Request wsRequest) {
+    Long id = wsRequest.paramAsLong(UserGroupsWsParameters.PARAM_GROUP_ID);
+    String name = wsRequest.param(UserGroupsWsParameters.PARAM_GROUP_NAME);
 
     return new WsGroupRef(id, name);
   }

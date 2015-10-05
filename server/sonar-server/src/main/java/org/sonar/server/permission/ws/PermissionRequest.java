@@ -23,6 +23,7 @@ package org.sonar.server.permission.ws;
 import com.google.common.base.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService.SelectionMode;
+import org.sonar.server.usergroups.ws.WsGroupRef;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -134,7 +135,7 @@ class PermissionRequest {
 
     private void setGroup(Request request) {
       if (withGroup) {
-        this.group = WsGroupRef.fromRequest(request);
+        this.group = WsGroupRef.fromPermissionRequest(request);
       }
     }
 

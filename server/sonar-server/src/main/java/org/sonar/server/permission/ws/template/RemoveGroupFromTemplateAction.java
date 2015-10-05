@@ -29,7 +29,7 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.ws.WsGroupRef;
+import org.sonar.server.usergroups.ws.WsGroupRef;
 import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 
@@ -74,7 +74,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
     checkGlobalAdminUser(userSession);
 
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    WsGroupRef group = WsGroupRef.fromRequest(wsRequest);
+    WsGroupRef group = WsGroupRef.fromPermissionRequest(wsRequest);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

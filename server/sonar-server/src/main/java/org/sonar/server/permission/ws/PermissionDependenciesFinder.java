@@ -30,6 +30,7 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.usergroups.ws.WsGroupRef;
 
 import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
