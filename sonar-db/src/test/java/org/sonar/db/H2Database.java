@@ -27,6 +27,8 @@ import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 
+import static java.lang.String.format;
+
 /**
  * H2 in-memory database, used for unit tests only.
  *
@@ -109,7 +111,12 @@ public class H2Database implements Database {
   }
 
   @Override
+  public void enableSqlLogging(boolean enable) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public String toString() {
-    return "H2 Database[" + name + "]";
+    return format("H2 Database[%s]", name);
   }
 }

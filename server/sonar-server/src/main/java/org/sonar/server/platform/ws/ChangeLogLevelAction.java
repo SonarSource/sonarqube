@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.UserSession;
 
@@ -33,22 +34,24 @@ public class ChangeLogLevelAction implements SystemWsAction {
 
   private final UserSession userSession;
   private final ServerLogging logging;
+  private final Database db;
 
-  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging) {
+  public ChangeLogLevelAction(UserSession userSession, ServerLogging logging, Database db) {
     this.userSession = userSession;
     this.logging = logging;
+    this.db = db;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction newAction = controller.createAction("change_log_level")
-      .setDescription("Changes temporarily level of logs. New level is not persistent and is lost " +
-        "when restarting server.")
+      .setDescription("Temporarily changes level of logs. New level is not persistent and is lost " +
+        "when restarting server. Requires system administration permission.")
       .setSince("5.2")
       .setHandler(this);
 
     newAction.createParam(PARAM_LEVEL)
-      .setDescription("The new level. Warning - DEBUG and TRACE have performance impacts.")
+      .setDescription("The new level. Be cautious: DEBUG, and even more TRACE, may have performance impacts.")
       .setPossibleValues(ServerLogging.ALLOWED_ROOT_LOG_LEVELS)
       .setRequired(true);
   }
@@ -56,7 +59,9 @@ public class ChangeLogLevelAction implements SystemWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
     userSession.checkGlobalPermission(UserRole.ADMIN);
-    logging.changeLevel(Level.toLevel(wsRequest.mandatoryParam(PARAM_LEVEL)));
+    Level level = Level.toLevel(wsRequest.mandatoryParam(PARAM_LEVEL));
+    db.enableSqlLogging(level.equals(Level.TRACE));
+    logging.changeLevel(level);
     wsResponse.noContent();
   }
 }

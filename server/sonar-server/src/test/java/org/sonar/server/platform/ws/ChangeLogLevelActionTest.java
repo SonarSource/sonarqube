@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.Database;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.tester.UserSessionRule;
@@ -41,11 +42,12 @@ public class ChangeLogLevelActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   ServerLogging serverLogging = mock(ServerLogging.class);
-  ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, serverLogging);
+  Database db = mock(Database.class);
+  ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, serverLogging, db);
   WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
-  public void change_level() {
+  public void enable_debug_logs() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
 
     actionTester.newRequest()
@@ -53,10 +55,23 @@ public class ChangeLogLevelActionTest {
       .setMethod("POST")
       .execute();
     verify(serverLogging).changeLevel(Level.DEBUG);
+    verify(db).enableSqlLogging(false);
   }
 
   @Test
-  public void fail_if_bad_level() {
+  public void enable_trace_logs() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+
+    actionTester.newRequest()
+      .setParam("level", "TRACE")
+      .setMethod("POST")
+      .execute();
+    verify(serverLogging).changeLevel(Level.TRACE);
+    verify(db).enableSqlLogging(true);
+  }
+
+  @Test
+  public void fail_if_unsupported_level() {
     expectedException.expect(IllegalArgumentException.class);
     userSession.setGlobalPermissions(UserRole.ADMIN);
     actionTester.newRequest()

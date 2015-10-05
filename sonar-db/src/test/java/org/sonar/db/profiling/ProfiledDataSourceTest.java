@@ -31,6 +31,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,7 +43,7 @@ public class ProfiledDataSourceTest {
   public LogTester logTester = new LogTester();
 
   @Test
-  public void log_sql_requests() throws Exception {
+  public void execute_and_log_sql_requests() throws Exception {
     BasicDataSource originDataSource = mock(BasicDataSource.class);
 
     Connection connection = mock(Connection.class);
@@ -64,7 +65,7 @@ public class ProfiledDataSourceTest {
     when(connection.createStatement()).thenReturn(statement);
     when(statement.execute(sql)).thenReturn(true);
 
-    ProfiledDataSource ds = new ProfiledDataSource(originDataSource);
+    ProfiledDataSource ds = new ProfiledDataSource(originDataSource, ProfiledConnectionInterceptor.INSTANCE);
 
     assertThat(ds.getUrl()).isNull();
     assertThat(ds.getConnection().getClientInfo()).isNull();
@@ -80,14 +81,15 @@ public class ProfiledDataSourceTest {
     assertThat(statementProxy.getConnection()).isNull();
     assertThat(statementProxy.execute(sql)).isTrue();
 
-    assertThat(logTester.logs()).hasSize(2);
-    assertThat(logTester.logs().get(1)).contains(sql);
+    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(2);
+    assertThat(logTester.logs(LoggerLevel.TRACE).get(0)).containsSequence("sql=insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?);");
+    assertThat(logTester.logs(LoggerLevel.TRACE).get(1)).containsSequence("sql=select 'polop' from dual;");
   }
 
   @Test
-  public void delegate_to_underlying_datasource() throws Exception {
+  public void delegate_to_underlying_data_source() throws Exception {
     BasicDataSource delegate = mock(BasicDataSource.class);
-    ProfiledDataSource proxy = new ProfiledDataSource(delegate);
+    ProfiledDataSource proxy = new ProfiledDataSource(delegate, ProfiledConnectionInterceptor.INSTANCE);
 
     // painful to call all methods
     // so using reflection to check that calls does not fail
