@@ -49,7 +49,9 @@ import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.server.activity.ws.ActivitiesWs;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.computation.ws.ActivityWsAction;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
@@ -138,6 +140,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       .prop("name", component.name())
       .prop("isComparable", componentTypeHasProperty(component, PROPERTY_COMPARABLE))
       .prop("canBeFavorite", userSession.isLoggedIn())
+      .prop("showBackgroundTasks", ActivityWsAction.isAllowedOnComponentUuid(userSession, component.uuid()))
       .prop("isFavorite", isFavourite(session, component, userSession));
 
     List<DashboardDto> dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, userSession.getLogin());

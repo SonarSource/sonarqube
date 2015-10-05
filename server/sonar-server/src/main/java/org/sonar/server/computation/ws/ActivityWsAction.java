@@ -129,18 +129,6 @@ public class ActivityWsAction implements CeWsAction {
     }
   }
 
-  private void checkPermissions(CeActivityQuery query) {
-    List<String> componentUuids = query.getComponentUuids();
-    if (componentUuids != null && componentUuids.size() == 1) {
-      if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) &&
-        !userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuids.get(0))) {
-        throw new ForbiddenException("Requires administration permission");
-      }
-    } else {
-      userSession.checkGlobalPermission(UserRole.ADMIN);
-    }
-  }
-
   private CeActivityQuery buildQuery(DbSession dbSession, Request wsRequest) {
     String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
     String componentQuery = wsRequest.param(PARAM_COMPONENT_QUERY);
@@ -179,6 +167,17 @@ public class ActivityWsAction implements CeWsAction {
     }
   }
 
+  private void checkPermissions(CeActivityQuery query) {
+    List<String> componentUuids = query.getComponentUuids();
+    if (componentUuids != null && componentUuids.size() == 1) {
+      if (!isAllowedOnComponentUuid(userSession, componentUuids.get(0))) {
+        throw new ForbiddenException("Requires administration permission");
+      }
+    } else {
+      userSession.checkGlobalPermission(UserRole.ADMIN);
+    }
+  }
+
   private static RowBounds readMyBatisRowBounds(Request wsRequest) {
     int pageIndex = wsRequest.mandatoryParamAsInt(WebService.Param.PAGE);
     int pageSize = wsRequest.mandatoryParamAsInt(WebService.Param.PAGE_SIZE);
@@ -188,5 +187,9 @@ public class ActivityWsAction implements CeWsAction {
   @CheckForNull
   private static Long toTime(@Nullable Date date) {
     return date == null ? null : date.getTime();
+  }
+
+  public static boolean isAllowedOnComponentUuid(UserSession userSession, String componentUuid) {
+    return userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid);
   }
 }
