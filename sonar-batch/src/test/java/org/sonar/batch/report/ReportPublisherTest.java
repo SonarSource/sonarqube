@@ -33,6 +33,7 @@ import org.sonar.batch.scan.ImmutableProjectReactor;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ReportPublisherTest {
@@ -56,10 +57,27 @@ public class ReportPublisherTest {
       mock(TempFolder.class), new ReportPublisherStep[0]);
 
     Logger logger = mock(Logger.class);
-    job.logSuccess(logger);
+    job.logSuccess(logger, null);
 
     verify(logger).info("ANALYSIS SUCCESSFUL, you can browse {}", "http://myserver/dashboard/index/struts");
     verify(logger).info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report.");
+    verifyNoMoreInteractions(logger);
+  }
+
+  @Test
+  public void should_log_successful_analysis_with_ce_task() {
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
+    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
+      mock(TempFolder.class), new ReportPublisherStep[0]);
+
+    Logger logger = mock(Logger.class);
+    job.logSuccess(logger, "abc123");
+
+    verify(logger).info("ANALYSIS SUCCESSFUL, you can browse {}", "http://myserver/dashboard/index/struts");
+    verify(logger).info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report.");
+    verify(logger).info("More about the report processing at {}", "http://myserver/api/ce/task?id=abc123");
+    verifyNoMoreInteractions(logger);
   }
 
   @Test
@@ -70,9 +88,10 @@ public class ReportPublisherTest {
       mock(TempFolder.class), new ReportPublisherStep[0]);
 
     Logger logger = mock(Logger.class);
-    job.logSuccess(logger);
+    job.logSuccess(logger, null);
 
     verify(logger).info("ANALYSIS SUCCESSFUL");
+    verifyNoMoreInteractions(logger);
   }
 
 }

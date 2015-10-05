@@ -21,6 +21,7 @@ package org.sonar.batch.report;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,6 +29,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -105,13 +108,14 @@ public class ReportPublisher implements Startable {
 
   public void execute() {
     // If this is a issues mode analysis then we should not upload reports
+    String taskId = null;
     if (!analysisMode.isIssues()) {
       File report = prepareReport();
       if (!analysisMode.isMediumTest()) {
-        sendOrDumpReport(report);
+        taskId = sendOrDumpReport(report);
       }
     }
-    logSuccess(LoggerFactory.getLogger(getClass()));
+    logSuccess(LoggerFactory.getLogger(getClass()), taskId);
   }
 
   private File prepareReport() {
@@ -134,8 +138,9 @@ public class ReportPublisher implements Startable {
     }
   }
 
+  @CheckForNull
   @VisibleForTesting
-  void sendOrDumpReport(File report) {
+  String sendOrDumpReport(File report) {
     ProjectDefinition projectDefinition = projectReactor.getRoot();
     String effectiveKey = projectDefinition.getKeyWithBranch();
     String relativeUrl = String.format("/api/ce/submit?projectKey=%s&projectName=%s&projectBranch=%s",
@@ -143,13 +148,14 @@ public class ReportPublisher implements Startable {
 
     String dumpDirLocation = settings.getString(DUMP_REPORT_PROP_KEY);
     if (dumpDirLocation == null) {
-      uploadMultiPartReport(report, relativeUrl);
+      return uploadMultiPartReport(report, relativeUrl);
     } else {
       dumpReport(dumpDirLocation, effectiveKey, relativeUrl, report);
+      return null;
     }
   }
 
-  private void uploadMultiPartReport(File report, String relativeUrl) {
+  private String uploadMultiPartReport(File report, String relativeUrl) {
     LOG.debug("Publish results");
     long startTime = System.currentTimeMillis();
     URL url;
@@ -177,6 +183,21 @@ public class ReportPublisher implements Startable {
     }
     long stopTime = System.currentTimeMillis();
     LOG.info("Analysis reports sent to server in " + (stopTime - startTime) + "ms");
+    String responseStr = request.body();
+    SubmitResponse response = new Gson().fromJson(responseStr, SubmitResponse.class);
+    return response.getTaskId();
+  }
+
+  private static class SubmitResponse {
+    private String taskId;
+
+    public String getTaskId() {
+      return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+      this.taskId = taskId;
+    }
   }
 
   private void dumpReport(String dumpDirLocation, String projectKey, String relativeUrl, File report) {
@@ -203,7 +224,7 @@ public class ReportPublisher implements Startable {
   }
 
   @VisibleForTesting
-  void logSuccess(Logger logger) {
+  void logSuccess(Logger logger, @Nullable String taskId) {
     if (analysisMode.isIssues() || analysisMode.isMediumTest()) {
       logger.info("ANALYSIS SUCCESSFUL");
 
@@ -220,6 +241,10 @@ public class ReportPublisher implements Startable {
       String url = baseUrl + "dashboard/index/" + effectiveKey;
       logger.info("ANALYSIS SUCCESSFUL, you can browse {}", url);
       logger.info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report.");
+      if (taskId != null) {
+        String taskUrl = baseUrl + "api/ce/task?id=" + taskId;
+        logger.info("More about the report processing at {}", taskUrl);
+      }
     }
   }
 }
