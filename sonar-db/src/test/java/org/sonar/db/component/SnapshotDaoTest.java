@@ -261,6 +261,15 @@ public class SnapshotDaoTest {
     assertThat(isLast).isFalse();
   }
 
+  @Test
+  public void has_last_snapshot_by_component_uuid() throws Exception {
+    db.prepareDbUnit(getClass(), "has_last_snapshot_by_component_uuid.xml");
+
+    assertThat(underTest.hasLastSnapshotByComponentUuid(db.getSession(), "ABCD")).isTrue();
+    assertThat(underTest.hasLastSnapshotByComponentUuid(db.getSession(), "EFGH")).isFalse();
+    assertThat(underTest.hasLastSnapshotByComponentUuid(db.getSession(), "FGHI")).isFalse();
+  }
+
   private static SnapshotDto defaultSnapshot() {
     return new SnapshotDto()
       .setComponentId(3L)

@@ -1,0 +1,48 @@
+<dataset>
+
+  <!-- Has last snapshot -->
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="."
+            description="the description" long_name="Apache Struts"
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="[null]" />
+  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             status="P" islast="[true]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
+             version="[null]" path=""/>
+  <snapshots id="10" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             status="P" islast="[false]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228136280000" build_date="1228136280000"
+             version="[null]" path=""/>
+
+  <!-- No snapshot -->
+  <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
+            uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            scope="PRJ" qualifier="BRC" long_name="Struts Core"
+            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]" />
+
+  <!-- No last snapshot -->
+  <projects id="3" root_id="1" kee="org.struts:struts-data" name="Struts Data"
+            uuid="FGHI" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."
+            scope="PRJ" qualifier="BRC" long_name="Struts Data"
+            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]" />
+  <snapshots id="3" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+             status="P" islast="[false]" purge_status="[null]"
+             period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]"
+             period4_mode="[null]" period4_param="[null]" period4_date="[null]"
+             period5_mode="[null]" period5_param="[null]" period5_date="[null]"
+             depth="[null]" scope="PRJ" qualifier="BRC" created_at="1228222680000" build_date="1228222680000"
+             version="[null]" path="1.2."/>
+
+</dataset>

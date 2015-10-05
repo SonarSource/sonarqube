@@ -27,4 +27,9 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
    * @throws IllegalStateException if the analysis date has already been set
    */
   void setAnalysisDate(Date date);
+
+  /**
+   * @throws IllegalStateException if isFirstAnalysis has already been set
+   */
+  void setIsFirstAnalysis(boolean isFirstAnalysis);
 }

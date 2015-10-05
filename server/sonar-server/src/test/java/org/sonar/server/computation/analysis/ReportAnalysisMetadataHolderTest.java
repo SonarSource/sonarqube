@@ -33,14 +33,6 @@ public class ReportAnalysisMetadataHolderTest {
   private Date someDate = new Date();
 
   @Test
-  public void getAnalysisDate_throws_ISE_when_not_holder_is_not_initialized() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Analysis date has not been set");
-
-    new ReportAnalysisMetadataHolder().getAnalysisDate();
-  }
-
-  @Test
   public void getAnalysisDate_returns_date_with_same_time_as_the_one_set_with_setAnalysisDate() throws InterruptedException {
     ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
 
@@ -54,6 +46,14 @@ public class ReportAnalysisMetadataHolderTest {
   }
 
   @Test
+  public void getAnalysisDate_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Analysis date has not been set");
+
+    new ReportAnalysisMetadataHolder().getAnalysisDate();
+  }
+
+  @Test
   public void setAnalysisDate_throws_ISE_when_called_twice() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Analysis date has already been set");
@@ -62,5 +62,40 @@ public class ReportAnalysisMetadataHolderTest {
 
     underTest.setAnalysisDate(someDate);
     underTest.setAnalysisDate(someDate);
+  }
+
+  @Test
+  public void isFirstAnalysis_return_true() throws Exception {
+    ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
+
+    underTest.setIsFirstAnalysis(true);
+    assertThat(underTest.isFirstAnalysis()).isTrue();
+  }
+
+  @Test
+  public void isFirstAnalysis_return_false() throws Exception {
+    ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
+
+    underTest.setIsFirstAnalysis(false);
+    assertThat(underTest.isFirstAnalysis()).isFalse();
+  }
+
+  @Test
+  public void isFirstAnalysis_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("firstAnalysis flag has not been set");
+
+    new ReportAnalysisMetadataHolder().isFirstAnalysis();
+  }
+
+  @Test
+  public void setIsFirstAnalysis_throws_ISE_when_called_twice() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("firstAnalysis flag has already been set");
+
+    ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
+
+    underTest.setIsFirstAnalysis(true);
+    underTest.setIsFirstAnalysis(true);
   }
 }
