@@ -19,13 +19,12 @@
  */
 package org.sonar.api.resources;
 
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
-
-import javax.annotation.CheckForNull;
 
 /**
  * @since 1.10
@@ -140,8 +139,8 @@ public class Directory extends Resource {
   public static Directory create(String relativePathFromBaseDir) {
     Directory d = new Directory();
     String normalizedPath = normalize(relativePathFromBaseDir);
-    d.setKey(normalizedPath);
-    d.setPath(normalizedPath);
+    d.setKey(normalizedPath == null ? SEPARATOR : normalizedPath);
+    d.setPath(normalizedPath == null ? "" : normalizedPath);
     return d;
   }
 

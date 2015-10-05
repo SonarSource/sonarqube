@@ -95,4 +95,40 @@ public class DeprecatedApiMediumTest {
 
   }
 
+  @Test
+  public void createIssueOnRootDir() throws IOException {
+
+    File baseDir = temp.getRoot();
+
+    File xooFileInRootDir = new File(baseDir, "sample.xoo");
+    FileUtils.write(xooFileInRootDir, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
+
+    File xooFileInAnotherDir = new File(baseDir, "package/sample.xoo");
+    FileUtils.write(xooFileInAnotherDir, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", ".")
+        .build())
+      .start();
+
+    assertThat(result.issuesFor(result.inputFile("sample.xoo"))).extracting("msg", "line").containsOnly(
+      tuple("Issue created using deprecated API", 0),
+      tuple("Issue created using deprecated API", 1));
+    assertThat(result.issuesFor(result.inputFile("package/sample.xoo"))).extracting("msg", "line").containsOnly(
+      tuple("Issue created using deprecated API", 0),
+      tuple("Issue created using deprecated API", 1));
+    assertThat(result.issuesFor(result.inputDir(""))).extracting("msg", "line").containsOnly(
+      tuple("Issue created using deprecated API", 0));
+    assertThat(result.issuesFor(result.inputDir("package"))).extracting("msg", "line").containsOnly(
+      tuple("Issue created using deprecated API", 0));
+
+  }
+
 }

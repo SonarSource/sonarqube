@@ -32,6 +32,7 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.xoo.Xoo;
 
+@SuppressWarnings("deprecation")
 public class DeprecatedResourceApiSensor implements Sensor {
 
   public static final String RULE_KEY = "DeprecatedResourceApi";

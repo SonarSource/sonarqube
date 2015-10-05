@@ -84,4 +84,30 @@ public class IssuesOnDirMediumTest {
     assertThat(result.issuesFor(result.inputDir("src"))).hasSize(2);
   }
 
+  @Test
+  public void issueOnRootFolder() throws IOException {
+
+    File baseDir = temp.getRoot();
+
+    File xooFile1 = new File(baseDir, "sample1.xoo");
+    FileUtils.write(xooFile1, "Sample1 xoo\ncontent");
+
+    File xooFile2 = new File(baseDir, "sample2.xoo");
+    FileUtils.write(xooFile2, "Sample2 xoo\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", ".")
+        .build())
+      .start();
+
+    assertThat(result.issuesFor(result.inputDir(""))).hasSize(2);
+  }
+
 }
