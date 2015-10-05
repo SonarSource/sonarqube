@@ -26,17 +26,23 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.Properties;
+import java.util.TreeSet;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.platform.PluginInfo;
 
 @BatchSide
 public class AnalysisContextReportPublisher {
+
+  private static final Logger LOG = Loggers.get(AnalysisContextReportPublisher.class);
 
   private static final String ENV_PROP_PREFIX = "env.";
   private static final String SONAR_PROP_PREFIX = "sonar.";
@@ -59,8 +65,10 @@ public class AnalysisContextReportPublisher {
     this.writer = writer;
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8)) {
-      writeEnvVariables(fileWriter);
-      writeSystemProps(fileWriter);
+      if (LOG.isDebugEnabled()) {
+        writeEnvVariables(fileWriter);
+        writeSystemProps(fileWriter);
+      }
       writePlugins(fileWriter);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);
@@ -76,18 +84,20 @@ public class AnalysisContextReportPublisher {
 
   private void writeSystemProps(BufferedWriter fileWriter) throws IOException {
     fileWriter.write("System properties:\n");
-    for (Map.Entry<Object, Object> env : system.properties().entrySet()) {
-      if (env.getKey().toString().startsWith(SONAR_PROP_PREFIX)) {
+    Properties sysProps = system.properties();
+    for (String prop : new TreeSet<String>(sysProps.stringPropertyNames())) {
+      if (prop.startsWith(SONAR_PROP_PREFIX)) {
         continue;
       }
-      fileWriter.append(String.format("  - %s=%s", env.getKey(), env.getValue())).append('\n');
+      fileWriter.append(String.format("  - %s=%s", prop, sysProps.getProperty(prop))).append('\n');
     }
   }
 
   private void writeEnvVariables(BufferedWriter fileWriter) throws IOException {
     fileWriter.append("Environment variables:\n");
-    for (Map.Entry<String, String> env : system.envVariables().entrySet()) {
-      fileWriter.append(String.format("  - %s=%s", env.getKey(), env.getValue())).append('\n');
+    Map<String, String> envVariables = system.envVariables();
+    for (String env : new TreeSet<String>(envVariables.keySet())) {
+      fileWriter.append(String.format("  - %s=%s", env, envVariables.get(env))).append('\n');
     }
   }
 
@@ -98,23 +108,28 @@ public class AnalysisContextReportPublisher {
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
       fileWriter.append(String.format("Settings for module: %s", moduleDefinition.getKey())).append('\n');
-      for (Map.Entry<String, String> prop : settings.getProperties().entrySet()) {
-        if (alreadyLoggedAsSystemProp(prop) || alreadyLoggedAsEnv(prop)) {
+      Map<String, String> moduleSettings = settings.getProperties();
+      for (String prop : new TreeSet<String>(moduleSettings.keySet())) {
+        if (isSystemProp(prop) || isEnvVariable(prop) || !isSqProp(prop)) {
           continue;
         }
-        fileWriter.append(String.format("  - %s=%s", prop.getKey(), sensitive(prop.getKey()) ? "******" : prop.getValue())).append('\n');
+        fileWriter.append(String.format("  - %s=%s", prop, sensitive(prop) ? "******" : moduleSettings.get(prop))).append('\n');
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);
     }
   }
 
-  private boolean alreadyLoggedAsSystemProp(Map.Entry<String, String> prop) {
-    return system.properties().containsKey(prop.getKey()) && !prop.getKey().startsWith(SONAR_PROP_PREFIX);
+  private static boolean isSqProp(String propKey) {
+    return propKey.startsWith(SONAR_PROP_PREFIX);
   }
 
-  private boolean alreadyLoggedAsEnv(Map.Entry<String, String> prop) {
-    return prop.getKey().startsWith(ENV_PROP_PREFIX) && system.envVariables().containsKey(prop.getKey().substring(ENV_PROP_PREFIX.length()));
+  private boolean isSystemProp(String propKey) {
+    return system.properties().containsKey(propKey) && !propKey.startsWith(SONAR_PROP_PREFIX);
+  }
+
+  private boolean isEnvVariable(String propKey) {
+    return propKey.startsWith(ENV_PROP_PREFIX) && system.envVariables().containsKey(propKey.substring(ENV_PROP_PREFIX.length()));
   }
 
   private static boolean sensitive(String key) {
