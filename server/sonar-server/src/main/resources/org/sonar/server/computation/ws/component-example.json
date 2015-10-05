@@ -6,6 +6,7 @@
       "componentId": "AU_w74XMgAS1Hm6h4-Y-",
       "componentKey": "com.github.kevinsawicki:http-request-parent",
       "componentName": "HttpRequest",
+      "componentQualifier": "TRK",
       "status": "PENDING",
       "submittedAt": "2015-09-21T19:28:54+0200",
       "logs": true
@@ -17,6 +18,7 @@
     "componentId": "AU_w74XMgAS1Hm6h4-Y-",
     "componentKey": "com.github.kevinsawicki:http-request-parent",
     "componentName": "HttpRequest",
+    "componentQualifier": "TRK",
     "status": "SUCCESS",
     "submittedAt": "2015-09-21T19:25:49+0200",
     "startedAt": "2015-09-21T19:25:57+0200",
