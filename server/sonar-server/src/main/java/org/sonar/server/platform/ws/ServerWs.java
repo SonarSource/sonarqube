@@ -49,6 +49,7 @@ public class ServerWs implements WebService {
         "</ul>")
       .setSince("2.10")
       .setHandler(RailsHandler.INSTANCE)
+      .setInternal(true)
       .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
 
     RailsHandler.addFormatParam(action);
