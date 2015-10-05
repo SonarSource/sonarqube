@@ -60,6 +60,7 @@ public class ServerWs implements WebService {
       .setDescription("Upgrade the SonarQube database")
       .setSince("2.10")
       .setPost(true)
+      .setInternal(true)
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-setup.json"));
 
