@@ -42,6 +42,7 @@ public class UpdateCenterWs implements WebService {
       .setDescription("Get the list of all the plugins installed on the SonarQube instance")
       .setSince("2.10")
       .setHandler(RailsHandler.INSTANCE)
+      .setInternal(true)
       .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
     RailsHandler.addFormatParam(action);
   }
