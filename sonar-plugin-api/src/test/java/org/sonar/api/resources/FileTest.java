@@ -19,11 +19,10 @@
  */
 package org.sonar.api.resources;
 
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -63,6 +62,18 @@ public class FileTest {
     assertThat(file.getLongName(), is("src/foo/bar/toto.sql"));
     assertThat(file.getName(), is("toto.sql"));
     assertThat(file.getParent().getKey(), is("src/foo/bar"));
+    assertThat(ResourceUtils.isSpace(file.getParent()), is(true));
+  }
+
+  @Test
+  public void rootFile() {
+    File file = File.create("toto.sql", "toto.sql", null, false);
+    assertThat(file.getKey(), is("toto.sql"));
+    assertThat(file.getDeprecatedKey(), is("toto.sql"));
+    assertThat(file.getLongName(), is("toto.sql"));
+    assertThat(file.getName(), is("toto.sql"));
+    assertThat(file.getParent().getKey(), is("/"));
+    assertThat(file.getParent().getDeprecatedKey(), is("[root]"));
     assertThat(ResourceUtils.isSpace(file.getParent()), is(true));
   }
 

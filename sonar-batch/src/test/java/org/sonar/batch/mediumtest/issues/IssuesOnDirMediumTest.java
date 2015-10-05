@@ -20,6 +20,8 @@
 package org.sonar.batch.mediumtest.issues;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -30,9 +32,6 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -60,7 +59,6 @@ public class IssuesOnDirMediumTest {
 
   @Test
   public void scanTempProject() throws IOException {
-
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
@@ -85,7 +83,34 @@ public class IssuesOnDirMediumTest {
 
     assertThat(result.issues()).hasSize(2);
     assertThat(result.issues().iterator().next().inputPath()).isEqualTo(new DefaultInputDir("src"));
+  }
 
+  @Test
+  public void createIssueOnRootDir() throws IOException {
+    File baseDir = temp.newFolder();
+    File srcDir = baseDir;
+    srcDir.mkdir();
+
+    File xooFile1 = new File(srcDir, "sample1.xoo");
+    FileUtils.write(xooFile1, "Sample1 xoo\ncontent");
+
+    File xooFile2 = new File(srcDir, "sample2.xoo");
+    FileUtils.write(xooFile2, "Sample2 xoo\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", ".")
+        .build())
+      .start();
+
+    assertThat(result.issues()).hasSize(2);
+    assertThat(result.issues().iterator().next().inputPath()).isEqualTo(new DefaultInputDir(""));
   }
 
 }

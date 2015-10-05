@@ -19,11 +19,10 @@
  */
 package org.sonar.api.resources;
 
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -45,6 +44,9 @@ public class DirectoryTest {
     when(fileSystem.getBasedir()).thenReturn(baseDir);
     Resource dir = Directory.fromIOFile(new java.io.File(baseDir, "src/foo/bar/"), project);
     assertThat(dir.getKey(), is("src/foo/bar"));
+
+    Resource rootDir = Directory.fromIOFile(baseDir, project);
+    assertThat(rootDir.getKey(), is("/"));
   }
 
   @Test

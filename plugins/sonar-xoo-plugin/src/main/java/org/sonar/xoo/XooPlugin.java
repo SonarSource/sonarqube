@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo;
 
+import java.util.Arrays;
+import java.util.List;
 import org.sonar.api.SonarPlugin;
 import org.sonar.xoo.lang.MeasureSensor;
 import org.sonar.xoo.lang.ScmActivitySensor;
@@ -35,9 +37,6 @@ import org.sonar.xoo.rule.XooFakeImporter;
 import org.sonar.xoo.rule.XooFakeImporterWithMessages;
 import org.sonar.xoo.rule.XooQualityProfile;
 import org.sonar.xoo.rule.XooRulesDefinition;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Plugin entry-point, as declared in pom.xml.
@@ -69,7 +68,6 @@ public class XooPlugin extends SonarPlugin {
 
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,
-      CreateIssueByInternalKeySensor.class
-      );
+      CreateIssueByInternalKeySensor.class);
   }
 }
