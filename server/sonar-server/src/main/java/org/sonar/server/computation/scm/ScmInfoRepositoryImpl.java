@@ -20,6 +20,8 @@
 package org.sonar.server.computation.scm;
 
 import com.google.common.base.Optional;
+import java.util.HashMap;
+import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -40,6 +42,8 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private final DbClient dbClient;
   private final SourceService sourceService;
 
+  private final Map<Component, ScmInfo> scmInfoCache = new HashMap<>();
+
   public ScmInfoRepositoryImpl(BatchReportReader batchReportReader, DbClient dbClient, SourceService sourceService) {
     this.batchReportReader = batchReportReader;
     this.dbClient = dbClient;
@@ -49,17 +53,30 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   @Override
   public Optional<ScmInfo> getScmInfo(Component component) {
     checkNotNull(component, "Component cannot be bull");
+    initializeScmInfoForComponent(component);
+    return Optional.fromNullable(scmInfoCache.get(component));
+  }
+
+  private void initializeScmInfoForComponent(Component component) {
+    if (scmInfoCache.containsKey(component)) {
+      return;
+    }
+    Optional<ScmInfo> scmInfoOptional = getScmInfoForComponent(component);
+    scmInfoCache.put(component, scmInfoOptional.isPresent() ? scmInfoOptional.get() : null);
+  }
+
+  private Optional<ScmInfo> getScmInfoForComponent(Component component) {
     BatchReport.Changesets changesets = batchReportReader.readChangesets(component.getReportAttributes().getRef());
     if (changesets == null) {
       LOGGER.trace("Reading SCM info from db for file '{}'", component);
-      return getFromDb(component);
+      return getScmInfoFromDb(component);
     } else {
       LOGGER.trace("Reading SCM info from report for file '{}'", component);
       return Optional.<ScmInfo>of(new ReportScmInfo(changesets));
     }
   }
 
-  private Optional<ScmInfo> getFromDb(Component component){
+  private Optional<ScmInfo> getScmInfoFromDb(Component component) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Optional<Iterable<DbFileSources.Line>> linesOpt = sourceService.getLines(dbSession, component.getUuid(), 1, Integer.MAX_VALUE);

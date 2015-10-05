@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -35,9 +36,13 @@ import org.sonar.server.source.SourceService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class ScmInfoRepositoryImplTest {
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -61,6 +66,8 @@ public class ScmInfoRepositoryImplTest {
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
+
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from report for file 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'");
   }
 
   @Test
@@ -69,6 +76,8 @@ public class ScmInfoRepositoryImplTest {
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
+
+    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from db for file 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'");
   }
 
   @Test
@@ -109,6 +118,19 @@ public class ScmInfoRepositoryImplTest {
     thrown.expectMessage("Component cannot be bull");
 
     underTest.getScmInfo(null);
+  }
+
+  @Test
+  public void load_scm_info_from_cache_when_already_read() throws Exception {
+    addChangesetInReport("john", 123456789L, "rev-1");
+    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+    assertThat(scmInfo.getAllChangesets()).hasSize(1);
+
+    assertThat(logTester.logs(TRACE)).hasSize(1);
+    logTester.clear();
+
+    underTest.getScmInfo(FILE);
+    assertThat(logTester.logs(TRACE)).isEmpty();
   }
 
   private void addChangesetInDb(String author, Long date, String revision) {
