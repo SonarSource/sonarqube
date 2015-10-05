@@ -74,7 +74,7 @@ public class BatchTest {
     Resource branch = sonar.find(new ResourceQuery("com.sonarsource.it.samples:multi-modules-sample:branch/0.x"));
     assertThat(branch.getName()).isEqualTo("Sonar :: Integration Tests :: Multi-modules Sample branch/0.x");
   }
-  
+
   @Test
   public void use_sonar_profile_without_provisioning_project() {
     scan("shared/xoo-multi-modules-sample",
@@ -116,7 +116,6 @@ public class BatchTest {
   @Test
   public void module_should_load_own_settings_from_database() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
 
     Sonar sonar = orchestrator.getServer().getAdminWsClient();
     String propKey = "myFakeProperty";
@@ -145,6 +144,27 @@ public class BatchTest {
 
     assertThat(result.getLogs()).contains(rootModuleKey + ":" + propKey + " = project");
     assertThat(result.getLogs()).contains(moduleBKey + ":" + propKey + " = moduleB");
+  }
+
+  // SONAR-4680
+  @Test
+  public void module_should_load_settings_from_parent() {
+    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
+
+    Sonar sonar = orchestrator.getServer().getAdminWsClient();
+    String propKey = "myFakeProperty";
+    String rootModuleKey = "com.sonarsource.it.samples:multi-modules-sample";
+    String moduleBKey = rootModuleKey + ":module_b";
+
+    // Set property on provisionned project
+    sonar.update(new PropertyUpdateQuery(propKey, "project", rootModuleKey));
+    sonar.delete(new PropertyDeleteQuery(propKey, moduleBKey));
+
+    BuildResult result = scan("shared/xoo-multi-modules-sample", "sonar.showSettings", propKey);
+
+    assertThat(result.getLogs()).contains(rootModuleKey + ":" + propKey + " = project");
+    // Module should inherit from parent
+    assertThat(result.getLogs()).contains(moduleBKey + ":" + propKey + " = project");
   }
 
   /**

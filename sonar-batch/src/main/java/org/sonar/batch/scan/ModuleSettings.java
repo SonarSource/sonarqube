@@ -35,13 +35,13 @@ import org.sonar.batch.repository.ProjectRepositories;
  */
 public class ModuleSettings extends Settings {
 
-  private final ProjectRepositories projectSettingsRepo;
+  private final ProjectRepositories projectRepos;
   private final DefaultAnalysisMode analysisMode;
 
   public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
     DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     super(batchSettings.getDefinitions());
-    this.projectSettingsRepo = projectSettingsRepo;
+    this.projectRepos = projectSettingsRepo;
     this.analysisMode = analysisMode;
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
@@ -57,7 +57,14 @@ public class ModuleSettings extends Settings {
 
   private void addProjectProperties(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
     addProperties(batchSettings.getProperties());
-    addProperties(projectSettingsRepo.settings(moduleDefinition.getKeyWithBranch()));
+    ProjectDefinition def = moduleDefinition;
+    do {
+      if (projectRepos.moduleExists(def.getKeyWithBranch())) {
+        addProperties(projectRepos.settings(def.getKeyWithBranch()));
+        break;
+      }
+      def = def.getParent();
+    } while (def != null);
   }
 
   private void addBuildProperties(ProjectDefinition project) {

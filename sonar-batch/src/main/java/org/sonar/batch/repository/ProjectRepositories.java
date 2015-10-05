@@ -21,12 +21,10 @@ package org.sonar.batch.repository;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class ProjectRepositories {
   private final Table<String, String, String> settingsByModule;
@@ -59,6 +57,10 @@ public class ProjectRepositories {
 
   public Table<String, String, FileData> fileDataByModuleAndPath() {
     return fileDataByModuleAndPath;
+  }
+
+  public boolean moduleExists(String moduleKey) {
+    return settingsByModule.containsRow(moduleKey);
   }
 
   public Map<String, String> settings(String moduleKey) {
