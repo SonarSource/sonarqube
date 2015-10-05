@@ -20,7 +20,6 @@
 
 package org.sonar.server.usergroups.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,57 +28,54 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.TestRequest;
 import org.sonar.test.DbTests;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_GROUP_NAME;
 
 @Category(DbTests.class)
 public class UsersActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   WsTester wsTester;
   DbClient dbClient;
-  DbSession session;
+  DbSession dbSession;
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
+    dbClient = db.getDbClient();
+    dbSession = db.getSession();
+    UserDao userDao = dbClient.userDao();
+    GroupDao groupDao = dbClient.groupDao();
+    UserGroupDao userGroupDao = dbClient.userGroupDao();
+    GroupMembershipDao groupMembershipDao = dbClient.groupMembershipDao();
 
-    System2 system2 = System2.INSTANCE;
-    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
-    GroupDao groupDao = new GroupDao(system2);
-    UserGroupDao userGroupDao = new UserGroupDao();
-    GroupMembershipDao groupMembershipDao = new GroupMembershipDao(dbTester.myBatis());
-
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, groupDao, userGroupDao, groupMembershipDao);
-    session = dbClient.openSession(false);
-    session.commit();
-
-    wsTester = new WsTester(new UserGroupsWs(new UsersAction(dbClient, userSession)));
+    wsTester = new WsTester(new UserGroupsWs(
+      new UsersAction(
+        dbClient,
+        new UserGroupFinder(dbClient),
+        userSession)));
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test(expected = NotFoundException.class)
@@ -97,14 +93,10 @@ public class UsersActionTest {
       .setParam("login", "john").execute();
   }
 
-  private TestRequest newUsersRequest() {
-    return wsTester.newGetRequest("api/usergroups", "users");
-  }
-
   @Test
   public void empty_users() throws Exception {
     GroupDto group = insertGroup();
-    session.commit();
+    dbSession.commit();
 
     newUsersRequest()
       .setParam("login", "john")
@@ -119,7 +111,7 @@ public class UsersActionTest {
     UserDto groupUser = insertUser("ada", "Ada Lovelace");
     insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
-    session.commit();
+    dbSession.commit();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -129,12 +121,28 @@ public class UsersActionTest {
   }
 
   @Test
+  public void all_users_by_group_name() throws Exception {
+    GroupDto group = insertGroup();
+    UserDto adaLovelace = insertUser("ada", "Ada Lovelace");
+    UserDto graceHopper = insertUser("grace", "Grace Hopper");
+    addUserToGroup(adaLovelace, group);
+    addUserToGroup(graceHopper, group);
+    dbSession.commit();
+
+    String response = newUsersRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .execute().outputAsString();
+
+    assertThat(response).contains("Ada Lovelace", "Grace Hopper");
+  }
+
+  @Test
   public void selected_users() throws Exception {
     GroupDto group = insertGroup();
     UserDto groupUser = insertUser("ada", "Ada Lovelace");
     insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
-    session.commit();
+    dbSession.commit();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -154,7 +162,7 @@ public class UsersActionTest {
     UserDto groupUser = insertUser("ada", "Ada Lovelace");
     insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
-    session.commit();
+    dbSession.commit();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -169,7 +177,7 @@ public class UsersActionTest {
     UserDto groupUser = insertUser("ada", "Ada Lovelace");
     insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
-    session.commit();
+    dbSession.commit();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -193,7 +201,7 @@ public class UsersActionTest {
     UserDto groupUser = insertUser("ada", "Ada Lovelace");
     insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
-    session.commit();
+    dbSession.commit();
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
@@ -209,16 +217,20 @@ public class UsersActionTest {
       .assertJson(getClass(), "all_ada.json");
   }
 
+  private TestRequest newUsersRequest() {
+    return wsTester.newGetRequest("api/usergroups", "users");
+  }
+
   private GroupDto insertGroup() {
-    return dbClient.groupDao().insert(session, new GroupDto()
+    return dbClient.groupDao().insert(dbSession, new GroupDto()
       .setName("sonar-users"));
   }
 
   private UserDto insertUser(String login, String name) {
-    return dbClient.userDao().insert(session, new UserDto().setLogin(login).setName(name));
+    return dbClient.userDao().insert(dbSession, new UserDto().setLogin(login).setName(name));
   }
 
   private void addUserToGroup(UserDto user, GroupDto usersGroup) {
-    dbClient.userGroupDao().insert(session, new UserGroupDto().setUserId(user.getId()).setGroupId(usersGroup.getId()));
+    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(user.getId()).setGroupId(usersGroup.getId()));
   }
 }

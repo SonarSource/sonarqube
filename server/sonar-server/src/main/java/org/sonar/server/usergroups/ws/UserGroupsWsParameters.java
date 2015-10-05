@@ -41,13 +41,13 @@ public class UserGroupsWsParameters {
 
   private static void createGroupNameParameter(NewAction action) {
     action.createParam(PARAM_GROUP_NAME)
-      .setDescription("Group name or 'anyone' (case insensitive)")
+      .setDescription("Group name")
       .setExampleValue("sonar-administrators");
   }
 
   static NewParam createLoginParameter(NewAction action) {
     return action.createParam(PARAM_LOGIN)
-      .setDescription("Login of the user.")
+      .setDescription("User login")
       .setExampleValue("g.hopper");
   }
 }

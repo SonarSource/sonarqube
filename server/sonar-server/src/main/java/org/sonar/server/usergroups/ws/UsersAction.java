@@ -29,17 +29,17 @@ import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.createGroupParameters;
 
 public class UsersAction implements UserGroupsWsAction {
 
@@ -50,10 +50,12 @@ public class UsersAction implements UserGroupsWsAction {
   private static final String FIELD_LOGIN = "login";
 
   private final DbClient dbClient;
+  private final UserGroupFinder userGroupFinder;
   private final UserSession userSession;
 
-  public UsersAction(DbClient dbClient, UserSession userSession) {
+  public UsersAction(DbClient dbClient, UserGroupFinder userGroupFinder, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userGroupFinder = userGroupFinder;
     this.userSession = userSession;
   }
 
@@ -62,45 +64,37 @@ public class UsersAction implements UserGroupsWsAction {
     NewAction action = context.createAction("users")
       .setDescription("Search for users with membership information with respect to a group.")
       .setHandler(this)
+      .setSince("5.2")
       .setResponseExample(getClass().getResource("example-users.json"))
-      .setSince("5.2");
+      .addSelectionModeParam()
+      .addSearchQuery("freddy", "names", "logins")
+      .addPagingParams(25);
 
-    action.createParam(PARAM_ID)
-      .setDescription("A group ID")
-      .setExampleValue("42")
-      .setRequired(true);
-
-    action.addSelectionModeParam();
-
-    action.addSearchQuery("freddy", "names", "logins");
-
-    action.addPagingParams(25);
+    createGroupParameters(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    Long groupId = request.mandatoryParamAsLong(PARAM_ID);
+    WsGroupRef wsGroupRef = WsGroupRef.fromUserGroupsRequest(request);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     int page = request.mandatoryParamAsInt(Param.PAGE);
     String queryString = request.param(Param.TEXT_QUERY);
     String selected = request.mandatoryParam(Param.SELECTED);
 
-    UserMembershipQuery query = UserMembershipQuery.builder()
-      .groupId(groupId)
-      .memberSearch(queryString)
-      .membership(getMembership(selected))
-      .pageIndex(page)
-      .pageSize(pageSize)
-      .build();
-
     DbSession dbSession = dbClient.openSession(false);
     try {
-      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
-      if (group == null) {
-        throw new NotFoundException(String.format("Could not find user group with id '%s'", groupId));
-      }
+      GroupDto group = userGroupFinder.getGroup(dbSession, wsGroupRef);
+      long groupId = group.getId();
+
+      UserMembershipQuery query = UserMembershipQuery.builder()
+        .groupId(groupId)
+        .memberSearch(queryString)
+        .membership(getMembership(selected))
+        .pageIndex(page)
+        .pageSize(pageSize)
+        .build();
       int total = dbClient.groupMembershipDao().countMembers(dbSession, query);
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
       List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query, paging.offset(), paging.pageSize());
