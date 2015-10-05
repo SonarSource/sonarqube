@@ -56,6 +56,15 @@
     where s.islast=${_true} and s.project_id = #{resource}
   </select>
 
+  <select id="countLastSnapshotByComponentUuid" resultType="Integer">
+    SELECT count(s.id)
+    FROM snapshots s
+    INNER JOIN projects p ON p.id=s.project_id AND p.uuid=#{componentUuid}
+    <where>
+      AND s.islast=${_true}
+    </where>
+  </select>
+
   <select id="selectSnapshotsByQuery" parameterType="map" resultType="Snapshot">
     SELECT
     <include refid="snapshotColumns"/>

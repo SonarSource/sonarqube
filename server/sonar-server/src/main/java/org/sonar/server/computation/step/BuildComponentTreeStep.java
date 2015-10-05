@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
@@ -62,7 +63,18 @@ public class BuildComponentTreeStep implements ComputationStep {
     String branch = reportMetadata.hasBranch() ? reportMetadata.getBranch() : null;
     BatchReport.Component reportProject = reportReader.readComponent(reportMetadata.getRootComponentRef());
     UuidFactory uuidFactory = new UuidFactory(dbClient, moduleKey(reportProject, branch));
-    treeRootHolder.setRoot(new ComponentRootBuilder(reportProject, uuidFactory, branch).build());
+    Component project = new ComponentRootBuilder(reportProject, uuidFactory, branch).build();
+    treeRootHolder.setRoot(project);
+    setIsFirstAnalysis(project.getUuid());
+  }
+
+  private void setIsFirstAnalysis(String projectUuid){
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      analysisMetadataHolder.setIsFirstAnalysis(!dbClient.snapshotDao().hasLastSnapshotByComponentUuid(dbSession, projectUuid));
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   private class ComponentRootBuilder {

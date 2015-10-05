@@ -28,6 +28,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.source.SourceService;
@@ -39,13 +40,15 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private static final Logger LOGGER = Loggers.get(ScmInfoRepositoryImpl.class);
 
   private final BatchReportReader batchReportReader;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
   private final SourceService sourceService;
 
   private final Map<Component, ScmInfo> scmInfoCache = new HashMap<>();
 
-  public ScmInfoRepositoryImpl(BatchReportReader batchReportReader, DbClient dbClient, SourceService sourceService) {
+  public ScmInfoRepositoryImpl(BatchReportReader batchReportReader, AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, SourceService sourceService) {
     this.batchReportReader = batchReportReader;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
     this.sourceService = sourceService;
   }
@@ -68,15 +71,17 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private Optional<ScmInfo> getScmInfoForComponent(Component component) {
     BatchReport.Changesets changesets = batchReportReader.readChangesets(component.getReportAttributes().getRef());
     if (changesets == null) {
-      LOGGER.trace("Reading SCM info from db for file '{}'", component);
       return getScmInfoFromDb(component);
-    } else {
-      LOGGER.trace("Reading SCM info from report for file '{}'", component);
-      return Optional.<ScmInfo>of(new ReportScmInfo(changesets));
     }
+    return getScmInfoFromReport(component, changesets);
   }
 
   private Optional<ScmInfo> getScmInfoFromDb(Component component) {
+    if (analysisMetadataHolder.isFirstAnalysis()) {
+      return Optional.absent();
+    }
+    LOGGER.trace("Reading SCM info from db for file '{}'", component);
+
     DbSession dbSession = dbClient.openSession(false);
     try {
       Optional<Iterable<DbFileSources.Line>> linesOpt = sourceService.getLines(dbSession, component.getUuid(), 1, Integer.MAX_VALUE);
@@ -87,5 +92,10 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private static Optional<ScmInfo> getScmInfoFromReport(Component component, BatchReport.Changesets changesets) {
+    LOGGER.trace("Reading SCM info from report for file '{}'", component);
+    return Optional.<ScmInfo>of(new ReportScmInfo(changesets));
   }
 }

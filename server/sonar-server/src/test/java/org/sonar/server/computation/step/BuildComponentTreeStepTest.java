@@ -38,6 +38,7 @@ import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
@@ -53,6 +54,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 
 @Category(DbTests.class)
 @RunWith(DataProviderRunner.class)
@@ -274,6 +276,36 @@ public class BuildComponentTreeStepTest {
     verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, "DEFG");
   }
 
+  @Test
+  public void set_first_analysis_to_true_when_no_snapshot() throws Exception {
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+    underTest.execute();
+
+    assertThat(analysisMetadataHolder.isFirstAnalysis()).isTrue();
+  }
+
+  @Test
+  public void set_first_analysis_to_true_when_no_last_snapshot() throws Exception {
+    ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
+    insertSnapshot(newSnapshotForProject(project).setLast(false));
+
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+    underTest.execute();
+
+    assertThat(analysisMetadataHolder.isFirstAnalysis()).isTrue();
+  }
+
+  @Test
+  public void set_first_analysis_to_false_when_last_snapshot_exist() throws Exception {
+    ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
+    insertSnapshot(newSnapshotForProject(project).setLast(true));
+
+    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+    underTest.execute();
+
+    assertThat(analysisMetadataHolder.isFirstAnalysis()).isFalse();
+  }
+
   private void verifyComponent(Component component, Component.Type type, int componentRef, int size) {
     assertThat(component.getType()).isEqualTo(type);
     assertThat(component.getReportAttributes().getRef()).isEqualTo(componentRef);
@@ -340,6 +372,12 @@ public class BuildComponentTreeStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), component);
     dbTester.getSession().commit();
     return component;
+  }
+
+  private SnapshotDto insertSnapshot(SnapshotDto snapshot) {
+    dbClient.snapshotDao().insert(dbTester.getSession(), snapshot);
+    dbTester.getSession().commit();
+    return snapshot;
   }
 
 }

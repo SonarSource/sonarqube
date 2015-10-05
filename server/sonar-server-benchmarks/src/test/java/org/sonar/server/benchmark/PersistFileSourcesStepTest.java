@@ -37,6 +37,7 @@ import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -69,6 +70,9 @@ public class PersistFileSourcesStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
+  @Rule
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
+
   @Test
   public void benchmark() throws Exception {
     File reportDir = prepareReport();
@@ -85,7 +89,8 @@ public class PersistFileSourcesStepTest {
     batchReportDirectoryHolder.setDirectory(reportDir);
     org.sonar.server.computation.batch.BatchReportReader batchReportReader = new BatchReportReaderImpl(batchReportDirectoryHolder);
     SourceService sourceService = new SourceService(dbClient, null);
-    ScmInfoRepositoryImpl scmInfoRepository = new ScmInfoRepositoryImpl(batchReportReader, dbClient, sourceService);
+    analysisMetadataHolder.setIsFirstAnalysis(false);
+    ScmInfoRepositoryImpl scmInfoRepository = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadataHolder, dbClient, sourceService);
     PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader,
       new SourceLinesRepositoryImpl(batchReportReader), scmInfoRepository);
     step.execute();

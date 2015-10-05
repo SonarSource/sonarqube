@@ -28,6 +28,9 @@ public class ReportAnalysisMetadataHolder implements MutableAnalysisMetadataHold
   @CheckForNull
   private Long analysisDate;
 
+  @CheckForNull
+  private Boolean firstAnalysis;
+
   @Override
   public void setAnalysisDate(Date date) {
     checkState(analysisDate == null, "Analysis date has already been set");
@@ -38,5 +41,17 @@ public class ReportAnalysisMetadataHolder implements MutableAnalysisMetadataHold
   public Date getAnalysisDate() {
     checkState(analysisDate != null, "Analysis date has not been set");
     return new Date(this.analysisDate);
+  }
+
+  @Override
+  public void setIsFirstAnalysis(boolean firstAnalysis) {
+    checkState(this.firstAnalysis == null, "firstAnalysis flag has already been set");
+    this.firstAnalysis = firstAnalysis;
+  }
+
+  @Override
+  public boolean isFirstAnalysis() {
+    checkState(firstAnalysis != null, "firstAnalysis flag has not been set");
+    return firstAnalysis;
   }
 }

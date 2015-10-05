@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.source.SourceService;
@@ -41,27 +42,32 @@ import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class ScmInfoRepositoryImplTest {
 
-  @Rule
-  public LogTester logTester = new LogTester();
+  static final int FILE_REF = 1;
+
+  static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  static final int FILE_REF = 1;
-  static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
+  @Rule
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   DbClient dbClient = dbTester.getDbClient();
 
-  ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, dbClient, new SourceService(dbClient, null));
+  ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(reportReader, analysisMetadataHolder, dbClient, new SourceService(dbClient, null));
 
   @Test
   public void read_from_report() throws Exception {
+    analysisMetadataHolder.setIsFirstAnalysis(false);
     addChangesetInReport("john", 123456789L, "rev-1");
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -72,6 +78,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void read_from_db() throws Exception {
+    analysisMetadataHolder.setIsFirstAnalysis(false);
     addChangesetInDb("henry", 123456789L, "rev-1");
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -82,6 +89,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void read_from_report_even_if_data_in_db_exists() throws Exception {
+    analysisMetadataHolder.setIsFirstAnalysis(false);
     addChangesetInDb("henry", 123456789L, "rev-1");
 
     addChangesetInReport("john", 1234567810L, "rev-2");
@@ -96,11 +104,13 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void return_nothing_when_no_data_in_report_and_db() throws Exception {
+    analysisMetadataHolder.setIsFirstAnalysis(false);
     assertThat(underTest.getScmInfo(FILE)).isAbsent();
   }
 
   @Test
-  public void return_nothing_when_nothing_in_erpot_and_db_has_no_scm() throws Exception {
+  public void return_nothing_when_nothing_in_report_and_db_has_no_scm() throws Exception {
+    analysisMetadataHolder.setIsFirstAnalysis(false);
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     fileDataBuilder.addLinesBuilder()
       .setLine(1);
@@ -114,6 +124,8 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void fail_with_NPE_when_component_is_null() throws Exception {
+    analysisMetadataHolder.setIsFirstAnalysis(false);
+
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Component cannot be bull");
 
@@ -122,6 +134,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void load_scm_info_from_cache_when_already_read() throws Exception {
+    analysisMetadataHolder.setIsFirstAnalysis(false);
     addChangesetInReport("john", 123456789L, "rev-1");
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
@@ -130,6 +143,15 @@ public class ScmInfoRepositoryImplTest {
     logTester.clear();
 
     underTest.getScmInfo(FILE);
+    assertThat(logTester.logs(TRACE)).isEmpty();
+  }
+
+  @Test
+  public void not_read_in_db_on_first_analysis() throws Exception {
+    analysisMetadataHolder.setIsFirstAnalysis(true);
+    addChangesetInDb("henry", 123456789L, "rev-1");
+
+    assertThat(underTest.getScmInfo(FILE)).isAbsent();
     assertThat(logTester.logs(TRACE)).isEmpty();
   }
 

@@ -26,4 +26,9 @@ public interface AnalysisMetadataHolder {
    * @throws IllegalStateException if no analysis date has been set
    */
   Date getAnalysisDate();
+
+  /**
+   * @throws IllegalStateException if isFirstAnalysis has not been set
+   */
+  boolean isFirstAnalysis();
 }

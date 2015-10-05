@@ -39,4 +39,14 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   public void setAnalysisDate(Date date) {
     delegate.setAnalysisDate(date);
   }
+
+  @Override
+  public boolean isFirstAnalysis() {
+    return delegate.isFirstAnalysis();
+  }
+
+  @Override
+  public void setIsFirstAnalysis(boolean isFirstAnalysis) {
+    delegate.setIsFirstAnalysis(isFirstAnalysis);
+  }
 }
