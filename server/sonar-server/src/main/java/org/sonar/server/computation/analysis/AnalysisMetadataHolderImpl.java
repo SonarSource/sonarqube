@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class ReportAnalysisMetadataHolder implements MutableAnalysisMetadataHolder {
+public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
   @CheckForNull
   private Long analysisDate;
 

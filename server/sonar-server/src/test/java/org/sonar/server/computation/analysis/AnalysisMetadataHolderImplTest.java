@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ReportAnalysisMetadataHolderTest {
+public class AnalysisMetadataHolderImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -34,7 +34,7 @@ public class ReportAnalysisMetadataHolderTest {
 
   @Test
   public void getAnalysisDate_returns_date_with_same_time_as_the_one_set_with_setAnalysisDate() throws InterruptedException {
-    ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
     underTest.setAnalysisDate(someDate);
 
@@ -50,7 +50,7 @@ public class ReportAnalysisMetadataHolderTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Analysis date has not been set");
 
-    new ReportAnalysisMetadataHolder().getAnalysisDate();
+    new AnalysisMetadataHolderImpl().getAnalysisDate();
   }
 
   @Test
@@ -58,7 +58,7 @@ public class ReportAnalysisMetadataHolderTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Analysis date has already been set");
 
-    ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
     underTest.setAnalysisDate(someDate);
     underTest.setAnalysisDate(someDate);
@@ -66,7 +66,7 @@ public class ReportAnalysisMetadataHolderTest {
 
   @Test
   public void isFirstAnalysis_return_true() throws Exception {
-    ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
     underTest.setIsFirstAnalysis(true);
     assertThat(underTest.isFirstAnalysis()).isTrue();
@@ -74,7 +74,7 @@ public class ReportAnalysisMetadataHolderTest {
 
   @Test
   public void isFirstAnalysis_return_false() throws Exception {
-    ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
     underTest.setIsFirstAnalysis(false);
     assertThat(underTest.isFirstAnalysis()).isFalse();
@@ -85,7 +85,7 @@ public class ReportAnalysisMetadataHolderTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("firstAnalysis flag has not been set");
 
-    new ReportAnalysisMetadataHolder().isFirstAnalysis();
+    new AnalysisMetadataHolderImpl().isFirstAnalysis();
   }
 
   @Test
@@ -93,7 +93,7 @@ public class ReportAnalysisMetadataHolderTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("firstAnalysis flag has already been set");
 
-    ReportAnalysisMetadataHolder underTest = new ReportAnalysisMetadataHolder();
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
     underTest.setIsFirstAnalysis(true);
     underTest.setIsFirstAnalysis(true);

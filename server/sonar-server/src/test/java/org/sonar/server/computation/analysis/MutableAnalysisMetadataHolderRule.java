@@ -23,11 +23,11 @@ import java.util.Date;
 import org.junit.rules.ExternalResource;
 
 public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
-  private ReportAnalysisMetadataHolder delegate = new ReportAnalysisMetadataHolder();
+  private AnalysisMetadataHolderImpl delegate = new AnalysisMetadataHolderImpl();
 
   @Override
   protected void before() throws Throwable {
-    delegate = new ReportAnalysisMetadataHolder();
+    delegate = new AnalysisMetadataHolderImpl();
   }
 
   @Override

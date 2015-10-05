@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.analysis.ReportAnalysisMetadataHolder;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
@@ -114,7 +114,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       MetricModule.class,
 
       // holders
-      ReportAnalysisMetadataHolder.class,
+      AnalysisMetadataHolderImpl.class,
       BatchReportDirectoryHolderImpl.class,
       ReportTreeRootHolderImpl.class,
       PeriodsHolderImpl.class,
