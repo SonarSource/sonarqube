@@ -78,7 +78,7 @@ public class GlobalNavigationAction implements NavigationWsAction {
     json.endObject().close();
   }
 
-  private void writeDashboards(JsonWriter json, List<DashboardDto> dashboards) {
+  private static void writeDashboards(JsonWriter json, List<DashboardDto> dashboards) {
     json.name("globalDashboards").beginArray();
     for (DashboardDto dashboard : dashboards) {
       json.beginObject()

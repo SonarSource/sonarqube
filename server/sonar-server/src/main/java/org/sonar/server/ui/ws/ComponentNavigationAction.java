@@ -49,7 +49,6 @@ import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.server.activity.ws.ActivitiesWs;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.computation.ws.ActivityWsAction;
 import org.sonar.server.ui.ViewProxy;
@@ -178,7 +177,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private String getPageUrl(ViewProxy<Page> page, ComponentDto component) {
+  private static String getPageUrl(ViewProxy<Page> page, ComponentDto component) {
     String result;
     String componentKey = encodeComponentKey(component);
     if (page.isController()) {

@@ -83,7 +83,7 @@ public class SettingsNavigationAction implements NavigationWsAction {
     json.endObject().close();
   }
 
-  private String getPageUrl(ViewProxy<Page> page) {
+  private static String getPageUrl(ViewProxy<Page> page) {
     return page.isController() ? page.getId() : String.format("/plugins/configuration/%s", page.getId());
   }
 }
