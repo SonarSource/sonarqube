@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
@@ -79,7 +80,7 @@ public class GroupWithPermissionTemplateDaoTest {
     dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
     // Anyone group is returned even if it doesn't have the permission
-    PermissionQuery query = PermissionQuery.builder().permission("admin").build();
+    PermissionQuery query = PermissionQuery.builder().permission(UserRole.USER).build();
     List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, TEMPLATE_ID);
     assertThat(result).hasSize(4);
 
@@ -93,7 +94,7 @@ public class GroupWithPermissionTemplateDaoTest {
 
     GroupWithPermissionDto group3 = result.get(3);
     assertThat(group3.getName()).isEqualTo("sonar-users");
-    assertThat(group3.getPermission()).isNull();
+    assertThat(group3.getPermission()).isNotNull();
   }
 
   @Test

@@ -105,6 +105,8 @@
     LEFT JOIN perm_templates_groups ptg ON ptg.group_id=g.id
     AND ptg.permission_reference=#{query.permission}
     AND ptg.template_id=#{templateId}
+
+    <if test="!query.permission().equals(projectAdminPermission)">
     UNION
     -- Add Anyone group permission
     SELECT
@@ -118,6 +120,8 @@
         AND ptg.group_id IS NULL
       </where>) as permission
     FROM groups g
+    </if>
+
     ) groups
     <where>
       <if test="query.search() != null">

@@ -29,7 +29,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -151,6 +152,20 @@ public class TemplateGroupsActionTest {
   }
 
   @Test
+  public void search_with_admin_permission_does_not_return_anyone() throws IOException {
+    InputStream responseStream = ws.newRequest()
+      .setMediaType(MimeTypes.PROTOBUF)
+      .setParam(PARAM_PERMISSION, UserRole.ADMIN)
+      .setParam(PARAM_TEMPLATE_UUID, template1.getUuid())
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
+      .execute()
+      .getInputStream();
+    WsGroupsResponse response = WsGroupsResponse.parseFrom(responseStream);
+
+    assertThat(response.getGroupsList()).extracting("name").containsExactly("group-1-name", "group-2-name", "group-3-name");
+  }
+
+  @Test
   public void search_with_pagination() throws IOException {
     InputStream responseStream = ws.newRequest()
       .setMediaType(MimeTypes.PROTOBUF)
@@ -171,7 +186,7 @@ public class TemplateGroupsActionTest {
       .setMediaType(MimeTypes.PROTOBUF)
       .setParam(PARAM_PERMISSION, UserRole.USER)
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
-      .setParam(SELECTED, WebService.SelectionMode.ALL.value())
+      .setParam(SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInputStream();
     WsGroupsResponse response = WsGroupsResponse.parseFrom(responseStream);

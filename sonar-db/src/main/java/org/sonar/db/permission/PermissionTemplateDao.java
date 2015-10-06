@@ -34,6 +34,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -134,6 +135,7 @@ public class PermissionTemplateDao implements Dao {
     params.put(QUERY_PARAMETER, query);
     params.put(TEMPLATE_ID_PARAMETER, templateId);
     params.put("anyoneGroup", DefaultGroups.ANYONE);
+    params.put("projectAdminPermission", UserRole.ADMIN);
     return params;
   }
 
