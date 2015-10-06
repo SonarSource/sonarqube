@@ -19,27 +19,27 @@
  */
 package org.sonar.batch.cache;
 
-import static org.mockito.Mockito.mock;
-
-import org.sonar.home.cache.TTLCacheInvalidation;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.bootstrap.MockHttpServer;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.Slf4jLogger;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoader.LoadStrategy;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.sonar.batch.bootstrap.UserProperties;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
+import org.sonar.home.cache.DirectoryLock;
 import org.sonar.home.cache.PersistentCache;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.sonar.home.cache.TTLCacheInvalidation;
 
-public class WSLoaderTestWithServer {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class WSLoaderWithServerTest {
   private static final String RESPONSE_STRING = "this is the content";
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -48,6 +48,7 @@ public class WSLoaderTestWithServer {
   private PersistentCache cache;
   private ServerClient client;
   private WSLoader loader;
+  private UserProperties userProps;
 
   @Before
   public void setUp() throws Exception {
@@ -58,7 +59,8 @@ public class WSLoaderTestWithServer {
     when(bootstrapProps.property("sonar.host.url")).thenReturn("http://localhost:" + server.getPort());
 
     client = new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));
-    cache = new PersistentCache(temp.getRoot().toPath(), new TTLCacheInvalidation(100_000L), new Slf4jLogger(), null);
+    cache = new PersistentCache(temp.getRoot().toPath(), new TTLCacheInvalidation(100_000L), new Slf4jLogger(), mock(DirectoryLock.class));
+    userProps = mock(UserProperties.class);
   }
 
   @After
@@ -70,31 +72,31 @@ public class WSLoaderTestWithServer {
 
   @Test
   public void testCacheOnly() {
-    loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client);
+    loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client, userProps);
     makeRequests();
 
-    loader = new WSLoader(LoadStrategy.CACHE_ONLY, cache, client);
+    loader = new WSLoader(LoadStrategy.CACHE_ONLY, cache, client, userProps);
     makeRequests();
     assertThat(server.getNumberRequests()).isEqualTo(3);
   }
 
   @Test
   public void testCacheFirst() {
-    loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, client);
+    loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, client, userProps);
     makeRequests();
     assertThat(server.getNumberRequests()).isEqualTo(1);
   }
 
   @Test
   public void testServerFirst() {
-    loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
+    loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, userProps);
     makeRequests();
     assertThat(server.getNumberRequests()).isEqualTo(3);
   }
 
   @Test
   public void testCacheStrategyDisabled() {
-    loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client);
+    loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client, userProps);
     makeRequests();
     assertThat(server.getNumberRequests()).isEqualTo(3);
   }

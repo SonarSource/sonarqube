@@ -64,6 +64,9 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
         break;
       }
       page++;
+      if (fromCache != null) {
+        fromCache.setValue(result.isFromCache());
+      }
     }
 
     return ruleList;

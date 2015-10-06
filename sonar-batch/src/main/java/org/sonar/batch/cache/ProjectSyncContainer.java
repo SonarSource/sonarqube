@@ -19,26 +19,25 @@
  */
 package org.sonar.batch.cache;
 
-import javax.annotation.Nullable;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.api.CoreProperties;
-
 import java.util.HashMap;
 import java.util.Map;
-
+import javax.annotation.Nullable;
+import org.sonar.api.CoreProperties;
 import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalProperties;
-import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
-import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonar.batch.rule.DefaultActiveRulesLoader;
-import org.sonar.batch.repository.QualityProfileLoader;
-import org.sonar.batch.repository.DefaultQualityProfileLoader;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
-import org.sonar.batch.repository.user.UserRepositoryLoader;
+import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
+import org.sonar.batch.repository.DefaultQualityProfileLoader;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.repository.user.UserRepositoryLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
+import org.sonar.batch.rule.DefaultActiveRulesLoader;
+import org.sonar.batch.rule.DefaultRulesLoader;
+import org.sonar.batch.rule.RulesLoader;
 import org.sonar.core.platform.ComponentContainer;
 
 public class ProjectSyncContainer extends ComponentContainer {
@@ -88,6 +87,7 @@ public class ProjectSyncContainer extends ComponentContainer {
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
     addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
+    addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
   }
 }

@@ -19,22 +19,21 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.api.utils.log.Profiler;
-
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.rule.RuleKey;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
 /**
  * Loads the rules that are activated on the Quality profiles
@@ -48,13 +47,14 @@ public class ActiveRulesProvider extends ProviderAdapter {
   public ActiveRules provide(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
     if (singleton == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      singleton = load(loader, qProfiles);
-      profiler.stopInfo();
+      MutableBoolean fromCache = new MutableBoolean();
+      singleton = load(loader, qProfiles, fromCache);
+      profiler.stopInfo(fromCache.booleanValue());
     }
     return singleton;
   }
 
-  private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
+  private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles, MutableBoolean fromCache) {
 
     Collection<String> qProfileKeys = getKeys(qProfiles);
     Map<RuleKey, LoadedActiveRule> loadedRulesByKey = new HashMap<>();
@@ -62,7 +62,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     try {
       for (String qProfileKey : qProfileKeys) {
         Collection<LoadedActiveRule> qProfileRules;
-        qProfileRules = load(loader, qProfileKey);
+        qProfileRules = load(loader, qProfileKey, fromCache);
 
         for (LoadedActiveRule r : qProfileRules) {
           if (!loadedRulesByKey.containsKey(r.getRuleKey())) {
@@ -100,8 +100,8 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return builder.build();
   }
 
-  private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey) throws IOException {
-    return loader.load(qProfileKey, null);
+  private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey, MutableBoolean fromCache) throws IOException {
+    return loader.load(qProfileKey, fromCache);
   }
 
   private static Collection<String> getKeys(ModuleQProfiles qProfiles) {

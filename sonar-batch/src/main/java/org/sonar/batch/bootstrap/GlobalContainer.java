@@ -44,9 +44,6 @@ import org.sonar.batch.platform.DefaultServer;
 import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.GlobalRepositoriesProvider;
-import org.sonar.batch.rule.DefaultRulesLoader;
-import org.sonar.batch.rule.RulesLoader;
-import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
@@ -109,7 +106,6 @@ public class GlobalContainer extends ComponentContainer {
 
       CachesManager.class,
       GlobalSettings.class,
-      new RulesProvider(),
       ServerClient.class,
       DefaultServer.class,
       new GlobalTempFolderProvider(),
@@ -121,7 +117,6 @@ public class GlobalContainer extends ComponentContainer {
       new GlobalRepositoriesProvider(),
       UuidFactoryImpl.INSTANCE);
     addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
-    addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
   }
 

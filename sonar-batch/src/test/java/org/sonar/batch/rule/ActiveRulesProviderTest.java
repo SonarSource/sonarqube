@@ -19,22 +19,23 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
-
 import com.google.common.collect.ImmutableList;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
+import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ActiveRulesProviderTest {
@@ -59,9 +60,9 @@ public class ActiveRulesProviderTest {
     List<LoadedActiveRule> qp2Rules = ImmutableList.of(r2, r3);
     List<LoadedActiveRule> qp3Rules = ImmutableList.of(r1, r3);
 
-    when(loader.load("qp1", null)).thenReturn(qp1Rules);
-    when(loader.load("qp2", null)).thenReturn(qp2Rules);
-    when(loader.load("qp3", null)).thenReturn(qp3Rules);
+    when(loader.load(eq("qp1"), any(MutableBoolean.class))).thenReturn(qp1Rules);
+    when(loader.load(eq("qp2"), any(MutableBoolean.class))).thenReturn(qp2Rules);
+    when(loader.load(eq("qp3"), any(MutableBoolean.class))).thenReturn(qp3Rules);
 
     ModuleQProfiles profiles = mockProfiles("qp1", "qp2", "qp3");
     ActiveRules activeRules = provider.provide(loader, profiles);
@@ -70,9 +71,9 @@ public class ActiveRulesProviderTest {
     assertThat(activeRules.findAll()).extracting("ruleKey").containsOnly(
       RuleKey.of("rule1", "rule1"), RuleKey.of("rule2", "rule2"), RuleKey.of("rule3", "rule3"));
 
-    verify(loader).load("qp1", null);
-    verify(loader).load("qp2", null);
-    verify(loader).load("qp3", null);
+    verify(loader).load(eq("qp1"), any(MutableBoolean.class));
+    verify(loader).load(eq("qp2"), any(MutableBoolean.class));
+    verify(loader).load(eq("qp3"), any(MutableBoolean.class));
     verifyNoMoreInteractions(loader);
   }
 

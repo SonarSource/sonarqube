@@ -19,15 +19,12 @@
  */
 package org.sonar.batch.analysis;
 
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.AnalysisMode;
+import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
-import org.picocontainer.injectors.ProviderAdapter;
-
-import java.util.Map;
-
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.home.cache.PersistentCache;
-import org.sonar.api.batch.AnalysisMode;
 
 public class AnalysisWSLoaderProvider extends ProviderAdapter {
   private WSLoader wsLoader;
@@ -36,12 +33,12 @@ public class AnalysisWSLoaderProvider extends ProviderAdapter {
     if (wsLoader == null) {
       // recreate cache directory if needed for this analysis
       cache.reconfigure();
-      wsLoader = new WSLoader(getStrategy(props.properties(), mode), cache, client);
+      wsLoader = new WSLoader(getStrategy(mode), cache, client, props);
     }
     return wsLoader;
   }
 
-  private static LoadStrategy getStrategy(Map<String, String> props, AnalysisMode mode) {
+  private static LoadStrategy getStrategy(AnalysisMode mode) {
     if (mode.isIssues()) {
       return LoadStrategy.CACHE_ONLY;
     }

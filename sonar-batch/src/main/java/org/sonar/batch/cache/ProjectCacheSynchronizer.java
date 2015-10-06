@@ -146,6 +146,7 @@ public class ProjectCacheSynchronizer {
     for (String k : keys) {
       activeRulesLoader.load(k, null);
     }
+    profiler.stopInfo();
 
     if (projectRepo.lastAnalysisDate() != null) {
       profiler.startInfo("Load server issues");

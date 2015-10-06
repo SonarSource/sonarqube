@@ -19,16 +19,17 @@
  */
 package org.sonar.batch.cache;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.sonar.batch.cache.WSLoader.LoadStrategy;
-
 import org.junit.Before;
-import org.mockito.MockitoAnnotations;
-import org.sonar.batch.bootstrap.ServerClient;
-import org.mockito.Mock;
-import org.sonar.home.cache.PersistentCache;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sonar.batch.bootstrap.GlobalProperties;
+import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
+import org.sonar.home.cache.PersistentCache;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class StrategyWSLoaderProviderTest {
   @Mock
@@ -37,15 +38,18 @@ public class StrategyWSLoaderProviderTest {
   @Mock
   private ServerClient client;
 
+  private GlobalProperties globalProps;
+
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
+    globalProps = mock(GlobalProperties.class);
   }
 
   @Test
   public void testStrategy() {
     StrategyWSLoaderProvider provider = new StrategyWSLoaderProvider(LoadStrategy.CACHE_FIRST);
-    WSLoader wsLoader = provider.provide(cache, client);
+    WSLoader wsLoader = provider.provide(cache, client, globalProps);
 
     assertThat(wsLoader.getDefaultStrategy()).isEqualTo(LoadStrategy.CACHE_FIRST);
   }
@@ -53,8 +57,8 @@ public class StrategyWSLoaderProviderTest {
   @Test
   public void testSingleton() {
     StrategyWSLoaderProvider provider = new StrategyWSLoaderProvider(LoadStrategy.CACHE_FIRST);
-    WSLoader wsLoader = provider.provide(cache, client);
+    WSLoader wsLoader = provider.provide(cache, client, globalProps);
 
-    assertThat(provider.provide(null, null)).isEqualTo(wsLoader);
+    assertThat(provider.provide(null, null, null)).isEqualTo(wsLoader);
   }
 }

@@ -19,29 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.repository.ProjectRepositoriesProvider;
-
-import org.sonar.batch.repository.ProjectRepositories;
-import org.sonar.batch.cache.ProjectPersistentCacheProvider;
-import org.sonar.batch.issue.tracking.LocalIssueTracking;
-import org.sonar.batch.issue.tracking.IssueTransition;
-import org.sonar.batch.repository.QualityProfileProvider;
-import org.sonar.batch.repository.DefaultQualityProfileLoader;
-import org.sonar.batch.repository.QualityProfileLoader;
-import org.sonar.batch.rule.DefaultActiveRulesLoader;
-import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.analysis.AnalysisWSLoaderProvider;
-import org.sonar.batch.analysis.AnalysisTempFolderProvider;
-import org.sonar.batch.analysis.AnalysisProperties;
-import org.sonar.batch.repository.user.UserRepositoryLoader;
-import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
-import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
-import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
-import org.sonar.batch.repository.DefaultServerIssuesLoader;
-import org.sonar.batch.repository.ProjectRepositoriesLoader;
-import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.batch.issue.DefaultIssueCallback;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -55,18 +32,28 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.ProjectConfigurator;
+import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.analysis.AnalysisTempFolderProvider;
+import org.sonar.batch.analysis.AnalysisWSLoaderProvider;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
+import org.sonar.batch.cache.ProjectPersistentCacheProvider;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.issue.DefaultIssueCallback;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
+import org.sonar.batch.issue.tracking.IssueTransition;
+import org.sonar.batch.issue.tracking.LocalIssueTracking;
 import org.sonar.batch.issue.tracking.ServerIssueRepository;
+import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
@@ -80,8 +67,23 @@ import org.sonar.batch.report.MetadataPublisher;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.report.SourcePublisher;
 import org.sonar.batch.report.TestExecutionAndCoveragePublisher;
+import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
+import org.sonar.batch.repository.DefaultQualityProfileLoader;
+import org.sonar.batch.repository.DefaultServerIssuesLoader;
+import org.sonar.batch.repository.ProjectRepositories;
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.ProjectRepositoriesProvider;
+import org.sonar.batch.repository.QualityProfileLoader;
+import org.sonar.batch.repository.QualityProfileProvider;
+import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.language.DefaultLanguagesRepository;
+import org.sonar.batch.repository.user.UserRepositoryLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.rule.ActiveRulesProvider;
+import org.sonar.batch.rule.DefaultActiveRulesLoader;
+import org.sonar.batch.rule.DefaultRulesLoader;
+import org.sonar.batch.rule.RulesLoader;
+import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.DefaultMetricFinder;
 import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
@@ -148,6 +150,7 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
       BatchComponentCache.class,
       DefaultIssueCallback.class,
+      new RulesProvider(),
       new ProjectRepositoriesProvider(),
       new ProjectPersistentCacheProvider(),
 
@@ -205,6 +208,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ScanTaskObservers.class,
       UserRepositoryLoader.class);
 
+    addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultActiveRulesLoader.class, ActiveRulesLoader.class);
     addIfMissing(DefaultQualityProfileLoader.class, QualityProfileLoader.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);

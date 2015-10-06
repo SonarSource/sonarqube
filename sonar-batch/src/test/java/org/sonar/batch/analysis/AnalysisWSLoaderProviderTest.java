@@ -19,21 +19,17 @@
  */
 package org.sonar.batch.analysis;
 
-import org.sonar.batch.analysis.AnalysisWSLoaderProvider;
-
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoader.LoadStrategy;
-import org.sonar.batch.analysis.AnalysisProperties;
-import org.sonar.api.batch.AnalysisMode;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
