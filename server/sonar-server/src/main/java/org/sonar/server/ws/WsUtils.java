@@ -70,9 +70,9 @@ public class WsUtils {
    * @throws NotFoundException if the value if null
    * @return the value
    */
-  public static <T> T checkFound(T value, String message) {
+  public static <T> T checkFound(T value, String message, Object... messageArguments) {
     if (value == null) {
-      throw new NotFoundException(message);
+      throw new NotFoundException(format(message, messageArguments));
     }
 
     return value;
@@ -82,9 +82,9 @@ public class WsUtils {
    * @throws NotFoundException if the value is not present
    * @return the value
    */
-  public static <T> T checkFound(Optional<T> value, String message) {
+  public static <T> T checkFoundWithOptional(Optional<T> value, String message, Object... messageArguments) {
     if (!value.isPresent()) {
-      throw new NotFoundException(message);
+      throw new NotFoundException(format(message, messageArguments));
     }
 
     return value.get();

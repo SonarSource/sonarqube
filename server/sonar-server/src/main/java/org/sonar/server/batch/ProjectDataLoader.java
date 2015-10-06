@@ -43,8 +43,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 @ServerSide
 public class ProjectDataLoader {
@@ -64,8 +63,8 @@ public class ProjectDataLoader {
     DbSession session = dbClient.openSession(false);
     try {
       ProjectRepositories data = new ProjectRepositories();
-      ComponentDto module = checkFound(dbClient.componentDao().selectByKey(session, query.getModuleKey()),
-        format("Project or module with key '%s' is not found", query.getModuleKey()));
+      ComponentDto module = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, query.getModuleKey()),
+        "Project or module with key '%s' is not found", query.getModuleKey());
 
       // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
       if (query.isIssuesMode() && !userSession.hasProjectPermissionByUuid(UserRole.USER, module.projectUuid())) {

@@ -106,12 +106,12 @@ public class RemoveUserAction implements UserGroupsWsAction {
 
     if (groupId != null) {
       groupDto = checkFound(dbClient.groupDao().selectById(dbSession, groupId),
-        format("Group with id '%d' is not found", groupId));
+        "Group with id '%d' is not found", groupId);
     }
 
     if (groupName != null) {
       groupDto = checkFound(dbClient.groupDao().selectByName(dbSession, groupName),
-        format("Group with name '%s' is not found", groupName));
+        "Group with name '%s' is not found", groupName);
     }
 
     return groupDto;
@@ -119,6 +119,6 @@ public class RemoveUserAction implements UserGroupsWsAction {
 
   private UserDto getUser(DbSession dbSession, String userLogin) {
     return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin),
-      format("User with login '%s' is not found'", userLogin));
+      "User with login '%s' is not found'", userLogin);
   }
 }

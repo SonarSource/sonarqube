@@ -33,7 +33,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.usergroups.ws.WsGroupRef;
 
-import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.ws.WsUtils.checkFound;
@@ -88,16 +87,18 @@ public class PermissionDependenciesFinder {
 
   public UserDto getUser(DbSession dbSession, String userLogin) {
     return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin),
-      format("User with login '%s' is not found'", userLogin));
+      "User with login '%s' is not found'", userLogin);
   }
 
   public PermissionTemplateDto getTemplate(DbSession dbSession, WsTemplateRef template) {
     if (template.uuid() != null) {
-      return checkFound(dbClient.permissionTemplateDao().selectByUuid(dbSession, template.uuid()),
-        format("Permission template with id '%s' is not found", template.uuid()));
+      return checkFound(
+        dbClient.permissionTemplateDao().selectByUuid(dbSession, template.uuid()),
+        "Permission template with id '%s' is not found", template.uuid());
     } else {
-      return checkFound(dbClient.permissionTemplateDao().selectByName(dbSession, template.name()),
-        format("Permission template with name '%s' is not found (case insensitive)", template.name()));
+      return checkFound(
+        dbClient.permissionTemplateDao().selectByName(dbSession, template.name()),
+        "Permission template with name '%s' is not found (case insensitive)", template.name());
     }
   }
 }

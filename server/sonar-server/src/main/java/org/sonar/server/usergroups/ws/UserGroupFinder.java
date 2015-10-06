@@ -24,7 +24,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 
-import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkFound;
 
 public class UserGroupFinder {
@@ -42,12 +41,12 @@ public class UserGroupFinder {
 
     if (groupId != null) {
       groupDto = checkFound(dbClient.groupDao().selectById(dbSession, groupId),
-        format("Group with id '%d' is not found", groupId));
+        "Group with id '%d' is not found", groupId);
     }
 
     if (groupName != null) {
       groupDto = checkFound(dbClient.groupDao().selectByName(dbSession, groupName),
-        format("Group with name '%s' is not found", groupName));
+        "Group with name '%s' is not found", groupName);
     }
 
     return groupDto;
