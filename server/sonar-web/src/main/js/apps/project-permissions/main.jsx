@@ -39,6 +39,9 @@ export default React.createClass({
   requestPermissions(page = 1, query = '') {
     let url = `${window.baseUrl}/api/permissions/search_project_permissions`;
     let data = { p: page, q: query };
+    if (this.props.componentId) {
+      data = { projectId: this.props.componentId };
+    }
     $.get(url, data).done(r => {
       let permissions = this.sortPermissions(r.permissions);
       let projects = this.mergePermissionsToProjects(r.projects, permissions);
@@ -76,18 +79,27 @@ export default React.createClass({
     }).render();
   },
 
+  renderBulkApplyButton() {
+    if (this.props.componentId) {
+      return null;
+    }
+    return (
+        <button onClick={this.bulkApplyTemplate} className="js-bulk-apply-template">Bulk Apply Template</button>
+    );
+  },
+
   render() {
     return (
         <div className="page">
           <header id="project-permissions-header" className="page-header">
             <h1 className="page-title">{window.t('roles.page')}</h1>
             <div className="page-actions">
-              <button onClick={this.bulkApplyTemplate} className="js-bulk-apply-template">Bulk Apply Template</button>
+              {this.renderBulkApplyButton()}
             </div>
             <p className="page-description">{window.t('roles.page.description2')}</p>
           </header>
 
-          <Search
+          <Search {...this.props}
               search={this.search}/>
 
           <Permissions
@@ -96,7 +108,7 @@ export default React.createClass({
               permissionTemplates={this.props.permissionTemplates}
               refresh={this.refresh}/>
 
-          <PermissionsFooter
+          <PermissionsFooter {...this.props}
               count={this.state.projects.length}
               total={this.state.total}
               loadMore={this.loadMore}/>

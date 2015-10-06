@@ -21,6 +21,9 @@ export default React.createClass({
   },
 
   render() {
+    if (this.props.componentId) {
+      return null;
+    }
     return (
         <div className="panel panel-vertical bordered-bottom spacer-bottom">
           <form onSubmit={this.onSubmit} className="search-box">

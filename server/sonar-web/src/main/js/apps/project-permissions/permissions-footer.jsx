@@ -8,6 +8,9 @@ export default React.createClass({
   },
 
   render() {
+    if (this.props.componentId) {
+      return null;
+    }
     let hasMore = this.props.total > this.props.count;
     let loadMoreLink = <a onClick={this.props.loadMore} className="spacer-left" href="#">show more</a>;
     return (

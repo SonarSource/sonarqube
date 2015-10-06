@@ -11,7 +11,7 @@ export default {
         this.requestPermissionTemplates()
     ).then(() => {
           var el = document.querySelector(options.el);
-          React.render(<Main permissionTemplates={permissionTemplates}/>, el);
+          React.render(<Main permissionTemplates={permissionTemplates} componentId={options.componentId}/>, el);
         });
   },
 
