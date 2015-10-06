@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
@@ -53,27 +52,7 @@ public class PermissionsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.7");
-    assertThat(controller.actions()).hasSize(4);
-  }
-
-  @Test
-  public void define_add_action() {
-    WebService.Action action = controller().action("add");
-    assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.INSTANCE.getClass());
-    assertThat(action.params()).hasSize(5);
-
-    WebService.Param permission = action.param("permission");
-    assertThat(permission).isNotNull();
-    assertThat(permission.possibleValues()).hasSize(9);
-  }
-
-  @Test
-  public void define_remove_action() {
-    WebService.Action action = controller().action("remove");
-    assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.INSTANCE.getClass());
-    assertThat(action.params()).hasSize(5);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test

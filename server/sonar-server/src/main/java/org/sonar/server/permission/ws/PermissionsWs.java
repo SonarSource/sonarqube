@@ -20,12 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
-import com.google.common.collect.ImmutableSet;
-import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.ProjectPermissions;
 
 public class PermissionsWs implements WebService {
 
@@ -47,59 +42,6 @@ public class PermissionsWs implements WebService {
       action.define(controller);
     }
 
-    defineAddAction(controller);
-    defineRemoveAction(controller);
-
     controller.done();
   }
-
-  private static void defineAddAction(NewController controller) {
-    NewAction action = controller.createAction("add")
-      .setDescription("Add a global or a project permission. Requires Administer System permission for global permissions, " +
-        "requires Administer permission on project for project permissions")
-      .setSince("3.7")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
-    action.createParam("permission")
-      .setDescription("Key of the permission to add")
-      .setRequired(true)
-      .setPossibleValues(ImmutableSet.<String>builder().addAll(GlobalPermissions.ALL).addAll(ProjectPermissions.ALL).build())
-      .setExampleValue("shareDashboard");
-    action.createParam("user")
-      .setDescription("User login. Required if group is not set")
-      .setExampleValue("myuser");
-    action.createParam("group")
-      .setDescription("Group name or \"" + DefaultGroups.ANYONE + "\". Required if user is not set")
-      .setExampleValue(DefaultGroups.ADMINISTRATORS);
-    action.createParam("component")
-      .setDescription("Key of the project. Required if a project permission is set. Available since version 4.0")
-      .setExampleValue("org.codehaus.sonar");
-    RailsHandler.addFormatParam(action);
-  }
-
-  private static void defineRemoveAction(NewController controller) {
-    NewAction action = controller.createAction("remove")
-      .setDescription("Remove a global or a project permission. Requires Administer System permission for global permissions, " +
-        "requires Administer permission on project for project permissions")
-      .setSince("3.7")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
-
-    action.createParam("permission")
-      .setDescription("Key of the permission to remove")
-      .setRequired(true)
-      .setPossibleValues(ImmutableSet.<String>builder().addAll(GlobalPermissions.ALL).addAll(ProjectPermissions.ALL).build())
-      .setExampleValue("shareDashboard");
-    action.createParam("user")
-      .setDescription("User login. Required if group is not set")
-      .setExampleValue("myuser");
-    action.createParam("group")
-      .setDescription("Group name or \"" + DefaultGroups.ANYONE + "\". Required if user is not set")
-      .setExampleValue(DefaultGroups.ADMINISTRATORS);
-    action.createParam("component")
-      .setDescription("Key of the project. Required if a project permission is set. Available since version 4.0")
-      .setExampleValue("org.codehaus.sonar");
-    RailsHandler.addFormatParam(action);
-  }
-
 }
