@@ -81,6 +81,11 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
+  public IssueBuilder addLocation(NewIssueLocation secondaryLocation) {
+    throw unsupported();
+  }
+
+  @Override
   public IssueBuilder addFlow(Iterable<NewIssueLocation> flow) {
     throw unsupported();
   }

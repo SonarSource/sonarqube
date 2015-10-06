@@ -144,7 +144,11 @@ public class MultilineIssuesSensor implements Sensor {
               .message("Flow step #" + flowNum);
             flowLocations.add(newLocation);
           }
-          newIssue.addFlow(flowLocations);
+          if (flowLocations.size() == 1) {
+            newIssue.addLocation(flowLocations.get(0));
+          } else {
+            newIssue.addFlow(flowLocations);
+          }
         }
       }
       newIssue.save();

@@ -56,6 +56,12 @@ public interface NewIssue {
   NewIssue at(NewIssueLocation primaryLocation);
 
   /**
+   * Add a secondary location for this issue. Several secondary locations can be registered.
+   * @since 5.2
+   */
+  NewIssue addLocation(NewIssueLocation secondaryLocation);
+
+  /**
    * Register a flow for this issue. A flow is an ordered list of issue locations that help to understand the issue.
    * It could be a path leading to the primary location. Several flows can be registered.
    * @since 5.2

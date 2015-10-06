@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,12 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
     Preconditions.checkArgument(primaryLocation != null, "Cannot use a location that is null");
     Preconditions.checkState(this.primaryLocation == null, "at() already called");
     this.primaryLocation = (DefaultIssueLocation) primaryLocation;
+    return this;
+  }
+
+  @Override
+  public NewIssue addLocation(NewIssueLocation secondaryLocation) {
+    flows.add(Arrays.asList((IssueLocation) secondaryLocation));
     return this;
   }
 

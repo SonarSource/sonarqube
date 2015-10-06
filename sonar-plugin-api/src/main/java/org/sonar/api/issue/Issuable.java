@@ -96,6 +96,12 @@ public interface Issuable extends Perspective {
 
     /**
      * @since 5.2
+     * @see NewIssue#addLocation(NewIssueLocation)
+     */
+    IssueBuilder addLocation(NewIssueLocation secondaryLocation);
+
+    /**
+     * @since 5.2
      * @see NewIssue#addFlow(Iterable)
      */
     IssueBuilder addFlow(Iterable<NewIssueLocation> flowLocations);
