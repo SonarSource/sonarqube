@@ -20,7 +20,7 @@
         </when>
       </choose>
       <if test="query.projectSearch() != null">
-        AND ind.kee LIKE #{query.projectSearchSql}
+        AND ind.kee LIKE #{query.projectSearchSql} ESCAPE '/'
       </if>
       AND proj.qualifier='TRK'
       AND proj.scope='PRJ'

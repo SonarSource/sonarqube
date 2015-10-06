@@ -20,24 +20,35 @@
 
 package org.sonar.core.qualitygate.db;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class ProjectQgateAssociationQueryTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void fail_on_null_login() throws Exception {
-    ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder();
-    builder.gateId(null);
+  public void handle_underscore_and_percent() {
+    ProjectQgateAssociationQuery underTest = ProjectQgateAssociationQuery.builder()
+      .projectSearch("project-_%-search")
+      .gateId("1").build();
 
-    try {
-      builder.build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NullPointerException.class).hasMessage("Gate ID cant be null.");
-    }
+    assertThat(underTest.projectSearchSql()).isEqualTo("project-/_/%-search%");
+  }
+
+  @Test
+  public void fail_on_null_login() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Gate ID cannot be null");
+
+    ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder()
+      .gateId(null);
+
+    builder.build();
   }
 
   @Test
@@ -50,7 +61,7 @@ public class ProjectQgateAssociationQueryTest {
       builder.build();
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Membership is not valid (got unknwown). Availables values are [all, selected, deselected]");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Membership is not valid (got unknwown). Available values are [all, selected, deselected]");
     }
   }
 

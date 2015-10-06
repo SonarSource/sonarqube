@@ -43,7 +43,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
 
     ProjectQgateAssociationQuery query = ProjectQgateAssociationQuery.builder().gateId("42").build();
     List<ProjectQgateAssociationDto> result = dao.selectProjects(query, 42L);
-    assertThat(result).hasSize(5);
+    assertThat(result).hasSize(6);
   }
 
   @Test
@@ -51,7 +51,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     assertThat(dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").membership(ProjectQgateAssociationQuery.IN).build(), 42L)).hasSize(3);
-    assertThat(dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").membership(ProjectQgateAssociationQuery.OUT).build(), 42L)).hasSize(2);
+    assertThat(dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").membership(ProjectQgateAssociationQuery.OUT).build(), 42L)).hasSize(3);
   }
 
   @Test
@@ -74,11 +74,12 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     List<ProjectQgateAssociationDto> result = dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").build(), 42L);
-    assertThat(result).hasSize(5);
+    assertThat(result).hasSize(6);
     assertThat(result.get(0).getName()).isEqualTo("Project Five");
     assertThat(result.get(1).getName()).isEqualTo("Project Four");
     assertThat(result.get(2).getName()).isEqualTo("Project One");
     assertThat(result.get(3).getName()).isEqualTo("Project Three");
     assertThat(result.get(4).getName()).isEqualTo("Project Two");
+    assertThat(result.get(5).getName()).isEqualTo("Project Z_\\|/");
   }
 }

@@ -8,6 +8,7 @@
   <projects id="3" name="Project Three" qualifier="TRK" scope="PRJ"/>
   <projects id="4" name="Project Four" qualifier="TRK" scope="PRJ"/>
   <projects id="5" name="Project Five" qualifier="TRK" scope="PRJ"/>
+  <projects id="8" name="Project Z_\|/" qualifier="TRK" scope="PRJ"/>
   <projects id="6" name="View Six" qualifier="VW" scope="PRJ"/>
   <projects id="7" name="Project One" qualifier="TRK" scope="FIL"/>
 

@@ -19,14 +19,14 @@
  */
 package org.sonar.core.qualitygate.db;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.StringUtils;
-
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.Set;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ProjectQgateAssociationQuery {
 
@@ -44,14 +44,13 @@ public class ProjectQgateAssociationQuery {
   private final String projectSearch;
 
   // for internal use in MyBatis
-  final String projectSearchSql;
+  private final String projectSearchSql;
 
   // max results per page
   private final int pageSize;
 
   // index of selected page. Start with 1.
   private final int pageIndex;
-
 
   private ProjectQgateAssociationQuery(Builder builder) {
     this.gateId = builder.gateId;
@@ -63,14 +62,15 @@ public class ProjectQgateAssociationQuery {
     this.pageIndex = builder.pageIndex;
   }
 
-  private String projectSearchToSql(@Nullable String s) {
-    String sql = null;
-    if (s != null) {
-      sql = StringUtils.replace(StringUtils.lowerCase(s), "%", "/%");
-      sql = StringUtils.replace(sql, "_", "/_");
-      sql = sql + "%";
+  private String projectSearchToSql(@Nullable String value) {
+    if (value == null) {
+      return null;
     }
-    return sql;
+
+    return value
+      .replaceAll("%", "/%")
+      .replaceAll("_", "/_")
+      .toLowerCase() + "%";
   }
 
   public String gateId() {
@@ -88,6 +88,11 @@ public class ProjectQgateAssociationQuery {
   @CheckForNull
   public String projectSearch() {
     return projectSearch;
+  }
+
+  @CheckForNull
+  public String projectSearchSql() {
+    return projectSearchSql;
   }
 
   public int pageSize() {
@@ -142,8 +147,8 @@ public class ProjectQgateAssociationQuery {
       if (membership == null) {
         membership = ProjectQgateAssociationQuery.ANY;
       } else {
-        Preconditions.checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
-          "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIP);
+        checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
+          "Membership is not valid (got " + membership + "). Available values are " + AVAILABLE_MEMBERSHIP);
       }
     }
 
@@ -157,11 +162,11 @@ public class ProjectQgateAssociationQuery {
       if (pageIndex == null) {
         pageIndex = DEFAULT_PAGE_INDEX;
       }
-      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
+      checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
 
     public ProjectQgateAssociationQuery build() {
-      Preconditions.checkNotNull(gateId, "Gate ID cant be null.");
+      checkNotNull(gateId, "Gate ID cannot be null.");
       initMembership();
       initPageIndex();
       initPageSize();
