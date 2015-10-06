@@ -21,21 +21,20 @@
 package org.sonar.server.usergroups.ws;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.db.user.GroupDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -45,49 +44,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SearchActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  private WsTester tester;
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  private WsTester ws;
 
   private GroupDao groupDao;
-
   private GroupMembershipDao groupMembershipDao;
-
   private UserGroupDao userGroupDao;
-
-  private DbSession session;
+  private DbSession dbSession;
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
+    DbClient dbClient = db.getDbClient();
+    groupDao = dbClient.groupDao();
+    groupMembershipDao = dbClient.groupMembershipDao();
+    userGroupDao = dbClient.userGroupDao();
 
-    groupDao = new GroupDao(System2.INSTANCE);
-    groupMembershipDao = new GroupMembershipDao(dbTester.myBatis());
-    userGroupDao = new UserGroupDao();
+    ws = new WsTester(new UserGroupsWs(new SearchAction(dbClient)));
 
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), groupDao, groupMembershipDao);
-
-    tester = new WsTester(new UserGroupsWs(new SearchAction(dbClient)));
-
-    session = dbClient.openSession(false);
-  }
-
-  @After
-  public void after() {
-    session.close();
+    dbSession = dbClient.openSession(false);
   }
 
   @Test
   public void search_empty() throws Exception {
-    tester.newGetRequest("api/usergroups", "search").execute().assertJson(getClass(), "empty.json");
+    newRequest().execute().assertJson(getClass(), "empty.json");
   }
 
   @Test
   public void search_without_parameters() throws Exception {
     insertGroups("users", "admins", "customer1", "customer2", "customer3");
-    session.commit();
+    dbSession.commit();
 
-    tester.newGetRequest("api/usergroups", "search").execute().assertJson(getClass(), "five_groups.json");
+    newRequest().execute().assertJson(getClass(), "five_groups.json");
   }
 
   @Test
@@ -96,80 +83,84 @@ public class SearchActionTest {
     insertMembers("users", 5);
     insertMembers("admins", 1);
     insertMembers("customer2", 4);
-    session.commit();
+    dbSession.commit();
 
-    tester.newGetRequest("api/usergroups", "search").execute().assertJson(getClass(), "with_members.json");
+    newRequest().execute().assertJson(getClass(), "with_members.json");
   }
 
   @Test
   public void search_with_query() throws Exception {
     insertGroups("users", "admins", "customer1", "customer2", "customer3");
-    session.commit();
+    dbSession.commit();
 
-    tester.newGetRequest("api/usergroups", "search").setParam(Param.TEXT_QUERY, "custom").execute().assertJson(getClass(), "customers.json");
+    newRequest().setParam(Param.TEXT_QUERY, "custom").execute().assertJson(getClass(), "customers.json");
   }
 
   @Test
   public void search_with_paging() throws Exception {
     insertGroups("users", "admins", "customer1", "customer2", "customer3");
-    session.commit();
+    dbSession.commit();
 
-    tester.newGetRequest("api/usergroups", "search")
+    newRequest()
       .setParam(Param.PAGE_SIZE, "3").execute().assertJson(getClass(), "page_1.json");
-    tester.newGetRequest("api/usergroups", "search")
+    newRequest()
       .setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "2").execute().assertJson(getClass(), "page_2.json");
-    tester.newGetRequest("api/usergroups", "search")
+    newRequest()
       .setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "3").execute().assertJson(getClass(), "page_3.json");
   }
 
   @Test
   public void search_with_fields() throws Exception {
     insertGroups("sonar-users");
-    session.commit();
+    dbSession.commit();
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").execute().outputAsString())
+    assertThat(newRequest().execute().outputAsString())
       .contains("id")
       .contains("name")
       .contains("description")
       .contains("membersCount");
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").setParam(Param.FIELDS, "").execute().outputAsString())
+    assertThat(newRequest().setParam(Param.FIELDS, "").execute().outputAsString())
       .contains("id")
       .contains("name")
       .contains("description")
       .contains("membersCount");
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").setParam(Param.FIELDS, "name").execute().outputAsString())
+    assertThat(newRequest().setParam(Param.FIELDS, "name").execute().outputAsString())
       .contains("id")
       .contains("name")
       .doesNotContain("description")
       .doesNotContain("membersCount");
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").setParam(Param.FIELDS, "description").execute().outputAsString())
+    assertThat(newRequest().setParam(Param.FIELDS, "description").execute().outputAsString())
       .contains("id")
       .doesNotContain("name")
       .contains("description")
       .doesNotContain("membersCount");
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").setParam(Param.FIELDS, "membersCount").execute().outputAsString())
+    assertThat(newRequest().setParam(Param.FIELDS, "membersCount").execute().outputAsString())
       .contains("id")
       .doesNotContain("name")
       .doesNotContain("description")
       .contains("membersCount");
   }
 
+  private WsTester.TestRequest newRequest() {
+    return ws.newGetRequest("api/user_groups", "search");
+  }
+
   private void insertGroups(String... groupNames) {
     for (String groupName : groupNames) {
-      groupDao.insert(session, new GroupDto()
+      groupDao.insert(dbSession, new GroupDto()
         .setName(groupName)
         .setDescription(StringUtils.capitalize(groupName)));
     }
   }
 
   private void insertMembers(String groupName, int count) {
-    long groupId = groupDao.selectOrFailByName(session, groupName).getId();
+    long groupId = groupDao.selectOrFailByName(dbSession, groupName).getId();
     for (int i = 0; i < count; i++) {
-      userGroupDao.insert(session, new UserGroupDto().setGroupId(groupId).setUserId((long) i + 1));
+      userGroupDao.insert(dbSession, new UserGroupDto().setGroupId(groupId).setUserId((long) i + 1));
     }
   }
 }

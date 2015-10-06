@@ -182,7 +182,7 @@ public class RemoveUserActionTest {
   }
 
   private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/usergroups", "remove_user");
+    return ws.newPostRequest("api/user_groups", "remove_user");
   }
 
   private GroupDto insertGroup(String groupName) {

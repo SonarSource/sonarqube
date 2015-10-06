@@ -23,9 +23,9 @@ import com.google.common.base.Preconditions;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 
 @ServerSide

@@ -201,7 +201,7 @@ public class AddUserActionTest {
   }
 
   private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/usergroups", "add_user");
+    return ws.newPostRequest("api/user_groups", "add_user");
   }
 
   private GroupDto insertGroup(String groupName) {

@@ -31,12 +31,8 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupMembershipDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -64,10 +60,6 @@ public class UsersActionTest {
   public void setUp() {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    UserDao userDao = dbClient.userDao();
-    GroupDao groupDao = dbClient.groupDao();
-    UserGroupDao userGroupDao = dbClient.userGroupDao();
-    GroupMembershipDao groupMembershipDao = dbClient.groupMembershipDao();
 
     wsTester = new WsTester(new UserGroupsWs(
       new UsersAction(
@@ -218,7 +210,7 @@ public class UsersActionTest {
   }
 
   private TestRequest newUsersRequest() {
-    return wsTester.newGetRequest("api/usergroups", "users");
+    return wsTester.newGetRequest("api/user_groups", "users");
   }
 
   private GroupDto insertGroup() {

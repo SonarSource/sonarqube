@@ -22,7 +22,6 @@ package org.sonar.server.usergroups.ws;
 
 import java.net.HttpURLConnection;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,18 +29,17 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.db.user.GroupDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -49,52 +47,36 @@ import org.sonar.test.DbTests;
 public class UpdateActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WsTester tester;
-
+  private WsTester ws;
+  private DbSession dbSession;
   private GroupDao groupDao;
-
-  private DbSession session;
-
   private UserGroupDao userGroupDao;
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
+    DbClient dbClient = db.getDbClient();
+    dbSession = db.getSession();
+    groupDao = dbClient.groupDao();
+    userGroupDao = dbClient.userGroupDao();
 
-    groupDao = new GroupDao(System2.INSTANCE);
-
-    userGroupDao = new UserGroupDao();
-
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
-      groupDao, new GroupMembershipDao(dbTester.myBatis()), userGroupDao);
-
-    tester = new WsTester(new UserGroupsWs(new UpdateAction(dbClient, userSession, new UserGroupUpdater(dbClient))));
-
-    session = dbClient.openSession(false);
-  }
-
-  @After
-  public void after() {
-    session.close();
+    ws = new WsTester(new UserGroupsWs(new UpdateAction(dbClient, userSession, new UserGroupUpdater(dbClient))));
   }
 
   @Test
   public void update_nominal() throws Exception {
-    GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
-    userGroupDao.insert(session, new UserGroupDto().setGroupId(existingGroup.getId()).setUserId(42L));
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
+    userGroupDao.insert(dbSession, new UserGroupDto().setGroupId(existingGroup.getId()).setUserId(42L));
 
-    session.commit();
+    dbSession.commit();
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", existingGroup.getId().toString())
       .setParam("name", "new-name")
       .setParam("description", "New Description")
@@ -109,11 +91,11 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_name() throws Exception {
-    GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
-    session.commit();
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
+    dbSession.commit();
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", existingGroup.getId().toString())
       .setParam("name", "new-name")
       .execute().assertJson("{" +
@@ -127,11 +109,11 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_description() throws Exception {
-    GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
-    session.commit();
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
+    dbSession.commit();
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", existingGroup.getId().toString())
       .setParam("description", "New Description")
       .execute().assertJson("{" +
@@ -148,7 +130,7 @@ public class UpdateActionTest {
     expectedException.expect(ForbiddenException.class);
 
     userSession.login("not-admin");
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", "42")
       .setParam("name", "some-product-bu")
       .setParam("description", "Business Unit for Some Awesome Product")
@@ -157,13 +139,13 @@ public class UpdateActionTest {
 
   @Test
   public void name_too_short() throws Exception {
-    GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
-    session.commit();
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
+    dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", existingGroup.getId().toString())
       .setParam("name", "")
       .execute();
@@ -171,13 +153,13 @@ public class UpdateActionTest {
 
   @Test
   public void name_too_long() throws Exception {
-    GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
-    session.commit();
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
+    dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", existingGroup.getId().toString())
       .setParam("name", StringUtils.repeat("a", 255 + 1))
       .execute();
@@ -185,13 +167,13 @@ public class UpdateActionTest {
 
   @Test
   public void forbidden_name() throws Exception {
-    GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
-    session.commit();
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
+    dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", existingGroup.getId().toString())
       .setParam("name", "AnYoNe")
       .execute();
@@ -199,17 +181,17 @@ public class UpdateActionTest {
 
   @Test
   public void non_unique_name() throws Exception {
-    GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
     String groupName = "conflicting-name";
-    groupDao.insert(session, new GroupDto()
+    groupDao.insert(dbSession, new GroupDto()
       .setName(groupName));
-    session.commit();
+    dbSession.commit();
 
     expectedException.expect(ServerException.class);
     expectedException.expectMessage("already taken");
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", existingGroup.getId().toString())
       .setParam("name", groupName)
       .execute().assertStatus(HttpURLConnection.HTTP_CONFLICT);
@@ -217,13 +199,13 @@ public class UpdateActionTest {
 
   @Test
   public void description_too_long() throws Exception {
-    GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
-    session.commit();
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName("old-name").setDescription("Old Description"));
+    dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", existingGroup.getId().toString())
       .setParam("name", "long-group-description-is-looooooooooooong")
       .setParam("description", StringUtils.repeat("a", 200 + 1))
@@ -235,9 +217,13 @@ public class UpdateActionTest {
     expectedException.expect(NotFoundException.class);
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "update")
+    newRequest()
       .setParam("id", "42")
       .execute();
+  }
+
+  private WsTester.TestRequest newRequest() {
+    return ws.newPostRequest("api/user_groups", "update");
   }
 
   private void loginAsAdmin() {

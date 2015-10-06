@@ -176,6 +176,6 @@ public class DeleteActionTest {
   }
 
   private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest("api/usergroups", "delete");
+    return ws.newPostRequest("api/user_groups", "delete");
   }
 }
