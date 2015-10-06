@@ -55,7 +55,7 @@ public class DeleteAction implements UserGroupsWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction("delete")
       .setDescription(format("Delete a group. The default groups cannot be deleted.<br/>" +
-        "'%s' or '%s' must be provided." +
+        "'%s' or '%s' must be provided.<br />" +
         "Requires System Administrator permission.",
         PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
