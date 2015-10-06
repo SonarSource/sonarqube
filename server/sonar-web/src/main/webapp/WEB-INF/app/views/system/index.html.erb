@@ -3,6 +3,7 @@
     <h1 class="page-title"><%= message('system_info.page') -%></h1>
     <div class="page-actions">
       <div>
+        <a href="<%= ApplicationController.root_context -%>/api/system/logs" id="logs-link">Logs</a>&nbsp;&nbsp;
         <a href="<%= ApplicationController.root_context -%>/api/system/info" id="download-link">Download</a>
       </div>
     </div>
