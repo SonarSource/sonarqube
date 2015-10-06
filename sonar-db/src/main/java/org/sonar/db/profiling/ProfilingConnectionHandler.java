@@ -40,17 +40,17 @@ class ProfilingConnectionHandler implements InvocationHandler {
     if ("prepareStatement".equals(method.getName())) {
       PreparedStatement statement = (PreparedStatement) result;
       String sql = (String) args[0];
-      return Proxy.newProxyInstance(ProfilingConnectionHandler.class.getClassLoader(), new Class[] {PreparedStatement.class},
-        new ProfilingPreparedStatementHandler(statement, sql));
-
-    } else if ("createStatement".equals(method.getName())) {
-      Statement statement = (Statement) result;
-      return Proxy.newProxyInstance(ProfilingConnectionHandler.class.getClassLoader(), new Class[] {Statement.class},
-        new ProfilingStatementHandler(statement));
-
-    } else {
-      return result;
+      return buildStatementProxy(PreparedStatement.class, new ProfilingPreparedStatementHandler(statement, sql));
     }
+    if ("createStatement".equals(method.getName())) {
+      Statement statement = (Statement) result;
+      return buildStatementProxy(Statement.class, new ProfilingStatementHandler(statement));
+    }
+    return result;
+  }
+
+  private Object buildStatementProxy(Class<? extends Statement> stmtClass, InvocationHandler handler) {
+    return Proxy.newProxyInstance(ProfilingConnectionHandler.class.getClassLoader(), new Class[] {stmtClass}, handler);
   }
 
 }

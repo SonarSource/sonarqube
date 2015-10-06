@@ -22,6 +22,7 @@ package org.sonar.db.profiling;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Collection;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.sonar.api.utils.log.Logger;
@@ -33,7 +34,6 @@ public class ProfiledDataSource extends BasicDataSource {
 
   private final BasicDataSource delegate;
   private ConnectionInterceptor connectionInterceptor;
-
 
   public ProfiledDataSource(BasicDataSource delegate, ConnectionInterceptor connectionInterceptor) {
     this.delegate = delegate;
@@ -325,12 +325,17 @@ public class ProfiledDataSource extends BasicDataSource {
 
   @Override
   public Connection getConnection(String login, String password) throws SQLException {
-    return connectionInterceptor.getConnection(delegate, login, password);
+    return connectionInterceptor.getConnection(this, login, password);
   }
 
   @Override
   public int getLoginTimeout() throws SQLException {
     return delegate.getLoginTimeout();
+  }
+
+  @Override
+  public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    return java.util.logging.Logger.getLogger(getClass().getName());
   }
 
   @Override
