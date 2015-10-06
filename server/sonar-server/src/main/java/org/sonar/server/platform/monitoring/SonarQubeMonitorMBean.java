@@ -24,4 +24,6 @@ public interface SonarQubeMonitorMBean {
   String getServerId();
 
   String getVersion();
+
+  String getLogLevel();
 }

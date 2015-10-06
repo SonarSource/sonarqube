@@ -19,10 +19,10 @@
  */
 package org.sonar.server.platform.ws;
 
-import ch.qos.logback.classic.Level;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.Database;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -54,7 +54,7 @@ public class ChangeLogLevelActionTest {
       .setParam("level", "DEBUG")
       .setMethod("POST")
       .execute();
-    verify(serverLogging).changeLevel(Level.DEBUG);
+    verify(serverLogging).changeLevel(LoggerLevel.DEBUG);
     verify(db).enableSqlLogging(false);
   }
 
@@ -66,7 +66,7 @@ public class ChangeLogLevelActionTest {
       .setParam("level", "TRACE")
       .setMethod("POST")
       .execute();
-    verify(serverLogging).changeLevel(Level.TRACE);
+    verify(serverLogging).changeLevel(LoggerLevel.TRACE);
     verify(db).enableSqlLogging(true);
   }
 

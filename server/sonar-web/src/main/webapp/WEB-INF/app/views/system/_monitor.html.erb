@@ -23,9 +23,26 @@
          <% end %>
 
       <% else %>
-        <tr class="<%= cycle('even','odd', :name => monitor.name()) -%>">
+        <tr class="<%= cycle('even','odd', :name => monitor.name()) -%>" id="<%= "#{monitor.name()}-#{attribute_key}".parameterize -%>">
           <td width="25%" nowrap="nowrap"><%= h attribute_key -%></td>
-          <td width="75%"><%= h attribute_value -%></td>
+          <td width="75%">
+            <% if attribute_key == 'Logs Level' %>
+              <%
+                message = ''
+                css_level = ''
+                if attribute_value=='TRACE'
+                  css_level = 'alert_ERROR'
+                  message = 'TRACE level has performance impacts, please make sure to get back to INFO level once your investigation is done.'
+                elsif attribute_value=='DEBUG'
+                  css_level = 'alert_WARN'
+                  message = 'DEBUG level may have performance impacts, please make sure to get back to INFO level once your investigation is done.'
+                end
+              %>
+              <span class="<%= css_level -%>"><%= h attribute_value -%></span>
+            <% else %>
+              <%= h attribute_value -%>
+            <% end %>
+          </td>
         </tr>
       <% end %>
 

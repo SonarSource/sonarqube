@@ -19,7 +19,6 @@
  */
 package org.sonar.server.app;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -27,6 +26,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import java.util.logging.LogManager;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
 import org.sonar.server.computation.log.CeLogDenyFilter;
@@ -67,13 +67,13 @@ class ServerProcessLogging {
 
   private void configureLevels(Props props) {
     String levelCode = props.value(LOG_LEVEL_PROPERTY, "INFO");
-    Level level;
+    LoggerLevel level;
     if ("TRACE".equals(levelCode)) {
-      level = Level.TRACE;
+      level = LoggerLevel.TRACE;
     } else if ("DEBUG".equals(levelCode)) {
-      level = Level.DEBUG;
+      level = LoggerLevel.DEBUG;
     } else if ("INFO".equals(levelCode)) {
-      level = Level.INFO;
+      level = LoggerLevel.INFO;
     } else {
       throw MessageException.of(String.format("Unsupported log level: %s. Please check property %s", levelCode, LOG_LEVEL_PROPERTY));
     }

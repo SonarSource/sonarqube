@@ -22,19 +22,21 @@ package org.sonar.server.platform;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.io.File;
 import java.util.Set;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 
 @ServerSide
 public class ServerLogging {
 
-  public static final Set<Level> ALLOWED_ROOT_LOG_LEVELS = ImmutableSet.of(Level.TRACE, Level.DEBUG, Level.INFO);
+  public static final Set<LoggerLevel> ALLOWED_ROOT_LOG_LEVELS = Sets.immutableEnumSet(LoggerLevel.TRACE, LoggerLevel.DEBUG, LoggerLevel.INFO);
 
   private final LogbackHelper helper = new LogbackHelper();
   private final Settings settings;
@@ -43,14 +45,18 @@ public class ServerLogging {
     this.settings = settings;
   }
 
-  public void changeLevel(Level level) {
+  public void changeLevel(LoggerLevel level) {
     configureLevels(helper, level);
     LoggerFactory.getLogger(ServerLogging.class).info("Level of logs changed to {}", level);
   }
 
-  public static void configureLevels(LogbackHelper helper, Level level) {
+  public LoggerLevel getRootLoggerLevel() {
+    return Loggers.get(Logger.ROOT_LOGGER_NAME).getLevel();
+  }
+
+  public static void configureLevels(LogbackHelper helper, LoggerLevel level) {
     Preconditions.checkArgument(ALLOWED_ROOT_LOG_LEVELS.contains(level), "%s log level is not supported (allowed levels are %s)", level, ALLOWED_ROOT_LOG_LEVELS);
-    helper.configureLogger(Logger.ROOT_LOGGER_NAME, level);
+    helper.configureLogger(Logger.ROOT_LOGGER_NAME, Level.toLevel(level.name()));
     helper.configureLogger("rails", Level.WARN);
     helper.configureLogger("org.apache.ibatis", Level.WARN);
     helper.configureLogger("java.sql", Level.WARN);

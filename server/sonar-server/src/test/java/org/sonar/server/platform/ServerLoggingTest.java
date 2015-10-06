@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 
@@ -47,12 +49,21 @@ public class ServerLoggingTest {
   Settings settings = new Settings();
   ServerLogging underTest = new ServerLogging(settings);
 
+  @Rule
+  public LogTester logTester = new LogTester();
+
   @Test
   public void getLogsDir() throws IOException {
     File dir = temp.newFolder();
     settings.setProperty(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
 
     assertThat(underTest.getLogsDir()).isEqualTo(dir);
+  }
+
+  @Test
+  public void getRootLoggerLevel() {
+    logTester.setLevel(LoggerLevel.TRACE);
+    assertThat(underTest.getRootLoggerLevel()).isEqualTo(LoggerLevel.TRACE);
   }
 
   @Test
@@ -68,7 +79,7 @@ public class ServerLoggingTest {
   @Test
   public void configureLevels() {
     LogbackHelper logbackHelper = mock(LogbackHelper.class);
-    ServerLogging.configureLevels(logbackHelper, Level.TRACE);
+    ServerLogging.configureLevels(logbackHelper, LoggerLevel.TRACE);
 
     verify(logbackHelper).configureLogger(Logger.ROOT_LOGGER_NAME, Level.TRACE);
     verify(logbackHelper).configureLogger("java.sql", Level.WARN);
@@ -80,6 +91,6 @@ public class ServerLoggingTest {
     expectedException.expectMessage("ERROR log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
 
     LogbackHelper logbackHelper = mock(LogbackHelper.class);
-    ServerLogging.configureLevels(logbackHelper, Level.ERROR);
+    ServerLogging.configureLevels(logbackHelper, LoggerLevel.ERROR);
   }
 }

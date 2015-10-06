@@ -168,6 +168,11 @@ class LogbackLogger extends BaseLogger {
     return true;
   }
 
+  @Override
+  public LoggerLevel getLevel() {
+    return LoggerLevel.valueOf(logback.getEffectiveLevel().levelStr);
+  }
+
   Logger logbackLogger() {
     return logback;
   }

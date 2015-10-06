@@ -20,15 +20,15 @@
 
 package org.sonar.server.platform.monitoring;
 
+import java.io.File;
+import java.util.LinkedHashMap;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
-
-import java.io.File;
-import java.util.LinkedHashMap;
 
 public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonitorMBean {
 
@@ -37,12 +37,14 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   private final Settings settings;
   private final SecurityRealmFactory securityRealmFactory;
   private final Server server;
+  private final ServerLogging serverLogging;
 
   public SonarQubeMonitor(Settings settings, SecurityRealmFactory securityRealmFactory,
-    Server server) {
+    Server server, ServerLogging serverLogging) {
     this.settings = settings;
     this.securityRealmFactory = securityRealmFactory;
     this.server = server;
+    this.serverLogging = serverLogging;
   }
 
   @Override
@@ -53,6 +55,11 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   @Override
   public String getVersion() {
     return server.getVersion();
+  }
+
+  @Override
+  public String getLogLevel() {
+    return serverLogging.getRootLoggerLevel().name();
   }
 
   public String getExternalUserAuthentication() {
@@ -100,8 +107,9 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     attributes.put("Official Distribution", isOfficialDistribution());
     attributes.put("Home Dir", settings.getString(ProcessProperties.PATH_HOME));
     attributes.put("Data Dir", settings.getString(ProcessProperties.PATH_DATA));
-    attributes.put("Logs Dir", settings.getString(ProcessProperties.PATH_LOGS));
     attributes.put("Temp Dir", settings.getString(ProcessProperties.PATH_TEMP));
+    attributes.put("Logs Dir", settings.getString(ProcessProperties.PATH_LOGS));
+    attributes.put("Logs Level", getLogLevel());
     return attributes;
 
   }

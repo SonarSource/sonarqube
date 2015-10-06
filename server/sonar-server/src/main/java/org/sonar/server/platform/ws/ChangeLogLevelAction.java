@@ -19,10 +19,10 @@
  */
 package org.sonar.server.platform.ws;
 
-import ch.qos.logback.classic.Level;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.Database;
 import org.sonar.server.platform.ServerLogging;
@@ -59,8 +59,8 @@ public class ChangeLogLevelAction implements SystemWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
     userSession.checkGlobalPermission(UserRole.ADMIN);
-    Level level = Level.toLevel(wsRequest.mandatoryParam(PARAM_LEVEL));
-    db.enableSqlLogging(level.equals(Level.TRACE));
+    LoggerLevel level = LoggerLevel.valueOf(wsRequest.mandatoryParam(PARAM_LEVEL));
+    db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
     logging.changeLevel(level);
     wsResponse.noContent();
   }
