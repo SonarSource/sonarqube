@@ -30,9 +30,9 @@ import org.sonar.api.resources.ResourceTypes;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Ordering.natural;
+import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 
 public class DefaultPermissionTemplateFinder {
   private final Settings settings;
@@ -84,8 +84,7 @@ public class DefaultPermissionTemplateFinder {
 
     @Override
     public String apply(@Nonnull String qualifier) {
-      String effectiveTemplateUuid = effectiveTemplateUuid(settings, qualifier);
-      return effectiveTemplateUuid;
+      return effectiveTemplateUuid(settings, qualifier);
     }
   }
 

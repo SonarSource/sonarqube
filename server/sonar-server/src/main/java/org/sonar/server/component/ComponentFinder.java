@@ -88,7 +88,7 @@ public class ComponentFinder {
     return component.get();
   }
 
-  private void checkIsProjectOrModule(ComponentDto component, ResourceTypes resourceTypes) {
+  private static void checkIsProjectOrModule(ComponentDto component, ResourceTypes resourceTypes) {
     Set<String> rootQualifiers = from(resourceTypes.getRoots())
       .transform(RESOURCE_TYPE_TO_QUALIFIER)
       .toSet();

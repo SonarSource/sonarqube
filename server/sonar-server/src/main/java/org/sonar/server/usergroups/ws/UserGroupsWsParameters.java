@@ -28,6 +28,10 @@ public class UserGroupsWsParameters {
   static final String PARAM_GROUP_ID = "id";
   static final String PARAM_LOGIN = "login";
 
+  private UserGroupsWsParameters() {
+    // static methods only
+  }
+
   static void createGroupParameters(NewAction action) {
     createGroupIdParameter(action);
     createGroupNameParameter(action);
