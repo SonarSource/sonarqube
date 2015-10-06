@@ -29,7 +29,6 @@ import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
@@ -83,7 +82,6 @@ public class ModuleIssues {
     builder.setSeverity(severity);
     builder.setRuleRepository(issue.ruleKey().repository());
     builder.setRuleKey(issue.ruleKey().rule());
-    builder.setAttributes(KeyValueFormat.format(issue.attributes()));
     builder.setMsg(primaryMessage);
     locationBuilder.setMsg(primaryMessage);
 

@@ -104,10 +104,9 @@ message Issue {
   optional string msg = 4;
   optional Severity severity = 5;
   optional double effort_to_fix = 6;
-  optional string attributes = 7;
   // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
-  optional TextRange text_range = 9;
-  repeated Flow flow = 10;
+  optional TextRange text_range = 7;
+  repeated Flow flow = 8;
 }
 
 message IssueLocation {

@@ -128,7 +128,7 @@ public class DeprecatedIssueWrapper implements Issue {
 
   @Override
   public Map<String, String> attributes() {
-    return null;
+    return Collections.emptyMap();
   }
 
   @Override

@@ -129,9 +129,6 @@ public class TrackerRawInputFactory {
       if (reportIssue.hasEffortToFix()) {
         issue.setEffortToFix(reportIssue.getEffortToFix());
       }
-      if (reportIssue.hasAttributes()) {
-        issue.setAttributes(KeyValueFormat.parse(reportIssue.getAttributes()));
-      }
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
       if (reportIssue.hasTextRange()) {
         dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));

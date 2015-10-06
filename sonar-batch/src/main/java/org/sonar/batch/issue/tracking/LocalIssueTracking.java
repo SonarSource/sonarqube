@@ -19,19 +19,14 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.repository.ProjectRepositories;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
 import javax.annotation.CheckForNull;
-
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -40,12 +35,12 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -116,7 +111,6 @@ public class LocalIssueTracking {
       .message(rawIssue.hasMsg() ? rawIssue.getMsg() : null)
       .severity(rawIssue.getSeverity().name())
       .build();
-    trackedIssue.setAttributes(rawIssue.hasAttributes() ? KeyValueFormat.parse(rawIssue.getAttributes()) : Collections.<String, String>emptyMap());
     return trackedIssue;
   }
 

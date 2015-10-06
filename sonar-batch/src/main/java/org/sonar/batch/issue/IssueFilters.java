@@ -31,7 +31,6 @@ import org.sonar.api.issue.batch.IssueFilter;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.protocol.output.BatchReport;
 
 @BatchSide
@@ -130,7 +129,7 @@ public class IssueFilters {
 
     @Override
     public Map<String, String> attributes() {
-      return rawIssue.hasAttributes() ? KeyValueFormat.parse(rawIssue.getAttributes()) : Collections.<String, String>emptyMap();
+      return Collections.emptyMap();
     }
 
     @Override

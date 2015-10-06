@@ -154,6 +154,10 @@ public interface Issue extends Serializable {
   @CheckForNull
   String attribute(String key);
 
+  /**
+   * Empty on batch side since version 5.2. Attributes are moved to server's Compute Engine. No use-case for keeping them
+   * on batch side for now
+   */
   Map<String, String> attributes();
 
   /**

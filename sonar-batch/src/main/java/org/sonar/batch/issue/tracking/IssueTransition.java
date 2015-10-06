@@ -19,13 +19,15 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.api.batch.BatchSide;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
@@ -37,11 +39,6 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.util.CloseableIterator;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 @BatchSide
 public class IssueTransition {
   private final IssueCache issueCache;
@@ -50,10 +47,11 @@ public class IssueTransition {
   private final BatchComponentCache componentCache;
   private final ReportPublisher reportPublisher;
   private final Date analysisDate;
+  @Nullable
   private final LocalIssueTracking localIssueTracking;
 
   public IssueTransition(BatchComponentCache componentCache, IssueCache issueCache, IssueWorkflow workflow, ReportPublisher reportPublisher,
-    LocalIssueTracking localIssueTracking) {
+    @Nullable LocalIssueTracking localIssueTracking) {
     this.componentCache = componentCache;
     this.issueCache = issueCache;
     this.workflow = workflow;
@@ -118,7 +116,7 @@ public class IssueTransition {
   }
 
   private DefaultIssue toTracked(BatchComponent component, BatchReport.Issue rawIssue) {
-    DefaultIssue trackedIssue = new org.sonar.core.issue.DefaultIssueBuilder()
+    return new org.sonar.core.issue.DefaultIssueBuilder()
       .componentKey(component.key())
       .projectKey("unused")
       .ruleKey(RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey()))
@@ -127,7 +125,5 @@ public class IssueTransition {
       .message(rawIssue.hasMsg() ? rawIssue.getMsg() : null)
       .severity(rawIssue.getSeverity().name())
       .build();
-    trackedIssue.setAttributes(rawIssue.hasAttributes() ? KeyValueFormat.parse(rawIssue.getAttributes()) : Collections.<String, String>emptyMap());
-    return trackedIssue;
   }
 }

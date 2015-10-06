@@ -6557,21 +6557,7 @@ public final class BatchReport {
     double getEffortToFix();
 
     /**
-     * <code>optional string attributes = 7;</code>
-     */
-    boolean hasAttributes();
-    /**
-     * <code>optional string attributes = 7;</code>
-     */
-    java.lang.String getAttributes();
-    /**
-     * <code>optional string attributes = 7;</code>
-     */
-    com.google.protobuf.ByteString
-        getAttributesBytes();
-
-    /**
-     * <code>optional .TextRange text_range = 9;</code>
+     * <code>optional .TextRange text_range = 7;</code>
      *
      * <pre>
      * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -6579,7 +6565,7 @@ public final class BatchReport {
      */
     boolean hasTextRange();
     /**
-     * <code>optional .TextRange text_range = 9;</code>
+     * <code>optional .TextRange text_range = 7;</code>
      *
      * <pre>
      * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -6587,7 +6573,7 @@ public final class BatchReport {
      */
     org.sonar.batch.protocol.output.BatchReport.TextRange getTextRange();
     /**
-     * <code>optional .TextRange text_range = 9;</code>
+     * <code>optional .TextRange text_range = 7;</code>
      *
      * <pre>
      * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -6596,25 +6582,25 @@ public final class BatchReport {
     org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder getTextRangeOrBuilder();
 
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     java.util.List<org.sonar.batch.protocol.output.BatchReport.Flow> 
         getFlowList();
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     org.sonar.batch.protocol.output.BatchReport.Flow getFlow(int index);
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     int getFlowCount();
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.FlowOrBuilder> 
         getFlowOrBuilderList();
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     org.sonar.batch.protocol.output.BatchReport.FlowOrBuilder getFlowOrBuilder(
         int index);
@@ -6637,7 +6623,6 @@ public final class BatchReport {
       msg_ = "";
       severity_ = 0;
       effortToFix_ = 0D;
-      attributes_ = "";
       flow_ = java.util.Collections.emptyList();
     }
 
@@ -6708,14 +6693,8 @@ public final class BatchReport {
               break;
             }
             case 58: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000040;
-              attributes_ = bs;
-              break;
-            }
-            case 74: {
               org.sonar.batch.protocol.output.BatchReport.TextRange.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000080) == 0x00000080)) {
+              if (((bitField0_ & 0x00000040) == 0x00000040)) {
                 subBuilder = textRange_.toBuilder();
               }
               textRange_ = input.readMessage(org.sonar.batch.protocol.output.BatchReport.TextRange.PARSER, extensionRegistry);
@@ -6723,13 +6702,13 @@ public final class BatchReport {
                 subBuilder.mergeFrom(textRange_);
                 textRange_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000080;
+              bitField0_ |= 0x00000040;
               break;
             }
-            case 82: {
-              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+            case 66: {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
                 flow_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Flow>();
-                mutable_bitField0_ |= 0x00000100;
+                mutable_bitField0_ |= 0x00000080;
               }
               flow_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Flow.PARSER, extensionRegistry));
               break;
@@ -6743,7 +6722,7 @@ public final class BatchReport {
             new com.google.protobuf.InvalidProtocolBufferException(
                 e.getMessage()).setUnfinishedMessage(this));
       } finally {
-        if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
           flow_ = java.util.Collections.unmodifiableList(flow_);
         }
         this.unknownFields = unknownFields.build();
@@ -6945,62 +6924,20 @@ public final class BatchReport {
       return effortToFix_;
     }
 
-    public static final int ATTRIBUTES_FIELD_NUMBER = 7;
-    private volatile java.lang.Object attributes_;
-    /**
-     * <code>optional string attributes = 7;</code>
-     */
-    public boolean hasAttributes() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
-    }
-    /**
-     * <code>optional string attributes = 7;</code>
-     */
-    public java.lang.String getAttributes() {
-      java.lang.Object ref = attributes_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          attributes_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string attributes = 7;</code>
-     */
-    public com.google.protobuf.ByteString
-        getAttributesBytes() {
-      java.lang.Object ref = attributes_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        attributes_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int TEXT_RANGE_FIELD_NUMBER = 9;
+    public static final int TEXT_RANGE_FIELD_NUMBER = 7;
     private org.sonar.batch.protocol.output.BatchReport.TextRange textRange_;
     /**
-     * <code>optional .TextRange text_range = 9;</code>
+     * <code>optional .TextRange text_range = 7;</code>
      *
      * <pre>
      * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
      * </pre>
      */
     public boolean hasTextRange() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional .TextRange text_range = 9;</code>
+     * <code>optional .TextRange text_range = 7;</code>
      *
      * <pre>
      * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -7010,7 +6947,7 @@ public final class BatchReport {
       return textRange_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : textRange_;
     }
     /**
-     * <code>optional .TextRange text_range = 9;</code>
+     * <code>optional .TextRange text_range = 7;</code>
      *
      * <pre>
      * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -7020,35 +6957,35 @@ public final class BatchReport {
       return textRange_ == null ? org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance() : textRange_;
     }
 
-    public static final int FLOW_FIELD_NUMBER = 10;
+    public static final int FLOW_FIELD_NUMBER = 8;
     private java.util.List<org.sonar.batch.protocol.output.BatchReport.Flow> flow_;
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     public java.util.List<org.sonar.batch.protocol.output.BatchReport.Flow> getFlowList() {
       return flow_;
     }
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.FlowOrBuilder> 
         getFlowOrBuilderList() {
       return flow_;
     }
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     public int getFlowCount() {
       return flow_.size();
     }
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.Flow getFlow(int index) {
       return flow_.get(index);
     }
     /**
-     * <code>repeated .Flow flow = 10;</code>
+     * <code>repeated .Flow flow = 8;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.FlowOrBuilder getFlowOrBuilder(
         int index) {
@@ -7086,13 +7023,10 @@ public final class BatchReport {
         output.writeDouble(6, effortToFix_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(7, getAttributesBytes());
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeMessage(9, getTextRange());
+        output.writeMessage(7, getTextRange());
       }
       for (int i = 0; i < flow_.size(); i++) {
-        output.writeMessage(10, flow_.get(i));
+        output.writeMessage(8, flow_.get(i));
       }
       unknownFields.writeTo(output);
     }
@@ -7129,15 +7063,11 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(7, getAttributesBytes());
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, getTextRange());
+          .computeMessageSize(7, getTextRange());
       }
       for (int i = 0; i < flow_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(10, flow_.get(i));
+          .computeMessageSize(8, flow_.get(i));
       }
       size += unknownFields.getSerializedSize();
       memoizedSerializedSize = size;
@@ -7265,17 +7195,15 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000010);
         effortToFix_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000020);
-        attributes_ = "";
-        bitField0_ = (bitField0_ & ~0x00000040);
         if (textRangeBuilder_ == null) {
           textRange_ = null;
         } else {
           textRangeBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         if (flowBuilder_ == null) {
           flow_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000100);
+          bitField0_ = (bitField0_ & ~0x00000080);
         } else {
           flowBuilder_.clear();
         }
@@ -7330,19 +7258,15 @@ public final class BatchReport {
         if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.attributes_ = attributes_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
-          to_bitField0_ |= 0x00000080;
-        }
         if (textRangeBuilder_ == null) {
           result.textRange_ = textRange_;
         } else {
           result.textRange_ = textRangeBuilder_.build();
         }
         if (flowBuilder_ == null) {
-          if (((bitField0_ & 0x00000100) == 0x00000100)) {
+          if (((bitField0_ & 0x00000080) == 0x00000080)) {
             flow_ = java.util.Collections.unmodifiableList(flow_);
-            bitField0_ = (bitField0_ & ~0x00000100);
+            bitField0_ = (bitField0_ & ~0x00000080);
           }
           result.flow_ = flow_;
         } else {
@@ -7388,11 +7312,6 @@ public final class BatchReport {
         if (other.hasEffortToFix()) {
           setEffortToFix(other.getEffortToFix());
         }
-        if (other.hasAttributes()) {
-          bitField0_ |= 0x00000040;
-          attributes_ = other.attributes_;
-          onChanged();
-        }
         if (other.hasTextRange()) {
           mergeTextRange(other.getTextRange());
         }
@@ -7400,7 +7319,7 @@ public final class BatchReport {
           if (!other.flow_.isEmpty()) {
             if (flow_.isEmpty()) {
               flow_ = other.flow_;
-              bitField0_ = (bitField0_ & ~0x00000100);
+              bitField0_ = (bitField0_ & ~0x00000080);
             } else {
               ensureFlowIsMutable();
               flow_.addAll(other.flow_);
@@ -7413,7 +7332,7 @@ public final class BatchReport {
               flowBuilder_.dispose();
               flowBuilder_ = null;
               flow_ = other.flow_;
-              bitField0_ = (bitField0_ & ~0x00000100);
+              bitField0_ = (bitField0_ & ~0x00000080);
               flowBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getFlowFieldBuilder() : null;
@@ -7798,97 +7717,21 @@ public final class BatchReport {
         return this;
       }
 
-      private java.lang.Object attributes_ = "";
-      /**
-       * <code>optional string attributes = 7;</code>
-       */
-      public boolean hasAttributes() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
-      }
-      /**
-       * <code>optional string attributes = 7;</code>
-       */
-      public java.lang.String getAttributes() {
-        java.lang.Object ref = attributes_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            attributes_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string attributes = 7;</code>
-       */
-      public com.google.protobuf.ByteString
-          getAttributesBytes() {
-        java.lang.Object ref = attributes_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          attributes_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string attributes = 7;</code>
-       */
-      public Builder setAttributes(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000040;
-        attributes_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string attributes = 7;</code>
-       */
-      public Builder clearAttributes() {
-        bitField0_ = (bitField0_ & ~0x00000040);
-        attributes_ = getDefaultInstance().getAttributes();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string attributes = 7;</code>
-       */
-      public Builder setAttributesBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000040;
-        attributes_ = value;
-        onChanged();
-        return this;
-      }
-
       private org.sonar.batch.protocol.output.BatchReport.TextRange textRange_ = null;
       private com.google.protobuf.SingleFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.TextRange, org.sonar.batch.protocol.output.BatchReport.TextRange.Builder, org.sonar.batch.protocol.output.BatchReport.TextRangeOrBuilder> textRangeBuilder_;
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
        * </pre>
        */
       public boolean hasTextRange() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -7902,7 +7745,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -7918,11 +7761,11 @@ public final class BatchReport {
         } else {
           textRangeBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000040;
         return this;
       }
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -7936,11 +7779,11 @@ public final class BatchReport {
         } else {
           textRangeBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000040;
         return this;
       }
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -7948,7 +7791,7 @@ public final class BatchReport {
        */
       public Builder mergeTextRange(org.sonar.batch.protocol.output.BatchReport.TextRange value) {
         if (textRangeBuilder_ == null) {
-          if (((bitField0_ & 0x00000080) == 0x00000080) &&
+          if (((bitField0_ & 0x00000040) == 0x00000040) &&
               textRange_ != null &&
               textRange_ != org.sonar.batch.protocol.output.BatchReport.TextRange.getDefaultInstance()) {
             textRange_ =
@@ -7960,11 +7803,11 @@ public final class BatchReport {
         } else {
           textRangeBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000040;
         return this;
       }
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -7977,23 +7820,23 @@ public final class BatchReport {
         } else {
           textRangeBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
        * </pre>
        */
       public org.sonar.batch.protocol.output.BatchReport.TextRange.Builder getTextRangeBuilder() {
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000040;
         onChanged();
         return getTextRangeFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -8008,7 +7851,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional .TextRange text_range = 9;</code>
+       * <code>optional .TextRange text_range = 7;</code>
        *
        * <pre>
        * Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
@@ -8031,9 +7874,9 @@ public final class BatchReport {
       private java.util.List<org.sonar.batch.protocol.output.BatchReport.Flow> flow_ =
         java.util.Collections.emptyList();
       private void ensureFlowIsMutable() {
-        if (!((bitField0_ & 0x00000100) == 0x00000100)) {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
           flow_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Flow>(flow_);
-          bitField0_ |= 0x00000100;
+          bitField0_ |= 0x00000080;
          }
       }
 
@@ -8041,7 +7884,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Flow, org.sonar.batch.protocol.output.BatchReport.Flow.Builder, org.sonar.batch.protocol.output.BatchReport.FlowOrBuilder> flowBuilder_;
 
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public java.util.List<org.sonar.batch.protocol.output.BatchReport.Flow> getFlowList() {
         if (flowBuilder_ == null) {
@@ -8051,7 +7894,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public int getFlowCount() {
         if (flowBuilder_ == null) {
@@ -8061,7 +7904,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.Flow getFlow(int index) {
         if (flowBuilder_ == null) {
@@ -8071,7 +7914,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder setFlow(
           int index, org.sonar.batch.protocol.output.BatchReport.Flow value) {
@@ -8088,7 +7931,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder setFlow(
           int index, org.sonar.batch.protocol.output.BatchReport.Flow.Builder builderForValue) {
@@ -8102,7 +7945,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder addFlow(org.sonar.batch.protocol.output.BatchReport.Flow value) {
         if (flowBuilder_ == null) {
@@ -8118,7 +7961,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder addFlow(
           int index, org.sonar.batch.protocol.output.BatchReport.Flow value) {
@@ -8135,7 +7978,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder addFlow(
           org.sonar.batch.protocol.output.BatchReport.Flow.Builder builderForValue) {
@@ -8149,7 +7992,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder addFlow(
           int index, org.sonar.batch.protocol.output.BatchReport.Flow.Builder builderForValue) {
@@ -8163,7 +8006,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder addAllFlow(
           java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.Flow> values) {
@@ -8178,12 +8021,12 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder clearFlow() {
         if (flowBuilder_ == null) {
           flow_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000100);
+          bitField0_ = (bitField0_ & ~0x00000080);
           onChanged();
         } else {
           flowBuilder_.clear();
@@ -8191,7 +8034,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public Builder removeFlow(int index) {
         if (flowBuilder_ == null) {
@@ -8204,14 +8047,14 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.Flow.Builder getFlowBuilder(
           int index) {
         return getFlowFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.FlowOrBuilder getFlowOrBuilder(
           int index) {
@@ -8221,7 +8064,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.FlowOrBuilder> 
            getFlowOrBuilderList() {
@@ -8232,14 +8075,14 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.Flow.Builder addFlowBuilder() {
         return getFlowFieldBuilder().addBuilder(
             org.sonar.batch.protocol.output.BatchReport.Flow.getDefaultInstance());
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.Flow.Builder addFlowBuilder(
           int index) {
@@ -8247,7 +8090,7 @@ public final class BatchReport {
             index, org.sonar.batch.protocol.output.BatchReport.Flow.getDefaultInstance());
       }
       /**
-       * <code>repeated .Flow flow = 10;</code>
+       * <code>repeated .Flow flow = 8;</code>
        */
       public java.util.List<org.sonar.batch.protocol.output.BatchReport.Flow.Builder> 
            getFlowBuilderList() {
@@ -8260,7 +8103,7 @@ public final class BatchReport {
           flowBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonar.batch.protocol.output.BatchReport.Flow, org.sonar.batch.protocol.output.BatchReport.Flow.Builder, org.sonar.batch.protocol.output.BatchReport.FlowOrBuilder>(
                   flow_,
-                  ((bitField0_ & 0x00000100) == 0x00000100),
+                  ((bitField0_ & 0x00000080) == 0x00000080),
                   getParentForChildren(),
                   isClean());
           flow_ = null;
@@ -18973,42 +18816,42 @@ public final class BatchReport {
       "_type\030\001 \001(\0162\021.MeasureValueType\022\025\n\rboolea" +
       "n_value\030\002 \001(\010\022\021\n\tint_value\030\003 \001(\005\022\022\n\nlong" +
       "_value\030\004 \001(\003\022\024\n\014double_value\030\005 \001(\001\022\024\n\014st" +
-      "ring_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\"\312\001\n",
+      "ring_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\"\266\001\n",
       "\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010rule_" +
       "key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010" +
       "severity\030\005 \001(\0162\t.Severity\022\025\n\reffort_to_f" +
-      "ix\030\006 \001(\001\022\022\n\nattributes\030\007 \001(\t\022\036\n\ntext_ran" +
-      "ge\030\t \001(\0132\n.TextRange\022\023\n\004flow\030\n \003(\0132\005.Flo" +
-      "w\"S\n\rIssueLocation\022\025\n\rcomponent_ref\030\001 \001(" +
-      "\005\022\036\n\ntext_range\030\002 \001(\0132\n.TextRange\022\013\n\003msg" +
-      "\030\003 \001(\t\"(\n\004Flow\022 \n\010location\030\001 \003(\0132\016.Issue" +
-      "Location\"\254\001\n\nChangesets\022\025\n\rcomponent_ref" +
-      "\030\001 \001(\005\022(\n\tchangeset\030\002 \003(\0132\025.Changesets.C",
-      "hangeset\022 \n\024changesetIndexByLine\030\003 \003(\005B\002" +
-      "\020\001\032;\n\tChangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006aut" +
-      "hor\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"V\n\tDuplicate\022\026\n\016" +
-      "other_file_ref\030\001 \001(\005\022\031\n\005range\030\002 \001(\0132\n.Te" +
-      "xtRange\022\026\n\016other_file_key\030\003 \001(\t\"Q\n\013Dupli" +
-      "cation\022#\n\017origin_position\030\001 \001(\0132\n.TextRa" +
-      "nge\022\035\n\tduplicate\030\002 \003(\0132\n.Duplicate\"[\n\tTe" +
-      "xtRange\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030" +
-      "\002 \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend_offse" +
-      "t\030\004 \001(\005\"H\n\006Symbol\022\037\n\013declaration\030\001 \001(\0132\n",
-      ".TextRange\022\035\n\treference\030\002 \003(\0132\n.TextRang" +
-      "e\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(\005\022\022\n\nconditio" +
-      "ns\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004 \001" +
-      "(\010\022\035\n\025ut_covered_conditions\030\005 \001(\005\022\035\n\025it_" +
-      "covered_conditions\030\006 \001(\005\022\"\n\032overall_cove" +
-      "red_conditions\030\007 \001(\005\"P\n\022SyntaxHighlighti" +
-      "ng\022\031\n\005range\030\001 \001(\0132\n.TextRange\022\037\n\004type\030\002 " +
-      "\001(\0162\021.HighlightingType\"j\n\004Test\022\014\n\004name\030\001" +
-      " \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStatus\022\026\n\016dur" +
-      "ation_in_ms\030\003 \001(\003\022\022\n\nstacktrace\030\004 \001(\t\022\013\n",
-      "\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021\n\ttest_na" +
-      "me\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132\033.Coverag" +
-      "eDetail.CoveredFile\0329\n\013CoveredFile\022\020\n\010fi" +
-      "le_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 \003(\005B\002\020\001B#" +
-      "\n\037org.sonar.batch.protocol.outputH\001"
+      "ix\030\006 \001(\001\022\036\n\ntext_range\030\007 \001(\0132\n.TextRange" +
+      "\022\023\n\004flow\030\010 \003(\0132\005.Flow\"S\n\rIssueLocation\022\025" +
+      "\n\rcomponent_ref\030\001 \001(\005\022\036\n\ntext_range\030\002 \001(" +
+      "\0132\n.TextRange\022\013\n\003msg\030\003 \001(\t\"(\n\004Flow\022 \n\010lo" +
+      "cation\030\001 \003(\0132\016.IssueLocation\"\254\001\n\nChanges" +
+      "ets\022\025\n\rcomponent_ref\030\001 \001(\005\022(\n\tchangeset\030" +
+      "\002 \003(\0132\025.Changesets.Changeset\022 \n\024changese",
+      "tIndexByLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010r" +
+      "evision\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 " +
+      "\001(\003\"V\n\tDuplicate\022\026\n\016other_file_ref\030\001 \001(\005" +
+      "\022\031\n\005range\030\002 \001(\0132\n.TextRange\022\026\n\016other_fil" +
+      "e_key\030\003 \001(\t\"Q\n\013Duplication\022#\n\017origin_pos" +
+      "ition\030\001 \001(\0132\n.TextRange\022\035\n\tduplicate\030\002 \003" +
+      "(\0132\n.Duplicate\"[\n\tTextRange\022\022\n\nstart_lin" +
+      "e\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014start_offse" +
+      "t\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"H\n\006Symbol\022\037\n" +
+      "\013declaration\030\001 \001(\0132\n.TextRange\022\035\n\trefere",
+      "nce\030\002 \003(\0132\n.TextRange\"\260\001\n\010Coverage\022\014\n\004li" +
+      "ne\030\001 \001(\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030" +
+      "\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_con" +
+      "ditions\030\005 \001(\005\022\035\n\025it_covered_conditions\030\006" +
+      " \001(\005\022\"\n\032overall_covered_conditions\030\007 \001(\005" +
+      "\"P\n\022SyntaxHighlighting\022\031\n\005range\030\001 \001(\0132\n." +
+      "TextRange\022\037\n\004type\030\002 \001(\0162\021.HighlightingTy" +
+      "pe\"j\n\004Test\022\014\n\004name\030\001 \001(\t\022\033\n\006status\030\002 \001(\016" +
+      "2\013.TestStatus\022\026\n\016duration_in_ms\030\003 \001(\003\022\022\n" +
+      "\nstacktrace\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016Cover",
+      "ageDetail\022\021\n\ttest_name\030\001 \001(\t\0221\n\014covered_" +
+      "file\030\002 \003(\0132\033.CoverageDetail.CoveredFile\032" +
+      "9\n\013CoveredFile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014cove" +
+      "red_line\030\002 \003(\005B\002\020\001B#\n\037org.sonar.batch.pr" +
+      "otocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -19064,7 +18907,7 @@ public final class BatchReport {
     internal_static_Issue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Issue_descriptor,
-        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "EffortToFix", "Attributes", "TextRange", "Flow", });
+        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "EffortToFix", "TextRange", "Flow", });
     internal_static_IssueLocation_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_IssueLocation_fieldAccessorTable = new
