@@ -19,16 +19,15 @@
  */
 package org.sonar.server.computation.issue;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.util.cache.DiskCache;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -72,7 +71,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       closeUnmatchedBaseIssues(component, tracking, cacheAppender);
       issueVisitors.afterComponent(component);
     } catch (Exception e) {
-      throw new RuntimeException(String.format("Fail to process issues of component '%s'", component.getKey()), e);
+      throw new IllegalStateException(String.format("Fail to process issues of component '%s'", component.getKey()), e);
     } finally {
       cacheAppender.close();
     }

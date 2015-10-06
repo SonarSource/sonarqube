@@ -22,12 +22,13 @@ package org.sonar.server.platform;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.apache.commons.dbutils.DbUtils;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.version.DatabaseVersion;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
@@ -88,7 +89,6 @@ public class BackendCleanup {
         .get();
       esClient.prepareRefresh(esClient.prepareState().get()
         .getState().getMetaData().concreteAllIndices())
-        .setForce(true)
         .get();
       esClient.prepareFlush(esClient.prepareState().get()
         .getState().getMetaData().concreteAllIndices())
@@ -159,7 +159,7 @@ public class BackendCleanup {
    */
   public void clearIndex(String indexName) {
     esClient.prepareDeleteByQuery(esClient.prepareState().get()
-      .getState().getMetaData().concreteIndices(new String[] {indexName}))
+      .getState().getMetaData().concreteIndices(IndicesOptions.strictExpand(), indexName))
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
   }
@@ -169,7 +169,7 @@ public class BackendCleanup {
    */
   public void clearIndexType(IndexDefinition indexDefinition) {
     esClient.prepareDeleteByQuery(esClient.prepareState().get()
-      .getState().getMetaData().concreteIndices(new String[] {indexDefinition.getIndexName()})).setTypes(indexDefinition.getIndexType())
+      .getState().getMetaData().concreteIndices(IndicesOptions.strictExpand(), indexDefinition.getIndexName())).setTypes(indexDefinition.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
   }

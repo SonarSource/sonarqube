@@ -23,6 +23,14 @@ package org.sonar.server.debt;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.stax2.XMLInputFactory2;
@@ -33,28 +41,31 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.server.debt.DebtModelXMLExporter.*;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.List;
+import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static javax.xml.stream.XMLInputFactory.*;
+import static javax.xml.stream.XMLInputFactory.IS_COALESCING;
+import static javax.xml.stream.XMLInputFactory.IS_NAMESPACE_AWARE;
+import static javax.xml.stream.XMLInputFactory.IS_VALIDATING;
+import static javax.xml.stream.XMLInputFactory.SUPPORT_DTD;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.CONSTANT_ISSUE;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR;
 import static org.sonar.api.utils.Duration.MINUTE;
 import static org.sonar.server.debt.DebtCharacteristicsXMLImporter.convertKey;
-import static org.sonar.server.debt.DebtModelXMLExporter.*;
+import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC;
+import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC_KEY;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_COEFFICIENT;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_FUNCTION;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_KEY;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_OFFSET;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_TEXT_VALUE;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_VALUE;
+import static org.sonar.server.debt.DebtModelXMLExporter.REPOSITORY_KEY;
+import static org.sonar.server.debt.DebtModelXMLExporter.RULE_KEY;
 
 /**
  * Import rules debt definitions from an XML
