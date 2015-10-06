@@ -77,7 +77,7 @@ public class ServerLoggingTest {
   @Test
   public void configureLevels_unsupported_level() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Allowed log levels are [TRACE, DEBUG, INFO]");
+    expectedException.expectMessage("ERROR log level is not supported (allowed levels are [TRACE, DEBUG, INFO])");
 
     LogbackHelper logbackHelper = mock(LogbackHelper.class);
     ServerLogging.configureLevels(logbackHelper, Level.ERROR);

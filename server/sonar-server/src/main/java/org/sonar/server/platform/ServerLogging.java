@@ -49,7 +49,7 @@ public class ServerLogging {
   }
 
   public static void configureLevels(LogbackHelper helper, Level level) {
-    Preconditions.checkArgument(ALLOWED_ROOT_LOG_LEVELS.contains(level), "Allowed log levels are %s", ALLOWED_ROOT_LOG_LEVELS);
+    Preconditions.checkArgument(ALLOWED_ROOT_LOG_LEVELS.contains(level), "%s log level is not supported (allowed levels are %s)", level, ALLOWED_ROOT_LOG_LEVELS);
     helper.configureLogger(Logger.ROOT_LOGGER_NAME, level);
     helper.configureLogger("rails", Level.WARN);
     helper.configureLogger("org.apache.ibatis", Level.WARN);
