@@ -56,7 +56,7 @@ public class GlobalSettings extends Settings {
     this.bootstrapProps = bootstrapProps;
     this.globalReferentials = globalReferentials;
     init();
-    new DroppedPropertyChecker(this, DROPPED_PROPERTIES).checkDroppedProperties();
+    new DroppedPropertyChecker(this.getProperties(), DROPPED_PROPERTIES).checkDroppedProperties();
   }
 
   private void init() {

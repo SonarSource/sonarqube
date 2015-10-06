@@ -35,6 +35,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.test.TestUtils;
 
@@ -46,6 +48,9 @@ public class ProjectReactorBuilderTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private AnalysisMode mode;
 
@@ -686,6 +691,16 @@ public class ProjectReactorBuilderTest {
       .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
     assertThat(module1Feature.getWorkDir().getCanonicalFile())
       .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_com.foo.project.module1.feature"));
+  }
+
+  @Test
+  public void should_log_a_warning_when_a_dropped_property_is_present() {
+    Map<String, String> props = loadProps("simple-project");
+    props.put("sonar.qualitygate", "somevalue");
+    AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
+    new ProjectReactorBuilder(bootstrapProps, mode).execute();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");
   }
 
   private Map<String, String> loadPropsFromFile(String filePath) throws IOException {

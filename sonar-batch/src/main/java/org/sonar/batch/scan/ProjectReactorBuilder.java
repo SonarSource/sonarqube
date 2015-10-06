@@ -20,6 +20,7 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileFilter;
@@ -49,6 +50,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.bootstrap.DroppedPropertyChecker;
 import org.sonar.batch.util.BatchUtils;
 
 /**
@@ -57,6 +59,13 @@ import org.sonar.batch.util.BatchUtils;
 public class ProjectReactorBuilder {
 
   private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {0} for {1}";
+
+  /**
+   * A map of dropped properties as key and specific message to display for that property
+   * (what will happen, what should the user do, ...) as a value
+   */
+  private static final Map<String, String> DROPPED_PROPERTIES = ImmutableMap.of(
+    "sonar.qualitygate", "It will be ignored.");
 
   private static final Logger LOG = Loggers.get(ProjectReactorBuilder.class);
 
@@ -96,7 +105,7 @@ public class ProjectReactorBuilder {
   /**
    * Array of all mandatory properties required for a child project before its properties get merged with its parent ones.
    */
-  protected static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {MODULE_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
+  private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {MODULE_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
 
   /**
    * Properties that must not be passed from the parent project to its children.
@@ -106,25 +115,26 @@ public class ProjectReactorBuilder {
 
   private static final String NON_ASSOCIATED_PROJECT_KEY = "project";
 
-  private final AnalysisProperties taskProps;
+  private final AnalysisProperties analysisProps;
   private final AnalysisMode analysisMode;
   private File rootProjectWorkDir;
 
   public ProjectReactorBuilder(AnalysisProperties props, AnalysisMode analysisMode) {
-    this.taskProps = props;
+    this.analysisProps = props;
     this.analysisMode = analysisMode;
   }
 
   public ProjectReactor execute() {
     Profiler profiler = Profiler.create(LOG).startInfo("Process project properties");
+    new DroppedPropertyChecker(analysisProps.properties(), DROPPED_PROPERTIES).checkDroppedProperties();
     Map<String, Map<String, String>> propertiesByModuleIdPath = new HashMap<>();
-    extractPropertiesByModule(propertiesByModuleIdPath, "", "", taskProps.properties());
+    extractPropertiesByModule(propertiesByModuleIdPath, "", "", analysisProps.properties());
     ProjectDefinition rootProject = defineRootProject(propertiesByModuleIdPath.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleIdPath, "");
     cleanAndCheckProjectDefinitions(rootProject);
     // Since task properties are now empty we should add root module properties
-    taskProps.properties().putAll(propertiesByModuleIdPath.get(""));
+    analysisProps.properties().putAll(propertiesByModuleIdPath.get(""));
     profiler.stopDebug();
     return new ProjectReactor(rootProject);
   }
@@ -403,7 +413,7 @@ public class ProjectReactorBuilder {
   @VisibleForTesting
   protected static void mergeParentProperties(Map<String, String> childProps, Map<String, String> parentProps) {
     for (Map.Entry<String, String> entry : parentProps.entrySet()) {
-      String key = (String) entry.getKey();
+      String key = entry.getKey();
       if ((!childProps.containsKey(key) || childProps.get(key).equals(entry.getValue()))
         && !NON_HERITED_PROPERTIES_FOR_CHILD.contains(key)) {
         childProps.put(entry.getKey(), entry.getValue());

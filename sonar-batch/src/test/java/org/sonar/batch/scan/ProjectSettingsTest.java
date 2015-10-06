@@ -19,18 +19,10 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.repository.FileData;
-
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import com.google.common.collect.ImmutableTable;
-import org.sonar.batch.repository.ProjectRepositories;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.bootstrap.GlobalMode;
-import com.google.common.collect.ImmutableMap;
-
+import com.google.common.collect.Table;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,10 +33,14 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.bootstrap.GlobalMode;
 import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.GlobalRepositories;
+import org.sonar.batch.repository.FileData;
+import org.sonar.batch.repository.ProjectRepositories;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -138,19 +134,9 @@ public class ProjectSettingsTest {
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(MessageException.class);
     thrown
-      .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
+      .expectMessage(
+        "Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     batchSettings.getString("sonar.foo.secured");
-  }
-
-  @Test
-  public void should_log_a_warning_when_a_dropper_property_is_present() {
-    GlobalSettings settings = new GlobalSettings(new GlobalProperties(ImmutableMap.of("sonar.qualitygate", "somevalue")), new PropertyDefinitions(), new GlobalRepositories(),
-      globalMode);
-    projectRef = new ProjectRepositories(emptySettings, emptyFileData, null);
-    new ProjectSettings(new ProjectReactor(project), settings, new PropertyDefinitions(), projectRef, mode);
-
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");
-
   }
 
 }

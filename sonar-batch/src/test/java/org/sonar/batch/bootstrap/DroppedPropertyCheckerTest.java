@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
@@ -38,27 +37,21 @@ public class DroppedPropertyCheckerTest {
 
   @Test
   public void no_log_if_no_dropped_property() {
-    Settings settings = new Settings();
-    settings.setProperty(DROPPED_PROPERTY_1, SOME_VALUE);
-
-    new DroppedPropertyChecker(settings, ImmutableMap.<String, String>of()).checkDroppedProperties();
+    new DroppedPropertyChecker(ImmutableMap.of(DROPPED_PROPERTY_1, SOME_VALUE), ImmutableMap.<String, String>of()).checkDroppedProperties();
 
     assertThat(logTester.logs()).isEmpty();
   }
 
   @Test
   public void no_log_if_settings_does_not_contain_any_dropped_property() {
-    new DroppedPropertyChecker(new Settings(), ImmutableMap.of(DROPPED_PROPERTY_1, DROPPED_PROPERTY_MSG_1)).checkDroppedProperties();
+    new DroppedPropertyChecker(ImmutableMap.<String, String>of(), ImmutableMap.of(DROPPED_PROPERTY_1, DROPPED_PROPERTY_MSG_1)).checkDroppedProperties();
 
     assertThat(logTester.logs()).isEmpty();
   }
 
   @Test
   public void warn_log_if_settings_contains_any_dropped_property() {
-    Settings settings = new Settings();
-    settings.setProperty(DROPPED_PROPERTY_1, SOME_VALUE);
-
-    new DroppedPropertyChecker(settings, ImmutableMap.of(DROPPED_PROPERTY_1, DROPPED_PROPERTY_MSG_1)).checkDroppedProperties();
+    new DroppedPropertyChecker(ImmutableMap.of(DROPPED_PROPERTY_1, SOME_VALUE), ImmutableMap.of(DROPPED_PROPERTY_1, DROPPED_PROPERTY_MSG_1)).checkDroppedProperties();
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property '" + DROPPED_PROPERTY_1 + "' is not supported any more. " + DROPPED_PROPERTY_MSG_1);

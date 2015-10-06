@@ -20,27 +20,27 @@
 package org.sonar.batch.bootstrap;
 
 import java.util.Map;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Objects.requireNonNull;
 
 public class DroppedPropertyChecker {
-  private final Settings settings;
-  private final Logger logger;
+
+  private static final Logger LOG = Loggers.get(DroppedPropertyChecker.class);
+
+  private final Map<String, String> settings;
   private final Map<String, String> properties;
 
-  public DroppedPropertyChecker(Settings settings, Map<String, String> properties) {
-    this.settings = requireNonNull(settings);
-    this.logger = Loggers.get(settings.getClass());
-    this.properties = requireNonNull(properties);
+  public DroppedPropertyChecker(Map<String, String> properties, Map<String, String> droppedPropertiesAndMsg) {
+    this.settings = requireNonNull(properties);
+    this.properties = requireNonNull(droppedPropertiesAndMsg);
   }
 
   public void checkDroppedProperties() {
     for (Map.Entry<String, String> entry : properties.entrySet()) {
-      if (settings.hasKey(entry.getKey())) {
-        logger.warn("Property '{}' is not supported any more. {}", entry.getKey(), entry.getValue());
+      if (settings.containsKey(entry.getKey())) {
+        LOG.warn("Property '{}' is not supported any more. {}", entry.getKey(), entry.getValue());
       }
     }
   }

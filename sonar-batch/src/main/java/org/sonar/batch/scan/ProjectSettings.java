@@ -19,30 +19,16 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.repository.ProjectRepositories;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import com.google.common.collect.ImmutableMap;
-
-import java.util.Map;
-
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrap.DroppedPropertyChecker;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
+import org.sonar.batch.repository.ProjectRepositories;
 
 public class ProjectSettings extends Settings {
-
-  /**
-   * A map of dropped properties as key and specific message to display for that property
-   * (what will happen, what should the user do, ...) as a value
-   */
-  private static final Map<String, String> DROPPED_PROPERTIES = ImmutableMap.of(
-    "sonar.qualitygate", "It will be ignored."
-    );
 
   private final GlobalSettings globalSettings;
   private final ProjectRepositories projectRepositories;
@@ -56,7 +42,6 @@ public class ProjectSettings extends Settings {
     this.globalSettings = globalSettings;
     this.projectRepositories = projectRepositories;
     init(reactor);
-    new DroppedPropertyChecker(this, DROPPED_PROPERTIES).checkDroppedProperties();
   }
 
   private void init(ProjectReactor reactor) {
