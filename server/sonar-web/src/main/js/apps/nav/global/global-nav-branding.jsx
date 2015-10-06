@@ -2,10 +2,11 @@ import React from 'react';
 
 export default React.createClass({
   renderLogo() {
-    const url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`;
-    const width = this.props.logoWidth || null;
-    const title = window.t('layout.sonar.slogan');
-    return <img src={url} width={width} height="30" alt={title} title={title}/>
+    let url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`,
+        width = this.props.logoWidth || null,
+        height = this.props.logoWidth ? 30 : null,
+        title = window.t('layout.sonar.slogan');
+    return <img src={url} width={width} height={height} alt={title} title={title}/>;
   },
 
   render() {
