@@ -1,0 +1,39 @@
+<%
+  deletion_manager = ResourceDeletionManager.instance
+  pending_deletions = deletion_manager.currently_deleting_resources?
+  failed_deletions = deletion_manager.failed_deletions
+  start_time = deletion_manager.deletion_start_time
+%>
+
+<% if pending_deletions %>
+  <meta http-equiv='refresh' content='5;'>
+<% end %>
+
+<h1 class="marginbottom10"><%= message('bulk_deletion.page') -%></h1>
+
+<div class="<%= pending_deletions ? 'admin' : 'error' -%>" style="padding:10px">
+  <% if pending_deletions %>
+    <%= image_tag 'loading.gif' -%>
+  <% end %>
+  
+  <b><%= deletion_manager.message -%></b>
+  <br/>
+  <br/>
+  <%= message('bulk_deletion.started_since_x', :params => distance_of_time_in_words(start_time, Time.now) ) -%> (<%= l start_time -%>)
+  <br/>
+  <br/> 
+  
+  <% if !pending_deletions && !failed_deletions.empty? %>
+    <p>
+      <%= message('bulk_deletion.following_deletions_failed') -%>
+      <ul style="list-style: none outside; padding-left: 30px;">
+      <% failed_deletions.each do |name| %>
+        <li style="list-style: disc outside; padding: 2px;"><%= name -%></li>
+      <% end %>
+      </ul>
+    </p>
+    <p>
+      <a href="<%= url_after_dismiss -%>"><%= message('bulk_deletion.hide_message') -%></a>
+    </p>
+  <% end %>
+</div>
