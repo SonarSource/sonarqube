@@ -47,6 +47,7 @@ export default React.createClass({
   renderAdministration() {
     let shouldShowAdministration =
         this.props.conf.showActionPlans ||
+        this.props.conf.showBackgroundTasks ||
         this.props.conf.showDeletion ||
         this.props.conf.showHistory ||
         this.props.conf.showLinks ||
@@ -150,7 +151,9 @@ export default React.createClass({
   },
 
   renderBackgroundTasksLink() {
-    // TODO check permissions
+    if (!this.props.conf.showBackgroundTasks) {
+      return null;
+    }
     const url = `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, window.t('background_tasks.page'), '/project/background_tasks');
   },
