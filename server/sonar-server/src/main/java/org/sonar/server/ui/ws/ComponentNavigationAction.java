@@ -140,7 +140,6 @@ public class ComponentNavigationAction implements NavigationWsAction {
       .prop("name", component.name())
       .prop("isComparable", componentTypeHasProperty(component, PROPERTY_COMPARABLE))
       .prop("canBeFavorite", userSession.isLoggedIn())
-      .prop("showBackgroundTasks", ActivityWsAction.isAllowedOnComponentUuid(userSession, component.uuid()))
       .prop("isFavorite", isFavourite(session, component, userSession));
 
     List<DashboardDto> dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, userSession.getLogin());
@@ -200,7 +199,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     return componentKey;
   }
 
-  private void writeDashboards(JsonWriter json, List<DashboardDto> dashboards) {
+  private static void writeDashboards(JsonWriter json, List<DashboardDto> dashboards) {
     json.name("dashboards").beginArray();
     for (DashboardDto dashboard : dashboards) {
       json.beginObject()
@@ -242,6 +241,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     json.prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
     json.prop("showUpdateKey", isAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
     json.prop("showDeletion", isAdmin && componentTypeHasProperty(component, PROPERTY_DELETABLE));
+    json.prop("showBackgroundTasks", ActivityWsAction.isAllowedOnComponentUuid(userSession, component.uuid()));
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {
