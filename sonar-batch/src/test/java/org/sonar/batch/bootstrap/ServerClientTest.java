@@ -20,25 +20,26 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
+import java.io.File;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.File;
-import java.io.IOException;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.write;
@@ -83,12 +84,30 @@ public class ServerClientTest {
   }
 
   @Test
+  public void should_timeout() throws Exception {
+    server = new MockHttpServer();
+    server.start();
+    server.setMockResponseData("this is the content");
+    server.setDelay(3 * 1000);
+
+    when(bootstrapProps.properties()).thenReturn(ImmutableMap.of(ServerClient.SONAR_WS_TIMEOUT_PROP, "1"));
+    when(bootstrapProps.property(ServerClient.SONAR_WS_TIMEOUT_PROP)).thenReturn("1");
+
+    try {
+      newServerClient().request("/<foo>");
+      Assert.fail("Should timeout");
+    } catch (Exception e) {
+      assertThat(e.getCause()).isExactlyInstanceOf(SocketTimeoutException.class);
+    }
+  }
+
+  @Test
   public void should_escape_html_from_url() throws Exception {
     server = new MockHttpServer();
     server.start();
     server.setMockResponseData("this is the content");
 
-    assertThat(newServerClient().request("/<foo>")).isEqualTo("this is the content");
+    assertThat(newServerClient().request("/foo")).isEqualTo("this is the content");
   }
 
   @Test
@@ -151,6 +170,7 @@ public class ServerClientTest {
     private String requestBody;
     private String mockResponseData;
     private int mockResponseStatus = SC_OK;
+    private int delay = 0;
 
     public void start() throws Exception {
       server = new Server(0);
@@ -171,6 +191,11 @@ public class ServerClientTest {
           setRequestBody(IOUtils.toString(baseRequest.getInputStream()));
           response.setStatus(mockResponseStatus);
           response.setContentType("text/xml;charset=utf-8");
+          try {
+            Thread.sleep(delay);
+          } catch (InterruptedException e) {
+            // Ignore
+          }
           write(getResponseBody(), response.getOutputStream());
           baseRequest.setHandled(true);
         }
@@ -206,6 +231,10 @@ public class ServerClientTest {
 
     public void setMockResponseStatus(int status) {
       this.mockResponseStatus = status;
+    }
+
+    public void setDelay(int delay) {
+      this.delay = delay;
     }
 
     public String getMockResponseData() {

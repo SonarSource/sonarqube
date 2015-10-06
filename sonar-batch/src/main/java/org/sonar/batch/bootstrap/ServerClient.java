@@ -23,6 +23,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -30,15 +37,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
 
 /**
  * Replace the deprecated org.sonar.batch.ServerMetadata
@@ -48,6 +46,8 @@ import java.net.URLEncoder;
  */
 public class ServerClient implements BatchComponent {
 
+  private static final int WS_TIMEOUT_DEFAULT = 60 * 1000;
+  static final String SONAR_WS_TIMEOUT_PROP = "sonar.ws.timeout";
   private BootstrapProperties props;
   private HttpDownloader.BaseHttpDownloader downloader;
 
@@ -98,13 +98,20 @@ public class ServerClient implements BatchComponent {
     Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
 
+    int readTimeout;
+    if (timeoutMillis != null) {
+      readTimeout = timeoutMillis.intValue();
+    } else {
+      readTimeout = props.properties().containsKey(SONAR_WS_TIMEOUT_PROP) ? Integer.parseInt(props.property(SONAR_WS_TIMEOUT_PROP)) * 1000 : WS_TIMEOUT_DEFAULT;
+    }
+
     URI uri = URI.create(getURL() + path);
     try {
       InputSupplier<InputStream> inputSupplier;
       if (Strings.isNullOrEmpty(getLogin())) {
-        inputSupplier = downloader.newInputSupplier(uri, timeoutMillis);
+        inputSupplier = downloader.newInputSupplier(uri, readTimeout);
       } else {
-        inputSupplier = downloader.newInputSupplier(uri, getLogin(), getPassword(), timeoutMillis);
+        inputSupplier = downloader.newInputSupplier(uri, getLogin(), getPassword(), readTimeout);
       }
       return inputSupplier;
     } catch (Exception e) {
