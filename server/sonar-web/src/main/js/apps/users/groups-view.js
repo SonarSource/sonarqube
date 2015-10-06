@@ -18,8 +18,8 @@ export default Modal.extend({
       },
       queryParam: 'q',
       searchUrl: baseUrl + '/api/users/groups?ps=100&login=' + this.model.id,
-      selectUrl: baseUrl + '/api/usergroups/add_user',
-      deselectUrl: baseUrl + '/api/usergroups/remove_user',
+      selectUrl: baseUrl + '/api/user_groups/add_user',
+      deselectUrl: baseUrl + '/api/user_groups/remove_user',
       extra: {
         login: this.model.id
       },

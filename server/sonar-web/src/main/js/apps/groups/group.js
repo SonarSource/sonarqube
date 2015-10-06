@@ -3,7 +3,7 @@ import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
   urlRoot: function () {
-    return baseUrl + '/api/usergroups';
+    return baseUrl + '/api/user_groups';
   },
 
   sync: function (method, model, options) {
