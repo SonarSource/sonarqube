@@ -140,12 +140,33 @@ class Api::IssuesController < Api::ApiController
   def actions
     require_parameters :issue
     issue_key = params[:issue]
-    actions = Internal.issues.listActions(issue_key)
     render :json => jsonp(
       {
-        :actions => actions.map { |t| t.key() }
+        :actions => Internal.issues.listActions(issue_key)
       }
     )
+  end
+
+  #
+  # POST /api/issues/do_action?issue=<key>&actionKey=<action key>
+  #
+  # -- Example
+  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/do_action?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0&actionKey=link-to-jira'
+  #
+  def do_action
+    verify_post_request
+    require_parameters :issue, :actionKey
+
+    result = Internal.issues.executeAction(params[:issue], params[:actionKey])
+
+    http_status = (result.ok ? 200 : 400)
+    hash = result_to_hash(result)
+
+    respond_to do |format|
+      # if the request header "Accept" is "*/*", then the default format is the first one (json)
+      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => http_status) }
+    end
   end
 
   #

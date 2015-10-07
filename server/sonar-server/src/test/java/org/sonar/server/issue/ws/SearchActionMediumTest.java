@@ -20,11 +20,9 @@
 
 package org.sonar.server.issue.ws;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
@@ -32,12 +30,12 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.ActionPlanDao;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueChangeDao;
@@ -47,7 +45,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -239,24 +236,6 @@ public class SearchActionMediumTest {
       .setParam("additionalFields", "actionPlans")
       .execute();
     result.assertJson(this.getClass(), "issue_with_action_plan.json");
-  }
-
-  @Ignore("temporarily disabled")
-  @Test
-  public void issue_with_attributes() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "FILE_ID").setKey("FILE_KEY"));
-    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
-      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
-      .setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
-    db.issueDao().insert(session, issue);
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .execute();
-    result.assertJson(this.getClass(), "issue_with_attributes.json");
   }
 
   @Test

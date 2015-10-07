@@ -51,6 +51,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.debt.DebtModelService;
+import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueCommentService;
@@ -89,6 +90,9 @@ public class ShowActionTest {
 
   @Mock
   IssueService issueService;
+
+  @Mock
+  ActionService actionService;
 
   @Mock
   IssueChangelogService issueChangelogService;
@@ -142,7 +146,7 @@ public class ShowActionTest {
     tester = new WsTester(new IssuesWs(
       new ShowAction(
         dbClient, issueService, issueChangelogService, commentService,
-        new IssueActionsWriter(issueService, userSessionRule),
+        new IssueActionsWriter(issueService, actionService, userSessionRule),
         actionPlanService, userFinder, debtModel, ruleService, i18n, durations, userSessionRule)));
   }
 
@@ -454,6 +458,8 @@ public class ShowActionTest {
     DefaultIssue issue = createStandardIssue()
       .setStatus("OPEN");
     when(issueService.getByKey(issue.key())).thenReturn(issue);
+
+    when(actionService.listAvailableActions(issue)).thenReturn(newArrayList( "comment", "assign", "set_tags", "assign_to_me", "plan"));
 
     userSessionRule.login("john");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());

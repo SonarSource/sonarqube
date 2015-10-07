@@ -9,6 +9,9 @@ import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -27,6 +30,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.io.FileUtils;
+import org.sonar.wsclient.base.HttpException;
 
 public class ItUtils {
 
@@ -157,4 +161,20 @@ public class ItUtils {
     }
     return from(Iterables.concat(asList(properties), asList(str))).toArray(String.class);
   }
+
+  public static void verifyHttpException(Exception e, int expectedCode) {
+    assertThat(e).isInstanceOf(HttpException.class);
+    HttpException exception = (HttpException) e;
+    assertThat(exception.status()).isEqualTo(expectedCode);
+  }
+
+  public static Date toDate(String sDate) {
+    try {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+      return sdf.parse(sDate);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }

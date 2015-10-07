@@ -20,25 +20,24 @@
 
 package org.sonar.server.issue.ws;
 
-import java.util.List;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.UserSession;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
 public class IssueActionsWriter {
 
   private final IssueService issueService;
+  private final ActionService actionService;
   private final UserSession userSession;
 
-  public IssueActionsWriter(IssueService issueService, UserSession userSession) {
+  public IssueActionsWriter(IssueService issueService, ActionService actionService, UserSession userSession) {
     this.issueService = issueService;
+    this.actionService = actionService;
     this.userSession = userSession;
   }
 
@@ -54,31 +53,10 @@ public class IssueActionsWriter {
 
   public void writeActions(Issue issue, JsonWriter json) {
     json.name("actions").beginArray();
-    for (String action : actions(issue)) {
+    for (String action : actionService.listAvailableActions(issue)) {
       json.value(action);
     }
     json.endArray();
-  }
-
-  private List<String> actions(Issue issue) {
-    List<String> actions = newArrayList();
-    String login = userSession.getLogin();
-    if (login != null) {
-      actions.add("comment");
-      if (issue.resolution() == null) {
-        actions.add("assign");
-        actions.add("set_tags");
-        if (!login.equals(issue.assignee())) {
-          actions.add("assign_to_me");
-        }
-        actions.add("plan");
-        String projectUuid = issue.projectUuid();
-        if (projectUuid != null && userSession.hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid)) {
-          actions.add("set_severity");
-        }
-      }
-    }
-    return actions;
   }
 
 }

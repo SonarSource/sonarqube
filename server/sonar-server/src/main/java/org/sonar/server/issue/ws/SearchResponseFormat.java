@@ -138,7 +138,6 @@ public class SearchResponseFormat {
       if (fields.contains(SearchAdditionalField.COMMENTS)) {
         formatIssueComments(data, issueBuilder, dto);
       }
-      // TODO attributes
       result.add(issueBuilder.build());
     }
     return result;
