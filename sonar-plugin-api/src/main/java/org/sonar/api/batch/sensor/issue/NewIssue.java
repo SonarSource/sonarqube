@@ -75,12 +75,6 @@ public interface NewIssue {
   NewIssueLocation newLocation();
 
   /**
-   * Attach a new attribute to the issue. Not used by SQ but can be reused later for integration needs (for example it is returned by WS).
-   * @since 5.2
-   */
-  NewIssue addAttribute(String key, String value);
-
-  /**
    * Save the issue. If rule key is unknown or rule not enabled in the current quality profile then a warning is logged but no exception
    * is thrown.
    */

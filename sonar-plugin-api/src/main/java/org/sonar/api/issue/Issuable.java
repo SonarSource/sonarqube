@@ -119,6 +119,9 @@ public interface Issuable extends Perspective {
 
     IssueBuilder effortToFix(@Nullable Double d);
 
+    /**
+     * No more supported from batch side since 5.2
+     */
     IssueBuilder attribute(String key, @Nullable String value);
 
     Issue build();

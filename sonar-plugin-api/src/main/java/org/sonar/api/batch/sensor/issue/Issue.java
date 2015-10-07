@@ -21,7 +21,6 @@ package org.sonar.api.batch.sensor.issue;
 
 import com.google.common.annotations.Beta;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
@@ -70,11 +69,5 @@ public interface Issue {
    * @since 5.2
    */
   List<Flow> flows();
-
-  /**
-   * Key/value pair of attributes that are attached to the issue.
-   * @since 5.2
-   */
-  Map<String, String> attributes();
 
 }

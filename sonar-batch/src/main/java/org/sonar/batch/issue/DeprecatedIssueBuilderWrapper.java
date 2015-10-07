@@ -114,8 +114,7 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
 
   @Override
   public IssueBuilder attribute(String key, String value) {
-    newIssue.addAttribute(key, value);
-    return this;
+    throw new UnsupportedOperationException("Not supported during sensor phase");
   }
 
   @Override
