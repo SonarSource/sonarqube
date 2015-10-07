@@ -161,6 +161,7 @@ module.exports = (grunt) ->
           'build-app:quality-gates'
           'build-app:quality-profiles'
           'build-app:source-viewer'
+          'build-app:system'
           'build-app:users'
           'build-app:update-center'
           # widgets
