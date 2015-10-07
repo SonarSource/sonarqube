@@ -30,9 +30,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.6
- * @deprecated in 5.2. Webapp can not be customized anymore to define actions on issues.
  */
-@Deprecated
 public class Action {
 
   private final String key;

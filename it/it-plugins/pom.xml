@@ -35,6 +35,7 @@
     <module>batch-plugin</module>
     <module>extension-lifecycle-plugin</module>
     <module>global-property-change-plugin</module>
+    <module>issue-action-plugin</module>
     <module>l10n-fr-pack</module>
     <module>license-plugin</module>
     <module>project-builder-plugin</module>

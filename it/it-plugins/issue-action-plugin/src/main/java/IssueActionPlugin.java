@@ -17,28 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.action;
 
-import java.util.ArrayList;
+import org.sonar.api.SonarPlugin;
+
+import java.util.Arrays;
 import java.util.List;
-import org.sonar.api.server.ServerSide;
 
-/**
- * @since 3.6
- */
-@ServerSide
-public class Actions {
+public class IssueActionPlugin extends SonarPlugin {
 
-  private final List<Action> list = new ArrayList<>();
-
-  public Action add(String actionKey) {
-    Action action = new Action(actionKey);
-    this.list.add(action);
-    return action;
-  }
-
-  public List<Action> list() {
-    return list;
+  public List getExtensions() {
+    return Arrays.asList(
+      ActionDefinition.class
+    );
   }
 
 }

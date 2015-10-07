@@ -30,9 +30,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.test.JsonAssert;
@@ -49,77 +49,32 @@ public class IssueActionsWriterTest {
   @Mock
   IssueService issueService;
 
+  @Mock
+  ActionService actionService;
+
   IssueActionsWriter writer;
 
   @Before
   public void setUp() {
-    writer = new IssueActionsWriter(issueService, userSessionRule);
+    writer = new IssueActionsWriter(issueService, actionService, userSessionRule);
   }
 
   @Test
-  public void write_all_standard_actions() {
-    Issue issue = new DefaultIssue()
-      .setKey("ABCD")
-      .setComponentUuid("BCDE")
-      .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
-      .setProjectUuid("ABCD")
-      .setProjectKey("sample")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-
-    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, "ABCD");
-
-    testActions(issue,
-      "{\"actions\": " +
-        "[" +
-        "\"comment\", \"assign\", \"set_tags\", \"assign_to_me\", \"plan\", \"set_severity\"\n" +
-        "]}");
-  }
-
-  @Test
-  public void write_only_comment_action() {
-    Issue issue = new DefaultIssue()
-      .setKey("ABCD")
-      .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
-      .setProjectKey("sample")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setResolution("CLOSED");
-
-    userSessionRule.login("john");
-
-    testActions(issue,
-      "{\"actions\": " +
-        "[" +
-        "\"comment\"" +
-        "]}");
-  }
-
-  @Test
-  public void write_no_action_if_not_logged() {
-    Issue issue = new DefaultIssue()
-      .setKey("ABCD")
-      .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
-      .setProjectKey("sample")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-
-    testActions(issue,
-      "{\"actions\": []}");
-  }
-
-  @Test
-  public void write_actions_without_assign_to_me() {
+  public void write_actions() {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setAssignee("john");
+    when(actionService.listAvailableActions(issue)).thenReturn(newArrayList("comment"));
 
     userSessionRule.login("john");
 
     testActions(issue,
       "{\"actions\": " +
         "[" +
-        "\"comment\", \"assign\", \"set_tags\", \"plan\"\n" +
+        "\"comment\"\n" +
         "]}");
   }
 
@@ -149,6 +104,18 @@ public class IssueActionsWriterTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
     userSessionRule.login("john");
+
+    testTransitions(issue,
+      "{\"transitions\": []}");
+  }
+
+  @Test
+  public void write_no_transitions_if_not_logged() {
+    Issue issue = new DefaultIssue()
+      .setKey("ABCD")
+      .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
+      .setProjectKey("sample")
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
     testTransitions(issue,
       "{\"transitions\": []}");

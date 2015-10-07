@@ -82,6 +82,7 @@ public class InternalRubyIssueService {
   private final ResourceDao resourceDao;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
+  private final ActionService actionService;
   private final UserSession userSession;
 
   public InternalRubyIssueService(
@@ -91,7 +92,7 @@ public class InternalRubyIssueService {
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     ResourceDao resourceDao,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
-    UserSession userSession) {
+    ActionService actionService, UserSession userSession) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
     this.commentService = commentService;
@@ -100,6 +101,7 @@ public class InternalRubyIssueService {
     this.resourceDao = resourceDao;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
+    this.actionService = actionService;
     this.userSession = userSession;
   }
 
@@ -312,6 +314,20 @@ public class InternalRubyIssueService {
       result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE, actionPlanKey));
     }
     return result;
+  }
+
+  public Result<Issue> executeAction(String issueKey, String actionKey) {
+    Result<Issue> result = Result.of();
+    try {
+      result.set(actionService.execute(issueKey, actionKey));
+    } catch (Exception e) {
+      result.addError(e.getMessage());
+    }
+    return result;
+  }
+
+  public List<String> listActions(String issueKey) {
+    return actionService.listAvailableActions(issueKey);
   }
 
   public IssueQuery emptyIssueQuery() {

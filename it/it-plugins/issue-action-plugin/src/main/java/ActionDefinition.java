@@ -17,28 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.action;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.ServerExtension;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.action.Actions;
+import org.sonar.api.issue.action.Function;
+import org.sonar.api.issue.condition.HasResolution;
 
-/**
- * @since 3.6
- */
-@ServerSide
-public class Actions {
+public class ActionDefinition implements ServerExtension {
 
-  private final List<Action> list = new ArrayList<>();
+  private final Actions actions;
 
-  public Action add(String actionKey) {
-    Action action = new Action(actionKey);
-    this.list.add(action);
-    return action;
+  public ActionDefinition(Actions actions) {
+    this.actions = actions;
   }
 
-  public List<Action> list() {
-    return list;
+  public void start() {
+    actions.add("fake")
+      .setConditions(new HasResolution(Issue.RESOLUTION_FIXED))
+      .setFunctions(new Function() {
+        @Override
+        public void execute(Context context) {
+          context.setAttribute("fake", "fake action");
+          context.addComment("New Comment from fake action");
+        }
+      });
   }
-
 }

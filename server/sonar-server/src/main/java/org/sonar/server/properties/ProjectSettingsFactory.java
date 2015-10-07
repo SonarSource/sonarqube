@@ -20,15 +20,11 @@
 
 package org.sonar.server.properties;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
+import java.util.List;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
-
-import java.util.List;
-import java.util.Map;
 
 @ServerSide
 public class ProjectSettingsFactory {
@@ -43,19 +39,10 @@ public class ProjectSettingsFactory {
 
   public Settings newProjectSettings(String projectKey) {
     List<PropertyDto> propertyList = dao.selectProjectProperties(projectKey);
-
-    return new ProjectSettings(settings, getPropertyMap(propertyList));
-  }
-
-  @VisibleForTesting
-  Map<String, String> getPropertyMap(List<PropertyDto> propertyDtoList) {
-    Map<String, String> propertyMap = Maps.newHashMap();
-    for (PropertyDto property : propertyDtoList) {
-      String key = property.getKey();
-      String value = property.getValue();
-      propertyMap.put(key, value);
+    Settings projectSettings = new Settings(settings);
+    for (PropertyDto property : propertyList) {
+      projectSettings.setProperty(property.getKey(), property.getValue());
     }
-
-    return propertyMap;
+    return projectSettings;
   }
 }

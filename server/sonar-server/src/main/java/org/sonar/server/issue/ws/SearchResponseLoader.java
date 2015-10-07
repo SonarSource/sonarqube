@@ -139,7 +139,7 @@ public class SearchResponseLoader {
       for (IssueDto dto : result.getIssues()) {
         // so that IssueDto can be used.
         if (collector.contains(ACTIONS)) {
-          result.addActions(dto.getKey(), actionService.listAvailableActions(dto));
+          result.addActions(dto.getKey(), actionService.listAvailableActions(dto.toDefaultIssue()));
         }
         if (collector.contains(TRANSITIONS)) {
           // TODO workflow and action engines must not depend on org.sonar.api.issue.Issue but on a generic interface

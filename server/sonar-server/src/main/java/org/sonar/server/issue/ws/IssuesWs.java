@@ -35,6 +35,7 @@ public class IssuesWs implements WebService {
   public static final String EDIT_COMMENT_ACTION = "edit_comment";
   public static final String TRANSITIONS_ACTION = "transitions";
   public static final String BULK_CHANGE_ACTION = "bulk_change";
+  public static final String DO_ACTION_ACTION = "do_action";
 
   private final IssuesWsAction[] actions;
 
@@ -61,6 +62,7 @@ public class IssuesWs implements WebService {
     defineEditCommentAction(controller);
     defineTransitionsAction(controller);
     defineBulkChangeAction(controller);
+    defineDoActionAction(controller);
   }
 
   private static void defineChangelogAction(NewController controller) {
@@ -173,6 +175,23 @@ public class IssuesWs implements WebService {
       .setDescription("Available since version 4.0")
       .setDefaultValue("false")
       .setPossibleValues("true", "false");
+    RailsHandler.addFormatParam(action);
+  }
+
+  private static void defineDoActionAction(NewController controller) {
+    WebService.NewAction action = controller.createAction(DO_ACTION_ACTION)
+      .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
+      .setSince("3.6")
+      .setHandler(RailsHandler.INSTANCE)
+      .setPost(true);
+
+    action.createParam("issue")
+      .setDescription("Key of the issue")
+      .setRequired(true)
+      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
+    action.createParam("actionKey")
+      .setDescription("Action to perform")
+      .setExampleValue("link-to-jira");
     RailsHandler.addFormatParam(action);
   }
 

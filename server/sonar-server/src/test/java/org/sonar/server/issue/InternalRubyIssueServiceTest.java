@@ -82,6 +82,8 @@ public class InternalRubyIssueServiceTest {
 
   IssueBulkChangeService issueBulkChangeService;
 
+  ActionService actionService;
+
   InternalRubyIssueService service;
 
   @Before
@@ -94,12 +96,13 @@ public class InternalRubyIssueServiceTest {
     resourceDao = mock(ResourceDao.class);
     issueFilterService = mock(IssueFilterService.class);
     issueBulkChangeService = mock(IssueBulkChangeService.class);
+    actionService = mock(ActionService.class);
 
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(project);
 
     service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao,
-      issueFilterService, issueBulkChangeService, userSessionRule);
+      issueFilterService, issueBulkChangeService, actionService, userSessionRule);
   }
 
   @Test
