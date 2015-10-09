@@ -65,10 +65,14 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
       return;
     }
     Optional<ScmInfo> scmInfoOptional = getScmInfoForComponent(component);
-    scmInfoCache.put(component, scmInfoOptional.isPresent() ? scmInfoOptional.get() : null);
+    scmInfoCache.put(component, scmInfoOptional.orNull());
   }
 
   private Optional<ScmInfo> getScmInfoForComponent(Component component) {
+    if (component.getType() != Component.Type.FILE) {
+      return Optional.absent();
+    }
+
     BatchReport.Changesets changesets = batchReportReader.readChangesets(component.getReportAttributes().getRef());
     if (changesets == null) {
       return getScmInfoFromDb(component);

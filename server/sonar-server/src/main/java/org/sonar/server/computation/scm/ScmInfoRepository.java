@@ -31,7 +31,12 @@ public interface ScmInfoRepository {
 
   /**
    * Returns Scm info for the specified component if there is any, first looking into the report, then into the database
-   * It there's nothing in the report and in the db (on first analysis for instance), then it return a {@link Optional#absent()}.
+   * <p>
+   * If there's nothing in the report and in the db (on first analysis for instance), then it return a {@link Optional#absent()}.
+   * </p>
+   * <p>
+   * This method will always return {@link Optional#absent()} if the specified component's type is not {@link Component.Type#FILE}.
+   * </p>
    *
    * @throws NullPointerException if argument is {@code null}
    */

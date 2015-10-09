@@ -20,9 +20,14 @@
 
 package org.sonar.server.computation.scm;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.EnumSet;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -30,16 +35,23 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.source.SourceService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
+@RunWith(DataProviderRunner.class)
 public class ScmInfoRepositoryImplTest {
 
   static final int FILE_REF = 1;
@@ -48,16 +60,12 @@ public class ScmInfoRepositoryImplTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public LogTester logTester = new LogTester();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
@@ -130,6 +138,35 @@ public class ScmInfoRepositoryImplTest {
     thrown.expectMessage("Component cannot be bull");
 
     underTest.getScmInfo(null);
+  }
+
+  @DataProvider
+  public static Object[][]  allTypeComponentButFile() {
+    Object[][] res = new Object[Component.Type.values().length - 1][1];
+    int i = 0;
+    for (Component.Type type : EnumSet.complementOf(EnumSet.of(Component.Type.FILE))) {
+      if (type.isReportType()) {
+        res[i][0] = ReportComponent.builder(type, i).build();
+      } else {
+        res[i][0] = ViewsComponent.builder(type, i).build();
+      }
+      i++;
+    }
+    return res;
+  }
+
+  @Test
+  @UseDataProvider("allTypeComponentButFile")
+  public void do_not_query_db_nor_report_if_component_type_is_not_FILE(Component component) {
+    BatchReportReader batchReportReader = mock(BatchReportReader.class);
+    AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+    DbClient dbClient = mock(DbClient.class);
+    SourceService sourceService = mock(SourceService.class);
+    ScmInfoRepositoryImpl underTest = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadataHolder, dbClient, sourceService);
+
+    assertThat(underTest.getScmInfo(component)).isAbsent();
+
+    verifyNoMoreInteractions(batchReportReader, analysisMetadataHolder, dbClient, sourceService);
   }
 
   @Test
