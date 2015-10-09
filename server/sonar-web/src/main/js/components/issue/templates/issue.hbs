@@ -111,6 +111,14 @@
                   class="issue-meta-label">{{t 'issue.comment.formlink' }}</span></button>
             </li>
           {{/inArray}}
+
+          {{#ifHasExtraActions actions}}
+            <li class="issue-meta">
+              <button class="button-link issue-action issue-action-with-options js-issue-more">
+                <span class="issue-meta-label">{{t 'more'}}</span>&nbsp;<i class="icon-dropdown"></i>
+              </button>
+            </li>
+          {{/ifHasExtraActions}}
         </ul>
 
         {{#inArray actions "assign_to_me"}}
