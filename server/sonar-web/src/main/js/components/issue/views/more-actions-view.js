@@ -1,18 +1,17 @@
 import $ from 'jquery';
-import PopupView from 'components/common/popup';
+import ActionOptionsView from 'components/common/action-options-view';
 import '../templates';
 
-export default PopupView.extend({
+export default ActionOptionsView.extend({
   template: Templates['issue-more-actions'],
 
-  events: function () {
-    return {
-      'click .js-issue-action': 'action'
-    };
+  selectOption: function (e) {
+    var action = $(e.currentTarget).data('action');
+    this.submit(action);
+    return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  action: function (e) {
-    var actionKey = $(e.currentTarget).data('action');
+  submit: function (actionKey) {
     return this.options.detailView.action(actionKey);
   }
 });
