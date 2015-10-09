@@ -60,8 +60,6 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
   public static class Builder implements Symbolizable.SymbolTableBuilder {
 
-    private static final FakeSymbol FAKE_SYMBOL = new FakeSymbol();
-
     private static final class FakeSymbol implements Symbol {
       @Override
       public String getFullyQualifiedName() {
