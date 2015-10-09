@@ -115,7 +115,7 @@ public class ProcessProperties {
     defaults.put(ProcessProperties.WEB_JAVA_OPTS, "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
     defaults.put(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS, "");
     defaults.put(ProcessProperties.JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
-    defaults.put(ProcessProperties.JDBC_MAX_ACTIVE, "50");
+    defaults.put(ProcessProperties.JDBC_MAX_ACTIVE, "60");
     defaults.put(ProcessProperties.JDBC_MAX_IDLE, "5");
     defaults.put(ProcessProperties.JDBC_MIN_IDLE, "2");
     defaults.put(ProcessProperties.JDBC_MAX_WAIT, "5000");

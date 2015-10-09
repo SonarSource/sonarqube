@@ -19,10 +19,9 @@
  */
 package org.sonar.process;
 
+import java.util.Properties;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
-
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +33,7 @@ public class ProcessPropertiesTest {
     ProcessProperties.completeDefaults(props);
 
     assertThat(props.value("sonar.search.javaOpts")).contains("-Xmx");
-    assertThat(props.valueAsInt("sonar.jdbc.maxActive")).isEqualTo(50);
+    assertThat(props.valueAsInt("sonar.jdbc.maxActive")).isEqualTo(60);
   }
 
   @Test

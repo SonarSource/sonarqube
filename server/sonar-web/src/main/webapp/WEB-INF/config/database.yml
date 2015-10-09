@@ -1,7 +1,7 @@
 base: &base
   adapter: jdbc
   dialect: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getActiveRecordDialectCode() %>
-  pool: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.maxActive') || 10 %>
+  pool: <%= ::Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue('sonar.jdbc.maxActive') || 60 %>
 
 development:
   <<: *base
