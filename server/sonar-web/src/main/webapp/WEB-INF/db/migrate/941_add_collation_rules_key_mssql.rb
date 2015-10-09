@@ -25,14 +25,10 @@
 class AddCollationRulesKeyMssql < ActiveRecord::Migration
   def self.up
     if dialect()=='sqlserver'
-      remove_index :rules, :name => 'rules_plugin_key_and_name'
-      remove_index :rules_profiles, :name => 'uniq_qprof_key'
+      remove_index :rules, :name => 'rules_repo_key'
       execute("ALTER TABLE rules ALTER COLUMN plugin_rule_key varchar(200) COLLATE SQL_Latin1_General_CP1_CS_AS NOT NULL")
       execute("ALTER TABLE rules ALTER COLUMN plugin_name varchar(255) COLLATE SQL_Latin1_General_CP1_CS_AS NOT NULL")
-      execute("ALTER TABLE rules_profiles ALTER COLUMN kee varchar(255) COLLATE SQL_Latin1_General_CP1_CS_AS NOT NULL")
-      execute("ALTER TABLE rules_profiles ALTER COLUMN parent_kee varchar(255) COLLATE SQL_Latin1_General_CP1_CS_AS NULL")
-      add_index :rules, [:plugin_rule_key, :plugin_name], :unique => true, :name => 'rules_plugin_key_and_name'
-      add_index :rules_profiles, :kee, :name => 'uniq_qprof_key', :unique => true
+      add_index :rules, [:plugin_rule_key, :plugin_name], :unique => true, :name => 'rules_repo_key'
     end
   end
 end
