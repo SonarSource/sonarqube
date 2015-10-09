@@ -223,10 +223,13 @@ export default Backbone.Model.extend({
    */
   customAction: function (actionKey, options) {
     var opts = _.extend({
+      type: 'POST',
       url: this.urlRoot() + '/do_action',
       data: { issue: this.id, actionKey: actionKey }
     }, options);
-    return this._action(opts);
+    var xhr = Backbone.ajax(opts);
+    this.trigger('request', this, xhr, opts);
+    return xhr;
   },
 
   getLinearLocations: function () {
