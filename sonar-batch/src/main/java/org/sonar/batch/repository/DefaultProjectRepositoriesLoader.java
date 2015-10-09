@@ -113,7 +113,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
 
       return new ProjectRepositories(settings, fileDataTable, new Date(response.getLastAnalysisDate()));
     } catch (IOException e) {
-      throw new IllegalStateException("Couldn't load project settings for " + projectKey, e);
+      throw new IllegalStateException("Couldn't load project repository for " + projectKey, e);
     } finally {
       IOUtils.closeQuietly(is);
     }

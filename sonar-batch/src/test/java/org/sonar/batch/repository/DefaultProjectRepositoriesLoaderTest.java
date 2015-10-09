@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.repository;
 
+import com.google.common.io.Resources;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -63,6 +65,15 @@ public class DefaultProjectRepositoriesLoaderTest {
     assertThat(proj.exists()).isEqualTo(false);
   }
 
+  @Test
+  public void parsingError() throws IOException {
+    InputStream is = mock(InputStream.class);
+    when(is.read()).thenThrow(IOException.class);
+
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, false));
+    loader.load(PROJECT_KEY, false, null);
+  }
+
   @Test(expected = IllegalStateException.class)
   public void failFastHttpError() {
     HttpException http = new HttpException(URI.create("uri"), 403);
@@ -100,6 +111,24 @@ public class DefaultProjectRepositoriesLoaderTest {
     response.writeTo(os);
 
     return new ByteArrayInputStream(os.toByteArray());
+  }
+
+  @Test
+  public void readRealResponse() throws IOException {
+    InputStream is = getTestResource("project.protobuf");
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, true));
+
+    ProjectRepositories proj = loader.load("org.sonarsource.github:sonar-github-plugin", true, null);
+    FileData fd = proj.fileData("org.sonarsource.github:sonar-github-plugin",
+      "src/test/java/org/sonar/plugins/github/PullRequestIssuePostJobTest.java");
+
+    assertThat(fd.revision()).isEqualTo("27bf2c54633d05c5df402bbe09471fe43bd9e2e5");
+    assertThat(fd.hash()).isEqualTo("edb6b3b9ab92d8dc53ba90ab86cd422e");
+  }
+
+  private InputStream getTestResource(String name) throws IOException {
+    return Resources.asByteSource(this.getClass().getResource(this.getClass().getSimpleName() + "/" + name))
+      .openBufferedStream();
   }
 
 }
