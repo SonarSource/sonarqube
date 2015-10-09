@@ -252,6 +252,25 @@ public class IssueActionTest {
 
     assertThat(reloaded.comments()).hasSize(1);
     assertThat(reloaded.comments().get(0).htmlText()).isEqualTo("New Comment from fake action");
+
+    // The action is no more available when already executed (because an issue attribute is used to check if the action is available or not)
+    assertThat(adminIssueClient().actions(issue.key())).doesNotContain("fake");
+  }
+
+  /**
+   * SONAR-4315
+   */
+  @Test
+  public void issue_attribute_are_kept_on_new_analysis() {
+    // The condition on the action defined by the plugin is that the status must be resolved
+    adminIssueClient().doTransition(issue.key(), "resolve");
+    adminIssueClient().doAction(issue.key(), "fake");
+    assertThat(adminIssueClient().actions(issue.key())).doesNotContain("fake");
+
+    orchestrator.executeBuild(scan);
+
+    // Fake action is no more available if the issue attribute is still there
+    assertThat(adminIssueClient().actions(issue.key())).doesNotContain("fake");
   }
 
 }
