@@ -21,7 +21,6 @@ package org.sonar.server.activity.index;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -29,32 +28,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ActivityIndexDefinitionTest {
 
-  IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
+  IndexDefinition.IndexDefinitionContext underTest = new IndexDefinition.IndexDefinitionContext();
 
   @Test
   public void define() {
     ActivityIndexDefinition def = new ActivityIndexDefinition(new Settings());
-    def.define(context);
+    def.define(underTest);
 
-    assertThat(context.getIndices()).hasSize(1);
-    NewIndex index = context.getIndices().get("activities");
+    assertThat(underTest.getIndices()).hasSize(1);
+    NewIndex index = underTest.getIndices().get("activities");
     assertThat(index).isNotNull();
     assertThat(index.getTypes().keySet()).containsOnly("activity");
 
     // no cluster by default
-    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("1");
+    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
     assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("0");
-  }
-
-  @Test
-  public void enable_cluster() {
-    Settings settings = new Settings();
-    settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
-    ActivityIndexDefinition def = new ActivityIndexDefinition(settings);
-    def.define(context);
-
-    NewIndex index = context.getIndices().get("activities");
-    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("4");
-    assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("1");
   }
 }

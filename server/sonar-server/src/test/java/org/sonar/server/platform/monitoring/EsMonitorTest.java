@@ -19,15 +19,15 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.NewIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,7 +75,7 @@ public class EsMonitorTest {
     assertThat(indicesAttributes).hasSize(1);
     Map indexAttributes = (Map)indicesAttributes.values().iterator().next();
     assertThat(indexAttributes.get("Docs")).isEqualTo(0L);
-    assertThat(indexAttributes.get("Shards")).isEqualTo(1);
+    assertThat(indexAttributes.get("Shards")).isEqualTo(NewIndex.DEFAULT_NUMBER_OF_SHARDS);
     assertThat(indexAttributes.get("Store Size")).isNotNull();
   }
 }

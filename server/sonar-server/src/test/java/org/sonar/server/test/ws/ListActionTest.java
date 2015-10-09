@@ -80,6 +80,7 @@ public class ListActionTest {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       new TestDoc()
         .setUuid(TestFile1.UUID)
+        .setProjectUuid(TestFile1.PROJECT_UUID)
         .setName(TestFile1.NAME)
         .setFileUuid(TestFile1.FILE_UUID)
         .setDurationInMs(TestFile1.DURATION_IN_MS)
@@ -103,6 +104,7 @@ public class ListActionTest {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       new TestDoc()
         .setUuid(TestFile1.UUID)
+        .setProjectUuid(TestFile1.PROJECT_UUID)
         .setName(TestFile1.NAME)
         .setFileUuid(TestFile1.FILE_UUID)
         .setDurationInMs(TestFile1.DURATION_IN_MS)
@@ -125,6 +127,7 @@ public class ListActionTest {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       new TestDoc()
         .setUuid(TestFile1.UUID)
+        .setProjectUuid(TestFile1.PROJECT_UUID)
         .setName(TestFile1.NAME)
         .setFileUuid(TestFile1.FILE_UUID)
         .setDurationInMs(TestFile1.DURATION_IN_MS)
@@ -163,6 +166,7 @@ public class ListActionTest {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       new TestDoc()
         .setUuid(TestFile1.UUID)
+        .setProjectUuid(TestFile1.PROJECT_UUID)
         .setName(TestFile1.NAME)
         .setFileUuid(TestFile1.FILE_UUID)
         .setDurationInMs(TestFile1.DURATION_IN_MS)
@@ -172,6 +176,7 @@ public class ListActionTest {
         .setStackTrace(TestFile1.STACKTRACE),
       new TestDoc()
         .setUuid(TestFile2.UUID)
+        .setProjectUuid(TestFile2.PROJECT_UUID)
         .setName(TestFile2.NAME)
         .setFileUuid(TestFile2.FILE_UUID)
         .setDurationInMs(TestFile2.DURATION_IN_MS)

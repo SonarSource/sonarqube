@@ -22,7 +22,6 @@ package org.sonar.server.view.index;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -30,32 +29,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ViewIndexDefinitionTest {
 
-  IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
+  IndexDefinition.IndexDefinitionContext underTest = new IndexDefinition.IndexDefinitionContext();
 
   @Test
   public void define() {
     ViewIndexDefinition def = new ViewIndexDefinition(new Settings());
-    def.define(context);
+    def.define(underTest);
 
-    assertThat(context.getIndices()).hasSize(1);
-    NewIndex index = context.getIndices().get("views");
+    assertThat(underTest.getIndices()).hasSize(1);
+    NewIndex index = underTest.getIndices().get("views");
     assertThat(index).isNotNull();
     assertThat(index.getTypes().keySet()).containsOnly("view");
 
-    // no cluster by default
-    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("1");
+    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
     assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("0");
-  }
-
-  @Test
-  public void enable_cluster() {
-    Settings settings = new Settings();
-    settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
-    ViewIndexDefinition def = new ViewIndexDefinition(settings);
-    def.define(context);
-
-    NewIndex index = context.getIndices().get("views");
-    assertThat(index.getSettings().get("index.number_of_shards")).isEqualTo("4");
-    assertThat(index.getSettings().get("index.number_of_replicas")).isEqualTo("1");
   }
 }

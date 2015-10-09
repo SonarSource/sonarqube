@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -29,32 +28,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueIndexDefinitionTest {
 
-  IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
+  IndexDefinition.IndexDefinitionContext underTest = new IndexDefinition.IndexDefinitionContext();
 
   @Test
   public void define() {
     IssueIndexDefinition def = new IssueIndexDefinition(new Settings());
-    def.define(context);
+    def.define(underTest);
 
-    assertThat(context.getIndices()).hasSize(1);
-    NewIndex issuesIndex = context.getIndices().get("issues");
+    assertThat(underTest.getIndices()).hasSize(1);
+    NewIndex issuesIndex = underTest.getIndices().get("issues");
     assertThat(issuesIndex).isNotNull();
     assertThat(issuesIndex.getTypes().keySet()).containsOnly("issue", "authorization");
 
     // no cluster by default
-    assertThat(issuesIndex.getSettings().get("index.number_of_shards")).isEqualTo("1");
+    assertThat(issuesIndex.getSettings().get("index.number_of_shards")).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
     assertThat(issuesIndex.getSettings().get("index.number_of_replicas")).isEqualTo("0");
-  }
-
-  @Test
-  public void enable_cluster() {
-    Settings settings = new Settings();
-    settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
-    IssueIndexDefinition def = new IssueIndexDefinition(settings);
-    def.define(context);
-
-    NewIndex issuesIndex = context.getIndices().get("issues");
-    assertThat(issuesIndex.getSettings().get("index.number_of_shards")).isEqualTo("4");
-    assertThat(issuesIndex.getSettings().get("index.number_of_replicas")).isEqualTo("1");
   }
 }

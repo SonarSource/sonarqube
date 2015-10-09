@@ -20,15 +20,14 @@
 
 package org.sonar.server.test.index;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,10 +45,10 @@ public class TestIndexTest {
   @Test
   public void coveredFiles() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
+      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<CoveredFileDoc> result = underTest.coveredFiles("uuid-1");
+    List<CoveredFileDoc> result = underTest.coveredFiles("1");
 
     assertThat(result).hasSize(3);
     assertThat(result).extractingResultOf("fileUuid").containsOnly("main-uuid-3", "main-uuid-4", "main-uuid-5");
@@ -59,22 +58,22 @@ public class TestIndexTest {
   @Test
   public void searchByTestFileUuid() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")),
-      newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
+      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")),
+      newTestDoc("3", "TESTFILE2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<TestDoc> result = underTest.searchByTestFileUuid("file-uuid-1", searchOptions()).getDocs();
+    List<TestDoc> result = underTest.searchByTestFileUuid("TESTFILE1", searchOptions()).getDocs();
 
     assertThat(result).hasSize(2);
-    assertThat(result).extractingResultOf("name").containsOnly("name-1");
+    assertThat(result).extractingResultOf("name").containsOnly("name-1", "name-2");
   }
 
   @Test
   public void searchBySourceFileUuidAndLineNumber() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", newCoverageBlock("10"), newCoverageBlock("11"), newCoverageBlock("12")),
-      newTestDoc("2", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("3", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoverageBlock("10"), newCoverageBlock("11"), newCoverageBlock("12")),
+      newTestDoc("2", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
+      newTestDoc("3", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
     List<TestDoc> result = underTest.searchBySourceFileUuidAndLineNumber("main-uuid-5", 82, searchOptions()).getDocs();
 
@@ -85,13 +84,13 @@ public class TestIndexTest {
   @Test
   public void searchByTestUuid() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
+      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    TestDoc test = underTest.searchByTestUuid("uuid-1");
+    TestDoc test = underTest.searchByTestUuid("1");
 
-    assertThat(test.testUuid()).isEqualTo("uuid-1");
-    assertThat(test.fileUuid()).isEqualTo("file-uuid-1");
+    assertThat(test.testUuid()).isEqualTo("1");
+    assertThat(test.fileUuid()).isEqualTo("TESTFILE1");
     assertThat(test.name()).isEqualTo("name-1");
     assertThat(test.durationInMs()).isEqualTo(1L);
     assertThat(test.status()).isEqualTo("status-1");
@@ -103,13 +102,13 @@ public class TestIndexTest {
   @Test
   public void searchByTestUuid_with_SearchOptions() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
+      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<TestDoc> result = underTest.searchByTestUuid("uuid-1", searchOptions()).getDocs();
+    List<TestDoc> result = underTest.searchByTestUuid("1", searchOptions()).getDocs();
 
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).testUuid()).isEqualTo("uuid-1");
+    assertThat(result.get(0).testUuid()).isEqualTo("1");
   }
 
   private CoveredFileDoc newCoverageBlock(String id) {
@@ -118,16 +117,16 @@ public class TestIndexTest {
       .setCoveredLines(Arrays.asList(25, 33, 82));
   }
 
-  private TestDoc newTestDoc(String id, CoveredFileDoc... coveredFiles) {
+  private TestDoc newTestDoc(String testUuid, String fileUuid, CoveredFileDoc... coveredFiles) {
     return new TestDoc()
-      .setUuid("uuid-" + id)
-      .setName("name-" + id)
-      .setMessage("message-" + id)
-      .setStackTrace("stacktrace-" + id)
-      .setStatus("status-" + id)
-      .setDurationInMs(Long.valueOf(id))
-      .setFileUuid("file-uuid-" + id)
-      .setProjectUuid("project-uuid-" + id)
+      .setUuid(testUuid)
+      .setProjectUuid("project-" + fileUuid)
+      .setName("name-" + testUuid)
+      .setMessage("message-" + testUuid)
+      .setStackTrace("stacktrace-" + testUuid)
+      .setStatus("status-" + testUuid)
+      .setDurationInMs(Long.valueOf(testUuid))
+      .setFileUuid(fileUuid)
       .setCoveredFiles(Arrays.asList(coveredFiles));
   }
 

@@ -20,11 +20,10 @@
 package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -147,20 +146,20 @@ public class NewIndexTest {
   }
 
   @Test
-  public void one_shard_and_zero_replica_by_default() {
+  public void default_shards_and_replicas() {
     NewIndex index = new NewIndex("issues");
     index.setShards(new org.sonar.api.config.Settings());
-    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("1");
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
-  public void four_shards_and_one_replica_by_default_on_cluster() {
+  public void five_shards_and_one_replica_by_default_on_cluster() {
     NewIndex index = new NewIndex("issues");
     org.sonar.api.config.Settings settings = new org.sonar.api.config.Settings();
     settings.setProperty("sonar.cluster.activate", "true");
     index.setShards(settings);
-    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("4");
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
 

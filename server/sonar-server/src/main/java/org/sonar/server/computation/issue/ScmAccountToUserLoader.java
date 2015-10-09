@@ -21,7 +21,8 @@ package org.sonar.server.computation.issue;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Ordering;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ import org.sonar.server.util.cache.CacheLoader;
  */
 public class ScmAccountToUserLoader implements CacheLoader<String, String> {
 
-  private static final Logger log = Loggers.get(ScmAccountToUserLoader.class);
+  private static final Logger LOGGER = Loggers.get(ScmAccountToUserLoader.class);
   private final UserIndex index;
 
   public ScmAccountToUserLoader(UserIndex index) {
@@ -54,8 +55,8 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
     if (!users.isEmpty()) {
       // multiple users are associated to the same SCM account, for example
       // the same email
-      Collection<String> logins = Collections2.transform(users, UserDocToLogin.INSTANCE);
-      log.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+      Collection<String> logins = FluentIterable.from(users).transform(UserDocToLogin.INSTANCE).toSortedList(Ordering.natural());
+      LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
     }
     return null;
   }

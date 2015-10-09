@@ -20,6 +20,7 @@
 
 package org.sonar.server.test.index;
 
+import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
@@ -58,6 +59,8 @@ public class TestIndexDefinition implements IndexDefinition {
     nestedMapping.createIntegerField(FIELD_COVERED_FILE_LINES);
 
     NewIndex.NewIndexType mapping = index.createType(TYPE);
+    mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_TEST_UUID));
+    mapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_PROJECT_UUID));
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
     mapping.stringFieldBuilder(FIELD_FILE_UUID).build();
     mapping.stringFieldBuilder(FIELD_TEST_UUID).build();

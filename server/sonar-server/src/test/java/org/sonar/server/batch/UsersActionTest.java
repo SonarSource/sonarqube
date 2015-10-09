@@ -20,6 +20,9 @@
 
 package org.sonar.server.batch;
 
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -34,8 +37,6 @@ import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.ws.WsTester;
-
-import java.io.ByteArrayInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -68,21 +69,17 @@ public class UsersActionTest {
     es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
       new UserDoc().setLogin("ada.lovelace").setName("Ada Lovelace").setActive(false),
       new UserDoc().setLogin("grace.hopper").setName("Grace Hopper").setActive(true));
-
     userSessionRule.login("sonarqtech").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "users").setParam("logins", "ada.lovelace,grace.hopper");
 
     ByteArrayInputStream input = new ByteArrayInputStream(request.execute().output());
-
-    User user = User.parseDelimitedFrom(input);
-    assertThat(user.getLogin()).isEqualTo("ada.lovelace");
-    assertThat(user.getName()).isEqualTo("Ada Lovelace");
-
-    user = User.parseDelimitedFrom(input);
-    assertThat(user.getLogin()).isEqualTo("grace.hopper");
-    assertThat(user.getName()).isEqualTo("Grace Hopper");
-
+    User user1 = User.parseDelimitedFrom(input);
+    User user2 = User.parseDelimitedFrom(input);
     assertThat(User.parseDelimitedFrom(input)).isNull();
+
+    List<User> users = Arrays.asList(user1, user2);
+    assertThat(users).extracting("login").containsOnly("ada.lovelace", "grace.hopper");
+    assertThat(users).extracting("name").containsOnly("Ada Lovelace", "Grace Hopper");
   }
 }

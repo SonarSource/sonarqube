@@ -38,6 +38,8 @@ import static java.lang.String.format;
 
 public class NewIndex {
 
+  public static final int DEFAULT_NUMBER_OF_SHARDS = 5;
+
   public void refreshHandledByIndexer() {
     getSettings().put("index.refresh_interval", "-1");
   }
@@ -300,11 +302,11 @@ public class NewIndex {
     boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
     int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
     if (shards == 0) {
-      shards = (clusterMode ? 4 : 1);
+      shards = DEFAULT_NUMBER_OF_SHARDS;
     }
     int replicas = settings.getInt(format("sonar.search.%s.replicas", indexName));
     if (replicas == 0) {
-      replicas = (clusterMode ? 1 : 0);
+      replicas = clusterMode ? 1 : 0;
     }
     getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
     getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);

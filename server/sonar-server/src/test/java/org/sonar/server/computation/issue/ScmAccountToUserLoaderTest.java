@@ -63,7 +63,7 @@ public class ScmAccountToUserLoaderTest {
     ScmAccountToUserLoader loader = new ScmAccountToUserLoader(index);
 
     assertThat(loader.load("charlie")).isNull();
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Multiple users share the SCM account 'charlie': charlie, another.charlie");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Multiple users share the SCM account 'charlie': another.charlie, charlie");
   }
 
   @Test
