@@ -17,40 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.component;
+package org.sonar.core.hash;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import java.security.MessageDigest;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * The attributes specific to a Component of type {@link org.sonar.server.computation.component.Component.Type#FILE}.
+ * Computes the hash of the source lines of a file by simply added lines of that file one by one in order with
+ * {@link #addLine(String, boolean)}.
  */
-@Immutable
-public class FileAttributes {
-  private final boolean unitTest;
-  @CheckForNull
-  private final String languageKey;
+public class SourceHashComputer {
+  private final MessageDigest md5Digest = DigestUtils.getMd5Digest();
 
-  public FileAttributes(boolean unitTest, @Nullable String languageKey) {
-    this.unitTest = unitTest;
-    this.languageKey = languageKey;
+  public void addLine(String line, boolean hasNextLine) {
+    String lineToHash = hasNextLine ? line + '\n' : line;
+    this.md5Digest.update(lineToHash.getBytes(UTF_8));
   }
 
-  public boolean isUnitTest() {
-    return unitTest;
-  }
-
-  @CheckForNull
-  public String getLanguageKey() {
-    return languageKey;
-  }
-
-  @Override
-  public String toString() {
-    return "FileAttributes{" +
-      "languageKey='" + languageKey + '\'' +
-      ", unitTest=" + unitTest +
-      '}';
+  public String getHash() {
+    return Hex.encodeHexString(md5Digest.digest());
   }
 }

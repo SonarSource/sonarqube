@@ -17,40 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.component;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+@ParametersAreNonnullByDefault
+package org.sonar.core.hash;
 
-/**
- * The attributes specific to a Component of type {@link org.sonar.server.computation.component.Component.Type#FILE}.
- */
-@Immutable
-public class FileAttributes {
-  private final boolean unitTest;
-  @CheckForNull
-  private final String languageKey;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public FileAttributes(boolean unitTest, @Nullable String languageKey) {
-    this.unitTest = unitTest;
-    this.languageKey = languageKey;
-  }
-
-  public boolean isUnitTest() {
-    return unitTest;
-  }
-
-  @CheckForNull
-  public String getLanguageKey() {
-    return languageKey;
-  }
-
-  @Override
-  public String toString() {
-    return "FileAttributes{" +
-      "languageKey='" + languageKey + '\'' +
-      ", unitTest=" + unitTest +
-      '}';
-  }
-}

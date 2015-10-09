@@ -26,10 +26,16 @@ import org.sonar.server.computation.component.Component;
 public interface SourceLinesRepository {
 
   /**
-   * Return lines from a given component from the report.
+   * Creates a iterator over the source lines of a given component from the report.
+   * <p>
+   * The returned {@link CloseableIterator} will wrap the {@link CloseableIterator} returned by
+   * {@link org.sonar.server.computation.batch.BatchReportReader#readFileSource(int)} but enforces that the number
+   * of lines specified by {@link org.sonar.batch.protocol.output.BatchReport.Component#getLines()} is respected, adding
+   * an extra empty last line if required.
+   * </p>
    *
    * @throws NullPointerException if argument is {@code null}
-   * @throws IllegalArgumentException if component is not a {@link org.sonar.server.computation.component.Component.Type#FILE}
+   * @throws IllegalArgumentException if component is not a {@link Component.Type#FILE}
    * @throws IllegalStateException if the file has no source code in the report
    */
   CloseableIterator<String> readLines(Component component);

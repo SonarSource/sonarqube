@@ -17,40 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.component;
+package org.sonar.server.computation.source;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import org.sonar.server.computation.component.Component;
 
-/**
- * The attributes specific to a Component of type {@link org.sonar.server.computation.component.Component.Type#FILE}.
- */
-@Immutable
-public class FileAttributes {
-  private final boolean unitTest;
-  @CheckForNull
-  private final String languageKey;
+public interface SourceHashRepository {
 
-  public FileAttributes(boolean unitTest, @Nullable String languageKey) {
-    this.unitTest = unitTest;
-    this.languageKey = languageKey;
-  }
+  /**
+   * The hash of the source of the specified FILE component in the analysis report.
+   * <p>
+   * The source hash will be cached by the repository so that only the first call to this method will cost a file
+   * access on disk.
+   * </p>
+   *
+   * @throws NullPointerException if specified component is {@code null}
+   * @throws IllegalArgumentException if specified component if not a {@link Component.Type#FILE}
+   * @throws IllegalStateException if source hash for the specified component can not be computed
+   */
+  String getRawSourceHash(Component file);
 
-  public boolean isUnitTest() {
-    return unitTest;
-  }
-
-  @CheckForNull
-  public String getLanguageKey() {
-    return languageKey;
-  }
-
-  @Override
-  public String toString() {
-    return "FileAttributes{" +
-      "languageKey='" + languageKey + '\'' +
-      ", unitTest=" + unitTest +
-      '}';
-  }
 }

@@ -77,6 +77,7 @@ import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.source.LastCommitVisitor;
+import org.sonar.server.computation.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
 import org.sonar.server.computation.sqale.SqaleNewMeasuresVisitor;
@@ -135,6 +136,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       QualityGateServiceImpl.class,
       EvaluationResultTextConverterImpl.class,
       SourceLinesRepositoryImpl.class,
+      SourceHashRepositoryImpl.class,
       ScmInfoRepositoryImpl.class,
 
       // issues
