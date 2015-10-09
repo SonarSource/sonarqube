@@ -75,6 +75,10 @@ public class ComponentContainer implements ContainerPopulator.Container {
     addSingleton(this);
   }
 
+  protected void setParent(ComponentContainer parent) {
+    this.parent = parent;
+  }
+
   public void execute() {
     boolean threw = true;
     try {
