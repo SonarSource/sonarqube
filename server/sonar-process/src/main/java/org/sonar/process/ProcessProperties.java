@@ -112,7 +112,7 @@ public class ProcessProperties {
       "-XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS, "");
 
-    defaults.put(ProcessProperties.WEB_JAVA_OPTS, "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
+    defaults.put(ProcessProperties.WEB_JAVA_OPTS, "-Xmx768m -Xms256m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
     defaults.put(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS, "");
     defaults.put(ProcessProperties.JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
     defaults.put(ProcessProperties.JDBC_MAX_ACTIVE, "60");
