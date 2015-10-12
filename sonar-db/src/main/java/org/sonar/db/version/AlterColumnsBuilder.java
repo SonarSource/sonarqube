@@ -64,7 +64,7 @@ public class AlterColumnsBuilder {
       case Oracle.ID:
         return createOracleQuery();
       default:
-        return createMySqlAndH2Queries();
+        return createMsSqlAndH2Queries();
     }
   }
 
@@ -87,7 +87,7 @@ public class AlterColumnsBuilder {
     return Collections.singletonList(sql.toString());
   }
 
-  private List<String> createMySqlAndH2Queries() {
+  private List<String> createMsSqlAndH2Queries() {
     List<String> sqls = new ArrayList<>();
     for (ColumnDef columnDef : columnDefs) {
       StringBuilder defaultQuery = new StringBuilder("ALTER TABLE " + tableName + " ");
