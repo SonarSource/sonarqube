@@ -60,7 +60,7 @@ public class StringColumnDefTest {
     assertThat(def.generateSqlType(new H2())).isEqualTo("VARCHAR (10)");
     assertThat(def.generateSqlType(new PostgreSql())).isEqualTo("VARCHAR (10)");
     assertThat(def.generateSqlType(new MySql())).isEqualTo("VARCHAR (10)");
-    assertThat(def.generateSqlType(new MsSql())).isEqualTo("VARCHAR (10)");
+    assertThat(def.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (10)");
     assertThat(def.generateSqlType(new Oracle())).isEqualTo("VARCHAR (10)");
   }
 

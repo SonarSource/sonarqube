@@ -50,7 +50,7 @@ public class AlterColumnsBuilderTest {
   @Test
   public void update_columns_on_mssql() {
     assertThat(createSampleBuilder(new MsSql()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20)", "ALTER TABLE issues ALTER COLUMN name VARCHAR (10)");
+      .containsOnly("ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20)", "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10)");
   }
 
   @Test

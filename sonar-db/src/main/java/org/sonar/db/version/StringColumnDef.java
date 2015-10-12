@@ -22,7 +22,9 @@ package org.sonar.db.version;
 
 import javax.annotation.CheckForNull;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.MsSql;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
 
@@ -44,7 +46,10 @@ public class StringColumnDef extends AbstractColumnDef {
 
   @Override
   public String generateSqlType(Dialect dialect) {
-    return "VARCHAR (" + Integer.toString(columnSize) + ")";
+    if (MsSql.ID.equals(dialect.getId())) {
+      return format("NVARCHAR (%d)", columnSize);
+    }
+    return format("VARCHAR (%d)", columnSize);
   }
 
   public static class Builder {
