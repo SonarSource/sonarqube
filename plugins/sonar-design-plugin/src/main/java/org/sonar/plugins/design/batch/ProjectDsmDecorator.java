@@ -20,6 +20,9 @@
 package org.sonar.plugins.design.batch;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -29,11 +32,12 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.graph.*;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import org.sonar.graph.Cycle;
+import org.sonar.graph.CycleDetector;
+import org.sonar.graph.Dsm;
+import org.sonar.graph.DsmTopologicalSorter;
+import org.sonar.graph.Edge;
+import org.sonar.graph.MinimumFeedbackEdgeSetSolver;
 
 /**
  * For performance reasons, this decorator is currently limited to matrix between modules.
@@ -49,7 +53,7 @@ public class ProjectDsmDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    return !ResourceUtils.isView(project) && !ResourceUtils.isSubview(project);
   }
 
   public void decorate(final Resource resource, DecoratorContext context) {
