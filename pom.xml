@@ -500,6 +500,11 @@
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
           <autoVersionSubmodules>true</autoVersionSubmodules>
+          <!-- see
+          http://maven.40175.n5.nabble.com/Why-is-source-jar-deployed-twice-during-release-td120643.html
+          https://issues.apache.org/jira/browse/MSHADE-195
+          -->
+          <useReleaseProfile>false</useReleaseProfile>
           <localCheckout>true</localCheckout>
           <pushChanges>false</pushChanges>
           <mavenExecutorId>forked-path</mavenExecutorId>
