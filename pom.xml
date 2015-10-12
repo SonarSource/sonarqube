@@ -45,9 +45,8 @@
 
   <distributionManagement>
     <repository>
-      <id>sonatype-nexus-staging</id>
-      <name>Sonatype Release Repository</name>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>bintray</id>
+      <url>https://api.bintray.com/maven/sonarsource/SonarQube/${project.groupId}/;publish=1</url>
     </repository>
   </distributionManagement>
 
