@@ -49,7 +49,7 @@
          if previous_snapshot_id != sid
            if metric_count_per_snapshot_id[previous_snapshot_id] != total_number_of_metrics
              metric_map.keys.each do |metric_id|
-               unless metric_previous_snapshot_id.include? (metric_id)
+               unless metric_previous_snapshot_id.include?(metric_id)
                  metric_data_map[metric_id] << {:date => previous_created_at, :value => 0.00, :sid => previous_snapshot_id}
                  if metric_count_per_snapshot_id[previous_snapshot_id]
                    metric_count_per_snapshot_id[previous_snapshot_id] += 1
