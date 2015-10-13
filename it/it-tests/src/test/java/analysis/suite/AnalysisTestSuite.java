@@ -52,7 +52,7 @@ public class AnalysisTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
+    .setSonarVersion("DEV")
     .addPlugin(ItUtils.xooPlugin())
     .build();
 }

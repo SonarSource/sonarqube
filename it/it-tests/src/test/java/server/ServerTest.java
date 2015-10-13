@@ -43,7 +43,7 @@ public class ServerTest {
   public void test_settings() {
     URL secretKeyUrl = getClass().getResource("/server/ServerTest/sonar-secret.txt");
     orchestrator = Orchestrator.builderEnv()
-      .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
+      .setSonarVersion("DEV")
       .addPlugin(ItUtils.pluginArtifact("settings-plugin"))
       .addPlugin(ItUtils.pluginArtifact("license-plugin"))
       .setServerProperty("sonar.secretKeyPath", secretKeyUrl.getFile())
@@ -78,7 +78,7 @@ public class ServerTest {
   @Test
   public void property_relocation() {
     orchestrator = Orchestrator.builderEnv()
-      .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
+      .setSonarVersion("DEV")
       .addPlugin(ItUtils.pluginArtifact("property-relocation-plugin"))
       .addPlugin(ItUtils.xooPlugin())
       .setServerProperty("sonar.deprecatedKey", "true")
@@ -105,7 +105,7 @@ public class ServerTest {
   public void check_minimal_sonar_version_at_startup() throws Exception {
     try {
       orchestrator = Orchestrator.builderEnv()
-        .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
+        .setSonarVersion("DEV")
         .addPlugin(FileLocation.of(new File(ServerTest.class.getResource("/server/ServerTest/incompatible-plugin-1.0.jar").toURI())))
         .build();
       orchestrator.start();
@@ -121,7 +121,7 @@ public class ServerTest {
     String dirName = "target/has space";
     FileUtils.deleteDirectory(new File(dirName));
     orchestrator = Orchestrator.builderEnv()
-        .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
+        .setSonarVersion("DEV")
         .setOrchestratorProperty("orchestrator.workspaceDir", dirName)
         .build();
     orchestrator.start();
@@ -134,7 +134,7 @@ public class ServerTest {
   @Test
   public void should_create_in_temp_folder() throws Exception {
     orchestrator = Orchestrator.builderEnv()
-      .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
+      .setSonarVersion("DEV")
       .addPlugin(ItUtils.pluginArtifact("server-plugin"))
       .setServerProperty("sonar.createTempFiles", "true")
       .build();
@@ -163,7 +163,7 @@ public class ServerTest {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
       orchestrator = Orchestrator.builderEnv()
-        .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
+        .setSonarVersion("DEV")
         .build();
       orchestrator.start();
       try {
@@ -183,7 +183,7 @@ public class ServerTest {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
       orchestrator = Orchestrator.builderEnv()
-        .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
+        .setSonarVersion("DEV")
         .setServerProperty("sonar.web.dev", "true")
         .build();
       orchestrator.start();
