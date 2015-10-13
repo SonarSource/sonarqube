@@ -25,17 +25,15 @@ export default Router.extend({
     if (query.id != null) {
       var filter = this.options.app.filters.get(query.id);
       delete query.id;
-      return filter.fetch().done(function () {
-        if (Object.keys(query).length > 0) {
-          that.options.app.controller.applyFilter(filter, true);
-          that.options.app.state.setQuery(query);
-          that.options.app.state.set({ changed: true });
-        } else {
-          that.options.app.controller.applyFilter(filter);
-        }
-      });
+      if (Object.keys(query).length > 0) {
+        that.options.app.controller.applyFilter(filter, true);
+        that.options.app.state.setQuery(query);
+        that.options.app.state.set({ changed: true });
+      } else {
+        that.options.app.controller.applyFilter(filter);
+      }
     } else {
-      return this.options.app.state.setQuery(query);
+      this.options.app.state.setQuery(query);
     }
   }
 });
