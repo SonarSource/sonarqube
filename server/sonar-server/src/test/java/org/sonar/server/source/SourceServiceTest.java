@@ -167,14 +167,20 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void return_txt_when_source_is_too_big() throws Exception {
+  public void return_txt_when_source_is_too_big_and_html_is_escaped() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
-    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(Strings.repeat("a\n", 70000));
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session))
+        .thenReturn(
+            "some html <input/>\n"
+                + "if (10 < 15 && true == false) {\n"
+                + Strings.repeat("a\n", 70000));
 
     List<String> lines = service.getLinesAsHtml(COMPONENT_KEY);
     assertThat(lines).isNotEmpty();
     assertThat(lines.size()).isGreaterThan(3000);
+    assertThat(lines.get(0)).isEqualTo("some html &lt;input/&gt;");
+    assertThat(lines.get(1)).isEqualTo("if (10 &lt; 15 &amp;&amp; true == false) {");
 
     verifyZeroInteractions(sourceDecorator);
     verifyZeroInteractions(deprecatedSourceDecorator);

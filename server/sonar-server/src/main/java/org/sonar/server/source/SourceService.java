@@ -20,7 +20,15 @@
 
 package org.sonar.server.source;
 
+import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
@@ -32,12 +40,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -126,9 +128,20 @@ public class SourceService implements ServerComponent {
 
   private static List<String> getLinesAsTxt(@Nullable String source) {
     if (source != null) {
-      return newArrayList(Splitter.onPattern("\r?\n|\r").split(source));
+      return newArrayList(Iterables.transform(Splitter.onPattern("\r?\n|\r").split(source), ToEscapedHTML.INSTANCE));
     }
     return Collections.emptyList();
   }
 
+  private enum ToEscapedHTML implements Function<String, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nullable String input) {
+      if (StringUtils.isEmpty(input)) {
+        return input;
+      }
+      return StringEscapeUtils.escapeHtml(input);
+    }
+  }
 }
