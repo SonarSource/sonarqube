@@ -46,12 +46,7 @@ public class ComputeFileSourceData {
     Data data = new Data(numberOfLines);
     while (linesIterator.hasNext()) {
       currentLine++;
-      read(data, linesIterator.next(), hasNextLine());
-    }
-    // Process last line
-    if (hasNextLine()) {
-      currentLine++;
-      read(data, "", false);
+      read(data, linesIterator.next(), linesIterator.hasNext());
     }
     return data;
   }
@@ -66,10 +61,6 @@ public class ComputeFileSourceData {
     for (LineReader lineReader : lineReaders) {
       lineReader.read(lineBuilder);
     }
-  }
-
-  private boolean hasNextLine() {
-    return linesIterator.hasNext() || currentLine < numberOfLines;
   }
 
   public static class Data {

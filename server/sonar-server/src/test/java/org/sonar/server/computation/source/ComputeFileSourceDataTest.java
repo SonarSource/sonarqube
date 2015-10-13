@@ -59,22 +59,6 @@ public class ComputeFileSourceDataTest {
   }
 
   @Test
-  public void compute_missing_last_line() {
-    ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
-      newArrayList("line1").iterator(),
-      Lists.<LineReader>newArrayList(new MockLineReader()),
-      // There's only one line in the line iterator but the file has 2 lines
-      2);
-
-    ComputeFileSourceData.Data data = computeFileSourceData.compute();
-    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\n");
-    assertThat(data.getSrcHash()).isEqualTo("1ddab9058a07abc0db2605ab02a61a00");
-    assertThat(data.getFileSourceData().getLinesList()).hasSize(2);
-    assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
-    assertThat(data.getFileSourceData().getLines(1).getHighlighting()).isEqualTo("h-2");
-  }
-
-  @Test
   public void remove_tabs_and_spaces_in_line_hashes() {
     String refLineHashes = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
