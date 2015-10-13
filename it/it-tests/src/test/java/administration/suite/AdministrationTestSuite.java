@@ -45,7 +45,6 @@ public class AdministrationTestSuite {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setServerProperty("sonar.notifications.delay", "1")
-    .setSonarVersion("DEV")
     .addPlugin(ItUtils.pluginArtifact("property-sets-plugin"))
     .addPlugin(ItUtils.pluginArtifact("sonar-subcategories-plugin"))
 

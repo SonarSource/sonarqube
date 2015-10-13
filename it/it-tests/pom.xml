@@ -14,7 +14,6 @@
   <properties>
     <category1>*</category1>
     <category2>NONE</category2>
-    <surefire.argLine>-Xmx128m -server</surefire.argLine>
     <skipIts>false</skipIts>
   </properties>
 
@@ -107,6 +106,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <argLine>-Xmx128m -Dsonar.runtimeVersion=${project.version}</argLine>
           <skipTests>${skipIts}</skipTests>
           <includes>
             <include>${category1}/suite/*TestSuite.java</include>
