@@ -20,6 +20,8 @@
 
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.io.Resources;
+import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class ProfilesWs implements WebService {
@@ -39,6 +41,24 @@ public class ProfilesWs implements WebService {
       .setSince("4.4");
 
     restoreAction.define(controller);
+    defineListAction(controller);
+    
     controller.done();
+  }
+
+  private static void defineListAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("list")
+      .setDescription("Get a list of profiles")
+      .setSince("3.3")
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(ProfilesWs.class, "example-list.json"));
+
+    action.createParam("language")
+      .setDescription("Profile language")
+      .setExampleValue("java");
+    action.createParam("project")
+      .setDescription("Project key or id")
+      .setExampleValue("org.codehaus.sonar:sonar");
+    RailsHandler.addJsonOnlyFormatParam(action);
   }
 }
