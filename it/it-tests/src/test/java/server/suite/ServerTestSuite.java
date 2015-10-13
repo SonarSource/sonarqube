@@ -36,7 +36,7 @@ public class ServerTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setSonarVersion("DEV")
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
     .addPlugin(ItUtils.xooPlugin())
 
     // Used in global_property_change_extension_point

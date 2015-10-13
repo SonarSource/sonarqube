@@ -22,7 +22,7 @@ public class UpdateCenterTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setSonarVersion("DEV")
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
     .setServerProperty("sonar.updatecenter.url", UpdateCenterTest.class.getResource("UpdateCenterTest/update-center.properties").toString())
     .addPlugin(pluginArtifact("sonar-fake-plugin"))
     .build();

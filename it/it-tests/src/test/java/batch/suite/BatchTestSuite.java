@@ -22,7 +22,7 @@ public class BatchTestSuite {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(ItUtils.xooPlugin())
-    .setSonarVersion("DEV")
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
     .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
     .setContext("/")
 

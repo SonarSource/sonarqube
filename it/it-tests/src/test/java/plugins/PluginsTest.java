@@ -74,7 +74,7 @@ public class PluginsTest {
     OrchestratorBuilder builder = Orchestrator.builderEnv();
 
     // install latest compatible releases of plugins
-    builder.setSonarVersion("DEV");
+    builder.setSonarVersion(System.getProperty("sonar.runtimeVersion")));
     org.sonar.updatecenter.common.Version sonarVersion = org.sonar.updatecenter.common.Version.create(builder.getSonarVersion());
     builder.getUpdateCenter().setInstalledSonarVersion(sonarVersion);
     for (Plugin plugin : builder.getUpdateCenter().findAllCompatiblePlugins()) {

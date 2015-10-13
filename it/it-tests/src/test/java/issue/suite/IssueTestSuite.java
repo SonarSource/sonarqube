@@ -27,7 +27,7 @@ public class IssueTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setSonarVersion("DEV")
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion"))
     .addPlugin(xooPlugin())
     .addPlugin(pluginArtifact("issue-action-plugin"))
     .build();
