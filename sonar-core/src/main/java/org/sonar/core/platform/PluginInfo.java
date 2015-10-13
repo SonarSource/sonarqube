@@ -27,6 +27,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -34,6 +35,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
@@ -137,7 +139,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
   private final Set<RequiredPlugin> requiredPlugins = new HashSet<>();
 
   public PluginInfo(String key) {
-    Preconditions.checkNotNull(key);
+    Preconditions.checkNotNull(key, "Plugin key is missing from manifest");
     this.key = key;
     this.name = key;
   }
@@ -364,13 +366,16 @@ public class PluginInfo implements Comparable<PluginInfo> {
       PluginManifest manifest = new PluginManifest(jarFile);
       return create(jarFile, manifest);
 
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new IllegalStateException("Fail to extract plugin metadata from file: " + jarFile, e);
     }
   }
 
   @VisibleForTesting
   static PluginInfo create(File jarFile, PluginManifest manifest) {
+    if (StringUtils.isBlank(manifest.getKey())) {
+      throw MessageException.of(String.format("File is not a plugin. Please delete it and restart: %s", jarFile.getAbsolutePath()));
+    }
     PluginInfo info = new PluginInfo(manifest.getKey());
 
     info.setJarFile(jarFile);
