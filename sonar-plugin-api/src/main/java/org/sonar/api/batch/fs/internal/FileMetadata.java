@@ -20,18 +20,6 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.primitives.Ints;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.input.BOMInputStream;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,6 +36,16 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * Computes hash of files. Ends of Lines are ignored, so files with
@@ -311,11 +309,19 @@ public class FileMetadata {
       c = (char) i;
       if (afterCR) {
         for (CharHandler handler : handlers) {
-          if (c != CARRIAGE_RETURN && c != LINE_FEED) {
+          if (c == CARRIAGE_RETURN) {
+            handler.newLine();
+            handler.handleAll(c);
+          } else if (c == LINE_FEED) {
+            handler.handleAll(c);
+            handler.newLine();
+            afterCR = false;
+          } else {
+            handler.newLine();
             handler.handleIgnoreEoL(c);
+            handler.handleAll(c);
+            afterCR = false;
           }
-          handler.handleAll(c);
-          handler.newLine();
         }
         afterCR = c == CARRIAGE_RETURN;
       } else if (c == LINE_FEED) {
@@ -337,6 +343,9 @@ public class FileMetadata {
       i = reader.read();
     }
     for (CharHandler handler : handlers) {
+      if (afterCR) {
+        handler.newLine();
+      }
       handler.eof();
     }
   }
