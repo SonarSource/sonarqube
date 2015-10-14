@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
+import moment from 'moment';
 import React from 'react';
 import RadioToggle from '../../components/shared/radio-toggle';
 import {STATUSES, CURRENTS, DATE, DATE_FORMAT, DEBOUNCE_DELAY} from './constants';

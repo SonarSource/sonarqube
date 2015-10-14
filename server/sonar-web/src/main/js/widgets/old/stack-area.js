@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 (function () {

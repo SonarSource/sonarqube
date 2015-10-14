@@ -1,7 +1,9 @@
 import $ from 'jquery';
 import _ from 'underscore';
+import moment from 'moment';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-creation-date-facet.hbs';
+import '../../../components/widgets/barchart.js';
 
 export default BaseFacet.extend({
   template: Template,

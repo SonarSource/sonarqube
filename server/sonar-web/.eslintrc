@@ -188,7 +188,6 @@
   "globals": {
     "define": true,
     "require": true,
-    "moment": true,
     "numeral": true,
     "key": true,
     "d3": true,

@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import moment from 'moment';
 import Handlebars from 'hbsfy/runtime';
 import md5 from 'blueimp-md5';
 

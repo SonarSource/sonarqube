@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React from 'react';
 import PendingIcon from '../../../components/shared/pending-icon';
 

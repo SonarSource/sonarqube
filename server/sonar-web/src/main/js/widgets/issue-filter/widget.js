@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
+import moment from 'moment';
 import Backbone from 'backbone';
 import Handlebars from 'hbsfy/runtime';
 import Marionette from 'backbone.marionette';

@@ -75,7 +75,6 @@ gulp.task('scripts-sonar', function () {
     'src/main/js/libs/third-party/underscore.js',
     'src/main/js/libs/third-party/select2.js',
     'src/main/js/libs/third-party/keymaster.js',
-    'src/main/js/libs/third-party/moment.js',
     'src/main/js/libs/third-party/numeral.js',
     'src/main/js/libs/third-party/numeral-languages.js',
     'src/main/js/libs/third-party/bootstrap/tooltip.js',
@@ -107,7 +106,8 @@ gulp.task('scripts-main', function () {
         return bundle
             .require('react', { expose: 'react' })
             .require('backbone', { expose: 'backbone' })
-            .require('backbone.marionette', { expose: 'backbone.marionette' });
+            .require('backbone.marionette', { expose: 'backbone.marionette' })
+            .require('moment/min/moment-with-locales', { expose: 'moment' });
       });
 });
 
@@ -127,7 +127,8 @@ gulp.task('scripts-apps', function (done) {
             return bundle
                 .external('react')
                 .external('backbone')
-                .external('backbone.marionette');
+                .external('backbone.marionette')
+                .external('moment');
           }
       );
     });
@@ -145,6 +146,7 @@ gulp.task('scripts-widgets', function () {
             .external('react')
             .external('backbone')
             .external('backbone.marionette')
+            .require('moment/min/moment-with-locales', { expose: 'moment' })
             .require('./src/main/js/widgets/issue-filter/widget.js', { expose: 'issue-filter-widget' });
       });
 });

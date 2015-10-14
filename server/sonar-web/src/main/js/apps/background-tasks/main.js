@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import moment from 'moment';
 import React from 'react';
 import {getQueue, getActivity, cancelTask, cancelAllTasks} from '../../api/ce';
 import {STATUSES, CURRENTS, DATE} from './constants';

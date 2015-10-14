@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
+import moment from 'moment';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import Source from './source';

@@ -3,6 +3,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import 'whatwg-fetch';
+import moment from 'moment';
 import '../libs/third-party/backbone-super.js';
 import './processes';
 import Navigation from './nav/app';
@@ -32,6 +33,12 @@ function prepareAppOptions (navResponse) {
   }
   return appOptions;
 }
+
+function getPreferredLanguage () {
+  return window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
+}
+
+moment.locale(getPreferredLanguage());
 
 window.sonarqube.appStarted = Promise.resolve()
     .then(requestLocalizationBundle)

@@ -1,4 +1,4 @@
-/*global d3:false*/
+import moment from 'moment';
 
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
