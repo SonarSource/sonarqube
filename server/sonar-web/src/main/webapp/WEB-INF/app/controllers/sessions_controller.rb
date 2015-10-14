@@ -27,6 +27,9 @@ class SessionsController < ApplicationController
   def login
     return unless request.post?
 
+    # Needed to bypass session fixation vulnerability (https://jira.sonarsource.com/browse/SONAR-6880)
+    reset_session
+
     self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
     if logged_in?
       if params[:remember_me] == '1'

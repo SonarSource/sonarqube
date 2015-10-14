@@ -44,9 +44,9 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.scm.ScmInfoRepositoryImpl;
+import org.sonar.server.computation.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.source.SourceLinesRepositoryImpl;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
-import org.sonar.server.source.SourceService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -88,11 +88,11 @@ public class PersistFileSourcesStepTest {
     BatchReportDirectoryHolderImpl batchReportDirectoryHolder = new BatchReportDirectoryHolderImpl();
     batchReportDirectoryHolder.setDirectory(reportDir);
     org.sonar.server.computation.batch.BatchReportReader batchReportReader = new BatchReportReaderImpl(batchReportDirectoryHolder);
-    SourceService sourceService = new SourceService(dbClient, null);
     analysisMetadataHolder.setIsFirstAnalysis(false);
-    ScmInfoRepositoryImpl scmInfoRepository = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadataHolder, dbClient, sourceService);
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader,
-      new SourceLinesRepositoryImpl(batchReportReader), scmInfoRepository);
+    SourceLinesRepositoryImpl sourceLinesRepository = new SourceLinesRepositoryImpl(batchReportReader);
+    SourceHashRepositoryImpl sourceHashRepository = new SourceHashRepositoryImpl(sourceLinesRepository);
+    ScmInfoRepositoryImpl scmInfoRepository = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadataHolder, dbClient, sourceHashRepository);
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader, sourceLinesRepository, scmInfoRepository);
     step.execute();
 
     long end = System.currentTimeMillis();
