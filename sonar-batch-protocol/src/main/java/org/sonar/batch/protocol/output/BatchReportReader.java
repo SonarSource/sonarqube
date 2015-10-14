@@ -120,6 +120,11 @@ public class BatchReportReader {
     return emptyCloseableIterator();
   }
 
+  public boolean hasCoverage(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, componentRef);
+    return file.exists();
+  }
+
   public CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, fileRef);
     if (fileExists(file)) {
