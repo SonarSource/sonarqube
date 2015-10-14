@@ -28,7 +28,11 @@ class ComponentsController < ApplicationController
   def index
     @components_configuration = Sonar::ComponentsConfiguration.new
 
-    @snapshots = Snapshot.all(:include => 'project', :conditions => ['snapshots.parent_snapshot_id=?', @snapshot.id])
+    unless @snapshot.nil?
+      @snapshots = Snapshot.all(:include => 'project', :conditions => ['snapshots.parent_snapshot_id=?', @snapshot.id])
+     else
+      @snapshots = []
+     end
 
     @columns = @components_configuration.selected_columns
     metrics = @components_configuration.homepage_metrics
