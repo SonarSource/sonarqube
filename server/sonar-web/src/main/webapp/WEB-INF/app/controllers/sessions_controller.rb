@@ -27,8 +27,16 @@ class SessionsController < ApplicationController
   def login
     return unless request.post?
 
+    return_to = session[:return_to]
+
     # Needed to bypass session fixation vulnerability (https://jira.sonarsource.com/browse/SONAR-6880)
     reset_session
+
+    if return_to
+      # user clicked on the link "login" : redirect to the original uri after authentication
+      session[:return_to] = Api::Utils.absolute_to_relative_url(return_to)
+      # else the original uri can be set by ApplicationController#access_denied
+    end
 
     self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
     if logged_in?
