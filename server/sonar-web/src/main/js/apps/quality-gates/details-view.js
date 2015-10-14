@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Conditions from './conditions';
 import DetailConditionsView from './gate-conditions-view';

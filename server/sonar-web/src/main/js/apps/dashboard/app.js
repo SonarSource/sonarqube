@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'underscore';
 
 window.Portal = function (options) {
   this.initialize(options);
@@ -138,9 +139,9 @@ window.autoResize = function (everyMs, callback) {
 
 
 $(function () {
-  var $sidebar = jQuery('#sidebar');
+  var $sidebar = $('#sidebar');
   if ($sidebar.length > 0) {
-    var $window = jQuery(window),
+    var $window = $(window),
         topOffset = $sidebar.offset().top;
     $window.on('scroll', function () {
       var scrollTop = $window.scrollTop(),

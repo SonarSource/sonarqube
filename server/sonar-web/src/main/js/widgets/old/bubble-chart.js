@@ -1,4 +1,4 @@
-/*global d3:false, baseUrl:false */
+import $ from 'jquery';
 
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
@@ -294,7 +294,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.initGrid();
     this.update(containerS);
 
-    jQuery('[data-toggle="tooltip"]').tooltip({ container: 'body', html: true });
+    $('[data-toggle="tooltip"]').tooltip({ container: 'body', html: true });
 
     return this;
   };

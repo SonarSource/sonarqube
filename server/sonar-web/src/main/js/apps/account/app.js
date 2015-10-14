@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import Handlebars from 'hbsfy/runtime';
 import ChangePasswordView from './change-password-view';
 import '../../helpers/handlebars-helpers';
 

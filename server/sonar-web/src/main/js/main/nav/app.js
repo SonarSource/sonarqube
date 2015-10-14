@@ -3,7 +3,6 @@ import GlobalNav from './global/global-nav';
 import ComponentNav from './component/component-nav';
 import SettingsNav from './settings/settings-nav';
 import {getGlobalNavigation, getComponentNavigation, getSettingsNavigation} from '../../api/nav';
-import {getTasksForComponent} from '../../api/ce';
 import '../../components/workspace/main';
 import '../../helpers/handlebars-helpers';
 

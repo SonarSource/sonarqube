@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import Backbone from 'backbone';
 import React from 'react';
 import Defaults from './permission-template-defaults';
 import SetDefaults from './permission-template-set-defaults';

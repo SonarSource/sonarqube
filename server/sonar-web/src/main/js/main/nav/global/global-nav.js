@@ -25,7 +25,9 @@ export default React.createClass({
   },
 
   openHelp(e) {
-    e && e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     new ShortcutsHelpView().render();
   },
 

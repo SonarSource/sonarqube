@@ -1,3 +1,6 @@
+import $ from 'jquery';
+import _ from 'underscore';
+
 (function () {
 
   function Treemap () {
@@ -310,7 +313,7 @@
     var that = this;
     var metrics = this.metricsPriority().join(','),
         RESOURCES_URL = baseUrl + '/api/resources/index';
-    return jQuery.get(RESOURCES_URL, {
+    return $.get(RESOURCES_URL, {
       resource: d.key,
       depth: 1,
       metrics: metrics

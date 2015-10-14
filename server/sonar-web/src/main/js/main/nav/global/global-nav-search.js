@@ -50,12 +50,18 @@ export default React.createClass({
   },
 
   resetSearchView() {
-    this.searchView && this.searchView.destroy();
+    if (this.searchView) {
+      this.searchView.destroy();
+    }
   },
 
   onClick(e) {
     e.preventDefault();
-    this.state.open ? this.closeSearch() : this.openSearch();
+    if (this.state.open) {
+      this.closeSearch();
+    } else {
+      this.openSearch();
+    }
   },
 
   onClickOutside(e) {

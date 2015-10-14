@@ -29,13 +29,13 @@ window.sonarqube.appStarted.then(() => {
         .addClass('spacer-top text-danger')
         .text(window.t('system.log_level.warning'));
 
-    function placeWarning () {
+    let placeWarning = function () {
       if (select.val() === 'INFO') {
         warning.detach();
       } else {
         warning.insertAfter(select);
       }
-    }
+    };
 
     placeWarning();
 
