@@ -24,6 +24,10 @@ import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
+/**
+ * List of quality profiles WS implemented in Rails.
+ * New WS on quality profiles MUST be declared in {@link org.sonar.server.qualityprofile.ws.QProfilesWs}
+ */
 public class ProfilesWs implements WebService {
 
   public static final String API_ENDPOINT = "api/profiles";
@@ -37,18 +41,38 @@ public class ProfilesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(API_ENDPOINT)
-      .setDescription("Old Quality Profiles")
+      .setDescription("Old Quality Profiles. Deprecated since 5.2")
       .setSince("4.4");
+
 
     restoreAction.define(controller);
     defineListAction(controller);
-    
+    defineIndexAction(controller);
+
     controller.done();
+  }
+
+  private static void defineIndexAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("index")
+      .setDescription("Get a profile. Deprecated since 5.2.")
+      .setSince("3.3")
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(ProfilesWs.class, "example-index.json"));
+
+    action.createParam("language")
+      .setDescription("Profile language")
+      .setRequired(true)
+      .setExampleValue("java");
+    action.createParam("name")
+      .setDescription("Profile name. If no profile name is given, default profile for the given language will be returned")
+      .setRequired(true)
+      .setExampleValue("Sonar way");
+    RailsHandler.addFormatParam(action);
   }
 
   private static void defineListAction(NewController controller) {
     WebService.NewAction action = controller.createAction("list")
-      .setDescription("Get a list of profiles")
+      .setDescription("Get a list of profiles. Deprecated since 5.2.")
       .setSince("3.3")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(ProfilesWs.class, "example-list.json"));
