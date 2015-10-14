@@ -37,6 +37,7 @@ public class DbMigrationJsonWriter {
   static final String STATUS_MIGRATION_SUCCEEDED = "MIGRATION_SUCCEEDED";
   static final String STATUS_MIGRATION_REQUIRED = "MIGRATION_REQUIRED";
 
+  static final String NO_CONNECTION_TO_DB = "Cannot connect to Database.";
   static final String UNSUPPORTED_DATABASE_MIGRATION_STATUS = "Unsupported DatabaseMigration status";
   static final String MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE = "Upgrade is not supported on embedded database.";
   static final String MESSAGE_MIGRATION_REQUIRED = "Database migration is required. DB migration can be started using WS /api/system/migrate_db.";
