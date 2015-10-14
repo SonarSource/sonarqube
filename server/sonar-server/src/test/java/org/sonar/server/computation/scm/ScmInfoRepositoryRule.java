@@ -21,12 +21,11 @@
 package org.sonar.server.computation.scm;
 
 import com.google.common.base.Optional;
-import org.junit.rules.ExternalResource;
-import org.sonar.server.computation.component.Component;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.rules.ExternalResource;
+import org.sonar.server.computation.component.Component;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

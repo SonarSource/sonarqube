@@ -20,15 +20,12 @@
 
 package org.sonar.server.computation.source;
 
-import java.security.MessageDigest;
+import com.google.common.base.Joiner;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.sonar.core.hash.SourceHashComputer;
+import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.db.protobuf.DbFileSources;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ComputeFileSourceData {
 
@@ -46,27 +43,17 @@ public class ComputeFileSourceData {
   }
 
   public Data compute() {
-    Data data = new Data();
+    Data data = new Data(numberOfLines);
     while (linesIterator.hasNext()) {
       currentLine++;
-      read(data, linesIterator.next(), hasNextLine());
-    }
-    // Process last line
-    if (hasNextLine()) {
-      currentLine++;
-      read(data, "", false);
+      read(data, linesIterator.next(), linesIterator.hasNext());
     }
     return data;
   }
 
   private void read(Data data, String source, boolean hasNextLine) {
-    if (hasNextLine) {
-      data.lineHashes.append(computeLineChecksum(source)).append("\n");
-      data.srcMd5Digest.update((source + "\n").getBytes(UTF_8));
-    } else {
-      data.lineHashes.append(computeLineChecksum(source));
-      data.srcMd5Digest.update(source.getBytes(UTF_8));
-    }
+    data.linesHashesComputer.addLine(source);
+    data.sourceHashComputer.addLine(source, hasNextLine);
 
     DbFileSources.Line.Builder lineBuilder = data.fileSourceBuilder.addLinesBuilder()
       .setSource(source)
@@ -76,39 +63,28 @@ public class ComputeFileSourceData {
     }
   }
 
-  private static String computeLineChecksum(String line) {
-    String reducedLine = StringUtils.replaceChars(line, "\t ", "");
-    if (reducedLine.isEmpty()) {
-      return "";
-    }
-    return DigestUtils.md5Hex(reducedLine);
-  }
-
-  private boolean hasNextLine() {
-    return linesIterator.hasNext() || currentLine < numberOfLines;
-  }
-
   public static class Data {
-    private final StringBuilder lineHashes;
-    private final MessageDigest srcMd5Digest;
-    private final DbFileSources.Data.Builder fileSourceBuilder;
+    private static final Joiner LINE_RETURN_JOINER = Joiner.on('\n');
 
-    public Data() {
-      this.fileSourceBuilder = DbFileSources.Data.newBuilder();
-      this.lineHashes = new StringBuilder();
-      this.srcMd5Digest = DigestUtils.getMd5Digest();
+    private final SourceLinesHashesComputer linesHashesComputer;
+    private final SourceHashComputer sourceHashComputer = new SourceHashComputer();
+    private final DbFileSources.Data.Builder fileSourceBuilder = DbFileSources.Data.newBuilder();
+
+    public Data(int lineCount) {
+      this.linesHashesComputer = new SourceLinesHashesComputer(lineCount);
     }
 
     public String getSrcHash() {
-      return Hex.encodeHexString(srcMd5Digest.digest());
+      return sourceHashComputer.getHash();
     }
 
     public String getLineHashes() {
-      return lineHashes.toString();
+      return LINE_RETURN_JOINER.join(linesHashesComputer.getLineHashes());
     }
 
     public DbFileSources.Data getFileSourceData() {
       return fileSourceBuilder.build();
     }
   }
+
 }

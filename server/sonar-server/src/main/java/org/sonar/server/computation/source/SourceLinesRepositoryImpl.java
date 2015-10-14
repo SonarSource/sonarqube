@@ -21,12 +21,13 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 
 public class SourceLinesRepositoryImpl implements SourceLinesRepository {
@@ -39,13 +40,58 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
 
   @Override
   public CloseableIterator<String> readLines(Component component) {
-    Preconditions.checkNotNull(component, "Component should not be bull");
-    if (!component.getType().equals(FILE)) {
-      throw new IllegalArgumentException(String.format("Component '%s' is not a file", component));
-    }
+    requireNonNull(component, "Component should not be bull");
+    checkArgument(component.getType() == FILE, "Component '%s' is not a file", component);
 
     Optional<CloseableIterator<String>> linesIteratorOptional = reportReader.readFileSource(component.getReportAttributes().getRef());
+
     checkState(linesIteratorOptional.isPresent(), String.format("File '%s' has no source code", component));
-    return linesIteratorOptional.get();
+    int numberOfLines = reportReader.readComponent(component.getReportAttributes().getRef()).getLines();
+    CloseableIterator<String> lineIterator = linesIteratorOptional.get();
+
+    return new ComponentLinesCloseableIterator(lineIterator, numberOfLines);
+  }
+
+  private static class ComponentLinesCloseableIterator extends CloseableIterator<String> {
+    private static final String EXTRA_END_LINE = "";
+    private final CloseableIterator<String> delegate;
+    private final int numberOfLines;
+    private int currentLine = 0;
+    private boolean addedExtraLine = false;
+
+    public ComponentLinesCloseableIterator(CloseableIterator<String> lineIterator, int numberOfLines) {
+      this.delegate = lineIterator;
+      this.numberOfLines = numberOfLines;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return delegate.hasNext() || (currentLine < numberOfLines && !addedExtraLine);
+    }
+
+    @Override
+    public String next() {
+      if (!hasNext()) {
+        // will throw NoSuchElementException
+        return delegate.next();
+      }
+
+      currentLine++;
+      if (delegate.hasNext()) {
+        return delegate.next();
+      }
+      addedExtraLine = true;
+      return EXTRA_END_LINE;
+    }
+
+    @Override
+    protected String doNext() {
+      throw new UnsupportedOperationException("No implemented because hasNext and next are override");
+    }
+
+    @Override
+    protected void doClose() throws Exception {
+      delegate.close();
+    }
   }
 }

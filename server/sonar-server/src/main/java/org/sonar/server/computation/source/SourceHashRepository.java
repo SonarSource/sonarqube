@@ -17,28 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.scm;
+package org.sonar.server.computation.source;
 
-import com.google.common.base.Optional;
 import org.sonar.server.computation.component.Component;
 
-/**
- * Return SCM information of components.
- *
- * It will always search in the db if there's nothing in the report.
- */
-public interface ScmInfoRepository {
+public interface SourceHashRepository {
 
   /**
-   * Returns Scm info for the specified component if there is any, first looking into the report, then into the database
+   * The hash of the source of the specified FILE component in the analysis report.
    * <p>
-   * If there's nothing in the report and in the db (on first analysis for instance), then it return a {@link Optional#absent()}.
-   * </p>
-   * <p>
-   * This method will always return {@link Optional#absent()} if the specified component's type is not {@link Component.Type#FILE}.
+   * The source hash will be cached by the repository so that only the first call to this method will cost a file
+   * access on disk.
    * </p>
    *
-   * @throws NullPointerException if argument is {@code null}
+   * @throws NullPointerException if specified component is {@code null}
+   * @throws IllegalArgumentException if specified component if not a {@link Component.Type#FILE}
+   * @throws IllegalStateException if source hash for the specified component can not be computed
    */
-  Optional<ScmInfo> getScmInfo(Component component);
+  String getRawSourceHash(Component file);
+
 }

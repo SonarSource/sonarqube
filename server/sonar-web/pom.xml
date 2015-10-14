@@ -157,9 +157,31 @@
       <build>
         <plugins>
           <plugin>
-            <artifactId>maven-deploy-plugin</artifactId>
+            <artifactId>maven-clean-plugin</artifactId>
             <configuration>
-              <skip>true</skip>
+              <filesets>
+                <fileset>
+                  <directory>${basedir}/node</directory>
+                  <includes>
+                    <include>**/*</include>
+                  </includes>
+                </fileset>
+                <fileset>
+                  <directory>${basedir}/node_modules</directory>
+                  <includes>
+                    <include>**/*</include>
+                  </includes>
+                </fileset>
+                <fileset>
+                  <directory>${basedir}/src/main/webapp/deploy</directory>
+                  <includes>
+                    <include>**/*</include>
+                  </includes>
+                  <excludes>
+                    <exclude>readme.txt</exclude>
+                  </excludes>
+                </fileset>
+              </filesets>
             </configuration>
           </plugin>
           <plugin>

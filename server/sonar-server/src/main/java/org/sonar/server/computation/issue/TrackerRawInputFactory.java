@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
@@ -71,7 +70,7 @@ public class TrackerRawInputFactory {
 
     @Override
     protected LineHashSequence loadLineHashSequence() {
-      Iterable<String> lines;
+      List<String> lines;
       if (component.getType() == Component.Type.FILE) {
         lines = newArrayList(sourceLinesRepository.readLines(component));
       } else {

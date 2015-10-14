@@ -29,6 +29,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class FileAttributes {
   private final boolean unitTest;
+  @CheckForNull
   private final String languageKey;
 
   public FileAttributes(boolean unitTest, @Nullable String languageKey) {

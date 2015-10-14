@@ -20,13 +20,11 @@
 package org.sonar.core.issue.tracking;
 
 import com.google.common.base.Strings;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.sonar.core.hash.SourceLinesHashesComputer;
 
 /**
  * Sequence of hash of lines for a given file
@@ -100,20 +98,12 @@ public class LineHashSequence {
     return result;
   }
 
-  public static LineHashSequence createForLines(Iterable<String> lines) {
-    List<String> hashes = new ArrayList<>();
+  public static LineHashSequence createForLines(List<String> lines) {
+    SourceLinesHashesComputer hashesComputer = new SourceLinesHashesComputer(lines.size());
     for (String line : lines) {
-      hashes.add(hash(line));
+      hashesComputer.addLine(line);
     }
-    return new LineHashSequence(hashes);
+    return new LineHashSequence(hashesComputer.getLineHashes());
   }
 
-  // FIXME duplicates ComputeFileSourceData
-  private static String hash(String line) {
-    String reducedLine = StringUtils.replaceChars(line, "\t ", "");
-    if (reducedLine.isEmpty()) {
-      return "";
-    }
-    return DigestUtils.md5Hex(reducedLine);
-  }
 }
