@@ -19,34 +19,59 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 
-public class NetworkUtils {
+public final class NetworkUtils {
+
+  private static final RandomPortFinder RANDOM_PORT_FINDER = new RandomPortFinder();
 
   private NetworkUtils() {
-    // only static stuff
+    // only statics
   }
 
-  /**
-   * Get an unused port
-   */
   public static int freePort() {
-    ServerSocket socket = null;
-    try  {
-      socket = new ServerSocket();
-      socket.setReuseAddress(true);
-      socket.bind(new InetSocketAddress("localhost", 0));
-      return socket.getLocalPort();
+    return RANDOM_PORT_FINDER.getNextAvailablePort();
+  }
 
-    } catch (IOException e) {
-      throw new IllegalStateException("Can not find a free network port", e);
+  static class RandomPortFinder {
+    private static final int MAX_TRY = 10;
+    // Firefox blocks some reserved ports : http://www-archive.mozilla.org/projects/netlib/PortBanning.html
+    private static final int[] BLOCKED_PORTS = {2049, 4045, 6000};
 
-    } finally {
-      IOUtils.closeQuietly(socket);
+    public int getNextAvailablePort() {
+      for (int i = 0; i < MAX_TRY; i++) {
+        try {
+          int port = getRandomUnusedPort();
+          if (isValidPort(port)) {
+            return port;
+          }
+        } catch (Exception e) {
+          throw new IllegalStateException("Can't find an open network port", e);
+        }
+      }
+
+      throw new IllegalStateException("Can't find an open network port");
+    }
+
+    public int getRandomUnusedPort() throws IOException {
+      ServerSocket socket = null;
+      try {
+        socket = new ServerSocket();
+        socket.bind(new InetSocketAddress("localhost", 0));
+        return socket.getLocalPort();
+      } catch (IOException e) {
+        throw new IllegalStateException("Can not find a free network port", e);
+      } finally {
+        IOUtils.closeQuietly(socket);
+      }
+    }
+
+    public static boolean isValidPort(int port) {
+      return port > 1023 && !ArrayUtils.contains(BLOCKED_PORTS, port);
     }
   }
 }

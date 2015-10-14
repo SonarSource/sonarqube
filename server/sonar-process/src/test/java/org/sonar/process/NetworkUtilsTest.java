@@ -19,29 +19,61 @@
  */
 package org.sonar.process;
 
+import java.io.IOException;
 import org.junit.Test;
-import org.sonar.test.TestUtils;
+import org.sonar.process.NetworkUtils.RandomPortFinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 public class NetworkUtilsTest {
 
   @Test
-  public void find_free_port() {
-    int port = NetworkUtils.freePort();
-    assertThat(port).isGreaterThan(0);
+  public void shouldGetAvailablePortWithoutLockingHost() {
+    for (int i = 0; i < 1000; i++) {
+      /*
+       * The Well Known Ports are those from 0 through 1023.
+       * DCCP Well Known ports SHOULD NOT be used without IANA registration.
+       */
+      assertThat(NetworkUtils.freePort()).isGreaterThan(1023);
+    }
   }
 
   @Test
-  public void find_multiple_free_port() {
-    int port1 = NetworkUtils.freePort();
-    int port2 = NetworkUtils.freePort();
-
-    assertThat(port1).isNotSameAs(port2);
+  public void shouldGetRandomPort() {
+    assertThat(NetworkUtils.freePort()).isNotEqualTo(NetworkUtils.freePort());
   }
 
   @Test
-  public void private_constructor() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(NetworkUtils.class)).isTrue();
+  public void shouldNotBeValidPorts() {
+    assertThat(RandomPortFinder.isValidPort(0)).isFalse();// <=1023
+    assertThat(RandomPortFinder.isValidPort(50)).isFalse();// <=1023
+    assertThat(RandomPortFinder.isValidPort(1023)).isFalse();// <=1023
+    assertThat(RandomPortFinder.isValidPort(2049)).isFalse();// NFS
+    assertThat(RandomPortFinder.isValidPort(4045)).isFalse();// lockd
   }
+
+  @Test
+  public void shouldBeValidPorts() {
+    assertThat(RandomPortFinder.isValidPort(1059)).isTrue();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldFailWhenNoValidPortIsAvailable() throws IOException {
+    RandomPortFinder randomPortFinder = spy(new RandomPortFinder());
+    doReturn(0).when(randomPortFinder).getRandomUnusedPort();
+
+    randomPortFinder.getNextAvailablePort();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldFailWhenItsNotPossibleToOpenASocket() throws IOException {
+    RandomPortFinder randomPortFinder = spy(new RandomPortFinder());
+    doThrow(new IOException("Not possible")).when(randomPortFinder).getRandomUnusedPort();
+
+    randomPortFinder.getNextAvailablePort();
+  }
+
 }
