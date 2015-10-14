@@ -19,6 +19,10 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -28,12 +32,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.FileMetadata.LineHashConsumer;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -127,6 +125,32 @@ public class FileMetadataTest {
   public void unix_with_latest_eol() throws Exception {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\nbaz\n", StandardCharsets.UTF_8, true);
+
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, StandardCharsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(4);
+    assertThat(metadata.nonBlankLines).isEqualTo(3);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz\n"));
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8, 12);
+    assertThat(metadata.lastValidOffset).isEqualTo(12);
+  }
+
+  @Test
+  public void mac_without_latest_eol() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "foo\rbar\rbaz", StandardCharsets.UTF_8, true);
+
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, StandardCharsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(3);
+    assertThat(metadata.nonBlankLines).isEqualTo(3);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8);
+    assertThat(metadata.lastValidOffset).isEqualTo(11);
+  }
+
+  @Test
+  public void mac_with_latest_eol() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "foo\rbar\rbaz\r", StandardCharsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, StandardCharsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
@@ -284,7 +308,7 @@ public class FileMetadataTest {
 
     FileMetadata.Metadata metadata = new FileMetadata().readMetadata(woff, StandardCharsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(135);
-    assertThat(metadata.nonBlankLines).isEqualTo(134);
+    assertThat(metadata.nonBlankLines).isEqualTo(133);
     assertThat(metadata.hash).isNotEmpty();
 
     assertThat(logTester.logs(LoggerLevel.WARN).get(0)).contains("Invalid character encountered in file");

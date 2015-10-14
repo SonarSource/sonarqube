@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -176,6 +177,19 @@ public class DefaultInputFileTest {
     } catch (Exception e) {
       assertThat(e).hasMessage("10 is not a valid line offset for pointer. File [moduleKey=ABCDE, relative=src/Foo.php, basedir=null] has 9 character(s) at line 1");
     }
+  }
+
+  @Test
+  public void checkValidRangeUsingGlobalOffset() {
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    file.setLines(2);
+    file.setOriginalLineOffsets(new int[] {0, 10});
+    file.setLastValidOffset(15);
+    TextRange newRange = file.newRange(10, 13);
+    assertThat(newRange.start().line()).isEqualTo(2);
+    assertThat(newRange.start().lineOffset()).isEqualTo(0);
+    assertThat(newRange.end().line()).isEqualTo(2);
+    assertThat(newRange.end().lineOffset()).isEqualTo(3);
   }
 
   @Test
