@@ -10,11 +10,13 @@
 }
 
 .select2-container .select2-choice {
-  height: 20px;
-  line-height: 20px;
+  height: @formControlHeight;
+  line-height: @formControlHeight - 2px;
   border-color: @darkGrey;
-  border-radius: 0;
+  border-radius: 2px;
+  box-sizing: border-box;
   background: #fff;
+  font-size: 12px;
   text-align: left;
 }
 
