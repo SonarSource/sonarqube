@@ -13,23 +13,33 @@ Backbone.$ = $;
 
 
 function requestLocalizationBundle () {
-  return new Promise(resolve => window.requestMessages().done(resolve));
+  if (!window.sonarqube.bannedNavigation) {
+    return new Promise(resolve => window.requestMessages().done(resolve));
+  } else {
+    return Promise.resolve();
+  }
 }
 
 function startNavigation () {
-  return new Navigation().start();
+  if (!window.sonarqube.bannedNavigation) {
+    return new Navigation().start();
+  } else {
+    return Promise.resolve();
+  }
 }
 
 function prepareAppOptions (navResponse) {
   let appOptions = { el: '#content' };
-  appOptions.rootQualifiers = navResponse.global.qualifiers;
-  if (navResponse.component) {
-    appOptions.component = {
-      id: navResponse.component.uuid,
-      key: navResponse.component.key,
-      name: navResponse.component.name,
-      qualifier: _.last(navResponse.component.breadcrumbs).qualifier
-    };
+  if (navResponse) {
+    appOptions.rootQualifiers = navResponse.global.qualifiers;
+    if (navResponse.component) {
+      appOptions.component = {
+        id: navResponse.component.uuid,
+        key: navResponse.component.key,
+        name: navResponse.component.name,
+        qualifier: _.last(navResponse.component.breadcrumbs).qualifier
+      };
+    }
   }
   return appOptions;
 }
