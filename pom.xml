@@ -191,6 +191,7 @@
             </excludes>
             <includes>
               <include>org.sonar.*</include>
+              <include>org.sonarqube.*</include>
             </includes>
           </configuration>
         </plugin>
