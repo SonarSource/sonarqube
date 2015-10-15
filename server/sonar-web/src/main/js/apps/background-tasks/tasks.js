@@ -26,13 +26,13 @@ export default React.createClass({
         inner = <i className="spinner"/>;
         break;
       case STATUSES.SUCCESS:
-        inner = <i className="icon-test-status-ok"/>;
+        inner = <span className="badge badge-success">{window.t('background_task.status.SUCCESS')}</span>;
         break;
       case STATUSES.FAILED:
-        inner = <i className="icon-test-status-error"/>;
+        inner = <span className="badge badge-danger">{window.t('background_task.status.FAILED')}</span>;
         break;
       case STATUSES.CANCELED:
-        inner = <i className="icon-test-status-skipped"/>;
+        inner = <span className="badge badge-muted">{window.t('background_task.status.CANCELED')}</span>;
         break;
       default:
         inner = '';

@@ -4,8 +4,7 @@ import PendingIcon from '../../../components/shared/pending-icon';
 export default React.createClass({
   render() {
     let metaList = [],
-        // FIXME check right permission
-        canSeeBackgroundTasks = this.props.conf.showSettings,
+        canSeeBackgroundTasks = this.props.conf.showBackgroundTasks,
         backgroundTasksUrl = `${baseUrl}/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
 
     if (this.props.isInProgress) {
@@ -32,7 +31,7 @@ export default React.createClass({
           window.t('component_navigation.status.failed');
       metaList.push(
           <li key="isFailed" data-toggle="tooltip" title={tooltip}>
-            <i className="icon-test-status-error"/> <span className="text-danger">{window.t('background_task.status.FAILED')}</span>
+            <span className="badge badge-danger">{window.t('background_task.status.FAILED')}</span>
           </li>
       );
     }
