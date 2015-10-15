@@ -87,7 +87,12 @@ public class WsClient {
   }
 
   public static class Builder {
-    private String login, password, url, proxyHost, proxyLogin, proxyPassword;
+    private String login;
+    private String password;
+    private String url;
+    private String proxyHost;
+    private String proxyLogin;
+    private String proxyPassword;
     private int proxyPort = 0;
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS, readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
 

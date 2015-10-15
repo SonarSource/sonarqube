@@ -19,27 +19,24 @@
  */
 package org.sonarqube.ws.client;
 
-import java.net.ConnectException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class HttpRequestFactoryTest {
   @Rule
   public MockHttpServerInterceptor httpServer = new MockHttpServerInterceptor();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_get() {
     httpServer.stubStatusCode(200).stubResponseBody("{'issues': []}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.get("/api/issues", Collections.<String, Object>emptyMap());
+    String json = factory.execute(new WsRequest("/api/issues"));
 
     assertThat(json).isEqualTo("{'issues': []}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
@@ -47,48 +44,11 @@ public class HttpRequestFactoryTest {
 
   @Test
   public void should_throw_illegal_state_exc_if_connect_exception() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to request http://localhost:1/api/issues");
+
     HttpRequestFactory factory = new HttpRequestFactory("http://localhost:1");
-    try {
-      factory.get("/api/issues", Collections.<String, Object>emptyMap());
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e).hasMessage("Fail to request http://localhost:1/api/issues");
-      assertThat(e.getCause().getMessage()).matches(".*(Connection refused|Connexion refusée).*");
-    }
-  }
-
-  @Test
-  public void test_post() {
-    httpServer.stubStatusCode(200).stubResponseBody("{}");
-
-    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.post("/api/issues/change", Collections.<String, Object>emptyMap());
-
-    assertThat(json).isEqualTo("{}");
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change");
-  }
-
-  @Test
-  public void post_successful_if_created() {
-    httpServer.stubStatusCode(201).stubResponseBody("{}");
-
-    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.post("/api/issues/change", Collections.<String, Object>emptyMap());
-
-    assertThat(json).isEqualTo("{}");
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change");
-  }
-
-  @Test
-  public void post_successful_if_no_content() {
-    httpServer.stubStatusCode(204).stubResponseBody("");
-
-    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.post("/api/issues/change", Collections.<String, Object>emptyMap());
-
-    assertThat(json).isEqualTo("");
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/issues/change");
+    factory.execute(new WsRequest("/api/issues"));
   }
 
   @Test
@@ -96,7 +56,7 @@ public class HttpRequestFactoryTest {
     httpServer.stubStatusCode(200).stubResponseBody("{}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url()).setLogin("karadoc").setPassword("legrascestlavie");
-    String json = factory.get("/api/issues", Collections.<String, Object>emptyMap());
+    String json = factory.execute(new WsRequest("/api/issues"));
 
     assertThat(json).isEqualTo("{}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
@@ -105,34 +65,21 @@ public class HttpRequestFactoryTest {
 
   @Test
   public void test_proxy() throws Exception {
+    expectedException.expect(IllegalStateException.class);
+
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url())
       .setProxyHost("localhost").setProxyPort(1)
       .setProxyLogin("john").setProxyPassword("smith");
-    try {
-      factory.get("/api/issues", Collections.<String, Object>emptyMap());
-      fail();
-    } catch (IllegalStateException e) {
-      // it's not possible to check that the proxy is correctly configured
-      assertThat(e.getCause()).isInstanceOf(ConnectException.class);
-    }
+    factory.execute(new WsRequest("/api/issues"));
   }
 
   @Test
   public void beginning_slash_is_optional() throws Exception {
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    factory.get("api/foo", Collections.<String, Object>emptyMap());
+    factory.execute(new WsRequest("api/foo"));
     assertThat(httpServer.requestedPath()).isEqualTo("/api/foo");
 
-    factory.get("/api/bar", Collections.<String, Object>emptyMap());
+    factory.execute(new WsRequest("/api/bar"));
     assertThat(httpServer.requestedPath()).isEqualTo("/api/bar");
-  }
-
-  protected static Date toDate(String sDate) {
-    try {
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-      return sdf.parse(sDate);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

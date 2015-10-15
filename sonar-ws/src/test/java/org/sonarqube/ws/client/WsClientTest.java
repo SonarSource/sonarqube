@@ -92,7 +92,7 @@ public class WsClientTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Server URL must be set");
 
-    underTest.builder().build();
+    WsClient.builder().build();
   }
 
   @Test
@@ -100,7 +100,7 @@ public class WsClientTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Server URL must be set");
 
-    underTest.create("");
+    WsClient.create("");
   }
 
   @Test
@@ -119,7 +119,8 @@ public class WsClientTest {
 
   @Test
   public void test_custom_configuration() throws Exception {
-    underTest = WsClient.builder().url("http://localhost:9000")
+    underTest = WsClient.builder()
+      .url("http://localhost:9000")
       .login("eric")
       .password("pass")
       .connectTimeoutMilliseconds(12345)

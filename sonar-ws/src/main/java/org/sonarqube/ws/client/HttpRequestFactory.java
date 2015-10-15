@@ -26,7 +26,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 import java.util.Arrays;
-import java.util.Map;
 import javax.annotation.Nullable;
 
 import static java.net.HttpURLConnection.HTTP_CREATED;
@@ -41,7 +40,11 @@ public class HttpRequestFactory {
   private static final int[] RESPONSE_SUCCESS = {HTTP_OK, HTTP_CREATED, HTTP_NO_CONTENT};
 
   private final String baseUrl;
-  private String login, password, proxyHost, proxyLogin, proxyPassword;
+  private String login;
+  private String password;
+  private String proxyHost;
+  private String proxyLogin;
+  private String proxyPassword;
   private int proxyPort;
   private int connectTimeoutInMilliseconds;
   private int readTimeoutInMilliseconds;
@@ -126,16 +129,6 @@ public class HttpRequestFactory {
     return readTimeoutInMilliseconds;
   }
 
-  public String get(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = prepare(HttpRequest.get(buildUrl(wsUrl), queryParams, true));
-    return execute(request);
-  }
-
-  public String post(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = prepare(HttpRequest.post(buildUrl(wsUrl), true)).form(queryParams, HttpRequest.CHARSET_UTF8);
-    return execute(request);
-  }
-
   public String execute(WsRequest wsRequest) {
     HttpRequest httpRequest = wsRequestToHttpRequest(wsRequest);
     return execute(httpRequest);
@@ -148,7 +141,7 @@ public class HttpRequestFactory {
     } catch (InvalidProtocolBufferException e) {
       Throwables.propagate(e);
     }
-    
+
     throw new IllegalStateException("Uncatched exception when parsing protobuf response");
   }
 
@@ -161,8 +154,12 @@ public class HttpRequestFactory {
       case PROTOBUF:
         httpRequest.accept(MediaType.PROTOBUF.toString());
         break;
-      default:
+      case JSON:
         httpRequest.accept(MediaType.JSON_UTF_8.toString());
+        break;
+      case TEXT:
+      default:
+        httpRequest.accept(MediaType.PLAIN_TEXT_UTF_8.toString());
         break;
     }
 
@@ -179,21 +176,20 @@ public class HttpRequestFactory {
     return url.toString();
   }
 
-  private String execute(HttpRequest request) {
+  private static String execute(HttpRequest request) {
     try {
-      if (isSuccess(request)) {
-        return request.body(HttpRequest.CHARSET_UTF8);
-      }
-      // TODO better handle error messages
-      throw new HttpException(request.url().toString(), request.code(), request.body());
-
+      checkSuccess(request);
+      return request.body(HttpRequest.CHARSET_UTF8);
     } catch (HttpRequest.HttpRequestException e) {
-      throw new IllegalStateException("Fail to request " + request.url(), e.getCause());
+      throw new IllegalStateException("Fail to request " + request.url(), e);
     }
   }
 
-  private boolean isSuccess(HttpRequest request) {
-    return Arrays.binarySearch(RESPONSE_SUCCESS, request.code()) >= 0;
+  private static void checkSuccess(HttpRequest request) {
+    boolean isSuccess = Arrays.binarySearch(RESPONSE_SUCCESS, request.code()) >= 0;
+    if (!isSuccess) {
+      throw new HttpException(request.url().toString(), request.code(), request.body());
+    }
   }
 
   private HttpRequest prepare(HttpRequest request) {
