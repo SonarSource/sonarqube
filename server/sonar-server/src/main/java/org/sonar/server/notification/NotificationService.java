@@ -24,6 +24,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -60,6 +61,7 @@ import org.sonar.db.DbClient;
 })
 @ServerSide
 public class NotificationService implements Startable {
+  private static final String THREAD_NAME_PREFIX = "sq-notification-service-";
 
   private static final Logger LOG = Loggers.get(NotificationService.class);
 
@@ -93,7 +95,12 @@ public class NotificationService implements Startable {
 
   @Override
   public void start() {
-    executorService = Executors.newSingleThreadScheduledExecutor();
+    executorService =
+      Executors.newSingleThreadScheduledExecutor(
+        new ThreadFactoryBuilder()
+          .setNameFormat(THREAD_NAME_PREFIX + "%d")
+          .setPriority(Thread.MIN_PRIORITY)
+          .build());
     executorService.scheduleWithFixedDelay(new Runnable() {
       @Override
       public void run() {
