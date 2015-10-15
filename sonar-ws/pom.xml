@@ -13,10 +13,6 @@
   <name>SonarQube :: Web Service</name>
   <description>Protocol Buffers specification of Web Services</description>
 
-  <properties>
-    <sonar.exclusions>src/main/gen-java/**/*</sonar.exclusions>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.google.protobuf</groupId>
@@ -68,29 +64,4 @@
       <artifactId>http-request</artifactId>
     </dependency>
   </dependencies>
-
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>src/main/gen-java</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-
-  </build>
 </project>
