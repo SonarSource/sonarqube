@@ -20,16 +20,16 @@
 
 package org.sonar.server.platform.monitoring;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
+import org.elasticsearch.common.breaker.CircuitBreaker;
 import org.sonar.server.es.EsClient;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 
@@ -109,8 +109,13 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
       nodeAttributes.put("JVM Heap Max", byteCountToDisplaySize(stats.getJvm().getMem().getHeapMax().bytes()));
       nodeAttributes.put("JVM Non Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getNonHeapUsed().bytes()));
       nodeAttributes.put("JVM Threads", stats.getJvm().getThreads().count());
-      nodeAttributes.put("Field Cache Memory", byteCountToDisplaySize(stats.getIndices().getFieldData().getMemorySizeInBytes()));
+      nodeAttributes.put("Field Data Memory", byteCountToDisplaySize(stats.getIndices().getFieldData().getMemorySizeInBytes()));
+      nodeAttributes.put("Field Data Circuit Breaker Limit", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.Name.FIELDDATA).getLimit()));
+      nodeAttributes.put("Field Data Circuit Breaker Estimation", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.Name.FIELDDATA).getEstimated()));
+      nodeAttributes.put("Request Circuit Breaker Limit", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.Name.REQUEST).getLimit()));
+      nodeAttributes.put("Request Circuit Breaker Estimation", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.Name.REQUEST).getEstimated()));
       nodeAttributes.put("Filter Cache Memory", byteCountToDisplaySize(stats.getIndices().getFilterCache().getMemorySizeInBytes()));
+      nodeAttributes.put("Query Cache Memory", byteCountToDisplaySize(stats.getIndices().getQueryCache().getMemorySizeInBytes()));
       nodeAttributes.put("ID Cache Memory", byteCountToDisplaySize(stats.getIndices().getIdCache().getMemorySizeInBytes()));
       nodeAttributes.put("Query Cache Memory", byteCountToDisplaySize(stats.getIndices().getQueryCache().getMemorySizeInBytes()));
     }
@@ -121,7 +126,7 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
     return esClient.prepareClusterStats().get();
   }
 
-  private String formatPercent(long amount) {
+  private static String formatPercent(long amount) {
     return String.format("%.1f%%", 100 * amount * 1.0D / 100L);
   }
 }
