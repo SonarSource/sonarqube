@@ -24,10 +24,6 @@ Notes
 
   - this is beta version of specification. It will evolve during next releases and is
     not forward-compatible yet.
-
-  - the related Java files are not generated during build. Indeed the existing protoc maven
-    plugins require protobuf to be installed on boxes. That means that generated Java files
-    are updated and committed for each change (see src/main/gen-java).
 */
 
 syntax = "proto2";
