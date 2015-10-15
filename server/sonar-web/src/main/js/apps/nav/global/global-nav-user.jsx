@@ -24,7 +24,7 @@ export default React.createClass({
   renderAnonymous() {
     return (
         <li>
-          <a onClick={this.handleLogin}>{window.t('layout.login')}</a>
+          <a onClick={this.handleLogin} href="#">{window.t('layout.login')}</a>
         </li>
     );
   },
