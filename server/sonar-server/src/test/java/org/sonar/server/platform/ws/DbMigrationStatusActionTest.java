@@ -25,7 +25,9 @@ import java.util.Arrays;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.Database;
@@ -58,6 +60,8 @@ import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_NO_MIGRA
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class DbMigrationStatusActionTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private static final Date SOME_DATE = new Date();
   private static final String SOME_THROWABLE_MSG = "blablabla pop !";
@@ -89,6 +93,16 @@ public class DbMigrationStatusActionTest {
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).isSimilarTo(getClass().getResource("example-migrate_db.json"));
+  }
+
+  @Test
+  public void throws_ISE_when_databaseVersion_can_not_be_determined() throws Exception {
+    when(databaseVersion.getVersion()).thenReturn(null);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Cannot connect to Database.");
+
+    underTest.handle(request, response);
   }
 
   @Test

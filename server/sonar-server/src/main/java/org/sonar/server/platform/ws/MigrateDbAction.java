@@ -28,6 +28,8 @@ import org.sonar.db.Database;
 import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 
+import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.NO_CONNECTION_TO_DB;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.UNSUPPORTED_DATABASE_MIGRATION_STATUS;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.statusDescription;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.write;
@@ -67,9 +69,7 @@ public class MigrateDbAction implements SystemWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     Integer currentVersion = databaseVersion.getVersion();
-    if (currentVersion == null) {
-      throw new IllegalStateException("Version can not be retrieved from Database. Database is either blank or corrupted");
-    }
+    checkState(currentVersion != null, NO_CONNECTION_TO_DB);
 
     JsonWriter json = response.newJsonWriter();
     try {
