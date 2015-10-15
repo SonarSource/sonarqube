@@ -1,3 +1,8 @@
+<% content_for :script do %>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/dashboard.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/widgets.js?v=<%= sonar_version -%>"></script>
+<% end %>
+
 <div id="block_1" class="block" style="width: <%= @widget_width -%>">
   <div class="<%= @widget_definition.getId() %>" style="height:100%;">
     <%
