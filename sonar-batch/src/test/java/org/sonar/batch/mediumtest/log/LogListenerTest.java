@@ -20,14 +20,17 @@
 package org.sonar.batch.mediumtest.log;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -40,7 +43,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.xoo.XooPlugin;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogListenerTest {
@@ -87,7 +89,8 @@ public class LogListenerTest {
   public void prepare() throws IOException {
     System.setOut(new PrintStream(stdOutTarget));
     System.setErr(new PrintStream(stdErrTarget));
-    logOutput = new LinkedList<>();
+    // logger from the batch might write to it asynchronously
+    logOutput = Collections.synchronizedList(new LinkedList<LogEvent>());
     tester.start();
 
     baseDir = temp.getRoot();
@@ -139,8 +142,11 @@ public class LogListenerTest {
 
     assertNoStdOutput();
     assertThat(logOutput).isNotEmpty();
-    for (LogEvent e : logOutput) {
-      savedStdOut.println("[captured]" + e.level + " " + e.msg);
+
+    synchronized (logOutput) {
+      for (LogEvent e : logOutput) {
+        savedStdOut.println("[captured]" + e.level + " " + e.msg);
+      }
     }
   }
 
@@ -160,9 +166,11 @@ public class LogListenerTest {
 
     assertNoStdOutput();
 
-    for (LogEvent e : logOutput) {
-      assertMsgClean(e.msg);
-      savedStdOut.println("[captured]" + e.level + " " + e.msg);
+    synchronized (logOutput) {
+      for (LogEvent e : logOutput) {
+        assertMsgClean(e.msg);
+        savedStdOut.println("[captured]" + e.level + " " + e.msg);
+      }
     }
   }
 
