@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>4.5.6-SNAPSHOT</version>
+  <version>4.5.6</version>
   <name>SonarQube</name>
   <url>http://www.sonarqube.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
@@ -50,17 +50,14 @@
   </issueManagement>
 
   <distributionManagement>
-    <repository>
-<!-- Temporary workaround for previous and LTS version -->    
-      <id>sonarsource-releases</id>
-      <name>Internal</name>
-      <url>http://nexus-master.internal.sonarsource.com/nexus/content/repositories/releases-oss/</url>
-    </repository>
     <snapshotRepository>
-      <id>sonar-snapshots</id>
-      <url>${sonar.snapshotRepository.url}</url>
-      <uniqueVersion>false</uniqueVersion>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
   </distributionManagement>
 
   <prerequisites>
