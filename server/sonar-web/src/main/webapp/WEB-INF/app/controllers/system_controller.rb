@@ -32,4 +32,8 @@ class SystemController < ApplicationController
     ]
   end
 
+  def new
+
+  end
+
 end
