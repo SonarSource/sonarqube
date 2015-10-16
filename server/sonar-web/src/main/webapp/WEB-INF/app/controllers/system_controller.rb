@@ -23,13 +23,7 @@ class SystemController < ApplicationController
   before_filter :admin_required
 
   def index
-    @monitors = [
-      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::SonarQubeMonitor.java_class),
-      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::DatabaseMonitor.java_class),
-      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::SystemMonitor.java_class),
-      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::EsMonitor.java_class),
-      Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerPlatformMonitoring::JvmPropertiesMonitor.java_class)
-    ]
+
   end
 
   def new

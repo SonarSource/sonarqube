@@ -1,16 +1,4 @@
-<div class="page">
-  <header class="page-header">
-    <h1 class="page-title"><%= message('system_info.page') -%></h1>
-    <div class="page-actions">
-      <div>
-        <a href="<%= ApplicationController.root_context -%>/api/system/logs" id="logs-link">Logs</a>&nbsp;&nbsp;
-        <a href="<%= ApplicationController.root_context -%>/api/system/info" id="download-link">Download</a>
-      </div>
-    </div>
-  </header>
+<% content_for :extra_script do %>
+<script src="<%= ApplicationController.root_context -%>/js/bundles/system.js?v=<%= sonar_version -%>"></script>
+<% end %>
 
-  <% @monitors.each do |monitor| %>
-    <%= render :partial => 'monitor', :locals => {:monitor => monitor} -%>
-  <% end %>
-
-</div>
