@@ -50,14 +50,17 @@
   </issueManagement>
 
   <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
     <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+<!-- Temporary workaround for previous and LTS version -->    
+      <id>sonarsource-releases</id>
+      <name>Internal</name>
+      <url>http://nexus-master.internal.sonarsource.com/nexus/content/repositories/releases-oss/</url>
     </repository>
+    <snapshotRepository>
+      <id>sonar-snapshots</id>
+      <url>${sonar.snapshotRepository.url}</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
   </distributionManagement>
 
   <prerequisites>
