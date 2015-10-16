@@ -21,7 +21,6 @@ package org.sonar.server.computation.batch;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -33,6 +32,9 @@ import org.sonar.server.computation.component.ReportTreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder, ReportTreeRootHolder {
@@ -55,31 +57,31 @@ public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder, Repo
 
   private void clear() {
     this.root = null;
+    this.componentsByRef.clear();
   }
 
   @Override
   public Component getRoot() {
-    if (root == null) {
-      throw new IllegalStateException("Root has not been set in " + TreeRootHolder.class.getSimpleName());
-    }
+    checkInitialized();
+
     return root;
   }
 
   @Override
   public Component getComponentByRef(int ref) {
-    if (root == null) {
-      throw new IllegalStateException("Root has not been set in " + TreeRootHolder.class.getSimpleName());
-    }
+    checkInitialized();
 
     Component component = componentsByRef.get(ref);
-    if (component == null) {
-      throw new IllegalArgumentException(String.format("Component '%s' hasn't been found", ref));
-    }
+    checkArgument(component != null, "Component with ref '%s' hasn't been found", ref);
     return component;
   }
 
+  private void checkInitialized() {
+    checkState(root != null, "Root has not been set in %s", TreeRootHolder.class.getSimpleName());
+  }
+
   public TreeRootHolderRule setRoot(Component newRoot) {
-    this.root = Objects.requireNonNull(newRoot);
+    this.root = requireNonNull(newRoot);
     if (newRoot.getType().isReportType()) {
       new DepthTraversalTypeAwareCrawler(new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
