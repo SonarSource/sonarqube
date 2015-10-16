@@ -17,7 +17,7 @@ export default Marionette.LayoutView.extend({
   },
 
   modelEvents: {
-    'change': 'render',
+    'change': 'onChange',
     'flashChangelog': 'flashChangelog'
   },
 
@@ -47,6 +47,13 @@ export default Marionette.LayoutView.extend({
         });
   },
 
+  onChange: function () {
+    var changed = Object.keys(this.model.changedAttributes());
+    if (!(changed.length === 1 && changed[0] === 'projectCount')) {
+      this.render();
+    }
+  },
+
   initProjectsSelect: function () {
     var key = this.model.get('key');
     this.projectsSelectList = new window.SelectList({
@@ -73,8 +80,8 @@ export default Marionette.LayoutView.extend({
         noResults: t('quality_gates.projects.noResults')
       },
       tooltips: {
-        select: t('quality_gates.projects.select_hint'),
-        deselect: t('quality_gates.projects.deselect_hint')
+        select: t('quality_profiles.projects.select_hint'),
+        deselect: t('quality_profiles.projects.deselect_hint')
       }
     });
     this.listenTo(this.projectsSelectList.collection, 'change:selected', this.onProjectsChange);
