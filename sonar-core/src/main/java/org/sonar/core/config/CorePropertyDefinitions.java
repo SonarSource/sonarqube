@@ -262,40 +262,42 @@ public class CorePropertyDefinitions {
         .onlyOnQualifiers(Qualifiers.PROJECT)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-        .build(),
+        .build()));
+
 
       // CPD
-      PropertyDefinition.builder(CoreProperties.CPD_CROSS_PROJECT)
-        .defaultValue(Boolean.toString(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE))
-        .name("Cross project duplication detection")
-        .description("By default, SonarQube detects duplications at sub-project level. This means that a block "
-          + "duplicated on two sub-projects of the same project won't be reported. Setting this parameter to \"true\" "
-          + "allows to detect duplicates across sub-projects and more generally across projects. Note that activating "
-          + "this property will slightly increase each SonarQube analysis time.")
-        .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
-        .type(PropertyType.BOOLEAN)
-        .build(),
-      PropertyDefinition.builder(CoreProperties.CPD_SKIP_PROPERTY)
-        .defaultValue(String.valueOf(false))
-        .name("Skip")
-        .description("Disable detection of duplications")
-        .hidden()
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
-        .type(PropertyType.BOOLEAN)
-        .build(),
-      PropertyDefinition.builder(CoreProperties.CPD_EXCLUSIONS)
-        .defaultValue("")
-        .name("Duplication Exclusions")
-        .description("Patterns used to exclude some source files from the duplication detection mechanism. " +
-          "See below to know how to use wildcards to specify this property.")
-        .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
-        .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
-        .multiValues(true)
-        .build()));
+      // CPD properties disabled in 5.2, will be enabled back in 5.3 (see SONAR-6323)
+//      PropertyDefinition.builder(CoreProperties.CPD_CROSS_PROJECT)
+//        .defaultValue(Boolean.toString(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE))
+//        .name("Cross project duplication detection")
+//        .description("By default, SonarQube detects duplications at sub-project level. This means that a block "
+//          + "duplicated on two sub-projects of the same project won't be reported. Setting this parameter to \"true\" "
+//          + "allows to detect duplicates across sub-projects and more generally across projects. Note that activating "
+//          + "this property will slightly increase each SonarQube analysis time.")
+//        .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
+//        .category(CoreProperties.CATEGORY_GENERAL)
+//        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
+//        .type(PropertyType.BOOLEAN)
+//        .build(),
+//      PropertyDefinition.builder(CoreProperties.CPD_SKIP_PROPERTY)
+//        .defaultValue(String.valueOf(false))
+//        .name("Skip")
+//        .description("Disable detection of duplications")
+//        .hidden()
+//        .category(CoreProperties.CATEGORY_GENERAL)
+//        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
+//        .type(PropertyType.BOOLEAN)
+//        .build(),
+//      PropertyDefinition.builder(CoreProperties.CPD_EXCLUSIONS)
+//        .defaultValue("")
+//        .name("Duplication Exclusions")
+//        .description("Patterns used to exclude some source files from the duplication detection mechanism. " +
+//          "See below to know how to use wildcards to specify this property.")
+//        .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
+//        .category(CoreProperties.CATEGORY_EXCLUSIONS)
+//        .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS_EXCLUSIONS)
+//        .multiValues(true)
+//        .build()));
     return defs;
   }
 }
