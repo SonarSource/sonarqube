@@ -21,16 +21,18 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,25 +41,47 @@ public class CreateActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
+  QualityProfileDao profileDao = new QualityProfileDao(db.myBatis(), mock(System2.class));
+  DbClient deprecatedDbClient = new DbClient(db.database(), db.myBatis(), profileDao);
+
   @Test
   public void should_not_fail_on_no_importers() throws Exception {
-    QualityProfileDao profileDao = new QualityProfileDao(db.myBatis(), mock(System2.class));
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), profileDao);
+    CreateAction underTest = new CreateAction(db.getDbClient(), new QProfileFactory(deprecatedDbClient), null, LanguageTesting.newLanguages("xoo"), userSessionRule);
+    WsActionTester wsTester = new WsActionTester(underTest);
 
-    String xooKey = "xoo";
-    WsTester wsTester = new WsTester(new QProfilesWs(
-      mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), mock(ProjectAssociationActions.class),
-      new CreateAction(dbClient, new QProfileFactory(dbClient), null, LanguageTesting.newLanguages(xooKey), userSessionRule)));
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    Action create = wsTester.controller("api/qualityprofiles").action("create");
-    assertThat(create.params()).hasSize(2);
+    TestResponse response = wsTester.newRequest()
+      .setMethod("POST")
+      .setMediaType(MimeTypes.JSON)
+      .setParam("language", "xoo")
+      .setParam("name", "Yeehaw!")
+      .execute();
+    JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("CreateActionTest/create-no-importer.json"));
+    assertThat(response.getMediaType()).isEqualTo(MimeTypes.JSON);
+  }
 
-    userSessionRule.login("anakin").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  /**
+   * Do not return JSON content type header on IE.
+   */
+  @Test
+  public void test_ie_hack() throws Exception {
+    CreateAction underTest = new CreateAction(db.getDbClient(), new QProfileFactory(deprecatedDbClient), null, LanguageTesting.newLanguages("xoo"), userSessionRule);
+    WsActionTester wsTester = new WsActionTester(underTest);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    wsTester.newPostRequest("api/qualityprofiles", "create")
-      .setParam("language", xooKey).setParam("name", "Yeehaw!").execute().assertJson(getClass(), "create-no-importer.json");
+    TestResponse response = wsTester.newRequest()
+      .setMethod("POST")
+      // IE asks for application/html or text/html
+      .setMediaType("application/html")
+      .setParam("language", "xoo")
+      .setParam("name", "Yeehaw!")
+      .execute();
+    assertThat(response.getMediaType()).isEqualTo(MimeTypes.TXT);
+
   }
 }

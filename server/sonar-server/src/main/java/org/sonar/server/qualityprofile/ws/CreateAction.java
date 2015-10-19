@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -27,16 +29,15 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.DbClient;
+import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.user.UserSession;
-
-import java.io.InputStream;
 
 public class CreateAction implements QProfileWsAction {
 
@@ -56,7 +57,7 @@ public class CreateAction implements QProfileWsAction {
   private final UserSession userSession;
 
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters,
-                      Languages languages, ProfileImporter[] importers, UserSession userSession) {
+    Languages languages, ProfileImporter[] importers, UserSession userSession) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;
@@ -115,10 +116,27 @@ public class CreateAction implements QProfileWsAction {
         }
       }
       dbSession.commit();
-      writeResult(response.newJsonWriter(), result);
+
+      response.stream().setMediaType(guessMediaType(request));
+      JsonWriter jsonWriter = JsonWriter.of(new OutputStreamWriter(response.stream().output()));
+      writeResult(jsonWriter, result);
     } finally {
       dbSession.close();
     }
+  }
+
+  private static String guessMediaType(Request request) {
+    if (request.getMediaType().contains("html")) {
+      // this is a hack for IE.
+      // The form which uploads files (for example PMD or Findbugs configuration files) opens a popup
+      // to download files if the response type header is application/json. Changing the response type to text/plain,
+      // even if response body is JSON, fixes the bug.
+      // This will be fixed in 5.3 when support of IE9/10 will be dropped in order to use
+      // more recent JS libs.
+      // We detect that caller is IE because it asks for application/html or text/html
+      return MimeTypes.TXT;
+    }
+    return request.getMediaType();
   }
 
   private void writeResult(JsonWriter json, QProfileResult result) {
@@ -151,7 +169,7 @@ public class CreateAction implements QProfileWsAction {
     json.endObject().close();
   }
 
-  private String getBackupParamName(String importerKey) {
+  private static String getBackupParamName(String importerKey) {
     return String.format(PARAM_BACKUP_FORMAT, importerKey);
   }
 }
