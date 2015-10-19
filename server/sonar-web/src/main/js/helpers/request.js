@@ -5,7 +5,7 @@ import _ from 'underscore';
  * @type {{credentials: string}}
  */
 const OPTIONS = {
-  type: 'GET',
+  method: 'GET',
   credentials: 'same-origin'
 };
 
