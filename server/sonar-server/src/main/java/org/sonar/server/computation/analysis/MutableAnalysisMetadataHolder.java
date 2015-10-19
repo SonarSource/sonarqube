@@ -24,6 +24,7 @@ import java.util.Date;
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
 
   /**
+   * @throws NullPointerException if specified date is {@code null}
    * @throws IllegalStateException if the analysis date has already been set
    */
   void setAnalysisDate(Date date);

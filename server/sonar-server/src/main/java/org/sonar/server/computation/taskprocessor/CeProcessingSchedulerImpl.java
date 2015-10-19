@@ -33,7 +33,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
     this.executorService = processingExecutorService;
     this.workerRunnable = workerRunnable;
 
-    this.delayBetweenTasks = 10;
+    this.delayBetweenTasks = 2;
     this.delayForFirstStart = 0;
     this.timeUnit = TimeUnit.SECONDS;
   }

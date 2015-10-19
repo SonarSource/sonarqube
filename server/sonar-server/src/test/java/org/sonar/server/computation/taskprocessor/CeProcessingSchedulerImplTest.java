@@ -37,7 +37,7 @@ public class CeProcessingSchedulerImplTest {
   public void startScheduling_schedules_CeWorkerRunnable_at_fixed_rate_run_head_of_queue() {
     underTest.startScheduling();
 
-    verify(processingExecutorService).scheduleAtFixedRate(same(workerRunnable), eq(0L), eq(10L), eq(TimeUnit.SECONDS));
+    verify(processingExecutorService).scheduleAtFixedRate(same(workerRunnable), eq(0L), eq(2L), eq(TimeUnit.SECONDS));
     verifyNoMoreInteractions(processingExecutorService);
   }
 

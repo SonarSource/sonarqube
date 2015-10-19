@@ -28,7 +28,6 @@ import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DefaultDatabase;
-import org.sonar.db.MyBatis;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
@@ -78,7 +77,9 @@ public class PlatformLevel1 extends PlatformLevel {
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
-      MyBatis.class,
+      // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
+      // to avoid having two SqlSessionFactory instances
+      org.sonar.core.persistence.MyBatis.class,
       IndexQueue.class,
       DatabaseServerCompatibility.class,
       DatabaseVersion.class,
@@ -116,8 +117,7 @@ public class PlatformLevel1 extends PlatformLevel {
       IssueIndex.class,
 
       // Classes kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
-      org.sonar.core.properties.PropertiesDao.class,
-      org.sonar.core.persistence.MyBatis.class);
+      org.sonar.core.properties.PropertiesDao.class);
     addAll(CorePropertyDefinitions.all());
     addAll(CePropertyDefinitions.all());
     add(MigrationStepModule.class);
