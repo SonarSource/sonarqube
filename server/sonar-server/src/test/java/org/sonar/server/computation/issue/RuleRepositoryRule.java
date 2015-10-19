@@ -19,43 +19,61 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.server.exceptions.NotFoundException;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 public class RuleRepositoryRule extends ExternalResource implements RuleRepository {
 
   private final Map<RuleKey, Rule> rulesByKey = new HashMap<>();
+  private final Map<Integer, Rule> rulesById = new HashMap<>();
 
   @Override
   protected void after() {
     rulesByKey.clear();
+    rulesById.clear();
   }
 
   @Override
   public Rule getByKey(RuleKey key) {
-    Rule rule = rulesByKey.get(key);
-    if (rule == null) {
-      throw new NotFoundException();
-    }
+    Rule rule = rulesByKey.get(requireNonNull(key));
+    checkArgument(rule != null);
     return rule;
   }
 
   @Override
-  public boolean hasKey(RuleKey key) {
-    return rulesByKey.containsKey(key);
+  public Rule getById(int id) {
+    Rule rule = rulesById.get(id);
+    checkArgument(rule != null);
+    return rule;
+  }
+
+  @Override
+  public Optional<Rule> findByKey(RuleKey key) {
+    return Optional.fromNullable(rulesByKey.get(requireNonNull(key)));
+  }
+
+  @Override
+  public Optional<Rule> findById(int id) {
+    return Optional.fromNullable(rulesById.get(id));
   }
 
   public DumbRule add(RuleKey key) {
     DumbRule rule = new DumbRule(key);
+    rule.setId(key.hashCode());
     rulesByKey.put(key, rule);
+    rulesById.put(rule.getId(), rule);
     return rule;
   }
 
   public RuleRepositoryRule add(DumbRule rule) {
-    rulesByKey.put(rule.getKey(), rule);
+    rulesByKey.put(requireNonNull(rule.getKey()), rule);
+    rulesById.put(requireNonNull(rule.getId()), rule);
     return this;
   }
 

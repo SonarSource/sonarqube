@@ -19,11 +19,29 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.base.Optional;
 import org.sonar.api.rule.RuleKey;
 
+/**
+ * Repository of every rule in DB (including manual rules) whichever their status.
+ */
 public interface RuleRepository {
 
+  /**
+   * @throws NullPointerException if {@code key} is {@code null}
+   * @throws IllegalArgumentException when there is no Rule for the specified RuleKey in the repository
+   */
   Rule getByKey(RuleKey key);
 
-  boolean hasKey(RuleKey key);
+  /**
+   * @throws IllegalArgumentException when there is no Rule for the specified RuleKey in the repository
+   */
+  Rule getById(int id);
+
+  /**
+   * @throws NullPointerException if {@code key} is {@code null}
+   */
+  Optional<Rule> findByKey(RuleKey key);
+
+  Optional<Rule> findById(int id);
 }
