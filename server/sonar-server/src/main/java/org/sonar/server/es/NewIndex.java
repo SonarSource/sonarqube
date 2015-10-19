@@ -178,6 +178,15 @@ public class NewIndex {
       this.fieldName = fieldName;
     }
 
+    /**
+     * It is recommended to enable doc_values when the non-analyzed field is involved
+     * into aggregations/sorting and only a small fraction of the values is used (high
+     * number of different values)
+     * <ul>
+     *   <li>https://www.elastic.co/blog/found-sizing-elasticsearch</li>
+     *   <li>https://www.elastic.co/guide/en/elasticsearch/guide/current/doc-values.html</li>
+     * </ul>
+     */
     public StringFieldBuilder docValues() {
       this.docValues = true;
       return this;
