@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import java.io.IOException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -45,15 +46,20 @@ import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexer;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
+import org.sonarqube.ws.Issues;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SearchActionComponentsMediumTest {
 
@@ -109,6 +115,36 @@ public class SearchActionComponentsMediumTest {
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issues_on_different_projects.json");
+  }
+
+  @Test
+  public void do_not_return_module_key_on_single_module_projects() throws IOException {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("PK1"));
+    setDefaultProjectPermission(project);
+    ComponentDto module = insertComponent(ComponentTesting.newModuleDto("M1", project).setKey("MK1"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(module, "F1").setKey("FK1"));
+    RuleDto newRule = newRule();
+    IssueDto issueInModule = IssueTesting.newDto(newRule, file, project).setKee("ISSUE_IN_MODULE");
+    IssueDto issueInRootModule = IssueTesting.newDto(newRule, project, project).setKee("ISSUE_IN_ROOT_MODULE");
+    db.issueDao().insert(session, issueInModule, issueInRootModule);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    WsActionTester actionTester = new WsActionTester(tester.get(SearchAction.class));
+    TestResponse response = actionTester.newRequest()
+      .setMediaType(MimeTypes.PROTOBUF)
+      .execute();
+    Issues.Search searchResponse = Issues.Search.parseFrom(response.getInputStream());
+    assertThat(searchResponse.getIssuesCount()).isEqualTo(2);
+
+    for (Issues.Issue issue : searchResponse.getIssuesList()) {
+      assertThat(issue.getProject()).isEqualTo("PK1");
+      if (issue.getKey().equals("ISSUE_IN_MODULE")) {
+        assertThat(issue.getSubProject()).isEqualTo("MK1");
+      } else if (issue.getKey().equals("ISSUE_IN_ROOT_MODULE")) {
+        assertThat(issue.hasSubProject()).isFalse();
+      }
+    }
   }
 
   @Test
