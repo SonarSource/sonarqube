@@ -362,7 +362,7 @@ function closeModalWindow () {
    */
   function shouldDisplayAbout (days, hours, minutes) {
     var hasDays = days > 0,
-        fewDays = days < 1000,
+        fewDays = days < 5,
         hasHours = hours > 0,
         hasMinutes = minutes > 0;
     return (hasDays && fewDays && hasHours) || (!hasDays && hasHours && hasMinutes);

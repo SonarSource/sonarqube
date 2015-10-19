@@ -52,7 +52,8 @@
   },
   "browserify-shim": {
     "jquery": "global:jQuery",
-    "underscore": "global:_"
+    "underscore": "global:_",
+    "d3": "global:d3"
   },
   "browserify": {
     "transform": [

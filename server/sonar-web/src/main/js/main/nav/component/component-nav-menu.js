@@ -17,7 +17,7 @@ export default React.createClass({
     return params.period ? `&period=${params.period}` : '';
   },
 
-  renderOverviewLink() {
+  renderMainDashboardLink() {
     if (_.size(this.props.component.dashboards) === 0) {
       return null;
     }
@@ -32,6 +32,11 @@ export default React.createClass({
       let paramMatch = !params['did'] || params['did'] == firstDashboard.key;
       return pathMatch && paramMatch ? 'active' : null;
     });
+  },
+
+  renderOverviewLink() {
+    let url = `/overview?id=${encodeURIComponent(this.props.component.key)}`;
+    return this.renderLink(url, window.t('overview.page'), '/overview');
   },
 
   renderComponentsLink() {
@@ -239,6 +244,7 @@ export default React.createClass({
   render() {
     return (
         <ul className="nav navbar-nav nav-tabs">
+          {this.renderMainDashboardLink()}
           {this.renderOverviewLink()}
           {this.renderComponentsLink()}
           {this.renderComponentIssuesLink()}
