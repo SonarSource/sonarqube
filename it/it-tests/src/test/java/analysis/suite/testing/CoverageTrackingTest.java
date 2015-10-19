@@ -36,15 +36,15 @@ public class CoverageTrackingTest {
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/CoverageTrackingTest/tests-expected.json"), "UTF-8"), tests, false);
 
     String covered_files = orchestrator.getServer().adminWsClient()
-      .get("api/tests/covered_files", "testUuid", extractSuccessfulTestUuid(tests));
+      .get("api/tests/covered_files", "testId", extractSuccessfulTestId(tests));
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/CoverageTrackingTest/covered_files-expected.json"), "UTF-8"), covered_files, false);
   }
 
-  private String extractSuccessfulTestUuid(String json) {
+  private String extractSuccessfulTestId(String json) {
     Matcher jsonObjectMatcher = Pattern.compile(".*\\{((.*?)success(.*?))\\}.*", Pattern.MULTILINE).matcher(json);
     jsonObjectMatcher.find();
 
-    Matcher uuidMatcher = Pattern.compile(".*\"testUuid\"\\s*?:\\s*?\"(\\S*?)\".*", Pattern.MULTILINE).matcher(jsonObjectMatcher.group(1));
-    return uuidMatcher.find() ? uuidMatcher.group(1) : "";
+    Matcher idMatcher = Pattern.compile(".*\"id\"\\s*?:\\s*?\"(\\S*?)\".*", Pattern.MULTILINE).matcher(jsonObjectMatcher.group(1));
+    return idMatcher.find() ? idMatcher.group(1) : "";
   }
 }
