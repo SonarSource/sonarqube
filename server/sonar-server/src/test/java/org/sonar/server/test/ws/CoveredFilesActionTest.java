@@ -63,13 +63,13 @@ public class CoveredFilesActionTest {
 
     when(testIndex.searchByTestUuid(anyString()).fileUuid()).thenReturn("test-file-uuid");
     when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
-      new CoveredFileDoc().setFileUuid("bar-uuid").setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
-      new CoveredFileDoc().setFileUuid("file-uuid").setCoveredLines(Arrays.asList(1, 2, 3))
+      new CoveredFileDoc().setFileUuid("FILE1").setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
+      new CoveredFileDoc().setFileUuid("FILE2").setCoveredLines(Arrays.asList(1, 2, 3))
     ));
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(newProjectDto(), "bar-uuid").setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(newProjectDto(), "file-uuid").setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(newProjectDto(), "FILE1").setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(newProjectDto(), "FILE2").setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "covered_files").setParam(TEST_UUID, "test-uuid");
 
