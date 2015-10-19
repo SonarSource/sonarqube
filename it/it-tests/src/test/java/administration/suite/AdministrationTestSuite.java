@@ -23,7 +23,6 @@ import administration.suite.administration.BulkDeletionTest;
 import administration.suite.administration.ProjectAdministrationTest;
 import administration.suite.administration.PropertySetsTest;
 import administration.suite.administration.SubCategoriesTest;
-import administration.suite.administration.SystemInfoTest;
 import administration.suite.ui.I18nTest;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
@@ -39,7 +38,6 @@ import static util.ItUtils.pluginArtifact;
   ProjectAdministrationTest.class,
   PropertySetsTest.class,
   SubCategoriesTest.class,
-  SystemInfoTest.class,
   I18nTest.class
 })
 public class AdministrationTestSuite {
