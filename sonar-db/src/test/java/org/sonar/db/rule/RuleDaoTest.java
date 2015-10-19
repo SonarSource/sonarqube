@@ -129,6 +129,15 @@ public class RuleDaoTest {
   }
 
   @Test
+  public void selectAll() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    List<RuleDto> ruleDtos = underTest.selectAll(dbTester.getSession());
+
+    assertThat(ruleDtos).extracting("id").containsOnly(1, 2);
+  }
+
+  @Test
   public void insert() throws Exception {
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S001")).setConfigKey(null));
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S002")).setConfigKey("I002"));

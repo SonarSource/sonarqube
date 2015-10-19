@@ -30,6 +30,8 @@ public interface RuleMapper {
 
   List<RuleDto> selectAll();
 
+  List<RuleDto> selectAll(ResultHandler resultHandler);
+
   List<RuleDto> selectEnabledAndNonManual();
 
   void selectEnabledAndNonManual(ResultHandler resultHandler);

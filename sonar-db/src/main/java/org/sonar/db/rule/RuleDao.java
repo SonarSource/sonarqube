@@ -70,6 +70,10 @@ public class RuleDao implements Dao {
     mapper(session).selectEnabledAndNonManual(resultHandler);
   }
 
+  public List<RuleDto> selectAll(DbSession session) {
+    return mapper(session).selectAll();
+  }
+
   public void insert(DbSession session, RuleDto dto) {
     mapper(session).insert(dto);
   }
