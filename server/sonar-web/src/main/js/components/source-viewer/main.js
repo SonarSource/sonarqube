@@ -397,7 +397,7 @@ export default Marionette.LayoutView.extend({
         row = _.findWhere(this.model.get('source'), { line: line }),
         url = baseUrl + '/api/tests/list',
         options = {
-          sourceFileUuid: this.model.id,
+          sourceFileId: this.model.id,
           sourceFileLineNumber: line,
           ps: 1000
         };
