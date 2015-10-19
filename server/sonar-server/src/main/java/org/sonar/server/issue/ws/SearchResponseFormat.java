@@ -152,10 +152,10 @@ public class SearchResponseFormat {
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getKey());
-    }
-    ComponentDto subProject = data.getComponentByUuid(dto.getModuleUuid());
-    if (subProject != null) {
-      issueBuilder.setSubProject(subProject.getKey());
+      ComponentDto subProject = data.getComponentByUuid(dto.getModuleUuid());
+      if (subProject != null && !subProject.getKey().equals(project.getKey())) {
+        issueBuilder.setSubProject(subProject.getKey());
+      }
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
