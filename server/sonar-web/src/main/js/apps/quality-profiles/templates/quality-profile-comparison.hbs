@@ -15,7 +15,7 @@
     <button class="text-middle" id="quality-profile-comparison-form-submit">{{t 'compare'}}</button>
   </form>
 {{else}}
-  <div class="alert alert-info">There is no profiles to compare with.</div>
+  <div class="alert alert-info">{{t 'quality_profiles.no_profiles_for_comparison'}}</div>
 {{/notEmpty}}
 
 {{#notNull comparison}}
