@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -44,7 +45,7 @@ import org.sonarqube.ws.WsTests;
 
 public class CoveredFilesAction implements TestsWsAction {
 
-  public static final String TEST_UUID = "testUuid";
+  public static final String TEST_ID = "testId";
 
   private final DbClient dbClient;
   private final TestIndex index;
@@ -66,18 +67,18 @@ public class CoveredFilesAction implements TestsWsAction {
       .addPagingParams(100);
 
     action
-      .createParam(TEST_UUID)
+      .createParam(TEST_ID)
       .setRequired(true)
-      .setDescription("Test uuid")
-      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
+      .setDescription("Test ID")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String testUuid = request.mandatoryParam(TEST_UUID);
-    userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, index.searchByTestUuid(testUuid).fileUuid());
+    String testId = request.mandatoryParam(TEST_ID);
+    userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, index.searchByTestUuid(testId).fileUuid());
 
-    List<CoveredFileDoc> coveredFiles = index.coveredFiles(testUuid);
+    List<CoveredFileDoc> coveredFiles = index.coveredFiles(testId);
     Map<String, ComponentDto> componentsByUuid = buildComponentsByUuid(coveredFiles);
 
     WsTests.CoveredFilesResponse.Builder responseBuilder = WsTests.CoveredFilesResponse.newBuilder();

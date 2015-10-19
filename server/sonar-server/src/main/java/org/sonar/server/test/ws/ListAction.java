@@ -51,10 +51,10 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsTests;
 
 public class ListAction implements TestsWsAction {
-  public static final String TEST_UUID = "testUuid";
-  public static final String TEST_FILE_UUID = "testFileUuid";
+  public static final String TEST_ID = "testId";
+  public static final String TEST_FILE_ID = "testFileId";
   public static final String TEST_FILE_KEY = "testFileKey";
-  public static final String SOURCE_FILE_UUID = "sourceFileUuid";
+  public static final String SOURCE_FILE_ID = "sourceFileId";
   public static final String SOURCE_FILE_LINE_NUMBER = "sourceFileLineNumber";
 
   private final DbClient dbClient;
@@ -78,9 +78,9 @@ public class ListAction implements TestsWsAction {
           "Require Browse permission on file's project.<br /> " +
           "One (and only one) of the following combination of parameters must be provided: " +
           "<ul>" +
-          "<li>Test file UUID</li>" +
-          "<li>Test UUID</li>" +
-          "<li>Source file UUID and Source file line number</li>" +
+          "<li>" + TEST_FILE_ID + "</li>" +
+          "<li>" + TEST_ID + "</li>" +
+          "<li>" + SOURCE_FILE_ID + " and " + SOURCE_FILE_LINE_NUMBER + "</li>" +
           "</ul>")
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
@@ -88,37 +88,37 @@ public class ListAction implements TestsWsAction {
       .addPagingParams(100);
 
     action
-      .createParam(TEST_FILE_UUID)
-      .setDescription("Test file UUID")
+      .createParam(TEST_FILE_ID)
+      .setDescription("ID of test file")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action
       .createParam(TEST_FILE_KEY)
-      .setDescription("Test file key")
-      .setExampleValue("org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java");
+      .setDescription("Key of test file")
+      .setExampleValue("MY_PROJECT:src/test/java/foo/BarTest.java");
 
     action
-      .createParam(TEST_UUID)
-      .setDescription("Test UUID")
+      .createParam(TEST_ID)
+      .setDescription("ID of test")
       .setExampleValue(Uuids.UUID_EXAMPLE_02);
 
     action
-      .createParam(SOURCE_FILE_UUID)
-      .setDescription("Source file UUID. Must be provided with the source file line number.")
+      .createParam(SOURCE_FILE_ID)
+      .setDescription("IF of source file. Must be provided with the source file line number.")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
 
     action
       .createParam(SOURCE_FILE_LINE_NUMBER)
-      .setDescription("Source file line number. Must be provided with the source file UUID.")
+      .setDescription("Source file line number. Must be provided with the source file ID.")
       .setExampleValue("10");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String testUuid = request.param(TEST_UUID);
-    String testFileUuid = request.param(TEST_FILE_UUID);
+    String testUuid = request.param(TEST_ID);
+    String testFileUuid = request.param(TEST_FILE_ID);
     String testFileKey = request.param(TEST_FILE_KEY);
-    String sourceFileUuid = request.param(SOURCE_FILE_UUID);
+    String sourceFileUuid = request.param(SOURCE_FILE_ID);
     Integer sourceFileLineNumber = request.paramAsInt(SOURCE_FILE_LINE_NUMBER);
     SearchOptions searchOptions = new SearchOptions().setPage(
       request.mandatoryParamAsInt(WebService.Param.PAGE),
