@@ -1,9 +1,25 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -34,10 +50,16 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class SearchActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().addXoo();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -116,6 +138,46 @@ public class SearchActionMediumTest {
     WsTester.Result result = request.execute();
 
     result.assertJson(getClass(), "search_2_rules_fields.json");
+  }
+
+  @Test
+  public void return_lang_field() throws Exception {
+    ruleDao.insert(session, RuleTesting.newXooX1());
+    session.commit();
+
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "lang");
+    WsTester.Result result = request.execute();
+
+    result.assertJson("{\"total\":1,\"p\":1,\"ps\":100," +
+      "\"rules\":[{\"key\":\"xoo:x1\",\"lang\":\"xoo\"}]}");
+    assertThat(result.outputAsString()).doesNotContain("\"langName\"");
+    assertThat(result.outputAsString()).doesNotContain("\"name\"");
+  }
+
+  @Test
+  public void return_lang_name_field() throws Exception {
+    ruleDao.insert(session, RuleTesting.newXooX1());
+    session.commit();
+
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "langName");
+    WsTester.Result result = request.execute();
+
+    result.assertJson("{\"total\":1,\"p\":1,\"ps\":100," +
+      "\"rules\":[{\"key\":\"xoo:x1\",\"langName\":\"Xoo\"}]}");
+    assertThat(result.outputAsString()).doesNotContain("\"lang\"");
+    assertThat(result.outputAsString()).doesNotContain("\"name\"");
+  }
+
+  @Test
+  public void return_lang_key_field_when_language_name_is_not_available() throws Exception {
+    ruleDao.insert(session, RuleTesting.newDto(RuleKey.of("other", "rule"))).setLanguage("unknown");
+    session.commit();
+
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "langName");
+    WsTester.Result result = request.execute();
+
+    result.assertJson("{\"total\":1,\"p\":1,\"ps\":100," +
+      "\"rules\":[{\"key\":\"other:rule\",\"langName\":\"unknown\"}]}");
   }
 
   @Test

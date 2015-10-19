@@ -21,13 +21,13 @@
     "XOO_P2": {
       "name": "P2",
       "lang": "xoo",
-      "langName": "xoo",
+      "langName": "Xoo",
       "parent": "XOO_P1"
     },
     "XOO_P1": {
       "name": "P1",
       "lang": "xoo",
-      "langName": "xoo"
+      "langName": "Xoo"
     }
   }
 }
