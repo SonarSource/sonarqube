@@ -140,6 +140,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     setParams(ruleResponse, ruleDoc, fieldsToReturn);
     setCreatedAt(ruleResponse, ruleDoc, fieldsToReturn);
     setDescriptionFields(ruleResponse, ruleDoc, fieldsToReturn);
+    setNotesFields(ruleResponse, ruleDoc, fieldsToReturn);
     setSeverity(ruleResponse, ruleDoc, fieldsToReturn);
     setInternalKey(ruleResponse, ruleDoc, fieldsToReturn);
     setLanguage(ruleResponse, ruleDoc, fieldsToReturn);
@@ -291,14 +292,17 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
         ruleResponse.setHtmlDesc(macroInterpreter.interpret(ruleDoc.htmlDescription()));
       }
     }
+    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.MARKDOWN_DESCRIPTION) && ruleDoc.markdownDescription() != null) {
+      ruleResponse.setMdDesc(ruleDoc.markdownDescription());
+    }
+  }
+
+  private void setNotesFields(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, "htmlNote") && ruleDoc.markdownNote() != null) {
       ruleResponse.setHtmlNote(macroInterpreter.interpret(Markdown.convertToHtml(ruleDoc.markdownNote())));
     }
     if (shouldReturnField(fieldsToReturn, "mdNote") && ruleDoc.markdownNote() != null) {
       ruleResponse.setMdNote(ruleDoc.markdownNote());
-    }
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.MARKDOWN_DESCRIPTION) && ruleDoc.markdownDescription() != null) {
-      ruleResponse.setMdDesc(ruleDoc.markdownDescription());
     }
     if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.NOTE_LOGIN) && ruleDoc.noteLogin() != null) {
       ruleResponse.setNoteLogin(ruleDoc.noteLogin());
