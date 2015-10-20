@@ -56,14 +56,33 @@ public class IssueTestSuite {
     return issueClient().find(issueQuery);
   }
 
-  static List<Issue> searchIssues(IssueQuery issueQuery) {
-    return search(issueQuery).list();
-  }
-
   static Issue searchIssueByKey(String issueKey) {
     List<Issue> issues = searchIssues(IssueQuery.create().issues(issueKey));
     assertThat(issues).hasSize(1);
     return issues.get(0);
   }
 
+  static List<Issue> searchIssues(String... issueKeys) {
+    return searchIssues(issueKeys, false);
+  }
+
+  static List<Issue> searchIssues(String issueKey, boolean withComments) {
+    return searchIssues(new String[] { issueKey }, withComments);
+  }
+
+  static List<Issue> searchIssues(String[] issueKeys, boolean withComments) {
+    IssueQuery query = IssueQuery.create().issues(issueKeys);
+    if (withComments) {
+      query.urlParams().put("additionalFields", "comments");
+    }
+    return searchIssues(query);
+  }
+
+  static List<Issue> searchIssues() {
+    return searchIssues(IssueQuery.create());
+  }
+
+  static List<Issue> searchIssues(IssueQuery issueQuery) {
+    return issueClient().find(issueQuery).list();
+  }
 }

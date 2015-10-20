@@ -4,33 +4,34 @@ package util;/*
  * mailto:contact AT sonarsource DOT com
  */
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.locator.FileLocation;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.sonar.orchestrator.locator.FileLocation;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.sonar.wsclient.base.HttpException;
+import org.sonar.wsclient.services.PropertyDeleteQuery;
+import org.sonar.wsclient.services.PropertyUpdateQuery;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.fail;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import org.apache.commons.io.FileUtils;
-import org.sonar.wsclient.base.HttpException;
+import static org.assertj.core.api.Assertions.fail;
 
 public class ItUtils {
 
@@ -92,7 +93,7 @@ public class ItUtils {
   /**
    * Locate the pom file of a sample project
    *
-   * @param relativePath project path related to the directory it/it-projects, for example "qualitygate/xoo-sample"
+   * @param projectName project path related to the directory it/it-projects, for example "qualitygate/xoo-sample"
    */
   public static File projectPom(String projectName) {
     File pom = new File(projectDir(projectName), "pom.xml");
@@ -136,19 +137,37 @@ public class ItUtils {
     return count;
   }
 
-  public static void runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
+  public static SonarRunner runVerboseProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
+    return runProjectAnalysis(orchestrator, projectRelativePath, true, properties);
+  }
+
+  public static SonarRunner runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
+    return runProjectAnalysis(orchestrator, projectRelativePath, false, properties);
+  }
+
+  private static SonarRunner runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, boolean enableDebugLogs, String... properties) {
     SonarRunner sonarRunner = SonarRunner.create(projectDir(projectRelativePath));
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    for (int i = 0; i < properties.length; i+=2) {
-      builder.put(properties[i], properties[i+1]);
+    for (int i = 0; i < properties.length; i += 2) {
+      builder.put(properties[i], properties[i + 1]);
     }
-    orchestrator.executeBuild(sonarRunner.setDebugLogs(true).setProperties(builder.build()));
+    SonarRunner scan = sonarRunner.setDebugLogs(enableDebugLogs).setProperties(builder.build());
+    orchestrator.executeBuild(scan);
+    return scan;
+  }
+
+  public static void setServerProperty(Orchestrator orchestrator, String key, @Nullable String value) {
+    if (value == null) {
+      orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery(key));
+    } else {
+      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery().setKey(key).setValue(value));
+    }
   }
 
   /**
    * Concatenates a vararg to a String array.
    *
-   * Useful when using {@link #runProjectAnalysis(Orchestrator, String, String...)}, eg.:
+   * Useful when using {@link #runVerboseProjectAnalysis(Orchestrator, String, String...)}, eg.:
    * <pre>
    * ItUtils.runProjectAnalysis(orchestrator, "project_name",
    *    ItUtils.concat(properties, "sonar.scm.disabled", "false")

@@ -22,7 +22,6 @@ package issue.suite;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
@@ -34,14 +33,14 @@ import org.sonar.wsclient.issue.ActionPlanClient;
 import org.sonar.wsclient.issue.BulkChange;
 import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueClient;
-import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.NewActionPlan;
 import util.ItUtils;
 
 import static issue.suite.IssueTestSuite.ORCHESTRATOR;
+import static issue.suite.IssueTestSuite.adminIssueClient;
+import static issue.suite.IssueTestSuite.issueClient;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.projectDir;
+import static util.ItUtils.runProjectAnalysis;
 
 /**
  * SONAR-4421
@@ -90,7 +89,7 @@ public class IssueBulkChangeTest {
     BulkChange bulkChange = buldChangeAssigneeOfIssues(issueKeys, "admin");
 
     assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
-    for (Issue issue : searchIssues(issueKeys)) {
+    for (Issue issue : IssueTestSuite.searchIssues(issueKeys)) {
       assertThat(issue.assignee()).isEqualTo("admin");
     }
   }
@@ -112,7 +111,7 @@ public class IssueBulkChangeTest {
       );
 
     assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
-    for (Issue issue : searchIssues(issueKeys)) {
+    for (Issue issue : IssueTestSuite.searchIssues(issueKeys)) {
       assertThat(issue.actionPlan()).isEqualTo(newActionPlan.key());
     }
   }
@@ -133,7 +132,7 @@ public class IssueBulkChangeTest {
       );
 
     assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
-    for (Issue issue : searchIssues(issueKeys, true)) {
+    for (Issue issue : IssueTestSuite.searchIssues(issueKeys, true)) {
       assertThat(issue.comments()).hasSize(1);
       assertThat(issue.comments().get(0).htmlText()).isEqualTo(COMMENT_AS_HTML);
     }
@@ -157,7 +156,7 @@ public class IssueBulkChangeTest {
       );
 
     assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
-    for (Issue issue : searchIssues(issueKeys, true)) {
+    for (Issue issue : IssueTestSuite.searchIssues(issueKeys, true)) {
       assertThat(issue.status()).isEqualTo("CONFIRMED");
       assertThat(issue.assignee()).isEqualTo("admin");
       assertThat(issue.severity()).isEqualTo(newSeverity);
@@ -228,7 +227,7 @@ public class IssueBulkChangeTest {
     String[] issueKeys = searchIssueKeys(nbIssues);
 
     // Confirm an issue
-    adminIssueClient().doTransition(searchIssues().iterator().next().key(), "confirm");
+    adminIssueClient().doTransition(IssueTestSuite.searchIssues().iterator().next().key(), "confirm");
 
     // Apply a bulk change on unconfirm transition
     BulkChangeQuery query = (BulkChangeQuery.create()
@@ -241,7 +240,7 @@ public class IssueBulkChangeTest {
     assertThat(bulkChange.totalIssuesChanged()).isEqualTo(1);
 
     int nbIssuesWithComment = 0;
-    for (Issue issue : searchIssues(issueKeys, true)) {
+    for (Issue issue : IssueTestSuite.searchIssues(issueKeys, true)) {
       if (!issue.comments().isEmpty()) {
         nbIssuesWithComment++;
       }
@@ -254,17 +253,17 @@ public class IssueBulkChangeTest {
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/IssueBulkChangeTest/one-issue-per-line-profile.xml"));
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
   }
 
   private static void assertIssueSeverity(String[] issueKeys, String expectedSeverity) {
-    for (Issue issue : searchIssues(issueKeys)) {
+    for (Issue issue : IssueTestSuite.searchIssues(issueKeys)) {
       assertThat(issue.severity()).isEqualTo(expectedSeverity);
     }
   }
 
   private static void assertIssueStatus(String[] issueKeys, String expectedStatus) {
-    for (Issue issue : searchIssues(issueKeys)) {
+    for (Issue issue : IssueTestSuite.searchIssues(issueKeys)) {
       assertThat(issue.status()).isEqualTo(expectedStatus);
     }
   }
@@ -315,36 +314,8 @@ public class IssueBulkChangeTest {
       .toArray(String.class);
   }
 
-  private static List<Issue> searchIssues(String... issueKeys) {
-    return searchIssues(issueKeys, false);
-  }
-
-  private static List<Issue> searchIssues(String[] issueKeys, boolean withComments) {
-    IssueQuery query = IssueQuery.create().issues(issueKeys);
-    if (withComments) {
-      query.urlParams().put("additionalFields", "comments");
-    }
-    return searchIssues(query);
-  }
-
-  private static List<Issue> searchIssues() {
-    return searchIssues(IssueQuery.create());
-  }
-
   private static String[] searchIssueKeys(int limit) {
-    return getIssueKeys(searchIssues(), limit);
-  }
-
-  private static List<Issue> searchIssues(IssueQuery issueQuery) {
-    return issueClient().find(issueQuery).list();
-  }
-
-  private static IssueClient issueClient() {
-    return orchestrator.getServer().wsClient().issueClient();
-  }
-
-  private static IssueClient adminIssueClient() {
-    return orchestrator.getServer().adminWsClient().issueClient();
+    return getIssueKeys(IssueTestSuite.searchIssues(), limit);
   }
 
   private static ActionPlanClient adminActionPlanClient() {

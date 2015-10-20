@@ -6,17 +6,16 @@
 package issue.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
-import util.ItUtils;
 
+import static issue.suite.IssueTestSuite.searchIssues;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.runProjectAnalysis;
 
 public class CustomRulesTest {
 
@@ -44,9 +43,9 @@ public class CustomRulesTest {
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "Custom");
 
-    orchestrator.executeBuild(SonarRunner.create().setProjectDir(ItUtils.projectDir("shared/xoo-sample")));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
-    List<Issue> issues = orchestrator.getServer().adminWsClient().issueClient().find(IssueQuery.create()).list();
+    List<Issue> issues = searchIssues();
     assertThat(issues).hasSize(1);
 
     Issue issue = issues.get(0);

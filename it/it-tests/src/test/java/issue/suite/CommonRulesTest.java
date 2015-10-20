@@ -6,7 +6,6 @@
 package issue.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.BeforeClass;
@@ -15,8 +14,9 @@ import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 
+import static issue.suite.IssueTestSuite.searchIssues;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.projectDir;
+import static util.ItUtils.runProjectAnalysis;
 
 public class CommonRulesTest {
 
@@ -32,10 +32,9 @@ public class CommonRulesTest {
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/CommonRulesTest/xoo-common-rules-profile.xml"));
     orchestrator.getServer().provisionProject("common-rules-project", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("common-rules-project", "xoo", "xoo-common-rules");
-    SonarRunner analysis = SonarRunner.create(projectDir("issue/common-rules"),
+    runProjectAnalysis(orchestrator, "issue/common-rules",
       "sonar.cpd.xoo.minimumTokens", "2",
       "sonar.cpd.xoo.minimumLines", "2");
-    orchestrator.executeBuild(analysis);
   }
 
   @Test
@@ -72,6 +71,6 @@ public class CommonRulesTest {
   }
 
   private List<Issue> findIssues(String componentKey, String ruleKey) {
-    return orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().components(componentKey).rules(ruleKey)).list();
+    return searchIssues(IssueQuery.create().components(componentKey).rules(ruleKey));
   }
 }

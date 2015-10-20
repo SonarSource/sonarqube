@@ -29,12 +29,13 @@ import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueChange;
 import org.sonar.wsclient.issue.IssueChangeDiff;
-import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 
 import static issue.suite.IssueTestSuite.ORCHESTRATOR;
+import static issue.suite.IssueTestSuite.adminIssueClient;
+import static issue.suite.IssueTestSuite.issueClient;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.projectDir;
+import static util.ItUtils.runProjectAnalysis;
 
 public class IssueChangelogTest {
 
@@ -50,8 +51,7 @@ public class IssueChangelogTest {
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/IssueChangelogTest/one-issue-per-line-profile.xml"));
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    scan = SonarRunner.create(projectDir("shared/xoo-sample"));
-    orchestrator.executeBuild(scan);
+    scan = runProjectAnalysis(orchestrator, "shared/xoo-sample");
     issue = searchRandomIssue();
   }
 
@@ -131,11 +131,4 @@ public class IssueChangelogTest {
     return issueClient().changes(issueKey);
   }
 
-  private static IssueClient issueClient() {
-    return orchestrator.getServer().wsClient().issueClient();
-  }
-
-  private static IssueClient adminIssueClient() {
-    return orchestrator.getServer().adminWsClient().issueClient();
-  }
 }
