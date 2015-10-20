@@ -20,19 +20,26 @@
 
 package org.sonar.server.computation.source;
 
-import java.util.Collections;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
 
+import java.util.Collections;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
 
 public class HighlightingLineReaderTest {
 
-  DbFileSources.Data.Builder sourceData = DbFileSources.Data.newBuilder();
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  DbFileSources.Data.Builder sourceData = newBuilder();
   DbFileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
   DbFileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
   DbFileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
@@ -42,7 +49,7 @@ public class HighlightingLineReaderTest {
   public void nothing_to_read() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(Collections.<BatchReport.SyntaxHighlighting>emptyList().iterator());
 
-    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = newBuilder().addLinesBuilder().setLine(1);
     highlightingLineReader.read(lineBuilder);
 
     assertThat(lineBuilder.hasHighlighting()).isFalse();
@@ -226,7 +233,7 @@ public class HighlightingLineReaderTest {
   }
 
   @Test
-  public void fail_when_end_offset_is_before_start_offset() {
+  public void display_warning_when_end_offset_is_before_start_offset() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
         .setRange(BatchReport.TextRange.newBuilder()
@@ -236,16 +243,14 @@ public class HighlightingLineReaderTest {
         .setType(Constants.HighlightingType.ANNOTATION)
         .build()).iterator());
 
-    try {
-      highlightingLineReader.read(line1);
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("End offset 2 cannot be defined before start offset 4 on line 1");
-    }
+    highlightingLineReader.read(line1);
+
+    assertThat(logTester.logs(WARN)).containsOnly("End offset 2 cannot be defined before start offset 4 on line 1");
+    assertNoHighlighting();
   }
 
   @Test
-  public void fail_when_end_offset_is_higher_than_line_length() {
+  public void display_warning_when_end_offset_is_higher_than_line_length() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
         .setRange(BatchReport.TextRange.newBuilder()
@@ -255,16 +260,14 @@ public class HighlightingLineReaderTest {
         .setType(Constants.HighlightingType.ANNOTATION)
         .build()).iterator());
 
-    try {
-      highlightingLineReader.read(line1);
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("End offset 10 is defined outside the length (5) of the line 1");
-    }
+    highlightingLineReader.read(line1);
+
+    assertThat(logTester.logs(WARN)).containsOnly("End offset 10 is defined outside the length (5) of the line 1");
+    assertNoHighlighting();
   }
 
   @Test
-  public void fail_when_start_offset_is_higher_than_line_length() {
+  public void display_warning_when_start_offset_is_higher_than_line_length() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
         .setRange(BatchReport.TextRange.newBuilder()
@@ -274,12 +277,68 @@ public class HighlightingLineReaderTest {
         .setType(Constants.HighlightingType.ANNOTATION)
         .build()).iterator());
 
-    try {
-      highlightingLineReader.read(line1);
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Start offset 10 is defined outside the length (5) of the line 1");
-    }
+    highlightingLineReader.read(line1);
+
+    assertThat(logTester.logs(WARN)).containsOnly("Start offset 10 is defined outside the length (5) of the line 1");
+    assertNoHighlighting();
+  }
+
+  @Test
+  public void display_warning_and_stop_processing_when_offset_is_invalid() {
+    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
+      BatchReport.SyntaxHighlighting.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
+          .setStartLine(1).setEndLine(1)
+          .setStartOffset(10).setEndOffset(2)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build(),
+      BatchReport.SyntaxHighlighting.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
+          .setStartLine(2).setEndLine(2)
+          .setStartOffset(1).setEndOffset(2)
+          .build())
+        .setType(Constants.HighlightingType.HIGHLIGHTING_STRING)
+        .build()).iterator());
+
+    highlightingLineReader.read(line1);
+    highlightingLineReader.read(line2);
+
+    assertThat(logTester.logs(WARN)).containsOnly("End offset 2 cannot be defined before start offset 10 on line 1");
+    assertNoHighlighting();
+  }
+
+  @Test
+  public void display_warning_but_keep_already_process_highlighting_when_offset_is_invalid() {
+    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
+      BatchReport.SyntaxHighlighting.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
+          .setStartLine(1).setEndLine(1)
+          .setStartOffset(1).setEndOffset(2)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build(),
+      BatchReport.SyntaxHighlighting.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
+          .setStartLine(2).setEndLine(2)
+          .setStartOffset(10).setEndOffset(2)
+          .build())
+        .setType(Constants.HighlightingType.HIGHLIGHTING_STRING)
+        .build()).iterator());
+
+    highlightingLineReader.read(line1);
+    highlightingLineReader.read(line2);
+
+    assertThat(logTester.logs(WARN)).containsOnly("End offset 2 cannot be defined before start offset 10 on line 2");
+    assertThat(line1.hasHighlighting()).isTrue();
+    assertThat(line2.hasHighlighting()).isFalse();
+  }
+
+  private void assertNoHighlighting() {
+    assertThat(line1.hasHighlighting()).isFalse();
+    assertThat(line2.hasHighlighting()).isFalse();
+    assertThat(line3.hasHighlighting()).isFalse();
+    assertThat(line4.hasHighlighting()).isFalse();
   }
 
 }

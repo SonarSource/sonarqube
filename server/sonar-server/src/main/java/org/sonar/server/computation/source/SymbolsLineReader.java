@@ -21,6 +21,11 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.collect.Lists;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.protobuf.DbFileSources;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,10 +36,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.protobuf.DbFileSources;
+
+import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.offsetToString;
 
 public class SymbolsLineReader implements LineReader {
+
+  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+
+  private boolean isSymbolsValid = true;
 
   private final List<BatchReport.Symbol> symbols;
   private final Map<BatchReport.Symbol, Integer> idsBySymbol;
@@ -50,6 +61,18 @@ public class SymbolsLineReader implements LineReader {
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
+    if (!isSymbolsValid) {
+      return;
+    }
+    try {
+      processSymbols(lineBuilder);
+    } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
+      isSymbolsValid = false;
+      LOG.warn(e.getMessage());
+    }
+  }
+
+  private void processSymbols(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     List<BatchReport.Symbol> lineSymbols = findSymbolsMatchingLine(line);
     for (BatchReport.Symbol lineSymbol : lineSymbols) {
@@ -69,13 +92,13 @@ public class SymbolsLineReader implements LineReader {
 
   private static void appendSymbol(StringBuilder lineSymbol, BatchReport.TextRange range, int line, int symbolId, String sourceLine) {
     if (matchLine(range, line)) {
-      String offsets = RangeOffsetHelper.offsetToString(range, line, sourceLine.length());
+      String offsets = offsetToString(range, line, sourceLine.length());
       if (!offsets.isEmpty()) {
         if (lineSymbol.length() > 0) {
-          lineSymbol.append(RangeOffsetHelper.SYMBOLS_SEPARATOR);
+          lineSymbol.append(SYMBOLS_SEPARATOR);
         }
         lineSymbol.append(offsets)
-          .append(RangeOffsetHelper.OFFSET_SEPARATOR)
+          .append(OFFSET_SEPARATOR)
           .append(symbolId);
       }
     }

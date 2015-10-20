@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -44,7 +45,6 @@ import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,6 +58,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   private static final long NOW = 123456789L;
 
   private System2 system2 = mock(System2.class);
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
@@ -370,7 +373,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setDataType(Type.SOURCE)
-        // Source hash is missing, update will be made
+      // Source hash is missing, update will be made
       .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
       .setDataHash("29f25900140c94db38035128cb6de6a2")
       .setSourceData(DbFileSources.Data.newBuilder()
@@ -431,27 +434,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
     assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
-  }
-
-  @Test
-  public void display_file_path_when_exception_is_generated() {
-    initBasicReport(1);
-
-    reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-      .setRange(BatchReport.TextRange.newBuilder()
-        .setStartLine(1).setEndLine(1)
-        // Wrong offset -> fail
-        .setStartOffset(4).setEndOffset(2)
-        .build())
-      .setType(Constants.HighlightingType.ANNOTATION)
-      .build()));
-
-    try {
-      underTest.execute();
-      failBecauseExceptionWasNotThrown(IllegalStateException.class);
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Cannot persist sources of MODULE_KEY:src/Foo.java").hasCauseInstanceOf(IllegalArgumentException.class);
-    }
   }
 
   private void initBasicReport(int numberOfLines) {

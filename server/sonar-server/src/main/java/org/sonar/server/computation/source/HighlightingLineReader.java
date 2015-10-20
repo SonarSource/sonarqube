@@ -21,17 +21,29 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
+
+import javax.annotation.CheckForNull;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.offsetToString;
 
 public class HighlightingLineReader implements LineReader {
+
+  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+
+  private boolean isHighlightingValid = true;
 
   private static final Map<Constants.HighlightingType, String> cssClassByType = ImmutableMap.<Constants.HighlightingType, String>builder()
     .put(Constants.HighlightingType.ANNOTATION, "a")
@@ -57,32 +69,50 @@ public class HighlightingLineReader implements LineReader {
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
+    if (!isHighlightingValid) {
+      return;
+    }
+    try {
+      processHighlightings(lineBuilder);
+    } catch (RangeOffsetConverterException e) {
+      isHighlightingValid = false;
+      LOG.warn(e.getMessage());
+    }
+  }
+
+  private void processHighlightings(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     StringBuilder highlighting = new StringBuilder();
 
     incrementHighlightingListMatchingLine(line);
     for (Iterator<BatchReport.SyntaxHighlighting> syntaxHighlightingIterator = highlightingList.iterator(); syntaxHighlightingIterator.hasNext();) {
-      BatchReport.SyntaxHighlighting syntaxHighlighting = syntaxHighlightingIterator.next();
-      BatchReport.TextRange range = syntaxHighlighting.getRange();
-      if (range.getStartLine() <= line) {
-        String offsets = RangeOffsetHelper.offsetToString(syntaxHighlighting.getRange(), line, lineBuilder.getSource().length());
-        if (!offsets.isEmpty()) {
-          if (highlighting.length() > 0) {
-            highlighting.append(RangeOffsetHelper.SYMBOLS_SEPARATOR);
-          }
-          highlighting.append(offsets)
-            .append(RangeOffsetHelper.OFFSET_SEPARATOR)
-            .append(getCssClass(syntaxHighlighting.getType()));
-          if (range.getEndLine() == line) {
-            syntaxHighlightingIterator.remove();
-          }
-        } else {
-          syntaxHighlightingIterator.remove();
-        }
-      }
+      processHighlighting(syntaxHighlightingIterator, highlighting, lineBuilder);
     }
     if (highlighting.length() > 0) {
       lineBuilder.setHighlighting(highlighting.toString());
+    }
+  }
+
+  private static void processHighlighting(Iterator<BatchReport.SyntaxHighlighting> syntaxHighlightingIterator, StringBuilder highlighting,
+    DbFileSources.Line.Builder lineBuilder) {
+    BatchReport.SyntaxHighlighting syntaxHighlighting = syntaxHighlightingIterator.next();
+    int line = lineBuilder.getLine();
+    BatchReport.TextRange range = syntaxHighlighting.getRange();
+    if (range.getStartLine() <= line) {
+      String offsets = offsetToString(syntaxHighlighting.getRange(), line, lineBuilder.getSource().length());
+      if (!offsets.isEmpty()) {
+        if (highlighting.length() > 0) {
+          highlighting.append(SYMBOLS_SEPARATOR);
+        }
+        highlighting.append(offsets)
+          .append(OFFSET_SEPARATOR)
+          .append(getCssClass(syntaxHighlighting.getType()));
+        if (range.getEndLine() == line) {
+          syntaxHighlightingIterator.remove();
+        }
+      } else {
+        syntaxHighlightingIterator.remove();
+      }
     }
   }
 
