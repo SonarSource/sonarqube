@@ -1,5 +1,6 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
+@import (reference) "../init/links";
 
 .sonar-d3 {
 
@@ -232,4 +233,16 @@ text.max-results-reached-message {
   margin-left: 10px;
 
   & > .icon-chevron-right { margin-right: 10px; }
+}
+
+.word-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+
+  a {
+    padding: 5px;
+    .link-no-underline;
+  }
 }

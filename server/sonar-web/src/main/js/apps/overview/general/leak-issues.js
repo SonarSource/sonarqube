@@ -1,12 +1,12 @@
 import moment from 'moment';
 import React from 'react';
 import Card from './card';
-import Measure from './helpers/measure';
-import MeasureVariation from './helpers/measure-variation';
-import IssuesLink from './helpers/issues-link';
-import SeverityIcon from '../../components/shared/severity-icon';
-import StatusIcon from '../../components/shared/status-icon';
-import {getPeriodDate} from './helpers/period-label';
+import Measure from './../helpers/measure';
+import MeasureVariation from './../helpers/measure-variation';
+import IssuesLink from './../helpers/issues-link';
+import SeverityIcon from '../../../components/shared/severity-icon';
+import StatusIcon from '../../../components/shared/status-icon';
+import {getPeriodDate} from './../helpers/period-label';
 
 export default React.createClass({
   render() {

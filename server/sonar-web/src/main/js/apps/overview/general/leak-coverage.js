@@ -1,9 +1,9 @@
 import React from 'react';
 import Card from './card';
-import Measure from './helpers/measure';
-import MeasureVariation from './helpers/measure-variation';
-import DrilldownLink from './helpers/drilldown-link';
-import Donut from './helpers/donut';
+import Measure from './../helpers/measure';
+import MeasureVariation from './../helpers/measure-variation';
+import DrilldownLink from './../helpers/drilldown-link';
+import Donut from './../helpers/donut';
 
 export default React.createClass({
   render() {

@@ -31,3 +31,20 @@
   padding: 0 10px;
   .box-sizing(border-box);
 }
+
+
+.flex-columns {
+  display: flex;
+}
+
+.flex-column + .flex-column {
+  margin-left: 20px;
+}
+
+.flex-column-half {
+  width: 50%;
+}
+
+.flex-column-third {
+  width: ~"calc(100% / 3)";
+}

@@ -6,12 +6,11 @@ export default React.createClass({
     if (!this.props.severity) {
       return null;
     }
-    return (
-        <span>
-            <SeverityIcon severity={this.props.severity}/>
-          &nbsp;
-          {window.t('severity', this.props.severity)}
-          </span>
-    );
+    return <span>
+      <span className="spacer-right">
+        <SeverityIcon severity={this.props.severity}/>
+      </span>
+      {window.t('severity', this.props.severity)}
+    </span>;
   }
 });

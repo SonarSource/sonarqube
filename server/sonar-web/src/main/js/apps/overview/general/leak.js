@@ -5,7 +5,7 @@ import LeakIssues from './leak-issues';
 import LeakCoverage from './leak-coverage';
 import LeakSize from './leak-size';
 import LeakDups from './leak-dups';
-import {periodLabel} from './helpers/period-label';
+import {periodLabel} from './../helpers/period-label';
 
 export default React.createClass({
   render() {

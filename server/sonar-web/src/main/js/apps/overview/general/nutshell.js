@@ -7,7 +7,12 @@ import NutshellDups from './nutshell-dups';
 
 export default React.createClass({
   render() {
-    let props = { measures: this.props.measures, component: this.props.component };
+    let props = {
+      measures: this.props.measures,
+      component: this.props.component,
+      section: this.props.section,
+      onRoute: this.props.onRoute
+    };
     return (
         <div className="overview-nutshell">
           <h2 className="overview-title">{window.t('overview.project_in_a_nutshell')}</h2>
