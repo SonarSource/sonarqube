@@ -962,15 +962,17 @@
             var cid = this.containerId, selector = this.containerSelector,
                 scroll = "scroll." + cid, resize = "resize." + cid;
 
-            this.container.parents().each(function() {
-                $(this).bind(scroll, function() {
-                    var s2 = $(selector);
-                    if (s2.length == 0) {
-                        $(this).unbind(scroll);
-                    }
-                    s2.select2("close");
+            setTimeout(function () {
+                this.container.parents().each(function() {
+                    $(this).bind(scroll, function() {
+                        var s2 = $(selector);
+                        if (s2.length == 0) {
+                            $(this).unbind(scroll);
+                        }
+                        s2.select2("close");
+                    });
                 });
-            });
+            }.bind(this), 100);
 
             $(window).bind(resize, function() {
                 var s2 = $(selector);
@@ -1401,6 +1403,7 @@
         // single
         close: function () {
             if (!this.opened()) return;
+            console.log('closing...');
             this.parent.close.apply(this, arguments);
             this.dropdown.removeAttr("style").addClass("select2-offscreen").insertAfter(this.selection).show();
         },

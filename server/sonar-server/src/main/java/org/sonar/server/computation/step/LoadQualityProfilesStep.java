@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,11 +67,8 @@ public class LoadQualityProfilesStep implements ComputationStep {
   private class IsValid implements Predicate<ActiveRule> {
     @Override
     public boolean apply(@Nonnull ActiveRule input) {
-      if (ruleRepository.hasKey(input.getRuleKey())) {
-        Rule rule = ruleRepository.getByKey(input.getRuleKey());
-        return rule.getStatus() != RuleStatus.REMOVED;
-      }
-      return false;
+      Optional<Rule> rule = ruleRepository.findByKey(input.getRuleKey());
+      return rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED;
     }
   }
 

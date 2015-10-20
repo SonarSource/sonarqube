@@ -46,6 +46,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.lang.String.format;
+
 /**
  * Helper to bulk requests in an efficient way :
  * <ul>
@@ -76,7 +78,7 @@ public class BulkIndexer implements Startable {
   public BulkIndexer(EsClient client, String indexName) {
     this.client = client;
     this.indexName = indexName;
-    this.progress = new ProgressLogger(String.format("Progress[BulkIndexer[%s]]", indexName), counter, LOGGER)
+    this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", indexName), counter, LOGGER)
       .setPluralLabel("requests");
 
     this.concurrentRequests = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
@@ -235,11 +237,7 @@ public class BulkIndexer implements Startable {
 
       for (BulkItemResponse item : response.getItems()) {
         if (item.isFailed()) {
-          StringBuilder sb = new StringBuilder();
-          String msg = sb
-            .append("index [").append(item.getIndex()).append("], type [").append(item.getType()).append("], id [").append(item.getId())
-            .append("], message [").append(item.getFailureMessage()).append("]").toString();
-          LOGGER.error(msg);
+          LOGGER.error("index [{}], type [{}], id [{}], message [{}]", item.getIndex(), item.getType(), item.getId(), item.getFailureMessage());
         }
       }
     }

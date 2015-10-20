@@ -55,9 +55,13 @@ import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
 /**
  * Scroll over table FILE_SOURCES of test type and directly parse data required to
- * populate the index sourcelines
+ * populate the index tests/test
  */
 public class TestResultSetIterator extends ResultSetIterator<Row> {
+
+  private TestResultSetIterator(PreparedStatement stmt) throws SQLException {
+    super(stmt);
+  }
 
   public static TestResultSetIterator create(DbClient dbClient, DbSession session, long afterDate, @Nullable String projectUuid) {
     try {
@@ -65,10 +69,6 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all tests", e);
     }
-  }
-
-  private TestResultSetIterator(PreparedStatement stmt) throws SQLException {
-    super(stmt);
   }
 
   @Override
