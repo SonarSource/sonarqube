@@ -21,9 +21,6 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.collect.Lists;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.protobuf.DbFileSources;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,17 +31,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.protobuf.DbFileSources;
 
-import static org.sonar.server.computation.source.RangeOffsetHelper.OFFSET_SEPARATOR;
-import static org.sonar.server.computation.source.RangeOffsetHelper.SYMBOLS_SEPARATOR;
-import static org.sonar.server.computation.source.RangeOffsetHelper.offsetToString;
+import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
 
 public class SymbolsLineReader implements LineReader {
 
+  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+
+  private final RangeOffsetConverter rangeOffsetConverter;
   private final List<BatchReport.Symbol> symbols;
   private final Map<BatchReport.Symbol, Integer> idsBySymbol;
 
-  public SymbolsLineReader(Iterator<BatchReport.Symbol> symbols) {
+  private boolean areSymbolsValid = true;
+
+  public SymbolsLineReader(Iterator<BatchReport.Symbol> symbols, RangeOffsetConverter rangeOffsetConverter) {
+    this.rangeOffsetConverter = rangeOffsetConverter;
     this.symbols = Lists.newArrayList(symbols);
     // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
     // data
@@ -55,6 +61,18 @@ public class SymbolsLineReader implements LineReader {
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
+    if (!areSymbolsValid) {
+      return;
+    }
+    try {
+      processSymbols(lineBuilder);
+    } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
+      areSymbolsValid = false;
+      LOG.warn("Inconsistency detected in Symbols data. Symbols will be ignored", e);
+    }
+  }
+
+  private void processSymbols(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     List<BatchReport.Symbol> lineSymbols = findSymbolsMatchingLine(line);
     for (BatchReport.Symbol lineSymbol : lineSymbols) {
@@ -72,9 +90,9 @@ public class SymbolsLineReader implements LineReader {
     }
   }
 
-  private static void appendSymbol(StringBuilder lineSymbol, BatchReport.TextRange range, int line, int symbolId, String sourceLine) {
+  private void appendSymbol(StringBuilder lineSymbol, BatchReport.TextRange range, int line, int symbolId, String sourceLine) {
     if (matchLine(range, line)) {
-      String offsets = offsetToString(range, line, sourceLine.length());
+      String offsets = rangeOffsetConverter.offsetToString(range, line, sourceLine.length());
       if (!offsets.isEmpty()) {
         if (lineSymbol.length() > 0) {
           lineSymbol.append(SYMBOLS_SEPARATOR);

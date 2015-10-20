@@ -21,22 +21,26 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.collect.ImmutableMap;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.protobuf.DbFileSources;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.server.computation.source.RangeOffsetHelper.OFFSET_SEPARATOR;
-import static org.sonar.server.computation.source.RangeOffsetHelper.SYMBOLS_SEPARATOR;
-import static org.sonar.server.computation.source.RangeOffsetHelper.offsetToString;
+import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
 
 public class HighlightingLineReader implements LineReader {
+
+  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+
+  private boolean isHighlightingValid = true;
 
   private static final Map<Constants.HighlightingType, String> cssClassByType = ImmutableMap.<Constants.HighlightingType, String>builder()
     .put(Constants.HighlightingType.ANNOTATION, "a")
@@ -51,17 +55,31 @@ public class HighlightingLineReader implements LineReader {
     .build();
 
   private final Iterator<BatchReport.SyntaxHighlighting> lineHighlightingIterator;
+  private final RangeOffsetConverter rangeOffsetConverter;
+  private final List<BatchReport.SyntaxHighlighting> highlightingList;
 
   private BatchReport.SyntaxHighlighting currentItem;
-  private List<BatchReport.SyntaxHighlighting> highlightingList;
 
-  public HighlightingLineReader(Iterator<BatchReport.SyntaxHighlighting> lineHighlightingIterator) {
+  public HighlightingLineReader(Iterator<BatchReport.SyntaxHighlighting> lineHighlightingIterator, RangeOffsetConverter rangeOffsetConverter) {
     this.lineHighlightingIterator = lineHighlightingIterator;
+    this.rangeOffsetConverter = rangeOffsetConverter;
     this.highlightingList = newArrayList();
   }
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
+    if (!isHighlightingValid) {
+      return;
+    }
+    try {
+      processHighlightings(lineBuilder);
+    } catch (RangeOffsetConverterException e) {
+      isHighlightingValid = false;
+      LOG.warn("Inconsistency detected in Highlighting data. Highlighting will be ignored", e);
+    }
+  }
+
+  private void processHighlightings(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     StringBuilder highlighting = new StringBuilder();
 
@@ -74,14 +92,16 @@ public class HighlightingLineReader implements LineReader {
     }
   }
 
-  private static void processHighlighting(Iterator<BatchReport.SyntaxHighlighting> syntaxHighlightingIterator, StringBuilder highlighting,
+  private void processHighlighting(Iterator<BatchReport.SyntaxHighlighting> syntaxHighlightingIterator, StringBuilder highlighting,
     DbFileSources.Line.Builder lineBuilder) {
     BatchReport.SyntaxHighlighting syntaxHighlighting = syntaxHighlightingIterator.next();
     int line = lineBuilder.getLine();
     BatchReport.TextRange range = syntaxHighlighting.getRange();
     if (range.getStartLine() <= line) {
-      String offsets = offsetToString(syntaxHighlighting.getRange(), line, lineBuilder.getSource().length());
-      if (!offsets.isEmpty()) {
+      String offsets = rangeOffsetConverter.offsetToString(syntaxHighlighting.getRange(), line, lineBuilder.getSource().length());
+      if (offsets.isEmpty()) {
+        syntaxHighlightingIterator.remove();
+      } else {
         if (highlighting.length() > 0) {
           highlighting.append(SYMBOLS_SEPARATOR);
         }
@@ -91,8 +111,6 @@ public class HighlightingLineReader implements LineReader {
         if (range.getEndLine() == line) {
           syntaxHighlightingIterator.remove();
         }
-      } else {
-        syntaxHighlightingIterator.remove();
       }
     }
   }
