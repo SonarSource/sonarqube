@@ -20,14 +20,15 @@
 
 package org.sonar.server.computation.source;
 
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.protobuf.DbFileSources;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -82,10 +83,10 @@ public class DuplicationLineReader implements LineReader {
     return (range.getEndLine() - range.getStartLine()) + 1;
   }
 
-  private Map<BatchReport.TextRange, Integer> createDuplicationIdsByRange(List<BatchReport.Duplication> duplications) {
+  private static Map<BatchReport.TextRange, Integer> createDuplicationIdsByRange(List<BatchReport.Duplication> duplications) {
     Map<BatchReport.TextRange, Integer> map = newHashMap();
     int blockId = 1;
-    for (BatchReport.Duplication duplication : this.duplications) {
+    for (BatchReport.Duplication duplication : duplications) {
       map.put(duplication.getOriginPosition(), blockId);
       blockId++;
       for (BatchReport.Duplicate duplicate : duplication.getDuplicateList()) {

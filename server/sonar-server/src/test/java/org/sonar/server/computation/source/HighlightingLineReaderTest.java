@@ -20,19 +20,21 @@
 
 package org.sonar.server.computation.source;
 
-import java.util.Collections;
 import org.junit.Test;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
 
+import java.util.Collections;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
 
 public class HighlightingLineReaderTest {
 
-  DbFileSources.Data.Builder sourceData = DbFileSources.Data.newBuilder();
+  DbFileSources.Data.Builder sourceData = newBuilder();
   DbFileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
   DbFileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
   DbFileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
@@ -42,7 +44,7 @@ public class HighlightingLineReaderTest {
   public void nothing_to_read() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(Collections.<BatchReport.SyntaxHighlighting>emptyList().iterator());
 
-    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = newBuilder().addLinesBuilder().setLine(1);
     highlightingLineReader.read(lineBuilder);
 
     assertThat(lineBuilder.hasHighlighting()).isFalse();

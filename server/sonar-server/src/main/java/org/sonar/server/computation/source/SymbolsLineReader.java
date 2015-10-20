@@ -21,6 +21,9 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.collect.Lists;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.protobuf.DbFileSources;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,8 +34,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.protobuf.DbFileSources;
+
+import static org.sonar.server.computation.source.RangeOffsetHelper.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetHelper.SYMBOLS_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetHelper.offsetToString;
 
 public class SymbolsLineReader implements LineReader {
 
@@ -69,13 +74,13 @@ public class SymbolsLineReader implements LineReader {
 
   private static void appendSymbol(StringBuilder lineSymbol, BatchReport.TextRange range, int line, int symbolId, String sourceLine) {
     if (matchLine(range, line)) {
-      String offsets = RangeOffsetHelper.offsetToString(range, line, sourceLine.length());
+      String offsets = offsetToString(range, line, sourceLine.length());
       if (!offsets.isEmpty()) {
         if (lineSymbol.length() > 0) {
-          lineSymbol.append(RangeOffsetHelper.SYMBOLS_SEPARATOR);
+          lineSymbol.append(SYMBOLS_SEPARATOR);
         }
         lineSymbol.append(offsets)
-          .append(RangeOffsetHelper.OFFSET_SEPARATOR)
+          .append(OFFSET_SEPARATOR)
           .append(symbolId);
       }
     }
