@@ -19,9 +19,6 @@
  */
 package org.sonar.server.computation.issue;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Loggers;
@@ -39,6 +36,10 @@ import org.sonar.server.computation.component.ReportTreeRootHolder;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.rule.CommonRuleKeys;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -172,7 +173,7 @@ public class TrackerRawInputFactory {
     }
   }
 
-  private DbCommons.TextRange.Builder convertTextRange(BatchReport.TextRange sourceRange) {
+  private static DbCommons.TextRange.Builder convertTextRange(BatchReport.TextRange sourceRange) {
     DbCommons.TextRange.Builder targetRange = DbCommons.TextRange.newBuilder();
     if (sourceRange.hasStartLine()) {
       targetRange.setStartLine(sourceRange.getStartLine());

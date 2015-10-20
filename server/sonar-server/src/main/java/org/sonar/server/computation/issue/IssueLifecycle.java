@@ -88,6 +88,7 @@ public class IssueLifecycle {
 
     // fields coming from raw
     updater.setPastLine(raw, base.getLine());
+    updater.setPastLocations(raw, base.getLocations());
     updater.setPastMessage(raw, base.getMessage(), changeContext);
     updater.setPastEffortToFix(raw, base.effortToFix(), changeContext);
     updater.setPastTechnicalDebt(raw, base.debt(), changeContext);

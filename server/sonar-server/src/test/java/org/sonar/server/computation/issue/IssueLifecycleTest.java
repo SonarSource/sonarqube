@@ -28,6 +28,8 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.IssueWorkflow;
+import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbIssues;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,6 +99,13 @@ public class IssueLifecycleTest {
       .setCreationDate(parseDate("2015-10-01"))
       .setUpdateDate(parseDate("2015-10-02"))
       .setCloseDate(parseDate("2015-10-03"));
+
+    DbIssues.Locations issueLocations = DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder()
+        .setStartLine(10)
+        .setEndLine(12)
+        .build())
+      .build();
     DefaultIssue base = new DefaultIssue()
       .setKey("BASE_KEY")
       .setCreationDate(parseDate("2015-01-01"))
@@ -115,7 +124,8 @@ public class IssueLifecycleTest {
       .setMessage("message")
       .setEffortToFix(15d)
       .setDebt(Duration.create(15L))
-      .setManualSeverity(false);
+      .setManualSeverity(false)
+      .setLocations(issueLocations);
 
     when(debtCalculator.calculate(raw)).thenReturn(DEFAULT_DURATION);
 
@@ -140,6 +150,7 @@ public class IssueLifecycleTest {
     verify(updater).setPastLine(raw, 10);
     verify(updater).setPastMessage(raw, "message", issueChangeContext);
     verify(updater).setPastTechnicalDebt(raw, Duration.create(15L), issueChangeContext);
+    verify(updater).setPastLocations(raw, issueLocations);
   }
 
   @Test

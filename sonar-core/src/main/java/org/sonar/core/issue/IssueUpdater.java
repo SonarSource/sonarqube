@@ -123,6 +123,22 @@ public class IssueUpdater {
     return setLine(issue, currentLine);
   }
 
+  public boolean setLocations(DefaultIssue issue, @Nullable Object locations) {
+    if (!Objects.equal(locations, issue.getLocations())) {
+      issue.setLocations(locations);
+      issue.setChanged(true);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setPastLocations(DefaultIssue issue, @Nullable Object previousLocations) {
+    Object currentLocations = issue.getLocations();
+    issue.setLocations(previousLocations);
+    return setLocations(issue, currentLocations);
+
+  }
+
   public boolean setResolution(DefaultIssue issue, @Nullable String resolution, IssueChangeContext context) {
     if (!Objects.equal(resolution, issue.resolution())) {
       issue.setFieldChange(context, RESOLUTION, issue.resolution(), resolution);
@@ -301,5 +317,6 @@ public class IssueUpdater {
     }
     return false;
   }
+
 
 }
