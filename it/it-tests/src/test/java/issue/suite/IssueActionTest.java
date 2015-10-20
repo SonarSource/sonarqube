@@ -25,7 +25,6 @@ import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.ActionPlan;
@@ -38,14 +37,13 @@ import org.sonar.wsclient.issue.NewActionPlan;
 
 import static issue.suite.IssueTestSuite.ORCHESTRATOR;
 import static issue.suite.IssueTestSuite.adminIssueClient;
-import static issue.suite.IssueTestSuite.issueClient;
 import static issue.suite.IssueTestSuite.search;
 import static issue.suite.IssueTestSuite.searchIssueByKey;
 import static issue.suite.IssueTestSuite.searchIssues;
 import static issue.suite.IssueTestSuite.searchRandomIssue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static util.ItUtils.projectDir;
+import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.toDate;
 import static util.ItUtils.verifyHttpException;
 
@@ -72,8 +70,7 @@ public class IssueActionTest {
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "xoo-one-issue-per-line-profile");
 
-    scan = SonarRunner.create(projectDir("shared/xoo-sample"));
-    orchestrator.executeBuild(scan);
+    scan = runProjectAnalysis(orchestrator, "shared/xoo-sample");
     issue = searchRandomIssue();
   }
 
@@ -91,7 +88,7 @@ public class IssueActionTest {
     assertThat(comment.createdAt()).isNotNull();
 
     // reload issue
-    Issue reloaded = searchIssueByKey(issue.key());
+    Issue reloaded = searchIssues(issue.key(), true).iterator().next();
 
     assertThat(reloaded.comments()).hasSize(1);
     assertThat(reloaded.comments().get(0).key()).isEqualTo(comment.key());
@@ -149,7 +146,7 @@ public class IssueActionTest {
     assertThat(issues.users()).isEmpty();
 
     adminIssueClient().assign(issue.key(), "admin");
-    assertThat(search(IssueQuery.create().assignees("admin")).list()).hasSize(1);
+    assertThat(searchIssues(IssueQuery.create().assignees("admin"))).hasSize(1);
 
     orchestrator.executeBuild(scan);
     Issue reloaded = searchIssueByKey(issue.key());
@@ -164,7 +161,7 @@ public class IssueActionTest {
     adminIssueClient().assign(issue.key(), null);
     reloaded = searchIssueByKey(issue.key());
     assertThat(reloaded.assignee()).isNull();
-    assertThat(issueClient().find(IssueQuery.create().assignees("admin")).list()).isEmpty();
+    assertThat(searchIssues(IssueQuery.create().assignees("admin"))).isEmpty();
   }
 
   /**
@@ -248,7 +245,7 @@ public class IssueActionTest {
     adminIssueClient().doAction(issue.key(), "fake");
 
     // reload issue
-    Issue reloaded = searchIssueByKey(issue.key());
+    Issue reloaded = searchIssues(issue.key(), true).iterator().next();
 
     assertThat(reloaded.comments()).hasSize(1);
     assertThat(reloaded.comments().get(0).htmlText()).isEqualTo("New Comment from fake action");

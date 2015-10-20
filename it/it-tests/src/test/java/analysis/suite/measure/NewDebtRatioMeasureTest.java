@@ -80,13 +80,13 @@ public class NewDebtRatioMeasureTest {
   }
 
   private void runSampleProjectAnalysis(String projectVersion, String... properties) {
-    ItUtils.runProjectAnalysis(
-      NewDebtRatioMeasureTest.orchestrator,
-      "measure/xoo-new-debt-ratio-" + projectVersion,
-      ItUtils.concat(properties,
-        // disable standard scm support so that it does not interfere with Xoo Scm sensor
-        "sonar.scm.disabled", "false")
-      );
+    ItUtils.runVerboseProjectAnalysis(
+        NewDebtRatioMeasureTest.orchestrator,
+        "measure/xoo-new-debt-ratio-" + projectVersion,
+        ItUtils.concat(properties,
+            // disable standard scm support so that it does not interfere with Xoo Scm sensor
+            "sonar.scm.disabled", "false")
+    );
   }
 
   private Resource getFileResourceWithVariations(String metricKey) {

@@ -146,7 +146,7 @@ public class TechnicalDebtMeasureVariationTest {
   }
 
   private void runSampleProjectAnalysis(String... properties) {
-    ItUtils.runProjectAnalysis(TechnicalDebtMeasureVariationTest.orchestrator, "shared/xoo-sample", properties);
+    ItUtils.runVerboseProjectAnalysis(TechnicalDebtMeasureVariationTest.orchestrator, "shared/xoo-sample", properties);
   }
 
   private Resource getSampleProjectResourceWithVariations(String metricKey) {
