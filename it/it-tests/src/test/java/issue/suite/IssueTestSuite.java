@@ -26,7 +26,8 @@ import static util.ItUtils.xooPlugin;
   ManualRulesTest.class,
   CustomRulesTest.class,
   IssueActionTest.class,
-  IssueChangelogTest.class
+  IssueChangelogTest.class,
+  IssueBulkChangeTest.class
 })
 public class IssueTestSuite {
 
