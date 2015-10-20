@@ -53,19 +53,25 @@ public class RangeOffsetConverter {
 
   private static void validateOffsetOrder(BatchReport.TextRange range, int line) {
     if (range.getStartLine() == range.getEndLine() && range.getStartOffset() > range.getEndOffset()) {
-      throw new IllegalArgumentException(format("End offset %s cannot be defined before start offset %s on line %s", range.getEndOffset(), range.getStartOffset(), line));
+      throw new RangeOffsetConverterException(format("End offset %s cannot be defined before start offset %s on line %s", range.getEndOffset(), range.getStartOffset(), line));
     }
   }
 
   private static void validateStartOffsetNotGreaterThanLineLength(BatchReport.TextRange range, int lineLength, int line) {
     if (range.getStartLine() == line && range.getStartOffset() > lineLength) {
-      throw new IllegalArgumentException(format("Start offset %s is defined outside the length (%s) of the line %s", range.getStartOffset(), lineLength, line));
+      throw new RangeOffsetConverterException(format("Start offset %s is defined outside the length (%s) of the line %s", range.getStartOffset(), lineLength, line));
     }
   }
 
   private static void validateEndOffsetNotGreaterThanLineLength(BatchReport.TextRange range, int lineLength, int line) {
     if (range.getEndLine() == line && range.getEndOffset() > lineLength) {
-      throw new IllegalArgumentException(format("End offset %s is defined outside the length (%s) of the line %s", range.getEndOffset(), lineLength, line));
+      throw new RangeOffsetConverterException(format("End offset %s is defined outside the length (%s) of the line %s", range.getEndOffset(), lineLength, line));
+    }
+  }
+
+  public static class RangeOffsetConverterException extends RuntimeException {
+    public RangeOffsetConverterException(String message) {
+      super(message);
     }
   }
 

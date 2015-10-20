@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.sonar.server.computation.source.RangeOffsetHelper.OFFSET_SEPARATOR;
-import static org.sonar.server.computation.source.RangeOffsetHelper.SYMBOLS_SEPARATOR;
-import static org.sonar.server.computation.source.RangeOffsetHelper.offsetToString;
+import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.offsetToString;
 
 public class SymbolsLineReader implements LineReader {
 

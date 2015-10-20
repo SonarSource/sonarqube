@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.source.RangeOffsetConverter.offsetToString;
@@ -75,7 +76,7 @@ public class RangeOffsetConverterTest {
 
   @Test
   public void fail_when_end_offset_is_before_start_offset() {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(RangeOffsetConverterException.class);
     thrown.expectMessage("End offset 2 cannot be defined before start offset 4 on line 1");
 
     offsetToString(BatchReport.TextRange.newBuilder()
@@ -87,7 +88,7 @@ public class RangeOffsetConverterTest {
 
   @Test
   public void fail_when_end_offset_is_higher_than_line_length() {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(RangeOffsetConverterException.class);
     thrown.expectMessage("End offset 10 is defined outside the length (5) of the line 1");
 
     offsetToString(BatchReport.TextRange.newBuilder()
@@ -99,7 +100,7 @@ public class RangeOffsetConverterTest {
 
   @Test
   public void fail_when_start_offset_is_higher_than_line_length() {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(RangeOffsetConverterException.class);
     thrown.expectMessage("Start offset 10 is defined outside the length (5) of the line 1");
 
     offsetToString(BatchReport.TextRange.newBuilder()

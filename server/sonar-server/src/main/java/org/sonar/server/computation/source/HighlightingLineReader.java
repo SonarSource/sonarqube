@@ -21,9 +21,12 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.collect.ImmutableMap;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
 import javax.annotation.CheckForNull;
 
@@ -32,11 +35,15 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.server.computation.source.RangeOffsetHelper.OFFSET_SEPARATOR;
-import static org.sonar.server.computation.source.RangeOffsetHelper.SYMBOLS_SEPARATOR;
-import static org.sonar.server.computation.source.RangeOffsetHelper.offsetToString;
+import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.offsetToString;
 
 public class HighlightingLineReader implements LineReader {
+
+  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+
+  private boolean isHighlightingValid = true;
 
   private static final Map<Constants.HighlightingType, String> cssClassByType = ImmutableMap.<Constants.HighlightingType, String>builder()
     .put(Constants.HighlightingType.ANNOTATION, "a")
@@ -62,6 +69,18 @@ public class HighlightingLineReader implements LineReader {
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
+    if (!isHighlightingValid) {
+      return;
+    }
+    try {
+      processHighlightings(lineBuilder);
+    } catch (RangeOffsetConverterException e) {
+      isHighlightingValid = false;
+      LOG.warn(e.getMessage());
+    }
+  }
+
+  private void processHighlightings(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     StringBuilder highlighting = new StringBuilder();
 
