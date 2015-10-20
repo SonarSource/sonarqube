@@ -27,7 +27,8 @@ import static util.ItUtils.xooPlugin;
   CustomRulesTest.class,
   IssueActionTest.class,
   IssueChangelogTest.class,
-  IssueBulkChangeTest.class
+  IssueBulkChangeTest.class,
+  IssuePurgeTest.class
 })
 public class IssueTestSuite {
 
@@ -67,7 +68,7 @@ public class IssueTestSuite {
   }
 
   static List<Issue> searchIssues(String issueKey, boolean withComments) {
-    return searchIssues(new String[] { issueKey }, withComments);
+    return searchIssues(new String[] {issueKey}, withComments);
   }
 
   static List<Issue> searchIssues(String[] issueKeys, boolean withComments) {
