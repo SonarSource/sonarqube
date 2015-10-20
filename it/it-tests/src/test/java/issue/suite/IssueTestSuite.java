@@ -21,7 +21,12 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  CommonRulesTest.class, IssueWorkflowTest.class, ManualRulesTest.class, CustomRulesTest.class, IssueActionTest.class
+  CommonRulesTest.class,
+  IssueWorkflowTest.class,
+  ManualRulesTest.class,
+  CustomRulesTest.class,
+  IssueActionTest.class,
+  IssueChangelogTest.class
 })
 public class IssueTestSuite {
 
