@@ -21,6 +21,8 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.collect.Lists;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
 
@@ -41,6 +43,10 @@ import static org.sonar.server.computation.source.RangeOffsetConverter.offsetToS
 
 public class SymbolsLineReader implements LineReader {
 
+  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+
+  private boolean isSymbolsValid = true;
+
   private final List<BatchReport.Symbol> symbols;
   private final Map<BatchReport.Symbol, Integer> idsBySymbol;
 
@@ -55,6 +61,18 @@ public class SymbolsLineReader implements LineReader {
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
+    if (!isSymbolsValid) {
+      return;
+    }
+    try {
+      processSymbols(lineBuilder);
+    } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
+      isSymbolsValid = false;
+      LOG.warn(e.getMessage());
+    }
+  }
+
+  private void processSymbols(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     List<BatchReport.Symbol> lineSymbols = findSymbolsMatchingLine(line);
     for (BatchReport.Symbol lineSymbol : lineSymbols) {

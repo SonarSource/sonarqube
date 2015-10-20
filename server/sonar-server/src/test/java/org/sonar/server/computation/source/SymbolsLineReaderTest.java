@@ -20,16 +20,23 @@
 
 package org.sonar.server.computation.source;
 
-import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbFileSources;
 
+import java.util.List;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.utils.log.LoggerLevel.WARN;
 
 public class SymbolsLineReaderTest {
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   DbFileSources.Data.Builder sourceData = DbFileSources.Data.newBuilder();
   DbFileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
@@ -292,6 +299,54 @@ public class SymbolsLineReaderTest {
     assertThat(line2.getSymbols()).isEmpty();
     assertThat(line3.getSymbols()).isEqualTo("1,3,1");
     assertThat(line4.getSymbols()).isEmpty();
+  }
+
+  @Test
+  public void display_warning_and_stop_processing_when_offset_is_invalid() {
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
+          .setStartLine(1).setEndLine(1).setStartOffset(10).setEndOffset(2)
+          .build())
+        .addReference(BatchReport.TextRange.newBuilder()
+          .setStartLine(2).setEndLine(2).setStartOffset(1).setEndOffset(3)
+          .build())
+        .build());
+
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
+    symbolsLineReader.read(line1);
+    symbolsLineReader.read(line2);
+
+    assertThat(logTester.logs(WARN)).containsOnly("End offset 2 cannot be defined before start offset 10 on line 1");
+    assertNoSymbol();
+  }
+
+  @Test
+  public void display_warning_but_keep_already_process_symbol_when_offset_is_invalid() {
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
+          .setStartLine(1).setEndLine(1).setStartOffset(1).setEndOffset(2)
+          .build())
+        .addReference(BatchReport.TextRange.newBuilder()
+          .setStartLine(2).setEndLine(2).setStartOffset(10).setEndOffset(2)
+          .build())
+        .build());
+
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
+    symbolsLineReader.read(line1);
+    symbolsLineReader.read(line2);
+
+    assertThat(logTester.logs(WARN)).containsOnly("End offset 2 cannot be defined before start offset 10 on line 2");
+    assertThat(line1.hasSymbols()).isTrue();
+    assertThat(line2.hasSymbols()).isFalse();
+  }
+
+  private void assertNoSymbol() {
+    assertThat(line1.hasSymbols()).isFalse();
+    assertThat(line2.hasSymbols()).isFalse();
+    assertThat(line3.hasSymbols()).isFalse();
+    assertThat(line4.hasSymbols()).isFalse();
   }
 
 }
