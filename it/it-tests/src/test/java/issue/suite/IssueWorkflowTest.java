@@ -1,40 +1,60 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package issue.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
+import util.ProjectAnalysis;
+import util.ProjectAnalysisRule;
 
 import static issue.suite.IssueTestSuite.adminIssueClient;
 import static issue.suite.IssueTestSuite.searchIssueByKey;
 import static issue.suite.IssueTestSuite.searchIssues;
 import static issue.suite.IssueTestSuite.searchRandomIssue;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.projectDir;
 
 public class IssueWorkflowTest {
 
   @ClassRule
   public static Orchestrator orchestrator = IssueTestSuite.ORCHESTRATOR;
 
-  Issue issue;
-  SonarRunner scan;
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
+
+  private ProjectAnalysis analysisWithIssues;
+  private ProjectAnalysis analysisWithoutIssues;
+  private Issue issue;
 
   @Before
-  public void resetData() {
-    orchestrator.resetData();
-
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/IssueWorkflowTest/xoo-one-issue-per-line-profile.xml"));
-    orchestrator.getServer().provisionProject("workflow", "Workflow");
-    orchestrator.getServer().associateProjectToQualityProfile("workflow", "xoo", "xoo-one-issue-per-line-profile");
-
-    scan = SonarRunner.create(projectDir("issue/workflow"));
-    orchestrator.executeBuild(scan);
+  public void before() {
+    String oneIssuePerFileProfileKey = projectAnalysisRule.registerProfile("/issue/suite/IssueWorkflowTest/xoo-one-issue-per-line-profile.xml");
+    String analyzedProjectKey = projectAnalysisRule.registerProject("issue/workflow");
+    analysisWithIssues = projectAnalysisRule.newProjectAnalysis(analyzedProjectKey).withQualityProfile(oneIssuePerFileProfileKey);
+    analysisWithoutIssues = analysisWithIssues.withXooEmptyProfile();
+    analysisWithIssues.run();
 
     issue = searchRandomIssue();
   }
@@ -49,8 +69,7 @@ public class IssueWorkflowTest {
     assertThat(issues).isNotEmpty();
 
     // re-analyze with profile "empty". The rule is disabled so the issues must be closed
-    orchestrator.getServer().associateProjectToQualityProfile("workflow", "xoo", "empty");
-    orchestrator.executeBuild(scan);
+    analysisWithoutIssues.run();
     issues = searchIssues(IssueQuery.create().rules("xoo:OneIssuePerLine"));
     assertThat(issues).isNotEmpty();
     for (Issue issue : issues) {
@@ -118,8 +137,7 @@ public class IssueWorkflowTest {
     assertThat(falsePositive.creationDate()).isEqualTo(issue.creationDate());
 
     // scan without any rules -> confirmed is closed
-    orchestrator.getServer().associateProjectToQualityProfile("workflow", "xoo", "empty");
-    orchestrator.executeBuild(scan);
+    analysisWithoutIssues.run();
     Issue closed = searchIssueByKey(issue.key());
     assertThat(closed.status()).isEqualTo("CLOSED");
     assertThat(closed.resolution()).isEqualTo("REMOVED");
@@ -141,7 +159,7 @@ public class IssueWorkflowTest {
     assertThat(resolvedIssue.updateDate().before(issue.updateDate())).isFalse();
 
     // re-execute scan, with the same Q profile -> the issue has not been fixed
-    orchestrator.executeBuild(scan);
+    analysisWithIssues.run();
 
     // reload issue
     Issue reopenedIssue = searchIssueByKey(issue.key());
@@ -167,8 +185,7 @@ public class IssueWorkflowTest {
     assertThat(resolvedIssue.closeDate()).isNull();
 
     // re-execute scan without rules -> the issue is removed with resolution "REMOVED"
-    orchestrator.getServer().associateProjectToQualityProfile("workflow", "xoo", "empty");
-    orchestrator.executeBuild(scan);
+    analysisWithoutIssues.run();
 
     // reload issue
     Issue closedIssue = searchIssueByKey(issue.key());
@@ -217,7 +234,7 @@ public class IssueWorkflowTest {
     assertThat(falsePositive.creationDate()).isEqualTo(issue.creationDate());
 
     // re-execute the same scan
-    orchestrator.executeBuild(scan);
+    analysisWithIssues.run();
 
     // refresh
     Issue reloaded = searchIssueByKey(falsePositive.key());
@@ -240,8 +257,7 @@ public class IssueWorkflowTest {
     assertThat(falsePositive.creationDate()).isEqualTo(issue.creationDate());
 
     // scan without any rules -> false-positive is closed
-    orchestrator.getServer().associateProjectToQualityProfile("workflow", "xoo", "empty");
-    orchestrator.executeBuild(scan);
+    analysisWithoutIssues.run();
     Issue closed = searchIssueByKey(issue.key());
     assertThat(closed.status()).isEqualTo("CLOSED");
     assertThat(closed.resolution()).isEqualTo("REMOVED");
@@ -276,8 +292,7 @@ public class IssueWorkflowTest {
     adminIssueClient().doTransition(issue.key(), "resolve");
 
     // re-execute scan without rules -> the issue is closed
-    orchestrator.getServer().associateProjectToQualityProfile("workflow", "xoo", "empty");
-    orchestrator.executeBuild(scan);
+    analysisWithoutIssues.run();
 
     // user try to reopen the issue
     assertThat(adminIssueClient().transitions(issue.key())).isEmpty();

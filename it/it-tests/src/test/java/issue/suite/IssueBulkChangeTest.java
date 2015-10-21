@@ -22,10 +22,10 @@ package issue.suite;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.ActionPlan;
@@ -35,12 +35,13 @@ import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.NewActionPlan;
 import util.ItUtils;
+import util.ProjectAnalysis;
+import util.ProjectAnalysisRule;
 
 import static issue.suite.IssueTestSuite.ORCHESTRATOR;
 import static issue.suite.IssueTestSuite.adminIssueClient;
 import static issue.suite.IssueTestSuite.issueClient;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.runProjectAnalysis;
 
 /**
  * SONAR-4421
@@ -53,15 +54,22 @@ public class IssueBulkChangeTest {
 
   @ClassRule
   public static Orchestrator orchestrator = ORCHESTRATOR;
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
+
+  private ProjectAnalysis xooSampleLittleIssuesAnalysis;
 
   @Before
-  public void resetData() {
-    orchestrator.resetData();
+  public void setUp() throws Exception {
+    String qualityProfileKey = projectAnalysisRule.registerProfile("/issue/suite/IssueBulkChangeTest/one-issue-per-line-profile.xml");
+    String projectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
+    this.xooSampleLittleIssuesAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey)
+      .withQualityProfile(qualityProfileKey);
   }
 
   @Test
   public void should_change_severity() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
 
     String newSeverity = "BLOCKER";
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
@@ -73,7 +81,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_do_transition() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
     BulkChange bulkChange = bulkTransitionStatusOfIssues(issueKeys, "confirm");
 
@@ -83,7 +91,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_assign() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
 
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
     BulkChange bulkChange = buldChangeAssigneeOfIssues(issueKeys, "admin");
@@ -96,7 +104,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_plan() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
 
     // Create action plan
     ActionPlan newActionPlan = adminActionPlanClient().create(
@@ -118,7 +126,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_setSeverity_add_comment_in_single_WS_call() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
 
     String newSeverity = "BLOCKER";
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
@@ -140,7 +148,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_apply_bulk_change_on_many_actions() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
 
     String newSeverity = "BLOCKER";
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
@@ -167,7 +175,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_not_apply_bulk_change_if_not_logged() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
 
     String newSeverity = "BLOCKER";
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
@@ -181,7 +189,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_not_apply_bulk_change_if_no_change_to_do() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
 
     String newSeverity = "BLOCKER";
     String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
@@ -207,7 +215,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_not_apply_bulk_change_if_action_is_invalid() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
 
     int limit = BULK_EDITED_ISSUE_COUNT;
     String[] issueKeys = searchIssueKeys(limit);
@@ -222,7 +230,7 @@ public class IssueBulkChangeTest {
 
   @Test
   public void should_add_comment_only_on_issues_that_will_be_changed() {
-    analyzeSampleProjectWillSmallNumberOfIssues();
+    xooSampleLittleIssuesAnalysis.run();
     int nbIssues = BULK_EDITED_ISSUE_COUNT;
     String[] issueKeys = searchIssueKeys(nbIssues);
 
@@ -247,13 +255,6 @@ public class IssueBulkChangeTest {
     }
     // Only one issue should have the comment
     assertThat(nbIssuesWithComment).isEqualTo(1);
-  }
-
-  private void analyzeSampleProjectWillSmallNumberOfIssues() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/IssueBulkChangeTest/one-issue-per-line-profile.xml"));
-    orchestrator.getServer().provisionProject("sample", "Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
   }
 
   private static void assertIssueSeverity(String[] issueKeys, String expectedSeverity) {

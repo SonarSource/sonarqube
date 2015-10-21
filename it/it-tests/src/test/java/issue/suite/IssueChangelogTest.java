@@ -20,38 +20,39 @@
 package issue.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueChange;
 import org.sonar.wsclient.issue.IssueChangeDiff;
 import org.sonar.wsclient.issue.IssueQuery;
+import util.ProjectAnalysis;
+import util.ProjectAnalysisRule;
 
 import static issue.suite.IssueTestSuite.ORCHESTRATOR;
 import static issue.suite.IssueTestSuite.adminIssueClient;
 import static issue.suite.IssueTestSuite.issueClient;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.runProjectAnalysis;
 
 public class IssueChangelogTest {
 
   @ClassRule
   public static Orchestrator orchestrator = ORCHESTRATOR;
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
   Issue issue;
-  SonarRunner scan;
+  ProjectAnalysis xooSampleAnalysis;
 
   @Before
   public void resetData() {
-    orchestrator.resetData();
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/IssueChangelogTest/one-issue-per-line-profile.xml"));
-    orchestrator.getServer().provisionProject("sample", "Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    scan = runProjectAnalysis(orchestrator, "shared/xoo-sample");
+    xooSampleAnalysis = projectAnalysisRule
+      .newProjectAnalysis(projectAnalysisRule.registerProject("shared/xoo-sample"))
+      .withQualityProfile(projectAnalysisRule.registerProfile("/issue/suite/IssueChangelogTest/one-issue-per-line-profile.xml"));
+    xooSampleAnalysis.run();
     issue = searchRandomIssue();
   }
 
@@ -79,7 +80,7 @@ public class IssueChangelogTest {
 
     // re analyse the project after resolving an issue in order to reopen it
     adminIssueClient().doTransition(issue.key(), "resolve");
-    orchestrator.executeBuild(scan);
+    xooSampleAnalysis.run();
 
     List<IssueChange> changes = retrieveChangeForIssue(issue.key());
     assertThat(changes).hasSize(2);
