@@ -42,8 +42,10 @@ set +eu
 PRANALYSIS)
   if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
     echo "Start pullrequest analysis"
-    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Dmaven.test.failure.ignore=true -Dclirr=true \
-     -Dsonar.analysis.mode=incremental \
+    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Panalysis \
+     -Dmaven.test.failure.ignore=true \
+     -Dclirr=true \
+     -Dsonar.analysis.mode=preview \
      -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
      -Dsonar.github.repository=$SONAR_GITHUB_REPOSITORY \
      -Dsonar.github.login=$SONAR_GITHUB_LOGIN \
