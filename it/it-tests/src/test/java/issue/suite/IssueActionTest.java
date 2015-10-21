@@ -20,11 +20,10 @@
 package issue.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.ActionPlan;
@@ -34,6 +33,8 @@ import org.sonar.wsclient.issue.IssueComment;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.issue.NewActionPlan;
+import util.ProjectAnalysis;
+import util.ProjectAnalysisRule;
 
 import static issue.suite.IssueTestSuite.ORCHESTRATOR;
 import static issue.suite.IssueTestSuite.adminIssueClient;
@@ -43,7 +44,6 @@ import static issue.suite.IssueTestSuite.searchIssues;
 import static issue.suite.IssueTestSuite.searchRandomIssue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.toDate;
 import static util.ItUtils.verifyHttpException;
 
@@ -51,27 +51,20 @@ public class IssueActionTest {
 
   @ClassRule
   public static Orchestrator orchestrator = ORCHESTRATOR;
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
   Issue issue;
-  SonarRunner scan;
-
-  private static List<Issue> searchIssuesBySeverities(String componentKey, String... severities) {
-    return searchIssues(IssueQuery.create().componentRoots(componentKey).severities(severities));
-  }
-
-  private static ActionPlanClient adminActionPlanClient() {
-    return orchestrator.getServer().adminWsClient().actionPlanClient();
-  }
+  ProjectAnalysis projectAnalysis;
 
   @Before
-  public void resetData() {
-    orchestrator.resetData();
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/IssueActionTest/xoo-one-issue-per-line-profile.xml"));
-    orchestrator.getServer().provisionProject("sample", "Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "xoo-one-issue-per-line-profile");
+  public void setup() {
+    String qualityProfileKey = projectAnalysisRule.registerProfile("/issue/suite/IssueActionTest/xoo-one-issue-per-line-profile.xml");
+    String projectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
 
-    scan = runProjectAnalysis(orchestrator, "shared/xoo-sample");
-    issue = searchRandomIssue();
+    this.projectAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey).withQualityProfile(qualityProfileKey);
+    this.projectAnalysis.run();
+    this.issue = searchRandomIssue();
   }
 
   @Test
@@ -127,7 +120,7 @@ public class IssueActionTest {
 
     assertThat(searchIssuesBySeverities(componentKey, "BLOCKER")).hasSize(1);
 
-    orchestrator.executeBuild(scan);
+    projectAnalysis.run();
     Issue reloaded = searchIssueByKey(issue.key());
     assertThat(reloaded.severity()).isEqualTo("BLOCKER");
     assertThat(reloaded.status()).isEqualTo("OPEN");
@@ -148,7 +141,7 @@ public class IssueActionTest {
     adminIssueClient().assign(issue.key(), "admin");
     assertThat(searchIssues(IssueQuery.create().assignees("admin"))).hasSize(1);
 
-    orchestrator.executeBuild(scan);
+    projectAnalysis.run();
     Issue reloaded = searchIssueByKey(issue.key());
     assertThat(reloaded.assignee()).isEqualTo("admin");
     assertThat(reloaded.creationDate()).isEqualTo(issue.creationDate());
@@ -192,7 +185,7 @@ public class IssueActionTest {
     adminIssueClient().plan(issue.key(), newActionPlan.key());
     assertThat(search(IssueQuery.create().actionPlans(newActionPlan.key())).list()).hasSize(1);
 
-    orchestrator.executeBuild(scan);
+    projectAnalysis.run();
     Issue reloaded = searchIssueByKey(issue.key());
     assertThat(reloaded.actionPlan()).isEqualTo(newActionPlan.key());
     assertThat(reloaded.creationDate()).isEqualTo(issue.creationDate());
@@ -227,7 +220,7 @@ public class IssueActionTest {
     adminIssueClient().plan(issue.key(), null);
     assertThat(search(IssueQuery.create().actionPlans(newActionPlan.key())).list()).hasSize(0);
 
-    orchestrator.executeBuild(scan);
+    projectAnalysis.run();
     Issue reloaded = searchIssueByKey(issue.key());
     assertThat(reloaded.actionPlan()).isNull();
     assertThat(reloaded.creationDate()).isEqualTo(issue.creationDate());
@@ -264,10 +257,18 @@ public class IssueActionTest {
     adminIssueClient().doAction(issue.key(), "fake");
     assertThat(adminIssueClient().actions(issue.key())).doesNotContain("fake");
 
-    orchestrator.executeBuild(scan);
+    projectAnalysis.run();
 
     // Fake action is no more available if the issue attribute is still there
     assertThat(adminIssueClient().actions(issue.key())).doesNotContain("fake");
+  }
+
+  private static List<Issue> searchIssuesBySeverities(String componentKey, String... severities) {
+    return searchIssues(IssueQuery.create().componentRoots(componentKey).severities(severities));
+  }
+
+  private static ActionPlanClient adminActionPlanClient() {
+    return orchestrator.getServer().adminWsClient().actionPlanClient();
   }
 
 }

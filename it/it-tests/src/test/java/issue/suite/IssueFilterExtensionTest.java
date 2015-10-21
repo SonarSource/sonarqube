@@ -20,44 +20,40 @@
 package issue.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import util.ProjectAnalysis;
+import util.ProjectAnalysisRule;
 
 import static issue.suite.IssueTestSuite.ORCHESTRATOR;
 import static issue.suite.IssueTestSuite.searchIssues;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.runProjectAnalysis;
 
 /**
  * Tests the extension point IssueFilter
  */
 public class IssueFilterExtensionTest {
 
-  private static final String MULTI_MODULES_SAMPLE_PROJECT_NAME = "com.sonarsource.it.samples:multi-modules-sample";
-
   @ClassRule
   public static Orchestrator orchestrator = ORCHESTRATOR;
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
-  @Before
-  public void resetData() {
-    orchestrator.resetData();
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/IssueFilterExtensionTest/xoo-with-many-rules.xml"));
-  }
+  private final String manyRuleProfileKey = projectAnalysisRule.registerProfile("/issue/suite/IssueFilterExtensionTest/xoo-with-many-rules.xml");
+  private final String xooMultiModuleProjectKey = projectAnalysisRule.registerProject("shared/xoo-multi-modules-sample");
+  private final ProjectAnalysis analysis = projectAnalysisRule.newProjectAnalysis(xooMultiModuleProjectKey)
+    .withQualityProfile(manyRuleProfileKey);
 
   @Test
   public void should_filter_files() throws Exception {
-    orchestrator.getServer().provisionProject(MULTI_MODULES_SAMPLE_PROJECT_NAME, "Sonar :: Integration Tests :: Multi-modules Sample");
-    orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULES_SAMPLE_PROJECT_NAME, "xoo", "with-many-rules");
-    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
-      "sonar.exclusions", "**/HelloA1.xoo");
+    analysis.withProperties("sonar.exclusions", "**/HelloA1.xoo").run();
 
     List<Issue> issues = searchIssues();
     assertThat(issues).isNotEmpty();
@@ -66,30 +62,27 @@ public class IssueFilterExtensionTest {
       assertThat(issue.componentKey()).doesNotContain("HelloA1");
     }
 
-    assertThat(getMeasure(MULTI_MODULES_SAMPLE_PROJECT_NAME, "violations").getIntValue()).isEqualTo(issues.size());
+    assertThat(getMeasure(xooMultiModuleProjectKey, "violations").getIntValue()).isEqualTo(issues.size());
   }
 
   @Test
   public void should_filter_issues() {
-    // first analysis without isssue-filter
-    orchestrator.getServer().provisionProject(MULTI_MODULES_SAMPLE_PROJECT_NAME, "Sonar :: Integration Tests :: Multi-modules Sample");
-    orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULES_SAMPLE_PROJECT_NAME, "xoo", "with-many-rules");
-    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample");
+    // first analysis without issue-filter
+    analysis.run();
 
     // Issue filter removes issues on lines < 5
     // Deprecated violation filter removes issues detected by PMD
-    List<Issue> unresolvedIssues = searchResolvedIssues(MULTI_MODULES_SAMPLE_PROJECT_NAME);
+    List<Issue> unresolvedIssues = searchResolvedIssues(xooMultiModuleProjectKey);
     int issuesBeforeLine5 = countIssuesBeforeLine5(unresolvedIssues);
     int pmdIssues = countModuleIssues(unresolvedIssues);
     assertThat(issuesBeforeLine5).isGreaterThan(0);
     assertThat(pmdIssues).isGreaterThan(0);
 
     // Enable issue filters
-    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
-      "enableIssueFilters", "true");
+    analysis.withProperties("enableIssueFilters", "true").run();
 
-    unresolvedIssues = searchResolvedIssues(MULTI_MODULES_SAMPLE_PROJECT_NAME);
-    List<Issue> resolvedIssues = searchUnresolvedIssues(MULTI_MODULES_SAMPLE_PROJECT_NAME);
+    unresolvedIssues = searchResolvedIssues(xooMultiModuleProjectKey);
+    List<Issue> resolvedIssues = searchUnresolvedIssues(xooMultiModuleProjectKey);
     assertThat(countIssuesBeforeLine5(unresolvedIssues)).isZero();
     assertThat(countModuleIssues(unresolvedIssues)).isZero();
     assertThat(countModuleIssues(resolvedIssues)).isGreaterThan(0);

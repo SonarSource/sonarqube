@@ -20,31 +20,39 @@
 package issue.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
+import util.ProjectAnalysis;
+import util.ProjectAnalysisRule;
 
 import static issue.suite.IssueTestSuite.ORCHESTRATOR;
 import static issue.suite.IssueTestSuite.searchIssues;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.runProjectAnalysis;
-import static util.ItUtils.setServerProperty;
 
 public class IssuePurgeTest {
 
   @ClassRule
   public static Orchestrator orchestrator = ORCHESTRATOR;
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
+
+  private ProjectAnalysis xooSampleAnalysis;
+  private ProjectAnalysis xooMultiModuleAnalysis;
 
   @Before
-  public void deleteAnalysisData() {
-    orchestrator.resetData();
-    // reset settings before test
-    setServerProperty(orchestrator, "sonar.dbcleaner.daysBeforeDeletingClosedIssues", null);
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/issue/suite/IssuePurgeTest/with-many-rules.xml"));
+  public void setUp() throws Exception {
+    String manyRulesProfile = projectAnalysisRule.registerProfile("/issue/suite/IssuePurgeTest/with-many-rules.xml");
+    String xooSampleProjectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
+    this.xooSampleAnalysis = projectAnalysisRule.newProjectAnalysis(xooSampleProjectKey)
+      .withQualityProfile(manyRulesProfile);
+    String xooMultiModuleProjectKey = projectAnalysisRule.registerProject("shared/xoo-multi-modules-sample");
+    this.xooMultiModuleAnalysis = projectAnalysisRule.newProjectAnalysis(xooMultiModuleProjectKey)
+      .withQualityProfile(manyRulesProfile);
   }
 
   /**
@@ -52,14 +60,13 @@ public class IssuePurgeTest {
    */
   @Test
   public void purge_old_closed_issues() throws Exception {
-    setServerProperty(orchestrator, "sonar.dbcleaner.daysBeforeDeletingClosedIssues", "5000");
+    projectAnalysisRule.setServerProperty("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "5000");
 
     // Generate some issues
-    orchestrator.getServer().provisionProject("sample", "Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "with-many-rules");
-    runProjectAnalysis(orchestrator, "shared/xoo-sample",
+    xooSampleAnalysis.withProperties(
       "sonar.dynamicAnalysis", "false",
-      "sonar.projectDate", "2014-10-01");
+      "sonar.projectDate", "2014-10-01")
+      .run();
 
     // All the issues are open
     List<Issue> issues = searchIssues();
@@ -69,10 +76,12 @@ public class IssuePurgeTest {
 
     // Second scan with empty profile -> all issues are resolved and closed
     // -> Not deleted because less than 5000 days long
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
-    runProjectAnalysis(orchestrator, "shared/xoo-sample",
-      "sonar.dynamicAnalysis", "false",
-      "sonar.projectDate", "2014-10-15");
+    xooSampleAnalysis
+      .withXooEmptyProfile()
+      .withProperties(
+        "sonar.dynamicAnalysis", "false",
+        "sonar.projectDate", "2014-10-15")
+      .run();
     issues = searchIssues();
     assertThat(issues).isNotEmpty();
     for (Issue issue : issues) {
@@ -81,11 +90,13 @@ public class IssuePurgeTest {
     }
 
     // Third scan -> closed issues are deleted
-    setServerProperty(orchestrator, "sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1");
+    projectAnalysisRule.setServerProperty("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1");
 
-    runProjectAnalysis(orchestrator, "shared/xoo-sample",
-      "sonar.dynamicAnalysis", "false",
-      "sonar.projectDate", "2014-10-20");
+    xooSampleAnalysis.withXooEmptyProfile()
+      .withProperties(
+        "sonar.dynamicAnalysis", "false",
+        "sonar.projectDate", "2014-10-20")
+      .run();
     assertThat(searchIssues(IssueQuery.create())).isEmpty();
   }
 
@@ -94,12 +105,10 @@ public class IssuePurgeTest {
    */
   @Test
   public void resolve_issues_when_removing_module() throws Exception {
-    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "with-many-rules");
-
     // Generate some issues
-    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
-      "sonar.dynamicAnalysis", "false");
+    xooMultiModuleAnalysis
+      .withProperties("sonar.dynamicAnalysis", "false")
+      .run();
 
     // All the issues are open
     List<Issue> issues = searchIssues();
@@ -112,9 +121,11 @@ public class IssuePurgeTest {
     assertThat(issuesOnModuleB).isEqualTo(28);
 
     // Second scan without module B -> issues on module B are resolved as removed and closed
-    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
-      "sonar.dynamicAnalysis", "false",
-      "sonar.modules", "module_a");
+    xooMultiModuleAnalysis
+      .withProperties(
+        "sonar.dynamicAnalysis", "false",
+        "sonar.modules", "module_a")
+      .run();
 
     // Resolved should should all be mark as REMOVED and affect to module b
     List<Issue> reloadedIssues = searchIssues(IssueQuery.create().resolved(true));
