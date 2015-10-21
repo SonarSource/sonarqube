@@ -8,7 +8,7 @@ export default Popup.extend({
   template: Templates['source-viewer-coverage-popup'],
 
   events: {
-    'click a[data-uuid]': 'goToFile'
+    'click a[data-id]': 'goToFile'
   },
 
   onRender: function () {
@@ -18,19 +18,19 @@ export default Popup.extend({
 
   goToFile: function (e) {
     e.stopPropagation();
-    var uuid = $(e.currentTarget).data('uuid');
+    var id = $(e.currentTarget).data('id');
     var RealWorkspace = Workspace.openComponent ? Workspace : require('components/workspace/main');
-    RealWorkspace.openComponent({ uuid: uuid });
+    RealWorkspace.openComponent({ uuid: id });
   },
 
   serializeData: function () {
     var row = this.options.row || {},
-        tests = _.groupBy(this.collection.toJSON(), 'fileUuid'),
+        tests = _.groupBy(this.collection.toJSON(), 'fileId'),
         testFiles = _.map(tests, function (testSet) {
           var test = testSet[0];
           return {
             file: {
-              uuid: test.fileUuid,
+              id: test.fileId,
               longName: test.fileLongName
             },
             tests: testSet

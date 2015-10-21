@@ -90,7 +90,7 @@ public class ListActionTest {
         .setStackTrace(TestFile1.STACKTRACE)
     );
 
-    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_UUID, TestFile1.UUID);
+    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_ID, TestFile1.UUID);
 
     request.execute().assertJson(getClass(), "list-test-uuid.json");
   }
@@ -113,7 +113,7 @@ public class ListActionTest {
         .setMessage(TestFile1.MESSAGE)
         .setStackTrace(TestFile1.STACKTRACE));
 
-    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_UUID, TestFile1.FILE_UUID);
+    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID);
 
     request.execute().assertJson(getClass(), "list-test-uuid.json");
   }
@@ -187,7 +187,7 @@ public class ListActionTest {
         .setStackTrace(TestFile2.STACKTRACE));
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list")
-      .setParam(ListAction.SOURCE_FILE_UUID, mainFileUuid)
+      .setParam(ListAction.SOURCE_FILE_ID, mainFileUuid)
       .setParam(ListAction.SOURCE_FILE_LINE_NUMBER, "10");
 
     request.execute().assertJson(getClass(), "list-main-file.json");
@@ -200,7 +200,7 @@ public class ListActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_when_main_file_uuid_without_line_number() throws Exception {
-    ws.newGetRequest("api/tests", "list").setParam(ListAction.SOURCE_FILE_UUID, "ANY-UUID").execute();
+    ws.newGetRequest("api/tests", "list").setParam(ListAction.SOURCE_FILE_ID, "ANY-UUID").execute();
   }
 
   @Test(expected = ForbiddenException.class)
@@ -208,7 +208,7 @@ public class ListActionTest {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
     db.getSession().commit();
-    ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_UUID, TestFile1.FILE_UUID).execute();
+    ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID).execute();
   }
 
   @Test(expected = ForbiddenException.class)
@@ -216,7 +216,7 @@ public class ListActionTest {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
     db.getSession().commit();
-    ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_UUID, TestFile1.FILE_UUID).execute();
+    ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID).execute();
   }
 
   @Test(expected = ForbiddenException.class)
@@ -235,7 +235,7 @@ public class ListActionTest {
     db.getSession().commit();
 
     ws.newGetRequest("api/tests", "list")
-      .setParam(ListAction.SOURCE_FILE_UUID, mainFileUuid)
+      .setParam(ListAction.SOURCE_FILE_ID, mainFileUuid)
       .setParam(ListAction.SOURCE_FILE_LINE_NUMBER, "10")
       .execute();
   }

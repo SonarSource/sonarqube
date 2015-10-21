@@ -28,11 +28,12 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -45,12 +46,15 @@ import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.WsTests;
 
 public class ListAction implements TestsWsAction {
-  public static final String TEST_UUID = "testUuid";
-  public static final String TEST_FILE_UUID = "testFileUuid";
+  public static final String TEST_ID = "testId";
+  public static final String TEST_FILE_ID = "testFileId";
   public static final String TEST_FILE_KEY = "testFileKey";
-  public static final String SOURCE_FILE_UUID = "sourceFileUuid";
+  public static final String SOURCE_FILE_ID = "sourceFileId";
   public static final String SOURCE_FILE_LINE_NUMBER = "sourceFileLineNumber";
 
   private final DbClient dbClient;
@@ -74,9 +78,9 @@ public class ListAction implements TestsWsAction {
           "Require Browse permission on file's project.<br /> " +
           "One (and only one) of the following combination of parameters must be provided: " +
           "<ul>" +
-          "<li>Test file UUID</li>" +
-          "<li>Test UUID</li>" +
-          "<li>Source file UUID and Source file line number</li>" +
+          "<li>" + TEST_FILE_ID + "</li>" +
+          "<li>" + TEST_ID + "</li>" +
+          "<li>" + SOURCE_FILE_ID + " and " + SOURCE_FILE_LINE_NUMBER + "</li>" +
           "</ul>")
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
@@ -84,42 +88,42 @@ public class ListAction implements TestsWsAction {
       .addPagingParams(100);
 
     action
-      .createParam(TEST_FILE_UUID)
-      .setDescription("Test file UUID")
-      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
+      .createParam(TEST_FILE_ID)
+      .setDescription("ID of test file")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action
       .createParam(TEST_FILE_KEY)
-      .setDescription("Test file key")
-      .setExampleValue("org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java");
+      .setDescription("Key of test file")
+      .setExampleValue("MY_PROJECT:src/test/java/foo/BarTest.java");
 
     action
-      .createParam(TEST_UUID)
-      .setDescription("Test UUID")
-      .setExampleValue("c526ef20-131b-4486-9357-063fa64b5079");
+      .createParam(TEST_ID)
+      .setDescription("ID of test")
+      .setExampleValue(Uuids.UUID_EXAMPLE_02);
 
     action
-      .createParam(SOURCE_FILE_UUID)
-      .setDescription("Source file UUID. Must be provided with the source file line number.")
-      .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
+      .createParam(SOURCE_FILE_ID)
+      .setDescription("IF of source file. Must be provided with the source file line number.")
+      .setExampleValue(Uuids.UUID_EXAMPLE_03);
 
     action
       .createParam(SOURCE_FILE_LINE_NUMBER)
-      .setDescription("Source file line number. Must be provided with the source file UUID.")
+      .setDescription("Source file line number. Must be provided with the source file ID.")
       .setExampleValue("10");
   }
 
   @Override
-  public void handle(Request request, Response response) {
-    String testUuid = request.param(TEST_UUID);
-    String testFileUuid = request.param(TEST_FILE_UUID);
+  public void handle(Request request, Response response) throws Exception {
+    String testUuid = request.param(TEST_ID);
+    String testFileUuid = request.param(TEST_FILE_ID);
     String testFileKey = request.param(TEST_FILE_KEY);
-    String sourceFileUuid = request.param(SOURCE_FILE_UUID);
+    String sourceFileUuid = request.param(SOURCE_FILE_ID);
     Integer sourceFileLineNumber = request.paramAsInt(SOURCE_FILE_LINE_NUMBER);
     SearchOptions searchOptions = new SearchOptions().setPage(
       request.mandatoryParamAsInt(WebService.Param.PAGE),
       request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE)
-    );
+      );
 
     DbSession dbSession = dbClient.openSession(false);
     SearchResult<TestDoc> tests;
@@ -131,34 +135,41 @@ public class ListAction implements TestsWsAction {
       MyBatis.closeQuietly(dbSession);
     }
 
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeTests(tests.getDocs(), componentsByTestFileUuid, json);
-    searchOptions.writeJson(json, tests.getTotal());
-    json.endObject().close();
-  }
+    WsTests.ListResponse.Builder responseBuilder = WsTests.ListResponse.newBuilder();
+    responseBuilder.setPaging(Common.Paging.newBuilder()
+      .setPageIndex(searchOptions.getPage())
+      .setPageSize(searchOptions.getLimit())
+      .setTotal((int) tests.getTotal())
+      .build());
 
-  private static void writeTests(List<TestDoc> tests, Map<String, ComponentDto> componentsByTestFileUuid, JsonWriter json) {
-    json.name("tests").beginArray();
-    for (TestDoc test : tests) {
-      String fileUuid = test.fileUuid();
-      json.beginObject();
-      json.prop("testUuid", test.testUuid());
-      json.prop("fileUuid", fileUuid);
-      json.prop("name", test.name());
-      json.prop("status", test.status());
-      json.prop("durationInMs", test.durationInMs());
-      json.prop("message", test.message());
-      json.prop("stacktrace", test.stackTrace());
-      json.prop("coveredLines", coveredLines(test.coveredFiles()));
-      json.prop("fileKey", componentsByTestFileUuid.get(fileUuid).key());
-      json.prop("fileLongName", componentsByTestFileUuid.get(fileUuid).longName());
-      json.endObject();
+    for (TestDoc testDoc : tests.getDocs()) {
+      WsTests.Test.Builder testBuilder = WsTests.Test.newBuilder();
+      testBuilder.setId(testDoc.testUuid());
+      testBuilder.setName(StringUtils.defaultString(testDoc.name()));
+      testBuilder.setFileId(testDoc.fileUuid());
+      ComponentDto component = componentsByTestFileUuid.get(testDoc.fileUuid());
+      if (component != null) {
+        testBuilder.setFileKey(component.getKey());
+        testBuilder.setFileName(component.longName());
+      }
+      testBuilder.setStatus(WsTests.TestStatus.valueOf(testDoc.status()));
+      if (testDoc.durationInMs() != null) {
+        testBuilder.setDurationInMs(testDoc.durationInMs());
+      }
+      testBuilder.setCoveredLines(coveredLines(testDoc.coveredFiles()));
+      if (testDoc.message() != null) {
+        testBuilder.setMessage(testDoc.message());
+      }
+      if (testDoc.stackTrace() != null) {
+        testBuilder.setStacktrace(testDoc.stackTrace());
+      }
+      responseBuilder.addTests(testBuilder.build());
     }
-    json.endArray();
+      WsUtils.writeProtobuf(responseBuilder.build(), request, response);
   }
 
-  private static long coveredLines(List<CoveredFileDoc> coveredFiles) {
-    long numberOfLinesCovered = 0L;
+  private static int coveredLines(List<CoveredFileDoc> coveredFiles) {
+    int numberOfLinesCovered = 0;
     for (CoveredFileDoc coveredFile : coveredFiles) {
       numberOfLinesCovered += coveredFile.coveredLines().size();
     }
@@ -181,7 +192,7 @@ public class ListAction implements TestsWsAction {
   }
 
   private SearchResult<TestDoc> searchTests(DbSession dbSession, @Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey,
-                                            @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
+    @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
     if (testUuid != null) {
       return searchTestsByTestUuid(dbSession, testUuid, searchOptions);
     }
