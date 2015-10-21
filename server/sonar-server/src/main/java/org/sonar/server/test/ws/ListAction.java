@@ -153,7 +153,9 @@ public class ListAction implements TestsWsAction {
         testBuilder.setFileName(component.longName());
       }
       testBuilder.setStatus(WsTests.TestStatus.valueOf(testDoc.status()));
-      testBuilder.setDurationInMs(testDoc.durationInMs());
+      if (testDoc.durationInMs() != null) {
+        testBuilder.setDurationInMs(testDoc.durationInMs());
+      }
       testBuilder.setCoveredLines(coveredLines(testDoc.coveredFiles()));
       if (testDoc.message() != null) {
         testBuilder.setMessage(testDoc.message());
@@ -163,7 +165,7 @@ public class ListAction implements TestsWsAction {
       }
       responseBuilder.addTests(testBuilder.build());
     }
-    WsUtils.writeProtobuf(responseBuilder.build(), request, response);
+      WsUtils.writeProtobuf(responseBuilder.build(), request, response);
   }
 
   private static int coveredLines(List<CoveredFileDoc> coveredFiles) {
