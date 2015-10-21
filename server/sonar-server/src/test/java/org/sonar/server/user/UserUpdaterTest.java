@@ -36,9 +36,11 @@ import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.GroupMembershipQuery;
+import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.db.DbClient;
@@ -46,8 +48,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
@@ -794,12 +794,12 @@ public class UserUpdaterTest {
     }
   }
 
-
   @Test
-  public void associate_default_group_when_updating_user() {
+  public void not_associate_default_group_when_updating_user() {
     db.prepareDbUnit(getClass(), "associate_default_groups_when_updating_user.xml");
     createDefaultGroup();
 
+    // Existing user, he has no group, and should not be associated to the default one
     userUpdater.update(UpdateUser.create("marius")
       .setName("Marius2")
       .setEmail("marius2@mail.com")
@@ -811,7 +811,7 @@ public class UserUpdaterTest {
     GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login("marius").groupSearch("sonar-users").build());
     assertThat(membership.groups()).hasSize(1);
     assertThat(membership.groups().get(0).name()).isEqualTo("sonar-users");
-    assertThat(membership.groups().get(0).isMember()).isTrue();
+    assertThat(membership.groups().get(0).isMember()).isFalse();
   }
 
   @Test

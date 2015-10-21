@@ -95,6 +95,7 @@ public class UserUpdater {
       UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
       if (existingUser == null) {
         saveUser(dbSession, userDto);
+        addDefaultGroup(dbSession, userDto);
       } else {
         if (existingUser.isActive()) {
           throw new IllegalArgumentException(String.format("An active user with login '%s' already exists", login));
@@ -107,6 +108,7 @@ public class UserUpdater {
           .setPasswordConfirmation(newUser.passwordConfirmation());
         updateUserDto(dbSession, updateUser, existingUser);
         updateUser(dbSession, existingUser);
+        addDefaultGroup(dbSession, existingUser);
         isUserReactivated = true;
       }
       dbSession.commit();
@@ -311,7 +313,6 @@ public class UserUpdater {
     long now = system2.now();
     userDto.setActive(true).setUpdatedAt(now);
     dbClient.userDao().update(dbSession, userDto);
-    addDefaultGroup(dbSession, userDto);
   }
 
   private static void setEncryptedPassWord(String password, UserDto userDto) {
