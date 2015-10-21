@@ -35,7 +35,9 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.component.Component;
 
+import static java.lang.String.format;
 import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
 import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
 
@@ -43,13 +45,15 @@ public class SymbolsLineReader implements LineReader {
 
   private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
 
+  private final Component file;
   private final RangeOffsetConverter rangeOffsetConverter;
   private final List<BatchReport.Symbol> symbols;
   private final Map<BatchReport.Symbol, Integer> idsBySymbol;
 
   private boolean areSymbolsValid = true;
 
-  public SymbolsLineReader(Iterator<BatchReport.Symbol> symbols, RangeOffsetConverter rangeOffsetConverter) {
+  public SymbolsLineReader(Component file, Iterator<BatchReport.Symbol> symbols, RangeOffsetConverter rangeOffsetConverter) {
+    this.file = file;
     this.rangeOffsetConverter = rangeOffsetConverter;
     this.symbols = Lists.newArrayList(symbols);
     // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
@@ -68,7 +72,7 @@ public class SymbolsLineReader implements LineReader {
       processSymbols(lineBuilder);
     } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
       areSymbolsValid = false;
-      LOG.warn("Inconsistency detected in Symbols data. Symbols will be ignored", e);
+      LOG.warn(format("Inconsistency detected in Symbols data. Symbols will be ignored for file '%s'", file.getKey()), e);
     }
   }
 

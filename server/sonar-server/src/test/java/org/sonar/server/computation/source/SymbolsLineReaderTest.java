@@ -27,17 +27,21 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.TextRange;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.component.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class SymbolsLineReaderTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  static final Component FILE = builder(Component.Type.FILE, 1).setUuid("FILE_UUID").setKey("FILE_KEY").build();
 
   static final int DEFAULT_LINE_LENGTH = 5;
 
@@ -285,6 +289,17 @@ public class SymbolsLineReaderTest {
     assertThat(logTester.logs(WARN)).isNotEmpty();
   }
 
+  @Test
+  public void display_file_key_in_warning_when_range_offset_converter_throw_RangeOffsetConverterException() {
+    TextRange declaration = newTextRange(LINE_1, LINE_1, OFFSET_1, OFFSET_3);
+    doThrow(RangeOffsetConverter.RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(declaration, LINE_1, DEFAULT_LINE_LENGTH);
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_1, OFFSET_3, RANGE_LABEL_2)));
+
+    symbolsLineReader.read(line1);
+
+    assertThat(logTester.logs(WARN)).containsOnly("Inconsistency detected in Symbols data. Symbols will be ignored for file 'FILE_KEY'");
+  }
+
   private BatchReport.Symbol newSymbol(TextRange declaration, TextRange... references) {
     BatchReport.Symbol.Builder builder = BatchReport.Symbol.newBuilder()
       .setDeclaration(declaration);
@@ -295,7 +310,7 @@ public class SymbolsLineReaderTest {
   }
 
   private SymbolsLineReader newReader(BatchReport.Symbol... symbols) {
-    return new SymbolsLineReader(Arrays.asList(symbols).iterator(), rangeOffsetConverter);
+    return new SymbolsLineReader(FILE, Arrays.asList(symbols).iterator(), rangeOffsetConverter);
   }
 
   private TextRange newSingleLineTextRangeWithExpectedLabel(int line, int startOffset, int endOffset, String rangeLabel) {

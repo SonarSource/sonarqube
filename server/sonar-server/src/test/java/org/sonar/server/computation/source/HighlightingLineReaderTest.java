@@ -32,6 +32,7 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.TextRange;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static com.google.common.collect.ImmutableMap.of;
@@ -45,11 +46,14 @@ import static org.sonar.batch.protocol.Constants.HighlightingType.COMMENT;
 import static org.sonar.batch.protocol.Constants.HighlightingType.CONSTANT;
 import static org.sonar.batch.protocol.Constants.HighlightingType.HIGHLIGHTING_STRING;
 import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class HighlightingLineReaderTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  static final Component FILE = builder(Component.Type.FILE, 1).setUuid("FILE_UUID").setKey("FILE_KEY").build();
 
   static final int DEFAULT_LINE_LENGTH = 5;
 
@@ -227,6 +231,17 @@ public class HighlightingLineReaderTest {
     assertThat(logTester.logs(WARN)).isNotEmpty();
   }
 
+  @Test
+  public void display_file_key_in_warning_when_range_offset_converter_throw_RangeOffsetConverterException() {
+    TextRange textRange1 = newTextRange(LINE_1, LINE_1);
+    doThrow(RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(textRange1, LINE_1, DEFAULT_LINE_LENGTH);
+    HighlightingLineReader highlightingLineReader = newReader(of(textRange1, ANNOTATION));
+
+    highlightingLineReader.read(line1);
+
+    assertThat(logTester.logs(WARN)).containsOnly("Inconsistency detected in Highlighting data. Highlighting will be ignored for file 'FILE_KEY'");
+  }
+
   private HighlightingLineReader newReader(Map<TextRange, Constants.HighlightingType> textRangeByType) {
     List<BatchReport.SyntaxHighlighting> syntaxHighlightingList = new ArrayList<>();
     for (Map.Entry<TextRange, Constants.HighlightingType> entry : textRangeByType.entrySet()) {
@@ -235,7 +250,7 @@ public class HighlightingLineReaderTest {
         .setType(entry.getValue())
         .build());
     }
-    return new HighlightingLineReader(syntaxHighlightingList.iterator(), rangeOffsetConverter);
+    return new HighlightingLineReader(FILE, syntaxHighlightingList.iterator(), rangeOffsetConverter);
   }
 
   private static TextRange newTextRange(int startLine, int enLine) {

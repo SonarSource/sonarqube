@@ -219,11 +219,11 @@ public class PersistFileSourcesStep implements ComputationStep {
       RangeOffsetConverter rangeOffsetConverter = new RangeOffsetConverter();
       CloseableIterator<BatchReport.SyntaxHighlighting> highlightingIt = reportReader.readComponentSyntaxHighlighting(componentRef);
       closeables.add(highlightingIt);
-      readers.add(new HighlightingLineReader(highlightingIt, rangeOffsetConverter));
+      readers.add(new HighlightingLineReader(component, highlightingIt, rangeOffsetConverter));
 
       CloseableIterator<BatchReport.Symbol> symbolsIt = reportReader.readComponentSymbols(componentRef);
       closeables.add(symbolsIt);
-      readers.add(new SymbolsLineReader(symbolsIt, rangeOffsetConverter));
+      readers.add(new SymbolsLineReader(component, symbolsIt, rangeOffsetConverter));
 
       CloseableIterator<BatchReport.Duplication> duplicationsIt = reportReader.readComponentDuplications(componentRef);
       closeables.add(duplicationsIt);

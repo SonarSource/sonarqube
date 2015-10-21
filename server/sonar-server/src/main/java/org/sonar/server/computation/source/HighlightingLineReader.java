@@ -30,9 +30,11 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
 import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
 
@@ -54,13 +56,15 @@ public class HighlightingLineReader implements LineReader {
     .put(Constants.HighlightingType.PREPROCESS_DIRECTIVE, "p")
     .build();
 
+  private final Component file;
   private final Iterator<BatchReport.SyntaxHighlighting> lineHighlightingIterator;
   private final RangeOffsetConverter rangeOffsetConverter;
   private final List<BatchReport.SyntaxHighlighting> highlightingList;
 
   private BatchReport.SyntaxHighlighting currentItem;
 
-  public HighlightingLineReader(Iterator<BatchReport.SyntaxHighlighting> lineHighlightingIterator, RangeOffsetConverter rangeOffsetConverter) {
+  public HighlightingLineReader(Component file, Iterator<BatchReport.SyntaxHighlighting> lineHighlightingIterator, RangeOffsetConverter rangeOffsetConverter) {
+    this.file = file;
     this.lineHighlightingIterator = lineHighlightingIterator;
     this.rangeOffsetConverter = rangeOffsetConverter;
     this.highlightingList = newArrayList();
@@ -75,7 +79,7 @@ public class HighlightingLineReader implements LineReader {
       processHighlightings(lineBuilder);
     } catch (RangeOffsetConverterException e) {
       isHighlightingValid = false;
-      LOG.warn("Inconsistency detected in Highlighting data. Highlighting will be ignored", e);
+      LOG.warn(format("Inconsistency detected in Highlighting data. Highlighting will be ignored for file '%s'", file.getKey()), e);
     }
   }
 
@@ -120,7 +124,7 @@ public class HighlightingLineReader implements LineReader {
     if (cssClass != null) {
       return cssClass;
     } else {
-      throw new IllegalArgumentException(String.format("Unknown type %s ", type.toString()));
+      throw new IllegalArgumentException(format("Unknown type %s ", type.toString()));
     }
   }
 
