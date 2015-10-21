@@ -28,7 +28,8 @@ import static util.ItUtils.xooPlugin;
   IssueActionTest.class,
   IssueChangelogTest.class,
   IssueBulkChangeTest.class,
-  IssuePurgeTest.class
+  IssuePurgeTest.class,
+  IssueFilterExtensionTest.class
 })
 public class IssueTestSuite {
 
@@ -36,6 +37,7 @@ public class IssueTestSuite {
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
     .addPlugin(pluginArtifact("issue-action-plugin"))
+    .addPlugin(pluginArtifact("issue-filter-plugin"))
     .build();
 
   static IssueClient adminIssueClient() {
