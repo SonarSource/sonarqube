@@ -40,19 +40,29 @@ set +eu
   ;;
 
 PRANALYSIS)
-  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-    echo "Start pullrequest analysis"
-    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Panalysis \
-     -Dmaven.test.failure.ignore=true \
-     -Dclirr=true \
-     -Dsonar.analysis.mode=preview \
-     -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
-     -Dsonar.github.repository=$SONAR_GITHUB_REPOSITORY \
-     -Dsonar.github.login=$SONAR_GITHUB_LOGIN \
-     -Dsonar.github.oauth=$SONAR_GITHUB_OAUTH \
-     -Dsonar.host.url=$SONAR_HOST_URL \
-     -Dsonar.login=$SONAR_LOGIN \
-     -Dsonar.password=$SONAR_PASSWD
+  export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+  export PATH=$JAVA_HOME/bin:$PATH
+  java -Xmx32m -version
+  javac -J-Xmx32m -version
+  if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+	  if [ -n "$SONAR_GITHUB_OAUTH" ]; then
+	    echo "Start pullrequest analysis"
+	    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Panalysis \
+	     -Dmaven.test.failure.ignore=true \
+	     -Dclirr=true \
+	     -Dsonar.analysis.mode=preview \
+	     -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
+	     -Dsonar.github.repository=$SONAR_GITHUB_REPOSITORY \
+	     -Dsonar.github.login=$SONAR_GITHUB_LOGIN \
+	     -Dsonar.github.oauth=$SONAR_GITHUB_OAUTH \
+	     -Dsonar.host.url=$SONAR_HOST_URL \
+	     -Dsonar.login=$SONAR_LOGIN \
+	     -Dsonar.password=$SONAR_PASSWD
+	  else
+	  	echo "No oauth token available"
+	  fi
+  else
+  	echo "Not in a pull request"
   fi
   ;;
 
