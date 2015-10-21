@@ -48,7 +48,6 @@ import org.sonar.server.computation.issue.IssueVisitors;
 import org.sonar.server.computation.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
 import org.sonar.server.computation.issue.NewDebtAggregator;
 import org.sonar.server.computation.issue.NewDebtCalculator;
-import org.sonar.server.computation.issue.RuleCacheLoader;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.issue.RuleTagsCopier;
 import org.sonar.server.computation.issue.ScmAccountToUser;
@@ -140,7 +139,6 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       ScmInfoRepositoryImpl.class,
 
       // issues
-      RuleCacheLoader.class,
       RuleRepositoryImpl.class,
       ScmAccountToUserLoader.class,
       ScmAccountToUser.class,

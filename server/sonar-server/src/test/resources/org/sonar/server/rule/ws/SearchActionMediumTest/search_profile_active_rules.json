@@ -1,7 +1,7 @@
 {
-  "total": 1,
-  "p": 1,
-  "ps": 100,
+  "total":1,
+  "p":1,
+  "ps":100,
   "rules": [
     {
       "key": "xoo:x1"
@@ -11,8 +11,8 @@
     "xoo:x1": [
       {
         "qProfile": "XOO_P2",
-        "inherit": "OVERRIDES",
-        "severity": "CRITICAL",
+        "inherit": "NONE",
+        "severity": "BLOCKER",
         "params": []
       }
     ]
@@ -21,13 +21,7 @@
     "XOO_P2": {
       "name": "P2",
       "lang": "xoo",
-      "langName": "xoo",
-      "parent": "XOO_P1"
-    },
-    "XOO_P1": {
-      "name": "P1",
-      "lang": "xoo",
-      "langName": "xoo"
+      "langName": "Xoo"
     }
   }
 }

@@ -21,12 +21,6 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -46,6 +40,14 @@ import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -138,9 +140,11 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     setParams(ruleResponse, ruleDoc, fieldsToReturn);
     setCreatedAt(ruleResponse, ruleDoc, fieldsToReturn);
     setDescriptionFields(ruleResponse, ruleDoc, fieldsToReturn);
+    setNotesFields(ruleResponse, ruleDoc, fieldsToReturn);
     setSeverity(ruleResponse, ruleDoc, fieldsToReturn);
     setInternalKey(ruleResponse, ruleDoc, fieldsToReturn);
     setLanguage(ruleResponse, ruleDoc, fieldsToReturn);
+    setLanguageName(ruleResponse, ruleDoc, fieldsToReturn);
     setIsTemplate(ruleResponse, ruleDoc, fieldsToReturn);
     setTemplateKey(ruleResponse, ruleDoc, fieldsToReturn);
     setDebtRemediationFunctionFields(ruleResponse, ruleDoc, fieldsToReturn);
@@ -288,14 +292,17 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
         ruleResponse.setHtmlDesc(macroInterpreter.interpret(ruleDoc.htmlDescription()));
       }
     }
+    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.MARKDOWN_DESCRIPTION) && ruleDoc.markdownDescription() != null) {
+      ruleResponse.setMdDesc(ruleDoc.markdownDescription());
+    }
+  }
+
+  private void setNotesFields(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, "htmlNote") && ruleDoc.markdownNote() != null) {
       ruleResponse.setHtmlNote(macroInterpreter.interpret(Markdown.convertToHtml(ruleDoc.markdownNote())));
     }
     if (shouldReturnField(fieldsToReturn, "mdNote") && ruleDoc.markdownNote() != null) {
       ruleResponse.setMdNote(ruleDoc.markdownNote());
-    }
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.MARKDOWN_DESCRIPTION) && ruleDoc.markdownDescription() != null) {
-      ruleResponse.setMdDesc(ruleDoc.markdownDescription());
     }
     if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.NOTE_LOGIN) && ruleDoc.noteLogin() != null) {
       ruleResponse.setNoteLogin(ruleDoc.noteLogin());
@@ -314,13 +321,17 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     }
   }
 
-  private void setLanguage(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
+  private static void setLanguage(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.LANGUAGE) && ruleDoc.language() != null) {
       ruleResponse.setLang(ruleDoc.language());
-      Language language = languages.get(ruleDoc.language());
-      if (language != null) {
-        ruleResponse.setLangName(language.getName());
-      }
+    }
+  }
+
+  private void setLanguageName(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
+    if (shouldReturnField(fieldsToReturn, "langName") && ruleDoc.language() != null) {
+      String languageKey = ruleDoc.language();
+      Language language = languages.get(languageKey);
+      ruleResponse.setLangName(language == null ? languageKey : language.getName());
     }
   }
 

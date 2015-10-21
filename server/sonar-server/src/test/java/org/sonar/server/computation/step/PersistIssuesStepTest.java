@@ -38,7 +38,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.issue.IssueCache;
-import org.sonar.server.computation.issue.RuleCacheLoader;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.issue.UpdateConflictResolver;
 
@@ -81,7 +80,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(BatchReport.Metadata.getDefaultInstance());
 
-    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(new RuleCacheLoader(dbClient)), issueCache);
+    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(dbClient), issueCache);
   }
 
   @After
