@@ -19,13 +19,17 @@
  */
 package org.sonar.api.utils.log;
 
+import java.io.PrintStream;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.PrintStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.startsWith;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class ConsoleLoggerTest {
 
@@ -94,7 +98,8 @@ public class ConsoleLoggerTest {
     underTest.warn("message {}", "foo");
     underTest.warn("message {} {}", "foo", "bar");
     underTest.warn("message {} {} {}", "foo", "bar", "baz");
-    verify(stream, times(4)).println(startsWith("WARN "));
+    underTest.warn("message", new IllegalArgumentException());
+    verify(stream, times(5)).println(startsWith("WARN "));
 
     underTest.error("message");
     underTest.error("message {}", "foo");

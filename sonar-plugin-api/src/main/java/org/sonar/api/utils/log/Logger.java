@@ -168,6 +168,11 @@ public interface Logger {
   void warn(String msg);
 
   /**
+   * Logs an exception at the WARN level with an accompanying message.
+   */
+  void warn(String msg, Throwable throwable);
+
+  /**
    * Logs a WARN parameterized message according to the specified format and argument. Example:
    * <code>warn("Value is {}", value)</code>
    */
