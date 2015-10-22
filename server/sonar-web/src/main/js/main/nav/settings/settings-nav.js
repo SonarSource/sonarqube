@@ -57,8 +57,7 @@ export default React.createClass({
               </a>
               <ul className="dropdown-menu">
                 {this.renderLink('/updatecenter', window.t('update_center.page'))}
-                {this.renderLink('/system/index', window.t('system_info.page'))}
-                {this.renderNewLink('/system/new', window.t('system_info.page'))}
+                {this.renderLink('/system', window.t('system_info.page'))}
               </ul>
             </li>
           </ul>

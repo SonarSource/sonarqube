@@ -72,6 +72,16 @@ describe('System', function () {
       expect(select.value).to.equal('DEBUG');
     });
 
+    it('should render warning', () => {
+      let result = TestUtils.renderIntoDocument(<ItemValue value="DEBUG" name="Logs Level"/>);
+      TestUtils.findRenderedDOMComponentWithClass(result, 'alert');
+    });
+
+    it('should not render warning', () => {
+      let result = TestUtils.renderIntoDocument(<ItemValue value="INFO" name="Logs Level"/>);
+      expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'alert')).to.be.empty;
+    });
+
     it('should change value', () => {
       let result = TestUtils.renderIntoDocument(<ItemValue value="INFO" name="Logs Level"/>);
       let select = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'select'));

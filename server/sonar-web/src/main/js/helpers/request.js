@@ -133,3 +133,17 @@ export function postJSON (url, data) {
       .then(checkStatus)
       .then(parseJSON);
 }
+
+
+/**
+ * Shortcut to do a POST request and return response json
+ * @param url
+ * @param data
+ */
+export function post (url, data) {
+  return request(url)
+      .setMethod('POST')
+      .setData(data)
+      .submit()
+      .then(checkStatus);
+}
