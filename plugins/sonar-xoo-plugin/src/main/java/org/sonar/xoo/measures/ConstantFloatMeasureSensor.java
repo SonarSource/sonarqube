@@ -24,6 +24,7 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.xoo.Xoo;
@@ -33,22 +34,30 @@ import org.sonar.xoo.Xoo;
  */
 public class ConstantFloatMeasureSensor implements Sensor {
 
-  private static final double CONSTANT_VALUE = 1.2345678910111213d;
+  public static final String SONAR_XOO_ENABLE_FLOAT_SENSOR = "sonar.xoo.enableFloatSensor";
+  public static final String SONAR_XOO_FLOAT_PRECISION = "sonar.xoo.floatPrecision";
+
+  public static final double CONSTANT_VALUE = 1.2345678910111213d;
 
   private final FileSystem fs;
+  private final Settings settings;
 
-  public ConstantFloatMeasureSensor(FileSystem fs) {
+  public ConstantFloatMeasureSensor(FileSystem fs, Settings settings) {
     this.fs = fs;
+    this.settings = settings;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return fs.hasFiles(fs.predicates().hasLanguage(Xoo.KEY));
+    return fs.hasFiles(fs.predicates().hasLanguage(Xoo.KEY)) && settings.getBoolean(
+      SONAR_XOO_ENABLE_FLOAT_SENSOR);
   }
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    Measure<?> floatMeasure = new Measure<>(XooMetrics.CONSTANT_FLOAT_MEASURE, CONSTANT_VALUE);
+    Measure<?> floatMeasure = settings.hasKey(SONAR_XOO_FLOAT_PRECISION)
+      ? new Measure<>(XooMetrics.CONSTANT_FLOAT_MEASURE, CONSTANT_VALUE, settings.getInt(SONAR_XOO_FLOAT_PRECISION))
+      : new Measure<>(XooMetrics.CONSTANT_FLOAT_MEASURE, CONSTANT_VALUE);
     for (InputFile inputFile : getSourceFiles()) {
       context.saveMeasure(inputFile, floatMeasure);
     }
