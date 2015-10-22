@@ -202,11 +202,41 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_change_line() {
+  public void line_is_not_changed() {
     issue.setLine(123);
     boolean updated = updater.setLine(issue, 123);
     assertThat(updated).isFalse();
     assertThat(issue.line()).isEqualTo(123);
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void change_locations() {
+    issue.setLocations("[1-3]");
+    boolean updated = updater.setLocations(issue, "[1-4]");
+    assertThat(updated).isTrue();
+    assertThat(issue.getLocations()).isEqualTo("[1-4]");
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void do_not_change_locations() {
+    issue.setLocations("[1-3]");
+    boolean updated = updater.setLocations(issue, "[1-3]");
+    assertThat(updated).isFalse();
+    assertThat(issue.getLocations()).isEqualTo("[1-3]");
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void set_locations_for_the_first_time() {
+    issue.setLocations(null);
+    boolean updated = updater.setLocations(issue, "[1-4]");
+    assertThat(updated).isTrue();
+    assertThat(issue.getLocations()).isEqualTo("[1-4]");
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }

@@ -98,7 +98,7 @@ public class TestIndex extends BaseIndex {
       return new TestDoc(hit.sourceAsMap());
     }
 
-    throw new IllegalStateException(String.format("Test uuid '%s' not found", testUuid));
+    throw new IllegalStateException(String.format("Test id '%s' not found", testUuid));
   }
 
   public SearchResult<TestDoc> searchByTestUuid(String testUuid, SearchOptions searchOptions) {

@@ -20,19 +20,57 @@
 
 package org.sonar.server.computation.source;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.TextRange;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.ImmutableMap.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
+import static org.sonar.batch.protocol.Constants.HighlightingType.COMMENT;
+import static org.sonar.batch.protocol.Constants.HighlightingType.CONSTANT;
+import static org.sonar.batch.protocol.Constants.HighlightingType.HIGHLIGHTING_STRING;
+import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class HighlightingLineReaderTest {
 
-  DbFileSources.Data.Builder sourceData = DbFileSources.Data.newBuilder();
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  static final Component FILE = builder(Component.Type.FILE, 1).setUuid("FILE_UUID").setKey("FILE_KEY").build();
+
+  static final int DEFAULT_LINE_LENGTH = 5;
+
+  static final int LINE_1 = 1;
+  static final int LINE_2 = 2;
+  static final int LINE_3 = 3;
+  static final int LINE_4 = 4;
+
+  static final String RANGE_LABEL_1 = "1,2";
+  static final String RANGE_LABEL_2 = "2,3";
+  static final String RANGE_LABEL_3 = "3,4";
+  static final String RANGE_LABEL_4 = "0,2";
+  static final String RANGE_LABEL_5 = "0,3";
+
+  RangeOffsetConverter rangeOffsetConverter = mock(RangeOffsetConverter.class);
+
+  DbFileSources.Data.Builder sourceData = newBuilder();
   DbFileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
   DbFileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
   DbFileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
@@ -40,9 +78,9 @@ public class HighlightingLineReaderTest {
 
   @Test
   public void nothing_to_read() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(Collections.<BatchReport.SyntaxHighlighting>emptyList().iterator());
+    HighlightingLineReader highlightingLineReader = newReader(Collections.<TextRange, Constants.HighlightingType>emptyMap());
 
-    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = newBuilder().addLinesBuilder().setLine(1);
     highlightingLineReader.read(lineBuilder);
 
     assertThat(lineBuilder.hasHighlighting()).isFalse();
@@ -50,236 +88,191 @@ public class HighlightingLineReaderTest {
 
   @Test
   public void read_one_line() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(2).setEndOffset(4)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()).iterator());
+    HighlightingLineReader highlightingLineReader = newReader(of(
+      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1),
+      ANNOTATION));
 
     highlightingLineReader.read(line1);
 
-    assertThat(line1.getHighlighting()).isEqualTo("2,4,a");
+    assertThat(line1.getHighlighting()).isEqualTo(RANGE_LABEL_1 + ",a");
   }
 
   @Test
   public void read_many_lines() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(0).setEndOffset(4)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build(),
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(2).setEndLine(2)
-          .setStartOffset(0).setEndOffset(1)
-          .build())
-        .setType(Constants.HighlightingType.COMMENT)
-        .build(),
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(4).setEndLine(4)
-          .setStartOffset(1).setEndOffset(2)
-          .build())
-        .setType(Constants.HighlightingType.CONSTANT)
-        .build()).iterator());
+    HighlightingLineReader highlightingLineReader = newReader(of(
+      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1), ANNOTATION,
+      newSingleLineTextRangeWithExpectingLabel(LINE_2, RANGE_LABEL_2), COMMENT,
+      newSingleLineTextRangeWithExpectingLabel(LINE_4, RANGE_LABEL_3), CONSTANT
+      ));
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
     highlightingLineReader.read(line3);
     highlightingLineReader.read(line4);
 
-    assertThat(line1.getHighlighting()).isEqualTo("0,4,a");
-    assertThat(line2.getHighlighting()).isEqualTo("0,1,cd");
-    assertThat(line4.getHighlighting()).isEqualTo("1,2,c");
+    assertThat(line1.getHighlighting()).isEqualTo(RANGE_LABEL_1 + ",a");
+    assertThat(line2.getHighlighting()).isEqualTo(RANGE_LABEL_2 + ",cd");
+    assertThat(line4.getHighlighting()).isEqualTo(RANGE_LABEL_3 + ",c");
   }
 
   @Test
   public void read_many_syntax_highlighting_on_same_line() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(2).setEndOffset(3)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build(),
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(4).setEndOffset(5)
-          .build())
-        .setType(Constants.HighlightingType.COMMENT)
-        .build()).iterator());
+    HighlightingLineReader highlightingLineReader = newReader(of(
+      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1), ANNOTATION,
+      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_2), COMMENT
+      ));
 
     highlightingLineReader.read(line1);
 
-    assertThat(line1.getHighlighting()).isEqualTo("2,3,a;4,5,cd");
-  }
-
-  @Test
-  public void read_nested_syntax_highlighting_on_same_line() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(0).setEndOffset(4)
-          .build())
-        .setType(Constants.HighlightingType.CONSTANT)
-        .build(),
-      // This highlighting is nested in previous one
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(2).setEndOffset(3)
-          .build())
-        .setType(Constants.HighlightingType.KEYWORD)
-        .build()).iterator());
-
-    highlightingLineReader.read(line1);
-
-    assertThat(line1.getHighlighting()).isEqualTo("0,4,c;2,3,k");
+    assertThat(line1.getHighlighting()).isEqualTo(RANGE_LABEL_1 + ",a;" + RANGE_LABEL_2 + ",cd");
   }
 
   @Test
   public void read_one_syntax_highlighting_on_many_lines() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      // This highlighting begin on line 1 and finish on line 3
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(3)
-          .setStartOffset(3).setEndOffset(2)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()).iterator());
+    // This highlighting begin on line 1 and finish on line 3
+    TextRange textRange = newTextRange(LINE_1, LINE_3);
+    when(rangeOffsetConverter.offsetToString(textRange, LINE_1, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_1);
+    when(rangeOffsetConverter.offsetToString(textRange, LINE_2, 6)).thenReturn(RANGE_LABEL_2);
+    when(rangeOffsetConverter.offsetToString(textRange, LINE_3, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_3);
+
+    HighlightingLineReader highlightingLineReader = newReader(of(textRange, ANNOTATION));
 
     highlightingLineReader.read(line1);
     DbFileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line 2").setLine(2);
     highlightingLineReader.read(line2);
     highlightingLineReader.read(line3);
 
-    assertThat(line1.getHighlighting()).isEqualTo("3,5,a");
-    assertThat(line2.getHighlighting()).isEqualTo("0,6,a");
-    assertThat(line3.getHighlighting()).isEqualTo("0,2,a");
+    assertThat(line1.getHighlighting()).isEqualTo(RANGE_LABEL_1 + ",a");
+    assertThat(line2.getHighlighting()).isEqualTo(RANGE_LABEL_2 + ",a");
+    assertThat(line3.getHighlighting()).isEqualTo(RANGE_LABEL_3 + ",a");
   }
 
   @Test
   public void read_many_syntax_highlighting_on_many_lines() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(3)
-          .setStartOffset(3).setEndOffset(2)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build(),
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(2).setEndLine(4)
-          .setStartOffset(0).setEndOffset(3)
-          .build())
-        .setType(Constants.HighlightingType.HIGHLIGHTING_STRING)
-        .build(),
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(2).setEndLine(2)
-          .setStartOffset(1).setEndOffset(2)
-          .build())
-        .setType(Constants.HighlightingType.COMMENT)
-        .build()).iterator());
+    TextRange textRange1 = newTextRange(LINE_1, LINE_3);
+    when(rangeOffsetConverter.offsetToString(textRange1, LINE_1, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_1);
+    when(rangeOffsetConverter.offsetToString(textRange1, LINE_2, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_2);
+    when(rangeOffsetConverter.offsetToString(textRange1, LINE_3, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_3);
+
+    TextRange textRange2 = newTextRange(LINE_2, LINE_4);
+    when(rangeOffsetConverter.offsetToString(textRange2, LINE_2, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_2);
+    when(rangeOffsetConverter.offsetToString(textRange2, LINE_3, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_2);
+    when(rangeOffsetConverter.offsetToString(textRange2, LINE_4, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_4);
+
+    TextRange textRange3 = newTextRange(LINE_2, LINE_2);
+    when(rangeOffsetConverter.offsetToString(textRange3, LINE_2, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_5);
+
+    HighlightingLineReader highlightingLineReader = newReader(of(
+      textRange1, ANNOTATION,
+      textRange2, HIGHLIGHTING_STRING,
+      textRange3, COMMENT
+      ));
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
     highlightingLineReader.read(line3);
     highlightingLineReader.read(line4);
 
-    assertThat(line1.getHighlighting()).isEqualTo("3,5,a");
-    assertThat(line2.getHighlighting()).isEqualTo("0,5,a;0,5,s;1,2,cd");
-    assertThat(line3.getHighlighting()).isEqualTo("0,2,a;0,5,s");
-    assertThat(line4.getHighlighting()).isEqualTo("0,3,s");
+    assertThat(line1.getHighlighting()).isEqualTo(RANGE_LABEL_1 + ",a");
+    assertThat(line2.getHighlighting()).isEqualTo(RANGE_LABEL_2 + ",a;" + RANGE_LABEL_2 + ",s;" + RANGE_LABEL_5 + ",cd");
+    assertThat(line3.getHighlighting()).isEqualTo(RANGE_LABEL_3 + ",a;" + RANGE_LABEL_2 + ",s");
+    assertThat(line4.getHighlighting()).isEqualTo(RANGE_LABEL_4 + ",s");
   }
 
   @Test
   public void read_highlighting_declared_on_a_whole_line() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(2)
-          .setStartOffset(0).setEndOffset(0)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()).iterator());
+    TextRange textRange = newTextRange(LINE_1, LINE_2);
+    when(rangeOffsetConverter.offsetToString(textRange, LINE_1, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_1);
+    when(rangeOffsetConverter.offsetToString(textRange, LINE_2, DEFAULT_LINE_LENGTH)).thenReturn("");
+
+    HighlightingLineReader highlightingLineReader = newReader(of(textRange, ANNOTATION));
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
     highlightingLineReader.read(line3);
 
-    assertThat(line1.getHighlighting()).isEqualTo("0,5,a");
+    assertThat(line1.getHighlighting()).isEqualTo(RANGE_LABEL_1 + ",a");
     // Nothing should be set on line 2
     assertThat(line2.getHighlighting()).isEmpty();
     assertThat(line3.getHighlighting()).isEmpty();
   }
 
   @Test
-  public void fail_when_end_offset_is_before_start_offset() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(4).setEndOffset(2)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()).iterator());
+  public void not_fail_and_stop_processing_when_range_offset_converter_throw_RangeOffsetConverterException() {
+    TextRange textRange1 = newTextRange(LINE_1, LINE_1);
+    doThrow(RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(textRange1, LINE_1, DEFAULT_LINE_LENGTH);
 
-    try {
-      highlightingLineReader.read(line1);
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("End offset 2 cannot be defined before start offset 4 on line 1");
-    }
+    HighlightingLineReader highlightingLineReader = newReader(of(
+      textRange1, ANNOTATION,
+      newSingleLineTextRangeWithExpectingLabel(LINE_2, RANGE_LABEL_1), HIGHLIGHTING_STRING));
+
+    highlightingLineReader.read(line1);
+    highlightingLineReader.read(line2);
+
+    assertNoHighlighting();
+    assertThat(logTester.logs(WARN)).isNotEmpty();
   }
 
   @Test
-  public void fail_when_end_offset_is_higher_than_line_length() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(2).setEndOffset(10)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()).iterator());
+  public void keep_existing_processed_highlighting_when_range_offset_converter_throw_RangeOffsetConverterException() {
+    TextRange textRange2 = newTextRange(LINE_2, LINE_2);
+    doThrow(RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(textRange2, LINE_2, DEFAULT_LINE_LENGTH);
 
-    try {
-      highlightingLineReader.read(line1);
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("End offset 10 is defined outside the length (5) of the line 1");
-    }
+    HighlightingLineReader highlightingLineReader = newReader(of(
+      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1), ANNOTATION,
+      textRange2, HIGHLIGHTING_STRING
+      ));
+
+    highlightingLineReader.read(line1);
+    highlightingLineReader.read(line2);
+
+    assertThat(line1.hasHighlighting()).isTrue();
+    assertThat(line2.hasHighlighting()).isFalse();
+    assertThat(logTester.logs(WARN)).isNotEmpty();
   }
 
   @Test
-  public void fail_when_start_offset_is_higher_than_line_length() {
-    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
-      BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(10).setEndOffset(11)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()).iterator());
+  public void display_file_key_in_warning_when_range_offset_converter_throw_RangeOffsetConverterException() {
+    TextRange textRange1 = newTextRange(LINE_1, LINE_1);
+    doThrow(RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(textRange1, LINE_1, DEFAULT_LINE_LENGTH);
+    HighlightingLineReader highlightingLineReader = newReader(of(textRange1, ANNOTATION));
 
-    try {
-      highlightingLineReader.read(line1);
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Start offset 10 is defined outside the length (5) of the line 1");
+    highlightingLineReader.read(line1);
+
+    assertThat(logTester.logs(WARN)).containsOnly("Inconsistency detected in Highlighting data. Highlighting will be ignored for file 'FILE_KEY'");
+  }
+
+  private HighlightingLineReader newReader(Map<TextRange, Constants.HighlightingType> textRangeByType) {
+    List<BatchReport.SyntaxHighlighting> syntaxHighlightingList = new ArrayList<>();
+    for (Map.Entry<TextRange, Constants.HighlightingType> entry : textRangeByType.entrySet()) {
+      syntaxHighlightingList.add(BatchReport.SyntaxHighlighting.newBuilder()
+        .setRange(entry.getKey())
+        .setType(entry.getValue())
+        .build());
     }
+    return new HighlightingLineReader(FILE, syntaxHighlightingList.iterator(), rangeOffsetConverter);
+  }
+
+  private static TextRange newTextRange(int startLine, int enLine) {
+    Random random = new Random();
+    return TextRange.newBuilder()
+      .setStartLine(startLine).setEndLine(enLine)
+      // Offsets are not used by the reader
+      .setStartOffset(random.nextInt()).setEndOffset(random.nextInt())
+      .build();
+  }
+
+  private TextRange newSingleLineTextRangeWithExpectingLabel(int line, String rangeLabel) {
+    TextRange textRange = newTextRange(line, line);
+    when(rangeOffsetConverter.offsetToString(textRange, line, DEFAULT_LINE_LENGTH)).thenReturn(rangeLabel);
+    return textRange;
+  }
+
+  private void assertNoHighlighting() {
+    assertThat(line1.hasHighlighting()).isFalse();
+    assertThat(line2.hasHighlighting()).isFalse();
+    assertThat(line3.hasHighlighting()).isFalse();
+    assertThat(line4.hasHighlighting()).isFalse();
   }
 
 }

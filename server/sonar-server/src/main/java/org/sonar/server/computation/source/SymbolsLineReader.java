@@ -31,15 +31,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.component.Component;
+
+import static java.lang.String.format;
+import static org.sonar.server.computation.source.RangeOffsetConverter.OFFSET_SEPARATOR;
+import static org.sonar.server.computation.source.RangeOffsetConverter.SYMBOLS_SEPARATOR;
 
 public class SymbolsLineReader implements LineReader {
 
+  private static final Logger LOG = Loggers.get(HighlightingLineReader.class);
+
+  private final Component file;
+  private final RangeOffsetConverter rangeOffsetConverter;
   private final List<BatchReport.Symbol> symbols;
   private final Map<BatchReport.Symbol, Integer> idsBySymbol;
 
-  public SymbolsLineReader(Iterator<BatchReport.Symbol> symbols) {
+  private boolean areSymbolsValid = true;
+
+  public SymbolsLineReader(Component file, Iterator<BatchReport.Symbol> symbols, RangeOffsetConverter rangeOffsetConverter) {
+    this.file = file;
+    this.rangeOffsetConverter = rangeOffsetConverter;
     this.symbols = Lists.newArrayList(symbols);
     // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
     // data
@@ -50,6 +65,18 @@ public class SymbolsLineReader implements LineReader {
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
+    if (!areSymbolsValid) {
+      return;
+    }
+    try {
+      processSymbols(lineBuilder);
+    } catch (RangeOffsetConverter.RangeOffsetConverterException e) {
+      areSymbolsValid = false;
+      LOG.warn(format("Inconsistency detected in Symbols data. Symbols will be ignored for file '%s'", file.getKey()), e);
+    }
+  }
+
+  private void processSymbols(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     List<BatchReport.Symbol> lineSymbols = findSymbolsMatchingLine(line);
     for (BatchReport.Symbol lineSymbol : lineSymbols) {
@@ -67,15 +94,15 @@ public class SymbolsLineReader implements LineReader {
     }
   }
 
-  private static void appendSymbol(StringBuilder lineSymbol, BatchReport.TextRange range, int line, int symbolId, String sourceLine) {
+  private void appendSymbol(StringBuilder lineSymbol, BatchReport.TextRange range, int line, int symbolId, String sourceLine) {
     if (matchLine(range, line)) {
-      String offsets = RangeOffsetHelper.offsetToString(range, line, sourceLine.length());
+      String offsets = rangeOffsetConverter.offsetToString(range, line, sourceLine.length());
       if (!offsets.isEmpty()) {
         if (lineSymbol.length() > 0) {
-          lineSymbol.append(RangeOffsetHelper.SYMBOLS_SEPARATOR);
+          lineSymbol.append(SYMBOLS_SEPARATOR);
         }
         lineSymbol.append(offsets)
-          .append(RangeOffsetHelper.OFFSET_SEPARATOR)
+          .append(OFFSET_SEPARATOR)
           .append(symbolId);
       }
     }

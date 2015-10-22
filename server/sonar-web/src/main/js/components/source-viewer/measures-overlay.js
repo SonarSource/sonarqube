@@ -147,7 +147,7 @@ export default ModalView.extend({
   requestTests: function () {
     var that = this,
         url = baseUrl + '/api/tests/list',
-        options = { testFileUuid: this.model.id };
+        options = { testFileId: this.model.id };
     return $.get(url, options).done(function (data) {
       that.model.set({ tests: data.tests });
       that.testSorting = 'status';
@@ -201,13 +201,13 @@ export default ModalView.extend({
 
   showTest: function (e) {
     var that = this,
-        testUuid = $(e.currentTarget).data('id'),
+        testId = $(e.currentTarget).data('id'),
         url = baseUrl + '/api/tests/covered_files',
-        options = { testUuid: testUuid };
+        options = { testId: testId };
     this.testsScroll = $(e.currentTarget).scrollParent().scrollTop();
     return $.get(url, options).done(function (data) {
       that.coveredFiles = data.files;
-      that.selectedTest = _.findWhere(that.model.get('tests'), { testUuid: testUuid });
+      that.selectedTest = _.findWhere(that.model.get('tests'), { id: testId });
       that.render();
     });
   },

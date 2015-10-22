@@ -42,7 +42,7 @@ public class ExecuteVisitorsStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Execute Component Visitors";
+    return "Execute component visitors";
   }
 
   @Override
@@ -53,7 +53,7 @@ public class ExecuteVisitorsStep implements ComputationStep {
   }
 
   private static void logVisitorExecutionDurations(List<ComponentVisitor> visitors, VisitorsCrawler visitorsCrawler) {
-    LOGGER.info("  Execution time for each Component visitor:");
+    LOGGER.info("  Execution time for each component visitor:");
     Map<ComponentVisitor, Long> cumulativeDurations = visitorsCrawler.getCumulativeDurations();
     for (ComponentVisitor visitor : visitors) {
       LOGGER.info("  - {} | time={}ms", visitor.getClass().getSimpleName(), cumulativeDurations.get(visitor));

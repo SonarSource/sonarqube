@@ -55,6 +55,7 @@ import org.sonar.server.computation.source.CoverageLineReader;
 import org.sonar.server.computation.source.DuplicationLineReader;
 import org.sonar.server.computation.source.HighlightingLineReader;
 import org.sonar.server.computation.source.LineReader;
+import org.sonar.server.computation.source.RangeOffsetConverter;
 import org.sonar.server.computation.source.ScmLineReader;
 import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.computation.source.SymbolsLineReader;
@@ -215,13 +216,14 @@ public class PersistFileSourcesStep implements ComputationStep {
         this.scmLineReader = null;
       }
 
+      RangeOffsetConverter rangeOffsetConverter = new RangeOffsetConverter();
       CloseableIterator<BatchReport.SyntaxHighlighting> highlightingIt = reportReader.readComponentSyntaxHighlighting(componentRef);
       closeables.add(highlightingIt);
-      readers.add(new HighlightingLineReader(highlightingIt));
+      readers.add(new HighlightingLineReader(component, highlightingIt, rangeOffsetConverter));
 
       CloseableIterator<BatchReport.Symbol> symbolsIt = reportReader.readComponentSymbols(componentRef);
       closeables.add(symbolsIt);
-      readers.add(new SymbolsLineReader(symbolsIt));
+      readers.add(new SymbolsLineReader(component, symbolsIt, rangeOffsetConverter));
 
       CloseableIterator<BatchReport.Duplication> duplicationsIt = reportReader.readComponentDuplications(componentRef);
       closeables.add(duplicationsIt);

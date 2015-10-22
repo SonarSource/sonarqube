@@ -101,6 +101,12 @@ abstract class BaseLogger implements Logger {
   }
 
   @Override
+  public void warn(String msg, Throwable throwable) {
+    LogInterceptors.get().log(LoggerLevel.WARN, msg, throwable);
+    doWarn(msg);
+  }
+
+  @Override
   public void warn(String msg, @Nullable Object arg) {
     LogInterceptors.get().log(LoggerLevel.WARN, msg, arg);
     doWarn(msg, arg);

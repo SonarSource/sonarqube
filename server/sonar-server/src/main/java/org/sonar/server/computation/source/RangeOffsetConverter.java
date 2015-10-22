@@ -22,16 +22,14 @@ package org.sonar.server.computation.source;
 
 import org.sonar.batch.protocol.output.BatchReport;
 
-public class RangeOffsetHelper {
+import static java.lang.String.format;
+
+public class RangeOffsetConverter {
 
   static final String OFFSET_SEPARATOR = ",";
   static final String SYMBOLS_SEPARATOR = ";";
 
-  private RangeOffsetHelper() {
-    // Only static methods
-  }
-
-  public static String offsetToString(BatchReport.TextRange range, int lineIndex, int lineLength) {
+  public String offsetToString(BatchReport.TextRange range, int lineIndex, int lineLength) {
     StringBuilder element = new StringBuilder();
 
     validateOffsetOrder(range, lineIndex);
@@ -50,20 +48,29 @@ public class RangeOffsetHelper {
   }
 
   private static void validateOffsetOrder(BatchReport.TextRange range, int line) {
-    if (range.getStartLine() == range.getEndLine() && range.getStartOffset() > range.getEndOffset()) {
-      throw new IllegalArgumentException(String.format("End offset %s cannot be defined before start offset %s on line %s", range.getEndOffset(), range.getStartOffset(), line));
-    }
+    checkExpression(range.getStartLine() != range.getEndLine() || range.getStartOffset() <= range.getEndOffset(),
+      "End offset %s cannot be defined before start offset %s on line %s", range.getEndOffset(), range.getStartOffset(), line);
   }
 
   private static void validateStartOffsetNotGreaterThanLineLength(BatchReport.TextRange range, int lineLength, int line) {
-    if (range.getStartLine() == line && range.getStartOffset() > lineLength) {
-      throw new IllegalArgumentException(String.format("Start offset %s is defined outside the length (%s) of the line %s", range.getStartOffset(), lineLength, line));
-    }
+    checkExpression(range.getStartLine() != line || range.getStartOffset() <= lineLength,
+      "Start offset %s is defined outside the length (%s) of the line %s", range.getStartOffset(), lineLength, line);
   }
 
   private static void validateEndOffsetNotGreaterThanLineLength(BatchReport.TextRange range, int lineLength, int line) {
-    if (range.getEndLine() == line && range.getEndOffset() > lineLength) {
-      throw new IllegalArgumentException(String.format("End offset %s is defined outside the length (%s) of the line %s", range.getEndOffset(), lineLength, line));
+    checkExpression(range.getEndLine() != line || range.getEndOffset() <= lineLength,
+      "End offset %s is defined outside the length (%s) of the line %s", range.getEndOffset(), lineLength, line);
+  }
+
+  private static void checkExpression(boolean expression, String errorMessageTemplate, Object... errorMessageArgs) {
+    if (!expression) {
+      throw new RangeOffsetConverterException(format(errorMessageTemplate, errorMessageArgs));
+    }
+  }
+
+  public static class RangeOffsetConverterException extends RuntimeException {
+    public RangeOffsetConverterException(String message) {
+      super(message);
     }
   }
 

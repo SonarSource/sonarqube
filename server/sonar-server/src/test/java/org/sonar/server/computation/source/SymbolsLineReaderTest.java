@@ -20,16 +20,48 @@
 
 package org.sonar.server.computation.source;
 
-import java.util.List;
+import java.util.Arrays;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.util.CloseableIterator;
+import org.sonar.batch.protocol.output.BatchReport.TextRange;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.component.Component;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class SymbolsLineReaderTest {
+
+  @Rule
+  public LogTester logTester = new LogTester();
+
+  static final Component FILE = builder(Component.Type.FILE, 1).setUuid("FILE_UUID").setKey("FILE_KEY").build();
+
+  static final int DEFAULT_LINE_LENGTH = 5;
+
+  static final int LINE_1 = 1;
+  static final int LINE_2 = 2;
+  static final int LINE_3 = 3;
+  static final int LINE_4 = 4;
+
+  static final int OFFSET_0 = 0;
+  static final int OFFSET_1 = 1;
+  static final int OFFSET_2 = 2;
+  static final int OFFSET_3 = 3;
+  static final int OFFSET_4 = 4;
+
+  static final String RANGE_LABEL_1 = "1,2";
+  static final String RANGE_LABEL_2 = "2,3";
+  static final String RANGE_LABEL_3 = "3,4";
+  static final String RANGE_LABEL_4 = "0,2";
+
+  RangeOffsetConverter rangeOffsetConverter = mock(RangeOffsetConverter.class);
 
   DbFileSources.Data.Builder sourceData = DbFileSources.Data.newBuilder();
   DbFileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
@@ -39,7 +71,7 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_nothing() {
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(CloseableIterator.<BatchReport.Symbol>emptyCloseableIterator());
+    SymbolsLineReader symbolsLineReader = newReader();
 
     symbolsLineReader.read(line1);
 
@@ -48,250 +80,257 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_symbols() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-          .build())
-        .build());
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(
+      newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_2, OFFSET_4, RANGE_LABEL_1),
+      newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_1, OFFSET_3, RANGE_LABEL_2)
+      ));
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
 
-    assertThat(line1.getSymbols()).isEqualTo("2,4,1");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
     assertThat(line2.getSymbols()).isEmpty();
-    assertThat(line3.getSymbols()).isEqualTo("1,3,1");
+    assertThat(line3.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1");
   }
 
   @Test
   public void read_symbols_with_reference_on_same_line() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
-          .build())
-        .build());
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(
+      newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_0, OFFSET_1, RANGE_LABEL_1),
+      newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_2, OFFSET_3, RANGE_LABEL_2)
+      ));
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
 
-    assertThat(line1.getSymbols()).isEqualTo("0,1,1;2,3,1");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1;" + RANGE_LABEL_2 + ",1");
   }
 
   @Test
   public void read_symbols_with_two_references() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(2)
-          .build())
-        .build());
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(
+      newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_2, OFFSET_4, RANGE_LABEL_1),
+      newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_1, OFFSET_3, RANGE_LABEL_2),
+      newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_0, OFFSET_2, RANGE_LABEL_3)
+      ));
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
 
-    assertThat(line1.getSymbols()).isEqualTo("2,4,1");
-    assertThat(line2.getSymbols()).isEqualTo("0,2,1");
-    assertThat(line3.getSymbols()).isEqualTo("1,3,1");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
+    assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_3 + ",1");
+    assertThat(line3.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1");
   }
 
   @Test
   public void read_symbols_with_two_references_on_the_same_line() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(1)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(2).setEndLine(2).setStartOffset(2).setEndOffset(3)
-          .build())
-        .build());
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(
+      newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_2, OFFSET_3, RANGE_LABEL_1),
+      newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_0, OFFSET_1, RANGE_LABEL_2),
+      newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_2, OFFSET_3, RANGE_LABEL_3)
+      ));
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
 
-    assertThat(line1.getSymbols()).isEqualTo("2,3,1");
-    assertThat(line2.getSymbols()).isEqualTo("0,1,1;2,3,1");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
+    assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1;" + RANGE_LABEL_3 + ",1");
   }
 
   @Test
   public void read_symbols_when_reference_line_is_before_declaration_line() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(2).setEndLine(2).setStartOffset(3).setEndOffset(4)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(1).setEndOffset(2)
-          .build())
-        .build());
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(
+      newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_3, OFFSET_4, RANGE_LABEL_1),
+      newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_1, OFFSET_2, RANGE_LABEL_2)
+      ));
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
 
-    assertThat(line1.getSymbols()).isEqualTo("1,2,1");
-    assertThat(line2.getSymbols()).isEqualTo("3,4,1");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1");
+    assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
   }
 
   @Test
   public void read_many_symbols_on_lines() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(1).setEndOffset(2)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
-          .build())
-        .build(),
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(3).setEndOffset(4)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(0).setEndOffset(1)
-          .build())
-        .build());
+    SymbolsLineReader symbolsLineReader = newReader(
+      newSymbol(
+        newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_1, OFFSET_2, RANGE_LABEL_1),
+        newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_2, OFFSET_3, RANGE_LABEL_2)),
+      newSymbol(
+        newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_3, OFFSET_4, RANGE_LABEL_3),
+        newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_0, OFFSET_1, RANGE_LABEL_4)
+      ));
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
 
-    assertThat(line1.getSymbols()).isEqualTo("1,2,1;3,4,2");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1;" + RANGE_LABEL_3 + ",2");
     assertThat(line2.getSymbols()).isEmpty();
-    assertThat(line3.getSymbols()).isEqualTo("2,3,1;0,1,2");
+    assertThat(line3.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1;" + RANGE_LABEL_4 + ",2");
   }
 
   @Test
   public void symbol_declaration_should_be_sorted_by_offset() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          // This symbol begins after the second symbol, it should appear in second place
-          .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
-          .build())
-        .build(),
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(0).setEndOffset(1)
-          .build())
-        .build());
+    SymbolsLineReader symbolsLineReader = newReader(
+      newSymbol(
+        // This symbol begins after the second symbol, it should appear in second place
+        newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_2, OFFSET_3, RANGE_LABEL_1),
+        newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_2, OFFSET_3, RANGE_LABEL_1)),
+      newSymbol(
+        newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_0, OFFSET_1, RANGE_LABEL_2),
+        newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_0, OFFSET_1, RANGE_LABEL_2)
+      ));
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
 
-    assertThat(line1.getSymbols()).isEqualTo("0,1,1;2,3,2");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1;" + RANGE_LABEL_1 + ",2");
     assertThat(line2.getSymbols()).isEmpty();
-    assertThat(line3.getSymbols()).isEqualTo("0,1,1;2,3,2");
+    assertThat(line3.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1;" + RANGE_LABEL_1 + ",2");
   }
 
   @Test
   public void symbol_declaration_should_be_sorted_by_line() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          // This symbol begins after the second symbol, it should appear in second place
-          .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(1)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
-          .build())
-        .build(),
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(0).setEndOffset(1)
-          .build())
-        .build());
+    SymbolsLineReader symbolsLineReader = newReader(
+      newSymbol(
+        newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_0, OFFSET_1, RANGE_LABEL_1),
+        newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_2, OFFSET_3, RANGE_LABEL_2)),
+      newSymbol(
+        newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_0, OFFSET_1, RANGE_LABEL_1),
+        newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_0, OFFSET_1, RANGE_LABEL_1)
+      ));
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
 
-    assertThat(line1.getSymbols()).isEqualTo("0,1,1");
-    assertThat(line2.getSymbols()).isEqualTo("0,1,2");
-    assertThat(line3.getSymbols()).isEqualTo("0,1,1;2,3,2");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
+    assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",2");
+    assertThat(line3.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1;" + RANGE_LABEL_2 + ",2");
   }
 
   @Test
   public void read_symbols_defined_on_many_lines() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(2).setStartOffset(1).setEndOffset(3)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(4).setStartOffset(1).setEndOffset(3)
-          .build())
-        .build());
+    TextRange declaration = newTextRange(LINE_1, LINE_2, OFFSET_1, OFFSET_3);
+    when(rangeOffsetConverter.offsetToString(declaration, LINE_1, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_1);
+    when(rangeOffsetConverter.offsetToString(declaration, LINE_2, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_2);
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
+    TextRange reference = newTextRange(LINE_3, LINE_4, OFFSET_1, OFFSET_3);
+    when(rangeOffsetConverter.offsetToString(reference, LINE_3, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_1);
+    when(rangeOffsetConverter.offsetToString(reference, LINE_4, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_2);
+
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, reference));
+
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
     symbolsLineReader.read(line4);
 
-    assertThat(line1.getSymbols()).isEqualTo("1,5,1");
-    assertThat(line2.getSymbols()).isEqualTo("0,3,1");
-    assertThat(line3.getSymbols()).isEqualTo("1,5,1");
-    assertThat(line4.getSymbols()).isEqualTo("0,3,1");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
+    assertThat(line2.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1");
+    assertThat(line3.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
+    assertThat(line4.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1");
   }
 
   @Test
   public void read_symbols_declared_on_a_whole_line() {
-    List<BatchReport.Symbol> symbols = newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
-          .setStartLine(1).setEndLine(2).setStartOffset(0).setEndOffset(0)
-          .build())
-        .addReference(BatchReport.TextRange.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-          .build())
-        .build());
+    TextRange declaration = newTextRange(LINE_1, LINE_2, OFFSET_0, OFFSET_0);
+    when(rangeOffsetConverter.offsetToString(declaration, LINE_1, DEFAULT_LINE_LENGTH)).thenReturn(RANGE_LABEL_1);
+    when(rangeOffsetConverter.offsetToString(declaration, LINE_2, DEFAULT_LINE_LENGTH)).thenReturn("");
+    TextRange reference = newSingleLineTextRangeWithExpectedLabel(LINE_3, OFFSET_1, OFFSET_3, RANGE_LABEL_2);
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, reference));
+
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
     symbolsLineReader.read(line4);
 
-    assertThat(line1.getSymbols()).isEqualTo("0,5,1");
+    assertThat(line1.getSymbols()).isEqualTo(RANGE_LABEL_1 + ",1");
     assertThat(line2.getSymbols()).isEmpty();
-    assertThat(line3.getSymbols()).isEqualTo("1,3,1");
+    assertThat(line3.getSymbols()).isEqualTo(RANGE_LABEL_2 + ",1");
     assertThat(line4.getSymbols()).isEmpty();
+  }
+
+  @Test
+  public void not_fail_and_stop_processing_when_range_offset_converter_throw_RangeOffsetConverterException() {
+    TextRange declaration = newTextRange(LINE_1, LINE_1, OFFSET_1, OFFSET_3);
+    doThrow(RangeOffsetConverter.RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(declaration, LINE_1, DEFAULT_LINE_LENGTH);
+
+    TextRange reference = newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_1, OFFSET_3, RANGE_LABEL_2);
+
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, reference));
+
+    symbolsLineReader.read(line1);
+    symbolsLineReader.read(line2);
+
+    assertNoSymbol();
+    assertThat(logTester.logs(WARN)).isNotEmpty();
+  }
+
+  @Test
+  public void keep_existing_processed_symbols_when_range_offset_converter_throw_RangeOffsetConverterException() {
+    TextRange declaration = newSingleLineTextRangeWithExpectedLabel(LINE_1, OFFSET_1, OFFSET_3, RANGE_LABEL_2);
+
+    TextRange reference = newTextRange(LINE_2, LINE_2, OFFSET_1, OFFSET_3);
+    doThrow(RangeOffsetConverter.RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(reference, LINE_2, DEFAULT_LINE_LENGTH);
+
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, reference));
+
+    symbolsLineReader.read(line1);
+    symbolsLineReader.read(line2);
+
+    assertThat(line1.hasSymbols()).isTrue();
+    assertThat(line2.hasSymbols()).isFalse();
+    assertThat(logTester.logs(WARN)).isNotEmpty();
+  }
+
+  @Test
+  public void display_file_key_in_warning_when_range_offset_converter_throw_RangeOffsetConverterException() {
+    TextRange declaration = newTextRange(LINE_1, LINE_1, OFFSET_1, OFFSET_3);
+    doThrow(RangeOffsetConverter.RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(declaration, LINE_1, DEFAULT_LINE_LENGTH);
+    SymbolsLineReader symbolsLineReader = newReader(newSymbol(declaration, newSingleLineTextRangeWithExpectedLabel(LINE_2, OFFSET_1, OFFSET_3, RANGE_LABEL_2)));
+
+    symbolsLineReader.read(line1);
+
+    assertThat(logTester.logs(WARN)).containsOnly("Inconsistency detected in Symbols data. Symbols will be ignored for file 'FILE_KEY'");
+  }
+
+  private BatchReport.Symbol newSymbol(TextRange declaration, TextRange... references) {
+    BatchReport.Symbol.Builder builder = BatchReport.Symbol.newBuilder()
+      .setDeclaration(declaration);
+    for (TextRange reference : references) {
+      builder.addReference(reference);
+    }
+    return builder.build();
+  }
+
+  private SymbolsLineReader newReader(BatchReport.Symbol... symbols) {
+    return new SymbolsLineReader(FILE, Arrays.asList(symbols).iterator(), rangeOffsetConverter);
+  }
+
+  private TextRange newSingleLineTextRangeWithExpectedLabel(int line, int startOffset, int endOffset, String rangeLabel) {
+    TextRange textRange = newTextRange(line, line, startOffset, endOffset);
+    when(rangeOffsetConverter.offsetToString(textRange, line, DEFAULT_LINE_LENGTH)).thenReturn(rangeLabel);
+    return textRange;
+  }
+
+  private static TextRange newTextRange(int startLine, int endLine, int startOffset, int endOffset) {
+    return TextRange.newBuilder()
+      .setStartLine(startLine).setEndLine(endLine)
+      .setStartOffset(startOffset).setEndOffset(endOffset)
+      .build();
+  }
+
+  private void assertNoSymbol() {
+    assertThat(line1.hasSymbols()).isFalse();
+    assertThat(line2.hasSymbols()).isFalse();
+    assertThat(line3.hasSymbols()).isFalse();
+    assertThat(line4.hasSymbols()).isFalse();
   }
 
 }
