@@ -17,10 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package selenium;
-
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.remote.UnreachableBrowserException;
+package util.selenium;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -29,6 +26,8 @@ import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.UnreachableBrowserException;
 
 class ThreadSafeDriver {
   private ThreadSafeDriver() {

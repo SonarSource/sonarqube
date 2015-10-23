@@ -27,7 +27,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import selenium.SeleneseTest;
+import util.selenium.SeleneseTest;
 
 public class ManualRulesTest {
 

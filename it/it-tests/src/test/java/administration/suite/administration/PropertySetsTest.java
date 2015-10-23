@@ -26,7 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.PropertyQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
-import selenium.SeleneseTest;
+import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -17,41 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package selenium;
+package util.selenium;
 
-import java.util.NoSuchElementException;
+import java.util.ArrayList;
+import java.util.List;
 
-public final class Optional<T> {
-  private static final Optional<?> EMPTY = new Optional<>();
+class Failure {
+  private static final String PREFIX = Failure.class.getPackage().getName() + ".";
 
-  private final T value;
-
-  private Optional() {
-    this.value = null;
+  private Failure() {
+    // Static class
   }
 
-  public static <T> Optional<T> empty() {
-    @SuppressWarnings("unchecked")
-    Optional<T> t = (Optional<T>) EMPTY;
-    return t;
+  public static AssertionError create(String message) {
+    AssertionError error = new AssertionError(message);
+    removeSimpleleniumFromStackTrace(error);
+    return error;
   }
 
-  private Optional(T value) {
-    this.value = value;
-  }
+  private static void removeSimpleleniumFromStackTrace(Throwable throwable) {
+    List<StackTraceElement> filtered = new ArrayList<>();
 
-  public static <T> Optional<T> of(T value) {
-    return new Optional<>(value);
-  }
-
-  public T get() {
-    if (value == null) {
-      throw new NoSuchElementException("No value present");
+    for (StackTraceElement element : throwable.getStackTrace()) {
+      if (!element.getClassName().contains(PREFIX)) {
+        filtered.add(element);
+      }
     }
-    return value;
-  }
 
-  public boolean isPresent() {
-    return value != null;
+    throwable.setStackTrace(filtered.toArray(new StackTraceElement[filtered.size()]));
   }
 }

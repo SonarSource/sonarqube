@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package selenium;
+package util.selenium;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
+import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.InvalidElementStateException;
 import org.openqa.selenium.NotFoundException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriverException;
-
-import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 

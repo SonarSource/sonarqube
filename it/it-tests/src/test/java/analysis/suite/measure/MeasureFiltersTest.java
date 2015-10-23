@@ -29,7 +29,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
-import selenium.SeleneseTest;
+import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 

@@ -22,7 +22,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
-import selenium.SeleneseTest;
+import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

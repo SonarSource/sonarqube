@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package selenium;
+package util.selenium;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.internal.FindsByCssSelector;
 import org.openqa.selenium.internal.FindsById;
 import org.openqa.selenium.internal.FindsByName;
-
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
 
 public class ByCssSelectorOrByNameOrById extends By implements Serializable {
   private static final long serialVersionUID = -3910258723099459239L;

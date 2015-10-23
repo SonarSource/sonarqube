@@ -42,7 +42,7 @@ import org.sonar.wsclient.qualitygate.UpdateCondition;
 import org.sonar.wsclient.services.PropertyQuery;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
-import selenium.SeleneseTest;
+import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;

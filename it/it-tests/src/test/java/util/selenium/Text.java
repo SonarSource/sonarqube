@@ -17,25 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package selenium;
+package util.selenium;
 
-import org.openqa.selenium.WebElement;
+import com.google.common.base.Joiner;
+import org.openqa.selenium.By;
 
-class WebElementHelper {
-  WebElementHelper() {
-    // Static class
+public abstract class Text {
+  private Text() {
+    // Static utility class
   }
 
-  public static String text(WebElement element) {
-    String text = element.getText();
-    if (!"".equals(text)) {
-      return nullToEmpty(text);
+  public static String doesOrNot(boolean not, String verb) {
+    if (!verb.contains(" ")) {
+      if (not) {
+        return "doesn't " + verb;
+      } else if (verb.endsWith("h")) {
+        return verb + "es";
+      } else {
+        return verb + "s";
+      }
     }
 
-    return nullToEmpty(element.getAttribute("value"));
+    String[] verbs = verb.split(" ");
+    verbs[0] = doesOrNot(not, verbs[0]);
+
+    return Joiner.on(" ").join(verbs);
   }
 
-  private static String nullToEmpty(String text) {
-    return (text == null) ? "" : text;
+  public static String isOrNot(boolean not, String state) {
+    return (not ? "is not " : "is ") + state;
+  }
+
+  public static String plural(int n, String word) {
+    return (n + " " + word) + (n <= 1 ? "" : "s");
+  }
+
+  public static String toString(By selector) {
+    return selector.toString().replace("By.selector: ", "").replace("By.cssSelector: ", "");
   }
 }

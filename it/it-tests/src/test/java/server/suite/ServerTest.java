@@ -23,8 +23,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
-import selenium.SeleneseTest;
 import util.ItUtils;
+import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

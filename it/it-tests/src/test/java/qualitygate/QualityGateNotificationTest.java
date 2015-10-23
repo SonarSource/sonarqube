@@ -24,8 +24,8 @@ import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
-import selenium.SeleneseTest;
 import util.ItUtils;
+import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;

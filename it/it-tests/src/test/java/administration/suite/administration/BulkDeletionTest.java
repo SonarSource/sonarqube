@@ -26,7 +26,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import selenium.SeleneseTest;
+import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 

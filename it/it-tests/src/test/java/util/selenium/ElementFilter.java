@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package selenium;
+package util.selenium;
 
 import com.google.common.base.Function;
-import org.openqa.selenium.WebElement;
-
 import java.util.Collection;
+import org.openqa.selenium.WebElement;
 
 class ElementFilter {
   private static final ElementFilter ANY = new ElementFilter("", new Function<Collection<WebElement>, Collection<WebElement>>() {

@@ -17,8 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package selenium;
+package util.selenium;
 
-public interface Consumer<T> {
-  void accept(T t);
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+public enum Browser {
+  FIREFOX;
+
+  private final ThreadLocal<SeleniumDriver> perThreadDriver = new ThreadLocal<SeleniumDriver>() {
+    @Override
+    protected SeleniumDriver initialValue() {
+      return ThreadSafeDriver.makeThreadSafe(new FirefoxDriver());
+    }
+  };
+
+  public SeleniumDriver getDriverForThread() {
+    return perThreadDriver.get();
+  }
 }

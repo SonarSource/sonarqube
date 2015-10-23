@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package selenium;
+package util.selenium;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
-import org.openqa.selenium.WebElement;
-
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
-
-import static selenium.Text.plural;
-import static selenium.WebElementHelper.text;
+import javax.annotation.Nullable;
+import org.openqa.selenium.WebElement;
 
 class LazyShould {
   private final LazyDomElement element;
@@ -78,7 +78,7 @@ class LazyShould {
           return !elements.isEmpty() && FluentIterable.from(elements).anyMatch(new Predicate<WebElement>() {
             @Override
             public boolean apply(WebElement element) {
-              return regexp.matcher(text(element)).matches();
+              return regexp.matcher(WebElementHelper.text(element)).matches();
             }
           });
         }
@@ -90,7 +90,7 @@ class LazyShould {
             @Nullable
             @Override
             public String apply(@Nullable WebElement element) {
-              return text(element);
+              return WebElementHelper.text(element);
             }
           });
         }
@@ -107,9 +107,9 @@ class LazyShould {
             @Override
             public boolean apply(@Nullable WebElement element) {
               if (text.startsWith("exact:")) {
-                return text(element).equals(text.substring(6));
+                return WebElementHelper.text(element).equals(text.substring(6));
               }
-              return text(element).contains(text);
+              return WebElementHelper.text(element).contains(text);
             }
           });
         }
@@ -120,7 +120,7 @@ class LazyShould {
           return "It contains " + statuses(elements, new Function<WebElement, String>() {
             @Override
             public String apply(WebElement element) {
-              return text(element);
+              return WebElementHelper.text(element);
             }
           });
         }
@@ -139,7 +139,7 @@ class LazyShould {
       new Function<List<WebElement>, String>() {
         @Override
         public String apply(List<WebElement> elements) {
-          return "It contains " + plural(elements.size(), "element");
+          return "It contains " + Text.plural(elements.size(), "element");
         }
       });
   }
