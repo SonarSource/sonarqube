@@ -37,8 +37,8 @@ public class ComputeEngineQueueMonitorTest {
   private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus(), mock(CeQueueImpl.class));
 
   @Test
-  public void name_is_ComputeEngineQueue() {
-    assertThat(underTest.name()).isEqualTo("ComputeEngineQueue");
+  public void name_is_ComputeEngine() {
+    assertThat(underTest.name()).isEqualTo("ComputeEngine");
   }
 
   @Test

@@ -36,7 +36,7 @@ public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements Compu
 
   @Override
   public String name() {
-    return "ComputeEngineQueue";
+    return "ComputeEngine";
   }
 
   @Override

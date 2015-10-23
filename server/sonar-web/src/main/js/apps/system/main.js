@@ -4,7 +4,7 @@ import { getSystemInfo } from '../../api/system';
 import Section from './section';
 
 const SECTIONS_ORDER = ['SonarQube', 'Database', 'Plugins', 'System', 'ElasticSearch', 'JvmProperties',
-  'ComputeEngineQueue'];
+  'ComputeEngine'];
 
 export default React.createClass({
   componentDidMount() {
