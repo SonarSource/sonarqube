@@ -3,6 +3,7 @@ import offset from 'document-offset';
 import GeneralMain from './general/main';
 import IssuesMain from './issues/main';
 import CoverageMain from './coverage/main';
+import DuplicationsMain from './duplications/main';
 import Meta from './meta';
 
 export default class Overview extends React.Component {
@@ -30,6 +31,9 @@ export default class Overview extends React.Component {
         break;
       case 'coverage':
         child = <CoverageMain {...this.props}/>;
+        break;
+      case 'duplications':
+        child = <DuplicationsMain {...this.props}/>;
         break;
       default:
         child = null;

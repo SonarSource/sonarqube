@@ -45,6 +45,11 @@ const METRIC_TYPES = {
   'test_execution_time': 'MILLISEC',
   'test_success_density': 'PERCENT',
 
+  'duplicated_blocks': 'INT',
+  'duplicated_files': 'INT',
+  'duplicated_lines': 'INT',
+  'duplicated_lines_density': 'PERCENT',
+
   'complexity': 'INT'
 };
 
