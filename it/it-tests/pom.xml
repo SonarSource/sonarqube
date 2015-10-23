@@ -12,8 +12,7 @@
   <name>SonarQube Integration Tests :: Tests</name>
 
   <properties>
-    <category1>*</category1>
-    <category2>NONE</category2>
+    <category>*</category>
     <skipIts>false</skipIts>
   </properties>
 
@@ -22,7 +21,7 @@
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
-      <version>3.5</version>
+      <version>3.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -109,16 +108,8 @@
           <argLine>-Xmx128m -Dsonar.runtimeVersion=${project.version}</argLine>
           <skipTests>${skipIts}</skipTests>
           <includes>
-            <include>${category1}/suite/*TestSuite.java</include>
-            <include>${category2}/suite/*TestSuite.java</include>
-            <!-- not included in suites -->
-            <include>${category1}/*Test.java</include>
-            <include>${category2}/*Test.java</include>
+            <include>*/${category}Suite.java</include>
           </includes>
-          <excludes>
-            <!-- included into suites -->
-            <exclude>*/suite/*Test.java</exclude>
-          </excludes>
         </configuration>
       </plugin>
     </plugins>

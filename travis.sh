@@ -67,18 +67,16 @@ PRANALYSIS)
   ;;
 
 ITS)
-  if [ "$IT_CATEGORY" == "plugins" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+  if [ "$IT_CATEGORY" == "Plugins" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
     echo "Ignore this job since it needs access to private test licenses."
   else
     installTravisTools
 
+    build "SonarSource/orchestrator" "2268bba9acbf699a00adc7c5f1dce8d96b0426ff"
+
     start_xvfb
 
-    CATEGORIES=($(echo "$IT_CATEGORY" | tr '_' '\n'))
-    CATEGORY1=${CATEGORIES[0]:-'NONE'}
-    CATEGORY2=${CATEGORIES[1]:-'NONE'}
-
-    mvn install -Pit,dev -DskipTests -Dcategory1="$CATEGORY1" -Dcategory2="$CATEGORY2" -Dmaven.test.redirectTestOutputToFile=false -e -Dsource.skip=true
+    mvn install -Pit,dev -DskipTests -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -e -Dsource.skip=true
   fi
   ;;
 
