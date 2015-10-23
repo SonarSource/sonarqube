@@ -18,8 +18,10 @@ export default React.createClass({
       return null;
     }
 
+    let active = this.props.section === 'coverage';
+
     return (
-        <Card>
+        <Card linkTo="coverage" active={active} onRoute={this.props.onRoute}>
           <div className="measures">
             <div className="measures-chart">
               <Donut data={donutData} size="47"/>

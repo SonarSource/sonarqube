@@ -2,6 +2,7 @@ import React from 'react';
 import offset from 'document-offset';
 import GeneralMain from './general/main';
 import IssuesMain from './issues/main';
+import CoverageMain from './coverage/main';
 import Meta from './meta';
 
 export default class Overview extends React.Component {
@@ -26,6 +27,9 @@ export default class Overview extends React.Component {
     switch (this.state.section) {
       case 'issues':
         child = <IssuesMain {...this.props}/>;
+        break;
+      case 'coverage':
+        child = <CoverageMain {...this.props}/>;
         break;
       default:
         child = null;

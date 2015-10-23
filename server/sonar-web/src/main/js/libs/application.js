@@ -492,6 +492,15 @@ function closeModalWindow () {
     return l10nKey !== result ? result : value;
   };
 
+
+  /**
+   * Format a milliseconds measure
+   * @param {number} value
+   */
+  var millisecondsFormatter = function (value) {
+    return value + ' ms';
+  };
+
   /**
    * Format a measure according to its type
    * @param measure
@@ -517,7 +526,8 @@ function closeModalWindow () {
           'WORK_DUR': durationFormatter,
           'SHORT_WORK_DUR': shortDurationFormatter,
           'RATING': ratingFormatter,
-          'LEVEL': levelFormatter
+          'LEVEL': levelFormatter,
+          'MILLISEC': millisecondsFormatter
         };
     if (measure != null && type != null) {
       formatted = formatters[type] != null ? formatters[type](measure) : measure;
