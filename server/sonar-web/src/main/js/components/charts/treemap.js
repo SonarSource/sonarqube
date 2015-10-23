@@ -111,13 +111,11 @@ export class Treemap extends React.Component {
         .nodes({ children: this.props.items })
         .filter(d => !d.children);
 
-    let prefix = mostCommitPrefix(this.props.labels),
+    let prefix = mostCommitPrefix(this.props.items.map(item => item.label)),
         prefixLength = prefix.length;
 
     let rectangles = nodes.map((node, index) => {
-      let label = prefixLength ? `${prefix}<br>${this.props.labels[index].substr(prefixLength)}` :
-          this.props.labels[index];
-      let tooltip = index < this.props.tooltips.length ? this.props.tooltips[index] : null;
+      let label = prefixLength ? `${prefix}<br>${node.label.substr(prefixLength)}` : node.label;
       return <TreemapRect key={index}
                           x={node.x}
                           y={node.y}
@@ -126,7 +124,7 @@ export class Treemap extends React.Component {
                           fill={node.color}
                           label={label}
                           prefix={prefix}
-                          tooltip={tooltip}/>;
+                          tooltip={node.tooltip}/>;
     });
 
     return <div className="sonar-d3">
@@ -138,6 +136,5 @@ export class Treemap extends React.Component {
 }
 
 Treemap.propTypes = {
-  labels: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
-  tooltips: React.PropTypes.arrayOf(React.PropTypes.string)
+  items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
 };

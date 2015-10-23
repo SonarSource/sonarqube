@@ -6,10 +6,8 @@ import { CoverageBubbleChart } from './bubble-chart';
 import { CoverageTimeline } from './timeline';
 import { CoverageTreemap } from './treemap';
 
-import { getSeverities, getTags, getAssignees } from '../../../api/issues';
 
-
-export default class CoverageDomain extends React.Component {
+export default class extends React.Component {
   render () {
     return <div className="overview-domain">
 

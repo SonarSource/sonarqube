@@ -7,7 +7,7 @@ export function getMeasures (componentKey, metrics) {
     let msr = r[0].msr || [];
     let measures = {};
     msr.forEach(measure => {
-      measures[measure.key] = measure.val;
+      measures[measure.key] = measure.val || measure.data;
     });
     return measures;
   });

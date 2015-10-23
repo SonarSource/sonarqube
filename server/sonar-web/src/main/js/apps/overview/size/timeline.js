@@ -4,13 +4,13 @@ import { DomainTimeline } from '../domain/timeline';
 import { filterMetricsForDomains } from '../helpers/metrics';
 
 
-const DOMAINS = ['Issues', 'Technical Debt'];
+const DOMAINS = ['Size', 'Complexity', 'Documentation'];
 
 
-export class IssuesTimeline extends React.Component {
+export class SizeTimeline extends React.Component {
   render () {
     return <DomainTimeline {...this.props}
-        initialMetric="violations"
+        initialMetric="ncloc"
         metrics={filterMetricsForDomains(this.props.metrics, DOMAINS)}/>;
   }
 }

@@ -5,10 +5,8 @@ import { DuplicationsBubbleChart } from './bubble-chart';
 import { DuplicationsTimeline } from './timeline';
 import { DuplicationsTreemap } from './treemap';
 
-import { getSeverities, getTags, getAssignees } from '../../../api/issues';
 
-
-export default class DuplicationsDomain extends React.Component {
+export default class extends React.Component {
   render () {
     return <div className="overview-domain">
       <DuplicationsTimeline {...this.props}/>

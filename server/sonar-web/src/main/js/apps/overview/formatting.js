@@ -12,7 +12,6 @@ const METRIC_TYPES = {
   'sqale_index': 'SHORT_WORK_DUR',
   'sqale_debt_ratio': 'PERCENT',
   'sqale_rating': 'RATING',
-  'lines': 'SHORT_INT',
 
   'coverage': 'PERCENT',
   'line_coverage': 'PERCENT',
@@ -50,7 +49,27 @@ const METRIC_TYPES = {
   'duplicated_lines': 'INT',
   'duplicated_lines_density': 'PERCENT',
 
-  'complexity': 'INT'
+  'ncloc': 'SHORT_INT',
+  'classes': 'SHORT_INT',
+  'lines': 'SHORT_INT',
+  'generated_ncloc': 'SHORT_INT',
+  'generated_lines': 'SHORT_INT',
+  'directories': 'SHORT_INT',
+  'files': 'SHORT_INT',
+  'functions': 'SHORT_INT',
+  'statements': 'SHORT_INT',
+  'public_api': 'SHORT_INT',
+
+  'complexity': 'SHORT_INT',
+  'class_complexity': 'SHORT_INT',
+  'file_complexity': 'SHORT_INT',
+  'function_complexity': 'SHORT_INT',
+
+  'comment_lines_density': 'PERCENT',
+  'comment_lines': 'SHORT_INT',
+  'commented_out_code_lines': 'SHORT_INT',
+  'public_documented_api_density': 'PERCENT',
+  'public_undocumented_api': 'SHORT_INT'
 };
 
 export function formatMeasure (value, metric) {

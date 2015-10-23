@@ -172,9 +172,8 @@ export class BubbleChart extends React.Component {
 
     let bubbles = this.props.items
         .map((item, index) => {
-          let tooltip = index < this.props.tooltips.length ? this.props.tooltips[index] : null;
           return <Bubble key={index}
-                         tooltip={tooltip}
+                         tooltip={item.tooltip}
                          link={item.link}
                          x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}/>;
         });
