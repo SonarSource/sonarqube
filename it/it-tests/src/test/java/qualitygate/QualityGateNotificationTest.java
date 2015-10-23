@@ -8,7 +8,6 @@ package qualitygate;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
-import com.sonar.orchestrator.util.NetworkUtils;
 import java.util.Iterator;
 import javax.mail.internet.MimeMessage;
 import org.junit.Before;
@@ -25,6 +24,7 @@ import org.sonar.wsclient.services.ResourceQuery;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.ItUtils;
+import util.NetworkUtils;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;

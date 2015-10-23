@@ -6,7 +6,6 @@
 package server;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.util.NetworkUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import util.NetworkUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
