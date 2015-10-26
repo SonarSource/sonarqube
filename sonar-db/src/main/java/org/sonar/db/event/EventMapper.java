@@ -21,8 +21,6 @@
 package org.sonar.db.event;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
 
 public interface EventMapper {
 
@@ -31,11 +29,5 @@ public interface EventMapper {
   void insert(EventDto dto);
 
   void delete(long id);
-
-  /**
-   * TODO Used by PastSnapshotFinderByVersion. Should be dropped soon.
-   */
-  @CheckForNull
-  Long findSnapshotIdOfPreviousVersion(@Param("componentId") long componentId, @Param("currentVersion") String currentVersion);
 
 }

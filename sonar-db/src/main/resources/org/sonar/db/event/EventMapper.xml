@@ -32,49 +32,5 @@
     DELETE FROM events WHERE id=#{id}
   </delete>
 
-  <select id="findSnapshotIdOfPreviousVersion" parameterType="map" resultType="long">
-    SELECT s.id
-    FROM snapshots s, events e, projects p
-    <where>
-      AND p.id=#{componentId}
-      AND p.uuid=e.component_uuid
-      AND e.name &lt;&gt; #{currentVersion}
-      AND e.category='Version'
-      AND s.id = e.snapshot_id
-    </where>
-    ORDER BY e.event_date DESC
-    LIMIT 1
-  </select>
-
-  <!-- SQL Server -->
-  <select id="findSnapshotIdOfPreviousVersion" parameterType="map" resultType="long" databaseId="mssql">
-    SELECT TOP 1 s.id
-    FROM snapshots s, events e, projects p
-    <where>
-      AND p.id=#{componentId}
-      AND p.uuid=e.component_uuid
-      AND e.name &lt;&gt; #{currentVersion}
-      AND e.category='Version'
-      AND s.id = e.snapshot_id
-    </where>
-    ORDER BY e.event_date DESC
-  </select>
-
-  <!-- Oracle -->
-  <select id="findSnapshotIdOfPreviousVersion" parameterType="map" resultType="long" databaseId="oracle">
-    SELECT * FROM (SELECT s.id
-    FROM snapshots s, events e, projects p
-    <where>
-      AND p.id=#{componentId}
-      AND p.uuid=e.component_uuid
-      AND e.name &lt;&gt; #{currentVersion}
-      AND e.category='Version'
-      AND s.id = e.snapshot_id
-    </where>
-    ORDER BY e.event_date DESC
-    )
-    WHERE ROWNUM &lt;= 1
-  </select>
-
 </mapper>
 
