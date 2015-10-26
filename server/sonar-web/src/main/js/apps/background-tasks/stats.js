@@ -60,6 +60,7 @@ export default React.createClass({
       return (
           <span>
             <a ref="failureCount" onClick={this.onFailuresClick} className="emphasised-measure"
+               title="Count of projects where processing of most recent analysis report failed"
                href="#">{this.props.failuresCount}</a>
             &nbsp;
             {window.t('background_tasks.failures')}
@@ -68,7 +69,10 @@ export default React.createClass({
     } else {
       return (
           <span>
-            <span ref="failureCount" className="emphasised-measure">{this.props.failuresCount}</span>
+            <span ref="failureCount" className="emphasised-measure"
+                  title="Count of projects where processing of most recent analysis report failed">
+              {this.props.failuresCount}
+            </span>
             &nbsp;
             {window.t('background_tasks.failures')}
           </span>
