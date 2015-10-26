@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'underscore';
 import React from 'react';
 import GlobalNavBranding from './global-nav-branding';
 import GlobalNavMenu from './global-nav-menu';
@@ -8,7 +9,7 @@ import ShortcutsHelpView from './shortcuts-help-view';
 
 export default React.createClass({
   getInitialState() {
-    return this.props;
+    return _.extend({}, this.props, { ready: false });
   },
 
   componentDidMount() {
@@ -22,7 +23,7 @@ export default React.createClass({
 
   loadGlobalNavDetails() {
     $.get(`${window.baseUrl}/api/navigation/global`).done(r => {
-      this.setState(r);
+      this.setState(_.extend({ ready: true }, r));
     });
   },
 
@@ -42,6 +43,10 @@ export default React.createClass({
   },
 
   render() {
+    if (!this.state.ready) {
+      return null;
+    }
+
     return (
         <div className="container">
           <GlobalNavBranding {...this.state}/>

@@ -3,8 +3,8 @@ import React from 'react';
 export default React.createClass({
   renderLogo() {
     let url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`,
-        width = this.props.logoWidth || null,
-        height = this.props.logoWidth ? 30 : null,
+        width = this.props.logoWidth || 100,
+        height = 30,
         title = window.t('layout.sonar.slogan');
     return <img src={url} width={width} height={height} alt={title} title={title}/>;
   },
