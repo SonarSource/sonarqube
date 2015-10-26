@@ -21,8 +21,6 @@ package org.sonar.server.computation.source;
 
 import com.google.common.base.Optional;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
@@ -30,17 +28,18 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
+import org.sonar.server.computation.scm.ScmInfo;
+import org.sonar.server.computation.scm.ScmInfoRepository;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor.LastCommit> {
 
-  private final BatchReportReader reportReader;
   private final MeasureRepository measureRepository;
+  private final ScmInfoRepository scmInfoRepository;
   private final Metric lastCommitDateMetric;
 
-  public LastCommitVisitor(BatchReportReader reportReader, MetricRepository metricRepository,
-    MeasureRepository measureRepository) {
+  public LastCommitVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository) {
     super(CrawlerDepthLimit.LEAVES, POST_ORDER, new SimpleStackElementFactory<LastCommit>() {
       @Override
       public LastCommit createForAny(Component component) {
@@ -53,8 +52,8 @@ public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor
         return null;
       }
     });
-    this.reportReader = reportReader;
     this.measureRepository = measureRepository;
+    this.scmInfoRepository = scmInfoRepository;
     this.lastCommitDateMetric = metricRepository.getByKey(CoreMetrics.LAST_COMMIT_DATE_KEY);
   }
 
@@ -79,21 +78,10 @@ public class LastCommitVisitor extends PathAwareVisitorAdapter<LastCommitVisitor
     // since previous analysis (optimization to decrease execution of blame commands). In this case
     // the date is loaded from database, as it did not change from previous analysis.
 
-    // TODO We should use ScmInfoRepository instead of reading the report
-    // (but should only be done when the repo is only used once per component,
-    // as it's done with ComponentIssuesRepository, to not increase number of calls to file_sources)
-    BatchReport.Changesets changesets = reportReader.readChangesets(file.getReportAttributes().getRef());
-    if (changesets == null) {
-      Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(file, lastCommitDateMetric);
-      if (baseMeasure.isPresent()) {
-        path.current().addDate(baseMeasure.get().getLongValue());
-      }
-    } else {
-      for (BatchReport.Changesets.Changeset changeset : changesets.getChangesetList()) {
-        if (changeset.hasDate()) {
-          path.current().addDate(changeset.getDate());
-        }
-      }
+    Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(file);
+    if (scmInfoOptional.isPresent()) {
+      ScmInfo scmInfo = scmInfoOptional.get();
+      path.current().addDate(scmInfo.getLatestChangeset().getDate());
     }
     saveAndAggregate(file, path);
   }

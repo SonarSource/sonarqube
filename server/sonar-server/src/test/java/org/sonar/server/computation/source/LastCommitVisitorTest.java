@@ -24,8 +24,6 @@ import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
@@ -36,6 +34,8 @@ import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
+import org.sonar.server.computation.scm.Changeset;
+import org.sonar.server.computation.scm.ScmInfoRepositoryRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.LAST_COMMIT_DATE_KEY;
@@ -63,14 +63,14 @@ public class LastCommitVisitorTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
-  @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(CoreMetrics.LAST_COMMIT_DATE);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
+  @Rule
+  public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
 
   @Test
   public void aggregate_date_of_last_commit_to_directories_and_project() {
@@ -81,7 +81,7 @@ public class LastCommitVisitorTest {
     final long FILE_3_DATE = 1_300_000_000_000L;
 
     // simulate the output of visitFile()
-    LastCommitVisitor visitor = new LastCommitVisitor(reportReader, metricRepository, measureRepository) {
+    LastCommitVisitor visitor = new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository) {
       @Override
       public void visitFile(Component file, Path<LastCommit> path) {
         long fileDate;
@@ -168,7 +168,7 @@ public class LastCommitVisitorTest {
     measureRepository.addRawMeasure(PROJECT_2_REF, LAST_COMMIT_DATE_KEY, newMeasureBuilder().create(PROJECT_2_DATE));
     measureRepository.addRawMeasure(PROJECT_3_REF, LAST_COMMIT_DATE_KEY, newMeasureBuilder().create(PROJECT_3_DATE));
 
-    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(reportReader, metricRepository, measureRepository)));
+    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
     underTest.visit(view);
 
     // second level of sub-views
@@ -183,30 +183,28 @@ public class LastCommitVisitorTest {
   }
 
   @Test
-  public void compute_date_of_file_from_blame_info_of_report() throws Exception {
-    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(reportReader, metricRepository, measureRepository)));
+  public void compute_date_of_file_from_scm_repo() throws Exception {
+    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
 
-    BatchReport.Changesets changesets = BatchReport.Changesets.newBuilder()
-      .setComponentRef(FILE_1_REF)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+    scmInfoRepository.setScmInfo(FILE_1_REF,
+      Changeset.newChangesetBuilder()
         .setAuthor("john")
         .setDate(1_500_000_000_000L)
         .setRevision("rev-1")
-        .build())
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+        .build(),
+      Changeset.newChangesetBuilder()
         .setAuthor("tom")
         // this is the most recent change
         .setDate(1_600_000_000_000L)
         .setRevision("rev-2")
-        .build())
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+        .build(),
+      Changeset.newChangesetBuilder()
         .setAuthor("john")
         .setDate(1_500_000_000_000L)
         .setRevision("rev-1")
-        .build())
-      .addChangesetIndexByLine(0)
-      .build();
-    reportReader.putChangesets(changesets);
+        .build()
+      );
+
     ReportComponent file = createFileComponent(FILE_1_REF);
     treeRootHolder.setRoot(file);
 
@@ -215,32 +213,9 @@ public class LastCommitVisitorTest {
     assertDate(FILE_1_REF, 1_600_000_000_000L);
   }
 
-  private void assertDate(int componentRef, long expectedDate) {
-    Optional<Measure> measure = measureRepository.getAddedRawMeasure(componentRef, LAST_COMMIT_DATE_KEY);
-    assertThat(measure.isPresent()).isTrue();
-    assertThat(measure.get().getLongValue()).isEqualTo(expectedDate);
-  }
-
-  /**
-   * When the file was not changed since previous analysis, than the report may not contain
-   * the SCM blame information. In this case the date of last commit is loaded
-   * from the base measure of previous analysis, directly from database
-   */
   @Test
-  public void reuse_date_of_previous_analysis_if_blame_info_is_not_in_report() throws Exception {
-    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(reportReader, metricRepository, measureRepository)));
-    ReportComponent file = createFileComponent(FILE_1_REF);
-    treeRootHolder.setRoot(file);
-    measureRepository.addBaseMeasure(FILE_1_REF, LAST_COMMIT_DATE_KEY, newMeasureBuilder().create(1_500_000_000L));
-
-    underTest.visit(file);
-
-    assertDate(FILE_1_REF, 1_500_000_000L);
-  }
-
-  @Test
-  public void date_is_not_computed_on_file_if_blame_is_not_in_report_nor_in_previous_analysis() throws Exception {
-    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(reportReader, metricRepository, measureRepository)));
+  public void date_is_not_computed_on_file_if_blame_is_not_in_scm_repo() throws Exception {
+    VisitorsCrawler underTest = new VisitorsCrawler(Lists.<ComponentVisitor>newArrayList(new LastCommitVisitor(metricRepository, measureRepository, scmInfoRepository)));
     ReportComponent file = createFileComponent(FILE_1_REF);
     treeRootHolder.setRoot(file);
 
@@ -248,6 +223,12 @@ public class LastCommitVisitorTest {
 
     Optional<Measure> measure = measureRepository.getAddedRawMeasure(FILE_1_REF, LAST_COMMIT_DATE_KEY);
     assertThat(measure.isPresent()).isFalse();
+  }
+
+  private void assertDate(int componentRef, long expectedDate) {
+    Optional<Measure> measure = measureRepository.getAddedRawMeasure(componentRef, LAST_COMMIT_DATE_KEY);
+    assertThat(measure.isPresent()).isTrue();
+    assertThat(measure.get().getLongValue()).isEqualTo(expectedDate);
   }
 
   private ReportComponent createFileComponent(int fileRef) {
