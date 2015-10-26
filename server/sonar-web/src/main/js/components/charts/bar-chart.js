@@ -1,31 +1,33 @@
 import d3 from 'd3';
 import React from 'react';
 
-export class BarChart extends React.Component {
-  constructor (props) {
-    super();
-    this.state = { width: props.width, height: props.height };
-  }
+import { ResizeMixin } from './mixins/resize-mixin';
+import { TooltipsMixin } from './mixins/tooltips-mixin';
 
-  componentDidMount () {
-    if (!this.props.width || !this.props.height) {
-      this.handleResize();
-      window.addEventListener('resize', this.handleResize.bind(this));
-    }
-  }
+export const BarChart = React.createClass({
+  mixins: [ResizeMixin, TooltipsMixin],
 
-  componentWillUnmount () {
-    if (!this.props.width || !this.props.height) {
-      window.removeEventListener('resize', this.handleResize.bind(this));
-    }
-  }
+  propTypes: {
+    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    xTicks: React.PropTypes.arrayOf(React.PropTypes.any),
+    xValues: React.PropTypes.arrayOf(React.PropTypes.any),
+    height: React.PropTypes.number,
+    padding: React.PropTypes.arrayOf(React.PropTypes.number),
+    barsWidth: React.PropTypes.number
+  },
 
-  handleResize () {
-    let boundingClientRect = React.findDOMNode(this).parentNode.getBoundingClientRect();
-    let newWidth = this.props.width || boundingClientRect.width;
-    let newHeight = this.props.height || boundingClientRect.height;
-    this.setState({ width: newWidth, height: newHeight });
-  }
+  getDefaultProps() {
+    return {
+      xTicks: [],
+      xValues: [],
+      padding: [10, 10, 10, 10],
+      barsWidth: 40
+    };
+  },
+
+  getInitialState () {
+    return { width: this.props.width, height: this.props.height };
+  },
 
   renderXTicks (xScale, yScale) {
     if (!this.props.xTicks.length) {
@@ -38,7 +40,7 @@ export class BarChart extends React.Component {
       return <text key={index} className="bar-chart-tick" x={x} y={y} dy="1.5em">{tick}</text>;
     });
     return <g>{ticks}</g>;
-  }
+  },
 
   renderXValues (xScale, yScale) {
     if (!this.props.xValues.length) {
@@ -51,7 +53,7 @@ export class BarChart extends React.Component {
       return <text key={index} className="bar-chart-tick" x={x} y={y} dy="-1em">{value}</text>;
     });
     return <g>{ticks}</g>;
-  }
+  },
 
   renderBars (xScale, yScale) {
     let bars = this.props.data.map((d, index) => {
@@ -63,7 +65,7 @@ export class BarChart extends React.Component {
                    x={x} y={y} width={this.props.barsWidth} height={height}/>;
     });
     return <g>{bars}</g>;
-  }
+  },
 
   render () {
     if (!this.state.width || !this.state.height) {
@@ -89,19 +91,4 @@ export class BarChart extends React.Component {
       </g>
     </svg>;
   }
-}
-
-BarChart.defaultProps = {
-  xTicks: [],
-  xValues: [],
-  padding: [10, 10, 10, 10],
-  barsWidth: 40
-};
-
-BarChart.propTypes = {
-  data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-  xTicks: React.PropTypes.arrayOf(React.PropTypes.any),
-  xValues: React.PropTypes.arrayOf(React.PropTypes.any),
-  padding: React.PropTypes.arrayOf(React.PropTypes.number),
-  barsWidth: React.PropTypes.number
-};
+});

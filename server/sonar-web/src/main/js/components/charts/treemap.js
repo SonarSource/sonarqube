@@ -1,13 +1,15 @@
-import $ from 'jquery';
 import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
 
+import { ResizeMixin } from './mixins/resize-mixin';
+import { TooltipsMixin } from './mixins/tooltips-mixin';
+
 
 const SIZE_SCALE = d3.scale.linear()
-    .domain([3, 15])
-    .range([11, 18])
-    .clamp(true);
+                     .domain([3, 15])
+                     .range([11, 18])
+                     .clamp(true);
 
 
 function mostCommitPrefix (strings) {
@@ -25,7 +27,17 @@ function mostCommitPrefix (strings) {
 }
 
 
-export class TreemapRect extends React.Component {
+export const TreemapRect = React.createClass({
+  propTypes: {
+    x: React.PropTypes.number.isRequired,
+    y: React.PropTypes.number.isRequired,
+    width: React.PropTypes.number.isRequired,
+    height: React.PropTypes.number.isRequired,
+    fill: React.PropTypes.string.isRequired,
+    label: React.PropTypes.string.isRequired,
+    prefix: React.PropTypes.string
+  },
+
   render () {
     let tooltipAttrs = {};
     if (this.props.tooltip) {
@@ -48,52 +60,20 @@ export class TreemapRect extends React.Component {
            style={{ maxWidth: this.props.width }}/>
     </div>;
   }
-}
-
-TreemapRect.propTypes = {
-  x: React.PropTypes.number.isRequired,
-  y: React.PropTypes.number.isRequired,
-  width: React.PropTypes.number.isRequired,
-  height: React.PropTypes.number.isRequired,
-  fill: React.PropTypes.string.isRequired
-};
+});
 
 
-export class Treemap extends React.Component {
-  constructor (props) {
-    super();
-    this.state = { width: props.width, height: props.height };
-  }
+export const Treemap = React.createClass({
+  mixins: [ResizeMixin, TooltipsMixin],
 
-  componentDidMount () {
-    if (!this.props.width || !this.props.height) {
-      this.handleResize();
-      window.addEventListener('resize', this.handleResize.bind(this));
-    }
-    this.initTooltips();
-  }
+  propTypes: {
+    items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    height: React.PropTypes.number
+  },
 
-  componentDidUpdate () {
-    this.initTooltips();
-  }
-
-  componentWillUnmount () {
-    if (!this.props.width || !this.props.height) {
-      window.removeEventListener('resize', this.handleResize.bind(this));
-    }
-  }
-
-  initTooltips () {
-    $('[data-toggle="tooltip"]', React.findDOMNode(this))
-        .tooltip({ container: 'body', placement: 'top', html: true });
-  }
-
-  handleResize () {
-    let boundingClientRect = React.findDOMNode(this).parentNode.getBoundingClientRect();
-    let newWidth = this.props.width || boundingClientRect.width;
-    let newHeight = this.props.height || boundingClientRect.height;
-    this.setState({ width: newWidth, height: newHeight });
-  }
+  getInitialState() {
+    return { width: this.props.width, height: this.props.height };
+  },
 
   render () {
     if (!this.state.width || !this.state.height || !this.props.items.length) {
@@ -101,12 +81,12 @@ export class Treemap extends React.Component {
     }
 
     let sizeScale = d3.scale.linear()
-        .domain([0, d3.max(this.props.items, d => d.size)])
-        .range([5, 45]);
+                      .domain([0, d3.max(this.props.items, d => d.size)])
+                      .range([5, 45]);
     let treemap = d3.layout.treemap()
-        .round(true)
-        .value(d => sizeScale(d.size))
-        .size([this.state.width, 360]);
+                    .round(true)
+                    .value(d => sizeScale(d.size))
+                    .size([this.state.width, 360]);
     let nodes = treemap
         .nodes({ children: this.props.items })
         .filter(d => !d.children);
@@ -133,8 +113,4 @@ export class Treemap extends React.Component {
       </div>
     </div>;
   }
-}
-
-Treemap.propTypes = {
-  items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
-};
+});

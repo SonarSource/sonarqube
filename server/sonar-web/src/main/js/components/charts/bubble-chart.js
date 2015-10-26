@@ -1,13 +1,24 @@
-import $ from 'jquery';
 import d3 from 'd3';
 import React from 'react';
 
-export class Bubble extends React.Component {
+import { ResizeMixin } from './mixins/resize-mixin';
+import { TooltipsMixin } from './mixins/tooltips-mixin';
+
+
+export const Bubble = React.createClass({
+  propTypes: {
+    x: React.PropTypes.number.isRequired,
+    y: React.PropTypes.number.isRequired,
+    r: React.PropTypes.number.isRequired,
+    tooltip: React.PropTypes.string,
+    link: React.PropTypes.string
+  },
+
   handleClick () {
     if (this.props.link) {
       window.location = this.props.link;
     }
-  }
+  },
 
   render () {
     let tooltipAttrs = {};
@@ -17,48 +28,45 @@ export class Bubble extends React.Component {
         'title': this.props.tooltip
       };
     }
-    return <circle onClick={this.handleClick.bind(this)} className="bubble-chart-bubble"
+    return <circle onClick={this.handleClick} className="bubble-chart-bubble"
                    r={this.props.r} {...tooltipAttrs}
                    transform={`translate(${this.props.x}, ${this.props.y})`}/>;
   }
-}
+});
 
 
-export class BubbleChart extends React.Component {
-  constructor (props) {
-    super();
-    this.state = { width: props.width, height: props.height };
-  }
+export const BubbleChart = React.createClass({
+  mixins: [ResizeMixin, TooltipsMixin],
 
-  componentDidMount () {
-    if (!this.props.width || !this.props.height) {
-      this.handleResize();
-      window.addEventListener('resize', this.handleResize.bind(this));
-    }
-    this.initTooltips();
-  }
+  propTypes: {
+    items: React.PropTypes.arrayOf(React.PropTypes.object),
+    sizeRange: React.PropTypes.arrayOf(React.PropTypes.number),
+    displayXGrid: React.PropTypes.bool,
+    displayXTicks: React.PropTypes.bool,
+    displayYGrid: React.PropTypes.bool,
+    displayYTicks: React.PropTypes.bool,
+    height: React.PropTypes.number,
+    padding: React.PropTypes.arrayOf(React.PropTypes.number),
+    formatXTick: React.PropTypes.func,
+    formatYTick: React.PropTypes.func
+  },
 
-  componentDidUpdate () {
-    this.initTooltips();
-  }
+  getDefaultProps() {
+    return {
+      sizeRange: [5, 45],
+      displayXGrid: true,
+      displayYGrid: true,
+      displayXTicks: true,
+      displayYTicks: true,
+      padding: [10, 10, 10, 10],
+      formatXTick: d => d,
+      formatYTick: d => d
+    };
+  },
 
-  componentWillUnmount () {
-    if (!this.props.width || !this.props.height) {
-      window.removeEventListener('resize', this.handleResize.bind(this));
-    }
-  }
-
-  handleResize () {
-    let boundingClientRect = React.findDOMNode(this).parentNode.getBoundingClientRect();
-    let newWidth = this.props.width || boundingClientRect.width;
-    let newHeight = this.props.height || boundingClientRect.height;
-    this.setState({ width: newWidth, height: newHeight });
-  }
-
-  initTooltips () {
-    $('[data-toggle="tooltip"]', React.findDOMNode(this))
-        .tooltip({ container: 'body', placement: 'bottom', html: true });
-  }
+  getInitialState() {
+    return { width: this.props.width, height: this.props.height };
+  },
 
   getXRange (xScale, sizeScale, availableWidth) {
     var minX = d3.min(this.props.items, d => xScale(d.x) - sizeScale(d.size)),
@@ -66,7 +74,7 @@ export class BubbleChart extends React.Component {
         dMinX = minX < 0 ? xScale.range()[0] - minX : xScale.range()[0],
         dMaxX = maxX > xScale.range()[1] ? maxX - xScale.range()[1] : 0;
     return [dMinX, availableWidth - dMaxX];
-  }
+  },
 
   getYRange (yScale, sizeScale, availableHeight) {
     var minY = d3.min(this.props.items, d => yScale(d.y) - sizeScale(d.size)),
@@ -74,7 +82,7 @@ export class BubbleChart extends React.Component {
         dMinY = minY < 0 ? yScale.range()[1] - minY : yScale.range()[1],
         dMaxY = maxY > yScale.range()[0] ? maxY - yScale.range()[0] : 0;
     return [availableHeight - dMaxY, dMinY];
-  }
+  },
 
   renderXGrid (xScale, yScale) {
     if (!this.props.displayXGrid) {
@@ -92,7 +100,7 @@ export class BubbleChart extends React.Component {
     });
 
     return <g ref="xGrid">{lines}</g>;
-  }
+  },
 
   renderYGrid (xScale, yScale) {
     if (!this.props.displayYGrid) {
@@ -110,7 +118,7 @@ export class BubbleChart extends React.Component {
     });
 
     return <g ref="yGrid">{lines}</g>;
-  }
+  },
 
   renderXTicks (xScale, yScale) {
     if (!this.props.displayXTicks) {
@@ -127,7 +135,7 @@ export class BubbleChart extends React.Component {
     });
 
     return <g>{ticks}</g>;
-  }
+  },
 
   renderYTicks (xScale, yScale) {
     if (!this.props.displayYTicks) {
@@ -145,7 +153,7 @@ export class BubbleChart extends React.Component {
     });
 
     return <g>{ticks}</g>;
-  }
+  },
 
   render () {
     if (!this.state.width || !this.state.height) {
@@ -156,27 +164,27 @@ export class BubbleChart extends React.Component {
     let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
     let xScale = d3.scale.linear()
-        .domain([0, d3.max(this.props.items, d => d.x)])
-        .range([0, availableWidth])
-        .nice();
+                   .domain([0, d3.max(this.props.items, d => d.x)])
+                   .range([0, availableWidth])
+                   .nice();
     let yScale = d3.scale.linear()
-        .domain([0, d3.max(this.props.items, d => d.y)])
-        .range([availableHeight, 0])
-        .nice();
+                   .domain([0, d3.max(this.props.items, d => d.y)])
+                   .range([availableHeight, 0])
+                   .nice();
     let sizeScale = d3.scale.linear()
-        .domain([0, d3.max(this.props.items, d => d.size)])
-        .range(this.props.sizeRange);
+                      .domain([0, d3.max(this.props.items, d => d.size)])
+                      .range(this.props.sizeRange);
 
     xScale.range(this.getXRange(xScale, sizeScale, availableWidth));
     yScale.range(this.getYRange(yScale, sizeScale, availableHeight));
 
     let bubbles = this.props.items
-        .map((item, index) => {
-          return <Bubble key={index}
-                         tooltip={item.tooltip}
-                         link={item.link}
-                         x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}/>;
-        });
+                      .map((item, index) => {
+                        return <Bubble key={index}
+                                       tooltip={item.tooltip}
+                                       link={item.link}
+                                       x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}/>;
+                      });
 
     return <svg className="bubble-chart" width={this.state.width} height={this.state.height}>
       <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
@@ -188,25 +196,4 @@ export class BubbleChart extends React.Component {
       </g>
     </svg>;
   }
-}
-
-BubbleChart.defaultProps = {
-  sizeRange: [5, 45],
-  displayXGrid: true,
-  displayYGrid: true,
-  displayXTicks: true,
-  displayYTicks: true,
-  tooltips: [],
-  padding: [10, 10, 10, 10],
-  formatXTick: d => d,
-  formatYTick: d => d
-};
-
-BubbleChart.propTypes = {
-  sizeRange: React.PropTypes.arrayOf(React.PropTypes.number),
-  displayXGrid: React.PropTypes.bool,
-  displayYGrid: React.PropTypes.bool,
-  padding: React.PropTypes.arrayOf(React.PropTypes.number),
-  formatXTick: React.PropTypes.func,
-  formatYTick: React.PropTypes.func
-};
+});

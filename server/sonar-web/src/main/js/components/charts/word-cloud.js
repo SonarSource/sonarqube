@@ -1,8 +1,16 @@
-import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
 
-export class Word extends React.Component {
+import { TooltipsMixin } from './mixins/tooltips-mixin';
+
+export const Word = React.createClass({
+  propTypes: {
+    size: React.PropTypes.number.isRequired,
+    text: React.PropTypes.string.isRequired,
+    tooltip: React.PropTypes.string,
+    link: React.PropTypes.string.isRequired
+  },
+
   render () {
     let tooltipAttrs = {};
     if (this.props.tooltip) {
@@ -13,22 +21,22 @@ export class Word extends React.Component {
     }
     return <a {...tooltipAttrs} style={{ fontSize: this.props.size }} href={this.props.link}>{this.props.text}</a>;
   }
-}
+});
 
 
-export class WordCloud extends React.Component {
-  componentDidMount () {
-    this.initTooltips();
-  }
+export const WordCloud = React.createClass({
+  mixins: [TooltipsMixin],
 
-  componentDidUpdate () {
-    this.initTooltips();
-  }
+  propTypes: {
+    items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    sizeRange: React.PropTypes.arrayOf(React.PropTypes.number)
+  },
 
-  initTooltips () {
-    $('[data-toggle="tooltip"]', React.findDOMNode(this))
-        .tooltip({ container: 'body', placement: 'bottom', html: true });
-  }
+  getDefaultProps() {
+    return {
+      sizeRange: [10, 24]
+    };
+  },
 
   render () {
     let len = this.props.items.length;
@@ -38,8 +46,8 @@ export class WordCloud extends React.Component {
     });
 
     let sizeScale = d3.scale.linear()
-        .domain([0, d3.max(this.props.items, d => d.size)])
-        .range(this.props.sizeRange);
+                      .domain([0, d3.max(this.props.items, d => d.size)])
+                      .range(this.props.sizeRange);
     let words = sortedItems
         .map((item, index) => <Word key={index}
                                     text={item.text}
@@ -48,12 +56,4 @@ export class WordCloud extends React.Component {
                                     tooltip={item.tooltip}/>);
     return <div className="word-cloud">{words}</div>;
   }
-}
-
-WordCloud.defaultProps = {
-  sizeRange: [10, 24]
-};
-
-WordCloud.propTypes = {
-  sizeRange: React.PropTypes.arrayOf(React.PropTypes.number)
-};
+});

@@ -90,11 +90,9 @@ export class DomainBubbleChart extends React.Component {
         tooltip: this.getTooltip(component)
       };
     });
-    let xGrid = this.state.files.map(component => getMeasure(component, this.props.xMetric));
     let formatXTick = (tick) => window.formatMeasure(tick, this.state.xMetric.type);
     let formatYTick = (tick) => window.formatMeasure(tick, this.state.yMetric.type);
     return <BubbleChart items={items}
-                        xGrid={xGrid}
                         height={HEIGHT}
                         padding={[25, 30, 50, 60]}
                         formatXTick={formatXTick}

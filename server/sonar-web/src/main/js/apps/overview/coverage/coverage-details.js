@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { getMeasures } from '../../../api/measures';
+import DrilldownLink from '../helpers/drilldown-link';
 
 
 const METRICS = [
@@ -36,25 +38,35 @@ export class CoverageDetails extends React.Component {
     });
   }
 
-  renderCoverage (coverage, lineCoverage, branchCoverage) {
+  renderValue (value, metricKey) {
+    if (value != null) {
+      return <DrilldownLink component={this.props.component.key} metric={metricKey}>
+        {window.formatMeasure(value, 'PERCENT')}
+      </DrilldownLink>;
+    } else {
+      return '—';
+    }
+  }
+
+  renderCoverage (coverage, lineCoverage, branchCoverage, prefix) {
     return <table className="data zebra">
       <tbody>
       <tr>
         <td>Coverage</td>
         <td className="thin nowrap text-right">
-          {formatCoverage(coverage)}
+          {this.renderValue(coverage, prefix + 'coverage')}
         </td>
       </tr>
       <tr>
         <td>Line Coverage</td>
         <td className="thin nowrap text-right">
-          {formatCoverage(lineCoverage)}
+          {this.renderValue(lineCoverage, prefix + 'line_coverage')}
         </td>
       </tr>
       <tr>
         <td>Branch Coverage</td>
         <td className="thin nowrap text-right">
-          {formatCoverage(branchCoverage)}
+          {this.renderValue(branchCoverage, prefix + 'branch_coverage')}
         </td>
       </tr>
       </tbody>
@@ -70,7 +82,8 @@ export class CoverageDetails extends React.Component {
       {this.renderCoverage(
           this.state.measures['coverage'],
           this.state.measures['line_coverage'],
-          this.state.measures['branch_coverage'])}
+          this.state.measures['branch_coverage'],
+          '')}
     </div>;
   }
 
@@ -83,7 +96,8 @@ export class CoverageDetails extends React.Component {
       {this.renderCoverage(
           this.state.measures['it_coverage'],
           this.state.measures['it_line_coverage'],
-          this.state.measures['it_branch_coverage'])}
+          this.state.measures['it_branch_coverage'],
+          'it_')}
     </div>;
   }
 
@@ -98,7 +112,8 @@ export class CoverageDetails extends React.Component {
       {this.renderCoverage(
           this.state.measures['overall_coverage'],
           this.state.measures['overall_line_coverage'],
-          this.state.measures['overall_branch_coverage'])}
+          this.state.measures['overall_branch_coverage'],
+          'overall_')}
     </div>;
   }
 

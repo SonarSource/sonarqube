@@ -5,11 +5,6 @@ import DrilldownLink from '../helpers/drilldown-link';
 import { getMeasures } from '../../../api/measures';
 
 
-function format (value, type) {
-  return value != null ? window.formatMeasure(value, type) : '—';
-}
-
-
 export class DomainMeasuresList extends React.Component {
   constructor () {
     super();
@@ -30,15 +25,23 @@ export class DomainMeasuresList extends React.Component {
     return _.findWhere(this.props.metrics, { key: metricKey });
   }
 
+  renderValue (value, metricKey, metricType) {
+    if (value != null) {
+      return <DrilldownLink component={this.props.component.key} metric={metricKey}>
+        {window.formatMeasure(value, metricType)}
+      </DrilldownLink>;
+    } else {
+      return '—';
+    }
+  }
+
   render () {
     let rows = this.props.metricsToDisplay.map(metric => {
       let metricObject = this.getMetricObject(metric);
       return <tr key={metric}>
         <td>{metricObject.name}</td>
         <td className="thin nowrap text-right">
-          <DrilldownLink component={this.props.component.key} metric={metric}>
-            {format(this.state.measures[metric], metricObject.type)}
-          </DrilldownLink>
+          {this.renderValue(this.state.measures[metric], metric, metricObject.type)}
         </td>
       </tr>;
     });

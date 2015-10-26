@@ -79,9 +79,19 @@ export class DomainTimeline extends React.Component {
     </div>;
   }
 
+  renderWhenNoHistoricalData () {
+    return <div className="overview-chart-placeholder" style={{ height: HEIGHT }}>
+      There is no historical data.
+    </div>;
+  }
+
   renderLineChart () {
     if (this.state.loading) {
       return this.renderLoading();
+    }
+
+    if (!this.state.events.length || !this.state.snapshots.length) {
+      return this.renderWhenNoHistoricalData();
     }
 
     let events = this.prepareEvents();
