@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
-import Main from './main';
+import { Overview } from './main';
 
 class App {
   start (options) {
@@ -9,7 +9,7 @@ class App {
     _.extend(opts.component, options.component);
     $('html').toggleClass('dashboard-page', opts.component.hasSnapshot);
     let el = document.querySelector(opts.el);
-    React.render(<Main {...opts}/>, el);
+    React.render(<Overview {...opts}/>, el);
   }
 }
 

@@ -55,9 +55,10 @@ export const TreemapRect = React.createClass({
       fontSize: SIZE_SCALE(this.props.width / this.props.label.length),
       lineHeight: `${this.props.height}px`
     };
+    let isTextVisible = this.props.width >= 40 && this.props.height >= 40;
     return <div className="treemap-cell" {...tooltipAttrs} style={cellStyles}>
       <div className="treemap-inner" dangerouslySetInnerHTML={{ __html: this.props.label }}
-           style={{ maxWidth: this.props.width }}/>
+           style={{ maxWidth: this.props.width, visibility: isTextVisible ? 'visible': 'hidden' }}/>
     </div>;
   }
 });
@@ -89,7 +90,8 @@ export const Treemap = React.createClass({
                     .size([this.state.width, 360]);
     let nodes = treemap
         .nodes({ children: this.props.items })
-        .filter(d => !d.children);
+        .filter(d => !d.children)
+        .filter(d => !!d.dx && !!d.dy);
 
     let prefix = mostCommitPrefix(this.props.items.map(item => item.label)),
         prefixLength = prefix.length;

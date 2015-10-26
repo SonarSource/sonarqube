@@ -28,20 +28,20 @@ export default React.createClass({
               </DrilldownLink>
             </div>
             <div className="measure measure-big" data-metric="sqale_index">
+              <span className="measure-name">{window.t('overview.metric.debt')}</span>
               <span className="measure-value">
                 <IssuesLink component={this.props.component.key} params={{ resolved: 'false', facetMode: 'debt' }}>
                   <Measure value={debt} type="SHORT_WORK_DUR"/>
                 </IssuesLink>
               </span>
-              <span className="measure-name">{window.t('overview.metric.debt')}</span>
             </div>
             <div className="measure measure-big" data-metric="violations">
+              <span className="measure-name">{window.t('overview.metric.issues')}</span>
               <span className="measure-value">
                 <IssuesLink component={this.props.component.key} params={{ resolved: 'false' }}>
                   <Measure value={issues} type="SHORT_INT"/>
                 </IssuesLink>
               </span>
-              <span className="measure-name">{window.t('overview.metric.issues')}</span>
             </div>
           </div>
           <ul className="list-inline big-spacer-top">

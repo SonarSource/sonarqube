@@ -22,7 +22,7 @@ export default React.createClass({
   },
 
   _hasWaterLeak() {
-    return !!_.findWhere(this.props.component.periods, { index: '3' });
+    return !!_.findWhere(this.props.component.periods, { index: '1' });
   },
 
   _requestIssues(data) {
@@ -33,7 +33,7 @@ export default React.createClass({
   },
 
   requestLeakIssues() {
-    let createdAfter = moment(getPeriodDate(this.props.component.periods, '3')).format('YYYY-MM-DDTHH:mm:ssZZ');
+    let createdAfter = moment(getPeriodDate(this.props.component.periods, '1')).format('YYYY-MM-DDTHH:mm:ssZZ');
     this._requestIssues({ resolved: 'false', createdAfter, facets: 'severities,statuses' }).done(r => {
       let
           severitiesFacet = _.findWhere(r.facets, { property: 'severities' }).values,
@@ -70,7 +70,7 @@ export default React.createClass({
   },
 
   requestLeakDebt() {
-    let createdAfter = moment(getPeriodDate(this.props.component.periods, '3')).format('YYYY-MM-DDTHH:mm:ssZZ');
+    let createdAfter = moment(getPeriodDate(this.props.component.periods, '1')).format('YYYY-MM-DDTHH:mm:ssZZ');
     this._requestIssues({ resolved: 'false', createdAfter, facets: 'severities', facetMode: 'debt' }).done(r => {
       this.setState({
         leak: _.extend({}, this.state.leak, { newDebt: r.debtTotal })

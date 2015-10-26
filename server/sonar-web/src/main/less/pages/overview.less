@@ -17,7 +17,7 @@
 
 .overview-gate {
   .clearfix;
-  padding: 50px 30px;
+  padding: 50px 0 25px;
 }
 
 .overview-gate-box {
@@ -70,11 +70,6 @@
   margin-top: 8px;
   font-weight: 300;
   font-size: 22px;
-
-  i {
-    position: relative;
-    top: -1px;
-  }
 }
 
 .overview-gate-condition-itself {
@@ -89,13 +84,13 @@
 }
 
 .overview-leak {
-  padding: 50px 30px;
+  padding: 50px 0 25px;
   border-top: 1px solid @barBorderColor;
   border-bottom: 1px solid @barBorderColor;
 }
 
 .overview-title {
-  margin-bottom: 20px;
+  padding: 0 30px;
   font-size: 18px;
   font-weight: 400;
 
@@ -115,11 +110,7 @@
 }
 
 .overview-nutshell {
-  padding: 50px 30px 0;
-
-  .overview-card {
-    padding-bottom: 25px;
-  }
+  padding: 50px 0 0;
 }
 
 .overview-cards {
@@ -128,6 +119,7 @@
 
 .overview-card {
   flex: 1 0 25%;
+  padding: 25px 30px;
   box-sizing: border-box;
 
   .overview-gate & {
@@ -151,6 +143,11 @@
     margin-left: 30px;
   }
 
+  .measure-big .measure-name {
+    margin-top: 0;
+    margin-bottom: 2px;
+  }
+
   .list-inline {
     margin-left: -10px;
     margin-right: -10px;
@@ -163,10 +160,24 @@
 }
 
 .overview-card-section {
+  position: relative;
+  z-index: 100;
   cursor: pointer;
 
   &:hover, &.active {
-    border-bottom: 4px solid #2c3946;
+    &:before {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -10px;
+      width: 0;
+      height: 0;
+      border: solid transparent;
+      border-width: 10px;
+      border-top-color: #fff;
+      content: '';
+      pointer-events: none;
+    }
   }
 }
 
@@ -180,7 +191,6 @@
 
 .overview-meta {
   width: 240px;
-  padding: 50px 30px;
   border-left: 1px solid @barBorderColor;
   box-sizing: border-box;
   background-color: @barBackgroundColor;
@@ -192,7 +202,6 @@
 
 .overview-meta .overview-card {
   width: auto;
-  margin-bottom: 30px;
 }
 
 .overview-meta-description {
@@ -234,6 +243,12 @@
 
 .overview-domain-section {
   padding: 50px 30px;
+
+  .overview-title {
+    margin-bottom: 25px;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .overview-domain-header {

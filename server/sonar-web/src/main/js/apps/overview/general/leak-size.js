@@ -12,16 +12,16 @@ export default React.createClass({
         <Card>
           <div className="measures">
             <div className="measure measure-big" data-metric="lines">
+              <span className="measure-name">{window.t('overview.metric.lines')}</span>
               <span className="measure-value">
                 <MeasureVariation value={lines} type="SHORT_INT"/>
               </span>
-              <span className="measure-name">{window.t('overview.metric.lines')}</span>
             </div>
             <div className="measure measure-big" data-metric="files">
+              <span className="measure-name">{window.t('overview.metric.files')}</span>
               <span className="measure-value">
                 <MeasureVariation value={files} type="SHORT_INT"/>
               </span>
-              <span className="measure-name">{window.t('overview.metric.files')}</span>
             </div>
           </div>
         </Card>

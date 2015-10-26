@@ -152,20 +152,20 @@
         <% if @snapshot %>
         // coverage
         <% if @snapshot.measure('new_overall_coverage') %>
-        newCoverage: '<%= @snapshot.measure('new_overall_coverage').variation(3) -%>',
+        newCoverage: '<%= @snapshot.measure('new_overall_coverage').variation(1) -%>',
         <% end %>
         <% if @snapshot.measure('tests') %>
-        tests: '<%= @snapshot.measure('tests').variation(3) -%>',
+        tests: '<%= @snapshot.measure('tests').variation(1) -%>',
         <% end %>
 
         // duplications
-        duplications: '<%= @snapshot.measure('duplicated_lines_density').variation(3) -%>',
-        duplicatedLines: '<%= @snapshot.measure('duplicated_lines').variation(3) -%>',
-        duplicatedBlocks: '<%= @snapshot.measure('duplicated_blocks').variation(3) -%>',
+        duplications: '<%= @snapshot.measure('duplicated_lines_density').variation(1) -%>',
+        duplicatedLines: '<%= @snapshot.measure('duplicated_lines').variation(1) -%>',
+        duplicatedBlocks: '<%= @snapshot.measure('duplicated_blocks').variation(1) -%>',
 
         // size
-        lines: '<%= @snapshot.measure('lines').variation(3) -%>',
-        files: '<%= @snapshot.measure('files').variation(3) -%>'
+        lines: '<%= @snapshot.measure('lines').variation(1) -%>',
+        files: '<%= @snapshot.measure('files').variation(1) -%>'
         <% end %>
       };
 

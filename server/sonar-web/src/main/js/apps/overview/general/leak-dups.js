@@ -24,10 +24,10 @@ export default React.createClass({
               <Donut data={donutData} size="47"/>
             </div>
             <div className="measure measure-big" data-metric="duplicated_lines_density">
+              <span className="measure-name">{window.t('overview.metric.duplications')}</span>
               <span className="measure-value">
                 <MeasureVariation value={density} type="PERCENT"/>
               </span>
-              <span className="measure-name">{window.t('overview.metric.duplications')}</span>
             </div>
           </div>
           <ul className="list-inline big-spacer-top measures-chart-indent">

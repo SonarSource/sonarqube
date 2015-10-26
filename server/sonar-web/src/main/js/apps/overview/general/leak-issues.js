@@ -16,28 +16,28 @@ export default React.createClass({
         blockerIssues = this.props.leak.newBlockerIssues,
         criticalIssues = this.props.leak.newCriticalIssues,
         issuesToReview = this.props.leak.newOpenIssues + this.props.leak.newReopenedIssues,
-        periodDate = moment(getPeriodDate(this.props.component.periods, '3')).format('YYYY-MM-DDTHH:mm:ssZZ');
+        periodDate = moment(getPeriodDate(this.props.component.periods, '1')).format('YYYY-MM-DDTHH:mm:ssZZ');
 
     return (
         <Card>
           <div className="measures">
             <div className="measure measure-big" data-metric="sqale_index">
+              <span className="measure-name">{window.t('overview.metric.new_debt')}</span>
               <span className="measure-value">
                 <IssuesLink component={this.props.component.key}
                             params={{ resolved: 'false', createdAfter: periodDate, facetMode: 'debt' }}>
                   <Measure value={newDebt} type="SHORT_WORK_DUR"/>
                 </IssuesLink>
               </span>
-              <span className="measure-name">{window.t('overview.metric.new_debt')}</span>
             </div>
             <div className="measure measure-big" data-metric="violations">
+              <span className="measure-name">{window.t('overview.metric.new_issues')}</span>
               <span className="measure-value">
                 <IssuesLink component={this.props.component.key}
                             params={{ resolved: 'false', createdAfter: periodDate }}>
                   <Measure value={issues} type="SHORT_INT"/>
                 </IssuesLink>
               </span>
-              <span className="measure-name">{window.t('overview.metric.new_issues')}</span>
             </div>
           </div>
           <ul className="list-inline big-spacer-top">

@@ -10,30 +10,48 @@ import Meta from './meta';
 
 import { getMetrics } from '../../api/metrics';
 
-export default class Overview extends React.Component {
-  constructor () {
-    super();
+
+export const Overview = React.createClass({
+  getInitialState () {
     let hash = window.location.hash;
-    this.state = { section: hash.length ? hash.substr(1) : null };
-  }
+    return { section: hash.length ? hash.substr(1) : null };
+  },
+
+  componentWillMount () {
+    window.addEventListener('hashchange', this.handleHashChange);
+  },
 
   componentDidMount () {
     this.requestMetrics();
-  }
+  },
+
+  componentWillUnmount () {
+    window.removeEventListener('hashchange', this.handleHashChange);
+  },
 
   requestMetrics () {
     return getMetrics().then(metrics => this.setState({ metrics }));
-  }
+  },
 
   handleRoute (section, el) {
-    this.setState({ section }, () => this.scrollToEl(el));
-    window.location.href = '#' + section;
-  }
+    if (section !== this.state.section) {
+      this.setState({ section }, () => this.scrollToEl(el));
+      window.location.href = '#' + section;
+    } else {
+      this.setState({ section: null });
+      window.location.href = '#';
+    }
+  },
+
+  handleHashChange () {
+    let hash = window.location.hash;
+    this.setState({ section: hash.substr(1) });
+  },
 
   scrollToEl (el) {
     let top = offset(el).top - el.getBoundingClientRect().height;
     window.scrollTo(0, top);
-  }
+  },
 
   render () {
     if (!this.state.metrics) {
@@ -60,10 +78,10 @@ export default class Overview extends React.Component {
 
     return <div className="overview">
       <div className="overview-main">
-        <GeneralMain {...this.props} section={this.state.section} onRoute={this.handleRoute.bind(this)}/>
+        <GeneralMain {...this.props} section={this.state.section} onRoute={this.handleRoute}/>
         {child}
       </div>
       <Meta component={this.props.component}/>
     </div>;
   }
-}
+});

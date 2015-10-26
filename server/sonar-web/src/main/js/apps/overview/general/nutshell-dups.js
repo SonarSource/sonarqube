@@ -27,12 +27,12 @@ export default React.createClass({
               <Donut data={donutData} size="47"/>
             </div>
             <div className="measure measure-big">
+              <span className="measure-name">{window.t('overview.metric.duplications')}</span>
               <span className="measure-value">
                 <DrilldownLink component={this.props.component.key} metric="duplicated_lines_density">
                   <Measure value={density} type="PERCENT"/>
                 </DrilldownLink>
               </span>
-              <span className="measure-name">{window.t('overview.metric.duplications')}</span>
             </div>
           </div>
           <ul className="list-inline big-spacer-top measures-chart-indent">
