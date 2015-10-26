@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -35,7 +36,6 @@ import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
-import org.sonar.core.util.CloseableIterator;
 
 /**
  * Reads issues from disk cache and send related notifications. For performance reasons,
@@ -77,54 +77,63 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private void doExecute(Component project) {
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics();
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
-    String projectName = reportReader.readComponent(reportReader.readMetadata().getRootComponentRef()).getName();
     try {
-      while (issues.hasNext()) {
-        DefaultIssue issue = issues.next();
-        if (issue.isNew() && issue.resolution() == null) {
-          newIssuesStats.add(issue);
-        } else if (issue.isChanged() && issue.mustSendNotifications()) {
-          IssueChangeNotification changeNotification = new IssueChangeNotification();
-          changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
-          changeNotification.setIssue(issue);
-          changeNotification.setProject(project.getKey(), projectName);
-          service.deliver(changeNotification);
-        }
-      }
-
+      processIssues(newIssuesStats, issues, project);
     } finally {
       issues.close();
     }
-    sendNewIssuesStatistics(newIssuesStats, project, projectName);
+    if (newIssuesStats.hasIssues()) {
+      long analysisDate = reportReader.readMetadata().getAnalysisDate();
+      sendNewIssuesNotification(newIssuesStats, project, analysisDate);
+      sendNewIssuesNotificationToAssignees(newIssuesStats, project, analysisDate);
+    }
   }
 
-  private void sendNewIssuesStatistics(NewIssuesStatistics statistics, Component project, String projectName) {
-    if (statistics.hasIssues()) {
-      NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
-      long analysisDate = reportReader.readMetadata().getAnalysisDate();
-      NewIssuesNotification notification = newIssuesNotificationFactory
-        .newNewIssuesNotication()
-        .setProject(project.getKey(), project.getUuid(), projectName)
-        .setAnalysisDate(new Date(analysisDate))
-        .setStatistics(projectName, globalStatistics)
-        .setDebt(globalStatistics.debt());
-      service.deliver(notification);
-
-      // send email to each user having issues
-      for (Map.Entry<String, NewIssuesStatistics.Stats> assigneeAndStatisticsTuple : statistics.assigneesStatistics().entrySet()) {
-        String assignee = assigneeAndStatisticsTuple.getKey();
-        NewIssuesStatistics.Stats assigneeStatistics = assigneeAndStatisticsTuple.getValue();
-        MyNewIssuesNotification myNewIssuesNotification = newIssuesNotificationFactory
-          .newMyNewIssuesNotification()
-          .setAssignee(assignee);
-        myNewIssuesNotification
-          .setProject(project.getKey(), project.getUuid(), projectName)
-          .setAnalysisDate(new Date(analysisDate))
-          .setStatistics(projectName, assigneeStatistics)
-          .setDebt(assigneeStatistics.debt());
-
-        service.deliver(myNewIssuesNotification);
+  private void processIssues(NewIssuesStatistics newIssuesStats, CloseableIterator<DefaultIssue> issues, Component project) {
+    while (issues.hasNext()) {
+      DefaultIssue issue = issues.next();
+      if (issue.isNew() && issue.resolution() == null) {
+        newIssuesStats.add(issue);
+      } else if (issue.isChanged() && issue.mustSendNotifications()) {
+        sendIssueChangeNotification(issue, project);
       }
+    }
+  }
+
+  private void sendIssueChangeNotification(DefaultIssue issue, Component project) {
+    IssueChangeNotification changeNotification = new IssueChangeNotification();
+    changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
+    changeNotification.setIssue(issue);
+    changeNotification.setProject(project.getKey(), project.getName());
+    service.deliver(changeNotification);
+  }
+
+  private void sendNewIssuesNotification(NewIssuesStatistics statistics, Component project, long analysisDate) {
+    NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
+    NewIssuesNotification notification = newIssuesNotificationFactory
+      .newNewIssuesNotication()
+      .setProject(project.getKey(), project.getUuid(), project.getName())
+      .setAnalysisDate(new Date(analysisDate))
+      .setStatistics(project.getName(), globalStatistics)
+      .setDebt(globalStatistics.debt());
+    service.deliver(notification);
+  }
+
+  private void sendNewIssuesNotificationToAssignees(NewIssuesStatistics statistics, Component project, long analysisDate) {
+    // send email to each user having issues
+    for (Map.Entry<String, NewIssuesStatistics.Stats> assigneeAndStatisticsTuple : statistics.assigneesStatistics().entrySet()) {
+      String assignee = assigneeAndStatisticsTuple.getKey();
+      NewIssuesStatistics.Stats assigneeStatistics = assigneeAndStatisticsTuple.getValue();
+      MyNewIssuesNotification myNewIssuesNotification = newIssuesNotificationFactory
+        .newMyNewIssuesNotification()
+        .setAssignee(assignee);
+      myNewIssuesNotification
+        .setProject(project.getKey(), project.getUuid(), project.getName())
+        .setAnalysisDate(new Date(analysisDate))
+        .setStatistics(project.getName(), assigneeStatistics)
+        .setDebt(assigneeStatistics.debt());
+
+      service.deliver(myNewIssuesNotification);
     }
   }
 
