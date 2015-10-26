@@ -57,8 +57,7 @@ public class ExtractReportStep implements ComputationStep {
     try {
       ZipUtils.unzip(zip, dir);
       reportDirectoryHolder.setDirectory(dir);
-      LOG.info("Analysis report extracted | size={} | compressed={}",
-        FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(dir)), FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(zip)));
+      LOG.info("Analysis report extracted | compressedSize={}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(zip)));
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to unzip %s into %s", zip, dir), e);
     }
