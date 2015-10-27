@@ -23,7 +23,7 @@ export const Overview = React.createClass({
   },
 
   componentDidMount () {
-    if (this.props.hasSnapshots) {
+    if (this.props.component.hasSnapshot) {
       this.requestMetrics();
     }
   },
@@ -58,7 +58,7 @@ export const Overview = React.createClass({
   },
 
   render () {
-    if (!this.props.hasSnapshots) {
+    if (!this.props.component.hasSnapshot) {
       return <div className="overview"><Empty/></div>;
     }
 
