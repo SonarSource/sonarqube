@@ -18,10 +18,8 @@ export default React.createClass({
       return null;
     }
 
-    let active = this.props.section === 'duplications';
-
     return (
-        <Card linkTo="duplications" active={active} onRoute={this.props.onRoute}>
+        <Card>
           <div className="measures">
             <div className="measures-chart">
               <Donut data={donutData} size="47"/>

@@ -7,7 +7,8 @@ export default React.createClass({
     return (
         <div className="overview-gate">
           <h2 className="overview-title">{window.t('overview.quality_gate')}</h2>
-          <p className="big-spacer-top">You should <a href={qualityGatesUrl}>define</a> a quality gate on this project.</p>
+          <p className="overview-paragraph big-spacer-top">
+            You should <a href={qualityGatesUrl}>define</a> a quality gate on this project.</p>
         </div>
     );
   }

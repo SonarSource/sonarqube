@@ -33,8 +33,9 @@ export const Overview = React.createClass({
     return getMetrics().then(metrics => this.setState({ metrics }));
   },
 
-  handleRoute (section, el) {
+  handleRoute (section) {
     if (section !== this.state.section) {
+      let el = document.querySelector('.overview-more');
       this.setState({ section }, () => this.scrollToEl(el));
       window.location.href = '#' + section;
     } else {
@@ -49,7 +50,7 @@ export const Overview = React.createClass({
   },
 
   scrollToEl (el) {
-    let top = offset(el).top - el.getBoundingClientRect().height;
+    let top = offset(el).top;
     window.scrollTo(0, top);
   },
 

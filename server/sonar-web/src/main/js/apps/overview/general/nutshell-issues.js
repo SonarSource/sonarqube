@@ -17,10 +17,8 @@ export default React.createClass({
         criticalIssues = this.props.measures.criticalIssues,
         issuesToReview = this.props.measures.openIssues + this.props.measures.reopenedIssues;
 
-    let active = this.props.section === 'issues';
-
     return (
-        <Card linkTo="issues" active={active} onRoute={this.props.onRoute}>
+        <Card>
           <div className="measures">
             <div className="measure measure-big" data-metric="sqale_rating">
               <DrilldownLink component={this.props.component.key} metric="sqale_rating">

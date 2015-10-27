@@ -9,10 +9,8 @@ export default React.createClass({
         lines = this.props.measures['lines'],
         files = this.props.measures['files'];
 
-    let active = this.props.section === 'size';
-
     return (
-        <Card linkTo="size" active={active} onRoute={this.props.onRoute}>
+        <Card>
           <div className="measures">
             <div className="measure measure-big" data-metric="lines">
               <span className="measure-name">{window.t('overview.metric.lines')}</span>

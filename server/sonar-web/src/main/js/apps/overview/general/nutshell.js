@@ -9,9 +9,7 @@ export default React.createClass({
   render() {
     let props = {
       measures: this.props.measures,
-      component: this.props.component,
-      section: this.props.section,
-      onRoute: this.props.onRoute
+      component: this.props.component
     };
     return (
         <div className="overview-nutshell">

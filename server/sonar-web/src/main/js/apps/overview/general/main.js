@@ -5,7 +5,8 @@ import React from 'react';
 import Gate from './gate';
 import Leak from './leak';
 import Nutshell from './nutshell';
-import {getPeriodDate} from './../helpers/period-label';
+import MoreDetails from './details';
+import { getPeriodDate } from './../helpers/period-label';
 
 export default React.createClass({
   getInitialState() {
@@ -90,8 +91,9 @@ export default React.createClass({
     return <div>
       <Gate component={this.props.component} gate={this.props.gate}/>
       <Leak component={this.props.component} leak={this.state.leak} measures={this.state.measures}/>
-      <Nutshell component={this.props.component} measures={this.state.measures} section={this.props.section}
-                onRoute={this.props.onRoute}/>
+      <Nutshell component={this.props.component} measures={this.state.measures} section={this.props.section}/>
+      <MoreDetails component={this.props.component} measures={this.state.measures}
+                   section={this.props.section} onRoute={this.props.onRoute}/>
     </div>;
   }
 });

@@ -3,6 +3,8 @@
 @import (reference) "../init/type";
 @import (reference) "../init/links";
 
+@side-padding: 30px;
+
 .overview {
   display: flex;
   width: 100%;
@@ -90,7 +92,7 @@
 }
 
 .overview-title {
-  padding: 0 30px;
+  padding: 0 @side-padding;
   font-size: 18px;
   font-weight: 400;
 
@@ -110,7 +112,7 @@
 }
 
 .overview-nutshell {
-  padding: 50px 0 0;
+  padding: 50px 0 25px;
 }
 
 .overview-cards {
@@ -119,7 +121,7 @@
 
 .overview-card {
   flex: 1 0 25%;
-  padding: 25px 30px;
+  padding: 25px @side-padding;
   box-sizing: border-box;
 
   .overview-gate & {
@@ -140,7 +142,7 @@
   }
 
   .measure-big + .measure-big {
-    margin-left: 30px;
+    margin-left: @side-padding;
   }
 
   .measure-big .measure-name {
@@ -160,25 +162,22 @@
 }
 
 .overview-card-section {
-  position: relative;
-  z-index: 100;
-  cursor: pointer;
+  padding: 0;
+  text-align: center;
 
-  &:hover, &.active {
-    &:before {
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      margin-left: -10px;
-      width: 0;
-      height: 0;
-      border: solid transparent;
-      border-width: 10px;
-      border-top-color: #fff;
-      content: '';
-      pointer-events: none;
-    }
+  a {
+    display: block;
+    padding: 25px @side-padding;
+    .link-no-underline;
+    cursor: pointer;
+    transition: none;
   }
+}
+
+.overview-card-section.active a,
+.overview-card-section a:hover {
+  background-color: #2c3946;
+  color: mix(#fff, #2c3946, 75%);
 }
 
 .overview-measure {
@@ -219,6 +218,10 @@
   }
 }
 
+.overview-domain {
+  margin-top: -25px;
+}
+
 .overview-domain-dark {
   background-color: #2c3946;
   color: mix(#fff, #2c3946, 75%);
@@ -242,7 +245,7 @@
 }
 
 .overview-domain-section {
-  padding: 50px 30px;
+  padding: 50px @side-padding;
 
   .overview-title {
     margin-bottom: 25px;
@@ -255,7 +258,7 @@
   display: flex;
   align-items: baseline;
   margin-bottom: 20px;;
-  padding: 50px 30px 0;
+  padding: 50px @side-padding 0;
 
   .overview-title {
     flex: 1;
@@ -349,4 +352,18 @@
   justify-content: center;
   align-items: center;
   align-content: center;
+}
+
+.overview-paragraph {
+  padding: 0 @side-padding;
+}
+
+.overview-more {
+  padding-top: 50px;
+  padding-bottom: 25px;
+  border-top: 1px solid @barBorderColor;
+
+  .overview-title {
+    padding-bottom: 25px;
+  }
 }
