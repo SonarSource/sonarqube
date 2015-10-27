@@ -7,6 +7,7 @@ import CoverageMain from './coverage/main';
 import DuplicationsMain from './duplications/main';
 import SizeMain from './size/main';
 import Meta from './meta';
+import Empty from './general/empty';
 
 import { getMetrics } from '../../api/metrics';
 
@@ -22,7 +23,9 @@ export const Overview = React.createClass({
   },
 
   componentDidMount () {
-    this.requestMetrics();
+    if (this.props.hasSnapshots) {
+      this.requestMetrics();
+    }
   },
 
   componentWillUnmount () {
@@ -55,6 +58,10 @@ export const Overview = React.createClass({
   },
 
   render () {
+    if (!this.props.hasSnapshots) {
+      return <div className="overview"><Empty/></div>;
+    }
+
     if (!this.state.metrics) {
       return null;
     }
