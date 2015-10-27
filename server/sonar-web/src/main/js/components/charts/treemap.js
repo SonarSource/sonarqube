@@ -87,6 +87,7 @@ export const Treemap = React.createClass({
     let treemap = d3.layout.treemap()
                     .round(true)
                     .value(d => sizeScale(d.size))
+                    .sort((a, b) => a.value - b.value)
                     .size([this.state.width, 360]);
     let nodes = treemap
         .nodes({ children: this.props.items })

@@ -47,7 +47,9 @@ export class ComplexityDistribution extends React.Component {
     return <BarChart data={data}
                      xTicks={xTicks}
                      xValues={xValues}
+                     width={40 * data.length * 2 + 60}
                      height={HEIGHT}
+                     barsWidth={40}
                      padding={[25, 30, 50, 30]}/>;
   }
 
