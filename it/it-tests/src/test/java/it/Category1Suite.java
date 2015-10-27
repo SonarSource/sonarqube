@@ -39,8 +39,8 @@ package it;/*
  */
 
 import com.sonar.orchestrator.Orchestrator;
+import it.authorisation.IssuePermissionTest;
 import it.i18n.I18nTest;
-import it.permission.IssuePermissionTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
 import it.qualityGate.QualityGateNotificationTest;

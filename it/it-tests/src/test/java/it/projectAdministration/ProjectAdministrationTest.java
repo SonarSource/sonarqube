@@ -227,7 +227,7 @@ public class ProjectAdministrationTest {
       "/projectAdministration/ProjectAdministrationTest/project-settings/override-global-settings.html",
 
       "/projectAdministration/ProjectAdministrationTest/project-settings/only-on-project-settings.html"
-      ).build();
+    ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
     assertThat(orchestrator.getServer().getAdminWsClient().find(PropertyQuery.createForResource("sonar.skippedModules", "sample")).getValue())
@@ -278,7 +278,7 @@ public class ProjectAdministrationTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("module-settings",
       // SONAR-3425
       "/projectAdministration/ProjectAdministrationTest/module-settings/display-module-settings.html"
-      ).build();
+    ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 

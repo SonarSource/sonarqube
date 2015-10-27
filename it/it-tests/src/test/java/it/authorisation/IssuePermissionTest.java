@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.permission;
+package it.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -47,7 +47,7 @@ public class IssuePermissionTest {
   public void init() {
     orchestrator.resetData();
 
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/permission/one-issue-per-line-profile.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/authorisation/one-issue-per-line-profile.xml"));
 
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
