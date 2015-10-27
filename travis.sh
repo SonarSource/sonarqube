@@ -72,8 +72,6 @@ ITS)
   else
     installTravisTools
 
-    build "SonarSource/orchestrator" "2268bba9acbf699a00adc7c5f1dce8d96b0426ff"
-
     start_xvfb
 
     mvn install -Pit,dev -DskipTests -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -e -Dsource.skip=true
