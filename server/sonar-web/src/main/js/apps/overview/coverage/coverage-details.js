@@ -17,11 +17,6 @@ const METRICS = [
 ];
 
 
-function formatCoverage (value) {
-  return value != null ? window.formatMeasure(value, 'PERCENT') : '—';
-}
-
-
 export class CoverageDetails extends React.Component {
   constructor () {
     super();

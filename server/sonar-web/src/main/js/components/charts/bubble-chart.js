@@ -93,10 +93,8 @@ export const BubbleChart = React.createClass({
       let x = xScale(tick);
       let y1 = yScale.range()[0];
       let y2 = yScale.range()[1];
-
-      // TODO extract styling
-      return <line key={index} x1={x} x2={x} y1={y1} y2={y2}
-                   shapeRendering="crispEdges" strokeWidth="0.3" stroke="#ccc"/>;
+      return <line key={index} x1={x} x2={x} y1={y1} y2={y2} className="bubble-chart-grid"
+                   shapeRendering="crispEdges" strokeWidth="0.3"/>;
     });
 
     return <g ref="xGrid">{lines}</g>;
@@ -111,10 +109,8 @@ export const BubbleChart = React.createClass({
       let y = yScale(tick);
       let x1 = xScale.range()[0];
       let x2 = xScale.range()[1];
-
-      // TODO extract styling
-      return <line key={index} x1={x1} x2={x2} y1={y} y2={y}
-                   shapeRendering="crispEdges" strokeWidth="0.3" stroke="#ccc"/>;
+      return <line key={index} x1={x1} x2={x2} y1={y} y2={y} className="bubble-chart-grid"
+                   shapeRendering="crispEdges" strokeWidth="0.3"/>;
     });
 
     return <g ref="yGrid">{lines}</g>;
@@ -129,8 +125,6 @@ export const BubbleChart = React.createClass({
       let x = xScale(tick);
       let y = yScale.range()[0];
       let text = this.props.formatXTick(tick);
-
-      // TODO extract styling
       return <text key={index} className="bubble-chart-tick" x={x} y={y} dy="1.5em">{text}</text>;
     });
 
@@ -146,8 +140,6 @@ export const BubbleChart = React.createClass({
       let x = xScale.range()[0];
       let y = yScale(tick);
       let text = this.props.formatYTick(tick);
-
-      // TODO extract styling
       return <text key={index} className="bubble-chart-tick bubble-chart-tick-y"
                    x={x} y={y} dx="-0.5em" dy="0.3em">{text}</text>;
     });

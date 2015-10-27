@@ -53,9 +53,7 @@ export const LineChart = React.createClass({
       let c = this.props.backdropConstraints;
       data = data.filter(d => c[0] <= d.x && d.x <= c[1]);
     }
-
-    // TODO extract styling
-    return <path d={area(data)} fill="#4b9fd5" fillOpacity="0.2"/>;
+    return <path className="line-chart-backdrop" d={area(data)}/>;
   },
 
   renderPoints (xScale, yScale) {
