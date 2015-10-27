@@ -17,23 +17,6 @@ export default React.createClass({
     return params.period ? `&period=${params.period}` : '';
   },
 
-  renderMainDashboardLink() {
-    if (_.size(this.props.component.dashboards) === 0) {
-      return null;
-    }
-    let firstDashboard = _.first(this.props.component.dashboards);
-    let url = `/dashboard/index?id=${encodeURIComponent(this.props.component.key)}${this.periodParameter()}`;
-    let name = this.getLocalizedDashboardName(firstDashboard.name);
-    return this.renderLink(url, name, () => {
-      /* eslint eqeqeq: 0 */
-      let pathMatch = window.location.pathname === `${window.baseUrl}/dashboard` ||
-          window.location.pathname === `${window.baseUrl}/dashboard/index`;
-      let params = window.getQueryParams();
-      let paramMatch = !params['did'] || params['did'] == firstDashboard.key;
-      return pathMatch && paramMatch ? 'active' : null;
-    });
-  },
-
   renderOverviewLink() {
     let url = `/overview?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, window.t('overview.page'), '/overview');
@@ -202,7 +185,7 @@ export default React.createClass({
   },
 
   renderDashboards() {
-    let dashboards = _.rest(this.props.component.dashboards || []).map(d => {
+    let dashboards = (this.props.component.dashboards || []).map(d => {
       let url = `/dashboard?id=${encodeURIComponent(this.props.component.key)}&did=${d.key}${this.periodParameter()}`;
       let name = this.getLocalizedDashboardName(d.name);
       return this.renderLink(url, name);
@@ -244,7 +227,6 @@ export default React.createClass({
   render() {
     return (
         <ul className="nav navbar-nav nav-tabs">
-          {this.renderMainDashboardLink()}
           {this.renderOverviewLink()}
           {this.renderComponentsLink()}
           {this.renderComponentIssuesLink()}

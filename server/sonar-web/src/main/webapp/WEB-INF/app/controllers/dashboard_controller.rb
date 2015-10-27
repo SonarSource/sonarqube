@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+include ERB::Util
 class DashboardController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
@@ -24,6 +25,10 @@ class DashboardController < ApplicationController
   before_filter :login_required, :except => [:index]
 
   def index
+    if params[:id] && !params[:did] && !params[:name]
+      return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
+    end
+
     load_resource()
       if !@resource || @resource.display_dashboard?
         redirect_if_bad_component()
