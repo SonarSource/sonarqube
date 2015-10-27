@@ -174,6 +174,7 @@ public class PurgeDao implements Dao {
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
     deleteProject(uuid, mapper(session), purgeCommands);
     deleteFileSources(uuid, purgeCommands);
+    purgeCommands.deleteCeActivity(uuid);
     return this;
   }
 

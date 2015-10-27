@@ -221,4 +221,11 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
+  public void deleteCeActivity(String rootUuid) {
+    profiler.start("deleteCeActivity (ce_activity)");
+    purgeMapper.deleteCeActivityByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
 }
