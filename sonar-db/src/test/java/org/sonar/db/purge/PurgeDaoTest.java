@@ -25,13 +25,20 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
 @Category(DbTests.class)
 public class PurgeDaoTest {
@@ -40,6 +47,8 @@ public class PurgeDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
+
+  DbClient dbClient = dbTester.getDbClient();
 
   DbSession dbSession = dbTester.getSession();
 
@@ -117,6 +126,23 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void delete_project_in_ce_activity_when_deleting_project() {
+    ComponentDto projectToBeDeleted = ComponentTesting.newProjectDto();
+    ComponentDto anotherLivingProject = ComponentTesting.newProjectDto();
+    dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
+
+    // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and on on another project
+    insertCeActivity(projectToBeDeleted.uuid());
+    insertCeActivity(anotherLivingProject.uuid());
+    dbSession.commit();
+
+    underTest.deleteProject(dbSession, projectToBeDeleted.uuid());
+    dbSession.commit();
+
+    assertThat(dbTester.countRowsOfTable("ce_activity")).isEqualTo(1);
+  }
+
+  @Test
   public void delete_view_and_child() {
     dbTester.prepareDbUnit(getClass(), "view_sub_view_and_tech_project.xml");
 
@@ -158,6 +184,23 @@ public class PurgeDaoTest {
     dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
     underTest.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0), PurgeListener.EMPTY, new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
+  }
+
+  private CeActivityDto insertCeActivity(String componentUuid) {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setUuid(Uuids.create());
+    queueDto.setTaskType(REPORT);
+    queueDto.setComponentUuid(componentUuid);
+    queueDto.setSubmitterLogin("henri");
+    queueDto.setCreatedAt(1_300_000_000_000L);
+
+    CeActivityDto dto = new CeActivityDto(queueDto);
+    dto.setStatus(CeActivityDto.Status.SUCCESS);
+    dto.setStartedAt(1_500_000_000_000L);
+    dto.setExecutedAt(1_500_000_000_500L);
+    dto.setExecutionTimeMs(500L);
+    dbClient.ceActivityDao().insert(dbSession, dto);
+    return dto;
   }
 
   private static PurgeableSnapshotDto getById(List<PurgeableSnapshotDto> snapshots, long id) {
