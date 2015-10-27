@@ -50,6 +50,7 @@ import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 
+import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
@@ -223,11 +224,22 @@ public class LoadPeriodsStep implements ComputationStep {
       }
       List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectId, currentVersion);
       if (snapshotDtos.isEmpty()) {
-        return null;
+        // If no previous version is found, the first analysis is returned
+        return findByFirstAnalysis(index);
       }
       SnapshotDto snapshotDto = snapshotDtos.get(0);
       LOG.debug("Compare to previous version ({})", formatDate(snapshotDto.getCreatedAt()));
       return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getId());
+    }
+
+    @CheckForNull
+    private Period findByFirstAnalysis(int index) {
+      SnapshotDto snapshotDto = dbClient.snapshotDao().selectOldestSnapshot(session, projectId);
+      if (snapshotDto == null) {
+        return null;
+      }
+      LOG.debug("Compare to first analysis ({})", formatDate(snapshotDto.getCreatedAt()));
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getId());
     }
 
     @CheckForNull
@@ -275,7 +287,7 @@ public class LoadPeriodsStep implements ComputationStep {
   }
 
   private static SnapshotQuery createCommonQuery(Long projectId) {
-    return new SnapshotQuery().setComponentId(projectId).setStatus(SnapshotDto.STATUS_PROCESSED);
+    return new SnapshotQuery().setComponentId(projectId).setStatus(STATUS_PROCESSED);
   }
 
   private static String formatDate(long date) {

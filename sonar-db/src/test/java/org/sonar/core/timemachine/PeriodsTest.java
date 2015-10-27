@@ -202,6 +202,13 @@ public class PeriodsTest {
   }
 
   @Test
+  public void return_since_previous_version_with_only_date_label_when_no_param_and_date_is_set() {
+    periods.label(TIMEMACHINE_MODE_PREVIOUS_VERSION, null, STRING_DATE);
+
+    verify(i18n).message(any(Locale.class), eq("since_previous_version_with_only_date"), isNull(String.class), eq(STRING_DATE));
+  }
+
+  @Test
   public void return_since_previous_version_detailed_abbreviation_when_param_and_date_are_set() {
     periods.abbreviation(TIMEMACHINE_MODE_PREVIOUS_VERSION, VERSION, DATE);
 

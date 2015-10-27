@@ -29,6 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -36,12 +37,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 
 @Category(DbTests.class)
 public class SnapshotDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
+  DbSession dbSession = db.getSession();
 
   SnapshotDao underTest = db.getDbClient().snapshotDao();
 
@@ -170,6 +174,25 @@ public class SnapshotDaoTest {
 
     // All snapshots are returned on an unknown version
     assertThat(underTest.selectPreviousVersionSnapshots(db.getSession(), 1L, "UNKNOWN")).hasSize(3);
+  }
+
+  @Test
+  public void select_first_snapshots() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    db.getDbClient().componentDao().insert(dbSession, project);
+
+    db.getDbClient().snapshotDao().insert(dbSession,
+      newSnapshotForProject(project).setCreatedAt(5L),
+      newSnapshotForProject(project).setCreatedAt(2L),
+      newSnapshotForProject(project).setCreatedAt(1L)
+    );
+    dbSession.commit();
+
+    SnapshotDto dto = underTest.selectOldestSnapshot(dbSession, project.getId());
+    assertThat(dto).isNotNull();
+    assertThat(dto.getCreatedAt()).isEqualTo(1L);
+
+    assertThat(underTest.selectOldestSnapshot(dbSession, 123456789)).isNull();
   }
 
   @Test

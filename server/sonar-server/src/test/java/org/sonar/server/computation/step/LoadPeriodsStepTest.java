@@ -343,7 +343,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_period_by_previous_version_wit_previous_version_deleted() {
+  public void feed_period_by_previous_version_with_previous_version_deleted() {
     setupRoot(PROJECT_ROOT);
 
     dbTester.prepareDbUnit(getClass(), "previous_version_deleted.xml");
@@ -376,9 +376,46 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  @UseDataProvider("projectAndViewRoots")
-  public void no_period_by_previous_version_when_no_event_version(Component root) {
-    setupRoot(root);
+  public void feed_period_by_previous_version_with_first_analysis_when_no_previous_version_found() {
+    setupRoot(PROJECT_ROOT);
+
+    dbTester.prepareDbUnit(getClass(), "no_previous_version.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "previous_version");
+
+    underTest.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    Period period = periods.get(0);
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getModeParameter()).isNull();
+    assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1000L);
+  }
+
+  @Test
+  public void feed_period_by_previous_version_with_first_analysis_when_previous_snapshot_is_the_last_one() {
+    setupRoot(PROJECT_ROOT);
+
+    dbTester.prepareDbUnit(getClass(), "previous_version_is_last_one.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "previous_version");
+
+    underTest.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    Period period = periods.get(0);
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getModeParameter()).isNull();
+    assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1000L);
+  }
+
+  @Test
+  public void no_period_by_previous_version_when_no_event_version_for_views() {
+    setupRoot(VIEW_ROOT);
 
     dbTester.prepareDbUnit(getClass(), "no_previous_version.xml");
 
@@ -480,7 +517,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
 
-    assertThat(periods).extracting("mode").containsExactly(CoreProperties.TIMEMACHINE_MODE_DATE, CoreProperties.TIMEMACHINE_MODE_DAYS,
+    assertThat(periods).extracting("mode").containsExactly(
+      CoreProperties.TIMEMACHINE_MODE_DATE, CoreProperties.TIMEMACHINE_MODE_DAYS,
         CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, CoreProperties.TIMEMACHINE_MODE_VERSION);
 
     assertThat(periods.get(0).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);

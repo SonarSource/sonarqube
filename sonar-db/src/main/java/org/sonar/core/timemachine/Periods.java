@@ -22,13 +22,13 @@ package org.sonar.core.timemachine;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_DATE;
 import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_DAYS;
@@ -45,10 +45,6 @@ public class Periods {
   public Periods(Settings settings, I18n i18n) {
     this.settings = settings;
     this.i18n = i18n;
-  }
-
-  private static Locale getLocale() {
-    return Locale.ENGLISH;
   }
 
   @CheckForNull
@@ -129,8 +125,12 @@ public class Periods {
   }
 
   private String labelForPreviousVersion(@Nullable String param, @Nullable String date, boolean shortLabel) {
-    if (param == null) {
+    if (param == null && date == null) {
       return label("since_previous_version", shortLabel);
+    }
+    if (param == null) {
+      // Special case when no snapshot for previous version is found. The first analysis is then returned -> Display only the date.
+      return label("since_previous_version_with_only_date", shortLabel, date);
     }
     if (date == null) {
       return label("since_previous_version_detailed", shortLabel, param);
@@ -143,7 +143,7 @@ public class Periods {
     if (shortLabel) {
       msgKey += ".short";
     }
-    return i18n.message(getLocale(), msgKey, null, parameters);
+    return i18n.message(ENGLISH, msgKey, null, parameters);
   }
 
   private static class PeriodParameters {

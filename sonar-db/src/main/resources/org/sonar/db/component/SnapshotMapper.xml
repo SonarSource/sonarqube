@@ -114,8 +114,20 @@
     <include refid="snapshotColumns"/>
     FROM snapshots s
     INNER JOIN events e ON s.id = e.snapshot_id AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
-    INNER JOIN projects p ON p.uuid=e.component_uuid AND p.id=#{componentId}
+    <where>
+      s.project_id=#{componentId}
+    </where>
     ORDER BY e.event_date DESC
+  </select>
+
+  <select id="selectOldestSnapshots" parameterType="map" resultType="Snapshot">
+    SELECT
+    <include refid="snapshotColumns"/>
+    FROM snapshots s
+    <where>
+      s.project_id=#{componentId}
+    </where>
+    ORDER BY s.created_at ASC
   </select>
 
   <select id="selectSnapshotAndChildrenOfScope" parameterType="map" resultType="Snapshot">

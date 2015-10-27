@@ -1,0 +1,16 @@
+<dataset>
+
+  <projects id="1" kee="ROOT_KEY" name="project" uuid="ABCD"/>
+
+  <!-- 2008-11-11 -->
+  <!-- Version 0.9 -->
+  <snapshots id="1000" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
+             period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]"
+             period4_param="[null]" period4_date="[null]" period5_mode="[null]"
+             period5_param="[null]" period5_date="[null]"
+             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1226379600000" build_date="1226379600000" version="0.9" path=""
+             status="P" islast="[true]" depth="0"/>
+
+</dataset>
