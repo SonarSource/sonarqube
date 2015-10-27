@@ -40,7 +40,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
@@ -75,7 +74,7 @@ public class TestIndexerTest {
   public void setUp() {
     es.truncateIndices();
     db.truncateTables();
-    underTest = new TestIndexer(new DbClient(db.database(), db.myBatis()), es.client());
+    underTest = new TestIndexer(db.getDbClient(), es.client());
     underTest.setEnabled(true);
   }
 

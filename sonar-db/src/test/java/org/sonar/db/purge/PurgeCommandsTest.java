@@ -97,7 +97,7 @@ public class PurgeCommandsTest {
   public void shouldDeleteResource() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteResource.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).deleteResources(newArrayList(new IdUuidPair(1L, "1")));
+    new PurgeCommands(dbTester.getSession(), profiler).deleteComponents(newArrayList(new IdUuidPair(1L, "1")));
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
@@ -113,7 +113,7 @@ public class PurgeCommandsTest {
   @Test
   public void should_not_fail_when_deleting_huge_number_of_resources() {
     dbTester.truncateTables();
-    new PurgeCommands(dbTester.getSession(), profiler).deleteResources(getHugeNumberOfIdUuids());
+    new PurgeCommands(dbTester.getSession(), profiler).deleteComponents(getHugeNumberOfIdUuids());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 

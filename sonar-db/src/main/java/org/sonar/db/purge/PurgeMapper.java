@@ -92,4 +92,6 @@ public interface PurgeMapper {
 
   void deleteFileSourcesByUuid(String fileUuid);
 
+  void deleteCeActivityByProjectUuid(String projectUuid);
+
 }

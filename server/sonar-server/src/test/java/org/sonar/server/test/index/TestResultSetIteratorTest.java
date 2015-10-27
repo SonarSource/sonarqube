@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.junit.After;
 import org.junit.Rule;
@@ -39,6 +38,17 @@ import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.data.MapEntry.entry;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_MESSAGE;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_NAME;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_PROJECT_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
 
 @Category(DbTests.class)
 public class TestResultSetIteratorTest {
@@ -47,6 +57,27 @@ public class TestResultSetIteratorTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   TestResultSetIterator underTest;
+
+  private static List<DbFileSources.Test> newFakeTests(int numberOfTests) {
+    List<DbFileSources.Test> tests = new ArrayList<>();
+    for (int i = 1; i <= numberOfTests; i++) {
+      DbFileSources.Test.Builder test = DbFileSources.Test.newBuilder()
+        .setUuid("TEST_FILE_UUID_" + i)
+        .setName("NAME_" + i)
+        .setStatus(DbFileSources.Test.TestStatus.FAILURE)
+        .setStacktrace("STACKTRACE_" + i)
+        .setMsg("MESSAGE_" + i)
+        .setExecutionTimeMs(i);
+      for (int j = 1; j <= numberOfTests; j++) {
+        test.addCoveredFile(
+          DbFileSources.Test.CoveredFile.newBuilder()
+            .setFileUuid("MAIN_FILE_UUID_" + j)
+            .addCoveredLine(j));
+      }
+      tests.add(test.build());
+    }
+    return tests;
+  }
 
   @After
   public void after() {
@@ -70,14 +101,15 @@ public class TestResultSetIteratorTest {
     UpdateRequest firstRequest = row.getUpdateRequests().get(0);
     Map<String, Object> doc = firstRequest.doc().sourceAsMap();
     assertThat(doc).contains(
-      MapEntry.entry(TestIndexDefinition.FIELD_PROJECT_UUID, "P1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_FILE_UUID, "F1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_TEST_UUID, "TEST_FILE_UUID_1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_STATUS, "FAILURE"),
-      MapEntry.entry(TestIndexDefinition.FIELD_MESSAGE, "MESSAGE_1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_DURATION_IN_MS, 1),
-      MapEntry.entry(TestIndexDefinition.FIELD_STACKTRACE, "STACKTRACE_1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_NAME, "NAME_1"));
+      entry(FIELD_PROJECT_UUID, "P1"),
+      entry(FIELD_FILE_UUID, "F1"),
+      entry(FIELD_TEST_UUID, "TEST_FILE_UUID_1"),
+      entry(FIELD_STATUS, "FAILURE"),
+      entry(FIELD_MESSAGE, "MESSAGE_1"),
+      entry(FIELD_DURATION_IN_MS, 1),
+      entry(FIELD_STACKTRACE, "STACKTRACE_1"),
+      entry(FIELD_NAME, "NAME_1"),
+      entry(FIELD_UPDATED_AT, 1416239042000L));
   }
 
   /**
@@ -103,17 +135,19 @@ public class TestResultSetIteratorTest {
     UpdateRequest firstRequest = row.getUpdateRequests().get(0);
     Map<String, Object> doc = firstRequest.doc().sourceAsMap();
     assertThat(doc).contains(
-      MapEntry.entry(TestIndexDefinition.FIELD_PROJECT_UUID, "P1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_FILE_UUID, "F1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_TEST_UUID, "U1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_NAME, "N1"));
+      entry(FIELD_PROJECT_UUID, "P1"),
+      entry(FIELD_FILE_UUID, "F1"),
+      entry(FIELD_TEST_UUID, "U1"),
+      entry(FIELD_NAME, "N1"),
+      entry(FIELD_UPDATED_AT, 1416239042000L));
+    ;
     // null values
     assertThat(doc).containsKeys(
-      TestIndexDefinition.FIELD_DURATION_IN_MS,
-      TestIndexDefinition.FIELD_STACKTRACE,
-      TestIndexDefinition.FIELD_MESSAGE,
-      TestIndexDefinition.FIELD_STATUS,
-      TestIndexDefinition.FIELD_COVERED_FILES);
+      FIELD_DURATION_IN_MS,
+      FIELD_STACKTRACE,
+      FIELD_MESSAGE,
+      FIELD_STATUS,
+      FIELD_COVERED_FILES);
   }
 
   @Test
@@ -168,27 +202,6 @@ public class TestResultSetIteratorTest {
     } catch (IllegalStateException e) {
       // ok
     }
-  }
-
-  private static List<DbFileSources.Test> newFakeTests(int numberOfTests) {
-    List<DbFileSources.Test> tests = new ArrayList<>();
-    for (int i = 1; i <= numberOfTests; i++) {
-      DbFileSources.Test.Builder test = DbFileSources.Test.newBuilder()
-        .setUuid("TEST_FILE_UUID_" + i)
-        .setName("NAME_" + i)
-        .setStatus(DbFileSources.Test.TestStatus.FAILURE)
-        .setStacktrace("STACKTRACE_" + i)
-        .setMsg("MESSAGE_" + i)
-        .setExecutionTimeMs(i);
-      for (int j = 1; j <= numberOfTests; j++) {
-        test.addCoveredFile(
-          DbFileSources.Test.CoveredFile.newBuilder()
-            .setFileUuid("MAIN_FILE_UUID_" + j)
-            .addCoveredLine(j));
-      }
-      tests.add(test.build());
-    }
-    return tests;
   }
 
 }

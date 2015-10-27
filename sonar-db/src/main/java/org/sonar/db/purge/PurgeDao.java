@@ -173,17 +173,14 @@ public class PurgeDao implements Dao {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler);
     deleteProject(uuid, mapper(session), purgeCommands);
-    deleteFileSources(uuid, purgeCommands);
     return this;
-  }
-
-  private static void deleteFileSources(String rootUuid, PurgeCommands commands) {
-    commands.deleteFileSources(rootUuid);
   }
 
   private static void deleteProject(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
     List<IdUuidPair> childrenIds = mapper.selectComponentsByProjectUuid(rootUuid);
-    commands.deleteResources(childrenIds);
+    commands.deleteComponents(childrenIds);
+    commands.deleteFileSources(rootUuid);
+    commands.deleteCeActivity(rootUuid);
   }
 
   private void disableResource(IdUuidPair componentIdUuid, PurgeMapper mapper) {

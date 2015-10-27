@@ -327,5 +327,9 @@
     </choose>
   </delete>
 
+    <delete id="deleteCeActivityByProjectUuid">
+        delete from ce_activity where component_uuid=#{rootProjectUuid}
+    </delete>
+
 </mapper>
 

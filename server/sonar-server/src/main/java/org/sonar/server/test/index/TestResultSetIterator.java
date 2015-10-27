@@ -50,6 +50,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_PROJECT_UUID
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
 import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
 import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
@@ -99,6 +100,7 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
       writer.prop(FIELD_DURATION_IN_MS, test.hasExecutionTimeMs() ? test.getExecutionTimeMs() : null);
       writer.prop(FIELD_MESSAGE, test.hasMsg() ? test.getMsg() : null);
       writer.prop(FIELD_STACKTRACE, test.hasStacktrace() ? test.getStacktrace() : null);
+      writer.prop(FIELD_UPDATED_AT, updatedAt.getTime());
       writer.name(FIELD_COVERED_FILES);
       writer.beginArray();
       for (DbFileSources.Test.CoveredFile coveredFile : test.getCoveredFileList()) {
