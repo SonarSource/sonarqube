@@ -11,7 +11,9 @@ export const TooltipsMixin = {
   },
 
   initTooltips () {
-    $('[data-toggle="tooltip"]', React.findDOMNode(this))
-        .tooltip({ container: 'body', placement: 'bottom', html: true });
+    if ($.fn.tooltip) {
+      $('[data-toggle="tooltip"]', React.findDOMNode(this))
+          .tooltip({ container: 'body', placement: 'bottom', html: true });
+    }
   }
 };

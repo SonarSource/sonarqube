@@ -39,7 +39,7 @@ export const BubbleChart = React.createClass({
   mixins: [ResizeMixin, TooltipsMixin],
 
   propTypes: {
-    items: React.PropTypes.arrayOf(React.PropTypes.object),
+    items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     sizeRange: React.PropTypes.arrayOf(React.PropTypes.number),
     displayXGrid: React.PropTypes.bool,
     displayXTicks: React.PropTypes.bool,
