@@ -8,7 +8,7 @@ export default React.createClass({
   },
 
   search() {
-    let query = React.findDOMNode(this.refs.search).value;
+    let query = this.refs.search.value;
     this.props.search(query);
   },
 

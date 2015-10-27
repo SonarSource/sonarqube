@@ -1,7 +1,8 @@
-import React from 'react/addons';
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+
 import Projects from '../../src/main/js/apps/projects/projects';
 
-let TestUtils = React.addons.TestUtils;
 let expect = require('chai').expect;
 let sinon = require('sinon');
 

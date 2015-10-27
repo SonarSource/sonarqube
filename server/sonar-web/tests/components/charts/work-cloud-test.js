@@ -1,10 +1,8 @@
-import React from 'react/addons';
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
 import { expect } from 'chai';
 
 import { WordCloud } from '../../../src/main/js/components/charts/word-cloud';
-
-
-let TestUtils = React.addons.TestUtils;
 
 
 describe('Word Cloud', function () {

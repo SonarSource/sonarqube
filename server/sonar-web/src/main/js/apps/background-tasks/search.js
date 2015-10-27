@@ -44,8 +44,8 @@ export default React.createClass({
 
   onDateChange(newDate) {
     if (newDate === DATE.CUSTOM) {
-      let minDateRaw = React.findDOMNode(this.refs.minDate).value,
-          maxDateRaw = React.findDOMNode(this.refs.maxDate).value,
+      let minDateRaw = this.refs.minDate.value,
+          maxDateRaw = this.refs.maxDate.value,
           minDate = moment(minDateRaw, DATE_FORMAT, true),
           maxDate = moment(maxDateRaw, DATE_FORMAT, true);
       this.props.onDateChange(newDate,
@@ -68,8 +68,8 @@ export default React.createClass({
       onSelect: this.onDateInputChange
     };
     if ($.fn.datepicker) {
-      $(React.findDOMNode(this.refs.minDate)).datepicker(opts);
-      $(React.findDOMNode(this.refs.maxDate)).datepicker(opts);
+      $(this.refs.minDate).datepicker(opts);
+      $(this.refs.maxDate).datepicker(opts);
     }
   },
 
@@ -92,7 +92,7 @@ export default React.createClass({
   },
 
   onSearch() {
-    let searchInput = React.findDOMNode(this.refs.searchInput),
+    let searchInput = this.refs.searchInput,
         query = searchInput.value;
     this.props.onSearch(query);
   },

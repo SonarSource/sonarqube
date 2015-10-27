@@ -1,5 +1,8 @@
 /* eslint no-unused-expressions: 0 */
-import React from 'react/addons';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TestUtils from 'react-addons-test-utils';
+
 import Header from '../../src/main/js/apps/background-tasks/header';
 import Stats from '../../src/main/js/apps/background-tasks/stats';
 import Search from '../../src/main/js/apps/background-tasks/search';
@@ -7,7 +10,6 @@ import Tasks from '../../src/main/js/apps/background-tasks/tasks';
 import {STATUSES, CURRENTS, DEBOUNCE_DELAY} from '../../src/main/js/apps/background-tasks/constants';
 import {formatDuration} from '../../src/main/js/apps/background-tasks/helpers';
 
-let TestUtils = React.addons.TestUtils;
 let chai = require('chai');
 let expect = chai.expect;
 let sinon = require('sinon');
@@ -63,7 +65,7 @@ describe('Background Tasks', function () {
                                                            onCurrentsChange={spy}
                                                            onDateChange={spy}
                                                            onSearch={searchSpy}/>);
-      let searchInput = React.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(component, 'search-box-input'));
+      let searchInput = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(component, 'search-box-input'));
       searchInput.value = 'some search query';
       TestUtils.Simulate.change(searchInput);
       setTimeout(() => {
@@ -80,7 +82,7 @@ describe('Background Tasks', function () {
                                                            onCurrentsChange={spy}
                                                            onDateChange={spy}
                                                            refresh={reloadSpy}/>);
-      let reloadButton = React.findDOMNode(component.refs.reloadButton);
+      let reloadButton = component.refs.reloadButton;
       expect(reloadSpy).to.not.have.been.called;
       TestUtils.Simulate.click(reloadButton);
       expect(reloadSpy).to.have.been.called;
@@ -91,32 +93,32 @@ describe('Background Tasks', function () {
     describe('Pending', () => {
       it('should show zero pending', () => {
         let result = TestUtils.renderIntoDocument(<Stats pendingCount="0"/>),
-            pendingCounter = React.findDOMNode(result.refs.pendingCount);
+            pendingCounter = result.refs.pendingCount;
         expect(pendingCounter.textContent).to.contain('0');
       });
 
       it('should show 5 pending', () => {
         let result = TestUtils.renderIntoDocument(<Stats pendingCount="5"/>),
-            pendingCounter = React.findDOMNode(result.refs.pendingCount);
+            pendingCounter = result.refs.pendingCount;
         expect(pendingCounter.textContent).to.contain('5');
       });
 
       it('should not show cancel pending button', () => {
         let result = TestUtils.renderIntoDocument(<Stats pendingCount="0"/>),
-            cancelPending = React.findDOMNode(result.refs.cancelPending);
+            cancelPending = result.refs.cancelPending;
         expect(cancelPending).to.not.be.ok;
       });
 
       it('should show cancel pending button', () => {
         let result = TestUtils.renderIntoDocument(<Stats pendingCount="5"/>),
-            cancelPending = React.findDOMNode(result.refs.cancelPending);
+            cancelPending = result.refs.cancelPending;
         expect(cancelPending).to.be.ok;
       });
 
       it('should trigger cancelling pending', () => {
         let spy = sinon.spy();
         let result = TestUtils.renderIntoDocument(<Stats pendingCount="5" cancelPending={spy}/>),
-            cancelPending = React.findDOMNode(result.refs.cancelPending);
+            cancelPending = result.refs.cancelPending;
         expect(spy).to.not.have.been.called;
         TestUtils.Simulate.click(cancelPending);
         expect(spy).to.have.been.called;
@@ -126,32 +128,32 @@ describe('Background Tasks', function () {
     describe('Failures', () => {
       it('should show zero failures', () => {
         let result = TestUtils.renderIntoDocument(<Stats failuresCount="0"/>),
-            failureCounter = React.findDOMNode(result.refs.failureCount);
+            failureCounter = result.refs.failureCount;
         expect(failureCounter.textContent).to.contain('0');
       });
 
       it('should show 5 failures', () => {
         let result = TestUtils.renderIntoDocument(<Stats failuresCount="5"/>),
-            failureCounter = React.findDOMNode(result.refs.failureCount);
+            failureCounter = result.refs.failureCount;
         expect(failureCounter.textContent).to.contain('5');
       });
 
       it('should not show link to failures', () => {
         let result = TestUtils.renderIntoDocument(<Stats failuresCount="0"/>),
-            failureCounter = React.findDOMNode(result.refs.failureCount);
+            failureCounter = result.refs.failureCount;
         expect(failureCounter.tagName.toLowerCase()).to.not.equal('a');
       });
 
       it('should show link to failures', () => {
         let result = TestUtils.renderIntoDocument(<Stats failuresCount="5"/>),
-            failureCounter = React.findDOMNode(result.refs.failureCount);
+            failureCounter = result.refs.failureCount;
         expect(failureCounter.tagName.toLowerCase()).to.equal('a');
       });
 
       it('should trigger filtering failures', () => {
         let spy = sinon.spy();
         let result = TestUtils.renderIntoDocument(<Stats failuresCount="5" showFailures={spy}/>),
-            failureCounter = React.findDOMNode(result.refs.failureCount);
+            failureCounter = result.refs.failureCount;
         expect(spy).to.not.have.been.called;
         TestUtils.Simulate.click(failureCounter);
         expect(spy).to.have.been.called;
@@ -161,19 +163,19 @@ describe('Background Tasks', function () {
     describe('In Progress Duration', () => {
       it('should show duration', () => {
         let result = TestUtils.renderIntoDocument(<Stats inProgressDuration="173"/>),
-            inProgressDuration = React.findDOMNode(result.refs.inProgressDuration);
+            inProgressDuration = result.refs.inProgressDuration;
         expect(inProgressDuration.textContent).to.include('173ms');
       });
 
       it('should format duration', () => {
         let result = TestUtils.renderIntoDocument(<Stats inProgressDuration="1073"/>),
-            inProgressDuration = React.findDOMNode(result.refs.inProgressDuration);
+            inProgressDuration = result.refs.inProgressDuration;
         expect(inProgressDuration.textContent).to.include('1s');
       });
 
       it('should not show duration', () => {
         let result = TestUtils.renderIntoDocument(<Stats/>),
-            inProgressDuration = React.findDOMNode(result.refs.inProgressDuration);
+            inProgressDuration = result.refs.inProgressDuration;
         expect(inProgressDuration).to.not.be.ok;
       });
     });

@@ -16,7 +16,7 @@ export default React.createClass({
   },
 
   search() {
-    let q = React.findDOMNode(this.refs.input).value;
+    let q = this.refs.input.value;
     this.props.search(q);
   },
 

@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import {STATUSES} from '../../../apps/background-tasks/constants';
 import {getTasksForComponent} from '../../../api/ce';
 import ComponentNavFavorite from './component-nav-favorite';
@@ -33,7 +34,7 @@ export default React.createClass({
   },
 
   initTooltips() {
-    $('[data-toggle="tooltip"]', React.findDOMNode(this)).tooltip({
+    $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this)).tooltip({
       container: 'body',
       placement: 'bottom',
       delay: { show: 0, hide: 1000 },

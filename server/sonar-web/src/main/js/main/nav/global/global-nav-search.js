@@ -41,7 +41,7 @@ export default React.createClass({
   },
 
   renderSearchView() {
-    let searchContainer = React.findDOMNode(this.refs.container);
+    let searchContainer = this.refs.container;
     this.searchView = new SearchView({
       model: new Backbone.Model(this.props),
       hide: this.closeSearch
@@ -65,7 +65,7 @@ export default React.createClass({
   },
 
   onClickOutside(e) {
-    if (!contains(React.findDOMNode(this.refs.dropdown), e.target)) {
+    if (!contains(this.refs.dropdown, e.target)) {
       this.closeSearch();
     }
   },

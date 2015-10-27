@@ -1,7 +1,9 @@
-import React from 'react/addons';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TestUtils from 'react-addons-test-utils';
+
 import ItemValue from '../../src/main/js/apps/system/item-value';
 
-let TestUtils = React.addons.TestUtils;
 let expect = require('chai').expect;
 let sinon = require('sinon');
 
@@ -10,7 +12,7 @@ describe('System', function () {
   describe('Item Value', function () {
     it('should render string', () => {
       let result = TestUtils.renderIntoDocument(<ItemValue value="/some/path/as/an/example"/>);
-      let content = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'code'));
+      let content = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'code'));
       expect(content.textContent).to.equal('/some/path/as/an/example');
     });
 
@@ -68,7 +70,7 @@ describe('System', function () {
 
     it('should set initial value', () => {
       let result = TestUtils.renderIntoDocument(<ItemValue value="DEBUG" name="Logs Level"/>);
-      let select = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'select'));
+      let select = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'select'));
       expect(select.value).to.equal('DEBUG');
     });
 
@@ -84,7 +86,7 @@ describe('System', function () {
 
     it('should change value', () => {
       let result = TestUtils.renderIntoDocument(<ItemValue value="INFO" name="Logs Level"/>);
-      let select = React.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'select'));
+      let select = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(result, 'select'));
       select.value = 'TRACE';
       TestUtils.Simulate.change(select);
       expect(fetchUrl).to.equal('/api/system/change_log_level');

@@ -9,7 +9,7 @@ export default React.createClass({
   },
 
   onChange() {
-    let newValue = React.findDOMNode(this.refs.select).value;
+    let newValue = this.refs.select.value;
     setLogLevel(newValue).then(() => {
       this.setState({ level: newValue });
     });

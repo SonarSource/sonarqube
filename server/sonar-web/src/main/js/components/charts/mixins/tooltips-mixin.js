@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 export const TooltipsMixin = {
   componentDidMount () {
@@ -12,7 +13,7 @@ export const TooltipsMixin = {
 
   initTooltips () {
     if ($.fn.tooltip) {
-      $('[data-toggle="tooltip"]', React.findDOMNode(this))
+      $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this))
           .tooltip({ container: 'body', placement: 'bottom', html: true });
     }
   }

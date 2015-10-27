@@ -1,9 +1,10 @@
 /* eslint no-unused-expressions: 0 */
-import React from 'react/addons';
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+
 import Defaults from '../../src/main/js/apps/permission-templates/permission-template-defaults';
 import SetDefaults from '../../src/main/js/apps/permission-templates/permission-template-set-defaults';
 
-let TestUtils = React.addons.TestUtils;
 let expect = require('chai').expect;
 let sinon = require('sinon');
 

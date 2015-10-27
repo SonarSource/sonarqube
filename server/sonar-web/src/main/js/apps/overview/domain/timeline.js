@@ -62,7 +62,7 @@ export class DomainTimeline extends React.Component {
   }
 
   handleMetricChange () {
-    let metric = React.findDOMNode(this.refs.metricSelect).value;
+    let metric = this.refs.metricSelect.value;
     this.setState({ currentMetric: metric }, this.requestTimeMachineData);
   }
 

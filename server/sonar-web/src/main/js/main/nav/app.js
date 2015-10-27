@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import GlobalNav from './global/global-nav';
 import ComponentNav from './component/component-nav';
 import SettingsNav from './settings/settings-nav';
@@ -36,7 +37,7 @@ export default class App {
     return getGlobalNavigation().then(r => {
       const el = document.getElementById('global-navigation');
       if (el) {
-        React.render(<GlobalNav {...options} {...r}/>, el);
+        ReactDOM.render(<GlobalNav {...options} {...r}/>, el);
       }
       return r;
     });
@@ -46,7 +47,7 @@ export default class App {
     return getComponentNavigation(options.componentKey).then(r => {
       const el = document.getElementById('context-navigation');
       if (el) {
-        React.render(<ComponentNav component={r} conf={r.configuration || {}}/>, el);
+        ReactDOM.render(<ComponentNav component={r} conf={r.configuration || {}}/>, el);
       }
       return r;
     });
@@ -56,7 +57,7 @@ export default class App {
     return getSettingsNavigation().then(r => {
       const el = document.getElementById('context-navigation');
       if (el) {
-        React.render(<SettingsNav {...options}/>, el);
+        ReactDOM.render(<SettingsNav {...options}/>, el);
       }
       return r;
     });

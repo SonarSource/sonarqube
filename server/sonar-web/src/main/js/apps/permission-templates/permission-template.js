@@ -69,6 +69,7 @@ export default React.createClass({
       return (
           <td key={p.key}>
             <table>
+              <tbody>
               <tr>
                 <td className="spacer-right">Users</td>
                 <td className="spacer-left bordered-left">{p.usersCount}</td>
@@ -85,6 +86,7 @@ export default React.createClass({
                      data-toggle="tooltip" href="#"></a>
                 </td>
               </tr>
+              </tbody>
             </table>
           </td>
       );

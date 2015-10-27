@@ -16,7 +16,7 @@ export default React.createClass({
   },
 
   search() {
-    let q = React.findDOMNode(this.refs.input).value;
+    let q = this.refs.input.value;
     this.props.onSearch(q);
   },
 
@@ -86,6 +86,7 @@ export default React.createClass({
     return (
         <div className="panel panel-vertical bordered-bottom spacer-bottom">
           <table className="data">
+            <tbody>
             <tr>
               <td className="thin text-middle">
                 {this.renderCheckbox()}
@@ -110,6 +111,7 @@ export default React.createClass({
                 </button>
               </td>
             </tr>
+            </tbody>
           </table>
           {this.renderGhostsDescription()}
         </div>

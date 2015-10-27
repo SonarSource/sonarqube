@@ -9,6 +9,6 @@ export default React.createClass({
         <td><ItemValue value={this.props.value[key]}/></td>
       </tr>;
     });
-    return <table className="data">{rows}</table>;
+    return <table className="data"><tbody>{rows}</tbody></table>;
   }
 });

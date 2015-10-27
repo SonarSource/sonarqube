@@ -75,6 +75,7 @@ module.exports.main = function (output, production, dev, watch) {
       function (bundle) {
         return bundle
             .require('react', { expose: 'react' })
+            .require('react-dom', { expose: 'react-dom' })
             .require('backbone', { expose: 'backbone' })
             .require('backbone.marionette', { expose: 'backbone.marionette' })
             .require('moment/min/moment-with-locales', { expose: 'moment' });
@@ -98,6 +99,7 @@ module.exports.apps = function (output, production, dev, watch, done) {
           function (bundle) {
             return bundle
                 .external('react')
+                .external('react-dom')
                 .external('backbone')
                 .external('backbone.marionette')
                 .external('moment');
@@ -118,6 +120,7 @@ module.exports.widgets = function (output, production, dev, watch) {
       function (bundle) {
         return bundle
             .external('react')
+            .external('react-dom')
             .external('backbone')
             .external('backbone.marionette')
             .require('moment/min/moment-with-locales', { expose: 'moment' })
