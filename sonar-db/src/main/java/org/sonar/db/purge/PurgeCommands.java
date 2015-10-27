@@ -48,7 +48,7 @@ class PurgeCommands {
     return purgeMapper.selectSnapshotIds(query);
   }
 
-  void deleteResources(List<IdUuidPair> componentIdUuids) {
+  void deleteComponents(List<IdUuidPair> componentIdUuids) {
     List<List<Long>> componentIdPartitions = Lists.partition(IdUuidPairs.ids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
     List<List<String>> componentUuidsPartitions = Lists.partition(IdUuidPairs.uuids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
     // Note : do not merge the delete statements into a single loop of resource ids. It's
@@ -218,6 +218,13 @@ class PurgeCommands {
   public void deleteFileSources(String rootUuid) {
     profiler.start("deleteFileSources (file_sources)");
     purgeMapper.deleteFileSourcesByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  public void deleteCeActivity(String rootUuid) {
+    profiler.start("deleteCeActivity (ce_activity)");
+    purgeMapper.deleteCeActivityByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
   }
