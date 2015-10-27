@@ -10,6 +10,13 @@ import { getEvents } from '../../../api/events';
 const HEIGHT = 280;
 
 
+function parseValue (value, type) {
+  return type === 'RATING' && typeof value === 'string' ?
+         value.charCodeAt(0) - 'A'.charCodeAt(0) + 1 :
+         value;
+}
+
+
 export class DomainTimeline extends React.Component {
   constructor (props) {
     super(props);
@@ -90,20 +97,23 @@ export class DomainTimeline extends React.Component {
       return this.renderLoading();
     }
 
-    if (!this.state.events.length || !this.state.snapshots.length) {
+    let events = this.prepareEvents();
+
+    if (!events.length) {
       return this.renderWhenNoHistoricalData();
     }
 
-    let events = this.prepareEvents();
     let currentMetricType = _.findWhere(this.props.metrics, { key: this.state.currentMetric }).type;
 
     let data = events.map((event, index) => {
-      return { x: index, y: event.value };
+      return { x: index, y: parseValue(event.value, currentMetricType) };
     });
 
     let xTicks = events.map(event => event.version.substr(0, 6));
 
-    let xValues = events.map(event => window.formatMeasure(event.value, currentMetricType));
+    let xValues = events.map(event => {
+      return currentMetricType === 'RATING' ? event.value : window.formatMeasure(event.value, currentMetricType);
+    });
 
     // TODO use leak period
     let backdropConstraints = [
