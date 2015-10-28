@@ -22,7 +22,11 @@ package it.measureHistory;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import it.Category1Suite;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.annotation.Nullable;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -54,15 +58,20 @@ public class SincePreviousVersionHistoryTest {
     ItUtils.resetPeriods(orchestrator);
   }
 
+
+  @Before
+  public void resetData() throws Exception {
+    orchestrator.resetData();
+  }
+
   /**
    * SONAR-2496
    */
   @Test
   public void test_since_previous_version_period() {
-    orchestrator.resetData();
-    analyzeProject("0.9", "**/*2.xoo");
-    analyzeProject("1.0-SNAPSHOT", null);
-    analyzeProject("1.0-SNAPSHOT", null);
+    analyzeProjectWithExclusions("0.9", "**/*2.xoo");
+    analyzeProject("1.0-SNAPSHOT");
+    analyzeProject("1.0-SNAPSHOT");
 
     Resource project = getProject("files");
     Measure measure = project.getMeasure("files");
@@ -80,16 +89,59 @@ public class SincePreviousVersionHistoryTest {
     assertThat(measure.getVariation3()).isEqualTo(2);
   }
 
-  private static void analyzeProject(String version, String exclusions) {
+  /**
+   * SONAR-6356
+   */
+  @Test
+  public void since_previous_version_should_use_first_analysis_when_no_version_found() {
+    analyzeProjectWithDate("1.0-SNAPSHOT", "2015-10-01");
+    // No difference measure after first analysis
+    Resource project = getProject("files");
+    assertThat(project.getPeriod3Date()).isNull();
+
+    analyzeProjectWithDate("1.0-SNAPSHOT", "2015-10-02");
+    // No new version, first analysis is used
+    project = getProject("files");
+    assertThat(project.getPeriod3Mode()).isEqualTo("previous_version");
+    assertThat(toStringDate(project.getPeriod3Date())).isEqualTo("2015-10-01");
+
+    analyzeProjectWithDate("1.0-SNAPSHOT", "2015-10-03");
+    // Still no new version, first analysis is used
+    project = getProject("files");
+    assertThat(project.getPeriod3Mode()).isEqualTo("previous_version");
+    assertThat(toStringDate(project.getPeriod3Date())).isEqualTo("2015-10-01");
+  }
+
+  private static void analyzeProject(String version) {
+    analyzeProject(version, null, null);
+  }
+
+  private static void analyzeProjectWithExclusions(String version, String exclusions) {
+    analyzeProject(version, exclusions, null);
+  }
+
+  private static void analyzeProjectWithDate(String version, String date) {
+    analyzeProject(version, null, date);
+  }
+
+  private static void analyzeProject(String version, @Nullable String exclusions, @Nullable String date) {
     SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
       .setProperties("sonar.projectVersion", version);
     if (exclusions != null) {
       build.setProperties("sonar.exclusions", exclusions);
+    }
+    if (date != null) {
+      build.setProperty("sonar.projectDate", date);
     }
     orchestrator.executeBuild(build);
   }
 
   private Resource getProject(String... metricKeys) {
     return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT, metricKeys).setIncludeTrends(true));
+  }
+
+  public static String toStringDate(Date date) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    return sdf.format(date);
   }
 }
