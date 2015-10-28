@@ -19,34 +19,46 @@
  */
 package org.sonar.api.server.rule;
 
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class RulesDefinitionXmlLoaderTest {
 
   @org.junit.Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  public final ExpectedException expectedException = ExpectedException.none();
+
+  RulesDefinitionXmlLoader underTest = new RulesDefinitionXmlLoader();
 
   private RulesDefinition.Repository load(InputStream input, String encoding) {
     RulesDefinition.Context context = new RulesDefinition.Context();
     RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
-    new RulesDefinitionXmlLoader().load(newRepository, input, encoding);
+    underTest.load(newRepository, input, encoding);
+    newRepository.done();
+    return context.repository("squid");
+  }
+
+  private RulesDefinition.Repository load(String xml) {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
+    underTest.load(newRepository, new StringReader(xml));
     newRepository.done();
     return context.repository("squid");
   }
 
   @Test
   public void parse_xml() {
-    InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/rules.xml");
+    InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/rules.xml");
     RulesDefinition.Repository repository = load(input, StandardCharsets.UTF_8.name());
     assertThat(repository.rules()).hasSize(2);
 
@@ -77,34 +89,34 @@ public class RulesDefinitionXmlLoaderTest {
 
   @Test
   public void fail_if_missing_rule_key() {
-    thrown.expect(IllegalStateException.class);
+    expectedException.expect(IllegalStateException.class);
     load(IOUtils.toInputStream("<rules><rule><name>Foo</name></rule></rules>"), StandardCharsets.UTF_8.name());
   }
 
   @Test
   public void fail_if_missing_property_key() {
-    thrown.expect(IllegalStateException.class);
+    expectedException.expect(IllegalStateException.class);
     load(IOUtils.toInputStream("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"), StandardCharsets.UTF_8.name());
   }
 
   @Test
   public void fail_on_invalid_rule_parameter_type() {
-    thrown.expect(IllegalStateException.class);
+    expectedException.expect(IllegalStateException.class);
     load(IOUtils.toInputStream("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>INVALID</type></param></rule></rules>"), StandardCharsets.UTF_8.name());
   }
 
   @Test
   public void fail_if_invalid_xml() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("XML is not valid");
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("XML is not valid");
 
-    InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/invalid.xml");
+    InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/invalid.xml");
     load(input, StandardCharsets.UTF_8.name());
   }
 
   @Test
   public void test_utf8_encoding() throws UnsupportedEncodingException {
-    InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/utf8.xml");
+    InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/utf8.xml");
     RulesDefinition.Repository repository = load(input, StandardCharsets.UTF_8.name());
 
     assertThat(repository.rules()).hasSize(1);
@@ -119,7 +131,7 @@ public class RulesDefinitionXmlLoaderTest {
   @Test
   public void support_deprecated_format() {
     // the deprecated format uses some attributes instead of nodes
-    InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/deprecated.xml");
+    InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/deprecated.xml");
     RulesDefinition.Repository repository = load(input, StandardCharsets.UTF_8.name());
 
     assertThat(repository.rules()).hasSize(1);
@@ -129,5 +141,115 @@ public class RulesDefinitionXmlLoaderTest {
     assertThat(rule.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(rule.htmlDescription()).isEqualTo("Count methods");
     assertThat(rule.param("minMethodsCount")).isNotNull();
+  }
+
+  @Test
+  public void test_linear_remediation_function() throws Exception {
+    String xml = "" +
+      "<rules>" +
+      "  <rule>" +
+      "    <key>1</key>" +
+      "    <name>One</name>" +
+      "    <description>Desc</description>" +
+
+      "    <effortToFixDescription>lines</effortToFixDescription>" +
+      "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
+      "    <debtRemediationFunction>LINEAR</debtRemediationFunction>" +
+      "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
+      "  </rule>" +
+      "</rules>";
+    RulesDefinition.Rule rule = load(xml).rule("1");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("BUG");
+    assertThat(rule.effortToFixDescription()).isEqualTo("lines");
+    DebtRemediationFunction function = rule.debtRemediationFunction();
+    assertThat(function).isNotNull();
+    assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(function.coefficient()).isEqualTo("2d3h");
+    assertThat(function.offset()).isNull();
+  }
+
+  @Test
+  public void test_linear_with_offset_remediation_function() {
+    String xml = "" +
+      "<rules>" +
+      "  <rule>" +
+      "    <key>1</key>" +
+      "    <name>One</name>" +
+      "    <description>Desc</description>" +
+
+      "    <effortToFixDescription>lines</effortToFixDescription>" +
+      "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
+      "    <debtRemediationFunction>LINEAR_OFFSET</debtRemediationFunction>" +
+      "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
+      "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
+      "  </rule>" +
+      "</rules>";
+    RulesDefinition.Rule rule = load(xml).rule("1");
+    assertThat(rule.effortToFixDescription()).isEqualTo("lines");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("BUG");
+    DebtRemediationFunction function = rule.debtRemediationFunction();
+    assertThat(function).isNotNull();
+    assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(function.coefficient()).isEqualTo("2d3h");
+    assertThat(function.offset()).isEqualTo("5min");
+  }
+
+  @Test
+  public void test_constant_remediation_function() {
+    String xml = "" +
+      "<rules>" +
+      "  <rule>" +
+      "    <key>1</key>" +
+      "    <name>One</name>" +
+      "    <description>Desc</description>" +
+      "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
+      "    <debtRemediationFunction>CONSTANT_ISSUE</debtRemediationFunction>" +
+      "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
+      "  </rule>" +
+      "</rules>";
+    RulesDefinition.Rule rule = load(xml).rule("1");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("BUG");
+    DebtRemediationFunction function = rule.debtRemediationFunction();
+    assertThat(function).isNotNull();
+    assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
+    assertThat(function.coefficient()).isNull();
+    assertThat(function.offset()).isEqualTo("5min");
+  }
+
+  @Test
+  public void fail_if_invalid_remediation_function() {
+    try {
+      load("" +
+        "<rules>" +
+        "  <rule>" +
+        "    <key>1</key>" +
+        "    <name>One</name>" +
+        "    <description>Desc</description>" +
+        "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
+        "    <debtRemediationFunction>UNKNOWN</debtRemediationFunction>" +
+        "  </rule>" +
+        "</rules>");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessageContaining("Fail to load the rule with key [squid:1]");
+      assertThat(e.getCause()).hasMessageContaining("No enum constant org.sonar.api.server.debt.DebtRemediationFunction.Type.UNKNOWN");
+    }
+  }
+
+  @Test
+  public void fail_if_sub_characteristic_is_missing() {
+    try {
+      load("<rules>" +
+        "  <rule>" +
+        "    <key>1</key>" +
+        "    <name>One</name>" +
+        "    <description>Desc</description>" +
+        "    <debtRemediationFunction>LINEAR</debtRemediationFunction>" +
+        "    <debtRemediationFunctionCoefficient>1min</debtRemediationFunctionCoefficient>" +
+        "  </rule>" +
+        "</rules>");
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessageContaining("Both debt sub-characteristic and debt remediation function should be defined on rule '[repository=squid, key=1]");
+    }
   }
 }

@@ -23,27 +23,46 @@ package org.sonar.api.server.debt;
 import javax.annotation.CheckForNull;
 
 /**
- * Function used to calculate the remediation cost of an issue. There are three types :
- * <ul>
- * <li>
- * <b>Linear</b> - Each issue of the rule costs the same amount of time (coefficient) to fix.
- * </li>
- * <li>
- * <b>Linear with offset</b> - It takes a certain amount of time to analyze the issues of such kind on the file (offset).
- * Then, each issue of the rule costs the same amount of time (coefficient) to fix. Total remediation cost
- * by file = offset + (number of issues x coefficient)
- * </li>
- * <li><b>Constant/issue</b> - The cost to fix all the issues of the rule is the same whatever the number of issues
- * of this rule in the file. Total remediation cost by file = constant
- * </li>
- * </ul>
+ * Function used to calculate the remediation cost of an issue. See {@link Type} for details.
+ * <p>The coefficient and offset involved in the functions are durations. They are defined in hours, minutes and/or
+ * seconds. Examples: "5min", "1h 10min". Supported units are "d" (days), "h" (hour), and "min" (minutes).</p>
  *
  * @since 4.3
  */
 public interface DebtRemediationFunction {
 
   enum Type {
-    LINEAR(true, false), LINEAR_OFFSET(true, true), CONSTANT_ISSUE(false, true);
+
+    /**
+     * The cost to fix an issue of this type depends on the magnitude of the issue.
+     * For instance, an issue related to file size might be linear, with the total cost-to-fix incrementing
+     * (by the coefficient amount) for each line of code above the allowed threshold.
+     * The rule must provide the "effort to fix" value when raising an issue.
+     */
+    LINEAR(true, false),
+
+    /**
+     * It takes a certain amount of time to deal with an issue of this type (this is the offset).
+     * Then, the magnitude of the issue comes in to play. For instance, an issue related to complexity might be linear with offset.
+     * So the total cost to fix is the time to make the basic analysis (the offset) plus the time required to deal
+     * with each complexity point above the allowed value.
+     * <p>
+     * <code>Total remediation cost = offset + (number of noncompliance x coefficient)</code>
+     * </p>
+     * <p>The rule must provide the "effort to fix" value when raising an issue. Let’s take as a example the “Paragraphs should not be too complex” rule.
+     * If you set the rule threshold to 20, and you have a paragraph with a complexity of 27, you have 7 points of complexity
+     * to remove. Internally, this is called the Effort to Fix. In that case, if you use the LINEAR_OFFSET configuration
+     * with an offset of 4h and a remediation cost of 1mn, the technical debt for this issue related to a
+     * too-complex block of code will be: (7 complexity points x 1min) + 4h = 4h and 7mn
+     * </p>
+     */
+    LINEAR_OFFSET(true, true),
+
+    /**
+     * The cost to fix all the issues of the rule is the same whatever the number of issues
+     * of this rule in the file. Total remediation cost by file = constant
+     */
+    CONSTANT_ISSUE(false, true);
 
     private final boolean usesCoefficient;
     private final boolean usesOffset;
@@ -65,13 +84,13 @@ public interface DebtRemediationFunction {
   Type type();
 
   /**
-   * Factor is set on types {@link Type#LINEAR} and {@link Type#LINEAR_OFFSET}, else it's null.
+   * Non-null value on {@link Type#LINEAR} and {@link Type#LINEAR_OFFSET} functions, else {@code null}.
    */
   @CheckForNull
   String coefficient();
 
   /**
-   * Offset is set on types {@link Type#LINEAR_OFFSET} and {@link Type#CONSTANT_ISSUE}, else it's null.
+   * Non-null value on {@link Type#LINEAR_OFFSET} and {@link Type#CONSTANT_ISSUE} functions, else {@code null}.
    */
   @CheckForNull
   String offset();
