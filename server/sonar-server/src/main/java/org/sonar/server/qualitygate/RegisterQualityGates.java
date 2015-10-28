@@ -20,15 +20,25 @@
 package org.sonar.server.qualitygate;
 
 import org.picocontainer.Startable;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+
+import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY;
+import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
+import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
 
 public class RegisterQualityGates implements Startable {
 
   private static final String BUILTIN_QUALITY_GATE = "SonarQube way";
+  private static final int LEAK_PERIOD = 1;
+  private static final String NEW_BLOCKER_ISSUE_ERROR_THRESHOLD = "0";
+  private static final String NEW_CRITICAL_ISSUE_ERROR_THRESHOLD = "0";
+  private static final String DEBT_ON_NEW_CODE_ERROR_THRESHOLD = "5";
+  private static final String NEW_COVERAGE_ERROR_THRESHOLD = "80";
 
   private final QualityGates qualityGates;
   private final LoadedTemplateDao loadedTemplateDao;
@@ -57,10 +67,10 @@ public class RegisterQualityGates implements Startable {
 
   private void createBuiltinQualityGate() {
     QualityGateDto builtin = qualityGates.create(BUILTIN_QUALITY_GATE);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", 3);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", 3);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "5", 3);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_COVERAGE_KEY, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "80", 3);
+    qualityGates.createCondition(builtin.getId(), NEW_BLOCKER_VIOLATIONS_KEY, OPERATOR_GREATER_THAN, null, NEW_BLOCKER_ISSUE_ERROR_THRESHOLD, LEAK_PERIOD);
+    qualityGates.createCondition(builtin.getId(), NEW_CRITICAL_VIOLATIONS_KEY, OPERATOR_GREATER_THAN, null, NEW_CRITICAL_ISSUE_ERROR_THRESHOLD, LEAK_PERIOD);
+    qualityGates.createCondition(builtin.getId(), NEW_SQALE_DEBT_RATIO_KEY, OPERATOR_GREATER_THAN, null, DEBT_ON_NEW_CODE_ERROR_THRESHOLD, LEAK_PERIOD);
+    qualityGates.createCondition(builtin.getId(), NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, NEW_COVERAGE_ERROR_THRESHOLD, LEAK_PERIOD);
     qualityGates.setDefault(builtin.getId());
   }
 
