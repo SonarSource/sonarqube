@@ -613,11 +613,35 @@ public interface RulesDefinition {
    * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction}.
    */
   interface DebtRemediationFunctions {
+
+    /**
+     * Shortcut for {@code create(Type.LINEAR, coefficient, null)}.
+     * @param coefficient TODO. See {@link DebtRemediationFunction} for details about format.
+     * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#LINEAR
+     */
     DebtRemediationFunction linear(String coefficient);
 
+    /**
+     * Shortcut for {@code create(Type.LINEAR_OFFSET, coefficient, offset)}.
+     * @param coefficient TODO. See {@link DebtRemediationFunction} for details about format.
+     * @param offset TODO. See {@link DebtRemediationFunction} for details about format.
+     * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#LINEAR_OFFSET
+     */
     DebtRemediationFunction linearWithOffset(String coefficient, String offset);
 
-    DebtRemediationFunction constantPerIssue(String offset);
+    /**
+     * Shortcut for {@code create(Type.CONSTANT_ISSUE, null, constant)}.
+     * @param constant cost per issue. See {@link DebtRemediationFunction} for details about format.
+     * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#CONSTANT_ISSUE
+     */
+    DebtRemediationFunction constantPerIssue(String constant);
+
+    /**
+     * Flexible way to create a {@link DebtRemediationFunction}. An unchecked exception is thrown if
+     * coefficient and/or offset are not valid according to the given @{code type}.
+     * @since 5.3
+     */
+    DebtRemediationFunction create(DebtRemediationFunction.Type type, @Nullable String coefficient, @Nullable String offset);
   }
 
   class NewRule {
@@ -755,11 +779,11 @@ public interface RulesDefinition {
     }
 
     /**
-     * For rules that use "Linear"/"Linear with offset" remediation functions, the meaning
+     * For rules that use LINEAR or LINEAR_OFFSET remediation functions, the meaning
      * of the function parameter (= "effort to fix") must be set. This description
      * explains what 1 point of "effort to fix" represents for the rule.
      * <p/>
-     * Example : : for the "Insufficient condition coverage", this description for the
+     * Example: for the "Insufficient condition coverage", this description for the
      * remediation function coefficient/offset would be something like
      * "Effort to test one uncovered condition".
      */

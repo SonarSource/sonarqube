@@ -19,18 +19,6 @@
  */
 package org.sonar.api.server.rule;
 
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.staxmate.SMInputFactory;
-import org.codehaus.staxmate.in.SMHierarchicCursor;
-import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
-import org.sonar.check.Cardinality;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,25 +26,44 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.staxmate.SMInputFactory;
+import org.codehaus.staxmate.in.SMHierarchicCursor;
+import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.check.Cardinality;
+
+import static java.lang.String.format;
 
 /**
- * Helper class to load {@link RulesDefinition} extension point from a XML file.
+ * Loads definitions of rules from a XML file.
  *
- * <h3>Example</h3>
+ * <h3>Usage</h3>
  * <pre>
- * public class MyRules implements RulesDefinition {
+ * public class MyJsRulesDefinition implements RulesDefinition {
  *
+ *   private static final String PATH = "my-js-rules.xml";
  *   private final RulesDefinitionXmlLoader xmlLoader;
  *
- *   public MyRules(RulesDefinitionXmlLoader xmlLoader) {
+ *   public MyJsRulesDefinition(RulesDefinitionXmlLoader xmlLoader) {
  *     this.xmlLoader = xmlLoader;
  *   }
  *
  *   {@literal @}Override
  *   public void define(Context context) {
- *     NewRepository repository = context.createRepository("my-repo", "my-lang");
- *     xmlLoader.load(repository, getClass().getResourceAsStream("/my-rules.xml"), StandardCharsets.UTF_8.name());
- *     repository.done();
+ *     try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(PATH), StandardCharsets.UTF_8)) {
+ *       NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
+ *       xmlLoader.load(repository, reader);
+ *       repository.done();
+ *     } catch (IOException e) {
+ *       throw new IllegalStateException(String.format("Fail to read file %s", PATH), e);
+ *     }
  *   }
  * }
  * </pre>
@@ -65,10 +72,15 @@ import java.util.List;
  * <pre>
  * &lt;rules&gt;
  *   &lt;rule&gt;
- *     &lt;key&gt;the-required-rule-key&lt;/key&gt;*
- *     &lt;name&gt;The required purpose of the rule&lt;/name&gt;
- **     &lt;description&gt;
- *       &lt;![CDATA[Required HTML description]]&gt;
+ *     &lt;!-- required key --&gt;
+ *     &lt;key&gt;the-rule-key&lt;/key&gt;
+ *
+ *     &lt;!-- required name --&gt;
+ *     &lt;name&gt;The purpose of the rule&lt;/name&gt;
+ *
+ *     &lt;!-- required description, in HTML format --&gt;
+ *     &lt;description&gt;
+ *       &lt;![CDATA[The HTML description]]&gt;
  *     &lt;/description&gt;
  *
  *     &lt;!-- Optional key for configuration of some rule engines --&gt;
@@ -91,21 +103,65 @@ import java.util.List;
  *     &lt;param&gt;
  *       &lt;key&gt;the-param-key&lt;/key&gt;
  *       &lt;description&gt;
- *         &lt;![CDATA[the optional param description]]&gt;
+ *         &lt;![CDATA[the optional description, in HTML format]]&gt;
  *       &lt;/description&gt;
- *       &lt;!-- Optional field to define the default value used when enabling the rule in a Quality profile --&gt;
+ *       &lt;!-- Optional default value, used when enabling the rule in a Quality profile --&gt;
  *       &lt;defaultValue&gt;42&lt;/defaultValue&gt;
  *     &lt;/param&gt;
  *     &lt;param&gt;
  *       &lt;key&gt;another-param&lt;/key&gt;
  *     &lt;/param&gt;
  *
- *     &lt;!-- Deprecated field, replaced by "internalKey" --&gt;
+ *     &lt;!-- SQALE debt - key of sub-characteristic --&gt;
+ *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.SubCharacteristics} for core supported values. Any other value can be used. --&gt;
+ *     &lt;!-- Since 5.3 --&gt;
+ *     &lt;debtSubCharacteristic&gt;MODULARITY&lt;/debtSubCharacteristic&gt;
+ *
+ *     &lt;!-- SQALE debt - type of debt remediation function --&gt;
+ *     &lt;!-- See enum {@link org.sonar.api.server.debt.DebtRemediationFunction.Type} for supported values --&gt;
+ *     &lt;!-- Since 5.3 --&gt;
+ *     &lt;debtRemediationFunction&gt;LINEAR_OFFSET&lt;/debtRemediationFunction&gt;
+ *
+ *     &lt;!-- SQALE debt - raw description of the "effort to fix", used for some types of remediation functions. --&gt;
+ *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.NewRule#setEffortToFixDescription(String)} --&gt;
+ *     &lt;!-- Since 5.3 --&gt;
+ *     &lt;effortToFixDescription&gt;Effort to test one uncovered condition&lt;/effortToFixDescription&gt;
+ *
+ *     &lt;!-- SQALE debt - coefficient of debt remediation function. Must be defined only for some function types. --&gt;
+ *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.DebtRemediationFunctions} --&gt;
+ *     &lt;!-- Since 5.3 --&gt;
+ *     &lt;debtRemediationFunctionCoefficient&gt;10min&lt;/debtRemediationFunctionCoefficient&gt;
+ *
+ *     &lt;!-- SQALE debt - offset of debt remediation function. Must be defined only for some function types. --&gt;
+ *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.DebtRemediationFunctions} --&gt;
+ *     &lt;!-- Since 5.3 --&gt;
+ *     &lt;debtRemediationFunctionOffset&gt;2min&lt;/debtRemediationFunctionOffset&gt;
+ *
+ *     &lt;!-- deprecated field, replaced by "internalKey" --&gt;
  *     &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
  *
- *     &lt;!-- Deprecated field, replaced by "severity" --&gt;
+ *     &lt;!-- deprecated field, replaced by "severity" --&gt;
  *     &lt;priority&gt;BLOCKER&lt;/priority&gt;
  *   &lt;/rule&gt;
+ * &lt;/rules&gt;
+ * </pre>
+ *
+ * <h3>XML Example</h3>
+ * <pre>
+ * &lt;rules&gt;
+ *   &lt;rule&gt;
+ *     &lt;key&gt;S1442&lt;/key&gt;
+ *     &lt;name&gt;"alert(...)" should not be used&lt;/name&gt;
+ *     &lt;description&gt;alert(...) can be useful for debugging during development, but ...&lt;/description&gt;
+ *     &lt;tag&gt;cwe&lt;/tag&gt;
+ *     &lt;tag&gt;security&lt;/tag&gt;
+ *     &lt;tag&gt;user-experience&lt;/tag&gt;
+ *     &lt;debtSubCharacteristic&gt;SECURITY_FEATURES&lt;/debtSubCharacteristic&gt;
+ *     &lt;debtRemediationFunction&gt;CONSTANT&lt;/debtRemediationFunction&gt;
+ *     &lt;debtRemediationFunctionOffset&gt;10min&lt;/debtRemediationFunctionOffset&gt;
+ *   &lt;/rule&gt;
+ *
+ *   &lt;!-- another rules... --&gt;
  * &lt;/rules&gt;
  * </pre>
  *
@@ -115,6 +171,11 @@ import java.util.List;
 @ServerSide
 public class RulesDefinitionXmlLoader {
 
+  /**
+   * Loads rules by reading the XML input stream. The input stream is not always closed by the method, so it
+   * should be handled by the caller.
+   * @since 4.3
+   */
   public void load(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
     load(repo, input, Charset.forName(encoding));
   }
@@ -130,6 +191,11 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
+  /**
+   * Loads rules by reading the XML input stream. The reader is closed by the method, so it
+   * should be handled by the caller.
+   * @since 4.3
+   */
   public void load(RulesDefinition.NewRepository repo, Reader reader) {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
@@ -159,8 +225,13 @@ public class RulesDefinitionXmlLoader {
     String description = null;
     String internalKey = null;
     String severity = Severity.defaultSeverity();
-    String status = null;
-    Cardinality cardinality = Cardinality.SINGLE;
+    RuleStatus status = RuleStatus.defaultStatus();
+    boolean template = false;
+    String effortToFixDescription = null;
+    String debtSubCharacteristic = null;
+    String debtRemediationFunction = null;
+    String debtRemediationFunctionOffset = null;
+    String debtRemediationFunctionCoeff = null;
     List<ParamStruct> params = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
@@ -202,10 +273,28 @@ public class RulesDefinitionXmlLoader {
         severity = StringUtils.trim(cursor.collectDescendantText(false));
 
       } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
-        cardinality = Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false)));
+        template = Cardinality.MULTIPLE == Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false)));
+
+      } else if (StringUtils.equalsIgnoreCase("effortToFixDescription", nodeName)) {
+        effortToFixDescription = StringUtils.trim(cursor.collectDescendantText(false));
+
+      } else if (StringUtils.equalsIgnoreCase("debtRemediationFunction", nodeName)) {
+        debtRemediationFunction = StringUtils.trim(cursor.collectDescendantText(false));
+
+      } else if (StringUtils.equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
+        debtRemediationFunctionOffset = StringUtils.trim(cursor.collectDescendantText(false));
+
+      } else if (StringUtils.equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
+        debtRemediationFunctionCoeff = StringUtils.trim(cursor.collectDescendantText(false));
+
+      } else if (StringUtils.equalsIgnoreCase("debtSubCharacteristic", nodeName)) {
+        debtSubCharacteristic = StringUtils.trim(cursor.collectDescendantText(false));
 
       } else if (StringUtils.equalsIgnoreCase("status", nodeName)) {
-        status = StringUtils.trim(cursor.collectDescendantText(false));
+        String s = StringUtils.trim(cursor.collectDescendantText(false));
+        if (s != null) {
+          status = RuleStatus.valueOf(s);
+        }
 
       } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
         params.add(processParameter(cursor));
@@ -214,21 +303,38 @@ public class RulesDefinitionXmlLoader {
         tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
       }
     }
-    RulesDefinition.NewRule rule = repo.createRule(key)
-      .setHtmlDescription(description)
-      .setSeverity(severity)
-      .setName(name)
-      .setInternalKey(internalKey)
-      .setTags(tags.toArray(new String[tags.size()]))
-      .setTemplate(cardinality == Cardinality.MULTIPLE);
-    if (status != null) {
-      rule.setStatus(RuleStatus.valueOf(status));
+
+    try {
+      RulesDefinition.NewRule rule = repo.createRule(key)
+          .setHtmlDescription(description)
+          .setSeverity(severity)
+          .setName(name)
+          .setInternalKey(internalKey)
+          .setTags(tags.toArray(new String[tags.size()]))
+          .setTemplate(template)
+          .setStatus(status)
+          .setEffortToFixDescription(effortToFixDescription)
+          .setDebtSubCharacteristic(debtSubCharacteristic);
+      fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionOffset, debtRemediationFunctionCoeff);
+      fillParams(rule, params);
+    } catch (Exception e) {
+      throw new IllegalArgumentException(format("Fail to load the rule with key [%s:%s]", repo.key(), key), e);
     }
+  }
+
+  private void fillRemediationFunction(RulesDefinition.NewRule rule, @Nullable String debtRemediationFunction, @Nullable String functionOffset, @Nullable String functionCoeff) {
+    if (StringUtils.isNotBlank(debtRemediationFunction)) {
+      DebtRemediationFunction.Type functionType = DebtRemediationFunction.Type.valueOf(debtRemediationFunction);
+      rule.setDebtRemediationFunction(rule.debtRemediationFunctions().create(functionType, functionCoeff, functionOffset));
+    }
+  }
+
+  private void fillParams(RulesDefinition.NewRule rule, List<ParamStruct> params) {
     for (ParamStruct param : params) {
       rule.createParam(param.key)
-        .setDefaultValue(param.defaultValue)
-        .setType(param.type)
-        .setDescription(param.description);
+          .setDefaultValue(param.defaultValue)
+          .setType(param.type)
+          .setDescription(param.description);
     }
   }
 
