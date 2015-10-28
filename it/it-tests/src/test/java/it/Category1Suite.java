@@ -51,6 +51,7 @@ import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
+import it.qualityGate.QualityGateUiTest;
 import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
 import it.settings.SettingsTestRestartingOrchestrator;
@@ -76,6 +77,7 @@ import static util.ItUtils.xooPlugin;
   I18nTest.class,
   // quality gate
   QualityGateTest.class,
+  QualityGateUiTest.class,
   QualityGateNotificationTest.class,
   // permission
   IssuePermissionTest.class,

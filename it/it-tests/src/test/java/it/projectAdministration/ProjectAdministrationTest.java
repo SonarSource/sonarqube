@@ -35,11 +35,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.qualitygate.NewCondition;
-import org.sonar.wsclient.qualitygate.QualityGate;
-import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonar.wsclient.qualitygate.QualityGateCondition;
-import org.sonar.wsclient.qualitygate.UpdateCondition;
 import org.sonar.wsclient.services.PropertyQuery;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
@@ -160,59 +155,6 @@ public class ProjectAdministrationTest {
     new SeleneseTest(selenese).runOn(orchestrator);
 
     assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(7);
-  }
-
-  // SONAR-3326
-  // TODO should be moved to qualityGate
-  @Test
-  public void display_alerts_correctly_in_history_page() {
-    QualityGateClient qgClient = orchestrator.getServer().adminWsClient().qualityGateClient();
-    QualityGate qGate = qgClient.create("AlertsForHistory");
-    qgClient.setDefault(qGate.id());
-
-    // with this configuration, project should have an Orange alert
-    QualityGateCondition lowThresholds = qgClient.createCondition(NewCondition.create(qGate.id()).metricKey("lines").operator("GT").warningThreshold("5").errorThreshold("50"));
-    scanSampleWithDate("2012-01-01");
-    // with this configuration, project should have a Green alert
-    qgClient.updateCondition(UpdateCondition.create(lowThresholds.id()).metricKey("lines").operator("GT").warningThreshold("5000").errorThreshold("5000"));
-    scanSampleWithDate("2012-01-02");
-
-    Selenese selenese = Selenese.builder()
-      .setHtmlTestsInClasspath("display-alerts-history-page",
-        "/projectAdministration/ProjectAdministrationTest/display-alerts-history-page/should-display-alerts-correctly-history-page.html"
-      ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-
-    qgClient.unsetDefault();
-    qgClient.destroy(qGate.id());
-  }
-
-  /**
-   * SONAR-1352
-   */
-  // TODO should be moved to qualityGate
-  @Test
-  public void display_period_alert_on_project_dashboard() {
-    QualityGateClient qgClient = orchestrator.getServer().adminWsClient().qualityGateClient();
-    QualityGate qGate = qgClient.create("AlertsForDashboard");
-    qgClient.createCondition(NewCondition.create(qGate.id()).metricKey("lines").operator("LT").warningThreshold("0").errorThreshold("10")
-      .period(1));
-    qgClient.setDefault(qGate.id());
-
-    // No alert
-    scanSampleWithDate("2012-01-01");
-
-    // Red alert because lines number has not changed since previous analysis
-    scanSample();
-
-    Selenese selenese = Selenese.builder()
-      .setHtmlTestsInClasspath("display-period-alerts",
-        "/projectAdministration/ProjectAdministrationTest/display-alerts/should-display-period-alerts-correctly.html"
-      ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-
-    qgClient.unsetDefault();
-    qgClient.destroy(qGate.id());
   }
 
   /**

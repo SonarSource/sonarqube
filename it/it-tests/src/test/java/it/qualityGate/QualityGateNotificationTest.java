@@ -11,7 +11,9 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.util.Iterator;
 import javax.mail.internet.MimeMessage;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.Sonar;
@@ -24,11 +26,13 @@ import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
+import util.ItUtils;
 import util.NetworkUtils;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.setServerProperty;
 
 public class QualityGateNotificationTest {
 
@@ -36,6 +40,18 @@ public class QualityGateNotificationTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  @BeforeClass
+  public static void initPeriods() throws Exception {
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
+    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
+  }
+
+  @AfterClass
+  public static void resetPeriods() throws Exception {
+    ItUtils.resetPeriods(orchestrator);
+  }
 
   @Before
   public void cleanUp() {
@@ -57,8 +73,8 @@ public class QualityGateNotificationTest {
       Selenese selenese = Selenese
         .builder()
         .setHtmlTestsInClasspath("notifications",
-          "/qualitygate/notifications/email_configuration.html",
-          "/qualitygate/notifications/activate_notification_channels.html").build();
+          "/qualityGate/notifications/email_configuration.html",
+          "/qualityGate/notifications/activate_notification_channels.html").build();
       new SeleneseTest(selenese).runOn(orchestrator);
 
       // Create quality gate with conditions on variations
