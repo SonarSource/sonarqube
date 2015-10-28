@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
@@ -33,6 +32,7 @@ import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.period.Period;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
 
 public class NewDebtCalculatorTest {
 
@@ -44,7 +44,7 @@ public class NewDebtCalculatorTest {
   private static final Duration TEN_DAYS = Duration.create(10 * HOURS_IN_DAY * 60 * 60L);
   private static final long PERIOD_DATE = 150000000L;
   private static final long SNAPSHOT_ID = 1000L;
-  private static final Period PERIOD = new Period(1, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, null, PERIOD_DATE, SNAPSHOT_ID);
+  private static final Period PERIOD = new Period(1, TIMEMACHINE_MODE_PREVIOUS_VERSION, null, PERIOD_DATE, SNAPSHOT_ID);
 
   DefaultIssue issue = new DefaultIssue();
   NewDebtCalculator underTest = new NewDebtCalculator();

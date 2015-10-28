@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -47,6 +46,7 @@ import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
@@ -192,17 +192,17 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(view, viewDto.getId());
     dbIdsRepository.setComponentId(subView, subViewDto.getId());
 
-    periodsHolder.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
+    periodsHolder.setPeriods(new Period(1, TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
 
     underTest.execute();
 
     SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.getId());
-    assertThat(viewSnapshot.getPeriodMode(1)).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(viewSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(viewSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
     assertThat(viewSnapshot.getPeriodModeParameter(1)).isNotNull();
 
     SnapshotDto subViewSnapshot = getUnprocessedSnapshot(subViewDto.getId());
-    assertThat(subViewSnapshot.getPeriodMode(1)).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(subViewSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(subViewSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
     assertThat(subViewSnapshot.getPeriodModeParameter(1)).isNotNull();
   }

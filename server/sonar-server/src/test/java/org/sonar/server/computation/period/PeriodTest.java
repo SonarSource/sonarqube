@@ -23,9 +23,9 @@ package org.sonar.server.computation.period;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.CoreProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
 
 public class PeriodTest {
 
@@ -39,9 +39,9 @@ public class PeriodTest {
 
   @Test
   public void test_some_setters_and_getters() {
-    Period period = new Period(1, CoreProperties.TIMEMACHINE_MODE_VERSION, SOME_MODE_PARAM, SOME_SNAPSHOT_DATE, SOME_SNAPSHOT_ID);
+    Period period = new Period(1, TIMEMACHINE_MODE_VERSION, SOME_MODE_PARAM, SOME_SNAPSHOT_DATE, SOME_SNAPSHOT_ID);
 
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_VERSION);
     assertThat(period.getModeParameter()).isEqualTo(SOME_MODE_PARAM);
     assertThat(period.getIndex()).isEqualTo(1);
     assertThat(period.getSnapshotDate()).isEqualTo(SOME_SNAPSHOT_DATE);
@@ -74,7 +74,7 @@ public class PeriodTest {
 
   @Test
   public void verify_to_string() {
-    assertThat(new Period(1, CoreProperties.TIMEMACHINE_MODE_VERSION, "2.3", 1420034400000L, 10L).toString())
+    assertThat(new Period(1, TIMEMACHINE_MODE_VERSION, "2.3", 1420034400000L, 10L).toString())
       .isEqualTo("Period{index=1, mode=version, modeParameter=2.3, snapshotDate=1420034400000, snapshotId=10}");
   }
 }

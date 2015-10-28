@@ -41,8 +41,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
 
 public class NewDebtAggregatorTest {
 

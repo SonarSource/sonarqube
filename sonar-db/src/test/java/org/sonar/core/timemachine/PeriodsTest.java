@@ -34,13 +34,13 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_DATE;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_DAYS;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_VERSION;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_PERIOD_PREFIX;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_PERIOD_PREFIX;
 
 public class PeriodsTest {
 

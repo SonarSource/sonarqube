@@ -50,6 +50,12 @@ import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_PERIOD_PREFIX;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
@@ -162,7 +168,7 @@ public class LoadPeriodsStep implements ComputationStep {
       }
       Period period = resolve(index, propertyValue);
       if (period == null && StringUtils.isNotBlank(propertyValue)) {
-        LOG.debug("Property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " is not valid: " + propertyValue);
+        LOG.debug("Property " + TIMEMACHINE_PERIOD_PREFIX + index + " is not valid: " + propertyValue);
       }
       return period;
     }
@@ -177,10 +183,10 @@ public class LoadPeriodsStep implements ComputationStep {
       if (date != null) {
         return findByDate(index, date);
       }
-      if (StringUtils.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, property)) {
+      if (StringUtils.equals(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, property)) {
         return findByPreviousAnalysis(index);
       }
-      if (StringUtils.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, property)) {
+      if (StringUtils.equals(TIMEMACHINE_MODE_PREVIOUS_VERSION, property)) {
         return findByPreviousVersion(index);
       }
       return findByVersion(index, property);
@@ -192,7 +198,7 @@ public class LoadPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug("Compare to date {} (analysis of {})", formatDate(date.getTime()), formatDate(snapshot.getCreatedAt()));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getId());
+      return new Period(index, TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getId());
     }
 
     @CheckForNull
@@ -204,7 +210,7 @@ public class LoadPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug("Compare over {} days ({}, analysis of {})", String.valueOf(days), formatDate(targetDate), formatDate(snapshot.getCreatedAt()));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getId());
+      return new Period(index, TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getId());
     }
 
     @CheckForNull
@@ -214,7 +220,7 @@ public class LoadPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug("Compare to previous analysis ({})", formatDate(snapshot.getCreatedAt()));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getId());
+      return new Period(index, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getId());
     }
 
     @CheckForNull
@@ -229,7 +235,7 @@ public class LoadPeriodsStep implements ComputationStep {
       }
       SnapshotDto snapshotDto = snapshotDtos.get(0);
       LOG.debug("Compare to previous version ({})", formatDate(snapshotDto.getCreatedAt()));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getId());
+      return new Period(index, TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getId());
     }
 
     @CheckForNull
@@ -239,7 +245,7 @@ public class LoadPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug("Compare to first analysis ({})", formatDate(snapshotDto.getCreatedAt()));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getId());
+      return new Period(index, TIMEMACHINE_MODE_PREVIOUS_VERSION, null, snapshotDto.getCreatedAt(), snapshotDto.getId());
     }
 
     @CheckForNull
@@ -249,7 +255,7 @@ public class LoadPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug("Compare to version ({}) ({})", version, formatDate(snapshot.getCreatedAt()));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getId());
+      return new Period(index, TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getId());
     }
 
     @CheckForNull
@@ -295,10 +301,10 @@ public class LoadPeriodsStep implements ComputationStep {
   }
 
   private static String getPropertyValue(@Nullable String qualifier, Settings settings, int index) {
-    String value = settings.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index);
+    String value = settings.getString(TIMEMACHINE_PERIOD_PREFIX + index);
     // For periods 4 and 5 we're also searching for a property prefixed by the qualifier
     if (index > 3 && Strings.isNullOrEmpty(value)) {
-      value = settings.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + "." + qualifier);
+      value = settings.getString(TIMEMACHINE_PERIOD_PREFIX + index + "." + qualifier);
     }
     return value;
   }

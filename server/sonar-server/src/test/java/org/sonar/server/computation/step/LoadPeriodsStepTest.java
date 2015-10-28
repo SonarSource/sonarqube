@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -49,6 +48,11 @@ import org.sonar.test.DbTests;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
 
 @Category(DbTests.class)
 @RunWith(DataProviderRunner.class)
@@ -126,7 +130,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     assertThat(periods).hasSize(1);
 
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(textDate);
     assertThat(period.getSnapshotDate()).isEqualTo(1227358680000L);
     assertThat(period.getSnapshotId()).isEqualTo(1003L);
@@ -187,7 +191,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     Period period = periods.get(0);
     // Return analysis from given date 2008-11-22
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(textDate);
     assertThat(period.getSnapshotDate()).isEqualTo(1227358680000L);
     assertThat(period.getSnapshotId()).isEqualTo(1003L);
@@ -212,7 +216,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     // Analysis form 2008-11-29
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(date);
     assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
     assertThat(period.getSnapshotId()).isEqualTo(1004L);
@@ -247,7 +251,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     // return analysis from 2008-11-20
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DAYS);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_DAYS);
     assertThat(period.getModeParameter()).isEqualTo("10");
     assertThat(period.getSnapshotDate()).isEqualTo(1227157200000L);
     assertThat(period.getSnapshotId()).isEqualTo(1002L);
@@ -284,7 +288,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     // return analysis from 2008-11-29
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     assertThat(period.getModeParameter()).isNotNull();
     assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
     assertThat(period.getSnapshotId()).isEqualTo(1004L);
@@ -320,7 +324,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     // Analysis form 2008-11-12
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("1.0");
     assertThat(period.getSnapshotDate()).isEqualTo(1226494680000L);
     assertThat(period.getSnapshotId()).isEqualTo(1001L);
@@ -356,7 +360,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     // Analysis form 2008-11-11
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("0.9");
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
     assertThat(period.getSnapshotId()).isEqualTo(1000L);
@@ -388,7 +392,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     assertThat(periods).hasSize(1);
 
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isNull();
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
     assertThat(period.getSnapshotId()).isEqualTo(1000L);
@@ -407,7 +411,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     assertThat(periods).hasSize(1);
 
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isNull();
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
     assertThat(period.getSnapshotId()).isEqualTo(1000L);
@@ -440,7 +444,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     // Analysis form 2008-11-11
     Period period = periods.get(0);
-    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
+    assertThat(period.getMode()).isEqualTo(TIMEMACHINE_MODE_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("0.9");
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
     assertThat(period.getSnapshotId()).isEqualTo(1000L);
@@ -477,27 +481,27 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
 
-    assertThat(periods).extracting("mode").containsExactly(CoreProperties.TIMEMACHINE_MODE_DATE, CoreProperties.TIMEMACHINE_MODE_DAYS,
-        CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION,
-        CoreProperties.TIMEMACHINE_MODE_VERSION);
+    assertThat(periods).extracting("mode").containsExactly(TIMEMACHINE_MODE_DATE, TIMEMACHINE_MODE_DAYS,
+      TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, TIMEMACHINE_MODE_PREVIOUS_VERSION,
+      TIMEMACHINE_MODE_VERSION);
 
-    assertThat(periods.get(0).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(periods.get(0).getMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(periods.get(0).getIndex()).isEqualTo(1);
     assertThat(periods.get(0).getSnapshotDate()).isEqualTo(1227358680000L);
 
-    assertThat(periods.get(1).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DAYS);
+    assertThat(periods.get(1).getMode()).isEqualTo(TIMEMACHINE_MODE_DAYS);
     assertThat(periods.get(1).getIndex()).isEqualTo(2);
     assertThat(periods.get(1).getSnapshotDate()).isEqualTo(1227157200000L);
 
-    assertThat(periods.get(2).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    assertThat(periods.get(2).getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     assertThat(periods.get(2).getIndex()).isEqualTo(3);
     assertThat(periods.get(2).getSnapshotDate()).isEqualTo(1227934800000L);
 
-    assertThat(periods.get(3).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(periods.get(3).getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(periods.get(3).getIndex()).isEqualTo(4);
     assertThat(periods.get(3).getSnapshotDate()).isEqualTo(1226494680000L);
 
-    assertThat(periods.get(4).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
+    assertThat(periods.get(4).getMode()).isEqualTo(TIMEMACHINE_MODE_VERSION);
     assertThat(periods.get(4).getIndex()).isEqualTo(5);
     assertThat(periods.get(4).getSnapshotDate()).isEqualTo(1226379600000L);
   }
@@ -518,22 +522,22 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     List<Period> periods = periodsHolder.getPeriods();
 
     assertThat(periods).extracting("mode").containsExactly(
-      CoreProperties.TIMEMACHINE_MODE_DATE, CoreProperties.TIMEMACHINE_MODE_DAYS,
-        CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, CoreProperties.TIMEMACHINE_MODE_VERSION);
+      TIMEMACHINE_MODE_DATE, TIMEMACHINE_MODE_DAYS,
+      TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, TIMEMACHINE_MODE_VERSION);
 
-    assertThat(periods.get(0).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(periods.get(0).getMode()).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(periods.get(0).getIndex()).isEqualTo(1);
     assertThat(periods.get(0).getSnapshotDate()).isEqualTo(1227358680000L);
 
-    assertThat(periods.get(1).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DAYS);
+    assertThat(periods.get(1).getMode()).isEqualTo(TIMEMACHINE_MODE_DAYS);
     assertThat(periods.get(1).getIndex()).isEqualTo(2);
     assertThat(periods.get(1).getSnapshotDate()).isEqualTo(1227157200000L);
 
-    assertThat(periods.get(2).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    assertThat(periods.get(2).getMode()).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     assertThat(periods.get(2).getIndex()).isEqualTo(3);
     assertThat(periods.get(2).getSnapshotDate()).isEqualTo(1227934800000L);
 
-    assertThat(periods.get(3).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
+    assertThat(periods.get(3).getMode()).isEqualTo(TIMEMACHINE_MODE_VERSION);
     assertThat(periods.get(3).getIndex()).isEqualTo(5);
     assertThat(periods.get(3).getSnapshotDate()).isEqualTo(1226379600000L);
   }

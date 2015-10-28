@@ -30,12 +30,12 @@ import org.sonar.api.i18n.I18n;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_DATE;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_DAYS;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_MODE_VERSION;
-import static org.sonar.api.CoreProperties.TIMEMACHINE_PERIOD_PREFIX;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_PERIOD_PREFIX;
 
 public class Periods {
 
