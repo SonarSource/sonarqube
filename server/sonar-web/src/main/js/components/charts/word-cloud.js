@@ -2,7 +2,7 @@ import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
 
-import { TooltipsMixin } from './mixins/tooltips-mixin';
+import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 export const Word = React.createClass({
   propTypes: {

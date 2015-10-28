@@ -25,26 +25,26 @@ export default React.createClass({
         });
 
     let descriptionCard = this.props.component.description ? (
-            <div className="overview-card">
+            <div className="overview-meta-card">
               <div className="overview-meta-description">{this.props.component.description}</div>
             </div>
         ) : null,
 
         linksCard = _.size(this.props.component.links) > 0 ? (
-            <div className="overview-card">
+            <div className="overview-meta-card">
               <ul className="overview-meta-list">{links}</ul>
             </div>
         ) : null,
 
         profilesCard = _.size(this.props.component.profiles) > 0 ? (
-            <div className="overview-card">
+            <div className="overview-meta-card">
               <h4 className="overview-meta-header">{window.t('overview.quality_profiles')}</h4>
               <ul className="overview-meta-list">{profiles}</ul>
             </div>
         ) : null,
 
         gateCard = this.props.component.gate ? (
-            <div className="overview-card">
+            <div className="overview-meta-card">
               <h4 className="overview-meta-header">{window.t('overview.quality_gate')}</h4>
               <ul className="overview-meta-list">
                 <li>
@@ -60,8 +60,8 @@ export default React.createClass({
         <div className="overview-meta">
           {descriptionCard}
           {linksCard}
-          {profilesCard}
           {gateCard}
+          {profilesCard}
         </div>
     );
   }

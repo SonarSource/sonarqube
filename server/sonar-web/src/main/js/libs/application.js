@@ -281,7 +281,7 @@ function closeModalWindow () {
 
   function shortIntVariationFormatter (value) {
     if (value === 0) {
-      return '0';
+      return '+0';
     }
     var format = '+0,0';
     if (Math.abs(value) >= 1000) {
@@ -354,21 +354,6 @@ function closeModalWindow () {
   }
 
   /**
-   * Check if about sign be displayed for a work duration
-   * @param {number} days
-   * @param {number} hours
-   * @param {number} minutes
-   * @returns {boolean}
-   */
-  function shouldDisplayAbout (days, hours, minutes) {
-    var hasDays = days > 0,
-        fewDays = days < 5,
-        hasHours = hours > 0,
-        hasMinutes = minutes > 0;
-    return (hasDays && fewDays && hasHours) || (!hasDays && hasHours && hasMinutes);
-  }
-
-  /**
    * Format a work duration based on parameters
    * @param {bool} isNegative
    * @param {number} days
@@ -414,9 +399,6 @@ function closeModalWindow () {
       formatted = addSpaceIfNeeded(formatted);
       formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
     }
-    if (shouldDisplayAbout(days, hours, minutes)) {
-      formatted = tp('work_duration.about', formatted);
-    }
     return formatted;
   }
 
@@ -432,9 +414,9 @@ function closeModalWindow () {
     var hoursInDay = window.SS.hoursInDay || 8,
         isNegative = value < 0,
         absValue = Math.abs(value);
-    var days = Math.floor(absValue / hoursInDay / 60);
+    var days = Math.round(absValue / hoursInDay / 60);
     var remainingValue = absValue - days * hoursInDay * 60;
-    var hours = Math.floor(remainingValue / 60);
+    var hours = Math.round(remainingValue / 60);
     remainingValue -= hours * 60;
     return formatDuration(isNegative, days, hours, remainingValue);
   };
@@ -462,12 +444,26 @@ function closeModalWindow () {
   /**
    * Format a work duration variation
    * @param {number} value
+   * @returns {string}
    */
   var durationVariationFormatter = function (value) {
     if (value === 0) {
       return '0';
     }
     var formatted = durationFormatter(value);
+    return formatted[0] !== '-' ? '+' + formatted : formatted;
+  };
+
+  /**
+   * Format a work duration variation
+   * @param {number} value
+   * @returns {string}
+   */
+  var shortDurationVariationFormatter = function (value) {
+    if (value === 0) {
+      return '0';
+    }
+    var formatted = shortDurationFormatter(value);
     return formatted[0] !== '-' ? '+' + formatted : formatted;
   };
 
@@ -552,9 +548,10 @@ function closeModalWindow () {
             return value === 0 ? '0' : numeral(value).format('+0,0.0');
           },
           'PERCENT': function (value) {
-            return value === 0 ? '0%' : numeral(+value / 100).format('+0,0.0%');
+            return value === 0 ? '+0%' : numeral(+value / 100).format('+0,0.0%');
           },
-          'WORK_DUR': durationVariationFormatter
+          'WORK_DUR': durationVariationFormatter,
+          'SHORT_WORK_DUR': shortDurationVariationFormatter
         };
     if (measure != null && type != null) {
       formatted = formatters[type] != null ? formatters[type](measure) : measure;

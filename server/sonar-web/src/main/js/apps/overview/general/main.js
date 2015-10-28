@@ -1,99 +1,189 @@
-import $ from 'jquery';
 import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
-import Gate from './gate';
-import Leak from './leak';
-import Nutshell from './nutshell';
-import MoreDetails from './details';
-import { getPeriodDate } from './../helpers/period-label';
+
+import { GeneralIssues } from './issues';
+import { GeneralCoverage } from './coverage';
+import { GeneralDuplications } from './duplications';
+import { GeneralSize } from './size';
+import { getPeriodLabel, getPeriodDate } from './../helpers/period-label';
+import { getMeasuresAndVariations } from '../../../api/measures';
+import { getFacet, getIssuesCount } from '../../../api/issues';
+import { getTimeMachineData } from '../../../api/time-machine';
+import { SEVERITIES, STATUSES } from '../../../helpers/constants';
+
+
+const METRICS_LIST = [
+  'sqale_rating',
+  'overall_coverage',
+  'new_overall_coverage',
+  'tests',
+  'duplicated_lines_density',
+  'duplicated_blocks',
+  'ncloc',
+  'files'
+];
+
+const HISTORY_METRICS_LIST = [
+  'violations',
+  'overall_coverage',
+  'duplicated_lines_density',
+  'ncloc'
+];
+
+
+function getFacetValue (facet, key) {
+  return _.findWhere(facet, { val: key }).count;
+}
+
 
 export default React.createClass({
+  propTypes: {
+    leakPeriodIndex: React.PropTypes.string.isRequired
+  },
+
   getInitialState() {
-    return { leak: this.props.leak, measures: this.props.measures };
+    return {
+      ready: false,
+      history: {},
+      leakPeriodLabel: getPeriodLabel(this.props.component.periods, this.props.leakPeriodIndex),
+      leakPeriodDate: getPeriodDate(this.props.component.periods, this.props.leakPeriodIndex)
+    };
   },
 
   componentDidMount() {
-    if (this._hasWaterLeak()) {
-      this.requestLeakIssues();
-      this.requestLeakDebt();
+    Promise.all([
+      this.requestMeasures(),
+      this.requestIssuesAndDebt(),
+      this.requestIssuesSeverities(),
+      this.requestLeakIssuesAndDebt(),
+      this.requestIssuesLeakSeverities(),
+      this.requestIssuesLeakStatuses()
+    ]).then(responses => {
+      let measures = this.getMeasuresValues(responses[0], 'value');
+      measures.issues = responses[1].issues;
+      measures.debt = responses[1].debt;
+      measures.issuesSeverities = SEVERITIES.map(s => getFacetValue(responses[2].facet, s));
+
+      let leak;
+      if (this.state.leakPeriodLabel) {
+        leak = this.getMeasuresValues(responses[0], 'var' + this.props.leakPeriodIndex);
+        leak.issues = responses[3].issues;
+        leak.debt = responses[3].debt;
+        leak.issuesSeverities = SEVERITIES.map(s => getFacetValue(responses[4].facet, s));
+        leak.issuesStatuses = STATUSES.map(s => getFacetValue(responses[5].facet, s));
+      }
+
+      this.setState({
+        ready: true,
+        measures: measures,
+        leak: leak
+      }, this.requestHistory);
+    });
+  },
+
+  requestMeasures () {
+    return getMeasuresAndVariations(this.props.component.key, METRICS_LIST);
+  },
+
+  getMeasuresValues (measures, fieldKey) {
+    let values = {};
+    Object.keys(measures).forEach(measureKey => {
+      values[measureKey] = measures[measureKey][fieldKey];
+    });
+    return values;
+  },
+
+  requestIssuesAndDebt() {
+    // FIXME requesting severities facet only to get debtTotal
+    return getIssuesCount({
+      componentUuids: this.props.component.id,
+      resolved: 'false',
+      facets: 'severities'
+    });
+  },
+
+  requestLeakIssuesAndDebt() {
+    if (!this.state.leakPeriodLabel) {
+      return Promise.resolve();
     }
-    this.requestNutshellIssues();
-    this.requestNutshellDebt();
-  },
 
-  _hasWaterLeak() {
-    return !!_.findWhere(this.props.component.periods, { index: '1' });
-  },
+    let createdAfter = moment(this.state.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
 
-  _requestIssues(data) {
-    let url = `${baseUrl}/api/issues/search`;
-    data.ps = 1;
-    data.componentUuids = this.props.component.id;
-    return $.get(url, data);
-  },
-
-  requestLeakIssues() {
-    let createdAfter = moment(getPeriodDate(this.props.component.periods, '1')).format('YYYY-MM-DDTHH:mm:ssZZ');
-    this._requestIssues({ resolved: 'false', createdAfter, facets: 'severities,statuses' }).done(r => {
-      let
-          severitiesFacet = _.findWhere(r.facets, { property: 'severities' }).values,
-          statusesFacet = _.findWhere(r.facets, { property: 'statuses' }).values;
-
-      this.setState({
-        leak: _.extend({}, this.state.leak, {
-          newIssues: r.total,
-          newBlockerIssues: _.findWhere(severitiesFacet, { val: 'BLOCKER' }).count,
-          newCriticalIssues: _.findWhere(severitiesFacet, { val: 'CRITICAL' }).count,
-          newOpenIssues: _.findWhere(statusesFacet, { val: 'OPEN' }).count,
-          newReopenedIssues: _.findWhere(statusesFacet, { val: 'REOPENED' }).count
-        })
-      });
+    // FIXME requesting severities facet only to get debtTotal
+    return getIssuesCount({
+      componentUuids: this.props.component.id,
+      createdAfter: createdAfter,
+      resolved: 'false',
+      facets: 'severities'
     });
   },
 
-  requestNutshellIssues() {
-    this._requestIssues({ resolved: 'false', facets: 'severities,statuses' }).done(r => {
-      let
-          severitiesFacet = _.findWhere(r.facets, { property: 'severities' }).values,
-          statusesFacet = _.findWhere(r.facets, { property: 'statuses' }).values;
+  requestIssuesSeverities() {
+    return getFacet({ componentUuids: this.props.component.id, resolved: 'false' }, 'severities');
+  },
 
-      this.setState({
-        measures: _.extend({}, this.state.measures, {
-          issues: r.total,
-          blockerIssues: _.findWhere(severitiesFacet, { val: 'BLOCKER' }).count,
-          criticalIssues: _.findWhere(severitiesFacet, { val: 'CRITICAL' }).count,
-          openIssues: _.findWhere(statusesFacet, { val: 'OPEN' }).count,
-          reopenedIssues: _.findWhere(statusesFacet, { val: 'REOPENED' }).count
-        })
+  requestIssuesLeakSeverities() {
+    if (!this.state.leakPeriodLabel) {
+      return Promise.resolve();
+    }
+
+    let createdAfter = moment(this.state.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+
+    return getFacet({
+      componentUuids: this.props.component.id,
+      createdAfter: createdAfter,
+      resolved: 'false'
+    }, 'severities');
+  },
+
+  requestIssuesLeakStatuses() {
+    if (!this.state.leakPeriodLabel) {
+      return Promise.resolve();
+    }
+
+    let createdAfter = moment(this.state.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+
+    return getFacet({
+      componentUuids: this.props.component.id,
+      createdAfter: createdAfter,
+      resolved: 'false'
+    }, 'statuses');
+  },
+
+  requestHistory () {
+    let metrics = HISTORY_METRICS_LIST.join(',');
+    return getTimeMachineData(this.props.component.key, metrics).then(r => {
+      let history = {};
+      r[0].cols.forEach((col, index) => {
+        history[col.metric] = r[0].cells.map(cell => {
+          let date = moment(cell.d).toDate();
+          let value = cell.v[index] || 0;
+          return { date, value };
+        });
       });
+      this.setState({ history });
     });
   },
 
-  requestLeakDebt() {
-    let createdAfter = moment(getPeriodDate(this.props.component.periods, '1')).format('YYYY-MM-DDTHH:mm:ssZZ');
-    this._requestIssues({ resolved: 'false', createdAfter, facets: 'severities', facetMode: 'debt' }).done(r => {
-      this.setState({
-        leak: _.extend({}, this.state.leak, { newDebt: r.debtTotal })
-      });
-    });
-  },
-
-  requestNutshellDebt() {
-    this._requestIssues({ resolved: 'false', facets: 'severities', facetMode: 'debt' }).done(r => {
-      this.setState({
-        measures: _.extend({}, this.state.measures, { debt: r.debtTotal })
-      });
-    });
+  renderLoading () {
+    return <div className="text-center">
+      <i className="spinner spinner-margin"/>
+    </div>;
   },
 
   render() {
-    return <div>
-      <Gate component={this.props.component} gate={this.props.gate}/>
-      <Leak component={this.props.component} leak={this.state.leak} measures={this.state.measures}/>
-      <Nutshell component={this.props.component} measures={this.state.measures} section={this.props.section}/>
-      <MoreDetails component={this.props.component} measures={this.state.measures}
-                   section={this.props.section} onRoute={this.props.onRoute}/>
+    if (!this.state.ready) {
+      return this.renderLoading();
+    }
+
+    let props = _.extend({}, this.props, this.state);
+
+    return <div className="overview-domains">
+      <GeneralIssues {...props} history={this.state.history['violations']}/>
+      <GeneralCoverage {...props} history={this.state.history['overall_coverage']}/>
+      <GeneralDuplications {...props} history={this.state.history['duplicated_lines_density']}/>
+      <GeneralSize {...props} history={this.state.history['ncloc']}/>
     </div>;
   }
 });

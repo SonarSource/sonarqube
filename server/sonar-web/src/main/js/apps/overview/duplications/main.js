@@ -8,7 +8,15 @@ import { DuplicationsTreemap } from './treemap';
 
 export default class extends React.Component {
   render () {
-    return <div className="overview-domain">
+    return <div className="overview-detailed-page">
+      <div className="overview-domain-header">
+        <h2 className="overview-title">Duplications</h2>
+      </div>
+
+      <a className="overview-detailed-page-back" href="#">
+        <i className="icon-chevron-left"/>
+      </a>
+
       <DuplicationsTimeline {...this.props}/>
       <div className="flex-columns">
         <div className="flex-column flex-column-half">

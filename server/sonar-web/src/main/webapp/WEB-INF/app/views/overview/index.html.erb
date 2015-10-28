@@ -119,61 +119,9 @@
       var gate = null;
       <% end %>
 
-      var measures = {
-        <% if @snapshot %>
-
-        // issues
-        <% if @snapshot.measure('sqale_rating') %>
-        sqaleRating: '<%= @snapshot.measure('sqale_rating').value -%>',
-        <% else %>
-        sqaleRating: 'A',
-        <% end %>
-
-        // coverage
-        <% if @snapshot.measure('overall_coverage') %>
-        coverage: '<%= @snapshot.measure('overall_coverage').value -%>',
-        <% end %>
-        <% if @snapshot.measure('tests') %>
-        tests: '<%= @snapshot.measure('tests').value -%>',
-        <% end %>
-
-        // duplications
-        duplications: '<%= @snapshot.measure('duplicated_lines_density').value -%>',
-        duplicatedLines: '<%= @snapshot.measure('duplicated_lines').value -%>',
-        duplicatedBlocks: '<%= @snapshot.measure('duplicated_blocks').value -%>',
-
-        // size
-        lines: '<%= @snapshot.measure('lines').value -%>',
-        files: '<%= @snapshot.measure('files').value -%>'
-        <% end %>
-      };
-
-      var leak = {
-        <% if @snapshot %>
-        // coverage
-        <% if @snapshot.measure('new_overall_coverage') %>
-        newCoverage: '<%= @snapshot.measure('new_overall_coverage').variation(1) -%>',
-        <% end %>
-        <% if @snapshot.measure('tests') %>
-        tests: '<%= @snapshot.measure('tests').variation(1) -%>',
-        <% end %>
-
-        // duplications
-        duplications: '<%= @snapshot.measure('duplicated_lines_density').variation(1) -%>',
-        duplicatedLines: '<%= @snapshot.measure('duplicated_lines').variation(1) -%>',
-        duplicatedBlocks: '<%= @snapshot.measure('duplicated_blocks').variation(1) -%>',
-
-        // size
-        lines: '<%= @snapshot.measure('lines').variation(1) -%>',
-        files: '<%= @snapshot.measure('files').variation(1) -%>'
-        <% end %>
-      };
-
       window.sonarqube.overview = {
         component: component,
-        gate: gate,
-        measures: measures,
-        leak: leak
+        gate: gate
       };
     })();
   </script>

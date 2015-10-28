@@ -19,3 +19,8 @@ export function filterMetricsForDomains (metrics, domains) {
     return hasRightDomain(metric, domains) && isNotHidden(metric) && hasSimpleType(metric) && isNotDifferential(metric);
   });
 }
+
+
+export function getMetricName (metricKey) {
+  return window.t('overview.metric', metricKey);
+}

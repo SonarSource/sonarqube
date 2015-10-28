@@ -2,7 +2,7 @@ import d3 from 'd3';
 import React from 'react';
 
 import { ResizeMixin } from './mixins/resize-mixin';
-import { TooltipsMixin } from './mixins/tooltips-mixin';
+import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 
 export const LineChart = React.createClass({
@@ -124,13 +124,20 @@ export const LineChart = React.createClass({
     let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    let maxY = d3.max(this.props.data, d => d.y);
+    let maxY;
     let xScale = d3.scale.linear()
                    .domain(d3.extent(this.props.data, d => d.x))
                    .range([0, availableWidth]);
     let yScale = d3.scale.linear()
-                   .domain([0, maxY])
                    .range([availableHeight, 0]);
+
+    if (this.props.domain) {
+      maxY = this.props.domain[1];
+      yScale.domain(this.props.domain);
+    } else {
+      maxY = d3.max(this.props.data, d => d.y);
+      yScale.domain([0, maxY]);
+    }
 
     return <svg className="line-chart" width={this.state.width} height={this.state.height}>
       <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>

@@ -1,6 +1,8 @@
 import React from 'react';
+
 import GateConditions from './gate-conditions';
 import GateEmpty from './gate-empty';
+
 
 export default React.createClass({
   render() {
@@ -8,8 +10,8 @@ export default React.createClass({
       return this.props.component.qualifier === 'TRK' ? <GateEmpty/> : null;
     }
 
-    let
-        badgeClassName = 'badge badge-' + this.props.gate.level.toLowerCase(),
+    let level = this.props.gate.level.toLowerCase(),
+        badgeClassName = 'badge badge-' + level,
         badgeText = window.t('overview.gate', this.props.gate.level);
 
     return (

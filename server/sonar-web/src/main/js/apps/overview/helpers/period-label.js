@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import moment from 'moment';
 
-export let periodLabel = (periods, periodIndex) => {
+export let getPeriodLabel = (periods, periodIndex) => {
   let period = _.findWhere(periods, { index: periodIndex });
   if (!period) {
     return null;

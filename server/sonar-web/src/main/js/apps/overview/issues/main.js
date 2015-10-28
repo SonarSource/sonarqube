@@ -18,7 +18,7 @@ export default class OverviewDomain extends React.Component {
 
   componentDidMount () {
     Promise.all([
-      this.requestSeverities(),
+      this.requestIssuesSeverities(),
       this.requestTags(),
       this.requestAssignees()
     ]).then(responses => {
@@ -43,7 +43,15 @@ export default class OverviewDomain extends React.Component {
   }
 
   render () {
-    return <div className="overview-domain">
+    return <div className="overview-detailed-page">
+
+      <div className="overview-domain-header">
+        <h2 className="overview-title">Issues & Technical Debt</h2>
+      </div>
+
+      <a className="overview-detailed-page-back" href="#">
+        <i className="icon-chevron-left"/>
+      </a>
 
       <IssuesTimeline {...this.props}/>
 

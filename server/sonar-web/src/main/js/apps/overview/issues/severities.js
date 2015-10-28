@@ -2,7 +2,6 @@ import _ from 'underscore';
 import React from 'react';
 import SeverityHelper from '../../../components/shared/severity-helper';
 import { DomainHeader } from '../domain/header';
-import { formatMeasure } from '../formatting';
 import { componentIssuesUrl } from '../../../helpers/Url';
 
 export default class extends React.Component {
@@ -19,7 +18,7 @@ export default class extends React.Component {
         </td>
         <td className="thin text-right">
           <a className="cell-link" href={href}>
-            {formatMeasure(s.count, 'violations')}
+            {window.formatMeasure(s.count, 'SHORT_INT')}
           </a>
         </td>
       </tr>;
