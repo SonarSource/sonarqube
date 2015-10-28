@@ -41,6 +41,12 @@ package it;/*
 import com.sonar.orchestrator.Orchestrator;
 import it.authorisation.IssuePermissionTest;
 import it.i18n.I18nTest;
+import it.measureHistory.DifferentialPeriodsTest;
+import it.measureHistory.HistoryUiTest;
+import it.measureHistory.SincePreviousVersionHistoryTest;
+import it.measureHistory.SinceXDaysHistoryTest;
+import it.measureHistory.TimeMachineTest;
+import it.measureHistory.TimeMachineUiTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
 import it.qualityGate.QualityGateNotificationTest;
@@ -72,7 +78,14 @@ import static util.ItUtils.xooPlugin;
   QualityGateTest.class,
   QualityGateNotificationTest.class,
   // permission
-  IssuePermissionTest.class
+  IssuePermissionTest.class,
+  // measure history
+  DifferentialPeriodsTest.class,
+  HistoryUiTest.class,
+  SincePreviousVersionHistoryTest.class,
+  SinceXDaysHistoryTest.class,
+  TimeMachineTest.class,
+  TimeMachineUiTest.class
 })
 public class Category1Suite {
 

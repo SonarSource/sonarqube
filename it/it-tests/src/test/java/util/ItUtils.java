@@ -164,6 +164,14 @@ public class ItUtils {
     }
   }
 
+  public static void resetPeriods(Orchestrator orchestrator){
+    setServerProperty(orchestrator, "sonar.timemachine.period1", null);
+    setServerProperty(orchestrator, "sonar.timemachine.period2", null);
+    setServerProperty(orchestrator, "sonar.timemachine.period3", null);
+    setServerProperty(orchestrator, "sonar.timemachine.period4", null);
+    setServerProperty(orchestrator, "sonar.timemachine.period5", null);
+  }
+
   /**
    * Concatenates a vararg to a String array.
    *
@@ -196,4 +204,4 @@ public class ItUtils {
     }
   }
 
-}
+ }

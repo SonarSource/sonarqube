@@ -52,8 +52,6 @@ import it.issue.ManualRulesTest;
 import it.measureFilter.MeasureFiltersTest;
 import it.measure.NewDebtRatioMeasureTest;
 import it.measure.TechnicalDebtMeasureVariationTest;
-import it.measureHistory.DifferentialPeriodsTest;
-import it.measureHistory.TimeMachineTest;
 import it.test.CoverageTest;
 import it.test.CoverageTrackingTest;
 import it.test.NewCoverageTest;
@@ -69,9 +67,6 @@ import static util.ItUtils.xooPlugin;
 @Suite.SuiteClasses({
   // custom measure
   CustomMeasuresTest.class,
-  // measure history
-  DifferentialPeriodsTest.class,
-  TimeMachineTest.class,
   // measure
   TechnicalDebtMeasureVariationTest.class,
   NewDebtRatioMeasureTest.class,

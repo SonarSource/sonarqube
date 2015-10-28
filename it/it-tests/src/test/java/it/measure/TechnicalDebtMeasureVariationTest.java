@@ -4,7 +4,9 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import java.util.List;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.Measure;
@@ -13,6 +15,7 @@ import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.setServerProperty;
 
 /**
  * SONAR-4776
@@ -21,6 +24,18 @@ public class TechnicalDebtMeasureVariationTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+
+  @BeforeClass
+  public static void initPeriods() throws Exception {
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
+    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_analysis");
+  }
+
+  @AfterClass
+  public static void resetPeriods() throws Exception {
+    ItUtils.resetPeriods(orchestrator);
+  }
 
   @Before
   public void cleanUpAnalysisData() {

@@ -23,8 +23,9 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import it.Category2Suite;
+import it.Category1Suite;
 import java.util.Date;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -33,25 +34,39 @@ import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.services.TimeMachine;
 import org.sonar.wsclient.services.TimeMachineCell;
 import org.sonar.wsclient.services.TimeMachineQuery;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.setServerProperty;
 
 public class TimeMachineTest {
 
   private static final String PROJECT = "sample";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @BeforeClass
   public static void initialize() {
     orchestrator.resetData();
+    initPeriods();
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     analyzeProject("measure/xoo-history-v1", "2014-10-19");
     analyzeProject("measure/xoo-history-v2", "2014-11-13");
+  }
+
+  public static void initPeriods() {
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
+    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
+  }
+
+  @AfterClass
+  public static void resetPeriods() throws Exception {
+    ItUtils.resetPeriods(orchestrator);
   }
 
   private static BuildResult analyzeProject(String path, String date) {

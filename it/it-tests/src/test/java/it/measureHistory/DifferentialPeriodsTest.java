@@ -3,7 +3,8 @@ package it.measureHistory;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import it.Category2Suite;
+import com.sonar.orchestrator.selenium.Selenese;
+import it.Category1Suite;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -15,22 +16,29 @@ import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.projectDir;
+import static util.ItUtils.setServerProperty;
 
 public class DifferentialPeriodsTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @Before
   public void cleanUpAnalysisData() {
     orchestrator.resetData();
   }
 
+  @Before
+  public void initPeriods() throws Exception {
+    setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.timemachine.period2", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_analysis");
+  }
+
   @After
-  public void tearDown() throws Exception {
-    String propertyKey = "sonar.timemachine.period4";
-    unsetProperty(propertyKey);
-    unsetProperty("sonar.timemachine.period5");
+  public void resetPeriods() throws Exception {
+    ItUtils.resetPeriods(orchestrator);
   }
 
   /**
@@ -38,19 +46,19 @@ public class DifferentialPeriodsTest {
    */
   @Test
   public void ensure_differential_period_4_and_5_defined_at_project_level_is_taken_into_account() throws Exception {
-    setProperty("sonar.timemachine.period4", "30");
-    setProperty("sonar.timemachine.period5", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.timemachine.period4", "30");
+    setServerProperty(orchestrator, "sonar.timemachine.period5", "previous_analysis");
 
     // Execute an analysis in the past to have a past snapshot without any issues
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
-    orchestrator.executeBuild(SonarRunner.create(ItUtils.projectDir("shared/xoo-sample"))
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectDate", "2013-01-01"));
 
     // Second analysis -> issues will be created
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarRunner.create(ItUtils.projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
     // New technical debt only comes from new issues
     Resource newTechnicalDebt = orchestrator.getServer().getWsClient()
@@ -61,7 +69,7 @@ public class DifferentialPeriodsTest {
 
     // Third analysis, with exactly the same profile -> no new issues so no new technical debt
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarRunner.create(ItUtils.projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
     newTechnicalDebt = orchestrator.getServer().getWsClient().find(
       ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt").setIncludeTrends(true)
@@ -71,16 +79,25 @@ public class DifferentialPeriodsTest {
     assertThat(newTechnicalDebt).isNull();
   }
 
-  private static void unsetProperty(String propertyKey) {
-    setProperty(propertyKey, "");
-  }
+  /**
+   * SONAR-4700
+   */
+  @Test
+  public void not_display_periods_selection_dropdown_on_first_analysis() {
+    orchestrator.getServer().provisionProject("sample", "sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
-  private static void setProperty(String propertyKey, String propertyValue) {
-    orchestrator.getServer().adminWsClient().post(
-      "/api/properties?",
-      "id", propertyKey,
-      "value", propertyValue
-      );
+    // Use old way to execute Selenium because 'assertSelectOptions' action is not supported by SeleneseTest
+    orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("not-display-periods-selection-dropdown-on-first-analysis",
+      "/measureHistory/DifferentialPeriodsTest/not-display-periods-selection-dropdown-on-dashboard.html"
+      ).build());
+
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+
+    orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("display-periods-selection-dropdown-after-first-analysis",
+      "/measureHistory/DifferentialPeriodsTest/display-periods-selection-dropdown-on-dashboard.html"
+      ).build());
   }
 
 }

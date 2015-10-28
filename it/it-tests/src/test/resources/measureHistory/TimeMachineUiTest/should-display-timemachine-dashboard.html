@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ SonarQube, open source software quality management tool.
+  ~ Copyright (C) 2008-2014 SonarSource
+  ~ mailto:contact AT sonarsource DOT com
+  ~
+  ~ SonarQube is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU Lesser General Public
+  ~ License as published by the Free Software Foundation; either
+  ~ version 3 of the License, or (at your option) any later version.
+  ~
+  ~ SonarQube is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program; if not, write to the Free Software Foundation,
+  ~ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>should-display-timemachine-dashboard</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+    <tr>
+        <td rowspan="1" colspan="3">should-display-timemachine-dashboard</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+	<td>open</td>
+	<td>/sonar/dashboard/index/sample?name=TimeMachine</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>dashboard</td>
+	<td>*Complexity: 3*Technical Debt: 0*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>dashboard</td>
+	<td>*Sep 01 2012*0.7*Nov 30 2012*0.9*Dec 31 2012*1.0-SNAPSHOT*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>dashboard</td>
+	<td>*Lines of code*Lines*Statements*Files*Classes*Functions*Accessors*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>dashboard</td>
+	<td>*Comments*Comment lines*Public documented API*Public undocumented API*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>dashboard</td>
+	<td>*Duplicated lines (%)*Duplicated lines*Duplicated blocks*Duplicated files*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>dashboard</td>
+	<td>*Issues*Blocker issues*Critical issues*Major issues*Minor issues*Technical Debt*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>dashboard</td>
+	<td>*Complexity*Complexity /function*Complexity /class*Complexity /file*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>dashboard</td>
+	<td>*Coverage*Line coverage*</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
