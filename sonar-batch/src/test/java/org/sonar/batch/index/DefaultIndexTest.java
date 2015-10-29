@@ -25,8 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.profiles.RulesProfile;
@@ -62,13 +60,11 @@ public class DefaultIndexTest {
 
   @Before
   public void createIndex() throws IOException {
-    MetricFinder metricFinder = mock(MetricFinder.class);
-    when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
     ruleFinder = mock(RuleFinder.class);
 
     DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
     BatchComponentCache resourceCache = new BatchComponentCache();
-    index = new DefaultIndex(resourceCache, projectTree, metricFinder, mock(MeasureCache.class));
+    index = new DefaultIndex(resourceCache, projectTree, mock(MeasureCache.class));
 
     baseDir = temp.newFolder();
     project = new Project("project");

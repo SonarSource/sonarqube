@@ -36,7 +36,6 @@ import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.repository.FileData;
 import org.sonar.batch.repository.ProjectRepositories;
-import org.sonar.batch.scan.filesystem.InputPathCache;
 
 public final class ScmSensor implements Sensor {
 
@@ -50,8 +49,7 @@ public final class ScmSensor implements Sensor {
   private final ReportPublisher publishReportJob;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
-    ProjectRepositories projectRepositories, FileSystem fs, InputPathCache inputPathCache, BatchComponentCache resourceCache,
-    ReportPublisher publishReportJob) {
+    ProjectRepositories projectRepositories, FileSystem fs, BatchComponentCache resourceCache, ReportPublisher publishReportJob) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
     this.projectRepositories = projectRepositories;

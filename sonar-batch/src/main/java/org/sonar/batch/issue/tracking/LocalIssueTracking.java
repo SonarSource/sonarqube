@@ -38,7 +38,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.core.component.ComponentKeys;
@@ -76,7 +75,7 @@ public class LocalIssueTracking {
     }
   }
 
-  public List<DefaultIssue> trackIssues(BatchReportReader reader, BatchComponent component, Set<BatchReport.Issue> rawIssues) {
+  public List<DefaultIssue> trackIssues(BatchComponent component, Set<BatchReport.Issue> rawIssues) {
     List<DefaultIssue> trackedIssues = Lists.newArrayList();
     if (hasServerAnalysis) {
 

@@ -90,7 +90,7 @@ public class IssueTransition {
 
     List<DefaultIssue> trackedIssues;
     if (localIssueTracking != null) {
-      trackedIssues = localIssueTracking.trackIssues(reader, component, rawIssues);
+      trackedIssues = localIssueTracking.trackIssues(component, rawIssues);
     } else {
       trackedIssues = Lists.newArrayList();
     }
@@ -103,7 +103,7 @@ public class IssueTransition {
       issueCache.put(issue);
     }
   }
-
+  
   private void addUnmatchedRawIssues(BatchComponent component, Set<org.sonar.batch.protocol.output.BatchReport.Issue> rawIssues, List<DefaultIssue> trackedIssues) {
     for (BatchReport.Issue rawIssue : rawIssues) {
 

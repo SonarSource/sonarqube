@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -67,7 +66,7 @@ public class DefaultIndex extends SonarIndex {
   private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
   private DefaultProjectTree projectTree;
 
-  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
+  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MeasureCache measureCache) {
     this.componentCache = componentCache;
     this.projectTree = projectTree;
     this.measureCache = measureCache;
