@@ -49,9 +49,10 @@ import it.issue.IssueFilterExtensionTest;
 import it.issue.IssuePurgeTest;
 import it.issue.IssueWorkflowTest;
 import it.issue.ManualRulesTest;
-import it.measureFilter.MeasureFiltersTest;
+import it.issue.NewIssuesMeasureTest;
 import it.measure.NewDebtRatioMeasureTest;
 import it.measure.TechnicalDebtMeasureVariationTest;
+import it.measureFilter.MeasureFiltersTest;
 import it.test.CoverageTest;
 import it.test.CoverageTrackingTest;
 import it.test.NewCoverageTest;
@@ -78,14 +79,15 @@ import static util.ItUtils.xooPlugin;
   TestExecutionTest.class,
   // issue
   CommonRulesTest.class,
-  IssueWorkflowTest.class,
-  ManualRulesTest.class,
   CustomRulesTest.class,
   IssueActionTest.class,
-  IssueChangelogTest.class,
   IssueBulkChangeTest.class,
+  IssueChangelogTest.class,
+  IssueFilterExtensionTest.class,
   IssuePurgeTest.class,
-  IssueFilterExtensionTest.class
+  IssueWorkflowTest.class,
+  ManualRulesTest.class,
+  NewIssuesMeasureTest.class
 })
 public class Category2Suite {
 
