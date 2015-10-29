@@ -325,6 +325,17 @@ public class BatchTest {
     assertThat(result.getLogs()).doesNotContain("Download sonar-xoo-plugin-");
   }
 
+  @Test
+  public void batch_should_keep_report_verbose() {
+    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+
+    scanQuietly("shared/xoo-sample", "sonar.verbose", "true");
+    File reportDir = new File(new File(ItUtils.projectDir("shared/xoo-sample"), ".sonar"), "batch-report");
+    assertThat(reportDir).isDirectory();
+    assertThat(reportDir.list()).isNotEmpty();
+  }
+
   /**
    * SONAR-4239
    */

@@ -22,6 +22,7 @@ package org.sonar.batch.report;
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,8 +30,10 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -47,7 +50,6 @@ import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.batch.util.BatchUtils;
-
 import static java.lang.String.format;
 
 @BatchSide
@@ -55,6 +57,7 @@ public class ReportPublisher implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportPublisher.class);
   public static final String KEEP_REPORT_PROP_KEY = "sonar.batch.keepReport";
+  public static final String VERBOSE_KEY = "sonar.verbose";
   public static final String DUMP_REPORT_PROP_KEY = "sonar.batch.dumpReportDir";
 
   private final ServerClient serverClient;
@@ -91,7 +94,7 @@ public class ReportPublisher implements Startable {
 
   @Override
   public void stop() {
-    if (!settings.getBoolean(KEEP_REPORT_PROP_KEY)) {
+    if (!settings.getBoolean(KEEP_REPORT_PROP_KEY) && !settings.getBoolean(VERBOSE_KEY)) {
       FileUtils.deleteQuietly(reportDir);
     } else {
       LOG.info("Batch report generated in " + reportDir);

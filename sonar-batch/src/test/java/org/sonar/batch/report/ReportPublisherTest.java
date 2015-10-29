@@ -19,6 +19,15 @@
  */
 package org.sonar.batch.report;
 
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -30,7 +39,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.scan.ImmutableProjectReactor;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -42,16 +50,24 @@ public class ReportPublisherTest {
 
   private ImmutableProjectReactor reactor;
 
+  private Settings settings;
+
+  private ProjectDefinition root;
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Before
   public void setUp() {
+    settings = new Settings();
     mode = mock(DefaultAnalysisMode.class);
     reactor = mock(ImmutableProjectReactor.class);
-    when(reactor.getRoot()).thenReturn(ProjectDefinition.create().setKey("struts"));
+    root = ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot());
+    when(reactor.getRoot()).thenReturn(root);
   }
 
   @Test
   public void should_log_successful_analysis() {
-    Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
       mock(TempFolder.class), new ReportPublisherStep[0]);
@@ -66,7 +82,6 @@ public class ReportPublisherTest {
 
   @Test
   public void should_log_successful_analysis_with_ce_task() {
-    Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
       mock(TempFolder.class), new ReportPublisherStep[0]);
@@ -82,7 +97,6 @@ public class ReportPublisherTest {
 
   @Test
   public void should_log_successful_issues_analysis() {
-    Settings settings = new Settings();
     when(mode.isIssues()).thenReturn(true);
     ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
       mock(TempFolder.class), new ReportPublisherStep[0]);
@@ -92,6 +106,31 @@ public class ReportPublisherTest {
 
     verify(logger).info("ANALYSIS SUCCESSFUL");
     verifyNoMoreInteractions(logger);
+  }
+
+  @Test
+  public void should_not_delete_report() throws IOException {
+    settings.setProperty("sonar.verbose", true);
+    Path reportDir = temp.getRoot().toPath().resolve("batch-report");
+    Files.createDirectory(reportDir);
+    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
+      mock(TempFolder.class), new ReportPublisherStep[0]);
+
+    job.start();
+    job.stop();
+    assertThat(reportDir).isDirectory();
+  }
+
+  @Test
+  public void should_delete_report() throws IOException {
+    Path reportDir = temp.getRoot().toPath().resolve("batch-report");
+    Files.createDirectory(reportDir);
+    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
+      mock(TempFolder.class), new ReportPublisherStep[0]);
+
+    job.start();
+    job.stop();
+    assertThat(reportDir).doesNotExist();
   }
 
 }
