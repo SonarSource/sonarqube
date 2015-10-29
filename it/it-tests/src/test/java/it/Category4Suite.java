@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.analysisExclusion.FileExclusionsTest;
 import it.analysisExclusion.IssueExclusionsTest;
 import it.componentSearch.ProjectSearchTest;
+import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
 import it.serverSystem.DevModeTest;
@@ -57,7 +58,9 @@ import static util.ItUtils.xooPlugin;
   IssueExclusionsTest.class,
   // duplication
   CrossProjectDuplicationsTest.class,
-  DuplicationsTest.class
+  DuplicationsTest.class,
+  // db cleaner
+  PurgeTest.class
 })
 public class Category4Suite {
 
