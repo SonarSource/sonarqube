@@ -36,4 +36,25 @@ class ProfilesController < ApplicationController
     render :action => 'index'
   end
 
+  # GET /profiles/export?name=<profile name>&language=<language>&format=<exporter key>
+  def export
+    language = params[:language]
+    if params[:name].blank?
+      profile = Internal.qprofile_service.getDefault(language)
+    else
+      profile = Internal.qprofile_loader.getByLangAndName(language, CGI::unescape(params[:name]))
+    end
+    not_found('Profile not found') unless profile
+
+    if params[:format].blank?
+      # standard sonar format
+      result = Internal.qprofile_service.backup(profile.getKee())
+      send_data(result, :type => 'text/xml', :disposition => 'inline')
+    else
+      exporter_key = params[:format]
+      result = Internal.qprofile_exporters.export(profile.getKee(), exporter_key)
+      send_data(result, :type => Internal.qprofile_exporters.mimeType(exporter_key), :disposition => 'inline')
+    end
+  end
+
 end
