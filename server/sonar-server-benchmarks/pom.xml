@@ -99,34 +99,13 @@
     </profile>
     <profile>
       <id>release</id>
-      <activation><activeByDefault>false</activeByDefault></activation>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>empty-javadoc-jar</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <classifier>javadoc</classifier>
-                </configuration>
-              </execution>
-              <execution>
-                <id>empty-sources-jar</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <classifier>sources</classifier>
-                </configuration>
-              </execution>
-            </executions>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
           </plugin>
         </plugins>
       </build>
