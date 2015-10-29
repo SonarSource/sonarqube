@@ -40,39 +40,70 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Loads definitions of rules from a XML file.
+ * Helper class to load {@link RulesDefinition} extension point from a XML file.
+ *
+ * <h3>Example</h3>
+ * <pre>
+ * public class MyRules implements RulesDefinition {
+ *
+ *   private final RulesDefinitionXmlLoader xmlLoader;
+ *
+ *   public MyRules(RulesDefinitionXmlLoader xmlLoader) {
+ *     this.xmlLoader = xmlLoader;
+ *   }
+ *
+ *   {@literal @}Override
+ *   public void define(Context context) {
+ *     NewRepository repository = context.createRepository("my-repo", "my-lang");
+ *     xmlLoader.load(repository, getClass().getResourceAsStream("/my-rules.xml"), StandardCharsets.UTF_8.name());
+ *     repository.done();
+ *   }
+ * }
+ * </pre>
  *
  * <h3>XML Format</h3>
  * <pre>
  * &lt;rules&gt;
  *   &lt;rule&gt;
- *     &lt;!-- required fields --&gt;
- *     &lt;key&gt;the-rule-key&lt;/key&gt;
- *     &lt;name&gt;The purpose of the rule&lt;/name&gt;
- *
- *     &lt;!-- optional fields --&gt;
- *     &lt;description&gt;
- *       &lt;![CDATA[The description]]&gt;
+ *     &lt;key&gt;the-required-rule-key&lt;/key&gt;*
+ *     &lt;name&gt;The required purpose of the rule&lt;/name&gt;
+ **     &lt;description&gt;
+ *       &lt;![CDATA[Required HTML description]]&gt;
  *     &lt;/description&gt;
+ *
+ *     &lt;!-- Optional key for configuration of some rule engines --&gt;
  *     &lt;internalKey&gt;Checker/TreeWalker/LocalVariableName&lt;/internalKey&gt;
+ *
+ *     &lt;!-- Default severity when enabling the rule in a Quality profile.  --&gt;
+ *     &lt;!-- Possible values are INFO, MINOR, MAJOR (default), CRITICAL, BLOCKER. --&gt;
  *     &lt;severity&gt;BLOCKER&lt;/severity&gt;
- *     &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
+ *
+ *     &lt;!-- Possible values are SINGLE (default) and MULTIPLE for template rules --&gt;
+ *     &lt;cardinality&gt;SINGLE&lt;/cardinality&gt;
+ *
+ *     &lt;!-- Status displayed in rules console. Possible values are BETA, READY (default), DEPRECATED. --&gt;
  *     &lt;status&gt;BETA&lt;/status&gt;
+ *
+ *     &lt;!-- Optional tags. See org.sonar.api.server.rule.RuleTagFormat. --&gt;
  *     &lt;tag&gt;style&lt;/tag&gt;
  *     &lt;tag&gt;security&lt;/tag&gt;
+ *
  *     &lt;param&gt;
  *       &lt;key&gt;the-param-key&lt;/key&gt;
  *       &lt;description&gt;
- *         &lt;![CDATA[the param-description]]&gt;
+ *         &lt;![CDATA[the optional param description]]&gt;
  *       &lt;/description&gt;
+ *       &lt;!-- Optional field to define the default value used when enabling the rule in a Quality profile --&gt;
  *       &lt;defaultValue&gt;42&lt;/defaultValue&gt;
  *     &lt;/param&gt;
  *     &lt;param&gt;
  *       &lt;key&gt;another-param&lt;/key&gt;
  *     &lt;/param&gt;
  *
- *     &lt;!-- deprecated fields --&gt;
+ *     &lt;!-- Deprecated field, replaced by "internalKey" --&gt;
  *     &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
+ *
+ *     &lt;!-- Deprecated field, replaced by "severity" --&gt;
  *     &lt;priority&gt;BLOCKER&lt;/priority&gt;
  *   &lt;/rule&gt;
  * &lt;/rules&gt;
