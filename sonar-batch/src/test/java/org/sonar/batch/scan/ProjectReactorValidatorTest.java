@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +29,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+import static org.mockito.Mockito.mock;
 
 public class ProjectReactorValidatorTest {
 
@@ -35,11 +39,13 @@ public class ProjectReactorValidatorTest {
 
   private ProjectReactorValidator validator;
   private Settings settings;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void prepare() {
+    mode = mock(DefaultAnalysisMode.class);
     settings = new Settings();
-    validator = new ProjectReactorValidator(settings);
+    validator = new ProjectReactorValidator(settings, mode);
   }
 
   @Test
@@ -53,6 +59,17 @@ public class ProjectReactorValidatorTest {
     validator.validate(createProjectReactor("1:2"));
     validator.validate(createProjectReactor("3-3"));
     validator.validate(createProjectReactor("-:"));
+  }
+  
+  @Test
+  public void allow_slash_issues_mode() {
+    when(mode.isIssues()).thenReturn(true);
+    validator.validate(createProjectReactor("project/key"));
+    
+    when(mode.isIssues()).thenReturn(false);
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("is not a valid project or module key");
+    validator.validate(createProjectReactor("project/key"));
   }
 
   @Test

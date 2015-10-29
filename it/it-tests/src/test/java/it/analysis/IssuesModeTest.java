@@ -86,6 +86,18 @@ public class IssuesModeTest {
   }
 
   @Test
+  public void project_key_with_slash() throws IOException {
+    restoreProfile("one-issue-per-line.xml");
+    setDefaultQualityProfile("xoo", "one-issue-per-line");
+    
+    SonarRunner runner = configureRunner("shared/xoo-sample");
+    runner.setProjectKey("sample/project");
+    runner.setProperty("sonar.analysis.mode", "issues");
+    BuildResult result = orchestrator.executeBuild(runner);
+    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
+  }
+
+  @Test
   public void non_associated_mode() throws IOException {
     restoreProfile("one-issue-per-line.xml");
     setDefaultQualityProfile("xoo", "one-issue-per-line");

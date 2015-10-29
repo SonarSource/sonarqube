@@ -57,6 +57,16 @@ public class ComponentKeysTest {
     assertThat(ComponentKeys.isValidModuleKey("ab_12")).isTrue();
     assertThat(ComponentKeys.isValidModuleKey("ab/12")).isFalse();
   }
+  
+  @Test
+  public void isValidModuleKeyIssuesMode() {
+    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("")).isFalse();
+    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("abc")).isTrue();
+    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("0123")).isFalse();
+    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("ab 12")).isFalse();
+    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("ab_12")).isTrue();
+    assertThat(ComponentKeys.isValidModuleKeyIssuesMode("ab/12")).isTrue();
+  }
 
   @Test
   public void isValidBranchKey() {

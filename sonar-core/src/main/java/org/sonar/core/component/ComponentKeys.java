@@ -34,6 +34,8 @@ public final class ComponentKeys {
    * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
    */
   private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
+
+  private static final String VALID_MODULE_KEY_ISSUES_MODE_REGEXP = "[\\p{Alnum}\\-_.:/]*[\\p{Alpha}\\-_.:/]+[\\p{Alnum}\\-_.:/]*";
   /*
    * Allowed characters are alphanumeric, '-', '_', '.' and '/'
    */
@@ -92,6 +94,13 @@ public final class ComponentKeys {
    */
   public static boolean isValidModuleKey(String keyCandidate) {
     return keyCandidate.matches(VALID_MODULE_KEY_REGEXP);
+  }
+
+  /**
+   * Same as {@link #isValidModuleKey(String)}, but allows additionally '/'.
+   */
+  public static boolean isValidModuleKeyIssuesMode(String keyCandidate) {
+    return keyCandidate.matches(VALID_MODULE_KEY_ISSUES_MODE_REGEXP);
   }
 
   /**
