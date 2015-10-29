@@ -33,6 +33,9 @@ public class ExportersAction implements QProfileWsAction {
     this.exporters = exporters;
   }
 
+  /**
+   * Used by Pico is no {@link ProfileExporter} is found
+   */
   public ExportersAction() {
     this(new ProfileExporter[0]);
   }
