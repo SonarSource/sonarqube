@@ -29,6 +29,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
@@ -93,6 +94,7 @@ public class SincePreviousVersionHistoryTest {
    * SONAR-6356
    */
   @Test
+  @Ignore
   public void since_previous_version_should_use_first_analysis_when_no_version_found() {
     // Analyze project by excluding some files
     analyzeProject("1.0-SNAPSHOT", "**/*2.xoo", "2015-10-01");
