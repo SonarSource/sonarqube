@@ -40,6 +40,7 @@ import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
 import org.sonar.xoo.rule.HasTagSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
+import org.sonar.xoo.rule.OneDayDebtPerFileSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
@@ -98,6 +99,7 @@ public class XooPlugin extends SonarPlugin {
 
       OneBlockerIssuePerFileSensor.class,
       OneIssuePerLineSensor.class,
+      OneDayDebtPerFileSensor.class,
       OneIssuePerFileSensor.class,
       OneIssuePerModuleSensor.class,
       OneIssueOnDirPerFileSensor.class,
