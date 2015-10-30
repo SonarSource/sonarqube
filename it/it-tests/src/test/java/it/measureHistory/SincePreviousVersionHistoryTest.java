@@ -25,11 +25,11 @@ import it.Category1Suite;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
@@ -42,10 +42,9 @@ import static util.ItUtils.setServerProperty;
 
 public class SincePreviousVersionHistoryTest {
 
+  private static final String PROJECT = "com.sonarsource.it.samples:multi-modules-sample";
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
-
-  private static final String PROJECT = "com.sonarsource.it.samples:multi-modules-sample";
 
   @BeforeClass
   public static void initPeriods() throws Exception {
@@ -59,6 +58,34 @@ public class SincePreviousVersionHistoryTest {
     ItUtils.resetPeriods(orchestrator);
   }
 
+  private static void analyzeProject(String version) {
+    analyzeProject(version, null, null);
+  }
+
+  private static void analyzeProjectWithExclusions(String version, String exclusions) {
+    analyzeProject(version, exclusions, null);
+  }
+
+  private static void analyzeProjectWithDate(String version, String date) {
+    analyzeProject(version, null, date);
+  }
+
+  private static void analyzeProject(String version, @Nullable String exclusions, @Nullable String date) {
+    SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
+      .setProperties("sonar.projectVersion", version);
+    if (exclusions != null) {
+      build.setProperties("sonar.exclusions", exclusions);
+    }
+    if (date != null) {
+      build.setProperty("sonar.projectDate", date);
+    }
+    orchestrator.executeBuild(build);
+  }
+
+  public static String toStringDate(Date date) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    return sdf.format(date);
+  }
 
   @Before
   public void resetData() throws Exception {
@@ -94,52 +121,25 @@ public class SincePreviousVersionHistoryTest {
    * SONAR-6356
    */
   @Test
-  @Ignore
   public void since_previous_version_should_use_first_analysis_when_no_version_found() {
+    Date now = new Date();
+
     // Analyze project by excluding some files
-    analyzeProject("1.0-SNAPSHOT", "**/*2.xoo", "2015-10-01");
+    analyzeProject("1.0-SNAPSHOT", "**/*2.xoo", toStringDate(DateUtils.addDays(now, -2)));
     // No difference measure after first analysis
     assertThat(getProject("files").getMeasure("files").getVariation3()).isNull();
 
-    analyzeProjectWithDate("1.0-SNAPSHOT", "2015-10-02");
+    analyzeProjectWithDate("1.0-SNAPSHOT", toStringDate(DateUtils.addDays(now, -1)));
     // No new version, first analysis is used -> 2 new files
     assertThat(getProject("files").getMeasure("files").getVariation3()).isEqualTo(2);
 
-    analyzeProjectWithDate("1.0-SNAPSHOT", "2015-10-03");
+    analyzeProjectWithDate("1.0-SNAPSHOT", toStringDate(now));
     // Still no new version, first analysis is used -> 2 new files
     assertThat(getProject("files").getMeasure("files").getVariation3()).isEqualTo(2);
-  }
-
-  private static void analyzeProject(String version) {
-    analyzeProject(version, null, null);
-  }
-
-  private static void analyzeProjectWithExclusions(String version, String exclusions) {
-    analyzeProject(version, exclusions, null);
-  }
-
-  private static void analyzeProjectWithDate(String version, String date) {
-    analyzeProject(version, null, date);
-  }
-
-  private static void analyzeProject(String version, @Nullable String exclusions, @Nullable String date) {
-    SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
-      .setProperties("sonar.projectVersion", version);
-    if (exclusions != null) {
-      build.setProperties("sonar.exclusions", exclusions);
-    }
-    if (date != null) {
-      build.setProperty("sonar.projectDate", date);
-    }
-    orchestrator.executeBuild(build);
   }
 
   private Resource getProject(String... metricKeys) {
     return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(PROJECT, metricKeys).setIncludeTrends(true));
   }
 
-  public static String toStringDate(Date date) {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    return sdf.format(date);
-  }
 }
