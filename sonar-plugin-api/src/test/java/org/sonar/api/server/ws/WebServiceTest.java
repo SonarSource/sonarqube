@@ -24,8 +24,14 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -33,50 +39,10 @@ import static org.mockito.Mockito.mock;
 
 public class WebServiceTest {
 
-  static class MetricWs implements WebService {
-    boolean showCalled = false;
-    boolean createCalled = false;
-
-    @Override
-    public void define(Context context) {
-      NewController newController = context.createController("api/metric")
-        .setDescription("Metrics")
-        .setSince("3.2");
-
-      newController.createAction("show")
-        .setDescription("Show metric")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            show(request, response);
-          }
-        });
-
-      newController.createAction("create")
-        .setDescription("Create metric")
-        .setSince("4.1")
-        .setDeprecatedSince("5.3")
-        .setPost(true)
-        .setInternal(true)
-        .setResponseExample(getClass().getResource("/org/sonar/api/server/ws/WebServiceTest/response-example.txt"))
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            create(request, response);
-          }
-        });
-
-      newController.done();
-    }
-
-    void show(Request request, Response response) {
-      showCalled = true;
-    }
-
-    void create(Request request, Response response) {
-      createCalled = true;
-    }
-  }
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   WebService.Context context = new WebService.Context();
 
@@ -104,12 +70,12 @@ public class WebServiceTest {
     assertThat(showAction.key()).isEqualTo("show");
     assertThat(showAction.description()).isEqualTo("Show metric");
     assertThat(showAction.handler()).isNotNull();
-    assertThat(showAction.responseExample()).isNull();
-    assertThat(showAction.responseExampleFormat()).isNull();
-    assertThat(showAction.responseExampleAsString()).isNull();
+    assertThat(showAction.responseExample()).isNotNull();
+    assertThat(showAction.responseExampleFormat()).isNotEmpty();
+    assertThat(showAction.responseExampleAsString()).isNotEmpty();
     assertThat(showAction.deprecatedSince()).isNull();
     // same as controller
-    assertThat(showAction.since()).isEqualTo("3.2");
+    assertThat(showAction.since()).isEqualTo("4.2");
     assertThat(showAction.isPost()).isFalse();
     assertThat(showAction.isInternal()).isFalse();
     assertThat(showAction.path()).isEqualTo("api/metric/show");
@@ -126,117 +92,104 @@ public class WebServiceTest {
 
   @Test
   public void fail_if_duplicated_ws_keys() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The web service 'api/metric' is defined multiple times");
+
     MetricWs metricWs = new MetricWs();
     metricWs.define(context);
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          NewController newController = context.createController("api/metric");
-          newController.createAction("delete");
-          newController.done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("The web service 'api/metric' is defined multiple times");
-    }
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/metric");
+        newDefaultAction(newController, "delete");
+        newController.done();
+      }
+    }.define(context);
   }
 
   @Test
   public void fail_if_no_action_handler() {
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          NewController controller = context.createController("rule");
-          controller.createAction("show");
-          controller.done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("RequestHandler is not set on action rule/show");
-    }
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("RequestHandler is not set on action rule/show");
+
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController controller = context.createController("rule");
+        newDefaultAction(controller, "show")
+          .setHandler(null);
+        controller.done();
+      }
+    }.define(context);
   }
 
   @Test
   public void fail_if_duplicated_action_keys() {
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          NewController newController = context.createController("rule");
-          newController.createAction("create");
-          newController.createAction("delete");
-          newController.createAction("delete");
-          newController.done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("The action 'delete' is defined multiple times in the web service 'rule'");
-    }
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The action 'delete' is defined multiple times in the web service 'rule'");
+
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("rule");
+        newDefaultAction(newController, "create");
+        newDefaultAction(newController, "delete");
+        newDefaultAction(newController, "delete");
+        newController.done();
+      }
+    }.define(context);
   }
 
   @Test
   public void fail_if_no_actions() {
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          context.createController("rule").done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("At least one action must be declared in the web service 'rule'");
-    }
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("At least one action must be declared in the web service 'rule'");
+
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        context.createController("rule").done();
+      }
+    }.define(context);
   }
 
   @Test
   public void fail_if_no_controller_path() {
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          context.createController(null).done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("WS controller path must not be empty");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("WS controller path must not be empty");
+
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        context.createController(null).done();
+      }
+    }.define(context);
   }
 
   @Test
   public void controller_path_must_not_start_with_slash() {
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          context.createController("/hello").done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("WS controller path must not start or end with slash: /hello");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("WS controller path must not start or end with slash: /hello");
+
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        context.createController("/hello").done();
+      }
+    }.define(context);
   }
 
   @Test
   public void controller_path_must_not_end_with_slash() {
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          context.createController("hello/").done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("WS controller path must not start or end with slash: hello/");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("WS controller path must not start or end with slash: hello/");
+
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        context.createController("hello/").done();
+      }
+    }.define(context);
   }
 
   @Test
@@ -259,7 +212,7 @@ public class WebServiceTest {
       @Override
       public void define(Context context) {
         NewController newController = context.createController("api/rule");
-        NewAction newAction = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        NewAction newAction = newDefaultAction(newController, "create");
         newAction
           .createParam("key")
           .setDescription("Key of the new rule");
@@ -311,7 +264,7 @@ public class WebServiceTest {
       @Override
       public void define(Context context) {
         NewController newController = context.createController("api/rule");
-        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        NewAction create = newDefaultAction(newController, "create");
         create.createParam("status")
           .setDefaultValue(RuleStatus.BETA)
           .setPossibleValues(RuleStatus.BETA, RuleStatus.READY)
@@ -339,7 +292,7 @@ public class WebServiceTest {
       @Override
       public void define(Context context) {
         NewController newController = context.createController("api/rule");
-        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        NewAction create = newDefaultAction(newController, "create");
         create.createParam("status")
           .setDefaultValue(null)
           .setPossibleValues(Collections.emptyList())
@@ -363,7 +316,7 @@ public class WebServiceTest {
       @Override
       public void define(Context context) {
         NewController newController = context.createController("api/rule");
-        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        NewAction create = newDefaultAction(newController, "create");
         create.createParam("status")
           .setPossibleValues(Collections.emptyList());
         newController.done();
@@ -377,39 +330,34 @@ public class WebServiceTest {
 
   @Test
   public void fail_if_required_param_has_default_value() {
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          NewController controller = context.createController("api/rule");
-          NewAction action = controller.createAction("create").setHandler(mock(RequestHandler.class));
-          action.createParam("key").setRequired(true).setDefaultValue("abc");
-          controller.done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Default value must not be set on parameter 'api/rule/create?key' as it's marked as required");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Default value must not be set on parameter 'api/rule/create?key' as it's marked as required");
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController controller = context.createController("api/rule");
+        NewAction action = newDefaultAction(controller, "create");
+        action.createParam("key").setRequired(true).setDefaultValue("abc");
+        controller.done();
+      }
+    }.define(context);
   }
 
   @Test
   public void fail_if_duplicated_action_parameters() {
-    try {
-      new WebService() {
-        @Override
-        public void define(Context context) {
-          NewController controller = context.createController("api/rule");
-          NewAction action = controller.createAction("create").setHandler(mock(RequestHandler.class));
-          action.createParam("key");
-          action.createParam("key");
-          controller.done();
-        }
-      }.define(context);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("The parameter 'key' is defined multiple times in the action 'create'");
-    }
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The parameter 'key' is defined multiple times in the action 'create'");
+
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController controller = context.createController("api/rule");
+        NewAction action = newDefaultAction(controller, "create");
+        action.createParam("key");
+        action.createParam("key");
+        controller.done();
+      }
+    }.define(context);
   }
 
   @Test
@@ -418,8 +366,8 @@ public class WebServiceTest {
       @Override
       public void define(Context context) {
         NewController newController = context.createController("api/rule");
-        newController.createAction("create").setInternal(true).setHandler(mock(RequestHandler.class));
-        newController.createAction("update").setInternal(true).setHandler(mock(RequestHandler.class));
+        newDefaultAction(newController, "create").setInternal(true);
+        newDefaultAction(newController, "update").setInternal(true);
         newController.done();
       }
     }.define(context);
@@ -445,12 +393,8 @@ public class WebServiceTest {
       public void define(Context context) {
         try {
           NewController controller = context.createController("foo");
-          controller
-            .createAction("bar")
-            .setHandler(mock(RequestHandler.class))
-            .setResponseExample(new URL("file:/does/not/exist"));
+          newDefaultAction(controller, "bar").setResponseExample(new URL("file:/does/not/exist"));
           controller.done();
-
         } catch (MalformedURLException e) {
           e.printStackTrace();
         }
@@ -465,5 +409,155 @@ public class WebServiceTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Fail to load file:/does/not/exist");
     }
+  }
+
+  @Test
+  public void post_action_without_response_example() {
+    WebService ws = new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        newDefaultAction(newController, "list").setPost(true).setResponseExample(null);
+        newController.done();
+      }
+    };
+    ws.define(context);
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .doesNotContain("The response example is not set on action api/rule/list");
+  }
+
+  @Test
+  public void fail_if_get_and_no_response_example() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        newDefaultAction(newController, "list").setResponseExample(null);
+        newController.done();
+      }
+    }.define(context);
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("The response example is not set on action api/rule/list");
+  }
+
+  @Test
+  public void log_if_since_on_an_action_is_empty() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        newDefaultAction(newController, "list")
+          .setSince("");
+        newController.done();
+      }
+    }.define(context);
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Since is not set on action api/rule/list");
+  }
+
+  @Test
+  public void log_if_since_on_an_action_is_null() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        newDefaultAction(newController, "list")
+          .setSince(null);
+        newController.done();
+      }
+    }.define(context);
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Since is not set on action api/rule/list");
+  }
+
+  @Test
+  public void log_if_action_description_is_empty() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        newDefaultAction(newController, "list")
+          .setDescription("");
+        newController.done();
+      }
+    }.define(context);
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Description is not set on action api/rule/list");
+  }
+
+  @Test
+  public void log_if_action_description_is_null() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        newDefaultAction(newController, "list")
+          .setDescription(null);
+        newController.done();
+      }
+    }.define(context);
+
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Description is not set on action api/rule/list");
+  }
+
+  static class MetricWs implements WebService {
+    boolean showCalled = false;
+    boolean createCalled = false;
+
+    @Override
+    public void define(Context context) {
+      NewController newController = context.createController("api/metric")
+        .setDescription("Metrics")
+        .setSince("3.2");
+
+      newController.createAction("show")
+        .setDescription("Show metric")
+        .setSince("4.2")
+        .setResponseExample(getClass().getResource("WebServiceTest/response-example.txt"))
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            show(request, response);
+          }
+        });
+
+      newController.createAction("create")
+        .setDescription("Create metric")
+        .setSince("4.1")
+        .setDeprecatedSince("5.3")
+        .setPost(true)
+        .setInternal(true)
+        .setResponseExample(getClass().getResource("WebServiceTest/response-example.txt"))
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            create(request, response);
+          }
+        });
+
+      newController.done();
+    }
+
+    void show(Request request, Response response) {
+      showCalled = true;
+    }
+
+    void create(Request request, Response response) {
+      createCalled = true;
+    }
+  }
+
+  private NewAction newDefaultAction(NewController controller, String actionKey) {
+    return controller.createAction(actionKey)
+      .setDescription("default description")
+      .setSince("5.3")
+      .setResponseExample(getClass().getResource("WebServiceTest/response-example.txt"))
+      .setHandler(mock(RequestHandler.class));
   }
 }
