@@ -40,6 +40,12 @@ package it;/*
 
 import com.sonar.orchestrator.Orchestrator;
 import it.customMeasure.CustomMeasuresTest;
+import it.debt.SqaleRatingMeasureTest;
+import it.debt.TechnicalDebtInIssueChangelogTest;
+import it.debt.TechnicalDebtMeasureTest;
+import it.debt.TechnicalDebtPurgeTest;
+import it.debt.TechnicalDebtTest;
+import it.debt.TechnicalDebtWidgetTest;
 import it.issue.CommonRulesTest;
 import it.issue.CustomRulesTest;
 import it.issue.IssueActionTest;
@@ -87,7 +93,14 @@ import static util.ItUtils.xooPlugin;
   IssuePurgeTest.class,
   IssueWorkflowTest.class,
   ManualRulesTest.class,
-  NewIssuesMeasureTest.class
+  NewIssuesMeasureTest.class,
+  // debt
+  SqaleRatingMeasureTest.class,
+  TechnicalDebtInIssueChangelogTest.class,
+  TechnicalDebtMeasureTest.class,
+  TechnicalDebtPurgeTest.class,
+  TechnicalDebtTest.class,
+  TechnicalDebtWidgetTest.class
 })
 public class Category2Suite {
 
