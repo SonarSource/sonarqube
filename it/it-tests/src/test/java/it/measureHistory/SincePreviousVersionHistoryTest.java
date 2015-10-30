@@ -94,22 +94,18 @@ public class SincePreviousVersionHistoryTest {
    */
   @Test
   public void since_previous_version_should_use_first_analysis_when_no_version_found() {
-    analyzeProjectWithDate("1.0-SNAPSHOT", "2015-10-01");
+    // Analyze project by excluding some files
+    analyzeProject("1.0-SNAPSHOT", "**/*2.xoo", "2015-10-01");
     // No difference measure after first analysis
-    Resource project = getProject("files");
-    assertThat(project.getPeriod3Date()).isNull();
+    assertThat(getProject("files").getMeasure("files").getVariation3()).isNull();
 
     analyzeProjectWithDate("1.0-SNAPSHOT", "2015-10-02");
-    // No new version, first analysis is used
-    project = getProject("files");
-    assertThat(project.getPeriod3Mode()).isEqualTo("previous_version");
-    assertThat(toStringDate(project.getPeriod3Date())).isEqualTo("2015-10-01");
+    // No new version, first analysis is used -> 2 new files
+    assertThat(getProject("files").getMeasure("files").getVariation3()).isEqualTo(2);
 
     analyzeProjectWithDate("1.0-SNAPSHOT", "2015-10-03");
-    // Still no new version, first analysis is used
-    project = getProject("files");
-    assertThat(project.getPeriod3Mode()).isEqualTo("previous_version");
-    assertThat(toStringDate(project.getPeriod3Date())).isEqualTo("2015-10-01");
+    // Still no new version, first analysis is used -> 2 new files
+    assertThat(getProject("files").getMeasure("files").getVariation3()).isEqualTo(2);
   }
 
   private static void analyzeProject(String version) {
