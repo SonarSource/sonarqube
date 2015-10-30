@@ -45,6 +45,9 @@ import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.lang.String.format;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -131,7 +134,7 @@ public interface WebService extends Definable<WebService.Context> {
     private void register(NewController newController) {
       if (controllers.containsKey(newController.path)) {
         throw new IllegalStateException(
-          String.format("The web service '%s' is defined multiple times", newController.path));
+          format("The web service '%s' is defined multiple times", newController.path));
       }
       controllers.put(newController.path, new Controller(newController));
     }
@@ -191,7 +194,7 @@ public interface WebService extends Definable<WebService.Context> {
     public NewAction createAction(String actionKey) {
       if (actions.containsKey(actionKey)) {
         throw new IllegalStateException(
-          String.format("The action '%s' is defined multiple times in the web service '%s'", actionKey, path));
+          format("The action '%s' is defined multiple times in the web service '%s'", actionKey, path));
       }
       NewAction action = new NewAction(actionKey);
       actions.put(actionKey, action);
@@ -207,10 +210,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final Map<String, Action> actions;
 
     private Controller(NewController newController) {
-      if (newController.actions.isEmpty()) {
-        throw new IllegalStateException(
-          String.format("At least one action must be declared in the web service '%s'", newController.path));
-      }
+      checkState(!newController.actions.isEmpty(), format("At least one action must be declared in the web service '%s'", newController.path));
       this.path = newController.path;
       this.description = newController.description;
       this.since = newController.since;
@@ -327,10 +327,8 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     public NewParam createParam(String paramKey) {
-      if (newParams.containsKey(paramKey)) {
-        throw new IllegalStateException(
-          String.format("The parameter '%s' is defined multiple times in the action '%s'", paramKey, key));
-      }
+      checkState(!newParams.containsKey(paramKey),
+        format("The parameter '%s' is defined multiple times in the action '%s'", paramKey, key));
       NewParam newParam = new NewParam(paramKey);
       newParams.put(paramKey, newParam);
       return newParam;
@@ -381,7 +379,7 @@ public interface WebService extends Definable<WebService.Context> {
      * The fields must be in the <strong>plural</strong> form (ex: "names", "keys")
      */
     public NewAction addSearchQuery(String exampleValue, String... pluralFields) {
-      String actionDescription = String.format("Limit search to %s that contain the supplied string.", Joiner.on(" or ").join(pluralFields));
+      String actionDescription = format("Limit search to %s that contain the supplied string.", Joiner.on(" or ").join(pluralFields));
       createParam(Param.TEXT_QUERY)
         .setDescription(actionDescription)
         .setExampleValue(exampleValue);
@@ -435,18 +433,19 @@ public interface WebService extends Definable<WebService.Context> {
     private Action(Controller controller, NewAction newAction) {
       this.key = newAction.key;
       this.deprecatedKey = newAction.deprecatedKey;
-      this.path = String.format("%s/%s", controller.path(), key);
+      this.path = format("%s/%s", controller.path(), key);
       this.description = newAction.description;
-      this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
+      this.since = newAction.since;
       this.deprecatedSince = newAction.deprecatedSince;
       this.post = newAction.post;
       this.isInternal = newAction.isInternal;
       this.responseExample = newAction.responseExample;
-
-      if (newAction.handler == null) {
-        throw new IllegalArgumentException("RequestHandler is not set on action " + path);
-      }
       this.handler = newAction.handler;
+
+      checkState(this.handler != null, "RequestHandler is not set on action " + path);
+      checkState(!isNullOrEmpty(this.description), "Description is not set on action " + path);
+      checkState(!isNullOrEmpty(this.since), "Since is not set on action " + path);
+      checkState(this.post || this.responseExample != null, "The response example is not set on action " + path);
 
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newAction.newParams.values()) {
@@ -713,7 +712,7 @@ public interface WebService extends Definable<WebService.Context> {
       this.required = newParam.required;
       this.possibleValues = newParam.possibleValues;
       if (required && defaultValue != null) {
-        throw new IllegalArgumentException(String.format("Default value must not be set on parameter '%s?%s' as it's marked as required", action, key));
+        throw new IllegalArgumentException(format("Default value must not be set on parameter '%s?%s' as it's marked as required", action, key));
       }
     }
 
