@@ -24,7 +24,6 @@ import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.MessageException;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
@@ -78,11 +77,6 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
     @Override
     public void visitProject(Component project, Path<QProfiles> path) {
       addMeasure(project, path.current());
-      Optional<Measure> qProfileMeasure = measureRepository.getRawMeasure(project, qProfilesMetric);
-      if (!qProfileMeasure.isPresent() || QPMeasureData.fromJson(qProfileMeasure.get().getData()).getProfiles().isEmpty()) {
-        throw MessageException.of(String.format("No quality profiles has been found on project '%s', you probably don't have any language plugin suitable for this analysis.",
-          project.getKey()));
-      }
     }
 
     @Override

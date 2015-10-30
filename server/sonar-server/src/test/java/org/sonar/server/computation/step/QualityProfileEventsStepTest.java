@@ -89,7 +89,7 @@ public class QualityProfileEventsStepTest {
   }
 
   @Test
-  public void no_effect_if_no_base_measure() {
+  public void no_event_if_no_base_measure() {
     when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.<Measure>absent());
 
     underTest.execute();
@@ -97,16 +97,18 @@ public class QualityProfileEventsStepTest {
     verifyNoMoreInteractions(eventRepository);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void ISE_if_no_raw_measure() {
+  @Test
+  public void no_event_if_no_raw_measure() {
     when(measureRepository.getBaseMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.of(newMeasure()));
     when(measureRepository.getRawMeasure(treeRootHolder.getRoot(), qualityProfileMetric)).thenReturn(Optional.<Measure>absent());
 
     underTest.execute();
+
+    verifyNoMoreInteractions(eventRepository);
   }
 
   @Test
-  public void no_event_if_no_base_nor_row_QualityProfile_measure() {
+  public void no_event_if_no_base_and_quality_profile_measure_is_empty() {
     mockMeasures(treeRootHolder.getRoot(), null, null);
 
     underTest.execute();

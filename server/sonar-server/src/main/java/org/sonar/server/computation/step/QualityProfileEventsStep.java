@@ -89,7 +89,8 @@ public class QualityProfileEventsStep implements ComputationStep {
     // Load base profiles
     Optional<Measure> rawMeasure = measureRepository.getRawMeasure(projectComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
     if (!rawMeasure.isPresent()) {
-      throw new IllegalStateException("Missing measure " + CoreMetrics.QUALITY_PROFILES + " for component " + projectComponent.getReportAttributes().getRef());
+      // No qualify profile computed on the project
+      return;
     }
     Map<String, QualityProfile> rawProfiles = QPMeasureData.fromJson(rawMeasure.get().getStringValue()).getProfilesByKey();
 

@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.MessageException;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
@@ -136,10 +135,7 @@ public class ComputeQProfileMeasureStepTest {
   }
 
   @Test
-  public void fail_with_message_exception_when_no_qprofile_computed_on_project() throws Exception {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("No quality profiles has been found on project 'PROJECT KEY'");
-
+  public void nothing_to_add_when_no_qprofile_computed_on_project() throws Exception {
     treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
 
     underTest.execute();
@@ -148,10 +144,7 @@ public class ComputeQProfileMeasureStepTest {
   }
 
   @Test
-  public void fail_with_message_exception_when_qprofiles_computed_on_project_are_empty() throws Exception {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("No quality profiles has been found on project 'PROJECT KEY', you probably don't have any language plugin suitable for this analysis.");
-
+  public void nothing_to_add_when_qprofiles_computed_on_project_are_empty() throws Exception {
     treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
     measureRepository.addRawMeasure(PROJECT_REF, QUALITY_PROFILES_KEY, newMeasureBuilder().create(toJson()));
 

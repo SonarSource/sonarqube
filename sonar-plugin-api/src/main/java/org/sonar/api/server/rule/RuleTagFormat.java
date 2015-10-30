@@ -22,12 +22,13 @@ package org.sonar.api.server.rule;
 import org.apache.commons.lang.StringUtils;
 
 /**
+ * The characters allowed in rule tags are the same as those on StackOverflow, basically lower-case
+ * letters, digits, plus (+), sharp (#), dash (-) and dot (.)
+ * See http://meta.stackoverflow.com/questions/22624/what-symbols-characters-are-not-allowed-in-tags
  * @since 4.2
  */
 public class RuleTagFormat {
 
-  // Allowed characters are the same as those on StackOverflow
-  // see http://meta.stackoverflow.com/questions/22624/what-symbols-characters-are-not-allowed-in-tags
   private static final String VALID_CHARACTERS_REGEX = "^[a-z0-9\\+#\\-\\.]+$";
 
   private RuleTagFormat() {

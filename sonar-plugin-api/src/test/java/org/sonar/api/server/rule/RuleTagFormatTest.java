@@ -39,6 +39,7 @@ public class RuleTagFormatTest {
     assertThat(RuleTagFormat.isValid("c++")).isTrue();
     assertThat(RuleTagFormat.isValid("f#")).isTrue();
     assertThat(RuleTagFormat.isValid("c++11")).isTrue();
+    assertThat(RuleTagFormat.isValid("c.d")).isTrue();
   }
 
   @Test
