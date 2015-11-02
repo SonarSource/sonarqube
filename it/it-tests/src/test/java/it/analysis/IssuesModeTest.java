@@ -5,6 +5,8 @@
  */
 package it.analysis;
 
+import org.apache.commons.io.FileUtils;
+import org.sonar.wsclient.issue.IssueClient;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
@@ -15,7 +17,10 @@ import com.sonar.orchestrator.config.FileSystem;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.version.Version;
 import it.Category3Suite;
+
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -41,7 +47,6 @@ import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
 import util.ItUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -89,7 +94,7 @@ public class IssuesModeTest {
   public void project_key_with_slash() throws IOException {
     restoreProfile("one-issue-per-line.xml");
     setDefaultQualityProfile("xoo", "one-issue-per-line");
-    
+
     SonarRunner runner = configureRunner("shared/xoo-sample");
     runner.setProjectKey("sample/project");
     runner.setProperty("sonar.analysis.mode", "issues");
@@ -97,6 +102,99 @@ public class IssuesModeTest {
     assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
   }
 
+  // SONAR-6931
+  @Test
+  public void only_scan_changed_files_qps() throws IOException {
+    restoreProfile("one-issue-per-line.xml");
+    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+
+    SonarRunner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
+    BuildResult result = orchestrator.executeBuild(runner);
+    List<Issue> serverIssues = ItUtils.getAllServerIssues(orchestrator);
+    for (Issue i : serverIssues) {
+      assertThat(i.status()).isEqualTo("OPEN");
+    }
+    assertThat(serverIssues).hasSize(17);
+    
+    // change quality profile
+    restoreProfile("with-many-rules.xml");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "with-many-rules");
+    
+    // do it again, scanning nothing (all files should be unchanged)
+    runner = configureRunnerIssues("shared/xoo-sample",
+      "sonar.verbose", "true",
+      "sonar.scanChangedFilesOnly", "true");
+    result = orchestrator.executeBuild(runner);
+    assertThat(result.getLogs()).contains("Scanning only changed files");
+    assertThat(result.getLogs()).contains("'One Issue Per Line' skipped because there is no related file in current project");
+    ItUtils.assertIssuesInJsonReport(result, 0, 0, 17);
+  }
+  
+  // SONAR-6931
+  @Test
+  public void only_scan_changed_files_transitions() throws IOException {
+    restoreProfile("one-issue-per-line.xml");
+    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+
+    SonarRunner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
+    BuildResult result = orchestrator.executeBuild(runner);
+    List<Issue> serverIssues = ItUtils.getAllServerIssues(orchestrator);
+    for (Issue i : serverIssues) {
+      assertThat(i.status()).isEqualTo("OPEN");
+    }
+    assertThat(serverIssues).hasSize(17);
+    
+    // resolve 2 issues
+    IssueClient issueClient = orchestrator.getServer().wsClient("admin", "admin").issueClient();
+    issueClient.doTransition(serverIssues.get(0).key(), "wontfix");
+    issueClient.doTransition(serverIssues.get(1).key(), "wontfix");
+
+    // do it again, scanning nothing (all files should be unchanged)
+    runner = configureRunnerIssues("shared/xoo-sample",
+      "sonar.verbose", "true",
+      "sonar.scanChangedFilesOnly", "true");
+    result = orchestrator.executeBuild(runner);
+    assertThat(result.getLogs()).contains("Scanning only changed files");
+    assertThat(result.getLogs()).contains("'One Issue Per Line' skipped because there is no related file in current project");
+    ItUtils.assertIssuesInJsonReport(result, 0, 0, 15);
+  }
+  
+  // SONAR-6931
+  @Test
+  public void only_scan_changed_files_on_change() throws IOException {
+    restoreProfile("one-issue-per-line.xml");
+    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+
+    SonarRunner runner = configureRunner("shared/xoo-sample", "sonar.verbose", "true");
+    BuildResult result = orchestrator.executeBuild(runner);
+    
+    // change QP
+    restoreProfile("with-many-rules.xml");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "with-many-rules");
+    
+    // now change file hash in a temporary location
+    File tmpProjectDir = temp.newFolder();
+    FileUtils.copyDirectory(ItUtils.projectDir("shared/xoo-sample"), tmpProjectDir);
+    File srcFile = new File(tmpProjectDir, "src/main/xoo/sample/Sample.xoo");
+    FileUtils.write(srcFile, "\n", StandardCharsets.UTF_8, true);
+
+    // scan again, with different QP
+    runner = SonarRunner.create(tmpProjectDir,
+      "sonar.working.directory", temp.newFolder().getAbsolutePath(),
+      "sonar.analysis.mode", "issues",
+      "sonar.report.export.path", "sonar-report.json",
+      "sonar.userHome", temp.newFolder().getAbsolutePath(),
+      "sonar.verbose", "true",
+      "sonar.scanChangedFilesOnly", "true");
+    result = orchestrator.executeBuild(runner);
+    assertThat(result.getLogs()).contains("Scanning only changed files");
+    assertThat(result.getLogs()).doesNotContain("'One Issue Per Line' skipped because there is no related file in current project");
+    ItUtils.assertIssuesInJsonReport(result, 3, 0, 17);
+  }
+  
   @Test
   public void non_associated_mode() throws IOException {
     restoreProfile("one-issue-per-line.xml");

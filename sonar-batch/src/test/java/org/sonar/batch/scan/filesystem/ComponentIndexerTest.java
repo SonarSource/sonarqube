@@ -19,8 +19,13 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.batch.fs.InputFile.Status;
+
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+
 import java.io.File;
 import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,7 +45,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -57,6 +61,7 @@ public class ComponentIndexerTest {
   private AbstractLanguage cobolLanguage;
   private Project project;
   private ModuleFileSystemInitializer initializer;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void prepare() throws IOException {
@@ -65,6 +70,7 @@ public class ComponentIndexerTest {
     sonarIndex = mock(SonarIndex.class);
     project = new Project("myProject");
     initializer = mock(ModuleFileSystemInitializer.class);
+    mode = mock(DefaultAnalysisMode.class);
     when(initializer.baseDir()).thenReturn(baseDir);
     when(initializer.workingDir()).thenReturn(temp.newFolder());
     cobolLanguage = new AbstractLanguage("cobol") {
@@ -79,10 +85,11 @@ public class ComponentIndexerTest {
   public void should_index_java_files() throws IOException {
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = createIndexer(languages);
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer);
-    fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false));
-    fs.add(newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false));
-    fs.add(newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true));
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer, mode);
+    fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false, Status.ADDED));
+    fs.add(newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false, Status.ADDED));
+    // should index even if filter is applied
+    fs.add(newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true, Status.SAME));
 
     fs.index();
 
@@ -110,10 +117,10 @@ public class ComponentIndexerTest {
   public void should_index_cobol_files() throws IOException {
     Languages languages = new Languages(cobolLanguage);
     ComponentIndexer indexer = createIndexer(languages);
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer);
-    fs.add(newInputFile("src/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false));
-    fs.add(newInputFile("src2/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false));
-    fs.add(newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true));
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(project, null, mock(FileIndexer.class), initializer, indexer, mode);
+    fs.add(newInputFile("src/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false, Status.ADDED));
+    fs.add(newInputFile("src2/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false, Status.ADDED));
+    fs.add(newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true, Status.ADDED));
 
     fs.index();
 
@@ -122,12 +129,13 @@ public class ComponentIndexerTest {
     verify(sonarIndex).index(org.sonar.api.resources.File.create("/src/test/foo/bar/FooTest.cbl", cobolLanguage, true));
   }
 
-  private DefaultInputFile newInputFile(String path, String content, String sourceRelativePath, String languageKey, boolean unitTest) throws IOException {
+  private DefaultInputFile newInputFile(String path, String content, String sourceRelativePath, String languageKey, boolean unitTest, InputFile.Status status) throws IOException {
     File file = new File(baseDir, path);
     FileUtils.write(file, content);
     return new DefaultInputFile("foo", path)
       .setLanguage(languageKey)
-      .setType(unitTest ? InputFile.Type.TEST : InputFile.Type.MAIN);
+      .setType(unitTest ? InputFile.Type.TEST : InputFile.Type.MAIN)
+      .setStatus(status);
   }
 
 }

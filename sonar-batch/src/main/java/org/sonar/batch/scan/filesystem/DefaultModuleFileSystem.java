@@ -19,19 +19,25 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.batch.fs.InputFile.Status;
+
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -59,7 +65,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private boolean initialized;
 
   public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project project,
-    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer) {
+    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer, DefaultAnalysisMode mode) {
     super(initializer.baseDir(), moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = project.getKey();
@@ -70,11 +76,16 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.sourceDirsOrFiles = initializer.sources();
     this.testDirsOrFiles = initializer.tests();
     this.binaryDirs = initializer.binaryDirs();
+
+    // filter the files that sensors have access to (SONAR-6931)
+    if (mode.onlyAnalyzeChanged()) {
+      setDefaultPredicate(predicates.not(predicates.hasStatus(Status.SAME)));
+    }
   }
 
   @VisibleForTesting
   public DefaultModuleFileSystem(Project project,
-    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer) {
+    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, ComponentIndexer componentIndexer, DefaultAnalysisMode mode) {
     super(initializer.baseDir().toPath());
     this.componentIndexer = componentIndexer;
     this.moduleKey = project.getKey();
@@ -85,6 +96,11 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.sourceDirsOrFiles = initializer.sources();
     this.testDirsOrFiles = initializer.tests();
     this.binaryDirs = initializer.binaryDirs();
+    
+    // filter the files sensors have access to
+    if (mode.onlyAnalyzeChanged()) {
+      setDefaultPredicate(predicates.not(predicates.hasStatus(Status.SAME)));
+    }
   }
 
   public boolean isInitialized() {

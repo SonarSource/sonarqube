@@ -33,7 +33,7 @@ import org.sonar.batch.scan.ImmutableProjectReactor;
 public class DefaultProjectTree implements Startable {
 
   private final ProjectConfigurator configurator;
-  private ImmutableProjectReactor projectReactor;
+  private final ImmutableProjectReactor projectReactor;
 
   private List<Project> projects;
   private Map<ProjectDefinition, Project> projectsByDef;

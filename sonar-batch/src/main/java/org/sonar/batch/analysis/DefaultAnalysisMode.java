@@ -36,9 +36,11 @@ import java.util.Map;
 public class DefaultAnalysisMode extends AbstractAnalysisMode implements AnalysisMode {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
+  private static final String KEY_ONLY_ANALYZE_CHANGED = "sonar.scanChangedFilesOnly";
 
   private boolean mediumTestMode;
   private boolean notAssociated;
+  private boolean onlyChanged;
 
   public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props) {
     init(globalProps.properties(), props.properties());
@@ -50,6 +52,10 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
 
   public boolean isNotAssociated() {
     return notAssociated;
+  }
+
+  public boolean onlyAnalyzeChanged() {
+    return onlyChanged;
   }
 
   private void init(Map<String, String> globalProps, Map<String, String> analysisProps) {
@@ -70,6 +76,8 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
     notAssociated = issues && rootProjectKeyMissing(analysisProps);
+    String onlyChangedStr = getPropertyWithFallback(analysisProps, globalProps, KEY_ONLY_ANALYZE_CHANGED);
+    onlyChanged = issues && "true".equals(onlyChangedStr);
   }
 
   public void printMode() {
@@ -85,6 +93,9 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     }
     if (notAssociated) {
       LOG.info("Local analysis");
+    }
+    if (onlyChanged) {
+      LOG.info("Scanning only changed files");
     }
   }
 

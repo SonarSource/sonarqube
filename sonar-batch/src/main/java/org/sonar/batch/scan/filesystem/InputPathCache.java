@@ -19,18 +19,13 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import javax.annotation.CheckForNull;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+
+import javax.annotation.CheckForNull;
 
 /**
  * Cache of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -39,91 +34,59 @@ import org.sonar.api.batch.fs.InputFile;
 @BatchSide
 public class InputPathCache {
 
-  private final Map<String, SortedMap<String, InputFile>> inputFileCache = new LinkedHashMap<>();
-  private final Map<String, SortedMap<String, InputDir>> inputDirCache = new LinkedHashMap<>();
+  private final Table<String, String, InputFile> inputFileCache = TreeBasedTable.create();
+  private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
 
   public Iterable<InputFile> allFiles() {
-    return Iterables.concat(Iterables.transform(inputFileCache.values(), new Function<Map<String, InputFile>, Collection<InputFile>>() {
-      @Override
-      public Collection<InputFile> apply(Map<String, InputFile> input) {
-        return input.values();
-      }
-    }));
+    return inputFileCache.values();
   }
 
   public Iterable<InputDir> allDirs() {
-    return Iterables.concat(Iterables.transform(inputDirCache.values(), new Function<Map<String, InputDir>, Collection<InputDir>>() {
-      @Override
-      public Collection<InputDir> apply(Map<String, InputDir> input) {
-        return input.values();
-      }
-    }));
+    return inputDirCache.values();
   }
 
   public Iterable<InputFile> filesByModule(String moduleKey) {
-    if (inputFileCache.containsKey(moduleKey)) {
-      return inputFileCache.get(moduleKey).values();
-    }
-    return Collections.emptyList();
+    return inputFileCache.row(moduleKey).values();
   }
 
   public Iterable<InputDir> dirsByModule(String moduleKey) {
-    if (inputDirCache.containsKey(moduleKey)) {
-      return inputDirCache.get(moduleKey).values();
-    }
-    return Collections.emptyList();
+    return inputDirCache.row(moduleKey).values();
   }
 
   public InputPathCache removeModule(String moduleKey) {
-    inputFileCache.remove(moduleKey);
-    inputDirCache.remove(moduleKey);
+    inputFileCache.row(moduleKey).clear();
+    inputDirCache.row(moduleKey).clear();
     return this;
   }
 
   public InputPathCache remove(String moduleKey, InputFile inputFile) {
-    if (inputFileCache.containsKey(moduleKey)) {
-      inputFileCache.get(moduleKey).remove(inputFile.relativePath());
-    }
+    inputFileCache.remove(moduleKey, inputFile.relativePath());
     return this;
   }
 
   public InputPathCache remove(String moduleKey, InputDir inputDir) {
-    if (inputDirCache.containsKey(moduleKey)) {
-      inputDirCache.get(moduleKey).remove(inputDir.relativePath());
-    }
+    inputDirCache.remove(moduleKey, inputDir.relativePath());
     return this;
   }
 
   public InputPathCache put(String moduleKey, InputFile inputFile) {
-    if (!inputFileCache.containsKey(moduleKey)) {
-      inputFileCache.put(moduleKey, new TreeMap<String, InputFile>());
-    }
-    inputFileCache.get(moduleKey).put(inputFile.relativePath(), inputFile);
+    inputFileCache.put(moduleKey, inputFile.relativePath(), inputFile);
     return this;
   }
 
   public InputPathCache put(String moduleKey, InputDir inputDir) {
-    if (!inputDirCache.containsKey(moduleKey)) {
-      inputDirCache.put(moduleKey, new TreeMap<String, InputDir>());
-    }
-    inputDirCache.get(moduleKey).put(inputDir.relativePath(), inputDir);
+    inputDirCache.put(moduleKey, inputDir.relativePath(), inputDir);
     return this;
   }
 
   @CheckForNull
   public InputFile getFile(String moduleKey, String relativePath) {
-    if (inputFileCache.containsKey(moduleKey)) {
-      return inputFileCache.get(moduleKey).get(relativePath);
-    }
-    return null;
+    return inputFileCache.get(moduleKey, relativePath);
   }
 
   @CheckForNull
   public InputDir getDir(String moduleKey, String relativePath) {
-    if (inputDirCache.containsKey(moduleKey)) {
-      return inputDirCache.get(moduleKey).get(relativePath);
-    }
-    return null;
+    return inputDirCache.get(moduleKey, relativePath);
   }
 
 }

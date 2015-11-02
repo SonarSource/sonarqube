@@ -19,14 +19,20 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.api.batch.fs.InputFile.Status;
+
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
 import javax.annotation.CheckForNull;
+
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -54,15 +60,18 @@ public class LocalIssueTracking {
   private final ActiveRules activeRules;
   private final ServerIssueRepository serverIssueRepository;
   private final Date analysisDate;
+  private final DefaultAnalysisMode mode;
 
   private boolean hasServerAnalysis;
 
   public LocalIssueTracking(BatchComponentCache resourceCache, IssueTracking tracking, ServerLineHashesLoader lastLineHashes, IssueUpdater updater,
-    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, ReportPublisher reportPublisher) {
+    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, ReportPublisher reportPublisher,
+    DefaultAnalysisMode mode) {
     this.tracking = tracking;
     this.lastLineHashes = lastLineHashes;
     this.updater = updater;
     this.serverIssueRepository = serverIssueRepository;
+    this.mode = mode;
     this.analysisDate = ((Project) resourceCache.getRoot().resource()).getAnalysisDate();
     this.changeContext = IssueChangeContext.createScan(analysisDate);
     this.activeRules = activeRules;
@@ -78,18 +87,23 @@ public class LocalIssueTracking {
   public List<DefaultIssue> trackIssues(BatchComponent component, Set<BatchReport.Issue> rawIssues) {
     List<DefaultIssue> trackedIssues = Lists.newArrayList();
     if (hasServerAnalysis) {
-
       // all the issues that are not closed in db before starting this module scan, including manual issues
       Collection<ServerIssue> serverIssues = loadServerIssues(component);
 
-      SourceHashHolder sourceHashHolder = loadSourceHashes(component);
+      if (shouldCopyServerIssues(component)) {
+        // raw issues should be empty, we just need to deal with server issues (SONAR-6931)
+        copyServerIssues(serverIssues, trackedIssues);
+      } else {
 
-      IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, serverIssues, rawIssues);
+        SourceHashHolder sourceHashHolder = loadSourceHashes(component);
 
-      // unmatched from server = issues that have been resolved + issues on disabled/removed rules + manual issues
-      addUnmatchedFromServer(trackingResult.unmatched(), sourceHashHolder, trackedIssues);
+        IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, serverIssues, rawIssues);
 
-      mergeMatched(component, trackingResult, trackedIssues, rawIssues);
+        // unmatched from server = issues that have been resolved + issues on disabled/removed rules + manual issues
+        addUnmatchedFromServer(trackingResult.unmatched(), sourceHashHolder, trackedIssues);
+
+        mergeMatched(component, trackingResult, trackedIssues, rawIssues);
+      }
     }
 
     if (hasServerAnalysis && ResourceUtils.isRootProject(component.resource())) {
@@ -100,8 +114,33 @@ public class LocalIssueTracking {
     return trackedIssues;
   }
 
+  private boolean shouldCopyServerIssues(BatchComponent component) {
+    if (mode.onlyAnalyzeChanged() && component.isFile()) {
+      DefaultInputFile inputFile = (DefaultInputFile) component.inputComponent();
+      if (inputFile.status() == Status.SAME) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void copyServerIssues(Collection<ServerIssue> serverIssues, List<DefaultIssue> trackedIssues) {
+    for (ServerIssue serverIssue : serverIssues) {
+      org.sonar.batch.protocol.input.BatchInput.ServerIssue unmatchedPreviousIssue = ((ServerIssueFromWs) serverIssue).getDto();
+      DefaultIssue unmatched = toUnmatchedIssue(unmatchedPreviousIssue);
+
+      ActiveRule activeRule = activeRules.find(unmatched.ruleKey());
+      unmatched.setNew(false);
+
+      boolean isRemovedRule = activeRule == null;
+      unmatched.setBeingClosed(isRemovedRule);
+      unmatched.setOnDisabledRule(isRemovedRule);
+      trackedIssues.add(unmatched);
+    }
+  }
+
   private DefaultIssue toTracked(BatchComponent component, BatchReport.Issue rawIssue) {
-    DefaultIssue trackedIssue = new org.sonar.core.issue.DefaultIssueBuilder()
+    return new org.sonar.core.issue.DefaultIssueBuilder()
       .componentKey(component.key())
       .projectKey("unused")
       .ruleKey(RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey()))
@@ -110,7 +149,6 @@ public class LocalIssueTracking {
       .message(rawIssue.hasMsg() ? rawIssue.getMsg() : null)
       .severity(rawIssue.getSeverity().name())
       .build();
-    return trackedIssue;
   }
 
   @CheckForNull
