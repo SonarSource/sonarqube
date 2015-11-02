@@ -36,9 +36,7 @@ MYSQL)
 WEB)
 set +eu
   source ~/.nvm/nvm.sh && nvm install 4
-  cd server/sonar-web && npm install && npm run coverage
-  npm install coveralls
-  cat target/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+  cd server/sonar-web && npm install && npm test
   ;;
 
 PRANALYSIS)
