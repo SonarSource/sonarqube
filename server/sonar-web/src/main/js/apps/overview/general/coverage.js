@@ -15,6 +15,16 @@ export const GeneralCoverage = React.createClass({
     leakPeriodDate: React.PropTypes.object
   },
 
+  renderNewCoverage () {
+    if (this.props.leak['new_overall_coverage'] != null) {
+      return <DrilldownLink component={this.props.component.key} metric="new_overall_coverage" period="1">
+        {window.formatMeasure(this.props.leak['new_overall_coverage'], 'PERCENT')}
+      </DrilldownLink>;
+    } else {
+      return <span>—</span>;
+    }
+  },
+
   renderLeak () {
     if (!this.hasLeakPeriod()) {
       return null;
@@ -22,11 +32,7 @@ export const GeneralCoverage = React.createClass({
 
     return <DomainLeak>
       <MeasuresList>
-        <Measure label={getMetricName('new_coverage')}>
-          <DrilldownLink component={this.props.component.key} metric="new_overall_coverage" period="1">
-            {window.formatMeasure(this.props.leak['new_overall_coverage'], 'PERCENT')}
-          </DrilldownLink>
-        </Measure>
+        <Measure label={getMetricName('new_coverage')}>{this.renderNewCoverage()}</Measure>
       </MeasuresList>
       {this.renderTimeline('after')}
     </DomainLeak>;

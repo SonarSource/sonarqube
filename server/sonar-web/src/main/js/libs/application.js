@@ -461,7 +461,7 @@ function closeModalWindow () {
    */
   var shortDurationVariationFormatter = function (value) {
     if (value === 0) {
-      return '0';
+      return '+0';
     }
     var formatted = shortDurationFormatter(value);
     return formatted[0] !== '-' ? '+' + formatted : formatted;
@@ -545,10 +545,10 @@ function closeModalWindow () {
           },
           'SHORT_INT': shortIntVariationFormatter,
           'FLOAT': function (value) {
-            return value === 0 ? '0' : numeral(value).format('+0,0.0');
+            return value === 0 ? '+0.0' : numeral(value).format('+0,0.0');
           },
           'PERCENT': function (value) {
-            return value === 0 ? '+0%' : numeral(+value / 100).format('+0,0.0%');
+            return value === 0 ? '+0.0%' : numeral(+value / 100).format('+0,0.0%');
           },
           'WORK_DUR': durationVariationFormatter,
           'SHORT_WORK_DUR': shortDurationVariationFormatter

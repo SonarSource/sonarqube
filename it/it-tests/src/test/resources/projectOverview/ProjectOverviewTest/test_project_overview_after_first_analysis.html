@@ -2,61 +2,65 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="http://localhost:49506" />
-<title>test_project_overview_after_first_analysis</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel="selenium.base" href="http://localhost:49506"/>
+  <title>test_project_overview_after_first_analysis</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
-<thead>
-<tr><td rowspan="1" colspan="3">test_project_overview_after_first_analysis</td></tr>
-</thead><tbody>
-<tr>
-	<td>open</td>
-	<td>/sonar/overview?id=project-for-overview</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForTextPresent</td>
-	<td>*Quality Gate*Passed*</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForTextPresent</td>
-	<td>*A*0*Issues*0*Debt*</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForTextPresent</td>
-	<td>*Blocker*0*Critical*0*Major*0*Minor*0*Info*0*</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForTextPresent</td>
-	<td>*0.0%*Duplications*0*Duplicated Blocks*</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForTextPresent</td>
-	<td>*13*Lines of Code*1*Files*</td>
-	<td></td>
-</tr>
-<tr>
-	<td>assertTextNotPresent</td>
-	<td>*Coverage*</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForTextPresent</td>
-	<td>*Quality Gate*SonarQube way*</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForTextPresent</td>
-	<td>*Quality Profiles*Xoo*Basic*</td>
-	<td></td>
-</tr>
+  <thead>
+  <tr>
+    <td rowspan="1" colspan="3">test_project_overview_after_first_analysis</td>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td>open</td>
+    <td>/sonar/overview?id=project-for-overview</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>id=content</td>
+    <td>*Quality Gate*Passed*</td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>id=content</td>
+    <td>*A*0*Issues*0*Debt*</td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>id=content</td>
+    <td>*Blocker*0*Critical*0*Major*0*Minor*0*Info*0*</td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>id=content</td>
+    <td>*0.0%*Duplications*0*Duplicated Blocks*</td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>id=content</td>
+    <td>*13*Lines of Code*1*Files*</td>
+  </tr>
+  <tr>
+    <td>assertNotText</td>
+    <td>id=content</td>
+    <td>*Coverage*</td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>id=content</td>
+    <td>*Quality Gate*SonarQube way*</td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>id=content</td>
+    <td>*Quality Profiles*Xoo*Basic*</td>
+  </tr>
 
-</tbody></table>
+  </tbody>
+</table>
 </body>
 </html>
