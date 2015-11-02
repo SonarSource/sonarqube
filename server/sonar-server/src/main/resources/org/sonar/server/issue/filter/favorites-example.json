@@ -1,0 +1,19 @@
+{
+  "favoriteFilters": [
+    {
+      "id": 1,
+      "name": "Unresolved Issues",
+      "shared": true
+    },
+    {
+      "id": 2,
+      "name": "False Positive and Won't Fix Issues",
+      "shared": true
+    },
+    {
+      "id": 3,
+      "name": "My Custom Unresolved Issues",
+      "shared": false
+    }
+  ]
+}

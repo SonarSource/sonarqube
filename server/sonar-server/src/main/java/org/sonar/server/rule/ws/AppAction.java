@@ -58,13 +58,23 @@ public class AppAction implements RulesWsAction {
   private final UserSession userSession;
 
   public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n,
-                   DebtModel debtModel, QProfileLoader profileLoader, UserSession userSession) {
+    DebtModel debtModel, QProfileLoader profileLoader, UserSession userSession) {
     this.languages = languages;
     this.ruleRepositories = ruleRepositories;
     this.i18n = i18n;
     this.debtModel = debtModel;
     this.profileLoader = profileLoader;
     this.userSession = userSession;
+  }
+
+  @Override
+  public void define(WebService.NewController controller) {
+    controller.createAction("app")
+      .setDescription("Data required for rendering the page 'Coding Rules'")
+      .setResponseExample(getClass().getResource("app-example.json"))
+      .setSince("4.5")
+      .setInternal(true)
+      .setHandler(this);
   }
 
   @Override
@@ -190,13 +200,5 @@ public class AppAction implements RulesWsAction {
       }
     });
     return subCaracs;
-  }
-
-  @Override
-  public void define(WebService.NewController controller) {
-    controller.createAction("app")
-      .setDescription("Data required for rendering the page 'Coding Rules'")
-      .setInternal(true)
-      .setHandler(this);
   }
 }

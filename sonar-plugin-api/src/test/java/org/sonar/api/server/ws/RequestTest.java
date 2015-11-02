@@ -83,8 +83,11 @@ public class RequestTest {
     @Override
     public void define(Context context) {
       NewController controller = context.createController("my_controller");
-      NewAction action = controller.createAction("my_action");
-      action.setHandler(mock(RequestHandler.class));
+      NewAction action = controller.createAction("my_action")
+        .setDescription("Action Description")
+        .setPost(true)
+        .setSince("5.2")
+        .setHandler(mock(RequestHandler.class));
       action
         .createParam("required_param")
         .setRequired(true);

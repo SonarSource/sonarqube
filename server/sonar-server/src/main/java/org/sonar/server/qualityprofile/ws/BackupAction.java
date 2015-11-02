@@ -28,8 +28,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -56,6 +56,7 @@ public class BackupAction implements QProfileWsAction {
     NewAction backup = controller.createAction("backup")
       .setSince("5.2")
       .setDescription("Backup a quality profile in XML form. The exported profile can be restored through api/qualityprofiles/restore.")
+      .setResponseExample(getClass().getResource("backup-example.xml"))
       .setHandler(this);
 
     QProfileIdentificationParamUtils.defineProfileParams(backup, languages);
@@ -66,13 +67,13 @@ public class BackupAction implements QProfileWsAction {
     Stream stream = response.stream();
     stream.setMediaType(MimeTypes.XML);
     OutputStreamWriter writer = new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8);
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
+      String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, dbSession);
       backuper.backup(profileKey, writer);
       response.setHeader("Content-Disposition", String.format("attachment; filename=%s.xml", profileKey));
     } finally {
-      session.close();
+      dbSession.close();
       IOUtils.closeQuietly(writer);
     }
   }

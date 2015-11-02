@@ -70,7 +70,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
       .addSearchQuery("stas", "names")
       .addSelectionModeParam()
       .setInternal(true)
-      .setResponseExample(getClass().getResource("template-users-example.json"))
+      .setResponseExample(getClass().getResource("template_users-example.json"))
       .setHandler(this);
 
     createProjectPermissionParameter(action);

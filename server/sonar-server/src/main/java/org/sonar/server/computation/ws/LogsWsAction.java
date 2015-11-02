@@ -60,6 +60,7 @@ public class LogsWsAction implements CeWsAction {
     WebService.NewAction action = controller.createAction(ACTION)
       .setDescription("Logs of a task. Format of response is plain text. HTTP code 404 is returned if the task does not " +
         "exist or if logs are not available. Requires system administration permission.")
+      .setResponseExample(getClass().getResource("logs-example.log"))
       .setInternal(true)
       .setSince("5.2")
       .setHandler(this);

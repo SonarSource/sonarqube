@@ -39,7 +39,7 @@ import java.util.Set;
  *
  * @since 4.2
  */
-public class ListingWs implements WebService {
+public class WebServicesWs implements WebService {
 
   @Override
   public void define(final Context context) {
@@ -57,6 +57,7 @@ public class ListingWs implements WebService {
       .createAction("list")
       .setSince("4.2")
       .setDescription("List web services")
+      .setResponseExample(getClass().getResource("list-example.json"))
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
@@ -75,6 +76,7 @@ public class ListingWs implements WebService {
     NewAction action = controller
       .createAction("response_example")
       .setDescription("Display web service response example")
+      .setResponseExample(getClass().getResource("response_example-example.json"))
       .setSince("4.4")
       .setHandler(new RequestHandler() {
         @Override

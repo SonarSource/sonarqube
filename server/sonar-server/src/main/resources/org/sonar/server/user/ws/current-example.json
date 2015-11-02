@@ -1,0 +1,10 @@
+{
+  "isLoggedIn": true,
+  "login": "george.orwell",
+  "name": "George Orwell",
+  "permissions": {
+    "global": [
+      "dryRunScan"
+    ]
+  }
+}

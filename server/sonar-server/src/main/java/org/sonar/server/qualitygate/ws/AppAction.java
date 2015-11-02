@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Locale;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
@@ -28,8 +29,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.qualitygate.QualityGates;
-
-import java.util.Locale;
 
 public class AppAction implements QGateWsAction {
 
@@ -50,6 +49,7 @@ public class AppAction implements QGateWsAction {
     controller.createAction("app")
       .setInternal(true)
       .setDescription("Get initialization items for the admin UI. For internal use")
+      .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.3")
       .setHandler(this);
   }

@@ -53,6 +53,7 @@ public class SearchAction implements RequestHandler {
       .createAction(SEARCH_ACTION)
       .setDescription("Search for activities")
       .setSince("4.4")
+      .setResponseExample(getClass().getResource("search-example.json"))
       .setInternal(true)
       .setHandler(this);
 

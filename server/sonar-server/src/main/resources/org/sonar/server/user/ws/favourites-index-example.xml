@@ -1,0 +1,18 @@
+<favourites>
+  <favourite>
+    <id>2865</id>
+    <key>org.sonarsource.sonarqube:sonarqube</key>
+    <name>SonarQube</name>
+    <lname>SonarQube</lname>
+    <scope>PRJ</scope>
+    <qualifier>TRK</qualifier>
+  </favourite>
+  <favourite>
+    <id>34830</id>
+    <key>DEV:george.orwell@1984.com</key>
+    <name>George Orwell</name>
+    <lname>George Orwell</lname>
+    <scope>PRJ</scope>
+    <qualifier>DEV</qualifier>
+  </favourite>
+</favourites>

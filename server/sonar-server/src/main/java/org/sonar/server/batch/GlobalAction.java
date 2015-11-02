@@ -52,6 +52,7 @@ public class GlobalAction implements BatchWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("global")
       .setDescription("Return metrics and global properties")
+      .setResponseExample(getClass().getResource("global-example.json"))
       .setSince("4.5")
       .setInternal(true)
       .setHandler(this);

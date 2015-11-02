@@ -1,0 +1,105 @@
+--> Wrapper Started as Daemon
+Launching a JVM...
+Picked up JAVA_TOOL_OPTIONS: -Djava.awt.headless=true
+Wrapper (Version 3.2.3) http://wrapper.tanukisoftware.org
+  Copyright 1999-2006 Tanuki Software, Inc.  All Rights Reserved.
+
+Picked up JAVA_TOOL_OPTIONS: -Djava.awt.headless=true
+2015.11.02 09:22:02 INFO  app[o.s.p.m.JavaProcessLauncher] Launch process[search]: /Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home/jre/bin/java -Djava.awt.headless=true -Xmx1G -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+HeapDumpOnOutOfMemoryError -Djava.io.tmpdir=/Users/Ray/Projects/sonarqube-other/sonar-application/target/sonarqube-5.3-SNAPSHOT/temp -cp ./lib/common/*:./lib/search/* org.sonar.search.SearchServer /var/folders/6w/xm_djlkn4t120d6lcf0n_zxh0000gq/T/sq-process5392358002519055060properties
+2015.11.02 09:22:02 INFO   es[o.s.p.ProcessEntryPoint]  Starting search
+2015.11.02 09:22:02 INFO   es[o.s.s.SearchSettings]  Elasticsearch listening on 127.0.0.1:9001
+2015.11.02 09:22:02 INFO   es[o.elasticsearch.node]  [sonar-1446452521489] version[1.7.2], pid[3862], build[e43676b/2015-09-14T09:49:53Z]
+2015.11.02 09:22:02 INFO   es[o.elasticsearch.node]  [sonar-1446452521489] initializing ...
+2015.11.02 09:22:02 INFO   es[o.e.plugins]  [sonar-1446452521489] loaded [], sites []
+2015.11.02 09:22:02 INFO   es[o.elasticsearch.env]  [sonar-1446452521489] using [1] data paths, mounts [[/ (/dev/disk1s2)]], net usable_space [235.9gb], net total_space [476.1gb], types [hfs]
+2015.11.02 09:22:04 WARN   es[o.e.bootstrap]  JNA not found. native methods will be disabled.
+2015.11.02 09:22:04 INFO   es[o.elasticsearch.node]  [sonar-1446452521489] initialized
+2015.11.02 09:22:04 INFO   es[o.elasticsearch.node]  [sonar-1446452521489] starting ...
+2015.11.02 09:22:04 INFO   es[o.e.transport]  [sonar-1446452521489] bound_address {inet[/127.0.0.1:9001]}, publish_address {inet[/127.0.0.1:9001]}
+2015.11.02 09:22:04 INFO   es[o.e.discovery]  [sonar-1446452521489] sonarqube/aHPZgf_qT-OJz5q6063zGA
+2015.11.02 09:22:07 INFO   es[o.e.cluster.service]  [sonar-1446452521489] new_master [sonar-1446452521489][aHPZgf_qT-OJz5q6063zGA][RayNYC.local][inet[/127.0.0.1:9001]]{rack_id=sonar-1446452521489}, reason: zen-disco-join (elected_as_master)
+2015.11.02 09:22:07 INFO   es[o.elasticsearch.node]  [sonar-1446452521489] started
+2015.11.02 09:22:07 INFO   es[o.e.gateway]  [sonar-1446452521489] recovered [0] indices into cluster_state
+Picked up JAVA_TOOL_OPTIONS: -Djava.awt.headless=true
+2015.11.02 09:22:07 INFO  app[o.s.p.m.Monitor] Process[search] is up
+2015.11.02 09:22:07 INFO  app[o.s.p.m.JavaProcessLauncher] Launch process[web]: /Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home/jre/bin/java -Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false -Djruby.compile.invokedynamic=false -Xmx768m -Xms256m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true -Djava.io.tmpdir=/Users/Ray/Projects/sonarqube-other/sonar-application/target/sonarqube-5.3-SNAPSHOT/temp -cp ./lib/common/*:./lib/server/*:/Users/Ray/Projects/sonarqube-other/sonar-application/target/sonarqube-5.3-SNAPSHOT/lib/jdbc/h2/h2-1.3.176.jar org.sonar.server.app.WebServer /var/folders/6w/xm_djlkn4t120d6lcf0n_zxh0000gq/T/sq-process3229748062861525692properties
+2015.11.02 09:22:08 INFO  web[o.s.p.ProcessEntryPoint] Starting web
+2015.11.02 09:22:08 INFO  web[o.s.s.app.Webapp] Webapp directory: /Users/Ray/Projects/sonarqube-other/sonar-application/target/sonarqube-5.3-SNAPSHOT/web
+2015.11.02 09:22:09 INFO  web[o.a.c.h.Http11NioProtocol] Initializing ProtocolHandler ["http-nio-0.0.0.0-9000"]
+2015.11.02 09:22:09 INFO  web[o.a.t.u.n.NioSelectorPool] Using a shared selector for servlet write/read
+2015.11.02 09:22:10 INFO  web[o.e.plugins] [sonar-1446452521489] loaded [], sites []
+2015.11.02 09:22:11 INFO  web[o.s.s.p.ServerImpl] SonarQube Server / 5.3-SNAPSHOT / 787da65b0d08e14cabe9f45e27514f8e418c1375
+2015.11.02 09:22:11 INFO  web[o.s.s.d.EmbeddedDatabase] Starting embedded database on port 9092 with url jdbc:h2:tcp://localhost:9092/sonar
+2015.11.02 09:22:11 INFO  web[o.s.s.d.EmbeddedDatabase] Embedded database started. Data stored in: /Users/Ray/Projects/sonarqube-other/sonar-application/target/sonarqube-5.3-SNAPSHOT/data
+2015.11.02 09:22:11 INFO  web[o.sonar.db.Database] Create JDBC data source for jdbc:h2:tcp://localhost:9092/sonar
+2015.11.02 09:22:11 WARN  web[o.s.d.DatabaseChecker] H2 database should be used for evaluation purpose only
+2015.11.02 09:22:13 INFO  web[o.s.s.p.DefaultServerFileSystem] SonarQube home: /Users/Ray/Projects/sonarqube-other/sonar-application/target/sonarqube-5.3-SNAPSHOT
+2015.11.02 09:22:13 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [rules] creating index, cause [api], templates [], shards [1]/[0], mappings []
+2015.11.02 09:22:13 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [rules] create_mapping [rule]
+2015.11.02 09:22:13 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [rules] create_mapping [activeRule]
+2015.11.02 09:22:14 INFO  web[o.s.s.p.ServerPluginRepository] Plugin Java [java] installed
+2015.11.02 09:22:14 INFO  web[o.s.s.p.ServerPluginRepository] Plugin Git [scmgit] installed
+2015.11.02 09:22:14 INFO  web[o.s.s.p.ServerPluginRepository] Plugin SVN [scmsvn] installed
+2015.11.02 09:22:14 INFO  web[o.s.s.p.ServerPluginRepository] Deploy plugin Git / 1.0 / 9ce9d330c313c296fab051317cc5ad4b26319e07
+2015.11.02 09:22:14 INFO  web[o.s.s.p.ServerPluginRepository] Deploy plugin Java / 3.6 / 88ff47a7574edcc4472ff495c15b6f94d8dbd98f
+2015.11.02 09:22:14 INFO  web[o.s.s.p.ServerPluginRepository] Deploy plugin SVN / 1.2 / d04c3cdb21f48905dd8300d1129ec90281aa6db2
+2015.11.02 09:22:14 INFO  web[o.s.s.d.m.DatabaseMigrator] Create database
+2015.11.02 09:22:14 INFO  web[o.s.s.p.RailsAppsDeployer] Deploying Ruby on Rails applications
+2015.11.02 09:22:15 INFO  web[o.s.s.p.UpdateCenterClient] Update center: http://update.sonarsource.org/update-center.properties (no proxy)
+2015.11.02 09:22:15 INFO  web[o.s.s.e.IndexCreator] Create index users
+2015.11.02 09:22:15 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [users] creating index, cause [api], templates [], shards [5]/[0], mappings []
+2015.11.02 09:22:15 INFO  web[o.s.s.e.IndexCreator] Create type users/user
+2015.11.02 09:22:15 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [users] create_mapping [user]
+2015.11.02 09:22:15 INFO  web[o.s.s.e.IndexCreator] Create index tests
+2015.11.02 09:22:15 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [tests] creating index, cause [api], templates [], shards [5]/[0], mappings []
+2015.11.02 09:22:16 INFO  web[o.s.s.e.IndexCreator] Create type tests/test
+2015.11.02 09:22:16 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [tests] create_mapping [test]
+2015.11.02 09:22:16 INFO  web[o.s.s.e.IndexCreator] Create index views
+2015.11.02 09:22:16 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [views] creating index, cause [api], templates [], shards [5]/[0], mappings []
+2015.11.02 09:22:16 INFO  web[o.s.s.e.IndexCreator] Create type views/view
+2015.11.02 09:22:16 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [views] create_mapping [view]
+2015.11.02 09:22:16 INFO  web[o.s.s.e.IndexCreator] Create index issues
+2015.11.02 09:22:16 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [issues] creating index, cause [api], templates [], shards [5]/[0], mappings []
+2015.11.02 09:22:16 INFO  web[o.s.s.e.IndexCreator] Create type issues/authorization
+2015.11.02 09:22:16 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [issues] create_mapping [authorization]
+2015.11.02 09:22:16 INFO  web[o.s.s.e.IndexCreator] Create type issues/issue
+2015.11.02 09:22:16 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [issues] create_mapping [issue]
+2015.11.02 09:22:16 INFO  web[o.s.s.e.IndexCreator] Create index activities
+2015.11.02 09:22:16 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [activities] creating index, cause [api], templates [], shards [5]/[0], mappings []
+2015.11.02 09:22:16 INFO  web[o.s.s.e.IndexCreator] Create type activities/activity
+2015.11.02 09:22:16 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [activities] create_mapping [activity]
+2015.11.02 09:22:16 INFO  web[o.s.s.n.NotificationService] Notification service started (delay 60 sec.)
+2015.11.02 09:22:16 INFO  web[o.s.s.s.IndexSynchronizer] Index rules
+2015.11.02 09:22:17 INFO  web[o.s.s.s.IndexSynchronizer] Index activeRules
+2015.11.02 09:22:17 INFO  web[o.s.s.s.RegisterMetrics] Register metrics
+2015.11.02 09:22:17 INFO  web[o.s.s.s.RegisterDebtModel] Register technical debt model
+2015.11.02 09:22:17 INFO  web[o.s.s.r.RegisterRules] Register rules
+2015.11.02 09:22:22 INFO  web[o.s.s.q.RegisterQualityProfiles] Register quality profiles
+2015.11.02 09:22:22 INFO  web[o.s.s.q.RegisterQualityProfiles] Register profile {lang=java, name=Sonar way}
+2015.11.02 09:22:24 INFO  web[o.s.s.q.RegisterQualityProfiles] Set default java profile: Sonar way
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterNewMeasureFilters] Register measure filters
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterNewMeasureFilters] Register measure filter: Projects
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterNewMeasureFilters] Register measure filter: My favourites
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterDashboards] Register dashboards
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterDashboards] Register dashboard: Dashboard
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterDashboards] Register dashboard: Home
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterDashboards] Register dashboard: Issues
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterDashboards] Register dashboard: TimeMachine
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RegisterPermissionTemplates] Register permission templates
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RenameDeprecatedPropertyKeys] Rename deprecated property keys
+2015.11.02 09:22:24 INFO  web[o.s.s.s.RenameIssueWidgets] Replacing issue related widgets with issue filter widgets
+2015.11.02 09:22:24 INFO  web[o.s.s.s.IndexSynchronizer] Index activities
+2015.11.02 09:22:25 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [activities] update_mapping [activity] (dynamic)
+2015.11.02 09:22:25 INFO   es[o.e.cluster.metadata]  [sonar-1446452521489] [activities] update_mapping [activity] (dynamic)
+2015.11.02 09:22:25 INFO  web[o.s.s.s.IndexSynchronizer] Index issues
+2015.11.02 09:22:25 INFO  web[o.s.s.s.IndexSynchronizer] Index tests
+2015.11.02 09:22:25 INFO  web[o.s.s.s.IndexSynchronizer] Index users
+2015.11.02 09:22:25 INFO  web[o.s.s.s.IndexSynchronizer] Index views
+2015.11.02 09:22:25 INFO  web[o.s.s.c.q.PurgeCeActivities] Delete the Compute Engine tasks created before Wed May 06 09:22:25 CEST 2015
+2015.11.02 09:22:25 INFO  web[jruby.rack] jruby 1.7.9 (ruby-1.8.7p370) 2013-12-06 87b108a on Java HotSpot(TM) 64-Bit Server VM 1.7.0_79-b15 [darwin-x86_64]
+2015.11.02 09:22:25 INFO  web[jruby.rack] using a shared (threadsafe!) runtime
+2015.11.02 09:22:36 INFO  web[jruby.rack] keeping custom (config.logger) Rails logger instance
+2015.11.02 09:22:36 INFO  web[o.a.c.h.Http11NioProtocol] Starting ProtocolHandler ["http-nio-0.0.0.0-9000"]
+2015.11.02 09:22:36 INFO  web[o.s.s.a.TomcatAccessLog] Web server is started
+2015.11.02 09:22:36 INFO  web[o.s.s.a.EmbeddedTomcat] HTTP connector enabled on port 9000
+2015.11.02 09:22:36 INFO  app[o.s.p.m.Monitor] Process[web] is up

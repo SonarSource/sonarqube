@@ -1,0 +1,144 @@
+{
+  "total": 8817,
+  "p": 1,
+  "ps": 10,
+  "logs": [
+    {
+      "key": "AVC0aUZtVSHMD73TCQ9n",
+      "type": "QPROFILE",
+      "action": "UPDATED",
+      "createdAt": "2015-10-29T17:23:29+0100",
+      "login": "freddy.mallet",
+      "details": {
+        "profileKey": "java-default-with-mojo-conventions-49307",
+        "severity": "MAJOR",
+        "param_indentationLevel": "4",
+        "inheritance": "OVERRIDES",
+        "ruleKey": "squid:IndentationCheck",
+        "key": "java-default-with-mojo-conventions-49307:squid:IndentationCheck"
+      }
+    },
+    {
+      "key": "AVCUXEw_dBKrKCzZ3xlU",
+      "type": "QPROFILE",
+      "action": "ACTIVATED",
+      "createdAt": "2015-10-23T13:01:28+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-for-sq-only-95381",
+        "severity": "MAJOR",
+        "inheritance": "INHERITED",
+        "ruleKey": "squid:S2293",
+        "key": "java-for-sq-only-95381:squid:S2293"
+      }
+    },
+    {
+      "key": "AVCUXEwEdBKrKCzZ3xlT",
+      "type": "QPROFILE",
+      "action": "ACTIVATED",
+      "createdAt": "2015-10-23T13:01:28+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-for-sq-java-plugin-only-92289",
+        "severity": "MAJOR",
+        "inheritance": "INHERITED",
+        "ruleKey": "squid:S2293",
+        "key": "java-for-sq-java-plugin-only-92289:squid:S2293"
+      }
+    },
+    {
+      "key": "AVCUXEvfdBKrKCzZ3xlS",
+      "type": "QPROFILE",
+      "action": "ACTIVATED",
+      "createdAt": "2015-10-23T13:01:28+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-default-with-sonarsource-conventions-27339",
+        "severity": "MAJOR",
+        "inheritance": "INHERITED",
+        "ruleKey": "squid:S2293",
+        "key": "java-default-with-sonarsource-conventions-27339:squid:S2293"
+      }
+    },
+    {
+      "key": "AVCUXEu6dBKrKCzZ3xlR",
+      "type": "QPROFILE",
+      "action": "ACTIVATED",
+      "createdAt": "2015-10-23T13:01:28+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-default-with-mojo-conventions-49307",
+        "severity": "MAJOR",
+        "inheritance": "INHERITED",
+        "ruleKey": "squid:S2293",
+        "key": "java-default-with-mojo-conventions-49307:squid:S2293"
+      }
+    },
+    {
+      "key": "AVCUXEuDdBKrKCzZ3xlQ",
+      "type": "QPROFILE",
+      "action": "ACTIVATED",
+      "createdAt": "2015-10-23T13:01:28+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-top-profile-without-formatting-conventions-50037",
+        "severity": "MAJOR",
+        "ruleKey": "squid:S2293",
+        "key": "java-top-profile-without-formatting-conventions-50037:squid:S2293"
+      }
+    },
+    {
+      "key": "AVCAPjakEHVBDKGwu_o1",
+      "type": "QPROFILE",
+      "action": "UPDATED",
+      "createdAt": "2015-10-19T15:16:12+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-for-sq-only-95381",
+        "severity": "BLOCKER",
+        "ruleKey": "squid:S2204",
+        "key": "java-for-sq-only-95381:squid:S2204"
+      }
+    },
+    {
+      "key": "AVCAPjaIEHVBDKGwu_o0",
+      "type": "QPROFILE",
+      "action": "UPDATED",
+      "createdAt": "2015-10-19T15:16:12+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-for-sq-java-plugin-only-92289",
+        "severity": "BLOCKER",
+        "ruleKey": "squid:S2204",
+        "key": "java-for-sq-java-plugin-only-92289:squid:S2204"
+      }
+    },
+    {
+      "key": "AVCAPjZsEHVBDKGwu_oz",
+      "type": "QPROFILE",
+      "action": "UPDATED",
+      "createdAt": "2015-10-19T15:16:12+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-default-with-sonarsource-conventions-27339",
+        "severity": "BLOCKER",
+        "inheritance": "INHERITED",
+        "ruleKey": "squid:S2204",
+        "key": "java-default-with-sonarsource-conventions-27339:squid:S2204"
+      }
+    },
+    {
+      "key": "AVCAPgT3EHVBDKGwu_oy",
+      "type": "QPROFILE",
+      "action": "UPDATED",
+      "createdAt": "2015-10-19T15:15:59+0200",
+      "login": "ann.campbell",
+      "details": {
+        "profileKey": "java-for-sq-only-95381",
+        "severity": "CRITICAL",
+        "ruleKey": "squid:S2204",
+        "key": "java-for-sq-only-95381:squid:S2204"
+      }
+    }
+  ]
+}

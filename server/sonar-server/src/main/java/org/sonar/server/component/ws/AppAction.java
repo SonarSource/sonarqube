@@ -47,6 +47,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 
 public class AppAction implements RequestHandler {
 
@@ -75,6 +76,7 @@ public class AppAction implements RequestHandler {
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("app")
       .setDescription("Coverage data required for rendering the component viewer")
+      .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.4")
       .setInternal(true)
       .setHandler(this);
@@ -82,8 +84,8 @@ public class AppAction implements RequestHandler {
     action
       .createParam(PARAM_UUID)
       .setRequired(true)
-      .setDescription("Component UUID")
-      .setExampleValue("d6d9e1e5-5e13-44fa-ab82-3ec29efa8935");
+      .setDescription("Component ID")
+      .setExampleValue(UUID_EXAMPLE_01);
 
     action
       .createParam(PARAM_PERIOD)
@@ -118,12 +120,12 @@ public class AppAction implements RequestHandler {
 
   private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-        .setKey("favourite")
-        .setComponentId(component.getId())
-        .setUserId(userSession.getUserId())
-        .build(),
+      .setKey("favourite")
+      .setComponentId(component.getId())
+      .setUserId(userSession.getUserId())
+      .build(),
       session
-    );
+      );
     boolean isFavourite = propertyDtos.size() == 1;
 
     json.prop("key", component.key());

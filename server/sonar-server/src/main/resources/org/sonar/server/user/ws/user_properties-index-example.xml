@@ -1,0 +1,30 @@
+<properties>
+  <property>
+    <key>favourite</key>
+    <value><![CDATA[]]></value>
+  </property>
+  <property>
+    <key>favourite</key>
+    <value><![CDATA[]]></value>
+  </property>
+  <property>
+    <key>notification.ChangesOnMyIssue.EmailNotificationChannel</key>
+    <value><![CDATA[true]]></value>
+  </property>
+  <property>
+    <key>notification.SQ-MyNewIssues.EmailNotificationChannel</key>
+    <value><![CDATA[true]]></value>
+  </property>
+  <property>
+    <key>notification.ChangesOnMyIssue.EmailNotificationChannel</key>
+    <value><![CDATA[true]]></value>
+  </property>
+  <property>
+    <key>notification.SQ-MyNewIssues.EmailNotificationChannel</key>
+    <value><![CDATA[true]]></value>
+  </property>
+  <property>
+    <key>notification.NewIssues.EmailNotificationChannel</key>
+    <value><![CDATA[true]]></value>
+  </property>
+</properties>
