@@ -54,7 +54,7 @@
     "build-fast": "gulp --fast",
     "build": "gulp",
     "test": "./node_modules/.bin/mocha --opts tests/mocha.opts tests",
-    "coverage": "./node_modules/.bin/babel-node ./node_modules/.bin/isparta cover --dir './target/coverage' --include '**/*.js' --include '**/*.jsx' ./node_modules/.bin/_mocha -- --opts tests/mocha.opts tests"
+    "coverage": "./node_modules/.bin/babel-node ./node_modules/.bin/isparta cover --dir './target/coverage' ./node_modules/.bin/_mocha -- --opts tests/mocha.opts tests"
   },
   "browserify-shim": {
     "jquery": "global:jQuery",
