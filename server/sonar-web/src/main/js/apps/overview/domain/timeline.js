@@ -5,6 +5,7 @@ import React from 'react';
 import { LineChart } from '../../../components/charts/line-chart';
 import { getTimeMachineData } from '../../../api/time-machine';
 import { getEvents } from '../../../api/events';
+import { formatMeasure } from '../../../helpers/measures';
 
 
 const HEIGHT = 280;
@@ -112,7 +113,7 @@ export class DomainTimeline extends React.Component {
     let xTicks = events.map(event => event.version.substr(0, 6));
 
     let xValues = events.map(event => {
-      return currentMetricType === 'RATING' ? event.value : window.formatMeasure(event.value, currentMetricType);
+      return currentMetricType === 'RATING' ? event.value : formatMeasure(event.value, currentMetricType);
     });
 
     // TODO use leak period

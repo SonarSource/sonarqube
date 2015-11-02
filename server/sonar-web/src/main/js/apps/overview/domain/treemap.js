@@ -3,6 +3,7 @@ import React from 'react';
 
 import { Treemap } from '../../../components/charts/treemap';
 import { getChildren } from '../../../api/components';
+import { formatMeasure } from '../../../helpers/measures';
 
 const HEIGHT = 360;
 
@@ -43,10 +44,10 @@ export class DomainTreemap extends React.Component {
   getTooltip (component) {
     let inner = [
       component.name,
-      `${this.state.sizeMetric.name}: ${window.formatMeasure(component.measures[this.props.sizeMetric], this.state.sizeMetric.type)}`
+      `${this.state.sizeMetric.name}: ${formatMeasure(component.measures[this.props.sizeMetric], this.state.sizeMetric.type)}`
     ];
     if (this.state.colorMetric) {
-      inner.push(`${this.state.colorMetric.name}: ${window.formatMeasure(component.measures[this.props.colorMetric], this.state.colorMetric.type)}`);
+      inner.push(`${this.state.colorMetric.name}: ${formatMeasure(component.measures[this.props.colorMetric], this.state.colorMetric.type)}`);
     }
     inner = inner.join('<br>');
     return `<div class="text-left">${inner}</div>`;

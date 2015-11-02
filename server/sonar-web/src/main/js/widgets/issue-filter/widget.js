@@ -15,6 +15,8 @@ import StatusesTemplate from './templates/widget-issue-filter-statuses.hbs';
 import LimitPartial from './templates/_widget-issue-filter-limit.hbs';
 import TotalPartial from './templates/_widget-issue-filter-total.hbs';
 
+import { formatMeasure } from '../../helpers/measures';
+
 import '../../helpers/handlebars-helpers';
 
 var FACET_LIMIT = 15,
@@ -228,7 +230,7 @@ Handlebars.registerHelper('issueFilterTotalLink', function (query, mode) {
 
 Handlebars.registerHelper('issueFilterValue', function (value, mode) {
   var formatter = mode === 'debt' ? 'SHORT_WORK_DUR' : 'SHORT_INT';
-  return window.formatMeasure(value, formatter);
+  return formatMeasure(value, formatter);
 });
 
 Handlebars.registerPartial('_widget-issue-filter-limit', LimitPartial);

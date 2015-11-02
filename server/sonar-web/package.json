@@ -37,6 +37,7 @@
     "jsdom": "6.5.1",
     "mocha": "2.3.3",
     "moment": "2.10.6",
+    "numeral": "^1.5.3",
     "react": "^0.14.0",
     "react-addons-test-utils": "^0.14.0",
     "react-dom": "^0.14.0",
@@ -58,7 +59,8 @@
   "browserify-shim": {
     "jquery": "global:jQuery",
     "underscore": "global:_",
-    "d3": "global:d3"
+    "d3": "global:d3",
+    "numeral": "global:numeral"
   },
   "browserify": {
     "transform": [

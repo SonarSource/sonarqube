@@ -4,6 +4,7 @@ import moment from 'moment';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-creation-date-facet.hbs';
 import '../../../components/widgets/barchart.js';
+import { formatMeasure } from '../../../helpers/measures';
 
 export default BaseFacet.extend({
   template: Template,
@@ -49,7 +50,7 @@ export default BaseFacet.extend({
     }
     values = values.map(function (v) {
       var format = that.options.app.state.getFacetMode() === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
-      var text = window.formatMeasure(v.count, format);
+      var text = formatMeasure(v.count, format);
       return _.extend(v, { text: text });
     });
     return this.$('.js-barchart').barchart(values);

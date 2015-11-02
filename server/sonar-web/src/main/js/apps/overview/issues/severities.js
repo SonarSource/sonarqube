@@ -3,6 +3,8 @@ import React from 'react';
 import SeverityHelper from '../../../components/shared/severity-helper';
 import { DomainHeader } from '../domain/header';
 import { componentIssuesUrl } from '../../../helpers/Url';
+import { formatMeasure } from '../../../helpers/measures';
+
 
 export default class extends React.Component {
   sortedSeverities () {
@@ -18,7 +20,7 @@ export default class extends React.Component {
         </td>
         <td className="thin text-right">
           <a className="cell-link" href={href}>
-            {window.formatMeasure(s.count, 'SHORT_INT')}
+            {formatMeasure(s.count, 'SHORT_INT')}
           </a>
         </td>
       </tr>;

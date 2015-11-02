@@ -2,6 +2,7 @@ import React from 'react';
 
 import { getMeasures } from '../../../api/measures';
 import DrilldownLink from '../helpers/drilldown-link';
+import { formatMeasure } from '../../../helpers/measures';
 
 
 const METRICS = [
@@ -36,7 +37,7 @@ export class CoverageDetails extends React.Component {
   renderValue (value, metricKey) {
     if (value != null) {
       return <DrilldownLink component={this.props.component.key} metric={metricKey}>
-        {window.formatMeasure(value, 'PERCENT')}
+        {formatMeasure(value, 'PERCENT')}
       </DrilldownLink>;
     } else {
       return '—';

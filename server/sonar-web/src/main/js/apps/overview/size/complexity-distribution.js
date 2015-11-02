@@ -2,6 +2,7 @@ import React from 'react';
 
 import { BarChart } from '../../../components/charts/bar-chart';
 import { getMeasures } from '../../../api/measures';
+import { formatMeasure } from '../../../helpers/measures';
 
 
 const HEIGHT = 120;
@@ -42,7 +43,7 @@ export class ComplexityDistribution extends React.Component {
 
     let xTicks = data.map(point => point.value);
 
-    let xValues = data.map(point => window.formatMeasure(point.y, 'INT'));
+    let xValues = data.map(point => formatMeasure(point.y, 'INT'));
 
     return <BarChart data={data}
                      xTicks={xTicks}

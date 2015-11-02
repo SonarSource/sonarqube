@@ -4,6 +4,7 @@ import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, Measures
 import DrilldownLink from '../helpers/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { getMetricName } from '../helpers/metrics';
+import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 
 
 export const GeneralSize = React.createClass({
@@ -22,10 +23,10 @@ export const GeneralSize = React.createClass({
     return <DomainLeak>
       <MeasuresList>
         <Measure label={getMetricName('ncloc')}>
-          {window.formatMeasureVariation(this.props.leak['ncloc'], 'SHORT_INT')}
+          {formatMeasureVariation(this.props.leak['ncloc'], 'SHORT_INT')}
         </Measure>
         <Measure label={getMetricName('files')}>
-          {window.formatMeasureVariation(this.props.leak['files'], 'SHORT_INT')}
+          {formatMeasureVariation(this.props.leak['files'], 'SHORT_INT')}
         </Measure>
       </MeasuresList>
       {this.renderTimeline('after')}
@@ -42,12 +43,12 @@ export const GeneralSize = React.createClass({
           <MeasuresList>
             <Measure label={getMetricName('ncloc')}>
               <DrilldownLink component={this.props.component.key} metric="ncloc">
-                {window.formatMeasure(this.props.measures['ncloc'], 'SHORT_INT')}
+                {formatMeasure(this.props.measures['ncloc'], 'SHORT_INT')}
               </DrilldownLink>
             </Measure>
             <Measure label={getMetricName('files')}>
               <DrilldownLink component={this.props.component.key} metric="files">
-                {window.formatMeasure(this.props.measures['files'], 'SHORT_INT')}
+                {formatMeasure(this.props.measures['files'], 'SHORT_INT')}
               </DrilldownLink>
             </Measure>
           </MeasuresList>

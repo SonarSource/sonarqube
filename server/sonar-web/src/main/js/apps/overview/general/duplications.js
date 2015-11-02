@@ -4,6 +4,7 @@ import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, Measures
 import DrilldownLink from '../helpers/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { getMetricName } from '../helpers/metrics';
+import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 
 
 export const GeneralDuplications = React.createClass({
@@ -21,7 +22,7 @@ export const GeneralDuplications = React.createClass({
     return <DomainLeak>
       <MeasuresList>
         <Measure label={getMetricName('duplications')}>
-          {window.formatMeasureVariation(this.props.leak['duplicated_lines_density'], 'PERCENT')}
+          {formatMeasureVariation(this.props.leak['duplicated_lines_density'], 'PERCENT')}
         </Measure>
       </MeasuresList>
       {this.renderTimeline('after')}
@@ -38,12 +39,12 @@ export const GeneralDuplications = React.createClass({
           <MeasuresList>
             <Measure label={getMetricName('duplications')}>
               <DrilldownLink component={this.props.component.key} metric="duplicated_lines_density">
-                {window.formatMeasure(this.props.measures['duplicated_lines_density'], 'PERCENT')}
+                {formatMeasure(this.props.measures['duplicated_lines_density'], 'PERCENT')}
               </DrilldownLink>
             </Measure>
             <Measure label={getMetricName('duplicated_blocks')}>
               <DrilldownLink component={this.props.component.key} metric="duplicated_blocks">
-                {window.formatMeasure(this.props.measures['duplicated_blocks'], 'SHORT_INT')}
+                {formatMeasure(this.props.measures['duplicated_blocks'], 'SHORT_INT')}
               </DrilldownLink>
             </Measure>
           </MeasuresList>

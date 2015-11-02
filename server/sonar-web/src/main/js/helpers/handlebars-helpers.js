@@ -2,8 +2,11 @@ import _ from 'underscore';
 import moment from 'moment';
 import Handlebars from 'hbsfy/runtime';
 import md5 from 'blueimp-md5';
+import { formatMeasure, formatMeasureVariation } from './measures';
+
 
 var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity', 'set_tags'];
+
 
 Handlebars.registerHelper('log', function () {
   /* eslint no-console: 0 */
@@ -547,11 +550,11 @@ Handlebars.registerHelper('withSign', function (number) {
 });
 
 Handlebars.registerHelper('formatMeasure', function (measure, type) {
-  return window.formatMeasure(measure, type);
+  return formatMeasure(measure, type);
 });
 
 Handlebars.registerHelper('formatMeasureVariation', function (measure, type) {
-  return window.formatMeasureVariation(measure, type);
+  return formatMeasureVariation(measure, type);
 });
 
 Handlebars.registerHelper('dashboardL10n', function (dashboardName) {

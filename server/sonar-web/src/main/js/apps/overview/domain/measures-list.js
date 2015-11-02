@@ -3,6 +3,7 @@ import React from 'react';
 
 import DrilldownLink from '../helpers/drilldown-link';
 import { getMeasures } from '../../../api/measures';
+import { formatMeasure } from '../../../helpers/measures';
 
 
 export class DomainMeasuresList extends React.Component {
@@ -28,7 +29,7 @@ export class DomainMeasuresList extends React.Component {
   renderValue (value, metricKey, metricType) {
     if (value != null) {
       return <DrilldownLink component={this.props.component.key} metric={metricKey}>
-        {window.formatMeasure(value, metricType)}
+        {formatMeasure(value, metricType)}
       </DrilldownLink>;
     } else {
       return '—';

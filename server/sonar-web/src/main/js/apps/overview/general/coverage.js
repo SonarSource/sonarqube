@@ -4,6 +4,7 @@ import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, Measures
 import DrilldownLink from '../helpers/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { getMetricName } from '../helpers/metrics';
+import { formatMeasure } from '../../../helpers/measures';
 
 
 export const GeneralCoverage = React.createClass({
@@ -18,7 +19,7 @@ export const GeneralCoverage = React.createClass({
   renderNewCoverage () {
     if (this.props.leak['new_overall_coverage'] != null) {
       return <DrilldownLink component={this.props.component.key} metric="new_overall_coverage" period="1">
-        {window.formatMeasure(this.props.leak['new_overall_coverage'], 'PERCENT')}
+        {formatMeasure(this.props.leak['new_overall_coverage'], 'PERCENT')}
       </DrilldownLink>;
     } else {
       return <span>—</span>;
@@ -52,12 +53,12 @@ export const GeneralCoverage = React.createClass({
           <MeasuresList>
             <Measure label={getMetricName('coverage')}>
               <DrilldownLink component={this.props.component.key} metric="overall_coverage">
-                {window.formatMeasure(this.props.measures['overall_coverage'], 'PERCENT')}
+                {formatMeasure(this.props.measures['overall_coverage'], 'PERCENT')}
               </DrilldownLink>
             </Measure>
             <Measure label={getMetricName('tests')}>
               <DrilldownLink component={this.props.component.key} metric="tests">
-                {window.formatMeasure(this.props.measures['tests'], 'SHORT_INT')}
+                {formatMeasure(this.props.measures['tests'], 'SHORT_INT')}
               </DrilldownLink>
             </Measure>
           </MeasuresList>

@@ -4,6 +4,7 @@ import React from 'react';
 import { BarChart } from '../../../components/charts/bar-chart';
 import { getMeasures } from '../../../api/measures';
 import { getLanguages } from '../../../api/languages';
+import { formatMeasure } from '../../../helpers/measures';
 
 
 const HEIGHT = 180;
@@ -56,7 +57,7 @@ export class LanguageDistribution extends React.Component {
 
     let xTicks = data.map(d => this.getLanguageName(d.lang));
 
-    let xValues = data.map(d => window.formatMeasure(d.y, 'INT'));
+    let xValues = data.map(d => formatMeasure(d.y, 'INT'));
 
     return <BarChart data={data}
                      xTicks={xTicks}

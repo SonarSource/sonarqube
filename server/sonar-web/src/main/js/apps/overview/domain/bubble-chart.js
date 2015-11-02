@@ -3,6 +3,7 @@ import React from 'react';
 import { BubbleChart } from '../../../components/charts/bubble-chart';
 import { getProjectUrl } from '../../../helpers/Url';
 import { getFiles } from '../../../api/components';
+import { formatMeasure } from '../../../helpers/measures';
 
 
 const HEIGHT = 360;
@@ -63,9 +64,9 @@ export class DomainBubbleChart extends React.Component {
 
     let inner = [
       component.name,
-      `${this.state.xMetric.name}: ${window.formatMeasure(getMeasure(component, this.props.xMetric), this.state.xMetric.type)}`,
-      `${this.state.yMetric.name}: ${window.formatMeasure(getMeasure(component, this.props.yMetric), this.state.yMetric.type)}`,
-      `${sizeMetricsTitle}: ${window.formatMeasure(this.getSizeMetricsValue(component), sizeMetricsType)}`
+      `${this.state.xMetric.name}: ${formatMeasure(getMeasure(component, this.props.xMetric), this.state.xMetric.type)}`,
+      `${this.state.yMetric.name}: ${formatMeasure(getMeasure(component, this.props.yMetric), this.state.yMetric.type)}`,
+      `${sizeMetricsTitle}: ${formatMeasure(this.getSizeMetricsValue(component), sizeMetricsType)}`
     ].join('<br>');
     return `<div class="text-left">${inner}</div>`;
   }
@@ -90,8 +91,8 @@ export class DomainBubbleChart extends React.Component {
         tooltip: this.getTooltip(component)
       };
     });
-    let formatXTick = (tick) => window.formatMeasure(tick, this.state.xMetric.type);
-    let formatYTick = (tick) => window.formatMeasure(tick, this.state.yMetric.type);
+    let formatXTick = (tick) => formatMeasure(tick, this.state.xMetric.type);
+    let formatYTick = (tick) => formatMeasure(tick, this.state.yMetric.type);
     return <BubbleChart items={items}
                         height={HEIGHT}
                         padding={[25, 30, 50, 60]}

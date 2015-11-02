@@ -2,6 +2,8 @@ import React from 'react';
 import Assignee from '../../../components/shared/assignee-helper';
 import { DomainHeader } from '../domain/header';
 import { componentIssuesUrl } from '../../../helpers/Url';
+import { formatMeasure } from '../../../helpers/measures';
+
 
 export default class extends React.Component {
   render () {
@@ -12,7 +14,7 @@ export default class extends React.Component {
           <Assignee user={s.user}/>
         </td>
         <td className="thin text-right">
-          <a href={href}>{window.formatMeasure(s.count, 'SHORT_INT')}</a>
+          <a href={href}>{formatMeasure(s.count, 'SHORT_INT')}</a>
         </td>
       </tr>;
     });
