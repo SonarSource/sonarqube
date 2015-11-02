@@ -2,7 +2,7 @@ import _ from 'underscore';
 import React from 'react';
 import SeverityHelper from '../../../components/shared/severity-helper';
 import { DomainHeader } from '../domain/header';
-import { componentIssuesUrl } from '../../../helpers/Url';
+import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 
 
@@ -13,7 +13,7 @@ export default class extends React.Component {
 
   render () {
     let rows = this.sortedSeverities().map(s => {
-      let href = componentIssuesUrl(this.props.component.key, { resolved: 'false', severities: s.val });
+      let href = getComponentIssuesUrl(this.props.component.key, { resolved: 'false', severities: s.val });
       return <tr key={s.val}>
         <td>
           <SeverityHelper severity={s.val}/>

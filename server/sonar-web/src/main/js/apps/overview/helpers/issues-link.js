@@ -1,11 +1,10 @@
 import React from 'react';
+import { getComponentIssuesUrl } from '../../../helpers/urls';
+
 
 export default React.createClass({
   render() {
-    let params = Object.keys(this.props.params).map((key) => {
-          return `${key}=${encodeURIComponent(this.props.params[key])}`;
-        }).join('|'),
-        url = `${window.baseUrl}/component_issues/index?id=${encodeURIComponent(this.props.component)}#${params}`;
+    let url = getComponentIssuesUrl(this.props.component, this.props.params);
     return <a href={url}>{this.props.children}</a>;
   }
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import {getProjectUrl} from '../../helpers/Url';
+import { getComponentUrl } from '../../helpers/urls';
 import Checkbox from '../../components/shared/checkbox';
 import QualifierIcon from '../../components/shared/qualifier-icon';
 
@@ -33,7 +33,7 @@ export default React.createClass({
             <QualifierIcon qualifier={project.qualifier}/>
           </td>
           <td className="nowrap">
-            <a href={getProjectUrl(project.key)}>{project.name}</a>
+            <a href={getComponentUrl(project.key)}>{project.name}</a>
           </td>
           <td className="nowrap">
             <span className="note">{project.key}</span>

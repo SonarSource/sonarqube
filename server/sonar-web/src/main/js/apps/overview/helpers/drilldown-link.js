@@ -2,6 +2,8 @@ import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
 import IssuesLink from './issues-link';
+import { getComponentDrilldownUrl } from '../../../helpers/urls';
+
 
 export default React.createClass({
   isIssueMeasure() {
@@ -80,16 +82,7 @@ export default React.createClass({
       return this.renderIssuesLink();
     }
 
-    let params = { id: this.props.component, metric: this.props.metric };
-    if (this.props.period) {
-      params.period = this.props.period;
-    }
-
-    let query = Object.keys(params).map(key => {
-          return `${key}=${encodeURIComponent(params[key])}`;
-        }).join('&'),
-        url = `${baseUrl}/drilldown/measures?${query}`;
-
+    let url = getComponentDrilldownUrl(this.props.component, this.props.metric, this.props.period);
     return <a href={url}>{this.props.children}</a>;
   }
 });

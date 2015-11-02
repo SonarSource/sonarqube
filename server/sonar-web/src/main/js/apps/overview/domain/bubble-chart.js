@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React from 'react';
 import { BubbleChart } from '../../../components/charts/bubble-chart';
-import { getProjectUrl } from '../../../helpers/Url';
+import { getComponentUrl } from '../../../helpers/urls';
 import { getFiles } from '../../../api/components';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -87,7 +87,7 @@ export class DomainBubbleChart extends React.Component {
         x: getMeasure(component, this.props.xMetric),
         y: getMeasure(component, this.props.yMetric),
         size: this.getSizeMetricsValue(component),
-        link: getProjectUrl(component.key),
+        link: getComponentUrl(component.key),
         tooltip: this.getTooltip(component)
       };
     });

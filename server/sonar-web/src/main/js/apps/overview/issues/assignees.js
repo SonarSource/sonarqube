@@ -1,14 +1,14 @@
 import React from 'react';
 import Assignee from '../../../components/shared/assignee-helper';
 import { DomainHeader } from '../domain/header';
-import { componentIssuesUrl } from '../../../helpers/Url';
+import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 
 
 export default class extends React.Component {
   render () {
     let rows = this.props.assignees.map(s => {
-      let href = componentIssuesUrl(this.props.component.key, { statuses: 'OPEN,REOPENED', assignees: s.val });
+      let href = getComponentIssuesUrl(this.props.component.key, { statuses: 'OPEN,REOPENED', assignees: s.val });
       return <tr key={s.val}>
         <td>
           <Assignee user={s.user}/>

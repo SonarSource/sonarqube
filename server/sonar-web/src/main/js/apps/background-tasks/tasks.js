@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React from 'react';
-import {getProjectUrl} from '../../helpers/Url';
+import { getComponentUrl } from '../../helpers/urls';
 import QualifierIcon from '../../components/shared/qualifier-icon';
 import PendingIcon from '../../components/shared/pending-icon';
 import {STATUSES} from './constants';
@@ -51,7 +51,7 @@ export default React.createClass({
           <span className="little-spacer-right">
             <QualifierIcon qualifier={task.componentQualifier}/>
           </span>
-          <a href={getProjectUrl(task.componentKey)}>{task.componentName}</a>
+          <a href={getComponentUrl(task.componentKey)}>{task.componentName}</a>
         </td>
     );
   },
