@@ -60,6 +60,8 @@ public class IsQueueEmptyWs implements WebService {
       controller
         .createAction("is_queue_empty")
         .setDescription("Check if the queue of Compute Engine is empty")
+        .setResponseExample(getClass().getResource("is_queue_empty-example.txt"))
+        .setSince("5.1")
         .setInternal(true)
         .setHandler(this);
     }

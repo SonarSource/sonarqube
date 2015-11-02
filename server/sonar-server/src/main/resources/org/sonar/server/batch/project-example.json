@@ -1,0 +1,93 @@
+{
+  "timestamp": 0,
+  "settingsByModule": {},
+  "fileDataByModuleAndPath": {
+    "com.sonarsource:java-markdown": {
+      "src/test/java/com/sonarsource/markdown/impl/RuleBuilderTest.java": {
+        "hash": "9f70d9796b1a1e26c9c42daa6216c800",
+        "revision": "d19577972ed43744b7195cd07e1b4a84189b2467"
+      },
+      "src/main/java/com/sonarsource/markdown/impl/ElementImpl.java": {
+        "hash": "d2428a67a0210374bc1b4ef3b25e95e3",
+        "revision": "2c661329d8dd7e9ef316c7a64f9c3f9ddf47dcfa"
+      },
+      "src/main/java/com/sonarsource/markdown/mark/MarkHighlighter.java": {
+        "hash": "2d48ddb5d8428678540aaa30e9cd9548",
+        "revision": "2e322654616f6eeca3288d8c892ae2cce44cb150"
+      },
+      "src/main/java/com/sonarsource/markdown/sq/WikiParser.java": {
+        "hash": "06228dad3eabfd685489874b9d8883f0",
+        "revision": "e04c69dc6fe381a24826f2eb36b084efaa9afd29"
+      },
+      "src/main/java/com/sonarsource/markdown/impl/Rule.java": {
+        "hash": "8343a712df46aa9ca8fd33b999dda7b4",
+        "revision": "66dc52d2895d1acec420fd7cd7f3223a141d8d52"
+      },
+      "src/test/java/com/sonarsource/markdown/BasicMarkdownParserTest.java": {
+        "hash": "d4f474902aaac3eb5e33560ee4f3447d",
+        "revision": "6a44af3bdfe0af358e7e3b9590713a4442ef58e6"
+      },
+      "src/main/java/com/sonarsource/markdown/GrammarDefinition.java": {
+        "hash": "d188901c177b1ea068e70e3c5f5f6b5e",
+        "revision": "66dc52d2895d1acec420fd7cd7f3223a141d8d52"
+      },
+      "src/main/java/com/sonarsource/markdown/mark/RegexMarker.java": {
+        "hash": "2896fa38d96087645a1e8594242bc065",
+        "revision": "d19577972ed43744b7195cd07e1b4a84189b2467"
+      },
+      "src/test/java/com/sonarsource/markdown/mark/MarkHighlighterTest.java": {
+        "hash": "7bc8c30a33fbe1ccf38f264ed7325e6e",
+        "revision": "6a44af3bdfe0af358e7e3b9590713a4442ef58e6"
+      },
+      "src/main/java/com/sonarsource/markdown/Element.java": {
+        "hash": "8a833a4d20be893e831b683650a99e5a",
+        "revision": "3a4fa533c2e86d5ac06e9b65949daebadbc92047"
+      },
+      "src/test/java/com/sonarsource/markdown/sq/HtmlDecoratorTest.java": {
+        "hash": "ddd7972ff48a25a0b1d5b57cecf8a5cc",
+        "revision": "523a1c7d2ecc254a7a507d6628ddac18a20007f0"
+      },
+      "src/main/java/com/sonarsource/markdown/mark/MarkType.java": {
+        "hash": "a8f272ff875d8bf96cf766408c5c454f",
+        "revision": "d19577972ed43744b7195cd07e1b4a84189b2467"
+      },
+      "src/test/java/com/sonarsource/markdown/sq/WikiParserTest.java": {
+        "hash": "021a9c285b3bfd67a7a223f3ac9cfc72",
+        "revision": "e04c69dc6fe381a24826f2eb36b084efaa9afd29"
+      },
+      "src/main/java/com/sonarsource/markdown/mark/Mark.java": {
+        "hash": "fd184973a581f7079d6289e256cbb5bd",
+        "revision": "d19577972ed43744b7195cd07e1b4a84189b2467"
+      },
+      "src/test/java/com/sonarsource/markdown/BasicMarkdownParser.java": {
+        "hash": "c4c37cf5ee85d9d4e96a60a762132dbf",
+        "revision": "6a44af3bdfe0af358e7e3b9590713a4442ef58e6"
+      },
+      "src/test/java/com/sonarsource/markdown/GrammarDefinitionTest.java": {
+        "hash": "2d06392b4c799ca724fcfb2ae11aa4f2",
+        "revision": "66dc52d2895d1acec420fd7cd7f3223a141d8d52"
+      },
+      "src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java": {
+        "hash": "7aa5b0417b41e5135e8040187f4e127d",
+        "revision": "2c661329d8dd7e9ef316c7a64f9c3f9ddf47dcfa"
+      },
+      "src/main/java/com/sonarsource/markdown/ElementType.java": {
+        "hash": "40804b3caf9904305d76a427d960375c",
+        "revision": "3a4fa533c2e86d5ac06e9b65949daebadbc92047"
+      },
+      "src/main/java/com/sonarsource/markdown/Parser.java": {
+        "hash": "37b30f06a722dcb4d50ba8866fe03297",
+        "revision": "be1b9560ba222bad3b7b60005e9ef38367698f7c"
+      },
+      "src/main/java/com/sonarsource/markdown/impl/RuleBuilder.java": {
+        "hash": "67628d2b89b992166d0d53be4b34f7c9",
+        "revision": "66dc52d2895d1acec420fd7cd7f3223a141d8d52"
+      },
+      "src/main/java/com/sonarsource/markdown/sq/HtmlGenerator.java": {
+        "hash": "a62b77159742e7744967eaa275efbe07",
+        "revision": "523a1c7d2ecc254a7a507d6628ddac18a20007f0"
+      }
+    }
+  },
+  "lastAnalysisDate": 1446456356262
+}

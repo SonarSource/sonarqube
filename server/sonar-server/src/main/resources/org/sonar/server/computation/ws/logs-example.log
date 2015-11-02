@@ -1,0 +1,84 @@
+2015.11.02 10:25:16 INFO  [o.s.s.c.t.CeWorkerRunnableImpl] Execute task | project=com.sonarsource:java-markdown | id=AVDHg9OnLPOCEbN7mM58
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExtractReportStep] Analysis report extracted | compressedSize=63 KB
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Extract report | time=75ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep] SonarQube plugins:
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - Git 1.0 (scmgit)
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - SVN 1.2 (scmsvn)
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - Java 3.6 (java)
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep] Settings for module: com.sonarsource:java-markdown
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.binaries=/Users/teryk/Projects/java-markdown/target/classes
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.core.id=20151102092209
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.core.startTime=2015-11-02T09:22:09+0100
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.core.version=5.3-SNAPSHOT
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.host.url=http://localhost:9000
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.java.binaries=/Users/teryk/Projects/java-markdown/target/classes
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.java.libraries=/Users/teryk/.m2/repository/org/easytesting/fest-assert/1.4/fest-assert-1.4.jar,/Users/teryk/.m2/repository/org/easytesting/fest-util/1.1.6/fest-util-1.1.6.jar
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.java.test.libraries=/Users/teryk/Projects/java-markdown/target/classes,/Users/teryk/.m2/repository/junit/junit/4.11/junit-4.11.jar,/Users/teryk/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar,/Users/teryk/.m2/repository/org/easytesting/fest-assert/1.4/fest-assert-1.4.jar,/Users/teryk/.m2/repository/org/easytesting/fest-util/1.1.6/fest-util-1.1.6.jar
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.libraries=/Users/teryk/.m2/repository/org/easytesting/fest-assert/1.4/fest-assert-1.4.jar,/Users/teryk/.m2/repository/org/easytesting/fest-util/1.1.6/fest-util-1.1.6.jar
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.links.ci=
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.links.homepage=http://maven.apache.org
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.links.issue=
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.links.scm=
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.links.scm_dev=
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.maven.projectDependencies=[{"k":"junit:junit","v":"4.11","s":"test","d":[{"k":"org.hamcrest:hamcrest-core","v":"1.3","s":"test","d":[]}]},{"k":"org.easytesting:fest-assert","v":"1.4","s":"compile","d":[{"k":"org.easytesting:fest-util","v":"1.1.6","s":"compile","d":[]}]}]
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.moduleKey=com.sonarsource:java-markdown
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.mojoUseRunner=true
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.permission.template.default=default_template
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.projectBaseDir=/Users/teryk/Projects/java-markdown
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.projectBuildDir=/Users/teryk/Projects/java-markdown/target
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.projectKey=com.sonarsource:java-markdown
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.projectName=Java Markdown
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.projectVersion=1.0-SNAPSHOT
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.qualitygate=1
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.sourceEncoding=UTF-8
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.sources=/Users/teryk/Projects/java-markdown/pom.xml,/Users/teryk/Projects/java-markdown/src/main/java
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.tests=/Users/teryk/Projects/java-markdown/src/test/java
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.LogScannerContextStep]   - sonar.working.directory=/Users/teryk/Projects/java-markdown/target/sonar
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Log scanner context | time=3ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Build tree of components | time=36ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Validate project | time=4ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Load debt model | time=5ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Load quality profiles | time=121ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Load Quality gate | time=8ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Load differential periods | time=30ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute size measures | time=29ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute new coverage | time=39ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute coverage measures | time=11ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute comment measures | time=6ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Copy custom measures | time=29ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute duplication measures | time=3ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute language distribution | time=17ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute test measures | time=2ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute complexity measures | time=24ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Load measure computers | time=2ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExecuteVisitorsStep]   Execution time for each component visitor:
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExecuteVisitorsStep]   - LoadComponentUuidsHavingOpenIssuesVisitor | time=5ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExecuteVisitorsStep]   - IntegrateIssuesVisitor | time=182ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExecuteVisitorsStep]   - CloseIssuesOnRemovedComponentsVisitor | time=0ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExecuteVisitorsStep]   - SqaleMeasuresVisitor | time=4ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExecuteVisitorsStep]   - SqaleNewMeasuresVisitor | time=0ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExecuteVisitorsStep]   - LastCommitVisitor | time=0ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ExecuteVisitorsStep]   - MeasureComputersVisitor | time=3ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Execute component visitors | time=198ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute measure variations | time=3ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Computes Quality Gate measures | time=6ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Compute Quality profile measures | time=1ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Generate Quality profile events | time=4ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Generate Quality gate events | time=2ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist components | time=25ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist snapshots | time=26ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist measures | time=212ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist issues | time=59ms
+2015.11.02 10:25:17 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist project links | time=6ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist events | time=4ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist duplications | time=2ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist sources | time=286ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Persist tests | time=16ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Enable snapshot | time=8ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Index components | time=60ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Purge db | time=27ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Apply permissions | time=2ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Index issues | time=77ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Index tests | time=50ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.s.ComputationStepExecutor] Send issue notifications | time=2ms
+2015.11.02 10:25:18 INFO  [o.s.s.c.t.CeWorkerRunnableImpl] Executed task | project=com.sonarsource:java-markdown | id=AVDHg9OnLPOCEbN7mM58 | time=1706ms

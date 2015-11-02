@@ -1,0 +1,83 @@
+{
+  "edit": false,
+  "periods": [
+    {
+      "key": 1,
+      "text": "since previous analysis"
+    },
+    {
+      "key": 2,
+      "text": "over 365 days"
+    },
+    {
+      "key": 3,
+      "text": "since previous version"
+    },
+    {
+      "key": 4,
+      "text": "over period 4 - defined at project level"
+    },
+    {
+      "key": 5,
+      "text": "over period 5 - defined at project level"
+    }
+  ],
+  "metrics": [
+    {
+      "id": 10,
+      "key": "accessors",
+      "name": "Accessors",
+      "type": "INT",
+      "domain": "Size",
+      "hidden": true
+    },
+    {
+      "id": 111,
+      "key": "clirr_api_behavior_changes",
+      "name": "API behavior changes",
+      "type": "INT",
+      "domain": "API compatibility",
+      "hidden": false
+    },
+    {
+      "id": 110,
+      "key": "clirr_api_breaks",
+      "name": "API breaks",
+      "type": "INT",
+      "domain": "API compatibility",
+      "hidden": false
+    },
+    {
+      "id": 62,
+      "key": "blocker_violations",
+      "name": "Blocker issues",
+      "type": "INT",
+      "domain": "Issues",
+      "hidden": false
+    },
+    {
+      "id": 138,
+      "key": "blocker_remediation_cost",
+      "name": "Blocker Technical Debt",
+      "type": "WORK_DUR",
+      "domain": "SQALE",
+      "hidden": false
+    },
+    {
+      "id": 45,
+      "key": "conditions_to_cover",
+      "name": "Branches to cover",
+      "type": "INT",
+      "domain": "Tests",
+      "hidden": true
+    },
+    {
+      "id": 131,
+      "key": "new_it_conditions_to_cover",
+      "name": "Branches to cover by IT on new code",
+      "type": "INT",
+      "domain": "Tests (Integration)",
+      "hidden": true
+    }
+  ]
+}

@@ -42,6 +42,7 @@ public class FavoritesAction implements IssueFilterWsAction {
     WebService.NewAction action = controller.createAction("favorites");
     action
       .setDescription("The issue filters marked as favorite by request user")
+      .setResponseExample(getClass().getResource("favorites-example.json"))
       .setSince("4.2")
       .setHandler(this);
   }

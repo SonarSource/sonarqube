@@ -63,6 +63,7 @@ public class IssuesAction implements BatchWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("issues")
       .setDescription("Return open issues")
+      .setResponseExample(getClass().getResource("issues-example.proto"))
       .setSince("5.1")
       .setInternal(true)
       .setHandler(this);

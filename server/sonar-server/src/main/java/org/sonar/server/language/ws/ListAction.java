@@ -63,6 +63,22 @@ public class ListAction implements RequestHandler {
     json.endArray().endObject().close();
   }
 
+  void define(WebService.NewController controller) {
+    NewAction action = controller.createAction("list")
+      .setDescription("List supported programming languages")
+      .setSince("5.1")
+      .setHandler(this)
+      .setResponseExample(Resources.getResource(getClass(), "example-list.json"));
+
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("A pattern to match language keys/names against")
+      .setExampleValue("java");
+    action.createParam("ps")
+      .setDescription("The size of the list to return, 0 for all languages")
+      .setExampleValue("25")
+      .setDefaultValue("0");
+  }
+
   private Collection<Language> listMatchingLanguages(@Nullable String query, int pageSize) {
     Pattern pattern = Pattern.compile(query == null ? MATCH_ALL : MATCH_ALL + query + MATCH_ALL, Pattern.CASE_INSENSITIVE);
 
@@ -77,21 +93,6 @@ public class ListAction implements RequestHandler {
       result = result.subList(0, pageSize);
     }
     return result;
-  }
-
-  void define(WebService.NewController controller) {
-    NewAction action = controller.createAction("list")
-      .setDescription("List supported programming languages")
-      .setHandler(this)
-      .setResponseExample(Resources.getResource(getClass(), "example-list.json"));
-
-    action.createParam(Param.TEXT_QUERY)
-      .setDescription("A pattern to match language keys/names against")
-      .setExampleValue("java");
-    action.createParam("ps")
-      .setDescription("The size of the list to return, 0 for all languages")
-      .setExampleValue("25")
-      .setDefaultValue("0");
   }
 
 }

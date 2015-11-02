@@ -43,6 +43,7 @@ public class LogsAction implements SystemWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("logs")
       .setDescription("System logs in plain-text format. Requires system administration permission.")
+      .setResponseExample(getClass().getResource("logs-example.log"))
       .setSince("5.2")
       .setHandler(this);
   }

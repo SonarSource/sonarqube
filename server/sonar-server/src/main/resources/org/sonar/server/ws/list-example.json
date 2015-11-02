@@ -1,0 +1,221 @@
+{
+  "webServices": [
+    {
+      "path": "api/action_plans",
+      "description": "Action plans management",
+      "actions": [
+        {
+          "key": "close",
+          "description": "Close an action plan. Requires Administer permission on project",
+          "since": "3.6",
+          "internal": false,
+          "post": true,
+          "hasResponseExample": false,
+          "params": [
+            {
+              "key": "format",
+              "description": "Response format can be set through:<ul><li>Parameter format: xml | json</li><li>Or the 'Accept' property in the HTTP header:<ul><li>Accept:text/xml</li><li>Accept:application/json</li></ul></li></ul>If nothing is set, json is used",
+              "required": false,
+              "possibleValues": [
+                "json",
+                "xml"
+              ]
+            },
+            {
+              "key": "key",
+              "description": "Key of the action plan",
+              "required": true,
+              "exampleValue": "3f19de90-1521-4482-a737-a311758ff513"
+            }
+          ]
+        },
+        {
+          "key": "create",
+          "description": "Create an action plan. Requires Administer permission on project",
+          "since": "3.6",
+          "internal": false,
+          "post": true,
+          "hasResponseExample": false,
+          "params": [
+            {
+              "key": "deadLine",
+              "description": "Due date of the action plan. Format: YYYY-MM-DD",
+              "required": false,
+              "exampleValue": "2013-12-31"
+            },
+            {
+              "key": "description",
+              "description": "Description of the action plan",
+              "required": false,
+              "exampleValue": "Version 3.6"
+            },
+            {
+              "key": "format",
+              "description": "Response format can be set through:<ul><li>Parameter format: xml | json</li><li>Or the 'Accept' property in the HTTP header:<ul><li>Accept:text/xml</li><li>Accept:application/json</li></ul></li></ul>If nothing is set, json is used",
+              "required": false,
+              "possibleValues": [
+                "json",
+                "xml"
+              ]
+            },
+            {
+              "key": "name",
+              "description": "Name of the action plan",
+              "required": true,
+              "exampleValue": "Version 3.6"
+            },
+            {
+              "key": "project",
+              "description": "Project key",
+              "required": true,
+              "exampleValue": "org.codehaus.sonar:sonar"
+            }
+          ]
+        },
+        {
+          "key": "delete",
+          "description": "Delete an action plan. Requires Administer permission on project",
+          "since": "3.6",
+          "internal": false,
+          "post": true,
+          "hasResponseExample": false,
+          "params": [
+            {
+              "key": "format",
+              "description": "Response format can be set through:<ul><li>Parameter format: xml | json</li><li>Or the 'Accept' property in the HTTP header:<ul><li>Accept:text/xml</li><li>Accept:application/json</li></ul></li></ul>If nothing is set, json is used",
+              "required": false,
+              "possibleValues": [
+                "json",
+                "xml"
+              ]
+            },
+            {
+              "key": "key",
+              "description": "Key of the action plan",
+              "required": true,
+              "exampleValue": "3f19de90-1521-4482-a737-a311758ff513"
+            }
+          ]
+        },
+        {
+          "key": "open",
+          "description": "Open an action plan. Requires Administer permission on project",
+          "since": "3.6",
+          "internal": false,
+          "post": true,
+          "hasResponseExample": false,
+          "params": [
+            {
+              "key": "format",
+              "description": "Response format can be set through:<ul><li>Parameter format: xml | json</li><li>Or the 'Accept' property in the HTTP header:<ul><li>Accept:text/xml</li><li>Accept:application/json</li></ul></li></ul>If nothing is set, json is used",
+              "required": false,
+              "possibleValues": [
+                "json",
+                "xml"
+              ]
+            },
+            {
+              "key": "key",
+              "description": "Key of the action plan",
+              "required": true,
+              "exampleValue": "3f19de90-1521-4482-a737-a311758ff513"
+            }
+          ]
+        },
+        {
+          "key": "search",
+          "description": "Get a list of action plans. Requires Browse permission on project",
+          "since": "3.6",
+          "internal": false,
+          "post": false,
+          "hasResponseExample": true,
+          "params": [
+            {
+              "key": "format",
+              "description": "Response format can be set through:<ul><li>Parameter format: xml | json</li><li>Or the 'Accept' property in the HTTP header:<ul><li>Accept:text/xml</li><li>Accept:application/json</li></ul></li></ul>If nothing is set, json is used",
+              "required": false,
+              "possibleValues": [
+                "json",
+                "xml"
+              ]
+            },
+            {
+              "key": "project",
+              "description": "Project key",
+              "required": true,
+              "exampleValue": "org.codehaus.sonar:sonar"
+            }
+          ]
+        },
+        {
+          "key": "update",
+          "description": "Update an action plan. Requires Administer permission on project",
+          "since": "3.6",
+          "internal": false,
+          "post": true,
+          "hasResponseExample": false,
+          "params": [
+            {
+              "key": "deadLine",
+              "description": "Due date of the action plan. Format: YYYY-MM-DD",
+              "required": false,
+              "exampleValue": "2013-12-31"
+            },
+            {
+              "key": "description",
+              "description": "Description of the action plan",
+              "required": false,
+              "exampleValue": "Version 3.6"
+            },
+            {
+              "key": "format",
+              "description": "Response format can be set through:<ul><li>Parameter format: xml | json</li><li>Or the 'Accept' property in the HTTP header:<ul><li>Accept:text/xml</li><li>Accept:application/json</li></ul></li></ul>If nothing is set, json is used",
+              "required": false,
+              "possibleValues": [
+                "json",
+                "xml"
+              ]
+            },
+            {
+              "key": "key",
+              "description": "Key of the action plan",
+              "required": true,
+              "exampleValue": "3f19de90-1521-4482-a737-a311758ff513"
+            },
+            {
+              "key": "name",
+              "description": "Name of the action plan",
+              "required": true,
+              "exampleValue": "Version 3.6"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "api/authentication",
+      "description": "Check authentication credentials",
+      "actions": [
+        {
+          "key": "validate",
+          "description": "Check credentials",
+          "since": "3.3",
+          "internal": false,
+          "post": false,
+          "hasResponseExample": true,
+          "params": [
+            {
+              "key": "format",
+              "description": "Response format can be set through:<ul><li>Parameter format: xml | json</li><li>Or the 'Accept' property in the HTTP header:<ul><li>Accept:text/xml</li><li>Accept:application/json</li></ul></li></ul>If nothing is set, json is used",
+              "required": false,
+              "possibleValues": [
+                "json",
+                "xml"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

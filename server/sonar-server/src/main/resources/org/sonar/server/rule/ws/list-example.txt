@@ -1,0 +1,12 @@
+Protocol Buffer Format
+
+message ListResponse {
+  message Rule {
+    optional string repository = 1;
+    optional string key = 2;
+    optional string internal_key = 3;
+    optional string name = 4;
+  }
+
+  repeated Rule rules = 1;
+}

@@ -22,6 +22,8 @@ package org.sonar.server.plugins.ws;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,9 +32,6 @@ import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.PluginUpdate;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.updatecenter.common.UpdateCenter;
 
 import static java.lang.String.format;
@@ -59,6 +58,7 @@ public class UpdateAction implements PluginsWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("update")
       .setPost(true)
+      .setSince("5.2")
       .setDescription("Updates a plugin specified by its key to the latest version compatible with the SonarQube instance." +
         "<br/>" +
         "Plugin information is retrieved from Update Center." +
@@ -90,7 +90,7 @@ public class UpdateAction implements PluginsWsAction {
         updateCenter.get().findPluginUpdates(),
         new PluginKeyPredicate(key),
         MISSING_PLUGIN
-      );
+        );
     }
 
     if (pluginUpdate == MISSING_PLUGIN) {

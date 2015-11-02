@@ -43,8 +43,6 @@ import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.createGroupP
 
 public class UsersAction implements UserGroupsWsAction {
 
-  private static final String PARAM_ID = "id";
-
   private static final String FIELD_SELECTED = "selected";
   private static final String FIELD_NAME = "name";
   private static final String FIELD_LOGIN = "login";
@@ -65,7 +63,7 @@ public class UsersAction implements UserGroupsWsAction {
       .setDescription("Search for users with membership information with respect to a group.")
       .setHandler(this)
       .setSince("5.2")
-      .setResponseExample(getClass().getResource("example-users.json"))
+      .setResponseExample(getClass().getResource("users-example.json"))
       .addSelectionModeParam()
       .addSearchQuery("freddy", "names", "logins")
       .addPagingParams(25);

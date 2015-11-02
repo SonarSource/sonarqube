@@ -53,6 +53,8 @@ public class L10nWs implements WebService {
     NewAction indexAction = l10n.createAction("index")
       .setInternal(true)
       .setDescription("Get all localization messages for a given locale")
+      .setResponseExample(getClass().getResource("l10n-index-example.json"))
+      .setSince("4.4")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) throws Exception {

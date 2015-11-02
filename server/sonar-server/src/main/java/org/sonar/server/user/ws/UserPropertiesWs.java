@@ -36,10 +36,11 @@ public class UserPropertiesWs implements WebService {
     controller.done();
   }
 
-  private static void defineIndexAction(NewController controller) {
+  private void defineIndexAction(NewController controller) {
     controller.createAction("index")
       .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
       .setSince("2.6")
+      .setResponseExample(getClass().getResource("user_properties-index-example.xml"))
       .setHandler(RailsHandler.INSTANCE);
   }
 

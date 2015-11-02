@@ -20,7 +20,6 @@
 
 package org.sonar.server.issue.filter;
 
-import com.google.common.io.Resources;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -46,9 +45,10 @@ public class AppAction implements IssueFilterWsAction {
     WebService.NewAction action = controller.createAction("app");
     action
       .setDescription("Data required for rendering the page 'Issues'")
+      .setSince("4.2")
       .setInternal(true)
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-app.json"));
+      .setResponseExample(getClass().getResource("example-app.json"));
     action
       .createParam("id")
       .setDescription("Optionally, the ID of the current filter");

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Rules for SonarLint" Description="This rule set was automatically generated from SonarQube."
+         ToolsVersion="14.0">
+  <Rules AnalyzerId="SonarLint" RuleNamespace="SonarLint">
+    <Rule Id="S2330" Action="None"/>
+    <Rule Id="S1227" Action="None"/>
+    <Rule Id="S2197" Action="None"/>
+    <Rule Id="S126" Action="None"/>
+    <Rule Id="S1694" Action="None"/>
+    <Rule Id="S2357" Action="None"/>
+    <Rule Id="S1109" Action="None"/>
+    <Rule Id="S1301" Action="None"/>
+    <Rule Id="S2278" Action="None"/>
+    <Rule Id="S121" Action="None"/>
+    <Rule Id="S2760" Action="None"/>
+    <Rule Id="S2070" Action="None"/>
+    <Rule Id="S105" Action="None"/>
+  </Rules>
+</RuleSet>

@@ -48,10 +48,12 @@ public class ShowAction implements DashboardsWsAction {
 
   @Override
   public void define(WebService.NewController newController) {
-    WebService.NewAction action = newController.createAction("show");
-    action.setDescription("Detail of a dashboard (name, description, layout and widgets)");
-    action.setInternal(true);
-    action.setHandler(this);
+    WebService.NewAction action = newController.createAction("show")
+      .setDescription("Detail of a dashboard (name, description, layout and widgets)")
+      .setInternal(true)
+      .setSince("5.0")
+      .setResponseExample(getClass().getResource("show-example.json"))
+      .setHandler(this);
     action.createParam(PARAM_KEY)
       .setDescription("Dashboard key")
       .setExampleValue("12345")

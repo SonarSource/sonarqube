@@ -58,6 +58,7 @@ public class InstallAction implements PluginsWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("install")
       .setPost(true)
+      .setSince("5.2")
       .setDescription("Installs the latest version of a plugin specified by its key." +
         "<br/>" +
         "Plugin information is retrieved from Update Center." +
@@ -83,7 +84,7 @@ public class InstallAction implements PluginsWsAction {
 
     Optional<UpdateCenter> updateCenter = updateCenterFactory.getUpdateCenter(false);
     if (updateCenter.isPresent()) {
-      pluginUpdate= Iterables.find(
+      pluginUpdate = Iterables.find(
         updateCenter.get().findAvailablePlugins(),
         hasKey(key),
         MISSING_PLUGIN);

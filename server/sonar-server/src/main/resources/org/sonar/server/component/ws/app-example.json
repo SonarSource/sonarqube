@@ -1,0 +1,20 @@
+{
+  "key": "com.sonarsource:java-markdown",
+  "uuid": "AVDHg9NzLPOCEbN7mM57",
+  "name": "Java Markdown",
+  "longName": "Java Markdown",
+  "q": "TRK",
+  "project": "com.sonarsource:java-markdown",
+  "projectName": "Java Markdown",
+  "fav": false,
+  "canMarkAsFavourite": true,
+  "canCreateManualIssue": true,
+  "measures": {
+    "lines": "786",
+    "duplicationDensity": "0.0%",
+    "issues": "36",
+    "debt": "5h 37min",
+    "sqaleRating": "A",
+    "debtRatio": "1.8%"
+  }
+}

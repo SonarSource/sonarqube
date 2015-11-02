@@ -43,6 +43,7 @@ public class CancelAllAction implements PluginsWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("cancel_all")
       .setPost(true)
+      .setSince("5.2")
       .setDescription("Cancels any operation pending on any plugin (install, update or uninstall)" +
         "<br/>" +
         "Requires user to be authenticated with Administer System permissions")

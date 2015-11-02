@@ -1,0 +1,35 @@
+{
+  "total": 7,
+  "p": 1,
+  "ps": 10,
+  "components": [
+    {
+      "uuid": "e638eb68-1f30-4c9e-ae07-c45741f5d4ce",
+      "name": "AssertJ - Fluent assertions for java unit testing"
+    },
+    {
+      "uuid": "271d3ba4-5881-4f9c-80df-601f162d55c1",
+      "name": "Java Concurrency Stress Tests: Parent"
+    },
+    {
+      "uuid": "3224e429-6693-4a0c-9c5e-9eb73064ac27",
+      "name": "Java Microbenchmark Harness Parent"
+    },
+    {
+      "uuid": "166c61d2-420e-489f-a2c1-8a6b71a1db34",
+      "name": "SonarQube Java"
+    },
+    {
+      "uuid": "54fb08be-5cfc-482a-b977-56c306011800",
+      "name": "JavaScript"
+    },
+    {
+      "uuid": "36025b5c-8654-4620-9e32-aa9b60d38016",
+      "name": "SonarQube Java Properties Plugin"
+    },
+    {
+      "uuid": "AVBx-FSivhIeFA9E82uf",
+      "name": "Google Cloud Dataflow Java SDK - Parent"
+    }
+  ]
+}
