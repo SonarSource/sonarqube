@@ -46,10 +46,12 @@ public class OneDayDebtPerFileSensor extends AbstractDeprecatedXooRuleSensor {
   @Override
   protected void processFile(InputFile inputFile, org.sonar.api.resources.File sonarFile, SensorContext context, RuleKey ruleKey, String languageKey) {
     Issuable issuable = perspectives.as(Issuable.class, sonarFile);
-    issuable.addIssue(issuable.newIssueBuilder()
-      .ruleKey(ruleKey)
-      .message("This issue is generated on each file with a debt of one day")
-      .build());
+    if (issuable != null) {
+      issuable.addIssue(issuable.newIssueBuilder()
+        .ruleKey(ruleKey)
+        .message("This issue is generated on each file with a debt of one day")
+        .build());
+    }
   }
 
 }
