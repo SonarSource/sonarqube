@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>edit_action_plan</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+    <tr>
+        <td rowspan="1" colspan="3">edit_action_plan</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>open</td>
+        <td>/sonar/sessions/new</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>login</td>
+        <td>admin</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>password</td>
+        <td>admin</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>commit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>open</td>
+        <td>/sonar/action_plans/index/sample</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForText</td>
+        <td>action-plans</td>
+        <td>*No action plan*</td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>create-link-action_plans</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForVisible</td>
+        <td>create-action-plan-form</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>css=#create-action-plan-form .modal-head</td>
+        <td>*Create Action Plan*</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=name</td>
+        <td>Sprint for 1.1</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=deadline</td>
+        <td>2100-12-31</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=description</td>
+        <td>Sprint in the far future</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>css=input[type=&quot;submit&quot;]</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForVisible</td>
+        <td>link=Edit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>link=Edit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForVisible</td>
+        <td>edit-action-plan-form</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>css=#edit-action-plan-form .modal-head</td>
+        <td>*Edit Action Plan: Sprint for 1.1*</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=name</td>
+        <td>Sprint for 1.2</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=deadline</td>
+        <td>2101-12-31</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=description</td>
+        <td>Sprint in the far future, very far</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>css=input[type=&quot;submit&quot;]</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForText</td>
+        <td>action-plans</td>
+        <td>*Sprint for 1.2*2101*No issues linked to this action plan yet.*Sprint in the far future, very far*</td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>link=Delete</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForVisible</td>
+        <td>confirm-form</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>css=#confirm-form .modal-head</td>
+        <td>*Delete Action Plan*</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>confirm-submit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>info</td>
+        <td>*Successfully deleted.*</td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>open-action-plans</td>
+        <td>*No action plan*</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
