@@ -23,6 +23,7 @@ cache:
   directories:
     - '$HOME/.m2/repository'
     - 'server/sonar-web/node'
+    - 'server/sonar-web/node_modules'
 
 before_cache:
   - 'find ~/.m2/repository -type d -name \*-SNAPSHOT -exec rm -rf {} \;'
