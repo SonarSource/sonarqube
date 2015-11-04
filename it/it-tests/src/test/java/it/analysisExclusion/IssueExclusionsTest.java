@@ -9,7 +9,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import it.Category3Suite;
 import it.Category4Suite;
 import org.junit.Before;
 import org.junit.ClassRule;

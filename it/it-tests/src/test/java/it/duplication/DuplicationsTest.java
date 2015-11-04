@@ -7,7 +7,6 @@ package it.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.MavenBuild;
-import it.Category3Suite;
 import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;

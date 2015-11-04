@@ -27,7 +27,6 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import util.ItUtils;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.*;

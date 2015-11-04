@@ -24,11 +24,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
-import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.util.List;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.Sonar;
@@ -40,7 +38,6 @@ import org.sonar.wsclient.services.FavouriteQuery;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.runProjectAnalysis;
 
 /**
  * TODO This test should not require an analysis, only provionning the project should be enough
