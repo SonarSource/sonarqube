@@ -191,6 +191,7 @@ public class ListingWs implements WebService {
     writer.beginObject();
     writer.prop("key", param.key());
     writer.prop("description", param.description());
+    writer.prop("since", param.since());
     writer.prop("required", param.isRequired());
     writer.prop("defaultValue", param.defaultValue());
     writer.prop("exampleValue", param.exampleValue());

@@ -548,6 +548,7 @@ public interface WebService extends Definable<WebService.Context> {
 
   class NewParam {
     private String key;
+    private String since;
     private String deprecatedSince;
     private String deprecatedKey;
     private String description;
@@ -558,6 +559,11 @@ public interface WebService extends Definable<WebService.Context> {
 
     private NewParam(String key) {
       this.key = key;
+    }
+
+    public NewParam setSince(@Nullable String since) {
+      this.since = since;
+      return this;
     }
 
     public NewParam setDeprecatedSince(@Nullable String deprecatedSince) {
@@ -687,6 +693,7 @@ public interface WebService extends Definable<WebService.Context> {
     public static final String SELECTED = "selected";
 
     private final String key;
+    private final String since;
     private final String deprecatedSince;
     private final String deprecatedKey;
     private final String description;
@@ -697,6 +704,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     protected Param(Action action, NewParam newParam) {
       this.key = newParam.key;
+      this.since = newParam.since;
       this.deprecatedSince = newParam.deprecatedSince;
       this.deprecatedKey = newParam.deprecatedKey;
       this.description = newParam.description;
@@ -711,6 +719,14 @@ public interface WebService extends Definable<WebService.Context> {
 
     public String key() {
       return key;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @CheckForNull
+    public String since() {
+      return since;
     }
 
     /**
