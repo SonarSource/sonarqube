@@ -8,6 +8,7 @@
         "key": "create",
         "description": "Create metric",
         "since": "4.1",
+        "deprecatedSince" : "5.3",
         "internal": false,
         "post": true,
         "hasResponseExample": true,
@@ -22,6 +23,7 @@
             "required": false,
             "defaultValue": "BLOCKER",
             "exampleValue": "INFO",
+            "deprecatedSince": "5.2",
             "possibleValues": ["BLOCKER", "INFO"]
           }
         ]

@@ -165,6 +165,7 @@ public class ListingWs implements WebService {
       writer.prop("key", action.key());
       writer.prop("description", action.description());
       writer.prop("since", action.since());
+      writer.prop("deprecatedSince", action.deprecatedSince());
       writer.prop("internal", action.isInternal());
       writer.prop("post", action.isPost());
       writer.prop("hasResponseExample", action.responseExample() != null);
@@ -193,6 +194,7 @@ public class ListingWs implements WebService {
     writer.prop("required", param.isRequired());
     writer.prop("defaultValue", param.defaultValue());
     writer.prop("exampleValue", param.exampleValue());
+    writer.prop("deprecatedSince", param.deprecatedSince());
     Set<String> possibleValues = param.possibleValues();
     if (possibleValues != null) {
       writer.name("possibleValues").beginArray().values(possibleValues).endArray();

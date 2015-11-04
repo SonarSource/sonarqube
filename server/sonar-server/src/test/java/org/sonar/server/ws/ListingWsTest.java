@@ -93,11 +93,11 @@ public class ListingWsTest {
           }
         });
 
-
       // action with a lot of overridden values
       NewAction create = newController.createAction("create")
         .setDescription("Create metric")
         .setSince("4.1")
+        .setDeprecatedSince("5.3")
         .setPost(true)
         .setResponseExample(Resources.getResource(getClass(), "ListingWsTest/metrics_example.json"))
         .setHandler(new RequestHandler() {
@@ -108,6 +108,7 @@ public class ListingWsTest {
       create
         .createParam("severity")
         .setDescription("Severity")
+        .setDeprecatedSince("5.2")
         .setRequired(false)
         .setPossibleValues("BLOCKER", "INFO")
         .setExampleValue("INFO")

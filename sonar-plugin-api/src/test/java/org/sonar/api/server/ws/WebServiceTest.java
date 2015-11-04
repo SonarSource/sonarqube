@@ -19,14 +19,13 @@
  */
 package org.sonar.api.server.ws;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.sonar.api.rule.RuleStatus;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
+import org.sonar.api.rule.RuleStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -56,6 +55,7 @@ public class WebServiceTest {
       newController.createAction("create")
         .setDescription("Create metric")
         .setSince("4.1")
+        .setDeprecatedSince("5.3")
         .setPost(true)
         .setInternal(true)
         .setResponseExample(getClass().getResource("/org/sonar/api/server/ws/WebServiceTest/response-example.txt"))
@@ -77,7 +77,6 @@ public class WebServiceTest {
       createCalled = true;
     }
   }
-
 
   WebService.Context context = new WebService.Context();
 
@@ -108,6 +107,7 @@ public class WebServiceTest {
     assertThat(showAction.responseExample()).isNull();
     assertThat(showAction.responseExampleFormat()).isNull();
     assertThat(showAction.responseExampleAsString()).isNull();
+    assertThat(showAction.deprecatedSince()).isNull();
     // same as controller
     assertThat(showAction.since()).isEqualTo("3.2");
     assertThat(showAction.isPost()).isFalse();
@@ -117,6 +117,7 @@ public class WebServiceTest {
     assertThat(createAction).isNotNull();
     assertThat(createAction.key()).isEqualTo("create");
     assertThat(createAction.toString()).isEqualTo("api/metric/create");
+    assertThat(createAction.deprecatedSince()).isEqualTo("5.3");
     // overrides controller version
     assertThat(createAction.since()).isEqualTo("4.1");
     assertThat(createAction.isPost()).isTrue();
@@ -259,8 +260,15 @@ public class WebServiceTest {
       public void define(Context context) {
         NewController newController = context.createController("api/rule");
         NewAction newAction = newController.createAction("create").setHandler(mock(RequestHandler.class));
-        newAction.createParam("key").setDescription("Key of the new rule");
-        newAction.createParam("severity").setDefaultValue("MAJOR").setPossibleValues("INFO", "MAJOR", "BLOCKER");
+        newAction
+          .createParam("key")
+          .setDescription("Key of the new rule");
+        newAction
+          .createParam("severity")
+          .setDefaultValue("MAJOR")
+          .setDeprecatedSince("5.3")
+          .setDeprecatedKey("old-severity")
+          .setPossibleValues("INFO", "MAJOR", "BLOCKER");
         newAction.addPagingParams(20);
         newAction.addFieldsParam(Arrays.asList("name", "severity"));
         newAction.addSortParams(Arrays.asList("name", "updatedAt", "severity"), "updatedAt", false);
@@ -271,14 +279,18 @@ public class WebServiceTest {
     WebService.Action action = context.controller("api/rule").action("create");
     assertThat(action.params()).hasSize(7);
 
-    assertThat(action.param("key").key()).isEqualTo("key");
-    assertThat(action.param("key").description()).isEqualTo("Key of the new rule");
-    assertThat(action.param("key").toString()).isEqualTo("key");
+    WebService.Param keyParam = action.param("key");
+    assertThat(keyParam.key()).isEqualTo("key");
+    assertThat(keyParam.description()).isEqualTo("Key of the new rule");
+    assertThat(keyParam.toString()).isEqualTo("key");
 
-    assertThat(action.param("severity").key()).isEqualTo("severity");
-    assertThat(action.param("severity").description()).isNull();
-    assertThat(action.param("severity").defaultValue()).isEqualTo("MAJOR");
-    assertThat(action.param("severity").possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
+    WebService.Param severityParam = action.param("severity");
+    assertThat(severityParam.key()).isEqualTo("severity");
+    assertThat(severityParam.description()).isNull();
+    assertThat(severityParam.deprecatedSince()).isEqualTo("5.3");
+    assertThat(severityParam.deprecatedKey()).isEqualTo("old-severity");
+    assertThat(severityParam.defaultValue()).isEqualTo("MAJOR");
+    assertThat(severityParam.possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
 
     // predefined fields
     assertThat(action.param("p").defaultValue()).isEqualTo("1");
@@ -378,7 +390,6 @@ public class WebServiceTest {
       assertThat(e).hasMessage("Default value must not be set on parameter 'api/rule/create?key' as it's marked as required");
     }
   }
-
 
   @Test
   public void fail_if_duplicated_action_parameters() {
