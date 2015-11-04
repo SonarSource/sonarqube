@@ -19,8 +19,17 @@
  */
 package org.sonar.batch.cpd.index;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import java.util.Collection;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.config.Settings;
+import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.DuplicationBlock;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.AbstractCloneIndex;
@@ -30,11 +39,44 @@ import org.sonar.duplications.index.PackedMemoryCloneIndex;
 public class SonarDuplicationsIndex extends AbstractCloneIndex {
 
   private final CloneIndex mem = new PackedMemoryCloneIndex();
+  private final ReportPublisher publisher;
+  private final BatchComponentCache batchComponentCache;
+  private final Settings settings;
+
+  public SonarDuplicationsIndex(ReportPublisher publisher, BatchComponentCache batchComponentCache, Settings settings) {
+    this.publisher = publisher;
+    this.batchComponentCache = batchComponentCache;
+    this.settings = settings;
+  }
 
   public void insert(InputFile inputFile, Collection<Block> blocks) {
+    if (isCrossProjectDuplicationEnabled(settings)) {
+      int id = batchComponentCache.get(inputFile).batchId();
+      final BatchReport.DuplicationBlock.Builder builder = BatchReport.DuplicationBlock.newBuilder();
+      publisher.getWriter().writeDuplicationBlocks(id, Iterables.transform(blocks, new Function<Block, BatchReport.DuplicationBlock>() {
+        @Override
+        public DuplicationBlock apply(Block input) {
+          builder.clear();
+          builder.setStartLine(input.getStartLine());
+          builder.setEndLine(input.getEndLine());
+          builder.setStartTokenIndex(input.getStartUnit());
+          builder.setEndTokenIndex(input.getEndUnit());
+          for (int i : input.getBlockHash().toIntArray()) {
+            builder.addHash(i);
+          }
+          return builder.build();
+        }
+      }));
+    }
     for (Block block : blocks) {
       mem.insert(block);
     }
+  }
+
+  public static boolean isCrossProjectDuplicationEnabled(Settings settings) {
+    return settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT)
+      // No cross project duplication for branches
+      && StringUtils.isBlank(settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
   }
 
   public Collection<Block> getByInputFile(InputFile inputFile, String resourceKey) {

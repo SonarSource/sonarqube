@@ -23,6 +23,13 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -33,23 +40,12 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
-import org.sonar.batch.cpd.index.IndexFactory;
 import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
+import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;
-
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class DefaultCpdEngine extends CpdEngine {
 
@@ -60,22 +56,18 @@ public class DefaultCpdEngine extends CpdEngine {
    */
   private static final int TIMEOUT = 5 * 60;
 
-  private final IndexFactory indexFactory;
   private final CpdMappings mappings;
   private final FileSystem fs;
   private final Settings settings;
-  private final Project project;
+  private final ReportPublisher publisher;
+  private final BatchComponentCache batchComponentCache;
 
-  public DefaultCpdEngine(@Nullable Project project, IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings) {
-    this.project = project;
-    this.indexFactory = indexFactory;
+  public DefaultCpdEngine(CpdMappings mappings, FileSystem fs, Settings settings, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
     this.mappings = mappings;
     this.fs = fs;
     this.settings = settings;
-  }
-
-  public DefaultCpdEngine(IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings) {
-    this(null, indexFactory, mappings, fs, settings);
+    this.publisher = publisher;
+    this.batchComponentCache = batchComponentCache;
   }
 
   @Override
@@ -97,14 +89,13 @@ public class DefaultCpdEngine extends CpdEngine {
     List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(p.and(
       p.hasType(InputFile.Type.MAIN),
       p.hasLanguage(languageKey),
-      p.doesNotMatchPathPatterns(cpdExclusions)
-      )));
+      p.doesNotMatchPathPatterns(cpdExclusions))));
     if (sourceFiles.isEmpty()) {
       return;
     }
 
     // Create index
-    SonarDuplicationsIndex index = indexFactory.create(project, languageKey);
+    SonarDuplicationsIndex index = new SonarDuplicationsIndex(publisher, batchComponentCache, settings);
     populateIndex(languageKey, sourceFiles, mapping, index);
 
     // Detect
@@ -129,7 +120,7 @@ public class DefaultCpdEngine extends CpdEngine {
           filtered = null;
           LOG.warn("Timeout during detection of duplications for " + inputFile, e);
         } catch (InterruptedException | ExecutionException e) {
-          throw new SonarException("Fail during detection of duplication for " + inputFile, e);
+          throw new IllegalStateException("Fail during detection of duplication for " + inputFile, e);
         }
 
         JavaCpdEngine.save(context, inputFile, filtered);
@@ -144,8 +135,8 @@ public class DefaultCpdEngine extends CpdEngine {
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
       String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
-      List<Block> blocks2 = bridge.chunk(resourceEffectiveKey, inputFile.file());
-      index.insert(inputFile, blocks2);
+      List<Block> blocks = bridge.chunk(resourceEffectiveKey, inputFile.file());
+      index.insert(inputFile, blocks);
     }
   }
 
@@ -162,7 +153,7 @@ public class DefaultCpdEngine extends CpdEngine {
   static int getDefaultBlockSize(String languageKey) {
     if ("cobol".equals(languageKey)) {
       return 30;
-    } else if ("abap".equals(languageKey) || "natur".equals(languageKey)) {
+    } else if ("abap".equals(languageKey)) {
       return 20;
     } else {
       return 10;
@@ -172,9 +163,6 @@ public class DefaultCpdEngine extends CpdEngine {
   @VisibleForTesting
   int getMinimumTokens(String languageKey) {
     int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
-    if (minimumTokens == 0) {
-      minimumTokens = settings.getInt(CoreProperties.CPD_MINIMUM_TOKENS_PROPERTY);
-    }
     if (minimumTokens == 0) {
       minimumTokens = 100;
     }

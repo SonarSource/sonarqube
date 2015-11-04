@@ -21,7 +21,9 @@ package org.sonar.batch.report;
 
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -32,10 +34,12 @@ public class MetadataPublisher implements ReportPublisherStep {
 
   private final BatchComponentCache componentCache;
   private final ImmutableProjectReactor reactor;
+  private final Settings settings;
 
-  public MetadataPublisher(BatchComponentCache componentCache, ImmutableProjectReactor reactor) {
+  public MetadataPublisher(BatchComponentCache componentCache, ImmutableProjectReactor reactor, Settings settings) {
     this.componentCache = componentCache;
     this.reactor = reactor;
+    this.settings = settings;
   }
 
   @Override
@@ -46,6 +50,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
       // Here we want key without branch
       .setProjectKey(root.getKey())
+      .setCrossProjectDuplicationActivated(SonarDuplicationsIndex.isCrossProjectDuplicationEnabled(settings))
       .setRootComponentRef(rootProject.batchId());
     String branch = root.properties().get(CoreProperties.PROJECT_BRANCH_PROPERTY);
     if (branch != null) {

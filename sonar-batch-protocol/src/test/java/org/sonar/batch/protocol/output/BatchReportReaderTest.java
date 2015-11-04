@@ -154,7 +154,6 @@ public class BatchReportReaderTest {
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileKey("COMPONENT_A")
         .setOtherFileRef(2)
         .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
@@ -182,7 +181,6 @@ public class BatchReportReaderTest {
       .setRef(1).build());
 
     BatchReport.DuplicationBlock duplicationBlock = BatchReport.DuplicationBlock.newBuilder()
-      .setIndexInFile(1)
       .addAllHash(asList(1, 2, 3, 5, 7))
       .setStartLine(1)
       .setEndLine(2)

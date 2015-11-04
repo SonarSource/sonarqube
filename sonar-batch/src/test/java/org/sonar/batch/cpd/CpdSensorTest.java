@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.cpd;
 
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,12 +28,8 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
-import org.sonar.batch.cpd.index.IndexFactory;
-
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class CpdSensorTest {
 
@@ -46,9 +43,8 @@ public class CpdSensorTest {
 
   @Before
   public void setUp() throws IOException {
-    IndexFactory indexFactory = mock(IndexFactory.class);
-    sonarEngine = new JavaCpdEngine(indexFactory, null, null);
-    sonarBridgeEngine = new DefaultCpdEngine(indexFactory, new CpdMappings(), null, null);
+    sonarEngine = new JavaCpdEngine(null, null, null, null);
+    sonarBridgeEngine = new DefaultCpdEngine(new CpdMappings(), null, null, null, null);
     settings = new Settings(new PropertyDefinitions(CpdComponents.class));
 
     DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());

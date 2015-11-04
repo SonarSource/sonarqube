@@ -121,18 +121,12 @@ public class PersistDuplicationsStep implements ComputationStep {
     }
 
     private void processDuplicationBlock(StringBuilder xml, BatchReport.Duplicate duplicate, String componentKey) {
-      if (duplicate.hasOtherFileKey()) {
-        // componentKey is only set for cross project duplications
-        String crossProjectComponentKey = duplicate.getOtherFileKey();
-        appendDuplication(xml, crossProjectComponentKey, duplicate);
+      if (duplicate.hasOtherFileRef()) {
+        // Duplication is on a different file
+        appendDuplication(xml, treeRootHolder.getComponentByRef(duplicate.getOtherFileRef()).getKey(), duplicate);
       } else {
-        if (duplicate.hasOtherFileRef()) {
-          // Duplication is on a different file
-          appendDuplication(xml, treeRootHolder.getComponentByRef(duplicate.getOtherFileRef()).getKey(), duplicate);
-        } else {
-          // Duplication is on a the same file
-          appendDuplication(xml, componentKey, duplicate);
-        }
+        // Duplication is on a the same file
+        appendDuplication(xml, componentKey, duplicate);
       }
     }
 

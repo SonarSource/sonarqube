@@ -134,9 +134,6 @@ message Duplicate {
   // Will be null when duplicate is in the same file
   optional int32 other_file_ref = 1;
   optional TextRange range = 2;
-
-  // temporary field during development of computation stack for cross project duplications
-  optional string other_file_key = 3;
 }
 
 message Duplication {
@@ -147,12 +144,11 @@ message Duplication {
 
 // Used for cross project duplication
 message DuplicationBlock {
-  repeated int32 hash = 1;
-  optional int32 index_in_file = 2;
-  optional int32 start_line = 3;
-  optional int32 end_line = 4;
-  optional int32 start_token_index = 5;
-  optional int32 end_token_index = 6;
+  repeated int32 hash = 1 [packed = true];
+  optional int32 start_line = 2;
+  optional int32 end_line = 3;
+  optional int32 start_token_index = 4;
+  optional int32 end_token_index = 5;
 }
 
 // Lines start at 1 and line offsets start at 0

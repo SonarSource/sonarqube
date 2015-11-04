@@ -19,16 +19,15 @@
  */
 package org.sonar.batch.analysis;
 
-import org.sonar.batch.bootstrap.AbstractAnalysisMode;
-
-import org.sonar.batch.mediumtest.FakePluginInstaller;
-import org.sonar.batch.bootstrap.GlobalProperties;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
-
-import java.util.Map;
+import org.sonar.batch.bootstrap.AbstractAnalysisMode;
+import org.sonar.batch.bootstrap.GlobalProperties;
+import org.sonar.batch.mediumtest.FakePluginInstaller;
 
 /**
  * @since 4.0
@@ -99,6 +98,7 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     }
   }
 
+  @CheckForNull
   private static String getPropertyWithFallback(Map<String, String> props1, Map<String, String> props2, String key) {
     if (props1.containsKey(key)) {
       return props1.get(key);

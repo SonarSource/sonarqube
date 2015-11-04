@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -40,7 +39,7 @@ public class DefaultCpdEngineTest {
   @Before
   public void init() {
     settings = new Settings();
-    engine = new DefaultCpdEngine(null, null, null, settings);
+    engine = new DefaultCpdEngine(null, null, settings, null, null);
   }
 
   @Test
@@ -61,7 +60,6 @@ public class DefaultCpdEngineTest {
   @Test
   public void shouldReturnDefaultBlockSize() {
     assertThat(DefaultCpdEngine.getDefaultBlockSize("cobol")).isEqualTo(30);
-    assertThat(DefaultCpdEngine.getDefaultBlockSize("natur")).isEqualTo(20);
     assertThat(DefaultCpdEngine.getDefaultBlockSize("abap")).isEqualTo(20);
     assertThat(DefaultCpdEngine.getDefaultBlockSize("other")).isEqualTo(10);
   }
@@ -85,13 +83,6 @@ public class DefaultCpdEngineTest {
   }
 
   @Test
-  public void generalMinimumTokens() {
-    settings.setProperty("sonar.cpd.minimumTokens", 33);
-
-    assertThat(engine.getMinimumTokens("java")).isEqualTo(33);
-  }
-
-  @Test
   public void minimumTokensByLanguage() {
     settings.setProperty("sonar.cpd.java.minimumTokens", "42");
     settings.setProperty("sonar.cpd.php.minimumTokens", "33");
@@ -102,7 +93,4 @@ public class DefaultCpdEngineTest {
     assertThat(engine.getMinimumTokens("php")).isEqualTo(33);
   }
 
-  private static Project newProject(String key) {
-    return new Project(key).setAnalysisType(Project.AnalysisType.DYNAMIC);
-  }
 }

@@ -22,38 +22,6 @@ package org.sonar.batch.cpd;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.FilePredicates;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.duplication.NewDuplication;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.config.Settings;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
-import org.sonar.batch.cpd.index.IndexFactory;
-import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.block.BlockChunker;
-import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
-import org.sonar.duplications.index.CloneGroup;
-import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.ClonePart;
-import org.sonar.duplications.java.JavaStatementBuilder;
-import org.sonar.duplications.java.JavaTokenProducer;
-import org.sonar.duplications.statement.Statement;
-import org.sonar.duplications.statement.StatementChunker;
-import org.sonar.duplications.token.TokenChunker;
-
-import javax.annotation.Nullable;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -68,6 +36,35 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.duplication.NewDuplication;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
+import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.report.ReportPublisher;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.BlockChunker;
+import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
+import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.index.ClonePart;
+import org.sonar.duplications.java.JavaStatementBuilder;
+import org.sonar.duplications.java.JavaTokenProducer;
+import org.sonar.duplications.statement.Statement;
+import org.sonar.duplications.statement.StatementChunker;
+import org.sonar.duplications.token.TokenChunker;
 
 public class JavaCpdEngine extends CpdEngine {
 
@@ -83,20 +80,16 @@ public class JavaCpdEngine extends CpdEngine {
   private static final int MAX_CLONE_GROUP_PER_FILE = 100;
   private static final int MAX_CLONE_PART_PER_GROUP = 100;
 
-  private final IndexFactory indexFactory;
   private final FileSystem fs;
   private final Settings settings;
-  private final Project project;
+  private final ReportPublisher publisher;
+  private final BatchComponentCache batchComponentCache;
 
-  public JavaCpdEngine(@Nullable Project project, IndexFactory indexFactory, FileSystem fs, Settings settings) {
-    this.project = project;
-    this.indexFactory = indexFactory;
+  public JavaCpdEngine(FileSystem fs, Settings settings, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
     this.fs = fs;
     this.settings = settings;
-  }
-
-  public JavaCpdEngine(IndexFactory indexFactory, FileSystem fs, Settings settings) {
-    this(null, indexFactory, fs, settings);
+    this.publisher = publisher;
+    this.batchComponentCache = batchComponentCache;
   }
 
   @Override
@@ -112,17 +105,16 @@ public class JavaCpdEngine extends CpdEngine {
     List<InputFile> sourceFiles = Lists.newArrayList(fs.inputFiles(p.and(
       p.hasType(InputFile.Type.MAIN),
       p.hasLanguage(languageKey),
-      p.doesNotMatchPathPatterns(cpdExclusions)
-      )));
+      p.doesNotMatchPathPatterns(cpdExclusions))));
     if (sourceFiles.isEmpty()) {
       return;
     }
-    SonarDuplicationsIndex index = createIndex(project, languageKey, sourceFiles);
+    SonarDuplicationsIndex index = createIndex(sourceFiles);
     detect(index, context, sourceFiles);
   }
 
-  private SonarDuplicationsIndex createIndex(@Nullable Project project, String language, Iterable<InputFile> sourceFiles) {
-    final SonarDuplicationsIndex index = indexFactory.create(project, language);
+  private SonarDuplicationsIndex createIndex(Iterable<InputFile> sourceFiles) {
+    final SonarDuplicationsIndex index = new SonarDuplicationsIndex(publisher, batchComponentCache, settings);
 
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();
@@ -139,7 +131,7 @@ public class JavaCpdEngine extends CpdEngine {
         reader = new InputStreamReader(new FileInputStream(inputFile.file()), fs.encoding());
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
-        throw new SonarException("Cannot find file " + inputFile.file(), e);
+        throw new IllegalStateException("Cannot find file " + inputFile.file(), e);
       } finally {
         IOUtils.closeQuietly(reader);
       }
@@ -166,10 +158,8 @@ public class JavaCpdEngine extends CpdEngine {
         } catch (TimeoutException e) {
           clones = null;
           LOG.warn("Timeout during detection of duplications for " + inputFile, e);
-        } catch (InterruptedException e) {
-          throw new SonarException("Fail during detection of duplication for " + inputFile, e);
-        } catch (ExecutionException e) {
-          throw new SonarException("Fail during detection of duplication for " + inputFile, e);
+        } catch (InterruptedException | ExecutionException e) {
+          throw new IllegalStateException("Fail during detection of duplication for " + inputFile, e);
         }
 
         save(context, inputFile, clones);
@@ -209,20 +199,20 @@ public class JavaCpdEngine extends CpdEngine {
       .forMetric(CoreMetrics.DUPLICATED_FILES)
       .on(inputFile)
       .withValue(1))
-      .setFromCore()
-      .save();
+        .setFromCore()
+        .save();
     ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_LINES)
       .on(inputFile)
       .withValue(duplicatedLines))
-      .setFromCore()
-      .save();
+        .setFromCore()
+        .save();
     ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_BLOCKS)
       .on(inputFile)
       .withValue(duplicatedBlocks))
-      .setFromCore()
-      .save();
+        .setFromCore()
+        .save();
   }
 
   private static void saveDuplications(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, Iterable<CloneGroup> duplications) {

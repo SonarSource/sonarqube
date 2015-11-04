@@ -266,12 +266,6 @@ public interface CoreProperties {
   String CPD_PLUGIN = "cpd";
 
   /**
-   * @deprecated in 3.1
-   */
-  @Deprecated
-  String CPD_MINIMUM_TOKENS_PROPERTY = "sonar.cpd.minimumTokens";
-
-  /**
    * @deprecated in 5.0
    * @see <a href="https://jira.sonarsource.com/browse/SONAR-5339">SONAR-5339</a>
    */
@@ -287,7 +281,7 @@ public interface CoreProperties {
    * @see #CPD_CROSS_PROJECT
    * @since 2.11
    */
-  boolean CPD_CROSS_RPOJECT_DEFAULT_VALUE = false;
+  boolean CPD_CROSS_PROJECT_DEFAULT_VALUE = false;
 
   /**
    * @since 3.5
@@ -434,7 +428,7 @@ public interface CoreProperties {
    * @since 5.2
    */
   String ANALYSIS_MODE_ISSUES = "issues";
-  
+
   /**
    * @since 5.2
    */

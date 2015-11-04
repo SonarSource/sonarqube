@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -41,10 +42,10 @@ public class MetadataPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  ProjectDefinition projectDef;
-  Project project;
-
-  MetadataPublisher underTest;
+  private ProjectDefinition projectDef;
+  private Project project;
+  private MetadataPublisher underTest;
+  private Settings settings;
 
   @Before
   public void prepare() {
@@ -54,11 +55,13 @@ public class MetadataPublisherTest {
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
     componentCache.add(project, null);
     componentCache.add(sampleFile, project);
-    underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef));
+    settings = new Settings();
+    underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef), settings);
   }
 
   @Test
   public void write_metadata() throws Exception {
+    settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
 
@@ -68,10 +71,14 @@ public class MetadataPublisherTest {
     BatchReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
+    assertThat(metadata.getProjectKey()).isEqualTo("foo");
+    assertThat(metadata.getCrossProjectDuplicationActivated()).isTrue();
   }
 
   @Test
   public void write_project_branch() throws Exception {
+    settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
+    settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
     projectDef.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
     project.setKey("foo:myBranch");
     project.setEffectiveKey("foo:myBranch");
@@ -86,6 +93,8 @@ public class MetadataPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getBranch()).isEqualTo("myBranch");
+    // Cross project duplication disabled on branches
+    assertThat(metadata.getCrossProjectDuplicationActivated()).isFalse();
   }
 
 }

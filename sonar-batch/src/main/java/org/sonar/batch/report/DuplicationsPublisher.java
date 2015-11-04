@@ -81,7 +81,8 @@ public class DuplicationsPublisher implements ReportPublisherStep {
         if (sameProjectComponent != null) {
           blockBuilder.setOtherFileRef(sameProjectComponent.batchId());
         } else {
-          blockBuilder.setOtherFileKey(componentKey);
+          // Should never happens
+          throw new IllegalStateException("No cross project duplication supported on batch side: " + componentKey);
         }
       }
       dupBuilder.addDuplicate(blockBuilder

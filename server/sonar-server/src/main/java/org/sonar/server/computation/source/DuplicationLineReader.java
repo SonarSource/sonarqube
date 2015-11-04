@@ -20,15 +20,14 @@
 
 package org.sonar.server.computation.source;
 
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.protobuf.DbFileSources;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -72,7 +71,7 @@ public class DuplicationLineReader implements LineReader {
   }
 
   private static boolean isDuplicationOnSameFile(BatchReport.Duplicate duplicate) {
-    return !duplicate.hasOtherFileKey() && !duplicate.hasOtherFileRef();
+    return !duplicate.hasOtherFileRef();
   }
 
   private static boolean matchLine(BatchReport.TextRange range, int line) {

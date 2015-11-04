@@ -279,35 +279,6 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file2\"/></g></duplications>");
   }
 
-  @Test
-  public void persist_duplications_on_different_projects() {
-    saveDuplicationMetric();
-    initReportWithProjectAndFile();
-
-    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(BatchReport.TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(5)
-        .build())
-      .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileKey("PROJECT2_KEY:file2")
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(6)
-          .setEndLine(10)
-          .build())
-        .build())
-      .build();
-    reportReader.putDuplications(2, newArrayList(duplication));
-
-    underTest.execute();
-
-    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
-
-    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
-    assertThat(dto.get("snapshotId")).isEqualTo(11L);
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT2_KEY:file2\"/></g></duplications>");
-  }
-
   private void initReportWithProjectAndFile() {
     Component file = ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();

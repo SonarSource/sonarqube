@@ -170,7 +170,6 @@ public class BatchReportWriterTest {
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileKey("COMPONENT_A")
         .setOtherFileRef(2)
         .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
@@ -195,7 +194,6 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATION_BLOCKS, 1)).isFalse();
 
     BatchReport.DuplicationBlock duplicationBlock = BatchReport.DuplicationBlock.newBuilder()
-      .setIndexInFile(1)
       .addAllHash(asList(1, 2, 3, 5, 7))
       .setStartLine(1)
       .setEndLine(2)
@@ -209,7 +207,6 @@ public class BatchReportWriterTest {
     assertThat(file).exists().isFile();
     try (CloseableIterator<BatchReport.DuplicationBlock> duplicationBlocks = Protobuf.readStream(file, BatchReport.DuplicationBlock.parser())) {
       BatchReport.DuplicationBlock duplicationBlockResult = duplicationBlocks.next();
-      assertThat(duplicationBlockResult.getIndexInFile()).isEqualTo(1);
       assertThat(duplicationBlockResult.getHashList()).containsOnly(1, 2, 3, 5, 7);
       assertThat(duplicationBlockResult.getStartLine()).isEqualTo(1);
       assertThat(duplicationBlockResult.getEndLine()).isEqualTo(2);

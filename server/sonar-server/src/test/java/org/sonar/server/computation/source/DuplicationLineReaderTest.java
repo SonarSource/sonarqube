@@ -101,34 +101,6 @@ public class DuplicationLineReaderTest {
   }
 
   @Test
-  public void read_duplication_with_duplicates_on_other_file_from_other_project() {
-    DuplicationLineReader reader = new DuplicationLineReader(Iterators.forArray(
-      BatchReport.Duplication.newBuilder()
-        .setOriginPosition(BatchReport.TextRange.newBuilder()
-          .setStartLine(1)
-          .setEndLine(2)
-          .build())
-        .addDuplicate(BatchReport.Duplicate.newBuilder()
-          .setOtherFileKey("other-component-key-from-another-project")
-          .setRange(BatchReport.TextRange.newBuilder()
-            .setStartLine(3)
-            .setEndLine(4)
-            .build())
-          .build())
-        .build()));
-
-    reader.read(line1);
-    reader.read(line2);
-    reader.read(line3);
-    reader.read(line4);
-
-    assertThat(line1.getDuplicationList()).containsExactly(1);
-    assertThat(line2.getDuplicationList()).containsExactly(1);
-    assertThat(line3.getDuplicationList()).isEmpty();
-    assertThat(line4.getDuplicationList()).isEmpty();
-  }
-
-  @Test
   public void read_many_duplications() {
     DuplicationLineReader reader = new DuplicationLineReader(Iterators.forArray(
       BatchReport.Duplication.newBuilder()
