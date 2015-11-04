@@ -108,6 +108,7 @@ public class ListingWsTest {
       create
         .createParam("severity")
         .setDescription("Severity")
+        .setSince("4.4")
         .setDeprecatedSince("5.2")
         .setRequired(false)
         .setPossibleValues("BLOCKER", "INFO")
