@@ -20,12 +20,17 @@
 package org.sonar.core.platform;
 
 import com.google.common.collect.Iterables;
+import java.lang.annotation.Annotation;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
+import org.picocontainer.ComponentFactory;
+import org.picocontainer.ComponentMonitor;
 import org.picocontainer.DefaultPicoContainer;
+import org.picocontainer.LifecycleStrategy;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
@@ -38,6 +43,33 @@ import org.sonar.api.utils.log.Profiler;
 @BatchSide
 @ServerSide
 public class ComponentContainer implements ContainerPopulator.Container {
+
+  private static final class ExtendedDefaultPicoContainer extends DefaultPicoContainer {
+    private ExtendedDefaultPicoContainer(ComponentFactory componentFactory, LifecycleStrategy lifecycleStrategy, PicoContainer parent) {
+      super(componentFactory, lifecycleStrategy, parent);
+    }
+
+    private ExtendedDefaultPicoContainer(final ComponentFactory componentFactory, final LifecycleStrategy lifecycleStrategy, final PicoContainer parent,
+      final ComponentMonitor componentMonitor) {
+      super(componentFactory, lifecycleStrategy, parent, componentMonitor);
+    }
+
+    @Override
+    public Object getComponent(final Object componentKeyOrType, final Class<? extends Annotation> annotation) {
+      try {
+        return super.getComponent(componentKeyOrType, annotation);
+      } catch (Throwable t) {
+        throw new IllegalStateException("Unable to load component " + componentKeyOrType, t);
+      }
+    }
+
+    @Override
+    public MutablePicoContainer makeChildContainer() {
+      DefaultPicoContainer pc = new ExtendedDefaultPicoContainer(componentFactory, lifecycleStrategy, this, componentMonitor);
+      addChildContainer(pc);
+      return pc;
+    }
+  }
 
   // no need for multiple children
   ComponentContainer parent;
@@ -260,7 +292,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
         profiler.stopTrace(component.getClass().getCanonicalName() + " started");
       }
     };
-    return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, null);
+    return new ExtendedDefaultPicoContainer(new OptInCaching(), lifecycleStrategy, null);
   }
 
   public ComponentContainer getParent() {
