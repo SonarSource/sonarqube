@@ -54,8 +54,9 @@ public class ProfilesWs implements WebService {
 
   private static void defineIndexAction(NewController controller) {
     WebService.NewAction action = controller.createAction("index")
-      .setDescription("Get a profile. Deprecated since 5.2.")
+      .setDescription("Get a profile.")
       .setSince("3.3")
+      .setDeprecatedSince("5.2")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(ProfilesWs.class, "example-index.json"));
 
@@ -72,8 +73,9 @@ public class ProfilesWs implements WebService {
 
   private static void defineListAction(NewController controller) {
     WebService.NewAction action = controller.createAction("list")
-      .setDescription("Get a list of profiles. Deprecated since 5.2.")
+      .setDescription("Get a list of profiles.")
       .setSince("3.3")
+      .setDeprecatedSince("5.2")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(ProfilesWs.class, "example-list.json"));
 
