@@ -53,7 +53,7 @@ public class ComponentIndexer {
   public void execute(DefaultModuleFileSystem fs) {
     module.setBaseDir(fs.baseDir());
 
-    for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
+    for (InputFile inputFile : fs.inputFiles()) {
       String languageKey = inputFile.language();
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
       Resource sonarFile = File.create(inputFile.relativePath(), languages.get(languageKey), unitTest);

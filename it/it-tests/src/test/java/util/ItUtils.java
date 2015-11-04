@@ -4,6 +4,10 @@ package util;/*
  * mailto:contact AT sonarsource DOT com
  */
 
+import org.sonar.wsclient.issue.Issue;
+
+import org.sonar.wsclient.issue.IssueQuery;
+import org.sonar.wsclient.issue.IssueClient;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
@@ -12,14 +16,18 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,7 +35,6 @@ import org.json.simple.JSONValue;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
-
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +68,12 @@ public class ItUtils {
       }
     }
     throw new IllegalStateException("XOO plugin is not built");
+  }
+
+  public static List<Issue> getAllServerIssues(Orchestrator orchestrator) {
+    IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();
+    return issueClient.find(IssueQuery.create()).list();
+
   }
 
   /**
@@ -137,6 +150,29 @@ public class ItUtils {
     return count;
   }
 
+  public static void assertIssuesInJsonReport(BuildResult result, int newIssues, int resolvedIssues, int existingIssues) {
+    JSONObject obj = getJSONReport(result);
+    JSONArray issues = (JSONArray) obj.get("issues");
+    int countNew = 0;
+    int countResolved = 0;
+    int countExisting = 0;
+
+    for (Object issue : issues) {
+      JSONObject jsonIssue = (JSONObject) issue;
+
+      if ((Boolean) jsonIssue.get("isNew")) {
+        countNew++;
+      } else if (jsonIssue.get("resolution") != null) {
+        countResolved++;
+      } else {
+        countExisting++;
+      }
+    }
+    assertThat(countNew).isEqualTo(newIssues);
+    assertThat(countResolved).isEqualTo(resolvedIssues);
+    assertThat(countExisting).isEqualTo(existingIssues);
+  }
+
   public static SonarRunner runVerboseProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
     return runProjectAnalysis(orchestrator, projectRelativePath, true, properties);
   }
@@ -164,7 +200,7 @@ public class ItUtils {
     }
   }
 
-  public static void resetPeriods(Orchestrator orchestrator){
+  public static void resetPeriods(Orchestrator orchestrator) {
     setServerProperty(orchestrator, "sonar.timemachine.period1", null);
     setServerProperty(orchestrator, "sonar.timemachine.period2", null);
     setServerProperty(orchestrator, "sonar.timemachine.period3", null);
@@ -204,4 +240,4 @@ public class ItUtils {
     }
   }
 
- }
+}

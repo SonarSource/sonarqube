@@ -90,6 +90,11 @@ public class XooRulesDefinition implements RulesDefinition {
     oneIssuePerFile.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.ARCHITECTURE_CHANGEABILITY)
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("10min"));
 
+    NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File")
+      .setHtmlDescription("Generate an issue on each file with a debt of one day");
+    oneDayDebtPerFile.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.ARCHITECTURE_RELIABILITY)
+      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1d"));
+
     NewRule oneIssuePerModule = repo.createRule(OneIssuePerModuleSensor.RULE_KEY).setName("One Issue Per Module")
       .setHtmlDescription("Generate an issue on each module");
     oneIssuePerModule.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.API_ABUSE)

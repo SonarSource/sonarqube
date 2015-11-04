@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>cannot_create_action_plan_with_invalid_date</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <thead>
+    <tr>
+        <td rowspan="1" colspan="3">cannot_create_action_plan_with_invalid_date</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>open</td>
+        <td>/sonar/sessions/new</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>login</td>
+        <td>admin</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>password</td>
+        <td>admin</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>commit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>open</td>
+        <td>/sonar/action_plans/index/sample</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForText</td>
+        <td>action-plans</td>
+        <td>*No action plan*</td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>create-link-action_plans</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForVisible</td>
+        <td>create-action-plan-form</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>css=#create-action-plan-form .modal-head</td>
+        <td>*Create Action Plan*</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=name</td>
+        <td>Sprint for 1.1</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=deadline</td>
+        <td>31/12/2000</td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>css=input[type=&quot;submit&quot;]</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForVisible</td>
+        <td>css=.modal-error</td>
+        <td>*date is not valid*</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

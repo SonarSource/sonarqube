@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.batch.fs.InputFile.Status;
+
+import org.junit.Before;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,22 +54,33 @@ public class DefaultModuleFileSystemTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  Settings settings = new Settings();
-  FileIndexer fileIndexer = mock(FileIndexer.class);
-  ModuleFileSystemInitializer initializer = mock(ModuleFileSystemInitializer.class, Mockito.RETURNS_DEEP_STUBS);
-  ComponentIndexer componentIndexer = mock(ComponentIndexer.class);
-  ModuleInputFileCache moduleInputFileCache = mock(ModuleInputFileCache.class);
+  private Settings settings;
+  private FileIndexer fileIndexer;
+  private ModuleFileSystemInitializer initializer;
+  private ComponentIndexer componentIndexer;
+  private ModuleInputFileCache moduleInputFileCache;
+  private DefaultAnalysisMode mode;
+
+  @Before
+  public void setUp() {
+    settings = new Settings();
+    fileIndexer = mock(FileIndexer.class);
+    initializer = mock(ModuleFileSystemInitializer.class, Mockito.RETURNS_DEEP_STUBS);
+    componentIndexer = mock(ComponentIndexer.class);
+    moduleInputFileCache = mock(ModuleInputFileCache.class);
+    mode = mock(DefaultAnalysisMode.class);
+  }
 
   @Test
   public void test_equals_and_hashCode() throws Exception {
     DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);
     DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);
     DefaultModuleFileSystem bar = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("bar"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("bar"), settings, fileIndexer, initializer, componentIndexer, mode);
     DefaultModuleFileSystem branch = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("bar", "branch", "My project"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("bar", "branch", "My project"), settings, fileIndexer, initializer, componentIndexer, mode);
 
     assertThat(foo1.moduleKey()).isEqualTo("foo");
     assertThat(branch.moduleKey()).isEqualTo("bar:branch");
@@ -80,7 +95,7 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void default_source_encoding() {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
     assertThat(fs.isDefaultJvmEncoding()).isTrue();
@@ -90,13 +105,35 @@ public class DefaultModuleFileSystemTest {
   public void source_encoding_is_set() {
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, "Cp1124");
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);
 
     assertThat(fs.encoding()).isEqualTo(Charset.forName("Cp1124"));
     assertThat(fs.sourceCharset()).isEqualTo(Charset.forName("Cp1124"));
 
     // This test fails when default Java encoding is "IBM AIX Ukraine". Sorry for that.
     assertThat(fs.isDefaultJvmEncoding()).isFalse();
+  }
+
+  @Test
+  public void default_predicate_scan_only_changed() throws IOException {
+    when(mode.onlyAnalyzeChanged()).thenReturn(true);
+
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);
+
+    File baseDir = temp.newFile();
+    InputFile mainInput = new DefaultInputFile("foo", "Main.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.MAIN);
+    InputFile testInput = new DefaultInputFile("foo", "Test.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.TEST);
+    InputFile mainSameInput = new DefaultInputFile("foo", "MainSame.java").setModuleBaseDir(baseDir.toPath())
+      .setType(InputFile.Type.TEST).setStatus(Status.SAME);
+    when(moduleInputFileCache.inputFiles()).thenReturn(Lists.newArrayList(mainInput, testInput, mainSameInput));
+
+    fs.index();
+    Iterable<InputFile> inputFiles = fs.inputFiles(fs.predicates().all());
+    assertThat(inputFiles).containsOnly(mainInput, testInput);
+
+    Iterable<InputFile> allInputFiles = fs.inputFiles();
+    assertThat(allInputFiles).containsOnly(mainInput, mainSameInput, testInput);
   }
 
   @Test
@@ -120,7 +157,7 @@ public class DefaultModuleFileSystemTest {
     when(initializer.tests()).thenReturn(Arrays.asList(javaTest, additionalTest));
 
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);
 
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
     assertThat(fs.workDir().getCanonicalPath()).isEqualTo(workingDir.getCanonicalPath());
@@ -133,7 +170,7 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_search_input_files() throws Exception {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);
 
     File baseDir = temp.newFile();
     InputFile mainInput = new DefaultInputFile("foo", "Main.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.MAIN);
@@ -151,7 +188,7 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void should_index() {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
-      new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
+      new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);
 
     verifyZeroInteractions(fileIndexer);
 

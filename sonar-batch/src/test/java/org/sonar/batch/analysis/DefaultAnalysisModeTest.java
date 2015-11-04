@@ -20,7 +20,6 @@
 package org.sonar.batch.analysis;
 
 import org.junit.Rule;
-
 import org.junit.rules.ExpectedException;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.analysis.AnalysisProperties;
@@ -85,9 +84,29 @@ public class DefaultAnalysisModeTest {
   }
 
   @Test
+  public void only_scan_changed() {
+    Map<String, String> props = new HashMap<>();
+    props.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
+    GlobalProperties globalProps = new GlobalProperties(props);
+
+    props.put("sonar.scanChangedFilesOnly", "true");
+    AnalysisProperties analysisProps = new AnalysisProperties(props);
+
+    DefaultAnalysisMode mode = new DefaultAnalysisMode(globalProps, analysisProps);
+    assertThat(mode.onlyAnalyzeChanged()).isTrue();
+
+    props.put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PUBLISH);
+    analysisProps = new AnalysisProperties(props);
+
+    mode = new DefaultAnalysisMode(globalProps, analysisProps);
+    assertThat(mode.onlyAnalyzeChanged()).isFalse();
+  }
+
+  @Test
   public void default_publish_mode() {
     DefaultAnalysisMode mode = createMode(null);
     assertThat(mode.isPublish()).isTrue();
+    assertThat(mode.onlyAnalyzeChanged()).isFalse();
   }
 
   @Test
@@ -95,6 +114,7 @@ public class DefaultAnalysisModeTest {
     DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
 
     assertThat(mode.isIssues()).isTrue();
+    assertThat(mode.onlyAnalyzeChanged()).isFalse();
   }
 
   private static DefaultAnalysisMode createMode(@Nullable String mode) {

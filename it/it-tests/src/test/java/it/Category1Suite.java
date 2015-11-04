@@ -39,6 +39,8 @@ package it;/*
  */
 
 import com.sonar.orchestrator.Orchestrator;
+import it.actionPlan.ActionPlanTest;
+import it.actionPlan.ActionPlanUiTest;
 import it.authorisation.IssuePermissionTest;
 import it.i18n.I18nTest;
 import it.measureHistory.DifferentialPeriodsTest;
@@ -87,7 +89,10 @@ import static util.ItUtils.xooPlugin;
   SincePreviousVersionHistoryTest.class,
   SinceXDaysHistoryTest.class,
   TimeMachineTest.class,
-  TimeMachineUiTest.class
+  TimeMachineUiTest.class,
+  // action plan
+  ActionPlanTest.class,
+  ActionPlanUiTest.class
 })
 public class Category1Suite {
 

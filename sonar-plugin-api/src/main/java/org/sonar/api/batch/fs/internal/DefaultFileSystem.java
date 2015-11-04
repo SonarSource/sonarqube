@@ -54,7 +54,8 @@ public class DefaultFileSystem implements FileSystem {
   private final Path baseDir;
   private Path workDir;
   private Charset encoding;
-  private final FilePredicates predicates;
+  protected final FilePredicates predicates;
+  private FilePredicate defaultPredicate;
 
   /**
    * Only for testing
@@ -104,7 +105,12 @@ public class DefaultFileSystem implements FileSystem {
     this.workDir = d.getAbsoluteFile().toPath().normalize();
     return this;
   }
-
+  
+  public DefaultFileSystem setDefaultPredicate(@Nullable FilePredicate predicate) {
+    this.defaultPredicate = predicate;
+    return this;
+  }
+  
   @Override
   public File workDir() {
     return workDir.toFile();
@@ -135,11 +141,24 @@ public class DefaultFileSystem implements FileSystem {
     throw new IllegalArgumentException(sb.toString());
 
   }
+  
+  /**
+   * Bypass default predicate to get all files/dirs indexed.
+   * Default predicate is used when some files/dirs should not be processed by sensors.
+   */
+  public Iterable<InputFile> inputFiles() {
+    doPreloadFiles();
+    return OptimizedFilePredicateAdapter.create(predicates.all()).get(cache);
+  }
 
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
     doPreloadFiles();
-    return OptimizedFilePredicateAdapter.create(predicate).get(cache);
+    FilePredicate combinedPredicate = predicate;
+    if(defaultPredicate != null) {
+      combinedPredicate = predicates().and(defaultPredicate, predicate);
+    }
+    return OptimizedFilePredicateAdapter.create(combinedPredicate).get(cache);
   }
 
   @Override
