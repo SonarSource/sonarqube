@@ -82,8 +82,6 @@ public class PurgeTest {
     int measuresOnFil = 69;
 
     // count measures 
-    logMeasures("First analysis - TRK measures", "TRK");
-    logMeasures("First analysis - BRC measures", "BRC");
     assertMeasuresCountForQualifier("TRK", measuresOnTrk);
     assertMeasuresCountForQualifier("BRC", measuresOnBrc);
     assertMeasuresCountForQualifier("DIR", measuresOnDir);
@@ -112,9 +110,6 @@ public class PurgeTest {
     int newMeasuresOnDir = 32;
     int newMeasuresOnFil = 0;
 
-    logMeasures("Second analysis - TRK measures", "TRK");
-    logMeasures("Second analysis - BRC measures", "BRC");
-    logMeasures("Second analysis – DIR measures", "DIR");
     assertMeasuresCountForQualifier("TRK", measuresOnTrk + newMeasuresOnTrk);
     assertMeasuresCountForQualifier("BRC", measuresOnBrc + newMeasuresOnBrc);
     assertMeasuresCountForQualifier("DIR", measuresOnDir + newMeasuresOnDir);
@@ -273,7 +268,9 @@ public class PurgeTest {
 
   private void assertMeasuresCountForQualifier(String qualifier, int count) {
     int result = countMeasures(qualifier);
-    logMeasures("GOT", qualifier);
+    if (result != count) {
+      logMeasures("GOT", qualifier);
+    }
     collector.checkThat("Wrong number of measures for qualifier " + qualifier, result, equalTo(count));
   }
 
