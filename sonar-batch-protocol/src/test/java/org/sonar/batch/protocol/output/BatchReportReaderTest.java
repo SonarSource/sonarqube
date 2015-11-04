@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -33,6 +32,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.core.util.CloseableIterator;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchReportReaderTest {
@@ -58,13 +59,15 @@ public class BatchReportReaderTest {
     BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
-      .setRootComponentRef(1);
+      .setRootComponentRef(1)
+      .setCrossProjectDuplicationActivated(true);
     writer.writeMetadata(metadata.build());
 
     BatchReport.Metadata readMetadata = underTest.readMetadata();
     assertThat(readMetadata.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(readMetadata.getProjectKey()).isEqualTo("PROJECT_A");
     assertThat(readMetadata.getRootComponentRef()).isEqualTo(1);
+    assertThat(readMetadata.getCrossProjectDuplicationActivated()).isTrue();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -94,7 +97,7 @@ public class BatchReportReaderTest {
     BatchReport.Issue issue = BatchReport.Issue.newBuilder()
       .setLine(50)
       .build();
-    writer.writeComponentIssues(1, Arrays.asList(issue));
+    writer.writeComponentIssues(1, asList(issue));
 
     assertThat(underTest.readComponentIssues(1)).hasSize(1);
     assertThat(underTest.readComponentIssues(200)).isEmpty();
@@ -110,7 +113,7 @@ public class BatchReportReaderTest {
     BatchReportWriter writer = new BatchReportWriter(dir);
     BatchReport.Measure.Builder measure = BatchReport.Measure.newBuilder()
       .setStringValue("value_a");
-    writer.writeComponentMeasures(1, Arrays.asList(measure.build()));
+    writer.writeComponentMeasures(1, asList(measure.build()));
 
     assertThat(underTest.readComponentMeasures(1)).hasSize(1);
   }
@@ -159,7 +162,7 @@ public class BatchReportReaderTest {
           .build())
         .build())
       .build();
-    writer.writeComponentDuplications(1, Arrays.asList(duplication));
+    writer.writeComponentDuplications(1, asList(duplication));
 
     BatchReportReader sut = new BatchReportReader(dir);
     assertThat(sut.readComponentDuplications(1)).hasSize(1);
@@ -167,6 +170,33 @@ public class BatchReportReaderTest {
 
   @Test
   public void empty_list_if_no_duplication_found() {
+    assertThat(underTest.readComponentDuplications(UNKNOWN_COMPONENT_REF)).isEmpty();
+  }
+
+  @Test
+  public void read_duplication_blocks() {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1).build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1).build());
+
+    BatchReport.DuplicationBlock duplicationBlock = BatchReport.DuplicationBlock.newBuilder()
+      .setIndexInFile(1)
+      .addAllHash(asList(1, 2, 3, 5, 7))
+      .setStartLine(1)
+      .setEndLine(2)
+      .setStartTokenIndex(10)
+      .setEndTokenIndex(15)
+      .build();
+    writer.writeDuplicationBlocks(1, singletonList(duplicationBlock));
+
+    BatchReportReader sut = new BatchReportReader(dir);
+    assertThat(sut.readComponentDuplicationBlocks(1)).hasSize(1);
+  }
+
+  @Test
+  public void empty_list_if_no_duplication_block_found() {
     assertThat(underTest.readComponentDuplications(UNKNOWN_COMPONENT_REF)).isEmpty();
   }
 
@@ -179,7 +209,7 @@ public class BatchReportReaderTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
-    writer.writeComponentSyntaxHighlighting(1, Arrays.asList(
+    writer.writeComponentSyntaxHighlighting(1, asList(
       BatchReport.SyntaxHighlighting.newBuilder()
         .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1)
@@ -211,7 +241,7 @@ public class BatchReportReaderTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
-    writer.writeComponentSymbols(1, Arrays.asList(BatchReport.Symbol.newBuilder()
+    writer.writeComponentSymbols(1, asList(BatchReport.Symbol.newBuilder()
       .setDeclaration(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setStartOffset(3)
@@ -244,7 +274,7 @@ public class BatchReportReaderTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
-    writer.writeComponentCoverage(1, Arrays.asList(
+    writer.writeComponentCoverage(1, asList(
       BatchReport.Coverage.newBuilder()
         .setLine(1)
         .setConditions(1)
@@ -295,7 +325,7 @@ public class BatchReportReaderTest {
   @Test
   public void read_tests() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(dir);
-    writer.writeTests(1, Arrays.asList(
+    writer.writeTests(1, asList(
       BatchReport.Test.newBuilder()
         .setDurationInMs(60_000)
         .setStacktrace("stacktrace")
@@ -320,11 +350,11 @@ public class BatchReportReaderTest {
   @Test
   public void read_coverage_details() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(dir);
-    writer.writeCoverageDetails(1, Arrays.asList(
+    writer.writeCoverageDetails(1, asList(
       BatchReport.CoverageDetail.newBuilder()
         .setTestName("test-name")
         .addCoveredFile(BatchReport.CoverageDetail.CoveredFile.newBuilder()
-          .addAllCoveredLine(Arrays.asList(1, 2, 3, 5, 7))
+          .addAllCoveredLine(asList(1, 2, 3, 5, 7))
           .setFileRef(2))
         .build()));
 

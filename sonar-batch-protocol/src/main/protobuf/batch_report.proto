@@ -40,6 +40,7 @@ message Metadata {
   optional string project_key = 2;
   optional string branch = 3;
   optional int32 root_component_ref = 4;
+  optional bool cross_project_duplication_activated = 5;
 }
 
 message ActiveRule {
@@ -144,11 +145,21 @@ message Duplication {
   repeated Duplicate duplicate = 2;
 }
 
+// Used for cross project duplication
+message DuplicationBlock {
+  repeated int32 hash = 1;
+  optional int32 index_in_file = 2;
+  optional int32 start_line = 3;
+  optional int32 end_line = 4;
+  optional int32 start_token_index = 5;
+  optional int32 end_token_index = 6;
+}
+
 // Lines start at 1 and line offsets start at 0
 message TextRange {
   // Should never be null
   optional int32 start_line = 1;
-  // End line (inclusive). Null means it is same as start line
+  // End line (inclusive)
   optional int32 end_line = 2;
   // If null it means range starts at the first offset of start line
   optional int32 start_offset = 3;

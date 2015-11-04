@@ -98,6 +98,12 @@ public class BatchReportWriter {
     return file;
   }
 
+  public File writeDuplicationBlocks(int componentRef, Iterable<BatchReport.DuplicationBlock> duplicationBlocks) {
+    File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATION_BLOCKS, componentRef);
+    Protobuf.writeStream(duplicationBlocks, file, false);
+    return file;
+  }
+
   public File writeComponentSymbols(int componentRef, Iterable<BatchReport.Symbol> symbols) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
     Protobuf.writeStream(symbols, file, false);

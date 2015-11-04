@@ -31,6 +31,7 @@ public class FileStructure {
     COMPONENT("component-", Domain.PB),
     MEASURES("measures-", Domain.PB),
     DUPLICATIONS("duplications-", Domain.PB),
+    DUPLICATION_BLOCKS("duplication-blocks-", Domain.PB),
     SYNTAX_HIGHLIGHTINGS("syntax-highlightings-", Domain.PB),
     CHANGESETS("changesets-", Domain.PB),
     SYMBOLS("symbols-", Domain.PB),
