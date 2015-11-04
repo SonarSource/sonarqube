@@ -43,6 +43,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, BatchReport.Component> components = new HashMap<>();
   private Map<Integer, List<BatchReport.Issue>> issues = new HashMap<>();
   private Map<Integer, List<BatchReport.Duplication>> duplications = new HashMap<>();
+  private Map<Integer, List<BatchReport.DuplicationBlock>> duplicationBlocks = new HashMap<>();
   private Map<Integer, List<BatchReport.Symbol>> symbols = new HashMap<>();
   private Map<Integer, List<BatchReport.SyntaxHighlighting>> syntaxHighlightings = new HashMap<>();
   private Map<Integer, List<BatchReport.Coverage>> coverages = new HashMap<>();
@@ -72,6 +73,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     this.components.clear();
     this.issues.clear();
     this.duplications.clear();
+    this.duplicationBlocks.clear();
     this.symbols.clear();
     this.syntaxHighlightings.clear();
     this.coverages.clear();
@@ -164,6 +166,15 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   public void putDuplications(int componentRef, BatchReport.Duplication... duplications) {
     this.duplications.put(componentRef, Arrays.asList(duplications));
+  }
+
+  @Override
+  public CloseableIterator<BatchReport.DuplicationBlock> readComponentDuplicationBlocks(int componentRef) {
+    return closeableIterator(this.duplicationBlocks.get(componentRef));
+  }
+
+  public void putDuplicationBlocks(int componentRef, List<BatchReport.DuplicationBlock> duplicationBlocks) {
+    this.duplicationBlocks.put(componentRef, duplicationBlocks);
   }
 
   @Override
