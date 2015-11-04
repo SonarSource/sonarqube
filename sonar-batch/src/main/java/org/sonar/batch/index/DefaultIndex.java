@@ -60,16 +60,18 @@ public class DefaultIndex extends SonarIndex {
 
   private final BatchComponentCache componentCache;
   private final MeasureCache measureCache;
-  private DefaultSensorStorage sensorStorage;
+  private final PathResolver pathResolver;
+  private final DefaultProjectTree projectTree;
   // caches
+  private DefaultSensorStorage sensorStorage;
   private Project currentProject;
   private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
-  private DefaultProjectTree projectTree;
 
-  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MeasureCache measureCache) {
+  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MeasureCache measureCache, PathResolver pathResolver) {
     this.componentCache = componentCache;
     this.projectTree = projectTree;
     this.measureCache = measureCache;
+    this.pathResolver = pathResolver;
   }
 
   public void start() {
@@ -329,14 +331,16 @@ public class DefaultIndex extends SonarIndex {
     }
     if (relativePathFromSourceDir != null) {
       // Resolve using deprecated key
-      List<java.io.File> dirs;
+      List<String> dirs;
+      ProjectDefinition projectDef = projectTree.getProjectDefinition(getProject());
       if (isTest) {
-        dirs = getProject().getFileSystem().getTestDirs();
+        dirs = projectDef.getTestDirs();
       } else {
-        dirs = getProject().getFileSystem().getSourceDirs();
+        dirs = projectDef.getSourceDirs();
       }
-      for (java.io.File src : dirs) {
-        java.io.File abs = new java.io.File(src, relativePathFromSourceDir);
+      for (String src : dirs) {
+        java.io.File dirOrFile = pathResolver.relativeFile(projectDef.getBaseDir(), src);
+        java.io.File abs = new java.io.File(dirOrFile, relativePathFromSourceDir);
         Bucket b = getBucket(isDir ? Directory.fromIOFile(abs, getProject()) : File.fromIOFile(abs, getProject()));
         if (b != null) {
           return b;

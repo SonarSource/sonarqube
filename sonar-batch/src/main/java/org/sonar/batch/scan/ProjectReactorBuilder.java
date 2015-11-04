@@ -23,10 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,10 +33,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.io.filefilter.AndFileFilter;
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -85,8 +79,6 @@ public class ProjectReactorBuilder {
    */
   private static final String PROPERTY_SOURCES = "sonar.sources";
   private static final String PROPERTY_TESTS = "sonar.tests";
-  private static final String PROPERTY_BINARIES = "sonar.binaries";
-  private static final String PROPERTY_LIBRARIES = "sonar.libraries";
 
   /**
    * Array of all mandatory properties required for a project without child.
@@ -336,22 +328,9 @@ public class ProjectReactorBuilder {
     if (!props.containsKey(PROPERTY_MODULES)) {
       // SONARPLUGINS-2285 Not an aggregator project so we can validate that paths are correct if defined
 
-      // We need to resolve patterns that may have been used in "sonar.libraries"
-      for (String pattern : getListFromProperty(props, PROPERTY_LIBRARIES)) {
-        File[] files = getLibraries(baseDir, pattern);
-        if (files == null || files.length == 0) {
-          LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, PROPERTY_LIBRARIES, projectId));
-          throw new IllegalStateException("No files nor directories matching '" + pattern + "' in directory " + baseDir);
-        }
-      }
-
       // Check sonar.tests
       String[] testPaths = getListFromProperty(props, PROPERTY_TESTS);
       checkExistenceOfPaths(projectId, baseDir, testPaths, PROPERTY_TESTS);
-
-      // Check sonar.binaries
-      String[] binDirs = getListFromProperty(props, PROPERTY_BINARIES);
-      checkExistenceOfDirectories(projectId, baseDir, binDirs, PROPERTY_BINARIES);
     }
   }
 
@@ -376,16 +355,6 @@ public class ProjectReactorBuilder {
     // We need to check the existence of source directories
     String[] sourcePaths = getListFromProperty(properties, PROPERTY_SOURCES);
     checkExistenceOfPaths(project.getKey(), project.getBaseDir(), sourcePaths, PROPERTY_SOURCES);
-
-    // And we need to resolve patterns that may have been used in "sonar.libraries"
-    List<String> libPaths = Lists.newArrayList();
-    for (String pattern : getListFromProperty(properties, PROPERTY_LIBRARIES)) {
-      for (File file : getLibraries(project.getBaseDir(), pattern)) {
-        libPaths.add(file.getAbsolutePath());
-      }
-    }
-    properties.remove(PROPERTY_LIBRARIES);
-    properties.put(PROPERTY_LIBRARIES, StringUtils.join(libPaths, ","));
   }
 
   @VisibleForTesting
@@ -406,8 +375,6 @@ public class ProjectReactorBuilder {
     // "aggregator" project must not have the following properties:
     properties.remove(PROPERTY_SOURCES);
     properties.remove(PROPERTY_TESTS);
-    properties.remove(PROPERTY_BINARIES);
-    properties.remove(PROPERTY_LIBRARIES);
   }
 
   @VisibleForTesting
@@ -422,19 +389,6 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected static void checkExistenceOfDirectories(String moduleRef, File baseDir, String[] dirPaths, String propName) {
-    for (String path : dirPaths) {
-      File sourceFolder = resolvePath(baseDir, path);
-      if (!sourceFolder.isDirectory()) {
-        LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
-        throw new IllegalStateException("The folder '" + path + "' does not exist for '" + moduleRef +
-          "' (base directory = " + baseDir.getAbsolutePath() + ")");
-      }
-    }
-
-  }
-
-  @VisibleForTesting
   protected static void checkExistenceOfPaths(String moduleRef, File baseDir, String[] paths, String propName) {
     for (String path : paths) {
       File sourceFolder = resolvePath(baseDir, path);
@@ -445,34 +399,6 @@ public class ProjectReactorBuilder {
       }
     }
 
-  }
-
-  /**
-   * Returns files matching specified pattern.
-   */
-  @VisibleForTesting
-  protected static File[] getLibraries(File baseDir, String pattern) {
-    final int i = Math.max(pattern.lastIndexOf('/'), pattern.lastIndexOf('\\'));
-    final String dirPath;
-    final String filePattern;
-    if (i == -1) {
-      dirPath = ".";
-      filePattern = pattern;
-    } else {
-      dirPath = pattern.substring(0, i);
-      filePattern = pattern.substring(i + 1);
-    }
-    List<IOFileFilter> filters = new ArrayList<>();
-    if (pattern.indexOf('*') >= 0) {
-      filters.add(FileFileFilter.FILE);
-    }
-    filters.add(new WildcardFileFilter(filePattern));
-    File dir = resolvePath(baseDir, dirPath);
-    File[] files = dir.listFiles((FileFilter) new AndFileFilter(filters));
-    if (files == null) {
-      files = new File[0];
-    }
-    return files;
   }
 
   protected static File resolvePath(File baseDir, String path) {

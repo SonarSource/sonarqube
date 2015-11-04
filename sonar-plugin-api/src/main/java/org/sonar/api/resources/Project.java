@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 
@@ -72,7 +71,6 @@ public class Project extends Resource implements Component {
   }
 
   private String branch;
-  private ProjectFileSystem fileSystem;
   private String name;
   private String description;
   private Language language;
@@ -338,26 +336,6 @@ public class Project extends Resource implements Component {
    */
   public Date getAnalysisDate() {
     return analysisDate;
-  }
-
-  /**
-   * Note: it's better to get a reference on ProjectFileSystem as an IoC dependency (constructor parameter)
-   * @deprecated since 3.5 use {@link FileSystem} instead
-   */
-  @Deprecated
-  public ProjectFileSystem getFileSystem() {
-    return fileSystem;
-  }
-
-  /**
-   * For internal use only.
-   *
-   * @deprecated since 2.6. See http://jira.sonarsource.com/browse/SONAR-2126
-   */
-  @Deprecated
-  public Project setFileSystem(ProjectFileSystem fs) {
-    this.fileSystem = fs;
-    return this;
   }
 
   public static Project createFromMavenIds(String groupId, String artifactId) {

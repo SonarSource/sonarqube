@@ -19,14 +19,12 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.10
@@ -54,10 +52,6 @@ public abstract class AbstractSourceImporter implements Sensor {
 
   protected void onFinished() {
 
-  }
-
-  protected void analyse(ProjectFileSystem fileSystem, SensorContext context) {
-    // Do not remove for backward compatibility
   }
 
   protected void parseDirs(SensorContext context, List<File> files, List<File> sourceDirs, boolean unitTest, Charset sourcesEncoding) {
