@@ -19,15 +19,12 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.10
  * @deprecated since 5.2 there's no more decorator on batch side. Use {@link org.sonar.api.ce.measure.MeasureComputer} instead
  */
-@BatchSide
-@ExtensionPoint
 @Deprecated
 public interface Decorator extends CheckProject {
 
