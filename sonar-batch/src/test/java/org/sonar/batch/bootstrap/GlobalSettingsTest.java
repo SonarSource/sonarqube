@@ -70,9 +70,9 @@ public class GlobalSettingsTest {
     new GlobalSettings(bootstrapProps, new PropertyDefinitions(), globalRef, mode);
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
-      "Property 'sonar.jdbc.url' is not supported any more. There is no more DB connection to the SQ database. It will be ignored.",
-      "Property 'sonar.jdbc.username' is not supported any more. There is no more DB connection to the SQ database. It will be ignored.",
-      "Property 'sonar.jdbc.password' is not supported any more. There is no more DB connection to the SQ database. It will be ignored."
+      "Property 'sonar.jdbc.url' is not supported any more. It will be ignored. There is no longer any DB connection to the SQ database.",
+      "Property 'sonar.jdbc.username' is not supported any more. It will be ignored. There is no longer any DB connection to the SQ database.",
+      "Property 'sonar.jdbc.password' is not supported any more. It will be ignored. There is no longer any DB connection to the SQ database."
       );
   }
 }

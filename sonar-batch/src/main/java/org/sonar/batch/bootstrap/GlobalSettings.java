@@ -33,7 +33,7 @@ public class GlobalSettings extends Settings {
 
   private static final Logger LOG = LoggerFactory.getLogger(GlobalSettings.class);
 
-  private static final String JDBC_SPECIFIC_MESSAGE = "There is no more DB connection to the SQ database. It will be ignored.";
+  private static final String JDBC_SPECIFIC_MESSAGE = "It will be ignored. There is no longer any DB connection to the SQ database.";
   /**
    * A map of dropped properties as key and specific message to display for that property
    * (what will happen, what should the user do, ...) as a value

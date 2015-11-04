@@ -112,7 +112,7 @@ public class ProjectCacheSynchronizer {
 
   private void saveStatus() {
     cacheStatus.save();
-    LOG.info("-- Succesfully synchronized project cache");
+    LOG.info("-- Successfully synchronized project cache");
   }
 
   private void loadData(String projectKey) {
