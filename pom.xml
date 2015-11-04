@@ -1363,6 +1363,9 @@
           <exists>src/main/protobuf</exists>
         </file>
       </activation>
+      <properties>
+        <sonar.exclusions>${project.build.directory}/generated-sources/protobuf/**/*</sonar.exclusions>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -1430,6 +1433,9 @@
           <exists>src/test/protobuf</exists>
         </file>
       </activation>
+      <properties>
+        <sonar.test.exclusions>${project.build.directory}/generated-test-sources/protobuf/**/*</sonar.test.exclusions>
+      </properties>
       <build>
         <plugins>
           <plugin>
