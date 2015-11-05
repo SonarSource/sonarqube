@@ -19,10 +19,13 @@
  */
 package org.sonar.db.duplication;
 
+import com.google.common.base.Function;
 import java.util.Collection;
 import java.util.List;
-import org.apache.ibatis.session.SqlSession;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
@@ -34,31 +37,26 @@ public class DuplicationDao implements Dao {
     this.mybatis = mybatis;
   }
 
-  public List<DuplicationUnitDto> selectCandidates(int resourceSnapshotId, Integer lastSnapshotId, String language) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
-      return mapper.selectCandidates(resourceSnapshotId, lastSnapshotId, language);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  /**
+   * @param projectSnapshotId snapshot id of the project from the previous analysis (islast=true)
+   */
+  public List<DuplicationUnitDto> selectCandidates(final DbSession session, @Nullable final Long projectSnapshotId, final String language, Collection<String> hashes) {
+    return DatabaseUtils.executeLargeInputs(hashes, new Function<List<String>, List<DuplicationUnitDto>>() {
+      @Override
+      public List<DuplicationUnitDto> apply(@Nonnull List<String> partition) {
+        return session.getMapper(DuplicationMapper.class).selectCandidates(projectSnapshotId, language, partition);
+      }
+    });
   }
 
   /**
    * Insert rows in the table DUPLICATIONS_INDEX.
    * Note that generated ids are not returned.
    */
-  public void insert(Collection<DuplicationUnitDto> units) {
-    DbSession session = mybatis.openSession(true);
-    try {
-      DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
-      for (DuplicationUnitDto unit : units) {
-        mapper.batchInsert(unit);
-      }
-      session.commit();
-
-    } finally {
-      MyBatis.closeQuietly(session);
+  public void insert(DbSession session, Collection<DuplicationUnitDto> units) {
+    DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
+    for (DuplicationUnitDto unit : units) {
+      mapper.batchInsert(unit);
     }
   }
 

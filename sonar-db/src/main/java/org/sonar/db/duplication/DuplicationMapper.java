@@ -19,15 +19,17 @@
  */
 package org.sonar.db.duplication;
 
+import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
 public interface DuplicationMapper {
 
   List<DuplicationUnitDto> selectCandidates(
-    @Param("resource_snapshot_id") int resourceSnapshotId,
-    @Param("last_project_snapshot_id") Integer lastSnapshotId,
-    @Param("language") String language);
+    @Nullable @Param("projectSnapshotId") Long projectSnapshotId,
+    @Param("language") String language,
+    @Param("hashes") Collection<String> hashes);
 
   void batchInsert(DuplicationUnitDto unit);
 
