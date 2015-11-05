@@ -19,13 +19,15 @@
  */
 package org.sonar.batch.scan.report;
 
+import javax.annotation.Nullable;
+
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.issue.IssueCache;
@@ -68,7 +70,7 @@ public class ConsoleReportTest {
   public void testNoFile() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
     when(inputPathCache.allFiles()).thenReturn(Collections.<InputFile>emptyList());
-    when(issueCache.all()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(issueCache.all()).thenReturn(Collections.<TrackedIssue>emptyList());
     report.execute();
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
@@ -80,7 +82,7 @@ public class ConsoleReportTest {
   public void testNoNewIssue() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
     when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/Foo.php")));
-    when(issueCache.all()).thenReturn(Arrays.asList(new DefaultIssue().setNew(false)));
+    when(issueCache.all()).thenReturn(Arrays.asList(createIssue(false, null)));
     report.execute();
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
@@ -92,7 +94,7 @@ public class ConsoleReportTest {
   public void testOneNewIssue() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
     when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/Foo.php")));
-    when(issueCache.all()).thenReturn(Arrays.asList(new DefaultIssue().setNew(true).setSeverity(Severity.BLOCKER)));
+    when(issueCache.all()).thenReturn(Arrays.asList(createIssue(true, Severity.BLOCKER)));
     report.execute();
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
@@ -105,11 +107,12 @@ public class ConsoleReportTest {
   public void testOneNewIssuePerSeverity() {
     settings.setProperty(ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, "true");
     when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/Foo.php")));
-    when(issueCache.all()).thenReturn(Arrays.asList(new DefaultIssue().setNew(true).setSeverity(Severity.BLOCKER),
-      new DefaultIssue().setNew(true).setSeverity(Severity.CRITICAL),
-      new DefaultIssue().setNew(true).setSeverity(Severity.MAJOR),
-      new DefaultIssue().setNew(true).setSeverity(Severity.MINOR),
-      new DefaultIssue().setNew(true).setSeverity(Severity.INFO)));
+    when(issueCache.all()).thenReturn(Arrays.asList(
+      createIssue(true, Severity.BLOCKER),
+      createIssue(true, Severity.CRITICAL),
+      createIssue(true, Severity.MAJOR),
+      createIssue(true, Severity.MINOR),
+      createIssue(true, Severity.INFO)));
     report.execute();
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
@@ -129,6 +132,14 @@ public class ConsoleReportTest {
       }
     }
     throw new IllegalStateException("No console report");
+  }
+
+  private TrackedIssue createIssue(boolean isNew, @Nullable String severity) {
+    TrackedIssue issue = new TrackedIssue();
+    issue.setNew(isNew);
+    issue.setSeverity(severity);
+
+    return issue;
   }
 
 }

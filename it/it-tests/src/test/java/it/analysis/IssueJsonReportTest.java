@@ -6,15 +6,15 @@
 package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.ResourceLocation;
 import it.Category3Suite;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -22,6 +22,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
 import util.ItUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,6 +43,69 @@ public class IssueJsonReportTest {
   @Before
   public void resetData() {
     orchestrator.resetData();
+  }
+
+  @Test
+  public void issue_line() throws IOException {
+    orchestrator.getServer().restoreProfile(getResource("one-issue-per-line.xml"));
+    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+
+    File projectDir = ItUtils.projectDir("shared/xoo-sample");
+    SonarRunner runner = SonarRunner.create(projectDir,
+      "sonar.analysis.mode", "issues",
+      "sonar.verbose", "true",
+      "sonar.report.export.path", "sonar-report.json");
+    BuildResult result = orchestrator.executeBuild(runner);
+    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
+
+    JSONObject obj = ItUtils.getJSONReport(result);
+    JSONArray issues = (JSONArray) obj.get("issues");
+    for (Object issue : issues) {
+      JSONObject jsonIssue = (JSONObject) issue;
+      assertThat(jsonIssue.get("startLine")).isNotNull();
+      assertThat(jsonIssue.get("endLine")).isNotNull();
+
+      assertThat(jsonIssue.get("endLine")).isEqualTo(jsonIssue.get("startLine"));
+
+      assertThat(jsonIssue.get("endOffset")).isNotNull();
+      assertThat(jsonIssue.get("startOffset")).isNotNull();
+    }
+
+    List<Long> lineNumbers = new ArrayList<Long>(16);
+    for (long i = 1L; i < 18; i++) {
+      lineNumbers.add(i);
+    }
+    assertThat(issues).extracting("startLine").containsAll(lineNumbers);
+    assertThat(issues).extracting("endLine").containsAll(lineNumbers);
+  }
+
+  @Test
+  public void precise_issue_location() throws IOException {
+    orchestrator.getServer().restoreProfile(getResource("multiline.xml"));
+    orchestrator.getServer().provisionProject("sample-multiline", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample-multiline", "xoo", "multiline");
+
+    File projectDir = ItUtils.projectDir("shared/xoo-precise-issues");
+    SonarRunner runner = SonarRunner.create(projectDir,
+      "sonar.analysis.mode", "issues",
+      "sonar.verbose", "true",
+      "sonar.report.export.path", "sonar-report.json");
+    BuildResult result = orchestrator.executeBuild(runner);
+    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(2);
+
+    JSONObject obj = ItUtils.getJSONReport(result);
+    JSONArray issues = (JSONArray) obj.get("issues");
+
+    for (Object i : issues) {
+      JSONObject issue = (JSONObject) i;
+      assertThat(issue.get("startLine")).isIn(6L, 9L);
+      assertThat(issue.get("line")).isIn(6L, 9L);
+      assertThat(issue.get("endLine")).isIn(6L, 15L);
+      assertThat(issue.get("startOffset")).isIn(27L, 20L);
+      assertThat(issue.get("endOffset")).isIn(32L, 2L);
+    }
+
   }
 
   @Test

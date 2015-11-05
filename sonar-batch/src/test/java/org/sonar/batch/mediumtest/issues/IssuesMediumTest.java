@@ -88,6 +88,10 @@ public class IssuesMediumTest {
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(issues).hasSize(8 /* lines */);
+
+    Issue issue = issues.get(0);
+    assertThat(issue.getTextRange().getStartLine()).isEqualTo(issue.getLine());
+    assertThat(issue.getTextRange().getEndLine()).isEqualTo(issue.getLine());
   }
 
   @Test

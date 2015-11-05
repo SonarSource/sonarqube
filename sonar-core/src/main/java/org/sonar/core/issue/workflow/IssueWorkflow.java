@@ -21,7 +21,6 @@ package org.sonar.core.issue.workflow;
 
 import java.util.List;
 import org.picocontainer.Startable;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.HasResolution;
@@ -32,7 +31,6 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 
-@BatchSide
 @ServerSide
 public class IssueWorkflow implements Startable {
 

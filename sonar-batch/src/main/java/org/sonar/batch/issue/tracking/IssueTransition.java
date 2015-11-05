@@ -19,50 +19,47 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.batch.issue.IssueTransformer;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
 import javax.annotation.Nullable;
+
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.util.CloseableIterator;
 
 @BatchSide
 public class IssueTransition {
   private final IssueCache issueCache;
-  private final IssueWorkflow workflow;
-  private final IssueChangeContext changeContext;
   private final BatchComponentCache componentCache;
   private final ReportPublisher reportPublisher;
   private final Date analysisDate;
   @Nullable
   private final LocalIssueTracking localIssueTracking;
 
-  public IssueTransition(BatchComponentCache componentCache, IssueCache issueCache, IssueWorkflow workflow, ReportPublisher reportPublisher,
+  public IssueTransition(BatchComponentCache componentCache, IssueCache issueCache, ReportPublisher reportPublisher,
     @Nullable LocalIssueTracking localIssueTracking) {
     this.componentCache = componentCache;
     this.issueCache = issueCache;
-    this.workflow = workflow;
     this.reportPublisher = reportPublisher;
     this.localIssueTracking = localIssueTracking;
     this.analysisDate = ((Project) componentCache.getRoot().resource()).getAnalysisDate();
-    this.changeContext = IssueChangeContext.createScan(analysisDate);
   }
 
-  public IssueTransition(BatchComponentCache componentCache, IssueCache issueCache, IssueWorkflow workflow, ReportPublisher reportPublisher) {
-    this(componentCache, issueCache, workflow, reportPublisher, null);
+  public IssueTransition(BatchComponentCache componentCache, IssueCache issueCache, ReportPublisher reportPublisher) {
+    this(componentCache, issueCache, reportPublisher, null);
   }
 
   public void execute() {
@@ -88,7 +85,7 @@ public class IssueTransition {
       throw new IllegalStateException("Can't read issues for " + component.key(), e);
     }
 
-    List<DefaultIssue> trackedIssues;
+    List<TrackedIssue> trackedIssues;
     if (localIssueTracking != null) {
       trackedIssues = localIssueTracking.trackIssues(component, rawIssues);
     } else {
@@ -98,32 +95,19 @@ public class IssueTransition {
     // Unmatched raw issues = new issues
     addUnmatchedRawIssues(component, rawIssues, trackedIssues);
 
-    for (DefaultIssue issue : trackedIssues) {
-      workflow.doAutomaticTransition(issue, changeContext);
+    for (TrackedIssue issue : trackedIssues) {
       issueCache.put(issue);
     }
   }
-  
-  private void addUnmatchedRawIssues(BatchComponent component, Set<org.sonar.batch.protocol.output.BatchReport.Issue> rawIssues, List<DefaultIssue> trackedIssues) {
+
+  private void addUnmatchedRawIssues(BatchComponent component, Set<org.sonar.batch.protocol.output.BatchReport.Issue> rawIssues, List<TrackedIssue> trackedIssues) {
     for (BatchReport.Issue rawIssue : rawIssues) {
 
-      DefaultIssue tracked = toTracked(component, rawIssue);
-      tracked.setNew(true);
+      TrackedIssue tracked = IssueTransformer.toTrackedIssue(component, rawIssue);
       tracked.setCreationDate(analysisDate);
 
       trackedIssues.add(tracked);
     }
   }
 
-  private DefaultIssue toTracked(BatchComponent component, BatchReport.Issue rawIssue) {
-    return new org.sonar.core.issue.DefaultIssueBuilder()
-      .componentKey(component.key())
-      .projectKey("unused")
-      .ruleKey(RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey()))
-      .effortToFix(rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null)
-      .line(rawIssue.hasLine() ? rawIssue.getLine() : null)
-      .message(rawIssue.hasMsg() ? rawIssue.getMsg() : null)
-      .severity(rawIssue.getSeverity().name())
-      .build();
-  }
 }

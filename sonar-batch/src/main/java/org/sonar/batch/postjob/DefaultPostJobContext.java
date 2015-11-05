@@ -19,10 +19,14 @@
  */
 package org.sonar.batch.postjob;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+
 import javax.annotation.Nullable;
+
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.postjob.PostJobContext;
@@ -33,7 +37,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.core.issue.DefaultIssue;
 
 public class DefaultPostJobContext implements PostJobContext {
 
@@ -61,29 +64,19 @@ public class DefaultPostJobContext implements PostJobContext {
 
   @Override
   public Iterable<Issue> issues() {
-    return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(false)), new Function<DefaultIssue, Issue>() {
-      @Override
-      public Issue apply(DefaultIssue input) {
-        return new DefaultIssueWrapper(input);
-      }
-    });
+    return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(false)), new IssueTransformer());
   }
 
   @Override
   public Iterable<Issue> resolvedIssues() {
-    return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(true)), new Function<DefaultIssue, Issue>() {
-      @Override
-      public Issue apply(DefaultIssue input) {
-        return new DefaultIssueWrapper(input);
-      }
-    });
+    return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(true)), new IssueTransformer());
   }
 
   private class DefaultIssueWrapper implements Issue {
 
-    private final DefaultIssue wrapped;
+    private final TrackedIssue wrapped;
 
-    public DefaultIssueWrapper(DefaultIssue wrapped) {
+    public DefaultIssueWrapper(TrackedIssue wrapped) {
       this.wrapped = wrapped;
     }
 
@@ -110,7 +103,7 @@ public class DefaultPostJobContext implements PostJobContext {
 
     @Override
     public Integer line() {
-      return wrapped.line();
+      return wrapped.startLine();
     }
 
     @Override
@@ -133,10 +126,16 @@ public class DefaultPostJobContext implements PostJobContext {
     public boolean isNew() {
       return wrapped.isNew();
     }
-
   }
 
-  private static class ResolvedPredicate implements Predicate<DefaultIssue> {
+  private class IssueTransformer implements Function<TrackedIssue, Issue> {
+    @Override
+    public Issue apply(TrackedIssue input) {
+      return new DefaultIssueWrapper(input);
+    }
+  }
+
+  private static class ResolvedPredicate implements Predicate<TrackedIssue> {
     private final boolean resolved;
 
     private ResolvedPredicate(boolean resolved) {
@@ -144,7 +143,7 @@ public class DefaultPostJobContext implements PostJobContext {
     }
 
     @Override
-    public boolean apply(@Nullable DefaultIssue issue) {
+    public boolean apply(@Nullable TrackedIssue issue) {
       if (issue != null) {
         return resolved ? issue.resolution() != null : issue.resolution() == null;
       }

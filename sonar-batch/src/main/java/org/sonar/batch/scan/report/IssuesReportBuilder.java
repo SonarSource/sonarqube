@@ -19,13 +19,15 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import javax.annotation.CheckForNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.DefaultProjectTree;
@@ -33,7 +35,6 @@ import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.core.issue.DefaultIssue;
 
 @BatchSide
 public class IssuesReportBuilder {
@@ -66,8 +67,8 @@ public class IssuesReportBuilder {
     return issuesReport;
   }
 
-  private void processIssues(IssuesReport issuesReport, Iterable<DefaultIssue> issues) {
-    for (Issue issue : issues) {
+  private void processIssues(IssuesReport issuesReport, Iterable<TrackedIssue> issues) {
+    for (TrackedIssue issue : issues) {
       Rule rule = findRule(issue);
       RulePriority severity = RulePriority.valueOf(issue.severity());
       BatchComponent resource = resourceCache.get(issue.componentKey());
@@ -82,7 +83,7 @@ public class IssuesReportBuilder {
     }
   }
 
-  private static boolean validate(Issue issue, Rule rule, BatchComponent resource) {
+  private static boolean validate(TrackedIssue issue, Rule rule, BatchComponent resource) {
     if (rule == null) {
       LOG.warn("Unknow rule for issue {}", issue);
       return false;
@@ -95,7 +96,7 @@ public class IssuesReportBuilder {
   }
 
   @CheckForNull
-  private Rule findRule(Issue issue) {
+  private Rule findRule(TrackedIssue issue) {
     return rules.find(issue.ruleKey());
   }
 

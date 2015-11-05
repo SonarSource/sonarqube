@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.batch.rule.Rule;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 
+import org.sonar.api.batch.rule.Rule;
 import com.google.common.collect.Maps;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.index.BatchComponent;
 
@@ -37,9 +37,9 @@ public final class ResourceReport {
   private final IssueVariation total = new IssueVariation();
   private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = Maps.newHashMap();
 
-  private List<Issue> issues = new ArrayList<>();
-  private Map<Integer, List<Issue>> issuesPerLine = Maps.newHashMap();
-  private Map<Integer, List<Issue>> newIssuesPerLine = Maps.newHashMap();
+  private List<TrackedIssue> issues = new ArrayList<>();
+  private Map<Integer, List<TrackedIssue>> issuesPerLine = Maps.newHashMap();
+  private Map<Integer, List<TrackedIssue>> newIssuesPerLine = Maps.newHashMap();
   private Map<Rule, AtomicInteger> issuesByRule = Maps.newHashMap();
   private Map<RulePriority, AtomicInteger> issuesBySeverity = Maps.newHashMap();
 
@@ -63,15 +63,15 @@ public final class ResourceReport {
     return total;
   }
 
-  public List<Issue> getIssues() {
+  public List<TrackedIssue> getIssues() {
     return issues;
   }
 
-  public Map<Integer, List<Issue>> getIssuesPerLine() {
+  public Map<Integer, List<TrackedIssue>> getIssuesPerLine() {
     return issuesPerLine;
   }
 
-  public List<Issue> getIssuesAtLine(int lineId, boolean all) {
+  public List<TrackedIssue> getIssuesAtLine(int lineId, boolean all) {
     if (all) {
       if (issuesPerLine.containsKey(lineId)) {
         return issuesPerLine.get(lineId);
@@ -82,14 +82,14 @@ public final class ResourceReport {
     return Collections.emptyList();
   }
 
-  public void addIssue(Issue issue, Rule rule, RulePriority severity) {
+  public void addIssue(TrackedIssue issue, Rule rule, RulePriority severity) {
     ReportRuleKey reportRuleKey = new ReportRuleKey(rule, severity);
     initMaps(reportRuleKey);
     issues.add(issue);
-    Integer line = issue.line();
+    Integer line = issue.startLine();
     line = line != null ? line : 0;
     if (!issuesPerLine.containsKey(line)) {
-      issuesPerLine.put(line, new ArrayList<Issue>());
+      issuesPerLine.put(line, new ArrayList<TrackedIssue>());
     }
     issuesPerLine.get(line).add(issue);
     if (!issuesByRule.containsKey(rule)) {
@@ -104,7 +104,7 @@ public final class ResourceReport {
     total.incrementCountInCurrentAnalysis();
     if (issue.isNew()) {
       if (!newIssuesPerLine.containsKey(line)) {
-        newIssuesPerLine.put(line, new ArrayList<Issue>());
+        newIssuesPerLine.put(line, new ArrayList<TrackedIssue>());
       }
       newIssuesPerLine.get(line).add(issue);
       total.incrementNewIssuesCount();
@@ -112,7 +112,7 @@ public final class ResourceReport {
     }
   }
 
-  public void addResolvedIssue(Issue issue, Rule rule, RulePriority severity) {
+  public void addResolvedIssue(Rule rule, RulePriority severity) {
     ReportRuleKey reportRuleKey = new ReportRuleKey(rule, severity);
     initMaps(reportRuleKey);
     total.incrementResolvedIssuesCount();
@@ -139,10 +139,10 @@ public final class ResourceReport {
 
   private boolean hasIssues(Integer lineId, boolean all) {
     if (all) {
-      List<Issue> issuesAtLine = issuesPerLine.get(lineId);
+      List<TrackedIssue> issuesAtLine = issuesPerLine.get(lineId);
       return issuesAtLine != null && !issuesAtLine.isEmpty();
     }
-    List<Issue> newIssuesAtLine = newIssuesPerLine.get(lineId);
+    List<TrackedIssue> newIssuesAtLine = newIssuesPerLine.get(lineId);
     return newIssuesAtLine != null && !newIssuesAtLine.isEmpty();
   }
 

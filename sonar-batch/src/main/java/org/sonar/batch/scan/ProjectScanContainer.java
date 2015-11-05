@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.issue.DefaultProjectIssues;
+
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -47,7 +49,6 @@ import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.DefaultIssueCallback;
-import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.issue.tracking.IssueTransition;
@@ -91,9 +92,7 @@ import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
 import org.sonar.batch.test.TestPlanBuilder;
 import org.sonar.batch.test.TestableBuilder;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
-import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.platform.ComponentContainer;
 
 public class ProjectScanContainer extends ComponentContainer {
@@ -166,9 +165,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new QualityProfileProvider(),
 
       // issues
-      IssueUpdater.class,
       FunctionExecutor.class,
-      IssueWorkflow.class,
       IssueCache.class,
       DefaultProjectIssues.class,
       IssueTransition.class,

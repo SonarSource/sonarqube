@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import org.sonar.api.batch.BatchSide;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
@@ -33,17 +34,17 @@ import java.util.Collection;
 public class IssueCache {
 
   // component key -> issue key -> issue
-  private final Cache<DefaultIssue> cache;
+  private final Cache<TrackedIssue> cache;
 
   public IssueCache(Caches caches) {
     cache = caches.createCache("issues");
   }
 
-  public Iterable<DefaultIssue> byComponent(String componentKey) {
+  public Iterable<TrackedIssue> byComponent(String componentKey) {
     return cache.values(componentKey);
   }
 
-  public Iterable<DefaultIssue> all() {
+  public Iterable<TrackedIssue> all() {
     return cache.values();
   }
 
@@ -51,7 +52,7 @@ public class IssueCache {
     return cache.keySet();
   }
 
-  public IssueCache put(DefaultIssue issue) {
+  public IssueCache put(TrackedIssue issue) {
     cache.put(issue.componentKey(), issue.key(), issue);
     return this;
   }

@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
-import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.FileUtils;
 import org.sonar.xoo.rule.XooRulesDefinition;
 import com.google.common.collect.ImmutableMap;
@@ -76,6 +77,10 @@ public class EmptyFileTest {
       .property("sonar.xoo.internalKey", "my/internal/key")
       .start();
 
+    for(TrackedIssue i : result.trackedIssues()) {
+      System.out.println(i.startLine() + " " + i.message());
+    }
+    
     assertThat(result.trackedIssues()).hasSize(11);
   }
 

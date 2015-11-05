@@ -19,8 +19,11 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,8 +31,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +47,6 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.issue.Issue;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
@@ -53,14 +57,13 @@ import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
 
 public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   private static final Logger LOG = LoggerFactory.getLogger(TaskResult.class);
 
-  private List<Issue> issues = new ArrayList<>();
+  private List<TrackedIssue> issues = new ArrayList<>();
   private Map<String, InputFile> inputFiles = new HashMap<>();
   private Map<String, Component> reportComponents = new HashMap<>();
   private Map<String, InputDir> inputDirs = new HashMap<>();
@@ -69,7 +72,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   @Override
   public void scanTaskCompleted(ProjectScanContainer container) {
     LOG.info("Store analysis results in memory for later assertions in medium test");
-    for (DefaultIssue issue : container.getComponentByType(IssueCache.class).all()) {
+    for (TrackedIssue issue : container.getComponentByType(IssueCache.class).all()) {
       issues.add(issue);
     }
 
@@ -112,7 +115,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     }
   }
 
-  public List<Issue> trackedIssues() {
+  public List<TrackedIssue> trackedIssues() {
     return issues;
   }
 

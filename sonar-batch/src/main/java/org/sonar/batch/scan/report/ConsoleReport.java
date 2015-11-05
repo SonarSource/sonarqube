@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Properties;
@@ -30,7 +32,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.core.issue.DefaultIssue;
 
 @Properties({
   @Property(key = ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, name = "Enable console report", description = "Set this to true to generate a report in console output",
@@ -65,7 +66,7 @@ public class ConsoleReport implements Reporter {
     int newMinorIssues = 0;
     int newInfoIssues = 0;
 
-    public void process(DefaultIssue issue) {
+    public void process(TrackedIssue issue) {
       if (issue.isNew()) {
         totalNewIssues++;
         switch (issue.severity()) {
@@ -100,7 +101,7 @@ public class ConsoleReport implements Reporter {
     if (settings.getBoolean(CONSOLE_REPORT_ENABLED_KEY)) {
       Report r = new Report();
       r.setNoFile(!inputPathCache.allFiles().iterator().hasNext());
-      for (DefaultIssue issue : issueCache.all()) {
+      for (TrackedIssue issue : issueCache.all()) {
         r.process(issue);
       }
       printReport(r);

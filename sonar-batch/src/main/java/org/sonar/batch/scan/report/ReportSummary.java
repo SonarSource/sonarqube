@@ -19,13 +19,16 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import com.google.common.collect.Maps;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 import org.sonar.api.batch.rule.Rule;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RulePriority;
 
 public class ReportSummary {
@@ -40,7 +43,7 @@ public class ReportSummary {
     return total;
   }
 
-  public void addIssue(Issue issue, Rule rule, RulePriority severity) {
+  public void addIssue(TrackedIssue issue, Rule rule, RulePriority severity) {
     ReportRuleKey reportRuleKey = new ReportRuleKey(rule, severity);
     initMaps(reportRuleKey);
     ruleReportByRuleKey.get(reportRuleKey).getTotal().incrementCountInCurrentAnalysis();
@@ -63,7 +66,7 @@ public class ReportSummary {
     return totalByRuleKey;
   }
 
-  public void addResolvedIssue(Issue issue, Rule rule, RulePriority severity) {
+  public void addResolvedIssue(TrackedIssue issue, Rule rule, RulePriority severity) {
     ReportRuleKey reportRuleKey = new ReportRuleKey(rule, severity);
     initMaps(reportRuleKey);
     total.incrementResolvedIssuesCount();

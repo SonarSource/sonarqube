@@ -32,7 +32,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
@@ -42,7 +41,6 @@ import org.sonar.api.utils.Duration;
 /**
  * Updates issue fields and chooses if changes must be kept in history.
  */
-@BatchSide
 @ServerSide
 public class IssueUpdater {
 

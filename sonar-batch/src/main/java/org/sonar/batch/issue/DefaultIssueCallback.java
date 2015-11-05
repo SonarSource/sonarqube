@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.issue;
 
-import org.apache.commons.lang.StringUtils;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
@@ -33,7 +34,6 @@ import java.util.Set;
 
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.bootstrapper.IssueListener;
-import org.sonar.core.issue.DefaultIssue;
 
 public class DefaultIssueCallback implements IssueCallback {
   private final IssueCache issues;
@@ -65,37 +65,40 @@ public class DefaultIssueCallback implements IssueCallback {
       return;
     }
 
-    for (DefaultIssue issue : issues.all()) {
+    for (TrackedIssue issue : issues.all()) {
       collectInfo(issue);
     }
 
     getUsers();
 
-    for (DefaultIssue issue : issues.all()) {
+    for (TrackedIssue issue : issues.all()) {
       IssueListener.Issue newIssue = new IssueListener.Issue();
       newIssue.setAssigneeLogin(issue.assignee());
       newIssue.setAssigneeName(getAssigneeName(issue.assignee()));
       newIssue.setComponentKey(issue.componentKey());
       newIssue.setKey(issue.key());
-      newIssue.setLine(issue.getLine());
-      newIssue.setMessage(issue.getMessage());
+      newIssue.setMessage(issue.message());
       newIssue.setNew(issue.isNew());
       newIssue.setResolution(issue.resolution());
-      newIssue.setRuleKey(issue.getRuleKey().toString());
-      newIssue.setRuleName(getRuleName(issue.getRuleKey()));
+      newIssue.setRuleKey(issue.ruleKey().toString());
+      newIssue.setRuleName(getRuleName(issue.ruleKey()));
       newIssue.setSeverity(issue.severity());
       newIssue.setStatus(issue.status());
+      newIssue.setStartLine(issue.startLine());
+      newIssue.setStartLineOffset(issue.startLineOffset());
+      newIssue.setEndLine(issue.endLine());
+      newIssue.setEndLineOffset(issue.endLineOffset());
 
       listener.handle(newIssue);
     }
   }
 
-  private void collectInfo(DefaultIssue issue) {
+  private void collectInfo(TrackedIssue issue) {
     if (!StringUtils.isEmpty(issue.assignee())) {
       userLoginNames.add(issue.assignee());
     }
-    if (issue.getRuleKey() != null) {
-      ruleKeys.add(issue.getRuleKey());
+    if (issue.ruleKey() != null) {
+      ruleKeys.add(issue.ruleKey());
     }
   }
 

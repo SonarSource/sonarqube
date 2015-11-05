@@ -21,6 +21,9 @@ package org.sonar.batch.issue;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.bootstrapper.IssueListener.Issue;
@@ -32,13 +35,11 @@ import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.junit.Before;
 import com.google.common.collect.ImmutableList;
-import org.sonar.core.issue.DefaultIssue;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
@@ -50,14 +51,14 @@ public class DefaultIssueCallbackTest {
   @Mock
   private Rules rules;
 
-  private DefaultIssue issue;
+  private TrackedIssue issue;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
 
     RuleKey ruleKey = RuleKey.of("repo", "key");
-    issue = new DefaultIssue();
+    issue = new TrackedIssue();
     issue.setKey("key");
     issue.setAssignee("user");
     issue.setRuleKey(ruleKey);

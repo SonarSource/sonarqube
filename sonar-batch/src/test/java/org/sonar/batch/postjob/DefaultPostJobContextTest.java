@@ -19,7 +19,10 @@
  */
 package org.sonar.batch.postjob;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.AnalysisMode;
@@ -30,8 +33,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.File;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.core.issue.DefaultIssue;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,12 +59,12 @@ public class DefaultPostJobContextTest {
     assertThat(context.settings()).isSameAs(settings);
     assertThat(context.analysisMode()).isSameAs(analysisMode);
 
-    DefaultIssue defaultIssue = new DefaultIssue();
+    TrackedIssue defaultIssue = new TrackedIssue();
     defaultIssue.setComponentKey("foo:src/Foo.php");
     defaultIssue.setEffortToFix(2.0);
     defaultIssue.setNew(true);
     defaultIssue.setKey("xyz");
-    defaultIssue.setLine(1);
+    defaultIssue.setStartLine(1);
     defaultIssue.setMessage("msg");
     defaultIssue.setSeverity("BLOCKER");
     when(issueCache.all()).thenReturn(Arrays.asList(defaultIssue));

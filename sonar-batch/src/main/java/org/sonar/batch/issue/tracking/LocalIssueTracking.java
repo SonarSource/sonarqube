@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.batch.issue.IssueTransformer;
 
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -38,42 +39,27 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchComponent;
-import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.repository.ProjectRepositories;
-import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
 
 @BatchSide
 public class LocalIssueTracking {
   private final IssueTracking tracking;
   private final ServerLineHashesLoader lastLineHashes;
-  private final IssueUpdater updater;
-  private final IssueChangeContext changeContext;
   private final ActiveRules activeRules;
   private final ServerIssueRepository serverIssueRepository;
-  private final Date analysisDate;
   private final DefaultAnalysisMode mode;
 
   private boolean hasServerAnalysis;
 
-  public LocalIssueTracking(BatchComponentCache resourceCache, IssueTracking tracking, ServerLineHashesLoader lastLineHashes, IssueUpdater updater,
-    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, ReportPublisher reportPublisher,
-    DefaultAnalysisMode mode) {
+  public LocalIssueTracking(IssueTracking tracking, ServerLineHashesLoader lastLineHashes,
+    ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
     this.tracking = tracking;
     this.lastLineHashes = lastLineHashes;
-    this.updater = updater;
     this.serverIssueRepository = serverIssueRepository;
     this.mode = mode;
-    this.analysisDate = ((Project) resourceCache.getRoot().resource()).getAnalysisDate();
-    this.changeContext = IssueChangeContext.createScan(analysisDate);
     this.activeRules = activeRules;
     this.hasServerAnalysis = projectRepositories.lastAnalysisDate() != null;
   }
@@ -84,8 +70,8 @@ public class LocalIssueTracking {
     }
   }
 
-  public List<DefaultIssue> trackIssues(BatchComponent component, Set<BatchReport.Issue> rawIssues) {
-    List<DefaultIssue> trackedIssues = Lists.newArrayList();
+  public List<TrackedIssue> trackIssues(BatchComponent component, Set<BatchReport.Issue> rawIssues) {
+    List<TrackedIssue> trackedIssues = Lists.newArrayList();
     if (hasServerAnalysis) {
       // all the issues that are not closed in db before starting this module scan, including manual issues
       Collection<ServerIssue> serverIssues = loadServerIssues(component);
@@ -124,31 +110,21 @@ public class LocalIssueTracking {
     return false;
   }
 
-  private void copyServerIssues(Collection<ServerIssue> serverIssues, List<DefaultIssue> trackedIssues) {
+  private void copyServerIssues(Collection<ServerIssue> serverIssues, List<TrackedIssue> trackedIssues) {
     for (ServerIssue serverIssue : serverIssues) {
       org.sonar.batch.protocol.input.BatchInput.ServerIssue unmatchedPreviousIssue = ((ServerIssueFromWs) serverIssue).getDto();
-      DefaultIssue unmatched = toUnmatchedIssue(unmatchedPreviousIssue);
+      TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue);
 
       ActiveRule activeRule = activeRules.find(unmatched.ruleKey());
       unmatched.setNew(false);
 
-      boolean isRemovedRule = activeRule == null;
-      unmatched.setBeingClosed(isRemovedRule);
-      unmatched.setOnDisabledRule(isRemovedRule);
+      if (activeRule == null) {
+        // rule removed
+        IssueTransformer.resolveRemove(unmatched);
+      }
+
       trackedIssues.add(unmatched);
     }
-  }
-
-  private DefaultIssue toTracked(BatchComponent component, BatchReport.Issue rawIssue) {
-    return new org.sonar.core.issue.DefaultIssueBuilder()
-      .componentKey(component.key())
-      .projectKey("unused")
-      .ruleKey(RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey()))
-      .effortToFix(rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null)
-      .line(rawIssue.hasLine() ? rawIssue.getLine() : null)
-      .message(rawIssue.hasMsg() ? rawIssue.getMsg() : null)
-      .severity(rawIssue.getSeverity().name())
-      .build();
   }
 
   @CheckForNull
@@ -173,20 +149,18 @@ public class LocalIssueTracking {
   }
 
   @VisibleForTesting
-  protected void mergeMatched(BatchComponent component, IssueTrackingResult result, List<DefaultIssue> trackedIssues, Collection<BatchReport.Issue> rawIssues) {
+  protected void mergeMatched(BatchComponent component, IssueTrackingResult result, List<TrackedIssue> trackedIssues, Collection<BatchReport.Issue> rawIssues) {
     for (BatchReport.Issue rawIssue : result.matched()) {
       rawIssues.remove(rawIssue);
       org.sonar.batch.protocol.input.BatchInput.ServerIssue ref = ((ServerIssueFromWs) result.matching(rawIssue)).getDto();
 
-      DefaultIssue tracked = toTracked(component, rawIssue);
+      TrackedIssue tracked = IssueTransformer.toTrackedIssue(component, rawIssue);
 
       // invariant fields
       tracked.setKey(ref.getKey());
 
       // non-persisted fields
       tracked.setNew(false);
-      tracked.setBeingClosed(false);
-      tracked.setOnDisabledRule(false);
 
       // fields to update with old values
       tracked.setResolution(ref.hasResolution() ? ref.getResolution() : null);
@@ -202,10 +176,10 @@ public class LocalIssueTracking {
     }
   }
 
-  private void addUnmatchedFromServer(Collection<ServerIssue> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<DefaultIssue> issues) {
+  private void addUnmatchedFromServer(Collection<ServerIssue> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<TrackedIssue> issues) {
     for (ServerIssue unmatchedIssue : unmatchedIssues) {
       org.sonar.batch.protocol.input.BatchInput.ServerIssue unmatchedPreviousIssue = ((ServerIssueFromWs) unmatchedIssue).getDto();
-      DefaultIssue unmatched = toUnmatchedIssue(unmatchedPreviousIssue);
+      TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue);
       if (unmatchedIssue.ruleKey().isManual() && !Issue.STATUS_CLOSED.equals(unmatchedPreviousIssue.getStatus())) {
         relocateManualIssue(unmatched, unmatchedIssue, sourceHashHolder);
       }
@@ -214,46 +188,29 @@ public class LocalIssueTracking {
     }
   }
 
-  private void addIssuesOnDeletedComponents(Collection<DefaultIssue> issues) {
+  private void addIssuesOnDeletedComponents(Collection<TrackedIssue> issues) {
     for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previous : serverIssueRepository.issuesOnMissingComponents()) {
-      DefaultIssue dead = toUnmatchedIssue(previous);
+      TrackedIssue dead = IssueTransformer.toTrackedIssue(previous);
       updateUnmatchedIssue(dead, true);
       issues.add(dead);
     }
   }
 
-  private DefaultIssue toUnmatchedIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue serverIssue) {
-    DefaultIssue issue = new DefaultIssue();
-    issue.setKey(serverIssue.getKey());
-    issue.setStatus(serverIssue.getStatus());
-    issue.setResolution(serverIssue.hasResolution() ? serverIssue.getResolution() : null);
-    issue.setMessage(serverIssue.hasMsg() ? serverIssue.getMsg() : null);
-    issue.setLine(serverIssue.hasLine() ? serverIssue.getLine() : null);
-    issue.setSeverity(serverIssue.getSeverity().name());
-    issue.setAssignee(serverIssue.hasAssigneeLogin() ? serverIssue.getAssigneeLogin() : null);
-    issue.setComponentKey(ComponentKeys.createEffectiveKey(serverIssue.getModuleKey(), serverIssue.hasPath() ? serverIssue.getPath() : null));
-    issue.setManualSeverity(serverIssue.getManualSeverity());
-    issue.setCreationDate(new Date(serverIssue.getCreationDate()));
-    issue.setRuleKey(RuleKey.of(serverIssue.getRuleRepository(), serverIssue.getRuleKey()));
-    issue.setNew(false);
-    return issue;
-  }
-
-  private void updateUnmatchedIssue(DefaultIssue issue, boolean forceEndOfLife) {
+  private void updateUnmatchedIssue(TrackedIssue issue, boolean forceEndOfLife) {
     ActiveRule activeRule = activeRules.find(issue.ruleKey());
     issue.setNew(false);
 
     boolean manualIssue = issue.ruleKey().isManual();
     boolean isRemovedRule = activeRule == null;
-    if (manualIssue) {
-      issue.setBeingClosed(forceEndOfLife || isRemovedRule);
-    } else {
-      issue.setBeingClosed(true);
+
+    if (isRemovedRule) {
+      IssueTransformer.resolveRemove(issue);
+    } else if (forceEndOfLife || !manualIssue) {
+      IssueTransformer.close(issue);
     }
-    issue.setOnDisabledRule(isRemovedRule);
   }
 
-  private void relocateManualIssue(DefaultIssue newIssue, ServerIssue oldIssue, SourceHashHolder sourceHashHolder) {
+  private static void relocateManualIssue(TrackedIssue newIssue, ServerIssue oldIssue, SourceHashHolder sourceHashHolder) {
     Integer previousLine = oldIssue.line();
     if (previousLine == null) {
       return;
@@ -262,17 +219,12 @@ public class LocalIssueTracking {
     Collection<Integer> newLinesWithSameHash = sourceHashHolder.getNewLinesMatching(previousLine);
     if (newLinesWithSameHash.isEmpty()) {
       if (previousLine > sourceHashHolder.getHashedSource().length()) {
-        newIssue.setLine(null);
-        updater.setStatus(newIssue, Issue.STATUS_CLOSED, changeContext);
-        updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);
-        updater.setPastLine(newIssue, previousLine);
-        updater.setPastMessage(newIssue, oldIssue.message(), changeContext);
+        IssueTransformer.resolveRemove(newIssue);
       }
     } else if (newLinesWithSameHash.size() == 1) {
       Integer newLine = newLinesWithSameHash.iterator().next();
-      newIssue.setLine(newLine);
-      updater.setPastLine(newIssue, previousLine);
-      updater.setPastMessage(newIssue, oldIssue.message(), changeContext);
+      newIssue.setStartLine(newLine);
+      newIssue.setEndLine(newLine);
     }
   }
 }

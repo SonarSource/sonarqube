@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import com.google.common.collect.Lists;
 
 import java.io.File;
@@ -49,7 +51,6 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.test.JsonAssert;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -99,21 +100,23 @@ public class JSONReportTest {
 
   @Test
   public void should_write_json() throws Exception {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("200")
-      .setComponentKey("struts:src/main/java/org/apache/struts/Action.java")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
-      .setMessage("There are 2 cycles")
-      .setSeverity("MINOR")
-      .setStatus(Issue.STATUS_OPEN)
-      .setResolution(null)
-      .setLine(1)
-      .setEffortToFix(3.14)
-      .setReporter("julien")
-      .setAssignee("simon")
-      .setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"))
-      .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
-      .setNew(false);
+    TrackedIssue issue = new TrackedIssue();
+    issue.setKey("200");
+    issue.setComponentKey("struts:src/main/java/org/apache/struts/Action.java");
+    issue.setRuleKey(RuleKey.of("squid", "AvoidCycles"));
+    issue.setMessage("There are 2 cycles");
+    issue.setSeverity("MINOR");
+    issue.setStatus(Issue.STATUS_OPEN);
+    issue.setResolution(null);
+    issue.setStartLine(1);
+    issue.setEndLine(2);
+    issue.setStartLineOffset(3);
+    issue.setEndLineOffset(4);
+    issue.setEffortToFix(3.14);
+    issue.setReporter("julien");
+    issue.setAssignee("simon");
+    issue.setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"));
+    issue.setNew(false);
     when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
     BatchInput.User user1 = BatchInput.User.newBuilder().setLogin("julien").setName("Julien").build();
     BatchInput.User user2 = BatchInput.User.newBuilder().setLogin("simon").setName("Simon").build();
@@ -129,16 +132,14 @@ public class JSONReportTest {
   @Test
   public void should_exclude_resolved_issues() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycles");
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("200")
-      .setComponentKey("struts:src/main/java/org/apache/struts/Action.java")
-      .setRuleKey(ruleKey)
-      .setStatus(Issue.STATUS_CLOSED)
-      .setResolution(Issue.RESOLUTION_FIXED)
-      .setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"))
-      .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
-      .setCloseDate(SIMPLE_DATE_FORMAT.parse("2013-04-26"))
-      .setNew(false);
+    TrackedIssue issue = new TrackedIssue();
+    issue.setKey("200");
+    issue.setComponentKey("struts:src/main/java/org/apache/struts/Action.java");
+    issue.setRuleKey(ruleKey);
+    issue.setStatus(Issue.STATUS_CLOSED);
+    issue.setResolution(Issue.RESOLUTION_FIXED);
+    issue.setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"));
+    issue.setNew(false);
     when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
 
     StringWriter writer = new StringWriter();
@@ -149,7 +150,7 @@ public class JSONReportTest {
 
   @Test
   public void should_ignore_components_without_issue() {
-    when(issueCache.all()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(issueCache.all()).thenReturn(Collections.<TrackedIssue>emptyList());
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
@@ -172,7 +173,7 @@ public class JSONReportTest {
     File workDir = temp.newFolder("sonar");
     fs.setWorkDir(workDir);
 
-    when(issueCache.all()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(issueCache.all()).thenReturn(Collections.<TrackedIssue>emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");
 

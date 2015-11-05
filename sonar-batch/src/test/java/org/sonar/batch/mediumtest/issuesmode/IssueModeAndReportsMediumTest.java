@@ -19,7 +19,10 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import com.google.common.collect.ImmutableMap;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -27,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -35,7 +39,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.mediumtest.BatchMediumTester;
@@ -45,7 +48,6 @@ import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueModeAndReportsMediumTest {
@@ -153,9 +155,10 @@ public class IssueModeAndReportsMediumTest {
     int newIssues = 0;
     int openIssues = 0;
     int resolvedIssue = 0;
-    for (Issue issue : result.trackedIssues()) {
+    for (TrackedIssue issue : result.trackedIssues()) {
       System.out
-        .println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " " + issue.line());
+        .println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " "
+          + issue.startLine());
       if (issue.isNew()) {
         newIssues++;
       } else if (issue.resolution() != null) {

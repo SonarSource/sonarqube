@@ -19,19 +19,17 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.batch.index.AbstractCachesTest;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 
+import org.sonar.batch.index.AbstractCachesTest;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -42,28 +40,29 @@ public class IssueCacheTest extends AbstractCachesTest {
   @Test
   public void should_add_new_issue() {
     IssueCache cache = new IssueCache(caches);
-    DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action");
-    DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Action");
-    DefaultIssue issue3 = new DefaultIssue().setKey("333").setComponentKey("org.struts.Filter").setTags(Arrays.asList("foo", "bar"));
+    TrackedIssue issue1 = createIssue("111", "org.struts.Action", null);
+    TrackedIssue issue2 = createIssue("222", "org.struts.Action", null);
+    TrackedIssue issue3 = createIssue("333", "org.struts.Filter", null);
+    issue3.setAssignee("foo");
     cache.put(issue1).put(issue2).put(issue3);
 
     assertThat(issueKeys(cache.byComponent("org.struts.Action"))).containsOnly("111", "222");
     assertThat(issueKeys(cache.byComponent("org.struts.Filter"))).containsOnly("333");
-    assertThat(cache.byComponent("org.struts.Filter").iterator().next().tags()).containsOnly("foo", "bar");
+    assertThat(cache.byComponent("org.struts.Filter").iterator().next().assignee()).isEqualTo("foo");
   }
 
   @Test
   public void should_update_existing_issue() {
     IssueCache cache = new IssueCache(caches);
-    DefaultIssue issue = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action").setSeverity(Severity.BLOCKER);
+    TrackedIssue issue = createIssue("111", "org.struts.Action", Severity.BLOCKER);
     cache.put(issue);
 
     issue.setSeverity(Severity.MINOR);
     cache.put(issue);
 
-    List<DefaultIssue> issues = ImmutableList.copyOf(cache.byComponent("org.struts.Action"));
+    List<TrackedIssue> issues = ImmutableList.copyOf(cache.byComponent("org.struts.Action"));
     assertThat(issues).hasSize(1);
-    Issue reloaded = issues.iterator().next();
+    TrackedIssue reloaded = issues.iterator().next();
     assertThat(reloaded.key()).isEqualTo("111");
     assertThat(reloaded.severity()).isEqualTo(Severity.MINOR);
   }
@@ -71,20 +70,29 @@ public class IssueCacheTest extends AbstractCachesTest {
   @Test
   public void should_get_all_issues() {
     IssueCache cache = new IssueCache(caches);
-    DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action").setSeverity(Severity.BLOCKER);
-    DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Filter").setSeverity(Severity.INFO);
+    TrackedIssue issue1 = createIssue("111", "org.struts.Action", Severity.BLOCKER);
+    TrackedIssue issue2 = createIssue("222", "org.struts.Filter", Severity.INFO);
     cache.put(issue1).put(issue2);
 
-    List<DefaultIssue> issues = ImmutableList.copyOf(cache.all());
+    List<TrackedIssue> issues = ImmutableList.copyOf(cache.all());
     assertThat(issues).containsOnly(issue1, issue2);
   }
 
-  private Collection<String> issueKeys(Iterable<DefaultIssue> issues) {
-    return Collections2.transform(ImmutableList.copyOf(issues), new Function<DefaultIssue, String>() {
+  private Collection<String> issueKeys(Iterable<TrackedIssue> issues) {
+    return Collections2.transform(ImmutableList.copyOf(issues), new Function<TrackedIssue, String>() {
       @Override
-      public String apply(@Nullable DefaultIssue issue) {
+      public String apply(@Nullable TrackedIssue issue) {
         return issue.key();
       }
     });
+  }
+
+  private TrackedIssue createIssue(String key, String componentKey, String severity) {
+    TrackedIssue issue = new TrackedIssue();
+    issue.setKey(key);
+    issue.setComponentKey(componentKey);
+    issue.setSeverity(severity);
+
+    return issue;
   }
 }

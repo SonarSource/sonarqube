@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import org.assertj.core.api.Condition;
 import com.google.common.io.Resources;
 import org.sonar.batch.repository.FileData;
@@ -37,7 +39,6 @@ import org.sonar.xoo.rule.XooRulesDefinition;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.batch.mediumtest.TaskResult;
 
 import java.io.File;
@@ -178,9 +179,9 @@ public class ScanOnlyChangedTest {
   }
 
   private static void assertNumberIssuesOnFile(TaskResult result, final String fileNameEndsWith, int issues) {
-    assertThat(result.trackedIssues()).haveExactly(issues, new Condition<Issue>() {
+    assertThat(result.trackedIssues()).haveExactly(issues, new Condition<TrackedIssue>() {
       @Override
-      public boolean matches(Issue value) {
+      public boolean matches(TrackedIssue value) {
         return value.componentKey().endsWith(fileNameEndsWith);
       }
     });
@@ -190,9 +191,10 @@ public class ScanOnlyChangedTest {
     int newIssues = 0;
     int openIssues = 0;
     int resolvedIssue = 0;
-    for (Issue issue : result.trackedIssues()) {
+    for (TrackedIssue issue : result.trackedIssues()) {
       System.out
-        .println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " " + issue.line());
+        .println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " "
+          + issue.startLine());
       if (issue.isNew()) {
         newIssues++;
       } else if (issue.resolution() != null) {

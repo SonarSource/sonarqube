@@ -19,13 +19,16 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import com.google.common.collect.Maps;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.sonar.api.batch.rule.Rule;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.index.BatchComponent;
 
@@ -78,16 +81,16 @@ public class IssuesReport {
     return new ArrayList<>(resourceReportsByResource.keySet());
   }
 
-  public void addIssueOnResource(BatchComponent resource, Issue issue, Rule rule, RulePriority severity) {
+  public void addIssueOnResource(BatchComponent resource, TrackedIssue issue, Rule rule, RulePriority severity) {
     addResource(resource);
     getSummary().addIssue(issue, rule, severity);
     resourceReportsByResource.get(resource).addIssue(issue, rule, RulePriority.valueOf(issue.severity()));
   }
 
-  public void addResolvedIssueOnResource(BatchComponent resource, Issue issue, Rule rule, RulePriority severity) {
+  public void addResolvedIssueOnResource(BatchComponent resource, TrackedIssue issue, Rule rule, RulePriority severity) {
     addResource(resource);
     getSummary().addResolvedIssue(issue, rule, severity);
-    resourceReportsByResource.get(resource).addResolvedIssue(issue, rule, RulePriority.valueOf(issue.severity()));
+    resourceReportsByResource.get(resource).addResolvedIssue(rule, RulePriority.valueOf(issue.severity()));
   }
 
   private void addResource(BatchComponent resource) {

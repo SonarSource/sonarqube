@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
@@ -49,9 +51,9 @@ public class DefaultProjectIssuesTest {
 
     DefaultIssue issueOnRoot = new DefaultIssue().setKey("4").setRuleKey(SQUID_RULE_KEY).setSeverity(Severity.CRITICAL).setComponentKey("org.apache:struts");
     DefaultIssue issueInRoot = new DefaultIssue().setKey("5").setRuleKey(SQUID_RULE_KEY).setSeverity(Severity.CRITICAL).setComponentKey("org.apache:struts:FileInRoot");
-    when(cache.all()).thenReturn(Arrays.<DefaultIssue> asList(
-      issueOnRoot, issueInRoot,
-      issueOnModule, issueInModule, resolvedIssueInModule
+    when(cache.all()).thenReturn(Arrays.<TrackedIssue>asList(
+      toTrackedIssue(issueOnRoot), toTrackedIssue(issueInRoot),
+      toTrackedIssue(issueOnModule), toTrackedIssue(issueInModule), toTrackedIssue(resolvedIssueInModule)
       ));
 
     // unresolved issues
@@ -60,5 +62,17 @@ public class DefaultProjectIssuesTest {
 
     List<Issue> resolvedIssues = Lists.newArrayList(projectIssues.resolvedIssues());
     assertThat(resolvedIssues).containsOnly(resolvedIssueInModule);
+  }
+
+  private TrackedIssue toTrackedIssue(DefaultIssue issue) {
+    TrackedIssue trackedIssue = new TrackedIssue();
+
+    trackedIssue.setKey(issue.key());
+    trackedIssue.setRuleKey(issue.ruleKey());
+    trackedIssue.setComponentKey(issue.componentKey());
+    trackedIssue.setSeverity(issue.severity());
+    trackedIssue.setResolution(issue.resolution());
+
+    return trackedIssue;
   }
 }

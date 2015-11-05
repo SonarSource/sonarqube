@@ -13,7 +13,7 @@
         <#assign issues=resourceReport.getIssues()>
         <#list issues as issue>
           <#if complete || issue.isNew()>
-          {'k': '${issue.key()}', 'r': 'R${issue.ruleKey()}', 'l': ${(issue.line()!0)?c}, 'new': ${issue.isNew()?string}, 's': '${issue.severity()?lower_case}'}<#if issue_has_next>,</#if>
+          {'k': '${issue.key()}', 'r': 'R${issue.ruleKey()}', 'l': ${(issue.startLine()!0)?c}, 'new': ${issue.isNew()?string}, 's': '${issue.severity()?lower_case}'}<#if issue_has_next>,</#if>
           </#if>
         </#list>
       ]

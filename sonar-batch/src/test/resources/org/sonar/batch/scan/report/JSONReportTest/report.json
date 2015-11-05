@@ -4,7 +4,10 @@
     {
       "key": "200",
       "component": "struts:src/main/java/org/apache/struts/Action.java",
-      "line": 1,
+      "startLine": 1,
+      "startOffset": 3,
+      "endLine": 2,
+      "endOffset": 4,
       "message": "There are 2 cycles",
       "severity": "MINOR",
       "rule": "squid:AvoidCycles",
