@@ -40,13 +40,18 @@ set +eu
   ;;
 
 PRANALYSIS)
-  export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-  export PATH=$JAVA_HOME/bin:$PATH
-  java -Xmx32m -version
-  javac -J-Xmx32m -version
   if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+
+      # For security reasons environment variables are not available on the pull requests
+      # coming from outside repositories
+      # http://docs.travis-ci.com/user/pull-requests/#Security-Restrictions-when-testing-Pull-Requests
 	  if [ -n "$SONAR_GITHUB_OAUTH" ]; then
-	    echo "Start pullrequest analysis"
+
+	    # Switch to java 8 as the Dory HTTPS certificate is not supported by Java 7
+        export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+        export PATH=$JAVA_HOME/bin:$PATH
+
+	    echo "Analyze pull request"
 	    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Panalysis \
 	     -Dmaven.test.failure.ignore=true \
 	     -Dclirr=true \
@@ -59,10 +64,8 @@ PRANALYSIS)
 	     -Dsonar.login=$SONAR_LOGIN \
 	     -Dsonar.password=$SONAR_PASSWD
 	  else
-	  	echo "No oauth token available"
+	  	echo "Pull requests are not analyzed when coming from outside repositories"
 	  fi
-  else
-  	echo "Not in a pull request"
   fi
   ;;
 
