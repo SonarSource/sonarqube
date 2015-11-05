@@ -55,7 +55,7 @@ PULL_REQUEST_ANALYSIS)
 	    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Panalysis \
 	     -Dmaven.test.failure.ignore=true \
 	     -Dclirr=true \
-	     -Dsonar.analysis.mode=preview \
+	     -Dsonar.analysis.mode=issues \
 	     -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
 	     -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
 	     -Dsonar.github.login=$SONAR_GITHUB_LOGIN \
