@@ -1353,7 +1353,7 @@
         </file>
       </activation>
       <properties>
-        <sonar.exclusions>${project.build.directory}/generated-sources/protobuf/**/*</sonar.exclusions>
+        <sonar.exclusions>target/generated-sources/protobuf/**/*</sonar.exclusions>
       </properties>
       <build>
         <plugins>
@@ -1423,7 +1423,7 @@
         </file>
       </activation>
       <properties>
-        <sonar.test.exclusions>${project.build.directory}/generated-test-sources/protobuf/**/*</sonar.test.exclusions>
+        <sonar.test.exclusions>target/generated-test-sources/protobuf/**/*</sonar.test.exclusions>
       </properties>
       <build>
         <plugins>
