@@ -20,7 +20,6 @@
 package org.sonar.batch.mediumtest.issuesmode;
 
 import org.assertj.core.api.Condition;
-
 import com.google.common.io.Resources;
 import org.sonar.batch.repository.FileData;
 import com.google.common.collect.ImmutableMap;
@@ -139,14 +138,55 @@ public class ScanOnlyChangedTest {
   }
 
   @Test
-  public void testIssueTrackingChangedFiles() throws Exception {
+  public void testScanAll() throws Exception {
     File projectDir = copyProject("/mediumtest/xoo/sample");
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.scanChangedFilesOnly", "true")
+      .property("sonar.scanAllFiles", "true")
       .start();
 
+    assertNumberIssues(result, 16, 3, 0);
+
+    /*
+     * 8 new per line
+     * 1 manual
+     */
+    assertNumberIssuesOnFile(result, "HelloJava.xoo", 9);
+  }
+
+  @Test
+  public void testScanOnlyChangedFiles() throws Exception {
+    File projectDir = copyProject("/mediumtest/xoo/sample");
+
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .start();
+
+    /*
+     * We have:
+     * 6 new issues per line (open) in helloscala.xoo
+     * 2 new issues per file in helloscala.xoo / ClassOneTest.xoo
+     * 1 server issue (open, not new) copied from server in HelloJava.xoo (this file is unchanged)
+     * 1 manual issue (open, not new) in HelloJava.xoo
+     * 1 existing issue on the project (open, not new)
+     */
+    assertNumberIssues(result, 8, 3, 0);
+
+    // should only have server issues (HelloJava.xoo should not have been analyzed)
+    assertNumberIssuesOnFile(result, "HelloJava.xoo", 2);
+  }
+
+  private static void assertNumberIssuesOnFile(TaskResult result, final String fileNameEndsWith, int issues) {
+    assertThat(result.trackedIssues()).haveExactly(issues, new Condition<Issue>() {
+      @Override
+      public boolean matches(Issue value) {
+        return value.componentKey().endsWith(fileNameEndsWith);
+      }
+    });
+  }
+
+  private static void assertNumberIssues(TaskResult result, int expectedNew, int expectedOpen, int expectedResolved) {
     int newIssues = 0;
     int openIssues = 0;
     int resolvedIssue = 0;
@@ -161,26 +201,10 @@ public class ScanOnlyChangedTest {
         openIssues++;
       }
     }
-    /*
-     * We have:
-     * 6 new issues per line (open) in helloscala.xoo
-     * 2 new issues per file in helloscala.xoo / ClassOneTest.xoo
-     * 1 server issue (open, not new) copied from server in HelloJava.xoo (this file is unchanged)
-     * 1 manual issue (open, not new) in HelloJava.xoo
-     * 1 existing issue on the project (open, not new)
-     */
+
     System.out.println("new: " + newIssues + " open: " + openIssues + " resolved " + resolvedIssue);
-    assertThat(newIssues).isEqualTo(8);
-    assertThat(openIssues).isEqualTo(3);
-    assertThat(resolvedIssue).isEqualTo(0);
-
-    // should only have server issues (HelloJava.xoo should not have been analyzed)
-    assertThat(result.trackedIssues()).haveExactly(2, new Condition<Issue>() {
-      @Override
-      public boolean matches(Issue value) {
-        return value.componentKey().endsWith("HelloJava.xoo");
-      }
-    });
+    assertThat(newIssues).isEqualTo(expectedNew);
+    assertThat(openIssues).isEqualTo(expectedOpen);
+    assertThat(resolvedIssue).isEqualTo(expectedResolved);
   }
-
 }

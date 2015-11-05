@@ -36,11 +36,11 @@ import java.util.Map;
 public class DefaultAnalysisMode extends AbstractAnalysisMode implements AnalysisMode {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
-  private static final String KEY_ONLY_ANALYZE_CHANGED = "sonar.scanChangedFilesOnly";
+  private static final String KEY_SCAN_ALL = "sonar.scanAllFiles";
 
   private boolean mediumTestMode;
   private boolean notAssociated;
-  private boolean onlyChanged;
+  private boolean scanAllFiles;
 
   public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props) {
     init(globalProps.properties(), props.properties());
@@ -54,8 +54,8 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     return notAssociated;
   }
 
-  public boolean onlyAnalyzeChanged() {
-    return onlyChanged;
+  public boolean scanAllFiles() {
+    return scanAllFiles;
   }
 
   private void init(Map<String, String> globalProps, Map<String, String> analysisProps) {
@@ -76,8 +76,8 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
     notAssociated = issues && rootProjectKeyMissing(analysisProps);
-    String onlyChangedStr = getPropertyWithFallback(analysisProps, globalProps, KEY_ONLY_ANALYZE_CHANGED);
-    onlyChanged = issues && "true".equals(onlyChangedStr);
+    String scanAllStr = getPropertyWithFallback(analysisProps, globalProps, KEY_SCAN_ALL);
+    scanAllFiles = !issues || "true".equals(scanAllStr);
   }
 
   public void printMode() {
@@ -94,7 +94,7 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode implements Analysi
     if (notAssociated) {
       LOG.info("Local analysis");
     }
-    if (onlyChanged) {
+    if (!scanAllFiles) {
       LOG.info("Scanning only changed files");
     }
   }

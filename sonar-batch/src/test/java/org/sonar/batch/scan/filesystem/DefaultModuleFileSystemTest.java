@@ -116,7 +116,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void default_predicate_scan_only_changed() throws IOException {
-    when(mode.onlyAnalyzeChanged()).thenReturn(true);
+    when(mode.scanAllFiles()).thenReturn(false);
 
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer, mode);

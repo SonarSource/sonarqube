@@ -115,7 +115,7 @@ public class LocalIssueTracking {
   }
 
   private boolean shouldCopyServerIssues(BatchComponent component) {
-    if (mode.onlyAnalyzeChanged() && component.isFile()) {
+    if (!mode.scanAllFiles() && component.isFile()) {
       DefaultInputFile inputFile = (DefaultInputFile) component.inputComponent();
       if (inputFile.status() == Status.SAME) {
         return true;

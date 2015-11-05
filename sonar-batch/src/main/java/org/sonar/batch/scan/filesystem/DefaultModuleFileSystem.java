@@ -78,7 +78,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.binaryDirs = initializer.binaryDirs();
 
     // filter the files that sensors have access to (SONAR-6931)
-    if (mode.onlyAnalyzeChanged()) {
+    if (!mode.scanAllFiles()) {
       setDefaultPredicate(predicates.not(predicates.hasStatus(Status.SAME)));
     }
   }
@@ -98,7 +98,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.binaryDirs = initializer.binaryDirs();
     
     // filter the files sensors have access to
-    if (mode.onlyAnalyzeChanged()) {
+    if (!mode.scanAllFiles()) {
       setDefaultPredicate(predicates.not(predicates.hasStatus(Status.SAME)));
     }
   }
