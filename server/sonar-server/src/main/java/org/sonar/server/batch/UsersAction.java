@@ -51,7 +51,6 @@ public class UsersAction implements BatchWsAction {
     WebService.NewAction action = controller.createAction("users")
       .setDescription("Return user details.")
       .setSince("5.2")
-      .setResponseExample(getClass().getResource("users-example.proto"))
       .setInternal(true)
       .setHandler(this);
 
@@ -79,10 +78,8 @@ public class UsersAction implements BatchWsAction {
     }
   }
 
-  private static void handleUser(UserDoc user, BatchInput.User.Builder userBuilder, OutputStream out) {
-    userBuilder
-      .clear()
-      .setLogin(user.login())
+  private void handleUser(UserDoc user, BatchInput.User.Builder userBuilder, OutputStream out) {
+    userBuilder.setLogin(user.login())
       .setName(user.name());
     try {
       userBuilder.build().writeDelimitedTo(out);

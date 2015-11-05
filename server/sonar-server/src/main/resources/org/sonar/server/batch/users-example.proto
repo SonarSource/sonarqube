@@ -1,5 +1,0 @@
-# Response is a list of protocol buffer message User
-message User {
-  optional string login = 1;
-  optional string name = 2;
-}

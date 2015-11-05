@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.base.Strings;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.server.ws.Request;
@@ -47,7 +48,6 @@ public class ListAction implements RulesWsAction {
       .setDescription("List of rules, excluding the manual rules and the rules with status REMOVED. JSON format is not supported for response.")
       .setSince("5.2")
       .setInternal(true)
-      .setResponseExample(getClass().getResource("list-example.txt"))
       .setHandler(this);
   }
 

@@ -19,13 +19,14 @@
  */
 package org.sonar.server.batch;
 
-import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+
+import java.io.IOException;
 
 public class BatchWs implements WebService {
 
@@ -57,7 +58,6 @@ public class BatchWs implements WebService {
   private void defineIndexAction(NewController controller) {
     controller.createAction("index")
       .setInternal(true)
-      .setSince("4.4")
       .setDescription("List the JAR files to be downloaded by source analyzer")
       .setHandler(new RequestHandler() {
         @Override
@@ -70,15 +70,13 @@ public class BatchWs implements WebService {
           }
         }
       })
-      .setResponseExample(getClass().getResource("batch-index-example.txt"));
+      .setResponseExample(getClass().getResource("example-batch-index.txt"));
   }
 
   private void defineFileAction(NewController controller) {
-    NewAction action = controller.createAction("file")
+    controller.createAction("file")
       .setInternal(true)
-      .setSince("4.4")
       .setDescription("Download a JAR file required by source analyzer")
-      .setResponseExample(getClass().getResource("batch-file-example.txt"))
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
@@ -90,8 +88,7 @@ public class BatchWs implements WebService {
             throw new IllegalStateException(e);
           }
         }
-      });
-    action
+      })
       .createParam("name")
       .setDescription("File name")
       .setExampleValue("batch-library-2.3.jar");

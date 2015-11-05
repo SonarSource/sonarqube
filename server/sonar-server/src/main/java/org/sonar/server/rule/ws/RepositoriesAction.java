@@ -22,11 +22,6 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
-import java.util.Collection;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -36,6 +31,13 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
+
+import javax.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.regex.Pattern;
 
 /**
  * @since 5.1
@@ -48,26 +50,6 @@ public class RepositoriesAction implements RulesWsAction {
 
   public RepositoriesAction(RuleRepositories repositories) {
     this.repositories = repositories;
-  }
-
-  @Override
-  public void define(WebService.NewController controller) {
-    NewAction action = controller.createAction("repositories")
-      .setDescription("List available rule repositories")
-      .setSince("4.5")
-      .setHandler(this)
-      .setResponseExample(Resources.getResource(getClass(), "example-repositories.json"));
-
-    action.createParam(Param.TEXT_QUERY)
-      .setDescription("A pattern to match repository keys/names against")
-      .setExampleValue("squid");
-    action.createParam(LANGUAGE)
-      .setDescription("A language key; if provided, only repositories for the given language will be returned")
-      .setExampleValue("java");
-    action.createParam("ps")
-      .setDescription("The size of the list to return, 0 for all repositories")
-      .setExampleValue("25")
-      .setDefaultValue("0");
   }
 
   @Override
@@ -105,13 +87,32 @@ public class RepositoriesAction implements RulesWsAction {
   private Collection<Repo> listRepositories(String languageKey) {
     List<Repo> allRepos = Lists.newArrayList();
     Collection<Repository> reposFromPlugins = languageKey == null ? repositories.repositories() : repositories.repositoriesForLang(languageKey);
-    for (Repository repo : reposFromPlugins) {
+    for (Repository repo: reposFromPlugins) {
       allRepos.add(new Repo(repo));
     }
     if (languageKey == null) {
       allRepos.add(new Repo(RuleKey.MANUAL_REPOSITORY_KEY, "Manual Rule", "None"));
     }
     return allRepos;
+  }
+
+  @Override
+  public void define(WebService.NewController controller) {
+    NewAction action = controller.createAction("repositories")
+      .setDescription("List available rule repositories")
+      .setHandler(this)
+      .setResponseExample(Resources.getResource(getClass(), "example-repositories.json"));
+
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("A pattern to match repository keys/names against")
+      .setExampleValue("squid");
+    action.createParam(LANGUAGE)
+      .setDescription("A language key; if provided, only repositories for the given language will be returned")
+      .setExampleValue("java");
+    action.createParam("ps")
+      .setDescription("The size of the list to return, 0 for all repositories")
+      .setExampleValue("25")
+      .setDefaultValue("0");
   }
 
   private static final class Repo {

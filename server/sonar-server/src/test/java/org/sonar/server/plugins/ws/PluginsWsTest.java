@@ -43,12 +43,7 @@ public class PluginsWsTest {
   private static class DummyPluginsWsAction implements PluginsWsAction {
     @Override
     public void define(WebService.NewController context) {
-      context
-        .createAction("dummy")
-        .setDescription("Dummy Description")
-        .setPost(true)
-        .setSince("5.3")
-        .setHandler(this);
+      context.createAction("dummy").setHandler(this);
     }
 
     @Override

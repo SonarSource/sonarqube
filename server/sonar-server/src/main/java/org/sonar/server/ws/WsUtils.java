@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -71,7 +70,7 @@ public class WsUtils {
    * @throws NotFoundException if the value if null
    * @return the value
    */
-  public static <T> T checkFound(@Nullable T value, String message, Object... messageArguments) {
+  public static <T> T checkFound(T value, String message, Object... messageArguments) {
     if (value == null) {
       throw new NotFoundException(format(message, messageArguments));
     }

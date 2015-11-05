@@ -69,7 +69,6 @@ public class SearchAction implements MetricsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setSince("5.2")
-      .setDescription("Search for metrics")
       .setResponseExample(getClass().getResource("example-search.json"))
       .addPagingParams(100)
       .addFieldsParam(OPTIONAL_FIELDS)

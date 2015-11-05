@@ -46,7 +46,6 @@ public class UninstallAction implements PluginsWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("uninstall")
       .setPost(true)
-      .setSince("5.2")
       .setDescription("Uninstalls the plugin specified by its key." +
         "<br/>" +
         "Requires user to be authenticated with Administer System permissions.")

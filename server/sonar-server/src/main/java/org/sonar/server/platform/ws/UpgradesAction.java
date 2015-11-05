@@ -67,7 +67,6 @@ public class UpgradesAction implements SystemWsAction {
         "<br/>" +
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed " +
         "is provided in the response.")
-      .setSince("5.2")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-upgrades_plugins.json"));
   }

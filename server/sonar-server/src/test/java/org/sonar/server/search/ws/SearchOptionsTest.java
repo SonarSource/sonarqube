@@ -20,7 +20,6 @@
 package org.sonar.server.search.ws;
 
 import com.google.common.collect.Lists;
-import java.io.StringWriter;
 import org.junit.Test;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
@@ -30,6 +29,8 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.test.JsonAssert;
+
+import java.io.StringWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -111,12 +112,7 @@ public class SearchOptionsTest {
       @Override
       public void define(Context context) {
         NewController newController = context.createController("api/foo");
-        NewAction action = newController
-          .createAction("search")
-          .setSince("5.3")
-          .setDescription("Search Description")
-          .setPost(true)
-          .setHandler(mock(RequestHandler.class));
+        NewAction action = newController.createAction("search").setHandler(mock(RequestHandler.class));
         SearchOptions.defineFieldsParam(action, Lists.newArrayList("name", "lang", "severity"));
         newController.done();
       }
@@ -136,12 +132,7 @@ public class SearchOptionsTest {
       @Override
       public void define(Context context) {
         NewController newController = context.createController("api/foo");
-        NewAction action = newController
-          .createAction("search")
-          .setSince("5.3")
-          .setDescription("Search Description")
-          .setPost(true)
-          .setHandler(mock(RequestHandler.class));
+        NewAction action = newController.createAction("search").setHandler(mock(RequestHandler.class));
         SearchOptions.definePageParams(action);
         newController.done();
       }

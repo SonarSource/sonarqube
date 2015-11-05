@@ -318,7 +318,7 @@ public class WebServiceEngineTest {
     @Override
     public void define(Context context) {
       NewController newController = context.createController("api/system");
-      createNewDefaultAction(newController, "health")
+      newController.createAction("health")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -329,7 +329,7 @@ public class WebServiceEngineTest {
             }
           }
         });
-      createNewDefaultAction(newController, "ping")
+      newController.createAction("ping")
         .setPost(true)
         .setHandler(new RequestHandler() {
           @Override
@@ -341,21 +341,21 @@ public class WebServiceEngineTest {
             }
           }
         });
-      createNewDefaultAction(newController, "fail")
+      newController.createAction("fail")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
             throw new IllegalStateException("Unexpected");
           }
         });
-      createNewDefaultAction(newController, "fail_with_i18n_message")
+      newController.createAction("fail_with_i18n_message")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
             throw new BadRequestException("bad.request.reason", 0);
           }
         });
-      createNewDefaultAction(newController, "fail_with_multiple_messages")
+      newController.createAction("fail_with_multiple_messages")
         .createParam("count", "Number of error messages to generate")
         .setHandler(new RequestHandler() {
           @Override
@@ -367,7 +367,7 @@ public class WebServiceEngineTest {
             throw new BadRequestException(errors);
           }
         });
-      createNewDefaultAction(newController, "fail_with_multiple_i18n_messages")
+      newController.createAction("fail_with_multiple_i18n_messages")
         .createParam("count", "Number of error messages to generate")
         .setHandler(new RequestHandler() {
           @Override
@@ -379,7 +379,7 @@ public class WebServiceEngineTest {
             throw new BadRequestException(errors);
           }
         });
-      createNewDefaultAction(newController, "alive")
+      newController.createAction("alive")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -387,7 +387,7 @@ public class WebServiceEngineTest {
           }
         });
 
-      createNewDefaultAction(newController, "fail_with_undeclared_parameter")
+      newController.createAction("fail_with_undeclared_parameter")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -396,7 +396,7 @@ public class WebServiceEngineTest {
         });
 
       // parameter "message" is required but not "author"
-      NewAction print = createNewDefaultAction(newController, "print");
+      NewAction print = newController.createAction("print");
       print.createParam("message").setDescription("required message").setRequired(true);
       print.createParam("author").setDescription("optional author").setDefaultValue("-");
       print.createParam("format").setDescription("optional format").setPossibleValues("json", "xml");
@@ -415,12 +415,5 @@ public class WebServiceEngineTest {
       newController.done();
     }
 
-    private NewAction createNewDefaultAction(NewController controller, String key) {
-      return controller
-        .createAction(key)
-        .setDescription("Dummy Description")
-        .setSince("5.3")
-        .setResponseExample(getClass().getResource("web-service-engine-test.txt"));
-    }
   }
 }

@@ -28,9 +28,9 @@ import org.sonar.api.server.ws.WebService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class WebServicesWsTest {
+public class ListingWsTest {
 
-  WebServicesWs ws = new WebServicesWs();
+  ListingWs ws = new ListingWs();
 
   @Test
   public void define_ws() {
@@ -81,16 +81,12 @@ public class WebServicesWsTest {
   static class MetricWs implements WebService {
     @Override
     public void define(Context context) {
-      NewController newController = context
-        .createController("api/metric")
+      NewController newController = context.createController("api/metric")
         .setDescription("Metrics")
         .setSince("3.2");
 
       // action with default values
       newController.createAction("show")
-        .setSince("3.2")
-        .setDescription("Show Description")
-        .setResponseExample(getClass().getResource("web-services-ws-test.txt"))
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -103,7 +99,7 @@ public class WebServicesWsTest {
         .setSince("4.1")
         .setDeprecatedSince("5.3")
         .setPost(true)
-        .setResponseExample(Resources.getResource(getClass(), "WebServicesWsTest/metrics_example.json"))
+        .setResponseExample(Resources.getResource(getClass(), "ListingWsTest/metrics_example.json"))
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -120,17 +116,12 @@ public class WebServicesWsTest {
         .setDefaultValue("BLOCKER");
       create.createParam("name");
 
-      newController.createAction("internal_action")
-        .setDescription("Internal Action Description")
-        .setResponseExample(getClass().getResource("web-services-ws-test.txt"))
-        .setSince("5.3")
-        .setInternal(true)
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) throws Exception {
+      newController.createAction("internal_action").setInternal(true).setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) throws Exception {
 
-          }
-        });
+        }
+      });
 
       newController.done();
     }

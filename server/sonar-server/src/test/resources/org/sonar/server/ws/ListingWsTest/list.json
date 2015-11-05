@@ -8,6 +8,7 @@
         "key": "create",
         "description": "Create metric",
         "since": "4.1",
+        "deprecatedSince" : "5.3",
         "internal": false,
         "post": true,
         "hasResponseExample": true,
@@ -22,23 +23,18 @@
             "required": false,
             "defaultValue": "BLOCKER",
             "exampleValue": "INFO",
+            "since":"4.4",
+            "deprecatedSince": "5.2",
             "possibleValues": ["BLOCKER", "INFO"]
           }
         ]
-      },
-      {
-        "key": "internal_action",
-        "since": "5.3",
-        "internal": true,
-        "post": false,
-        "hasResponseExample": true
       },
       {
         "key": "show",
         "since": "3.2",
         "internal": false,
         "post": false,
-        "hasResponseExample": true
+        "hasResponseExample": false
       }
     ]
   },
@@ -53,7 +49,7 @@
         "description": "List web services",
         "internal": false,
         "post": false,
-        "hasResponseExample": true,
+        "hasResponseExample": false,
         "params": [
           {
             "key": "include_internals",
@@ -70,7 +66,7 @@
         "description": "Display web service response example",
         "internal": false,
         "post": false,
-        "hasResponseExample": true,
+        "hasResponseExample": false,
         "params": [
           {
             "key": "action",

@@ -63,7 +63,6 @@ public class SearchViewComponentsAction implements RequestHandler {
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search_view_components")
       .setDescription("Search for components. Currently limited to projects in a view or a sub-view")
-      .setResponseExample(getClass().getResource("search_view_components-example.json"))
       .setSince("5.1")
       .setInternal(true)
       .setHandler(this);

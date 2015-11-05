@@ -48,7 +48,6 @@ public class ChangeLogLevelAction implements SystemWsAction {
       .setDescription("Temporarily changes level of logs. New level is not persistent and is lost " +
         "when restarting server. Requires system administration permission.")
       .setSince("5.2")
-      .setPost(true)
       .setHandler(this);
 
     newAction.createParam(PARAM_LEVEL)

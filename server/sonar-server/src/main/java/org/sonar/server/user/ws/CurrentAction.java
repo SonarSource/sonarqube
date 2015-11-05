@@ -32,13 +32,14 @@ public class CurrentAction implements UsersWsAction {
     this.userSession = userSession;
   }
 
+
   @Override
   public void define(NewController context) {
     context.createAction("current")
       .setDescription("Get the details of the current authenticated user.")
       .setHandler(this)
       .setInternal(true)
-      .setResponseExample(getClass().getResource("current-example.json"))
+      .setResponseExample(getClass().getResource("example-current.json"))
       .setSince("5.2");
   }
 

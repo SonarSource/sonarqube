@@ -20,17 +20,18 @@
 
 package org.sonar.server.batch;
 
+import org.sonarqube.ws.WsBatch.WsProjectResponse.FileData.Builder;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
-import org.sonarqube.ws.WsBatch.WsProjectResponse.FileData.Builder;
-
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProjectAction implements BatchWsAction {
@@ -49,7 +50,6 @@ public class ProjectAction implements BatchWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("project")
       .setDescription("Return project repository")
-      .setResponseExample(getClass().getResource("project-example.json"))
       .setSince("4.5")
       .setInternal(true)
       .setHandler(this);
