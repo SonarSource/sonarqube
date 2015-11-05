@@ -32,6 +32,7 @@ public class SnapshotQueryTest {
   public void test_setters_and_getters() throws Exception {
     SnapshotQuery query = new SnapshotQuery()
       .setComponentId(1L)
+      .setComponentUuid("abcd")
       .setIsLast(true)
       .setStatus("P")
       .setVersion("1.0")
@@ -40,6 +41,7 @@ public class SnapshotQueryTest {
       .setSort(BY_DATE, ASC);
 
     assertThat(query.getComponentId()).isEqualTo(1L);
+    assertThat(query.getComponentUuid()).isEqualTo("abcd");
     assertThat(query.getIsLast()).isTrue();
     assertThat(query.getStatus()).isEqualTo("P");
     assertThat(query.getVersion()).isEqualTo("1.0");

@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
@@ -41,6 +42,9 @@ import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 
 @Category(DbTests.class)
 public class SnapshotDaoTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -160,6 +164,29 @@ public class SnapshotDaoTest {
 
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.PROJECT).setQualifier(Qualifiers.PACKAGE))).extracting("id").containsOnly(1L);
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.DIRECTORY).setQualifier(Qualifiers.PACKAGE))).extracting("id").containsOnly(2L, 3L, 4L, 5L, 6L);
+
+    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD"))).hasSize(3);
+    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("UNKOWN"))).isEmpty();
+    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("GHIJ"))).isEmpty();
+  }
+
+  @Test
+  public void select_snapshot_by_query() {
+    db.prepareDbUnit(getClass(), "select_snapshots_by_query.xml");
+
+    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setIsLast(true))).isNotNull();
+    assertThat(underTest.selectSnapshotByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("UNKOWN"))).isNull();
+    assertThat(underTest.selectSnapshotByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("GHIJ"))).isNull();
+  }
+
+  @Test
+  public void fail_with_ISE_to_select_snapshot_by_query_when_more_than_one_result() {
+    db.prepareDbUnit(getClass(), "select_snapshots_by_query.xml");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Expected one snapshot to be returned, got 6");
+
+    underTest.selectSnapshotByQuery(db.getSession(), new SnapshotQuery());
   }
 
   @Test
