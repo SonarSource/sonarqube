@@ -39,7 +39,7 @@ set +eu
   cd server/sonar-web && npm install && npm test
   ;;
 
-PRANALYSIS)
+PULL_REQUEST_ANALYSIS)
   if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
 
       # For security reasons environment variables are not available on the pull requests
@@ -57,12 +57,12 @@ PRANALYSIS)
 	     -Dclirr=true \
 	     -Dsonar.analysis.mode=preview \
 	     -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
-	     -Dsonar.github.repository=$SONAR_GITHUB_REPOSITORY \
+	     -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
 	     -Dsonar.github.login=$SONAR_GITHUB_LOGIN \
 	     -Dsonar.github.oauth=$SONAR_GITHUB_OAUTH \
 	     -Dsonar.host.url=$SONAR_HOST_URL \
 	     -Dsonar.login=$SONAR_LOGIN \
-	     -Dsonar.password=$SONAR_PASSWD
+	     -Dsonar.password=$SONAR_PASSWORD
 	  else
 	  	echo "Pull requests are not analyzed when coming from outside repositories"
 	  fi

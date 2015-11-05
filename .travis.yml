@@ -14,7 +14,7 @@ env:
   - JOB=ITS IT_CATEGORY=Category3
   - JOB=ITS IT_CATEGORY=Category4
   - JOB=ITS IT_CATEGORY=Plugins
-  - JOB=PRANALYSIS
+  - JOB=PULL_REQUEST_ANALYSIS
 
 matrix:
   fast_finish: true
