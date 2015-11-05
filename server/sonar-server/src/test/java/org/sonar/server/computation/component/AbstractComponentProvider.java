@@ -19,29 +19,34 @@
  */
 package org.sonar.server.computation.component;
 
-public final class TreeRootHolderComponentProvider extends AbstractComponentProvider {
-  private final TreeRootHolder treeRootHolder;
-  private TreeComponentProvider delegate;
+import static com.google.common.base.Preconditions.checkState;
 
-  public TreeRootHolderComponentProvider(TreeRootHolder treeRootHolder) {
-    this.treeRootHolder = treeRootHolder;
-  }
+abstract class AbstractComponentProvider implements ComponentProvider {
+  private boolean initialized = false;
 
   @Override
-  protected void ensureInitializedImpl() {
-    if (this.delegate == null) {
-      this.delegate = new TreeComponentProvider(treeRootHolder.getRoot());
-      this.delegate.ensureInitialized();
+  public void ensureInitialized() {
+    if (!this.initialized) {
+      ensureInitializedImpl();
+      this.initialized = true;
     }
   }
 
-  @Override
-  protected void resetImpl() {
-    this.delegate = null;
-  }
+  protected abstract void ensureInitializedImpl();
 
   @Override
-  protected Component getByRefImpl(int componentRef) {
-    return delegate.getByRef(componentRef);
+  public void reset() {
+    resetImpl();
+    this.initialized = false;
   }
+
+  protected abstract void resetImpl();
+
+  @Override
+  public Component getByRef(int componentRef) {
+    checkState(this.initialized, "%s has not been initialized", getClass().getSimpleName());
+    return getByRefImpl(componentRef);
+  }
+
+  protected abstract Component getByRefImpl(int componentRef);
 }

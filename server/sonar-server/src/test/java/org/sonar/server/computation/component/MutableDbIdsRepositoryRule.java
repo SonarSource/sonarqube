@@ -20,29 +20,24 @@
 package org.sonar.server.computation.component;
 
 import com.google.common.base.Function;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Implementation of {@link DbIdsRepository} as a JUnit {@link org.junit.Rule} which supports both
  * {@link ViewsComponent} and {@link ReportComponent}.
  */
 public class MutableDbIdsRepositoryRule extends ExternalResource implements MutableDbIdsRepository {
-  @CheckForNull
   private final ComponentProvider componentProvider;
-  private boolean providerInitialized = false;
   private MutableDbIdsRepository delegate = newDelegate();
 
-  private MutableDbIdsRepositoryRule(@Nullable ComponentProvider componentProvider) {
+  private MutableDbIdsRepositoryRule(ComponentProvider componentProvider) {
     this.componentProvider = componentProvider;
   }
 
   public static MutableDbIdsRepositoryRule standalone() {
-    return new MutableDbIdsRepositoryRule(null);
+    return new MutableDbIdsRepositoryRule(NoComponentProvider.INSTANCE);
   }
 
   public static MutableDbIdsRepositoryRule create(TreeRootHolderRule treeRootHolder) {
@@ -66,27 +61,16 @@ public class MutableDbIdsRepositoryRule extends ExternalResource implements Muta
   @Override
   protected void before() throws Throwable {
     this.delegate = newDelegate();
-    if (this.componentProvider != null) {
-      this.providerInitialized = false;
-    }
   }
 
   public DbIdsRepository setComponentId(int componentRef, long componentId) {
-    checkAndInitProvider();
+    this.componentProvider.ensureInitialized();
     return delegate.setComponentId(componentProvider.getByRef(componentRef), componentId);
   }
 
   public DbIdsRepository setSnapshotId(int componentRef, long snapshotId) {
-    checkAndInitProvider();
+    this.componentProvider.ensureInitialized();
     return delegate.setSnapshotId(componentProvider.getByRef(componentRef), snapshotId);
-  }
-
-  private void checkAndInitProvider() {
-    checkState(this.componentProvider != null, "Can not use methods set taking a ref if no ComponentProvider has been set");
-    if (!this.providerInitialized) {
-      this.componentProvider.init();
-      this.providerInitialized = true;
-    }
   }
 
   @Override

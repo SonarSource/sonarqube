@@ -19,29 +19,23 @@
  */
 package org.sonar.server.computation.component;
 
-public final class TreeRootHolderComponentProvider extends AbstractComponentProvider {
-  private final TreeRootHolder treeRootHolder;
-  private TreeComponentProvider delegate;
+public enum NoComponentProvider implements ComponentProvider {
+  INSTANCE;
 
-  public TreeRootHolderComponentProvider(TreeRootHolder treeRootHolder) {
-    this.treeRootHolder = treeRootHolder;
+  private static final String ERROR_MSG = "Can not add a measure by Component ref if MeasureRepositoryRule has not been created for some Component provider";
+
+  @Override
+  public void ensureInitialized() {
+    throw new IllegalStateException(ERROR_MSG);
   }
 
   @Override
-  protected void ensureInitializedImpl() {
-    if (this.delegate == null) {
-      this.delegate = new TreeComponentProvider(treeRootHolder.getRoot());
-      this.delegate.ensureInitialized();
-    }
+  public void reset() {
+    // do nothing
   }
 
   @Override
-  protected void resetImpl() {
-    this.delegate = null;
-  }
-
-  @Override
-  protected Component getByRefImpl(int componentRef) {
-    return delegate.getByRef(componentRef);
+  public Component getByRef(int componentRef) {
+    throw new IllegalStateException(ERROR_MSG);
   }
 }

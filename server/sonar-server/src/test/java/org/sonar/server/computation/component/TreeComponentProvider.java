@@ -24,10 +24,21 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public final class TreeComponentProvider implements ComponentProvider {
+public final class TreeComponentProvider extends AbstractComponentProvider {
+  private final Component root;
   private final Map<String, Component> componentsByRef = new HashMap<>();
 
   public TreeComponentProvider(Component root) {
+    this.root = root;
+    ensureInitialized();
+  }
+
+  private static String getRef(Component component) {
+    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getKey();
+  }
+
+  @Override
+  protected void ensureInitializedImpl() {
     new DepthTraversalTypeAwareCrawler(
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.PRE_ORDER) {
         @Override
@@ -39,22 +50,13 @@ public final class TreeComponentProvider implements ComponentProvider {
       }).visit(root);
   }
 
-  private static String getRef(Component component) {
-    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getKey();
-  }
-
   @Override
-  public void init() {
-    // nothing to do, init done in constructor
-  }
-
-  @Override
-  public void reset() {
+  protected void resetImpl() {
     // we can not reset
   }
 
   @Override
-  public Component getByRef(int componentRef) {
+  protected Component getByRefImpl(int componentRef) {
     Component component = componentsByRef.get(String.valueOf(componentRef));
     checkState(component != null, "Can not find Component for ref " + componentRef);
     return component;

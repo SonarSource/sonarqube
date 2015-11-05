@@ -20,12 +20,16 @@
 package org.sonar.server.computation.component;
 
 public interface ComponentProvider {
-  void init();
+  /**
+   * does nothing if already initialized
+   */
+  void ensureInitialized();
 
   void reset();
 
   /**
    * @throws IllegalStateException if no component is found for the specified ref
+   * @throws IllegalStateException if provider has not been initialized
    */
   Component getByRef(int componentRef);
 }

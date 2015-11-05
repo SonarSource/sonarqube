@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentProvider;
+import org.sonar.server.computation.component.NoComponentProvider;
 import org.sonar.server.computation.component.TreeComponentProvider;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolderComponentProvider;
@@ -53,7 +54,6 @@ import static java.util.Objects.requireNonNull;
  * providers.
  */
 public class MeasureRepositoryRule extends ExternalResource implements MeasureRepository {
-  @CheckForNull
   private final ComponentProvider componentProvider;
   @CheckForNull
   private final MetricRepositoryRule metricRepositoryRule;
@@ -68,22 +68,20 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     }
   };
 
-  private MeasureRepositoryRule(@Nullable ComponentProvider componentProvider, @Nullable MetricRepositoryRule metricRepositoryRule) {
+  private MeasureRepositoryRule(ComponentProvider componentProvider, @Nullable MetricRepositoryRule metricRepositoryRule) {
     this.componentProvider = componentProvider;
     this.metricRepositoryRule = metricRepositoryRule;
   }
 
   @Override
   protected void after() {
-    if (componentProvider != null) {
-      componentProvider.reset();
-    }
+    componentProvider.reset();
     baseMeasures.clear();
     rawMeasures.clear();
   }
 
   public static MeasureRepositoryRule create() {
-    return new MeasureRepositoryRule(null, null);
+    return new MeasureRepositoryRule(NoComponentProvider.INSTANCE, null);
   }
 
   public static MeasureRepositoryRule create(TreeRootHolder treeRootHolder, MetricRepositoryRule metricRepositoryRule) {
@@ -305,9 +303,8 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   }
 
   private void checkAndInitProvidersState() {
-    checkState(componentProvider != null, "Can not add a measure by Component ref if MeasureRepositoryRule has not been created for some Component provider");
     checkState(metricRepositoryRule != null, "Can not add a measure by metric key if MeasureRepositoryRule has not been created for a MetricRepository");
-    componentProvider.init();
+    componentProvider.ensureInitialized();
   }
 
   public boolean isEmpty() {
