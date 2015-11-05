@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 import { expect } from 'chai';
 
-import Gate from '../../src/main/js/apps/overview/gate/gate';
-import GateConditions from '../../src/main/js/apps/overview/gate/gate-conditions';
-import GateCondition from '../../src/main/js/apps/overview/gate/gate-condition';
+import Gate from '../../src/main/js/apps/overview/main/gate/gate';
+import GateConditions from '../../src/main/js/apps/overview/main/gate/gate-conditions';
+import GateCondition from '../../src/main/js/apps/overview/main/gate/gate-condition';
 
 describe('Overview', function () {
 

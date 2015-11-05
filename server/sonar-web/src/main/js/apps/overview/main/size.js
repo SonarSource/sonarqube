@@ -35,8 +35,7 @@ export const GeneralSize = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader title="Size"
-                    leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
+      <DomainHeader {...this.props} title="Size" linkTo="/size"/>
 
       <DomainPanel domain="size">
         <DomainNutshell>

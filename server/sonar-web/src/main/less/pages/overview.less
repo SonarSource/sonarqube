@@ -11,7 +11,6 @@
   justify-content: space-between;
   width: 100%;
   min-height: ~"calc(100vh - @{navbarGlobalHeight} - @{navbarContextHeight} - @{pageFooterHeight})";
-  overflow-x: hidden;
   animation: fadeIn 0.5s forwards;
 }
 
@@ -136,6 +135,7 @@
   align-items: baseline;
   justify-content: space-between;
   margin-bottom: 10px;
+  line-height: @formControlHeight;
 
   .overview-title {
     flex: 1;
@@ -225,7 +225,220 @@
   }
 }
 
+/*
+ * Detailed Pages
+ */
 
+.overview-detailed-page {
+  flex: 1;
+}
+
+.overview-detailed-measures-list {
+  border: 1px solid @barBorderColor;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.overview-detailed-measure {
+  display: flex;
+  background-color: #fff;
+}
+
+.overview-detailed-measure-nutshell,
+.overview-detailed-measure-leak {
+  position: relative;
+  padding: 7px 10px;
+}
+
+.overview-detailed-measure-nutshell {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  flex: 3;
+}
+
+.overview-detailed-measure-leak {
+  flex: 1;
+  background-color: #fffae7;
+  text-align: center;
+}
+
+.overview-detailed-measure-value {
+  font-size: 16px;
+}
+
+.overview-detailed-layout-size {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 -10px;
+
+  .overview-detailed-layout-column {
+    flex: 1;
+    max-width: 560px;
+  }
+}
+
+.overview-detailed-layout-column {
+  padding: 0 10px;
+}
+
+.overview-legend-nutshell,
+.overview-legend-leak {
+  display: inline-block;
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+  margin-top: -2px;
+  margin-left: 16px;
+  margin-right: 8px;
+  border: 1px solid @barBorderColor;
+  box-sizing: border-box;
+}
+
+.overview-legend-nutshell {
+  background-color: #fff;
+}
+
+.overview-legend-leak {
+  background-color: #fffae7;
+}
+
+/*
+ * Charts
+ */
+
+.overview-domain-charts {
+  display: flex;
+
+  .overview-domain-chart {
+    flex: 1;
+  }
+}
+
+.overview-domain-chart {
+  .overview-title {
+    display: inline-block;
+    margin-right: 20px;
+  }
+}
+
+.overview-bar-chart {
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 15px;
+}
+
+.bar-chart-bar {
+  fill: @blue;
+}
+
+.bar-chart-tick {
+  fill: @secondFontColor;
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+.histogram-tick {
+  text-anchor: end;
+}
+
+.histogram-value {
+  text-anchor: start;
+}
+
+.overview-timeline {
+  padding: 10px;
+  border: 1px solid @barBorderColor;
+  box-sizing: border-box;
+  background-color: #fff;
+
+  .line-chart-path {
+    fill: none;
+    stroke: @blue;
+    stroke-width: 2px;
+  }
+
+  .line-chart-point {
+    fill: #fff;
+    stroke: @darkBlue;
+    stroke-width: 2px;
+  }
+
+  .line-chart-backdrop {
+    fill: #fffae7;
+  }
+
+  .line-chart-tick {
+    fill: @secondFontColor;
+    font-size: 11px;
+    text-anchor: middle;
+  }
+
+  .line-chart-tick-x {
+    text-anchor: end;
+  }
+
+  .line-chart-tick-x-right {
+    text-anchor: start;
+  }
+
+  .line-chart-grid {
+    shape-rendering: crispedges;
+    stroke: #eee;
+  }
+}
+
+.overview-timeline-1 {
+  .line-chart-path {
+    stroke: @purple;
+  }
+
+  .line-chart-point {
+    stroke: darken(@purple, 20%);
+  }
+}
+
+.overview-timeline-sample {
+  display: inline-block;
+  vertical-align: middle;
+  width: 16px;
+  height: 2px;
+  margin-right: 8px;
+}
+
+.overview-timeline-sample-0 {
+  background-color: @blue;
+}
+
+.overview-timeline-sample-1 {
+  background-color: @purple;
+}
+
+.overview-timeline-chart {
+  text-align: center;
+}
+
+.overview-timeline-chart + .overview-timeline-chart {
+  margin-top: 40px;
+}
+
+.overview-timeline-select {
+  width: 12em;
+  height: @formControlHeight;
+  line-height: @formControlHeight;
+  border: 1px solid #cdcdcd;
+  background: none;
+}
+
+.overview-treemap {
+}
+
+.overview-chart-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 /*
  * Responsive Stuff
@@ -246,13 +459,15 @@
   }
 }
 
-
-
 /*
  * Animations
  */
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

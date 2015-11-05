@@ -1,12 +1,17 @@
 import React from 'react';
 
-import Gate from './gate/gate';
-import GeneralMain from './general/main';
+import Gate from './main/gate/gate';
+import GeneralMain from './main/main';
 import Meta from './meta';
+import { SizeMain } from './size/main';
+
 import { getMetrics } from '../../api/metrics';
+import { RouterMixin } from '../../components/router/router';
 
 
 export const Overview = React.createClass({
+  mixins: [RouterMixin],
+
   getInitialState () {
     return { ready: false };
   },
@@ -25,18 +30,34 @@ export const Overview = React.createClass({
     </div>;
   },
 
+  renderMain() {
+    return <div className="overview">
+      <div className="overview-main">
+        <Gate component={this.props.component} gate={this.props.gate}/>
+        <GeneralMain {...this.props} {...this.state} navigate={this.navigate}/>
+      </div>
+      <Meta component={this.props.component}/>
+    </div>;
+  },
+
+  renderSize () {
+    return <div className="overview">
+      <SizeMain {...this.props} {...this.state}/>
+    </div>;
+  },
+
   render () {
     if (!this.state.ready) {
       return this.renderLoading();
     }
-
-    return <div className="overview">
-      <div className="overview-main">
-        <Gate component={this.props.component} gate={this.props.gate}/>
-        <GeneralMain {...this.props} {...this.state}/>
-      </div>
-      <Meta component={this.props.component}/>
-    </div>;
+    switch (this.state.route) {
+      case '':
+        return this.renderMain();
+      case '/size':
+        return this.renderSize();
+      default:
+        throw new Error('Unknown route: ' + this.state.route);
+    }
   }
 });
 

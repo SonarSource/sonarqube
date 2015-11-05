@@ -1,4 +1,5 @@
 import numeral from 'numeral';
+import _ from 'underscore';
 
 
 /**
@@ -20,6 +21,33 @@ export function formatMeasure (value, type) {
 export function formatMeasureVariation (value, type) {
   let formatter = getVariationFormatter(type);
   return useFormatter(value, formatter);
+}
+
+
+/**
+ * Return a localized metric name
+ * @param {string} metricKey
+ * @returns {string}
+ */
+export function localizeMetric (metricKey) {
+  return window.t('metric', metricKey, 'name');
+}
+
+
+/**
+ * Group list of metrics by their domain
+ * @param {Array} metrics
+ * @returns {Array}
+ */
+export function groupByDomain (metrics) {
+  let groupedMetrics = _.groupBy(metrics, 'domain');
+  let domains = _.map(groupedMetrics, (metricList, domain) => {
+    return {
+      domain: domain,
+      metrics: _.sortBy(metricList, 'name')
+    };
+  });
+  return _.sortBy(domains, 'domain');
 }
 
 

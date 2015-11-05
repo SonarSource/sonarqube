@@ -13,6 +13,7 @@ class App {
   start (options) {
     let opts = _.extend({}, options, window.sonarqube.overview);
     _.extend(opts.component, options.component);
+    opts.urlRoot = window.baseUrl + '/overview';
 
     $('html').toggleClass('dashboard-page', opts.component.hasSnapshot);
     let el = document.querySelector(opts.el);

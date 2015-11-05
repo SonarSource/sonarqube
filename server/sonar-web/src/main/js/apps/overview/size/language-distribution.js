@@ -1,84 +1,52 @@
 import _ from 'underscore';
 import React from 'react';
 
-import { BarChart } from '../../../components/charts/bar-chart';
-import { getMeasures } from '../../../api/measures';
-import { getLanguages } from '../../../api/languages';
+import { Histogram } from '../../../components/charts/histogram';
 import { formatMeasure } from '../../../helpers/measures';
-
-
-const HEIGHT = 180;
-const COMPLEXITY_DISTRIBUTION_METRIC = 'ncloc_language_distribution';
+import { getLanguages } from '../../../api/languages';
 
 
 export class LanguageDistribution extends React.Component {
-  constructor (props) {
-    super(props);
-    this.state = { loading: true };
-  }
-
   componentDidMount () {
-    this.requestData();
+    this.requestLanguages();
   }
 
-  requestData () {
-    return Promise.all([
-      getMeasures(this.props.component.key, [COMPLEXITY_DISTRIBUTION_METRIC]),
-      getLanguages()
-    ]).then(responses => {
-      this.setState({
-        loading: false,
-        distribution: responses[0][COMPLEXITY_DISTRIBUTION_METRIC],
-        languages: responses[1]
-      });
-    });
+  requestLanguages () {
+    getLanguages().then(languages => this.setState({ languages }));
   }
 
   getLanguageName (langKey) {
-    let lang = _.findWhere(this.state.languages, { key: langKey });
-    return lang ? lang.name : window.t('unknown');
-  }
-
-  renderLoading () {
-    return <div className="overview-chart-placeholder" style={{ height: HEIGHT }}>
-      <i className="spinner"/>
-    </div>;
+    if (this.state && this.state.languages) {
+      let lang = _.findWhere(this.state.languages, { key: langKey });
+      return lang ? lang.name : window.t('unknown');
+    } else {
+      return langKey;
+    }
   }
 
   renderBarChart () {
-    if (this.state.loading) {
-      return this.renderLoading();
-    }
-
-    let data = this.state.distribution.split(';').map((d, index) => {
-      let tokens = d.split('=');
-      return { x: index, y: parseInt(tokens[1], 10), lang: tokens[0] };
+    let data = this.props.distribution.split(';').map((point, index) => {
+      let tokens = point.split('=');
+      return { x: parseInt(tokens[1], 10), y: index, value: tokens[0] };
     });
 
-    let xTicks = data.map(d => this.getLanguageName(d.lang));
+    data = _.sortBy(data, d => -d.x);
 
-    let xValues = data.map(d => formatMeasure(d.y, 'INT'));
+    let yTicks = data.map(point => this.getLanguageName(point.value));
 
-    return <BarChart data={data}
-                     xTicks={xTicks}
-                     xValues={xValues}
-                     width={40 * data.length * 2 + 60}
-                     height={HEIGHT}
-                     barsWidth={40}
-                     padding={[25, 30, 50, 30]}/>;
+    let yValues = data.map(point => formatMeasure(point.x / this.props.lines * 100, 'PERCENT'));
+
+    return <Histogram data={data}
+                      yTicks={yTicks}
+                      yValues={yValues}
+                      height={data.length * 25}
+                      barsWidth={10}
+                      padding={[0, 50, 0, 80]}/>;
   }
 
   render () {
     return <div className="overview-bar-chart">
-      <div className="overview-domain-header">
-        <h2 className="overview-title">&nbsp;</h2>
-        <ul className="list-inline small">
-          <li>Size: Lines of Code</li>
-        </ul>
-      </div>
-      <div>
-        {this.renderBarChart()}
-      </div>
+      {this.renderBarChart()}
     </div>;
   }
 }

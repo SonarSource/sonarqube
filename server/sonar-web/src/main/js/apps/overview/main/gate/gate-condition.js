@@ -1,8 +1,8 @@
 import React from 'react';
 
-import Measure from './../helpers/measure';
-import { getPeriodLabel, getPeriodDate } from './../helpers/period-label';
-import DrilldownLink from './../helpers/drilldown-link';
+import Measure from '../../helpers/measure';
+import { getPeriodLabel, getPeriodDate } from '../../helpers/period-label';
+import DrilldownLink from '../../helpers/drilldown-link';
 
 
 export default React.createClass({

@@ -2,7 +2,7 @@ import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
 
-import { ResizeMixin } from './mixins/resize-mixin';
+import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 
@@ -81,14 +81,11 @@ export const Treemap = React.createClass({
       return <div>&nbsp;</div>;
     }
 
-    let sizeScale = d3.scale.linear()
-                      .domain([0, d3.max(this.props.items, d => d.size)])
-                      .range([5, 45]);
     let treemap = d3.layout.treemap()
                     .round(true)
-                    .value(d => sizeScale(d.size))
+                    .value(d => d.size)
                     .sort((a, b) => a.value - b.value)
-                    .size([this.state.width, 360]);
+                    .size([this.state.width, this.state.height]);
     let nodes = treemap
         .nodes({ children: this.props.items })
         .filter(d => !d.children)

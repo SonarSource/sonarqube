@@ -5,7 +5,7 @@ import { Treemap } from '../../../components/charts/treemap';
 import { getChildren } from '../../../api/components';
 import { formatMeasure } from '../../../helpers/measures';
 
-const HEIGHT = 360;
+const HEIGHT = 302;
 
 
 export class DomainTreemap extends React.Component {
@@ -79,15 +79,15 @@ export class DomainTreemap extends React.Component {
 
   render () {
     let color = this.props.colorMetric ? <li>Color: {this.state.colorMetric.name}</li> : null;
-    return <div className="overview-domain-section overview-treemap">
+    return <div className="overview-domain overview-domain-chart">
       <div className="overview-domain-header">
-        <h2 className="overview-title">Project Components</h2>
+        <h2 className="overview-title">Treemap</h2>
         <ul className="list-inline small">
           <li>Size: {this.state.sizeMetric.name}</li>
           {color}
         </ul>
       </div>
-      <div>
+      <div className="overview-treemap">
         {this.renderTreemap()}
       </div>
     </div>;

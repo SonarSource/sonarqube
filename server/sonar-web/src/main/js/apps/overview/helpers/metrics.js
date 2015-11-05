@@ -14,10 +14,24 @@ function isNotDifferential (metric) {
   return metric.key.indexOf('new_') !== 0;
 }
 
-export function filterMetricsForDomains (metrics, domains) {
+export function filterMetrics (metrics) {
   return metrics.filter(metric => {
-    return hasRightDomain(metric, domains) && isNotHidden(metric) && hasSimpleType(metric) && isNotDifferential(metric);
+    return isNotHidden(metric) && hasSimpleType(metric) && isNotDifferential(metric);
   });
+}
+
+export function filterMetricsForDomains (metrics, domains) {
+  return filterMetrics(metrics).filter(metric => hasRightDomain(metric, domains));
+}
+
+
+export function getShortType (type) {
+  if (type === 'INT') {
+    return 'SHORT_INT';
+  } else if (type === 'WORK_DUR') {
+    return 'SHORT_WORK_DUR';
+  }
+  return type;
 }
 
 

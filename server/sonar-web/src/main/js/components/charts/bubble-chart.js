@@ -1,7 +1,7 @@
 import d3 from 'd3';
 import React from 'react';
 
-import { ResizeMixin } from './mixins/resize-mixin';
+import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 

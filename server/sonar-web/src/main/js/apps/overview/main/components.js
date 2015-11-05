@@ -2,6 +2,7 @@ import moment from 'moment';
 import React from 'react';
 
 import { Timeline } from './timeline';
+import { navigate } from '../../../components/router/router';
 
 
 export const Domain = React.createClass({
@@ -25,16 +26,23 @@ export const DomainLeakTitle = React.createClass({
     }
     let momentDate = moment(this.props.date);
     let fromNow = momentDate.fromNow();
-    let tooltip = 'Started ' + fromNow + ', ' + momentDate.format('LLL');
+    let tooltip = 'Started ' + fromNow + ', ' + momentDate.format('LL');
     return <span title={tooltip} data-toggle="tooltip">Water Leak: {this.props.label}</span>;
   }
 });
 
 
 export const DomainHeader = React.createClass({
+  handleClick(e) {
+    e.preventDefault();
+    navigate(this.props.linkTo);
+  },
+
   render () {
     return <div className="overview-domain-header">
-      <DomainTitle>{this.props.title}</DomainTitle>
+      <DomainTitle>
+        <a onClick={this.handleClick} href="#">{this.props.title}</a>
+      </DomainTitle>
       <DomainLeakTitle label={this.props.leakPeriodLabel} date={this.props.leakPeriodDate}/>
     </div>;
   }
