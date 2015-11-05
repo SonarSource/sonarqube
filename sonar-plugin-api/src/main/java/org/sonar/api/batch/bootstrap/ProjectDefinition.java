@@ -83,7 +83,6 @@ public class ProjectDefinition {
   private Map<String, String> properties = new HashMap<>();
   private ProjectDefinition parent = null;
   private List<ProjectDefinition> subProjects = new ArrayList<>();
-  private List<Object> containerExtensions = new ArrayList<>();
 
   private ProjectDefinition(Properties p) {
     for (Entry<Object, Object> entry : p.entrySet()) {
@@ -124,7 +123,7 @@ public class ProjectDefinition {
     return workDir;
   }
 
-  public ProjectDefinition setBuildDir( File d) {
+  public ProjectDefinition setBuildDir(File d) {
     this.buildDir = d;
     return this;
   }
@@ -551,23 +550,6 @@ public class ProjectDefinition {
   @Deprecated
   public void addLibrary(String path) {
     appendProperty(LIBRARIES_PROPERTY, path);
-  }
-
-  /**
-   * Adds an extension, which would be available in PicoContainer during analysis of this project.
-   *
-   * @since 2.8
-   */
-  public ProjectDefinition addContainerExtension(Object extension) {
-    containerExtensions.add(extension);
-    return this;
-  }
-
-  /**
-   * @since 2.8
-   */
-  public List<Object> getContainerExtensions() {
-    return containerExtensions;
   }
 
   /**

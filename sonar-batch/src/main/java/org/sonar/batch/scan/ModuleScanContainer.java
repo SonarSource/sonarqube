@@ -112,7 +112,6 @@ public class ModuleScanContainer extends ComponentContainer {
       SensorsExecutor.class,
       InitializersExecutor.class,
       ProjectInitializer.class,
-      moduleDefinition.getContainerExtensions(),
 
       // file system
       ModuleInputFileCache.class,

@@ -28,7 +28,6 @@
     <module>sonar-ws</module>
     <module>sonar-testing-harness</module>
     <module>plugins/sonar-xoo-plugin</module>
-    <module>plugins/sonar-batch-maven-plugin</module>
   </modules>
 
   <organization>
@@ -830,16 +829,6 @@
             <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-artifact</artifactId>
-        <version>2.0.7</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-core</artifactId>
-        <version>2.0.7</version>
       </dependency>
       <dependency>
         <groupId>com.ibm.icu</groupId>
