@@ -123,8 +123,7 @@ public class IssuesModeTest {
     
     // do it again, scanning nothing (all files should be unchanged)
     runner = configureRunnerIssues("shared/xoo-sample",
-      "sonar.verbose", "true",
-      "sonar.scanChangedFilesOnly", "true");
+      "sonar.verbose", "true");
     result = orchestrator.executeBuild(runner);
     assertThat(result.getLogs()).contains("Scanning only changed files");
     assertThat(result.getLogs()).contains("'One Issue Per Line' skipped because there is no related file in current project");
@@ -153,8 +152,7 @@ public class IssuesModeTest {
 
     // do it again, scanning nothing (all files should be unchanged)
     runner = configureRunnerIssues("shared/xoo-sample",
-      "sonar.verbose", "true",
-      "sonar.scanChangedFilesOnly", "true");
+      "sonar.verbose", "true");
     result = orchestrator.executeBuild(runner);
     assertThat(result.getLogs()).contains("Scanning only changed files");
     assertThat(result.getLogs()).contains("'One Issue Per Line' skipped because there is no related file in current project");
@@ -289,7 +287,8 @@ public class IssuesModeTest {
 
     // First run issues mode
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    runner = configureRunnerIssues("shared/xoo-sample");
+    runner = configureRunnerIssues("shared/xoo-sample",
+      "sonar.scanAllFiles", "true");
     BuildResult result = orchestrator.executeBuild(runner);
 
     // As many new issue as lines
@@ -300,7 +299,9 @@ public class IssuesModeTest {
     orchestrator.executeBuild(runner);
 
     // Second run issues mode
-    runner = configureRunnerIssues("shared/xoo-sample", "sonar.report.export.path", "sonar-report.json");
+    runner = configureRunnerIssues("shared/xoo-sample", 
+      "sonar.report.export.path", "sonar-report.json", 
+      "sonar.scanAllFiles", "true");
     result = orchestrator.executeBuild(runner);
 
     // No new issue this time
@@ -319,7 +320,8 @@ public class IssuesModeTest {
     orchestrator.executeBuild(runner);
 
     // First issues mode
-    runner = configureRunnerIssues("shared/xoo-sample");
+    runner = configureRunnerIssues("shared/xoo-sample",
+      "sonar.scanAllFiles", "true");
     BuildResult result = orchestrator.executeBuild(runner);
 
     // No new issues
@@ -329,7 +331,9 @@ public class IssuesModeTest {
     restoreProfile("/one-issue-per-line.xml");
 
     // Second issues mode
-    runner = configureRunnerIssues("shared/xoo-sample", "sonar.report.export.path", "sonar-report.json");
+    runner = configureRunnerIssues("shared/xoo-sample", 
+      "sonar.report.export.path", "sonar-report.json",
+      "sonar.scanAllFiles", "true");
     result = orchestrator.executeBuild(runner);
 
     // As many new issue as lines
