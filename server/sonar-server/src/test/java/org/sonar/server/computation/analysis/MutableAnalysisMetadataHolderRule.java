@@ -22,16 +22,27 @@ package org.sonar.server.computation.analysis;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.junit.rules.ExternalResource;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.sonar.server.computation.snapshot.Snapshot;
 
-public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
+public class MutableAnalysisMetadataHolderRule implements MutableAnalysisMetadataHolder, TestRule {
 
   private AnalysisMetadataHolderImpl delegate = new AnalysisMetadataHolderImpl();
 
   @Override
-  protected void before() throws Throwable {
-    delegate = new AnalysisMetadataHolderImpl();
+  public Statement apply(final Statement statement, Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        try {
+          statement.evaluate();
+        } finally {
+          delegate = new AnalysisMetadataHolderImpl();
+        }
+      }
+    };
   }
 
   @Override
@@ -39,9 +50,9 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
     return delegate.getAnalysisDate();
   }
 
-  @Override
-  public void setAnalysisDate(Date date) {
+  public MutableAnalysisMetadataHolderRule setAnalysisDate(Date date) {
     delegate.setAnalysisDate(date);
+    return this;
   }
 
   @Override
@@ -50,8 +61,9 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
+  public MutableAnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
     delegate.setBaseProjectSnapshot(baseProjectSnapshot);
+    return this;
   }
 
   @Override
@@ -66,8 +78,9 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public void setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
+  public MutableAnalysisMetadataHolderRule setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
     delegate.setIsCrossProjectDuplicationEnabled(isCrossProjectDuplicationEnabled);
+    return this;
   }
 
   @Override
@@ -76,13 +89,15 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public void setBranch(@Nullable String branch) {
+  public MutableAnalysisMetadataHolderRule setBranch(@Nullable String branch) {
     delegate.setBranch(branch);
+    return this;
   }
 
   @Override
-  public void setRootComponentRef(int rootComponentRef) {
+  public MutableAnalysisMetadataHolderRule setRootComponentRef(int rootComponentRef) {
     delegate.setRootComponentRef(rootComponentRef);
+    return this;
   }
 
   @Override

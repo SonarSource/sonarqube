@@ -47,9 +47,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private Integer rootComponentRef;
 
   @Override
-  public void setAnalysisDate(Date date) {
+  public MutableAnalysisMetadataHolder setAnalysisDate(Date date) {
     checkState(analysisDate == null, "Analysis date has already been set");
     this.analysisDate = date.getTime();
+    return this;
   }
 
   @Override
@@ -64,10 +65,11 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
+  public MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
     checkState(!isBaseProjectSnapshotInit, "Base project snapshot has already been set");
     this.baseProjectSnapshot = baseProjectSnapshot;
     this.isBaseProjectSnapshotInit = true;
+    return this;
   }
 
   @Override
@@ -78,9 +80,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
+  public MutableAnalysisMetadataHolder setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
     checkState(this.isCrossProjectDuplicationEnabled == null, "Cross project duplication flag has already been set");
     this.isCrossProjectDuplicationEnabled = isCrossProjectDuplicationEnabled;
+    return this;
   }
 
   @Override
@@ -90,10 +93,11 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setBranch(@Nullable String branch) {
+  public MutableAnalysisMetadataHolder setBranch(@Nullable String branch) {
     checkState(!isBranchInit, "Branch has already been set");
     this.branch = branch;
     this.isBranchInit = true;
+    return this;
   }
 
   @Override
@@ -103,9 +107,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setRootComponentRef(int rootComponentRef) {
+  public MutableAnalysisMetadataHolder setRootComponentRef(int rootComponentRef) {
     checkState(this.rootComponentRef == null, "Root component ref has already been set");
     this.rootComponentRef = rootComponentRef;
+    return this;
   }
 
   @Override
