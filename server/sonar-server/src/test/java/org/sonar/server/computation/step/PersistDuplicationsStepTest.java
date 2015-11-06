@@ -47,15 +47,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PersistDuplicationsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
-
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  private static final int FILE_1_REF = 2;
+  private static final int FILE_2_REF = 3;
+  private static final int ROOT_REF = 1;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
 
@@ -94,22 +95,21 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   @Test
   public void persist_duplications_on_same_file() {
     MetricDto duplicationMetric = saveDuplicationMetric();
-
     initReportWithProjectAndFile();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(BatchReport.TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(5)
-        .build())
-      .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(6)
-          .setEndLine(10)
-          .build())
-        .build())
-      .build();
-    reportReader.putDuplications(2, newArrayList(duplication));
+        .setOriginPosition(BatchReport.TextRange.newBuilder()
+            .setStartLine(1)
+            .setEndLine(5)
+            .build())
+        .addDuplicate(BatchReport.Duplicate.newBuilder()
+            .setRange(BatchReport.TextRange.newBuilder()
+                .setStartLine(6)
+                .setEndLine(10)
+                .build())
+            .build())
+        .build();
+    reportReader.putDuplications(FILE_1_REF, newArrayList(duplication));
 
     underTest.execute();
 
@@ -122,153 +122,23 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_duplications_on_same_file_linked_on_a_module() {
-    Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("MODULE_KEY:file").build();
-    Component module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(file).build();
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
-    treeRootHolder.setRoot(project);
-
-    dbIdsRepository.setComponentId(project, 1);
-    dbIdsRepository.setSnapshotId(project, 10);
-    dbIdsRepository.setComponentId(module, 3);
-    dbIdsRepository.setSnapshotId(module, 11);
-    dbIdsRepository.setComponentId(file, 2);
-    dbIdsRepository.setSnapshotId(file, 12);
-
-    saveDuplicationMetric();
-
-    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(BatchReport.TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(5)
-        .build())
-      .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(6)
-          .setEndLine(10)
-          .build())
-        .build())
-      .build();
-    reportReader.putDuplications(3, newArrayList(duplication));
-
-    underTest.execute();
-
-    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
-
-    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
-    assertThat(dto.get("snapshotId")).isEqualTo(12L);
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"MODULE_KEY:file\"/><b s=\"6\" l=\"5\" r=\"MODULE_KEY:file\"/></g></duplications>");
-  }
-
-  @Test
-  public void persist_duplications_on_same_file_linked_on_a_folder() {
-    Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("PROJECT_KEY:file").build();
-    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("BCDE").setKey("PROJECT_KEY:dir").addChildren(file).build();
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory).build();
-    treeRootHolder.setRoot(project);
-
-    dbIdsRepository.setComponentId(project, 1);
-    dbIdsRepository.setSnapshotId(project, 10);
-    dbIdsRepository.setComponentId(directory, 3);
-    dbIdsRepository.setSnapshotId(directory, 11);
-    dbIdsRepository.setComponentId(file, 2);
-    dbIdsRepository.setSnapshotId(file, 12);
-
-    saveDuplicationMetric();
-
-    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(BatchReport.TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(5)
-        .build())
-      .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(6)
-          .setEndLine(10)
-          .build())
-        .build())
-      .build();
-    reportReader.putDuplications(3, newArrayList(duplication));
-
-    underTest.execute();
-
-    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
-
-    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
-    assertThat(dto.get("snapshotId")).isEqualTo(12L);
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file\"/></g></duplications>");
-  }
-
-  @Test
-  public void persist_duplications_on_same_file_linked_on_sub_folder() {
-    Component file = ReportComponent.builder(Component.Type.FILE, 10).setUuid("DEFG").setKey("PROJECT_KEY:file").build();
-    Component directory1 = ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:dir1").addChildren(file).build();
-    Component directory2 = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("BCDE").setKey("PROJECT_KEY:dir2").addChildren(directory1).build();
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory2).build();
-    treeRootHolder.setRoot(project);
-
-    dbIdsRepository.setComponentId(project, 1);
-    dbIdsRepository.setSnapshotId(project, 10);
-    dbIdsRepository.setComponentId(directory1, 2);
-    dbIdsRepository.setSnapshotId(directory1, 11);
-    dbIdsRepository.setComponentId(directory2, 3);
-    dbIdsRepository.setSnapshotId(directory2, 12);
-    dbIdsRepository.setComponentId(file, 10);
-    dbIdsRepository.setSnapshotId(file, 20);
-
-    saveDuplicationMetric();
-
-    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(BatchReport.TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(5)
-        .build())
-      .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(6)
-          .setEndLine(10)
-          .build())
-        .build())
-      .build();
-    reportReader.putDuplications(10, newArrayList(duplication));
-
-    underTest.execute();
-
-    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
-
-    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
-    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file\"/></g></duplications>");
-  }
-
-  @Test
   public void persist_duplications_on_different_files() {
     saveDuplicationMetric();
-
-    Component file2 = ReportComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("PROJECT_KEY:file2").build();
-    Component file = ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file, file2).build();
-    treeRootHolder.setRoot(project);
-
-    dbIdsRepository.setComponentId(project, 1);
-    dbIdsRepository.setSnapshotId(project, 10);
-    dbIdsRepository.setComponentId(file, 2);
-    dbIdsRepository.setSnapshotId(file, 11);
-    dbIdsRepository.setComponentId(file2, 2);
-    dbIdsRepository.setSnapshotId(file2, 12);
+    initReportWithProjectAndFile();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(BatchReport.TextRange.newBuilder()
-        .setStartLine(1)
-        .setEndLine(5)
-        .build())
-      .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileRef(3).setRange(BatchReport.TextRange.newBuilder()
-          .setStartLine(6)
-          .setEndLine(10)
-          .build())
-        .build())
-      .build();
-    reportReader.putDuplications(2, newArrayList(duplication));
+        .setOriginPosition(BatchReport.TextRange.newBuilder()
+            .setStartLine(1)
+            .setEndLine(5)
+            .build())
+        .addDuplicate(BatchReport.Duplicate.newBuilder()
+            .setOtherFileRef(FILE_2_REF).setRange(BatchReport.TextRange.newBuilder()
+                .setStartLine(6)
+                .setEndLine(10)
+                .build())
+            .build())
+        .build();
+    reportReader.putDuplications(FILE_1_REF, newArrayList(duplication));
 
     underTest.execute();
 
@@ -280,21 +150,24 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   }
 
   private void initReportWithProjectAndFile() {
-    Component file = ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
+    Component file1 = ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
+    Component file2 = ReportComponent.builder(Component.Type.FILE, FILE_2_REF).setUuid("CDEF").setKey("PROJECT_KEY:file2").build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, ROOT_REF).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file1, file2).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
     dbIdsRepository.setSnapshotId(project, 10);
-    dbIdsRepository.setComponentId(file, 2);
-    dbIdsRepository.setSnapshotId(file, 11);
+    dbIdsRepository.setComponentId(file1, 2);
+    dbIdsRepository.setSnapshotId(file1, 11);
+    dbIdsRepository.setComponentId(file2, 2);
+    dbIdsRepository.setSnapshotId(file2, 12);
   }
 
   private MetricDto saveDuplicationMetric() {
     MetricDto duplicationMetric = new MetricDto().setKey(CoreMetrics.DUPLICATIONS_DATA_KEY)
-      .setOptimizedBestValue(false)
-      .setDeleteHistoricalData(false)
-      .setHidden(false);
+        .setOptimizedBestValue(false)
+        .setDeleteHistoricalData(false)
+        .setHidden(false);
     dbClient.metricDao().insert(session, duplicationMetric);
     session.commit();
     return duplicationMetric;
