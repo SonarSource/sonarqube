@@ -79,4 +79,14 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   public void setBranch(@Nullable String branch) {
     delegate.setBranch(branch);
   }
+
+  @Override
+  public void setRootComponentRef(int rootComponentRef) {
+    delegate.setRootComponentRef(rootComponentRef);
+  }
+
+  @Override
+  public int getRootComponentRef() {
+    return delegate.getRootComponentRef();
+  }
 }

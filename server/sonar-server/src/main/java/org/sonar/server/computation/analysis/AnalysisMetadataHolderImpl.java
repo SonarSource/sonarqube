@@ -43,6 +43,9 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   @CheckForNull
   private String branch;
 
+  @CheckForNull
+  private Integer rootComponentRef;
+
   @Override
   public void setAnalysisDate(Date date) {
     checkState(analysisDate == null, "Analysis date has already been set");
@@ -97,5 +100,17 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   public String getBranch() {
     checkState(isBranchInit, "Branch has not been set");
     return branch;
+  }
+
+  @Override
+  public void setRootComponentRef(int rootComponentRef) {
+    checkState(this.rootComponentRef == null, "Root component ref has already been set");
+    this.rootComponentRef = rootComponentRef;
+  }
+
+  @Override
+  public int getRootComponentRef() {
+    checkState(rootComponentRef != null, "Root component ref has not been set");
+    return rootComponentRef;
   }
 }
