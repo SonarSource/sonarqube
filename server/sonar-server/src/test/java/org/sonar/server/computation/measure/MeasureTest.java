@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -27,12 +26,12 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.server.computation.measure.Measure.ValueType;
+import org.sonar.server.util.WrapInSingleElementArray;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,18 +90,18 @@ public class MeasureTest {
 
   @DataProvider
   public static Object[][] all() {
-    return from(MEASURES).transform(WrapInArray.INSTANCE).toArray(Measure[].class);
+    return from(MEASURES).transform(WrapInSingleElementArray.INSTANCE).toArray(Object[].class);
   }
 
-  private static Measure[][] getMeasuresExcept(final ValueType valueType) {
+  private static Object[][] getMeasuresExcept(final ValueType valueType) {
     return from(MEASURES)
       .filter(new Predicate<Measure>() {
         @Override
         public boolean apply(@Nonnull Measure input) {
           return input.getValueType() != valueType;
         }
-      }).transform(WrapInArray.INSTANCE)
-      .toArray(Measure[].class);
+      }).transform(WrapInSingleElementArray.INSTANCE)
+      .toArray(Object[].class);
   }
 
   @Test
@@ -364,13 +363,4 @@ public class MeasureTest {
     newMeasureBuilder().create(Double.NaN, "some data");
   }
 
-  private enum WrapInArray implements Function<Measure, Measure[]> {
-    INSTANCE;
-
-    @Nullable
-    @Override
-    public Measure[] apply(@Nonnull Measure input) {
-      return new Measure[] {input};
-    }
-  }
 }

@@ -20,20 +20,17 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
-import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -42,7 +39,9 @@ import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.ViewsComponent;
+import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.util.WrapInSingleElementArray;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -143,17 +142,13 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   private static Object[][] dataproviderFromComponentTypeValues(Predicate<Component.Type> predicate) {
     return FluentIterable.from(asList(Component.Type.values()))
         .filter(predicate)
-        .transform(new Function<Object, Object[]>() {
-          @Nullable
-          @Override
-          public Object[] apply(Object input) {
-            return new Object[]{input};
-          }
-        }).toArray(Object[].class);
+        .transform(WrapInSingleElementArray.INSTANCE)
+        .toArray(Object[].class);
   }
 
   @Override
   protected ComputationStep step() {
     return underTest;
   }
+
 }
