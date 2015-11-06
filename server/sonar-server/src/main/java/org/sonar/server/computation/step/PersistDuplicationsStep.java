@@ -20,23 +20,27 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.Iterator;
+import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.ReportTreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.duplication.CrossProjectDuplicate;
+import org.sonar.server.computation.duplication.Duplicate;
+import org.sonar.server.computation.duplication.Duplication;
+import org.sonar.server.computation.duplication.DuplicationRepository;
+import org.sonar.server.computation.duplication.InProjectDuplicate;
+import org.sonar.server.computation.duplication.InnerDuplicate;
+import org.sonar.server.computation.duplication.TextBlock;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -48,13 +52,14 @@ public class PersistDuplicationsStep implements ComputationStep {
   private final DbClient dbClient;
   private final DbIdsRepository dbIdsRepository;
   private final ReportTreeRootHolder treeRootHolder;
-  private final BatchReportReader reportReader;
+  private final DuplicationRepository duplicationRepository;
 
-  public PersistDuplicationsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, ReportTreeRootHolder treeRootHolder, BatchReportReader reportReader) {
+  public PersistDuplicationsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, ReportTreeRootHolder treeRootHolder,
+                                 DuplicationRepository duplicationRepository) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.treeRootHolder = treeRootHolder;
-    this.reportReader = reportReader;
+    this.duplicationRepository = duplicationRepository;
   }
 
   @Override
@@ -63,7 +68,7 @@ public class PersistDuplicationsStep implements ComputationStep {
     try {
       MetricDto duplicationMetric = dbClient.metricDao().selectOrFailByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
       new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(session, duplicationMetric))
-        .visit(treeRootHolder.getRoot());
+          .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -83,36 +88,30 @@ public class PersistDuplicationsStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      visitComponent(file);
-    }
-
-    private void visitComponent(Component component) {
-      try (CloseableIterator<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(component.getReportAttributes().getRef())) {
-        if (duplications.hasNext()) {
-          saveDuplications(component, duplications);
-        }
+      Set<Duplication> duplications = duplicationRepository.getDuplications(file);
+      if (!duplications.isEmpty()) {
+        saveDuplications(file, duplications);
       }
     }
 
-    private void saveDuplications(Component component, Iterator<BatchReport.Duplication> duplications) {
+    private void saveDuplications(Component component, Iterable<Duplication> duplications) {
       String duplicationXml = createXmlDuplications(component.getKey(), duplications);
       MeasureDto measureDto = new MeasureDto()
-        .setMetricId(duplicationMetric.getId())
-        .setData(duplicationXml)
-        .setComponentId(dbIdsRepository.getComponentId(component))
-        .setSnapshotId(dbIdsRepository.getSnapshotId(component));
+          .setMetricId(duplicationMetric.getId())
+          .setData(duplicationXml)
+          .setComponentId(dbIdsRepository.getComponentId(component))
+          .setSnapshotId(dbIdsRepository.getSnapshotId(component));
       dbClient.measureDao().insert(session, measureDto);
     }
 
-    private String createXmlDuplications(String componentKey, Iterator<BatchReport.Duplication> duplications) {
+    private String createXmlDuplications(String componentKey, Iterable<Duplication> duplications) {
       StringBuilder xml = new StringBuilder();
       xml.append("<duplications>");
-      while (duplications.hasNext()) {
-        BatchReport.Duplication duplication = duplications.next();
+      for (Duplication duplication : duplications) {
         xml.append("<g>");
-        appendDuplication(xml, componentKey, duplication.getOriginPosition());
-        for (BatchReport.Duplicate duplicationBlock : duplication.getDuplicateList()) {
-          processDuplicationBlock(xml, duplicationBlock, componentKey);
+        appendDuplication(xml, componentKey, duplication.getOriginal());
+        for (Duplicate duplicate : duplication.getDuplicates()) {
+          processDuplicationBlock(xml, duplicate, componentKey);
         }
         xml.append("</g>");
       }
@@ -120,26 +119,32 @@ public class PersistDuplicationsStep implements ComputationStep {
       return xml.toString();
     }
 
-    private void processDuplicationBlock(StringBuilder xml, BatchReport.Duplicate duplicate, String componentKey) {
-      if (duplicate.hasOtherFileRef()) {
-        // Duplication is on a different file
-        appendDuplication(xml, treeRootHolder.getComponentByRef(duplicate.getOtherFileRef()).getKey(), duplicate);
-      } else {
+    private void processDuplicationBlock(StringBuilder xml, Duplicate duplicate, String componentKey) {
+      if (duplicate instanceof InnerDuplicate) {
         // Duplication is on a the same file
         appendDuplication(xml, componentKey, duplicate);
+      } else if (duplicate instanceof InProjectDuplicate) {
+        // Duplication is on a different file
+        appendDuplication(xml, ((InProjectDuplicate) duplicate).getFile().getKey(), duplicate);
+      } else if (duplicate instanceof CrossProjectDuplicate) {
+        // componentKey is only set for cross project duplications
+        String crossProjectComponentKey = ((CrossProjectDuplicate) duplicate).getFileKey();
+        appendDuplication(xml, crossProjectComponentKey, duplicate);
+      } else {
+        throw new IllegalArgumentException("Unsupported type of Duplicate " + duplicate.getClass().getName());
       }
     }
 
-    private void appendDuplication(StringBuilder xml, String componentKey, BatchReport.Duplicate duplicate) {
-      appendDuplication(xml, componentKey, duplicate.getRange());
+    private void appendDuplication(StringBuilder xml, String componentKey, Duplicate duplicate) {
+      appendDuplication(xml, componentKey, duplicate.getTextBlock());
     }
 
-    private void appendDuplication(StringBuilder xml, String componentKey, BatchReport.TextRange range) {
-      int length = range.getEndLine() - range.getStartLine() + 1;
-      xml.append("<b s=\"").append(range.getStartLine())
-        .append("\" l=\"").append(length)
-        .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentKey))
-        .append("\"/>");
+    private void appendDuplication(StringBuilder xml, String componentKey, TextBlock textBlock) {
+      int length = textBlock.getEnd() - textBlock.getStart() + 1;
+      xml.append("<b s=\"").append(textBlock.getStart())
+          .append("\" l=\"").append(length)
+          .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentKey))
+          .append("\"/>");
     }
   }
 

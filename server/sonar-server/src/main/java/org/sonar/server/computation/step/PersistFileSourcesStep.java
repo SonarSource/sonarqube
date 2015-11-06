@@ -47,6 +47,7 @@ import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.duplication.DuplicationRepository;
 import org.sonar.server.computation.scm.Changeset;
 import org.sonar.server.computation.scm.ScmInfo;
 import org.sonar.server.computation.scm.ScmInfoRepository;
@@ -70,15 +71,17 @@ public class PersistFileSourcesStep implements ComputationStep {
   private final BatchReportReader reportReader;
   private final SourceLinesRepository sourceLinesRepository;
   private final ScmInfoRepository scmInfoRepository;
+  private final DuplicationRepository duplicationRepository;
 
   public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesRepository sourceLinesRepository,
-    ScmInfoRepository scmInfoRepository) {
+    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.sourceLinesRepository = sourceLinesRepository;
     this.scmInfoRepository = scmInfoRepository;
+    this.duplicationRepository = duplicationRepository;
   }
 
   @Override
@@ -123,7 +126,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       int fileRef = file.getReportAttributes().getRef();
       BatchReport.Component component = reportReader.readComponent(fileRef);
       CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
-      LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, file);
+      LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file);
       try {
         ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), component.getLines());
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
@@ -202,7 +205,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     @CheckForNull
     private final ScmLineReader scmLineReader;
 
-    LineReaders(BatchReportReader reportReader, ScmInfoRepository scmInfoRepository, Component component) {
+    LineReaders(BatchReportReader reportReader, ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository, Component component) {
       int componentRef = component.getReportAttributes().getRef();
       CloseableIterator<BatchReport.Coverage> coverageIt = reportReader.readComponentCoverage(componentRef);
       closeables.add(coverageIt);
@@ -225,9 +228,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       closeables.add(symbolsIt);
       readers.add(new SymbolsLineReader(component, symbolsIt, rangeOffsetConverter));
 
-      CloseableIterator<BatchReport.Duplication> duplicationsIt = reportReader.readComponentDuplications(componentRef);
-      closeables.add(duplicationsIt);
-      readers.add(new DuplicationLineReader(duplicationsIt));
+      readers.add(new DuplicationLineReader(duplicationRepository.getDuplications(component)));
     }
 
     List<LineReader> readers() {

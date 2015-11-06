@@ -28,19 +28,18 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.duplication.DuplicationRepositoryRule;
+import org.sonar.server.computation.duplication.TextBlock;
 import org.sonar.test.DbTests;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
@@ -56,12 +55,10 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
 
   DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
-
   DbSession session = dbTester.getSession();
-
   DbClient dbClient = dbTester.getDbClient();
 
   PersistDuplicationsStep underTest;
@@ -69,7 +66,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   @Before
   public void setup() {
     dbTester.truncateTables();
-    underTest = new PersistDuplicationsStep(dbClient, dbIdsRepository, treeRootHolder, reportReader);
+    underTest = new PersistDuplicationsStep(dbClient, dbIdsRepository, treeRootHolder, duplicationRepository);
   }
 
   @Override
@@ -97,19 +94,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     MetricDto duplicationMetric = saveDuplicationMetric();
     initReportWithProjectAndFile();
 
-    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-        .setOriginPosition(BatchReport.TextRange.newBuilder()
-            .setStartLine(1)
-            .setEndLine(5)
-            .build())
-        .addDuplicate(BatchReport.Duplicate.newBuilder()
-            .setRange(BatchReport.TextRange.newBuilder()
-                .setStartLine(6)
-                .setEndLine(10)
-                .build())
-            .build())
-        .build();
-    reportReader.putDuplications(FILE_1_REF, newArrayList(duplication));
+    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), new TextBlock(6, 10));
 
     underTest.execute();
 
@@ -126,19 +111,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     saveDuplicationMetric();
     initReportWithProjectAndFile();
 
-    BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-        .setOriginPosition(BatchReport.TextRange.newBuilder()
-            .setStartLine(1)
-            .setEndLine(5)
-            .build())
-        .addDuplicate(BatchReport.Duplicate.newBuilder()
-            .setOtherFileRef(FILE_2_REF).setRange(BatchReport.TextRange.newBuilder()
-                .setStartLine(6)
-                .setEndLine(10)
-                .build())
-            .build())
-        .build();
-    reportReader.putDuplications(FILE_1_REF, newArrayList(duplication));
+    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), 3, new TextBlock(6, 10));
 
     underTest.execute();
 
@@ -147,6 +120,22 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
     assertThat(dto.get("snapshotId")).isEqualTo(11L);
     assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file2\"/></g></duplications>");
+  }
+
+  @Test
+  public void persist_duplications_on_different_projects() {
+    saveDuplicationMetric();
+    initReportWithProjectAndFile();
+
+    duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(1, 5), "PROJECT2_KEY:file2", new TextBlock(6, 10));
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+
+    Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
+    assertThat(dto.get("snapshotId")).isEqualTo(11L);
+    assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT2_KEY:file2\"/></g></duplications>");
   }
 
   private void initReportWithProjectAndFile() {

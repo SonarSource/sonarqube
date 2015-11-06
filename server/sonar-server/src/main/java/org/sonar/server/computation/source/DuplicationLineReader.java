@@ -20,93 +20,113 @@
 
 package org.sonar.server.computation.source;
 
-import java.io.Serializable;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Ordering;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.sonar.batch.protocol.output.BatchReport;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.server.computation.duplication.Duplication;
+import org.sonar.server.computation.duplication.InnerDuplicate;
+import org.sonar.server.computation.duplication.TextBlock;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.FluentIterable.from;
 
 public class DuplicationLineReader implements LineReader {
 
-  private final List<BatchReport.Duplication> duplications;
-  private final Map<BatchReport.TextRange, Integer> duplicationIdsByRange;
+  private final Map<TextBlock, Integer> duplicatedTextBlockIndexByTextBlock;
 
-  public DuplicationLineReader(Iterator<BatchReport.Duplication> duplications) {
-    this.duplications = newArrayList(duplications);
-    // Sort duplication to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
-    // data
-    Collections.sort(this.duplications, new DuplicationComparator());
-
-    this.duplicationIdsByRange = createDuplicationIdsByRange(this.duplications);
+  public DuplicationLineReader(Set<Duplication> duplications) {
+    this.duplicatedTextBlockIndexByTextBlock = createIndexOfDuplicatedTextBlocks(duplications);
   }
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
-    int line = lineBuilder.getLine();
-    List<BatchReport.TextRange> blocks = findDuplicationBlockMatchingLine(line);
-    for (BatchReport.TextRange block : blocks) {
-      lineBuilder.addDuplication(duplicationIdsByRange.get(block));
+    Predicate<Map.Entry<TextBlock, Integer>> containsLine = new TextBlockContainsLine(lineBuilder.getLine());
+    for (Integer textBlockIndex : from(duplicatedTextBlockIndexByTextBlock.entrySet())
+      .filter(containsLine)
+      .transform(MapEntryToBlockId.INSTANCE)
+      // list is sorted to cope with the non-guaranteed order of Map entries which would trigger false detection of changes
+      // in {@link DbFileSources.Line#getDuplicationList()}
+      .toSortedList(Ordering.natural())) {
+      lineBuilder.addDuplication(textBlockIndex);
     }
   }
 
-  private List<BatchReport.TextRange> findDuplicationBlockMatchingLine(int line) {
-    List<BatchReport.TextRange> blocks = newArrayList();
-    for (BatchReport.Duplication duplication : duplications) {
-      if (matchLine(duplication.getOriginPosition(), line)) {
-        blocks.add(duplication.getOriginPosition());
-      }
-      for (BatchReport.Duplicate duplicate : duplication.getDuplicateList()) {
-        if (isDuplicationOnSameFile(duplicate) && matchLine(duplicate.getRange(), line)) {
-          blocks.add(duplicate.getRange());
-        }
-      }
-    }
-    return blocks;
+  private static boolean isLineInBlock(TextBlock range, int line) {
+    return line >= range.getStart() && line <= range.getEnd();
   }
 
-  private static boolean isDuplicationOnSameFile(BatchReport.Duplicate duplicate) {
-    return !duplicate.hasOtherFileRef();
+  /**
+   *
+   * <p>
+   * This method uses the natural order of TextBlocks to ensure that given the same set of TextBlocks, they get the same
+   * index. It avoids false detections of changes in {@link DbFileSources.Line#getDuplicationList()}.
+   * </p>
+   */
+  private static Map<TextBlock, Integer> createIndexOfDuplicatedTextBlocks(Collection<Duplication> duplications) {
+    List<TextBlock> duplicatedTextBlocks = extractAllDuplicatedTextBlocks(duplications);
+    Collections.sort(duplicatedTextBlocks);
+    return from(duplicatedTextBlocks)
+      .toMap(new TextBlockIndexGenerator());
   }
 
-  private static boolean matchLine(BatchReport.TextRange range, int line) {
-    return range.getStartLine() <= line && line <= range.getEndLine();
-  }
-
-  private static int length(BatchReport.TextRange range) {
-    return (range.getEndLine() - range.getStartLine()) + 1;
-  }
-
-  private static Map<BatchReport.TextRange, Integer> createDuplicationIdsByRange(List<BatchReport.Duplication> duplications) {
-    Map<BatchReport.TextRange, Integer> map = newHashMap();
-    int blockId = 1;
-    for (BatchReport.Duplication duplication : duplications) {
-      map.put(duplication.getOriginPosition(), blockId);
-      blockId++;
-      for (BatchReport.Duplicate duplicate : duplication.getDuplicateList()) {
-        if (isDuplicationOnSameFile(duplicate)) {
-          map.put(duplicate.getRange(), blockId);
-          blockId++;
-        }
+  /**
+   * Duplicated blocks in the current file are either {@link Duplication#getOriginal()} or {@link Duplication#getDuplicates()}
+   * when the {@link org.sonar.server.computation.duplication.Duplicate} is a {@link InnerDuplicate}.
+   * <p>
+   * The returned list is mutable on purpose because it will be sorted.
+   * </p>
+   *
+   * @see {@link #createIndexOfDuplicatedTextBlocks(Collection)}
+   */
+  private static List<TextBlock> extractAllDuplicatedTextBlocks(Collection<Duplication> duplications) {
+    List<TextBlock> duplicatedBlock = new ArrayList<>(duplications.size());
+    for (Duplication duplication : duplications) {
+      duplicatedBlock.add(duplication.getOriginal());
+      for (InnerDuplicate duplicate : from(duplication.getDuplicates()).filter(InnerDuplicate.class)) {
+        duplicatedBlock.add(duplicate.getTextBlock());
       }
     }
-    return map;
+    return duplicatedBlock;
   }
 
-  private static class DuplicationComparator implements Comparator<BatchReport.Duplication>, Serializable {
+  private static class TextBlockContainsLine implements Predicate<Map.Entry<TextBlock, Integer>> {
+    private final int line;
+
+    public TextBlockContainsLine(int line) {
+      this.line = line;
+    }
+
     @Override
-    public int compare(BatchReport.Duplication d1, BatchReport.Duplication d2) {
-      if (d1.getOriginPosition().getStartLine() == d2.getOriginPosition().getStartLine()) {
-        return Integer.compare(length(d1.getOriginPosition()), length(d2.getOriginPosition()));
-      } else {
-        return Integer.compare(d1.getOriginPosition().getStartLine(), d2.getOriginPosition().getStartLine());
-      }
+    public boolean apply(@Nonnull Map.Entry<TextBlock, Integer> input) {
+      return isLineInBlock(input.getKey(), line);
     }
   }
 
+  private enum MapEntryToBlockId implements Function<Map.Entry<TextBlock, Integer>, Integer> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public Integer apply(@Nonnull Map.Entry<TextBlock, Integer> input) {
+      return input.getValue();
+    }
+  }
+
+  private static class TextBlockIndexGenerator implements Function<TextBlock, Integer> {
+    int i = 1;
+
+    @Nullable
+    @Override
+    public Integer apply(TextBlock input) {
+      return i++;
+    }
+  }
 }

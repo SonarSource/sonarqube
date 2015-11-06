@@ -48,7 +48,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Load inner and project duplications";
+    return "Load inner file and in project duplications";
   }
 
   @Override

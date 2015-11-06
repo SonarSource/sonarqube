@@ -162,8 +162,8 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return closeableIterator(this.duplications.get(componentRef));
   }
 
-  public void putDuplications(int componentRef, List<BatchReport.Duplication> duplications) {
-    this.duplications.put(componentRef, duplications);
+  public void putDuplications(int componentRef, BatchReport.Duplication... duplications) {
+    this.duplications.put(componentRef, Arrays.asList(duplications));
   }
 
   @Override

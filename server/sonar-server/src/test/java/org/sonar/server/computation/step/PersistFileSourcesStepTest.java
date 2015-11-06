@@ -38,6 +38,8 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.duplication.DuplicationRepositoryRule;
+import org.sonar.server.computation.duplication.TextBlock;
 import org.sonar.server.computation.scm.Changeset;
 import org.sonar.server.computation.scm.ScmInfoRepositoryRule;
 import org.sonar.server.computation.source.SourceLinesRepositoryRule;
@@ -72,6 +74,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
   @Rule
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
+  @Rule
+  public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession session = dbTester.getSession();
@@ -82,7 +86,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void setup() {
     dbTester.truncateTables();
     when(system2.now()).thenReturn(NOW);
-    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository, scmInfoRepository);
+    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository, scmInfoRepository, duplicationRepository);
   }
 
   @Override
@@ -238,19 +242,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_duplication() {
     initBasicReport(1);
 
-    reportReader.putDuplications(FILE_REF, newArrayList(
-      BatchReport.Duplication.newBuilder()
-        .setOriginPosition(BatchReport.TextRange.newBuilder()
-          .setStartLine(1)
-          .setEndLine(2)
-          .build())
-        .addDuplicate(BatchReport.Duplicate.newBuilder()
-          .setRange(BatchReport.TextRange.newBuilder()
-            .setStartLine(3)
-            .setEndLine(4)
-            .build())
-          .build())
-        .build()));
+    duplicationRepository.addDuplication(FILE_REF, new TextBlock(1, 2), new TextBlock(3, 4));
 
     underTest.execute();
 
