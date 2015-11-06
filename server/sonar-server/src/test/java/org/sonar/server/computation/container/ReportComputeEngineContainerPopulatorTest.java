@@ -24,6 +24,7 @@ import com.google.common.base.Predicate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
@@ -32,6 +33,7 @@ import org.sonar.server.computation.step.ComputationStep;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Sets.difference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -52,22 +54,23 @@ public class ReportComputeEngineContainerPopulatorTest {
     AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
     underTest.populateContainer(container);
 
-    assertThat(from(container.added)
-        .transform(new Function<Object, Class<?>>() {
-          @Nullable
-          @Override
-          public Class<?> apply(Object input) {
-            if (input instanceof Class) {
-              return (Class<?>) input;
-            }
-            return null;
+    Set<String> computationStepClassNames = from(container.added)
+      .transform(new Function<Object, Class<?>>() {
+        @Nullable
+        @Override
+        public Class<?> apply(Object input) {
+          if (input instanceof Class) {
+            return (Class<?>) input;
           }
-        })
-        .filter(notNull())
-        .filter(IsComputationStep.INSTANCE)
-        .transform(StepsExplorer.toCanonicalName())
-        .toSet())
-        .isEqualTo(StepsExplorer.retrieveStepPackageStepsCanonicalNames());
+          return null;
+        }
+      })
+      .filter(notNull())
+      .filter(IsComputationStep.INSTANCE)
+      .transform(StepsExplorer.toCanonicalName())
+      .toSet();
+
+    assertThat(difference(StepsExplorer.retrieveStepPackageStepsCanonicalNames(), computationStepClassNames)).isEmpty();
   }
 
   private enum IsComputationStep implements Predicate<Class<?>> {
