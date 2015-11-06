@@ -151,4 +151,41 @@ public class AnalysisMetadataHolderImplTest {
     underTest.setIsCrossProjectDuplicationEnabled(true);
     underTest.setIsCrossProjectDuplicationEnabled(false);
   }
+
+  @Test
+  public void set_branch() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setBranch("origin/master");
+
+    assertThat(underTest.getBranch()).isEqualTo("origin/master");
+  }
+
+  @Test
+  public void set_no_branch() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setBranch(null);
+
+    assertThat(underTest.getBranch()).isNull();
+  }
+
+  @Test
+  public void branch_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Branch has not been set");
+
+    new AnalysisMetadataHolderImpl().getBranch();
+  }
+
+  @Test
+  public void setBranch_throws_ISE_when_called_twice() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Branch has already been set");
+
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setBranch("origin/master");
+    underTest.setBranch("origin/master");
+  }
 }

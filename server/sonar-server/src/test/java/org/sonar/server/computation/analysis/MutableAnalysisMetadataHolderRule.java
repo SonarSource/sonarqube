@@ -69,4 +69,14 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   public void setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
     delegate.setIsCrossProjectDuplicationEnabled(isCrossProjectDuplicationEnabled);
   }
+
+  @Override
+  public String getBranch() {
+    return delegate.getBranch();
+  }
+
+  @Override
+  public void setBranch(@Nullable String branch) {
+    delegate.setBranch(branch);
+  }
 }

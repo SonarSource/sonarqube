@@ -38,6 +38,11 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   @CheckForNull
   private Boolean isCrossProjectDuplicationEnabled;
 
+  private boolean isBranchInit = false;
+
+  @CheckForNull
+  private String branch;
+
   @Override
   public void setAnalysisDate(Date date) {
     checkState(analysisDate == null, "Analysis date has already been set");
@@ -79,5 +84,18 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   public boolean isCrossProjectDuplicationEnabled() {
     checkState(isCrossProjectDuplicationEnabled != null, "Cross project duplication flag has not been set");
     return isCrossProjectDuplicationEnabled;
+  }
+
+  @Override
+  public void setBranch(@Nullable String branch) {
+    checkState(!isBranchInit, "Branch has already been set");
+    this.branch = branch;
+    this.isBranchInit = true;
+  }
+
+  @Override
+  public String getBranch() {
+    checkState(isBranchInit, "Branch has not been set");
+    return branch;
   }
 }

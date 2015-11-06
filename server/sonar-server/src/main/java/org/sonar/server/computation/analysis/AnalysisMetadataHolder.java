@@ -48,4 +48,10 @@ public interface AnalysisMetadataHolder {
    */
   boolean isCrossProjectDuplicationEnabled();
 
+  /**
+   * @throws IllegalStateException if branch has not been set
+   */
+  @CheckForNull
+  String getBranch();
+
 }
