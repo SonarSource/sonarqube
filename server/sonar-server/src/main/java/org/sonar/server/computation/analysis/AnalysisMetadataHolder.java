@@ -43,4 +43,9 @@ public interface AnalysisMetadataHolder {
   @CheckForNull
   Snapshot getBaseProjectSnapshot();
 
+  /**
+   * @throws IllegalStateException if cross project duplication flag has not been set
+   */
+  boolean isCrossProjectDuplicationEnabled();
+
 }

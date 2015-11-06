@@ -36,4 +36,9 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
    */
   void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot);
 
+  /**
+   * @throws IllegalStateException if cross project duplication flag has already been set
+   */
+  void setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled);
+
 }
