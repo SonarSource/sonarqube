@@ -10,7 +10,7 @@ import { getPeriodLabel, getPeriodDate } from './../helpers/period-label';
 import { getMeasuresAndVariations } from '../../../api/measures';
 import { getFacet, getIssuesCount } from '../../../api/issues';
 import { getTimeMachineData } from '../../../api/time-machine';
-import { SEVERITIES, STATUSES } from '../../../helpers/constants';
+import { SEVERITIES } from '../../../helpers/constants';
 
 
 const METRICS_LIST = [
@@ -21,7 +21,7 @@ const METRICS_LIST = [
   'duplicated_lines_density',
   'duplicated_blocks',
   'ncloc',
-  'files'
+  'ncloc_language_distribution'
 ];
 
 const HISTORY_METRICS_LIST = [
@@ -55,23 +55,19 @@ export default React.createClass({
     Promise.all([
       this.requestMeasures(),
       this.requestIssuesAndDebt(),
-      this.requestIssuesSeverities(),
       this.requestLeakIssuesAndDebt(),
-      this.requestIssuesLeakSeverities(),
-      this.requestIssuesLeakStatuses()
+      this.requestIssuesLeakSeverities()
     ]).then(responses => {
       let measures = this.getMeasuresValues(responses[0], 'value');
       measures.issues = responses[1].issues;
       measures.debt = responses[1].debt;
-      measures.issuesSeverities = SEVERITIES.map(s => getFacetValue(responses[2].facet, s));
 
       let leak;
       if (this.state.leakPeriodLabel) {
         leak = this.getMeasuresValues(responses[0], 'var' + this.props.leakPeriodIndex);
-        leak.issues = responses[3].issues;
-        leak.debt = responses[3].debt;
-        leak.issuesSeverities = SEVERITIES.map(s => getFacetValue(responses[4].facet, s));
-        leak.issuesStatuses = STATUSES.map(s => getFacetValue(responses[5].facet, s));
+        leak.issues = responses[2].issues;
+        leak.debt = responses[2].debt;
+        leak.issuesSeverities = SEVERITIES.map(s => getFacetValue(responses[3].facet, s));
       }
 
       this.setState({
@@ -119,10 +115,6 @@ export default React.createClass({
     });
   },
 
-  requestIssuesSeverities() {
-    return getFacet({ componentUuids: this.props.component.id, resolved: 'false' }, 'severities');
-  },
-
   requestIssuesLeakSeverities() {
     if (!this.state.leakPeriodLabel) {
       return Promise.resolve();
@@ -135,20 +127,6 @@ export default React.createClass({
       createdAfter: createdAfter,
       resolved: 'false'
     }, 'severities');
-  },
-
-  requestIssuesLeakStatuses() {
-    if (!this.state.leakPeriodLabel) {
-      return Promise.resolve();
-    }
-
-    let createdAfter = moment(this.state.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
-
-    return getFacet({
-      componentUuids: this.props.component.id,
-      createdAfter: createdAfter,
-      resolved: 'false'
-    }, 'statuses');
   },
 
   requestHistory () {

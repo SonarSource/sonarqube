@@ -5,6 +5,7 @@ import DrilldownLink from '../helpers/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
+import { LanguageDistribution } from '../size/language-distribution';
 
 
 export const GeneralSize = React.createClass({
@@ -25,12 +26,16 @@ export const GeneralSize = React.createClass({
         <Measure label={getMetricName('ncloc')}>
           {formatMeasureVariation(this.props.leak['ncloc'], 'SHORT_INT')}
         </Measure>
-        <Measure label={getMetricName('files')}>
-          {formatMeasureVariation(this.props.leak['files'], 'SHORT_INT')}
-        </Measure>
       </MeasuresList>
       {this.renderTimeline('after')}
     </DomainLeak>;
+  },
+
+  renderLanguageDistribution() {
+    return <div style={{ width: 200 }}>
+      <LanguageDistribution lines={this.props.measures['ncloc']}
+                            distribution={this.props.measures['ncloc_language_distribution']}/>
+    </div>;
   },
 
   render () {
@@ -45,10 +50,8 @@ export const GeneralSize = React.createClass({
                 {formatMeasure(this.props.measures['ncloc'], 'SHORT_INT')}
               </DrilldownLink>
             </Measure>
-            <Measure label={getMetricName('files')}>
-              <DrilldownLink component={this.props.component.key} metric="files">
-                {formatMeasure(this.props.measures['files'], 'SHORT_INT')}
-              </DrilldownLink>
+            <Measure composite={true}>
+              {this.renderLanguageDistribution()}
             </Measure>
           </MeasuresList>
           {this.renderTimeline('before')}

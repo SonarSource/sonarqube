@@ -22,28 +22,6 @@ export const GeneralIssues = React.createClass({
     leakPeriodDate: React.PropTypes.object
   },
 
-  renderSeverities() {
-    let severities = SEVERITIES.map((s, index) => {
-      let measure = this.props.measures.issuesSeverities[index];
-      return <tr key={s}>
-        <td>
-          <SeverityHelper severity={s}/>
-        </td>
-        <td className="thin nowrap text-right">
-          <IssuesLink component={this.props.component.key} params={{ resolved: 'false', severities: s }}>
-            {formatMeasure(measure, 'SHORT_INT')}
-          </IssuesLink>
-        </td>
-      </tr>;
-    });
-
-    return <div style={{ width: 120 }}>
-      <table className="data">
-        <tbody>{severities}</tbody>
-      </table>
-    </div>;
-  },
-
   renderLeak () {
     if (!this.hasLeakPeriod()) {
       return null;
@@ -56,37 +34,31 @@ export const GeneralIssues = React.createClass({
         <Measure label={getMetricName('new_issues')}>
           <IssuesLink component={this.props.component.key}
                       params={{ resolved: 'false', createdAfter: createdAfter }}>
-            {formatMeasureVariation(this.props.leak.issues, 'SHORT_INT')}
+            {formatMeasure(this.props.leak.issues, 'SHORT_INT')}
           </IssuesLink>
         </Measure>
         <Measure label={getMetricName('new_debt')}>
           <IssuesLink component={this.props.component.key}
                       params={{ resolved: 'false', createdAfter: createdAfter, facetMode: 'debt' }}>
-            {formatMeasureVariation(this.props.leak.debt, 'SHORT_WORK_DUR')}
+            {formatMeasure(this.props.leak.debt, 'SHORT_WORK_DUR')}
           </IssuesLink>
         </Measure>
-      </MeasuresList>
-      <MeasuresList>
-        <Measure label={getMetricName('new_blocker_issues')}>
-          <span className="spacer-right"><SeverityIcon severity="BLOCKER"/></span>
-          <IssuesLink component={this.props.component.key}
-                      params={{ resolved: 'false', severities: 'BLOCKER', createdAfter: createdAfter }}>
-            {formatMeasureVariation(this.props.leak.issuesSeverities[0], 'SHORT_INT')}
-          </IssuesLink>
-        </Measure>
-        <Measure label={getMetricName('new_critical_issues')}>
-          <span className="spacer-right"><SeverityIcon severity="CRITICAL"/></span>
-          <IssuesLink component={this.props.component.key}
-                      params={{ resolved: 'false', severities: 'CRITICAL', createdAfter: createdAfter }}>
-            {formatMeasureVariation(this.props.leak.issuesSeverities[1], 'SHORT_INT')}
-          </IssuesLink>
-        </Measure>
-        <Measure label={getMetricName('new_open_issues')}>
-          <span className="spacer-right"><StatusIcon status="OPEN"/></span>
-          <IssuesLink component={this.props.component.key}
-                      params={{ resolved: 'false', statuses: 'OPEN,REOPENED', createdAfter: createdAfter }}>
-            {formatMeasureVariation(this.props.leak.issuesStatuses[0] + this.props.leak.issuesStatuses[1], 'SHORT_INT')}
-          </IssuesLink>
+        <Measure composite={true}>
+          <div>
+            <span className="spacer-right"><SeverityIcon severity="BLOCKER"/></span>
+            <IssuesLink component={this.props.component.key}
+                        params={{ resolved: 'false', severities: 'BLOCKER', createdAfter: createdAfter }}>
+              {formatMeasure(this.props.leak.issuesSeverities[0], 'SHORT_INT')}
+            </IssuesLink>
+          </div>
+          <div className="little-spacer-top">
+            <span className="spacer-right"><SeverityIcon severity="CRITICAL"/></span>
+            <IssuesLink component={this.props.component.key}
+                        params={{ resolved: 'false', severities: 'CRITICAL', createdAfter: createdAfter }}>
+              {formatMeasure(this.props.leak.issuesSeverities[1], 'SHORT_INT')}
+            </IssuesLink>
+          </div>
+          <div className="little-spacer-top">&nbsp;</div>
         </Measure>
       </MeasuresList>
       {this.renderTimeline('after')}
@@ -115,9 +87,6 @@ export const GeneralIssues = React.createClass({
               <IssuesLink component={this.props.component.key} params={{ resolved: 'false', facetMode: 'debt' }}>
                 {formatMeasure(this.props.measures.debt, 'SHORT_WORK_DUR')}
               </IssuesLink>
-            </Measure>
-            <Measure composite={true}>
-              {this.renderSeverities()}
             </Measure>
           </MeasuresList>
           {this.renderTimeline('before')}
