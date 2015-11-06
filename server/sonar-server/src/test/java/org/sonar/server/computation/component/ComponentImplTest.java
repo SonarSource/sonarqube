@@ -159,4 +159,20 @@ public class ComponentImplTest {
     return builder(reportComponent).setKey(KEY).setUuid(UUID).build();
   }
 
+  @Test
+  public void equals_compares_on_uuid_only() {
+    ComponentImpl.Builder builder = builder(BatchReport.Component.newBuilder().build()).setUuid(UUID);
+
+    assertThat(builder.setKey("1").build()).isEqualTo(builder.setKey("1").build());
+    assertThat(builder.setKey("1").build()).isEqualTo(builder.setKey("2").build());
+  }
+
+  @Test
+  public void hashCode_is_hashcode_of_uuid() {
+    ComponentImpl.Builder builder = builder(BatchReport.Component.newBuilder().build()).setUuid(UUID);
+
+    assertThat(builder.setKey("1").build().hashCode()).isEqualTo(builder.setKey("1").build().hashCode());
+    assertThat(builder.setKey("1").build().hashCode()).isEqualTo(builder.setKey("2").build().hashCode());
+    assertThat(builder.setKey("1").build().hashCode()).isEqualTo(UUID.hashCode());
+  }
 }

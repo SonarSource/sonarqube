@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -66,17 +67,11 @@ public class ComponentImpl implements Component {
 
   @Override
   public String getUuid() {
-    if (uuid == null) {
-      throw new UnsupportedOperationException(String.format("Component uuid of ref '%s' has not be fed yet", this.reportAttributes.getRef()));
-    }
     return uuid;
   }
 
   @Override
   public String getKey() {
-    if (key == null) {
-      throw new UnsupportedOperationException(String.format("Component key of ref '%s' has not be fed yet", this.reportAttributes.getRef()));
-    }
     return key;
   }
 
@@ -206,5 +201,22 @@ public class ComponentImpl implements Component {
       ", fileAttributes=" + fileAttributes +
       ", reportAttributes=" + reportAttributes +
       '}';
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ComponentImpl component = (ComponentImpl) o;
+    return uuid.equals(component.uuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return uuid.hashCode();
   }
 }
