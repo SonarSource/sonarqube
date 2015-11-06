@@ -30,6 +30,7 @@ import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportTreeRootHolderImpl;
 import org.sonar.server.computation.component.SettingsRepositoryImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
+import org.sonar.server.computation.duplication.DuplicationRepositoryImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.filesystem.ComputationTempFolderProvider;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
@@ -137,6 +138,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       SourceLinesRepositoryImpl.class,
       SourceHashRepositoryImpl.class,
       ScmInfoRepositoryImpl.class,
+      DuplicationRepositoryImpl.class,
 
       // issues
       RuleRepositoryImpl.class,

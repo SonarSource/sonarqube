@@ -85,6 +85,7 @@ public class ReportComputationSteps implements ComputationSteps {
       PersistIssuesStep.class,
       PersistProjectLinksStep.class,
       PersistEventsStep.class,
+      LoadDuplicationsFromReportStep.class,
       PersistDuplicationsStep.class,
       PersistFileSourcesStep.class,
       PersistTestsStep.class,
