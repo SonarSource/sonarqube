@@ -22,9 +22,12 @@ package org.sonar.batch.report;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -37,6 +40,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.ContextException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -47,6 +51,8 @@ public class DuplicationsPublisherTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DuplicationCache duplicationCache;
   private DuplicationsPublisher publisher;
@@ -63,6 +69,48 @@ public class DuplicationsPublisherTest {
     duplicationCache = mock(DuplicationCache.class);
     when(duplicationCache.byComponent(anyString())).thenReturn(Collections.<DefaultDuplication>emptyList());
     publisher = new DuplicationsPublisher(resourceCache, duplicationCache);
+  }
+
+  @Test
+  public void publishDuplications_throws_IAE_if_resource_of_duplicate_does_not_exist() throws Exception {
+
+    DefaultDuplication dup1 = new DefaultDuplication()
+        .setOriginBlock(new Duplication.Block("foo:src/Foo.php", 11, 10))
+        .isDuplicatedBy("another", 20, 50);
+    when(duplicationCache.byComponent("foo:src/Foo.php")).thenReturn(Arrays.asList(dup1));
+
+    expectedException.expect(ContextException.class);
+    expectedException.expectCause(new CauseMatcher(IllegalStateException.class, "No cross project duplication supported on batch side: another"));
+
+    File outputDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(outputDir);
+
+    publisher.publish(writer);
+  }
+
+  private static class CauseMatcher extends TypeSafeMatcher<Throwable> {
+
+    private final Class<? extends Throwable> type;
+    private final String expectedMessage;
+
+    public CauseMatcher(Class<? extends Throwable> type, String expectedMessage) {
+      this.type = type;
+      this.expectedMessage = expectedMessage;
+    }
+
+    @Override
+    protected boolean matchesSafely(Throwable item) {
+      return item.getClass().isAssignableFrom(type)
+          && item.getMessage().contains(expectedMessage);
+    }
+
+    @Override
+    public void describeTo(Description description) {
+      description.appendText("expects type ")
+          .appendValue(type)
+          .appendText(" and a message ")
+          .appendValue(expectedMessage);
+    }
   }
 
   @Test
