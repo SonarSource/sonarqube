@@ -277,7 +277,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_first_analysis_to_true_when_no_snapshot() throws Exception {
+  public void set_no_base_project_snapshot_when_no_snapshot() throws Exception {
     reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
     underTest.execute();
 
@@ -285,7 +285,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_first_analysis_to_true_when_no_last_snapshot() throws Exception {
+  public void set_no_base_project_snapshot_when_no_last_snapshot() throws Exception {
     ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newSnapshotForProject(project).setLast(false));
 
@@ -296,7 +296,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_first_analysis_to_false_when_last_snapshot_exist() throws Exception {
+  public void set_base_project_snapshot_last_snapshot_exist() throws Exception {
     ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newSnapshotForProject(project).setLast(true));
 

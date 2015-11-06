@@ -17,30 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.analysis;
 
-import java.util.Date;
-import javax.annotation.CheckForNull;
-import org.sonar.server.computation.snapshot.Snapshot;
+package org.sonar.server.computation.snapshot;
 
-public interface AnalysisMetadataHolder {
-  /**
-   * @throws IllegalStateException if no analysis date has been set
-   */
-  Date getAnalysisDate();
+public interface Snapshot {
 
-  /**
-   * @throws IllegalStateException if getBaseProjectSnapshot has not been set
-   */
-  boolean isFirstAnalysis();
+  long id();
 
-  /**
-   * Return the last snapshot of the project.
-   * If it's the first analysis, it will return null.
-   *
-   * @throws IllegalStateException if getBaseProjectSnapshot has not been set
-   */
-  @CheckForNull
-  Snapshot getBaseProjectSnapshot();
-
+  long createdAt();
 }

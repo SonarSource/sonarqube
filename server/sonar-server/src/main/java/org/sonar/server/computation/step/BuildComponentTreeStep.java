@@ -29,12 +29,16 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotQuery;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
 import org.sonar.server.computation.component.MutableTreeRootHolder;
 import org.sonar.server.computation.component.UuidFactory;
+import org.sonar.server.computation.snapshot.Snapshot;
+import org.sonar.server.computation.snapshot.SnapshotImpl;
 
 import static com.google.common.collect.Iterables.toArray;
 import static org.sonar.server.computation.component.ComponentImpl.builder;
@@ -65,13 +69,22 @@ public class BuildComponentTreeStep implements ComputationStep {
     UuidFactory uuidFactory = new UuidFactory(dbClient, moduleKey(reportProject, branch));
     Component project = new ComponentRootBuilder(reportProject, uuidFactory, branch).build();
     treeRootHolder.setRoot(project);
-    setIsFirstAnalysis(project.getUuid());
+    setBaseProjectSnapshot(project.getUuid());
   }
 
-  private void setIsFirstAnalysis(String projectUuid){
+  private void setBaseProjectSnapshot(String projectUuid) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      analysisMetadataHolder.setIsFirstAnalysis(!dbClient.snapshotDao().hasLastSnapshotByComponentUuid(dbSession, projectUuid));
+      SnapshotDto snapshotDto = dbClient.snapshotDao().selectSnapshotByQuery(dbSession,
+        new SnapshotQuery()
+          .setComponentUuid(projectUuid)
+          .setIsLast(true));
+      Snapshot snapshot = snapshotDto == null ? null :
+        new SnapshotImpl.Builder()
+          .setId(snapshotDto.getId())
+          .setCreatedAt(snapshotDto.getCreatedAt())
+          .build();
+      analysisMetadataHolder.setBaseProjectSnapshot(snapshot);
     } finally {
       dbClient.closeSession(dbSession);
     }
@@ -110,7 +123,7 @@ public class BuildComponentTreeStep implements ComputationStep {
       }
     }
 
-    private ComponentImpl buildComponent(BatchReport.Component reportComponent, String componentKey, String latestModuleKey){
+    private ComponentImpl buildComponent(BatchReport.Component reportComponent, String componentKey, String latestModuleKey) {
       return builder(reportComponent)
         .addChildren(toArray(buildChildren(reportComponent, latestModuleKey), Component.class))
         .setKey(componentKey)
@@ -127,7 +140,7 @@ public class BuildComponentTreeStep implements ComputationStep {
             return buildComponent(reportReader.readComponent(componentRef), latestModuleKey);
           }
         }
-      );
+        );
     }
   }
 

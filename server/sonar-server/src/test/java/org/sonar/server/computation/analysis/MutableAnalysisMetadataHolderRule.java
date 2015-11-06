@@ -20,9 +20,13 @@
 package org.sonar.server.computation.analysis;
 
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
+import org.sonar.server.computation.snapshot.Snapshot;
 
 public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
+
   private AnalysisMetadataHolderImpl delegate = new AnalysisMetadataHolderImpl();
 
   @Override
@@ -46,7 +50,13 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public void setIsFirstAnalysis(boolean isFirstAnalysis) {
-    delegate.setIsFirstAnalysis(isFirstAnalysis);
+  @CheckForNull
+  public Snapshot getBaseProjectSnapshot() {
+    return delegate.getBaseProjectSnapshot();
+  }
+
+  @Override
+  public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
+    delegate.setBaseProjectSnapshot(baseProjectSnapshot);
   }
 }

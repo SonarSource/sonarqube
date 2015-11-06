@@ -21,12 +21,11 @@
 package org.sonar.server.computation.period;
 
 import java.util.List;
-import org.sonar.api.CoreProperties;
 
 /**
  * Repository of periods used to compute differential measures.
  * Here are the steps to retrieve these periods :
- * - Read the 5 period properties ${@link CoreProperties#TIMEMACHINE_PERIOD_PREFIX}
+ * - Read the 5 period properties ${@link org.sonar.core.config.CorePropertyDefinitions#TIMEMACHINE_PERIOD_PREFIX}
  * - Try to find the matching snapshots from the properties
  * - If a snapshot is found, a new period is added to the repository
  */
