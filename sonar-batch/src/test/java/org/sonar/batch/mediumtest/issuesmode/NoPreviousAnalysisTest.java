@@ -19,11 +19,14 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
-import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.sonar.batch.mediumtest.TaskResult;
 import org.apache.commons.io.FileUtils;
-import org.sonar.xoo.rule.XooRulesDefinition;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+
+import java.io.File;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
@@ -33,16 +36,10 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
-import java.io.File;
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class EmptyFileTest {
-
+public class NoPreviousAnalysisTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -55,7 +52,7 @@ public class EmptyFileTest {
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "my/internal/key", "xoo")
-    .setPreviousAnalysisDate(new Date())
+    .setPreviousAnalysisDate(null)
     .build();
 
   @Before
@@ -70,25 +67,20 @@ public class EmptyFileTest {
 
   @Test
   public void testIssueTrackingWithIssueOnEmptyFile() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample-with-empty-file");
+    File projectDir = copyProject("/mediumtest/xoo/sample");
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.xoo.internalKey", "my/internal/key")
       .start();
-
-    for(TrackedIssue i : result.trackedIssues()) {
-      System.out.println(i.startLine() + " " + i.getMessage());
-    }
     
-    assertThat(result.trackedIssues()).hasSize(11);
+    assertThat(result.trackedIssues()).hasSize(14);
+    
   }
-
+  
   private File copyProject(String path) throws Exception {
     File projectDir = temp.newFolder();
-    File originalProjectDir = new File(EmptyFileTest.class.getResource(path).toURI());
+    File originalProjectDir = new File(IssueModeAndReportsMediumTest.class.getResource(path).toURI());
     FileUtils.copyDirectory(originalProjectDir, projectDir, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar")));
     return projectDir;
   }
-
 }

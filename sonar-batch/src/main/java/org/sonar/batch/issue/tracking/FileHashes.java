@@ -84,6 +84,10 @@ public final class FileHashes {
   public Collection<Integer> getLinesForHash(String hash) {
     return linesByHash.get(hash);
   }
+  
+  public String[] hashes() {
+    return hashes;
+  }
 
   public String getHash(int line) {
     // indices in array are shifted one line before

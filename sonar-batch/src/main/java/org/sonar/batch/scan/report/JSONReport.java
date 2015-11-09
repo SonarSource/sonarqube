@@ -144,9 +144,9 @@ public class JSONReport implements Reporter {
           .prop("startOffset", issue.startLineOffset())
           .prop("endLine", issue.endLine())
           .prop("endOffset", issue.endLineOffset())
-          .prop("message", issue.message())
+          .prop("message", issue.getMessage())
           .prop("severity", issue.severity())
-          .prop("rule", issue.ruleKey().toString())
+          .prop("rule", issue.getRuleKey().toString())
           .prop("status", issue.status())
           .prop("resolution", issue.resolution())
           .prop("isNew", issue.isNew())
@@ -160,7 +160,7 @@ public class JSONReport implements Reporter {
           logins.add(issue.assignee());
         }
         json.endObject();
-        ruleKeys.add(issue.ruleKey());
+        ruleKeys.add(issue.getRuleKey());
       }
     }
     json.endArray();

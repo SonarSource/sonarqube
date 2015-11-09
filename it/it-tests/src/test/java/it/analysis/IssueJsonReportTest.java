@@ -64,8 +64,7 @@ public class IssueJsonReportTest {
     for (Object issue : issues) {
       JSONObject jsonIssue = (JSONObject) issue;
       assertThat(jsonIssue.get("startLine")).isNotNull();
-      assertThat(jsonIssue.get("endLine")).isNotNull();
-
+      assertThat(jsonIssue.get("line")).isEqualTo(jsonIssue.get("startLine"));
       assertThat(jsonIssue.get("endLine")).isEqualTo(jsonIssue.get("startLine"));
 
       assertThat(jsonIssue.get("endOffset")).isNotNull();
@@ -97,14 +96,20 @@ public class IssueJsonReportTest {
     JSONObject obj = ItUtils.getJSONReport(result);
     JSONArray issues = (JSONArray) obj.get("issues");
 
-    for (Object i : issues) {
-      JSONObject issue = (JSONObject) i;
-      assertThat(issue.get("startLine")).isIn(6L, 9L);
-      assertThat(issue.get("line")).isIn(6L, 9L);
-      assertThat(issue.get("endLine")).isIn(6L, 15L);
-      assertThat(issue.get("startOffset")).isIn(27L, 20L);
-      assertThat(issue.get("endOffset")).isIn(32L, 2L);
-    }
+    JSONObject issue1 = (JSONObject) issues.get(0);
+    JSONObject issue2 = (JSONObject) issues.get(1);
+
+    assertThat(issue1.get("startLine")).isIn(6L);
+    assertThat(issue1.get("line")).isIn(6L);
+    assertThat(issue1.get("endLine")).isIn(6L);
+    assertThat(issue1.get("startOffset")).isIn(27L);
+    assertThat(issue1.get("endOffset")).isIn(32L);
+
+    assertThat(issue2.get("startLine")).isIn(9L);
+    assertThat(issue2.get("line")).isIn(9L);
+    assertThat(issue2.get("endLine")).isIn(15L);
+    assertThat(issue2.get("startOffset")).isIn(20L);
+    assertThat(issue2.get("endOffset")).isIn(2L);
 
   }
 
@@ -260,12 +265,17 @@ public class IssueJsonReportTest {
     assertThat(sanitize("5.0.0-5868-SILVER-SNAPSHOT")).isEqualTo("<SONAR_VERSION>");
   }
 
-  private static String sanitize(String s) {
-    // sanitize issue uuid keys
-    s = s.replaceAll("\"[a-zA-Z_0-9\\-]{20}\"", "<ISSUE_KEY>");
+  @Test
+  public void issueSanityCheck() {
+    assertThat(sanitize("s\"0150F1EBDB8E000003\"f")).isEqualTo("s<ISSUE_KEY>f");
+  }
 
+  private static String sanitize(String s) {
     // sanitize sonar version. Note that "-SILVER-SNAPSHOT" is used by Goldeneye jobs
     s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-SNAPSHOT", "<SONAR_VERSION>");
+
+    // sanitize issue uuid keys
+    s = s.replaceAll("\"[a-zA-Z_0-9\\-]{15,20}\"", "<ISSUE_KEY>");
 
     return ItUtils.sanitizeTimezones(s);
   }

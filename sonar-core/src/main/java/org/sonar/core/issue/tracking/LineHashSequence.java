@@ -19,11 +19,13 @@
  */
 package org.sonar.core.issue.tracking;
 
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.base.Strings;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Set;
+
 import org.sonar.core.hash.SourceLinesHashesComputer;
 
 /**
@@ -31,21 +33,21 @@ import org.sonar.core.hash.SourceLinesHashesComputer;
  */
 public class LineHashSequence {
 
-  private static final int[] EMPTY_INTS = new int[0];
-
   /**
    * Hashes of lines. Line 1 is at index 0. No null elements.
    */
   private final List<String> hashes;
-  private final Map<String, int[]> linesByHash;
+  private final SetMultimap<String, Integer> lineByHash;
 
   public LineHashSequence(List<String> hashes) {
     this.hashes = hashes;
-    this.linesByHash = new HashMap<>(hashes.size());
-    for (int line = 1; line <= hashes.size(); line++) {
-      String hash = hashes.get(line - 1);
-      int[] lines = linesByHash.get(hash);
-      linesByHash.put(hash, appendLineTo(line, lines));
+    this.lineByHash = HashMultimap.create();
+    
+    int lineNo = 1;
+    
+    for (String hash : hashes) {
+      lineByHash.put(hash, lineNo);
+      lineNo++;
     }
   }
 
@@ -66,9 +68,8 @@ public class LineHashSequence {
   /**
    * The lines, starting with 1, that matches the given hash.
    */
-  public int[] getLinesForHash(String hash) {
-    int[] lines = linesByHash.get(hash);
-    return lines == null ? EMPTY_INTS : lines;
+  public Set<Integer> getLinesForHash(String hash) {
+    return lineByHash.get(hash);
   }
 
   /**
@@ -84,18 +85,6 @@ public class LineHashSequence {
 
   List<String> getHashes() {
     return hashes;
-  }
-
-  private static int[] appendLineTo(int line, @Nullable int[] to) {
-    int[] result;
-    if (to == null) {
-      result = new int[] {line};
-    } else {
-      result = new int[to.length + 1];
-      System.arraycopy(to, 0, result, 0, to.length);
-      result[result.length - 1] = line;
-    }
-    return result;
   }
 
   public static LineHashSequence createForLines(List<String> lines) {

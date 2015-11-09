@@ -19,20 +19,24 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.core.issue.tracking.Tracking;
+import org.sonar.core.issue.tracking.Input;
+import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.batch.issue.IssueTransformer;
-
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -46,7 +50,7 @@ import org.sonar.batch.repository.ProjectRepositories;
 
 @BatchSide
 public class LocalIssueTracking {
-  private final IssueTracking tracking;
+  private final Tracker<TrackedIssue, ServerIssueFromWs> tracker;
   private final ServerLineHashesLoader lastLineHashes;
   private final ActiveRules activeRules;
   private final ServerIssueRepository serverIssueRepository;
@@ -54,9 +58,9 @@ public class LocalIssueTracking {
 
   private boolean hasServerAnalysis;
 
-  public LocalIssueTracking(IssueTracking tracking, ServerLineHashesLoader lastLineHashes,
+  public LocalIssueTracking(Tracker<TrackedIssue, ServerIssueFromWs> tracker, ServerLineHashesLoader lastLineHashes,
     ActiveRules activeRules, ServerIssueRepository serverIssueRepository, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
-    this.tracking = tracking;
+    this.tracker = tracker;
     this.lastLineHashes = lastLineHashes;
     this.serverIssueRepository = serverIssueRepository;
     this.mode = mode;
@@ -70,11 +74,11 @@ public class LocalIssueTracking {
     }
   }
 
-  public List<TrackedIssue> trackIssues(BatchComponent component, Set<BatchReport.Issue> rawIssues) {
-    List<TrackedIssue> trackedIssues = Lists.newArrayList();
+  public List<TrackedIssue> trackIssues(BatchComponent component, Collection<BatchReport.Issue> reportIssues, Date analysisDate) {
+    List<TrackedIssue> trackedIssues = new LinkedList<>();
     if (hasServerAnalysis) {
       // all the issues that are not closed in db before starting this module scan, including manual issues
-      Collection<ServerIssue> serverIssues = loadServerIssues(component);
+      Collection<ServerIssueFromWs> serverIssues = loadServerIssues(component);
 
       if (shouldCopyServerIssues(component)) {
         // raw issues should be empty, we just need to deal with server issues (SONAR-6931)
@@ -82,13 +86,17 @@ public class LocalIssueTracking {
       } else {
 
         SourceHashHolder sourceHashHolder = loadSourceHashes(component);
+        Collection<TrackedIssue> rIssues = IssueTransformer.toTrackedIssue(component, reportIssues, sourceHashHolder);
 
-        IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, serverIssues, rawIssues);
+        Input<ServerIssueFromWs> baseIssues = createBaseInput(serverIssues, sourceHashHolder);
+        Input<TrackedIssue> rawIssues = createRawInput(rIssues, sourceHashHolder);
 
-        // unmatched from server = issues that have been resolved + issues on disabled/removed rules + manual issues
-        addUnmatchedFromServer(trackingResult.unmatched(), sourceHashHolder, trackedIssues);
+        Tracking<TrackedIssue, ServerIssueFromWs> track = tracker.track(rawIssues, baseIssues);
 
-        mergeMatched(component, trackingResult, trackedIssues, rawIssues);
+        addUnmatchedFromServer(track.getUnmatchedBases(), sourceHashHolder, trackedIssues);
+        addUnmatchedFromServer(track.getOpenManualIssuesByLine().values(), sourceHashHolder, trackedIssues);
+        mergeMatched(track, trackedIssues, rIssues);
+        addUnmatchedFromReport(track.getUnmatchedRaws(), trackedIssues, analysisDate);
       }
     }
 
@@ -98,6 +106,29 @@ public class LocalIssueTracking {
     }
 
     return trackedIssues;
+  }
+
+  private static Input<ServerIssueFromWs> createBaseInput(Collection<ServerIssueFromWs> serverIssues, @Nullable SourceHashHolder sourceHashHolder) {
+    List<String> refHashes;
+
+    if (sourceHashHolder != null && sourceHashHolder.getHashedReference() != null) {
+      refHashes = Arrays.asList(sourceHashHolder.getHashedReference().hashes());
+    } else {
+      refHashes = new ArrayList<>(0);
+    }
+
+    return new IssueTrackingInput<>(serverIssues, refHashes);
+  }
+
+  private static Input<TrackedIssue> createRawInput(Collection<TrackedIssue> rIssues, @Nullable SourceHashHolder sourceHashHolder) {
+    List<String> baseHashes;
+    if (sourceHashHolder != null && sourceHashHolder.getHashedSource() != null) {
+      baseHashes = Arrays.asList(sourceHashHolder.getHashedSource().hashes());
+    } else {
+      baseHashes = new ArrayList<>(0);
+    }
+
+    return new IssueTrackingInput<>(rIssues, baseHashes);
   }
 
   private boolean shouldCopyServerIssues(BatchComponent component) {
@@ -110,12 +141,12 @@ public class LocalIssueTracking {
     return false;
   }
 
-  private void copyServerIssues(Collection<ServerIssue> serverIssues, List<TrackedIssue> trackedIssues) {
-    for (ServerIssue serverIssue : serverIssues) {
-      org.sonar.batch.protocol.input.BatchInput.ServerIssue unmatchedPreviousIssue = ((ServerIssueFromWs) serverIssue).getDto();
+  private void copyServerIssues(Collection<ServerIssueFromWs> serverIssues, List<TrackedIssue> trackedIssues) {
+    for (ServerIssueFromWs serverIssue : serverIssues) {
+      org.sonar.batch.protocol.input.BatchInput.ServerIssue unmatchedPreviousIssue = serverIssue.getDto();
       TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue);
 
-      ActiveRule activeRule = activeRules.find(unmatched.ruleKey());
+      ActiveRule activeRule = activeRules.find(unmatched.getRuleKey());
       unmatched.setNew(false);
 
       if (activeRule == null) {
@@ -140,8 +171,8 @@ public class LocalIssueTracking {
     return sourceHashHolder;
   }
 
-  private Collection<ServerIssue> loadServerIssues(BatchComponent component) {
-    Collection<ServerIssue> serverIssues = new ArrayList<>();
+  private Collection<ServerIssueFromWs> loadServerIssues(BatchComponent component) {
+    Collection<ServerIssueFromWs> serverIssues = new ArrayList<>();
     for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previousIssue : serverIssueRepository.byComponent(component)) {
       serverIssues.add(new ServerIssueFromWs(previousIssue));
     }
@@ -149,42 +180,47 @@ public class LocalIssueTracking {
   }
 
   @VisibleForTesting
-  protected void mergeMatched(BatchComponent component, IssueTrackingResult result, List<TrackedIssue> trackedIssues, Collection<BatchReport.Issue> rawIssues) {
-    for (BatchReport.Issue rawIssue : result.matched()) {
-      rawIssues.remove(rawIssue);
-      org.sonar.batch.protocol.input.BatchInput.ServerIssue ref = ((ServerIssueFromWs) result.matching(rawIssue)).getDto();
-
-      TrackedIssue tracked = IssueTransformer.toTrackedIssue(component, rawIssue);
+  protected void mergeMatched(Tracking<TrackedIssue, ServerIssueFromWs> result, Collection<TrackedIssue> mergeTo, Collection<TrackedIssue> rawIssues) {
+    for (Map.Entry<TrackedIssue, ServerIssueFromWs> e : result.getMatchedRaws().entrySet()) {
+      org.sonar.batch.protocol.input.BatchInput.ServerIssue dto = e.getValue().getDto();
+      TrackedIssue tracked = e.getKey();
 
       // invariant fields
-      tracked.setKey(ref.getKey());
+      tracked.setKey(dto.getKey());
 
       // non-persisted fields
       tracked.setNew(false);
 
       // fields to update with old values
-      tracked.setResolution(ref.hasResolution() ? ref.getResolution() : null);
-      tracked.setStatus(ref.getStatus());
-      tracked.setAssignee(ref.hasAssigneeLogin() ? ref.getAssigneeLogin() : null);
-      tracked.setCreationDate(new Date(ref.getCreationDate()));
+      tracked.setResolution(dto.hasResolution() ? dto.getResolution() : null);
+      tracked.setStatus(dto.getStatus());
+      tracked.setAssignee(dto.hasAssigneeLogin() ? dto.getAssigneeLogin() : null);
+      tracked.setCreationDate(new Date(dto.getCreationDate()));
 
-      if (ref.getManualSeverity()) {
+      if (dto.getManualSeverity()) {
         // Severity overriden by user
-        tracked.setSeverity(ref.getSeverity().name());
+        tracked.setSeverity(dto.getSeverity().name());
       }
-      trackedIssues.add(tracked);
+      mergeTo.add(tracked);
     }
   }
 
-  private void addUnmatchedFromServer(Collection<ServerIssue> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<TrackedIssue> issues) {
-    for (ServerIssue unmatchedIssue : unmatchedIssues) {
-      org.sonar.batch.protocol.input.BatchInput.ServerIssue unmatchedPreviousIssue = ((ServerIssueFromWs) unmatchedIssue).getDto();
+  private void addUnmatchedFromServer(Iterable<ServerIssueFromWs> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<TrackedIssue> mergeTo) {
+    for (ServerIssueFromWs unmatchedIssue : unmatchedIssues) {
+      org.sonar.batch.protocol.input.BatchInput.ServerIssue unmatchedPreviousIssue = unmatchedIssue.getDto();
       TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue);
-      if (unmatchedIssue.ruleKey().isManual() && !Issue.STATUS_CLOSED.equals(unmatchedPreviousIssue.getStatus())) {
+      if (unmatchedIssue.getRuleKey().isManual() && !Issue.STATUS_CLOSED.equals(unmatchedPreviousIssue.getStatus())) {
         relocateManualIssue(unmatched, unmatchedIssue, sourceHashHolder);
       }
       updateUnmatchedIssue(unmatched, false /* manual issues can be kept open */);
-      issues.add(unmatched);
+      mergeTo.add(unmatched);
+    }
+  }
+
+  private static void addUnmatchedFromReport(Iterable<TrackedIssue> rawIssues, Collection<TrackedIssue> trackedIssues, Date analysisDate) {
+    for (TrackedIssue rawIssue : rawIssues) {
+      rawIssue.setCreationDate(analysisDate);
+      trackedIssues.add(rawIssue);
     }
   }
 
@@ -197,10 +233,10 @@ public class LocalIssueTracking {
   }
 
   private void updateUnmatchedIssue(TrackedIssue issue, boolean forceEndOfLife) {
-    ActiveRule activeRule = activeRules.find(issue.ruleKey());
+    ActiveRule activeRule = activeRules.find(issue.getRuleKey());
     issue.setNew(false);
 
-    boolean manualIssue = issue.ruleKey().isManual();
+    boolean manualIssue = issue.getRuleKey().isManual();
     boolean isRemovedRule = activeRule == null;
 
     if (isRemovedRule) {
@@ -210,8 +246,8 @@ public class LocalIssueTracking {
     }
   }
 
-  private static void relocateManualIssue(TrackedIssue newIssue, ServerIssue oldIssue, SourceHashHolder sourceHashHolder) {
-    Integer previousLine = oldIssue.line();
+  private static void relocateManualIssue(TrackedIssue newIssue, ServerIssueFromWs oldIssue, SourceHashHolder sourceHashHolder) {
+    Integer previousLine = oldIssue.getLine();
     if (previousLine == null) {
       return;
     }

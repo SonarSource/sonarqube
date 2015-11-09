@@ -17,31 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.issue.tracking;
+package org.sonar.core.util;
 
-import org.sonar.api.rule.RuleKey;
+import org.junit.Test;
 
-import javax.annotation.CheckForNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public interface ServerIssue {
+public class UuidFactoryFastTest {
+  UuidFactory underTest = UuidFactoryFast.getInstance();
 
-  String key();
+  @Test
+  public void create_different_uuids() {
+    // this test is not enough to ensure that generated strings are unique,
+    // but it still does a simple and stupid verification
+    assertThat(underTest.create()).isNotEqualTo(underTest.create());
+  }
 
-  RuleKey ruleKey();
+  @Test
+  public void test_format_of_uuid() throws Exception {
+    String uuid = underTest.create();
 
-  /**
-   * Null for issue with no line
-   */
-  @CheckForNull
-  String checksum();
+    assertThat(uuid.length()).isGreaterThan(10).isLessThan(40);
 
-  /**
-   * Global issues have no line
-   */
-  @CheckForNull
-  Integer line();
-
-  @CheckForNull
-  String message();
-
+    // URL-safe: only letters, digits, dash and underscore.
+    assertThat(uuid).matches("^[\\w\\-_]+$");
+  }
 }

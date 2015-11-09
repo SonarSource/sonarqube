@@ -19,47 +19,29 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import javax.annotation.CheckForNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.sonar.core.issue.tracking.Trackable;
-import org.sonar.api.rule.RuleKey;
+import org.junit.Test;
 
-public class ServerIssueFromWs implements Trackable {
+public class TrackedIssueTest {
+  @Test
+  public void round_trip() {
+    TrackedIssue issue = new TrackedIssue();
+    issue.setStartLine(15);
 
-  private org.sonar.batch.protocol.input.BatchInput.ServerIssue dto;
-
-  public ServerIssueFromWs(org.sonar.batch.protocol.input.BatchInput.ServerIssue dto) {
-    this.dto = dto;
+    assertThat(issue.getLine()).isEqualTo(15);
+    assertThat(issue.startLine()).isEqualTo(15);
   }
 
-  public org.sonar.batch.protocol.input.BatchInput.ServerIssue getDto() {
-    return dto;
-  }
+  @Test
+  public void hashes() {
+    String[] hashArr = new String[] {
+      "hash1", "hash2", "hash3"
+    };
 
-  public String key() {
-    return dto.getKey();
+    FileHashes hashes = FileHashes.create(hashArr);
+    TrackedIssue issue = new TrackedIssue(hashes);
+    issue.setStartLine(1);
+    assertThat(issue.getLineHash()).isEqualTo("hash1");
   }
-
-  @Override
-  public RuleKey getRuleKey() {
-    return RuleKey.of(dto.getRuleRepository(), dto.getRuleKey());
-  }
-
-  @Override
-  @CheckForNull
-  public String getLineHash() {
-    return dto.hasChecksum() ? dto.getChecksum() : null;
-  }
-
-  @Override
-  @CheckForNull
-  public Integer getLine() {
-    return dto.hasLine() ? dto.getLine() : null;
-  }
-
-  @Override
-  public String getMessage() {
-    return dto.hasMsg() ? dto.getMsg() : "";
-  }
-
 }

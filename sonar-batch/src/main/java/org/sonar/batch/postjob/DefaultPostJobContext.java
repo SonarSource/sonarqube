@@ -87,7 +87,7 @@ public class DefaultPostJobContext implements PostJobContext {
 
     @Override
     public RuleKey ruleKey() {
-      return wrapped.ruleKey();
+      return wrapped.getRuleKey();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class DefaultPostJobContext implements PostJobContext {
 
     @Override
     public String message() {
-      return wrapped.message();
+      return wrapped.getMessage();
     }
 
     @Override

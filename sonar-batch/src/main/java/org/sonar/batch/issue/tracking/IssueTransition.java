@@ -21,15 +21,6 @@ package org.sonar.batch.issue.tracking;
 
 import org.sonar.batch.issue.IssueTransformer;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponent;
@@ -39,6 +30,13 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.core.util.CloseableIterator;
+
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 @BatchSide
 public class IssueTransition {
@@ -76,7 +74,7 @@ public class IssueTransition {
 
   public void trackIssues(BatchReportReader reader, BatchComponent component) {
     // raw issues = all the issues created by rule engines during this module scan and not excluded by filters
-    Set<BatchReport.Issue> rawIssues = Sets.newIdentityHashSet();
+    List<BatchReport.Issue> rawIssues = new LinkedList<>();
     try (CloseableIterator<BatchReport.Issue> it = reader.readComponentIssues(component.batchId())) {
       while (it.hasNext()) {
         rawIssues.add(it.next());
@@ -87,27 +85,24 @@ public class IssueTransition {
 
     List<TrackedIssue> trackedIssues;
     if (localIssueTracking != null) {
-      trackedIssues = localIssueTracking.trackIssues(component, rawIssues);
+      trackedIssues = localIssueTracking.trackIssues(component, rawIssues, analysisDate);
     } else {
-      trackedIssues = Lists.newArrayList();
+      trackedIssues = doTransition(rawIssues, component);
     }
-
-    // Unmatched raw issues = new issues
-    addUnmatchedRawIssues(component, rawIssues, trackedIssues);
 
     for (TrackedIssue issue : trackedIssues) {
       issueCache.put(issue);
     }
   }
 
-  private void addUnmatchedRawIssues(BatchComponent component, Set<org.sonar.batch.protocol.output.BatchReport.Issue> rawIssues, List<TrackedIssue> trackedIssues) {
-    for (BatchReport.Issue rawIssue : rawIssues) {
+  private static List<TrackedIssue> doTransition(List<BatchReport.Issue> rawIssues, BatchComponent component) {
+    List<TrackedIssue> issues = new ArrayList<>(rawIssues.size());
 
-      TrackedIssue tracked = IssueTransformer.toTrackedIssue(component, rawIssue);
-      tracked.setCreationDate(analysisDate);
-
-      trackedIssues.add(tracked);
+    for (BatchReport.Issue issue : rawIssues) {
+      issues.add(IssueTransformer.toTrackedIssue(component, issue, null));
     }
+
+    return issues;
   }
 
 }

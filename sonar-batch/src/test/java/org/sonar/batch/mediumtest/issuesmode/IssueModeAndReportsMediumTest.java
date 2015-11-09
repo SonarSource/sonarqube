@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
+import org.assertj.core.api.Condition;
 
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import com.google.common.collect.ImmutableMap;
 
 import java.io.File;
@@ -157,7 +158,7 @@ public class IssueModeAndReportsMediumTest {
     int resolvedIssue = 0;
     for (TrackedIssue issue : result.trackedIssues()) {
       System.out
-        .println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " "
+        .println(issue.getMessage() + " " + issue.key() + " " + issue.getRuleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " "
           + issue.startLine());
       if (issue.isNew()) {
         newIssues++;
@@ -171,6 +172,17 @@ public class IssueModeAndReportsMediumTest {
     assertThat(newIssues).isEqualTo(16);
     assertThat(openIssues).isEqualTo(3);
     assertThat(resolvedIssue).isEqualTo(1);
+
+    // assert that original fields of a matched issue are kept
+    assertThat(result.trackedIssues()).haveExactly(1, new Condition<TrackedIssue>() {
+      @Override
+      public boolean matches(TrackedIssue value) {
+        return value.isNew() == false
+          && "resolved-on-project".equals(value.key())
+          && "OPEN".equals(value.status())
+          && new Date(date("14/03/2004")).equals(value.creationDate());
+      }
+    });
   }
 
   @Test

@@ -44,4 +44,8 @@ public class Uuids {
   public static String create() {
     return UuidFactoryImpl.INSTANCE.create();
   }
+
+  public static String createFast() {
+    return UuidFactoryFast.getInstance().create();
+  }
 }

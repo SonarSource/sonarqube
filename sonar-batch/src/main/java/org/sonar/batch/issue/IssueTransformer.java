@@ -19,26 +19,32 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.batch.issue.tracking.SourceHashHolder;
+
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import com.google.common.base.Preconditions;
-
-import org.sonar.core.util.Uuids;
 import org.sonar.api.issue.Issue;
-import org.sonar.batch.protocol.output.BatchReport.TextRange;
-import org.sonar.core.component.ComponentKeys;
-
-import java.util.Date;
-
-import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.TextRange;
+import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.util.Uuids;
+
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 public class IssueTransformer {
   private IssueTransformer() {
     // static only
   }
 
-  public static TrackedIssue toTrackedIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue serverIssue) {
+  public static TrackedIssue toTrackedIssue(ServerIssue serverIssue) {
     TrackedIssue issue = new TrackedIssue();
     issue.setKey(serverIssue.getKey());
     issue.setStatus(serverIssue.getStatus());
@@ -69,15 +75,25 @@ public class IssueTransformer {
     issue.setResolution(Issue.RESOLUTION_REMOVED);
   }
 
-  public static TrackedIssue toTrackedIssue(BatchComponent component, BatchReport.Issue rawIssue) {
+  public static Collection<TrackedIssue> toTrackedIssue(BatchComponent component, Collection<BatchReport.Issue> rawIssues, @Nullable SourceHashHolder hashes) {
+    List<TrackedIssue> issues = new ArrayList<>(rawIssues.size());
+
+    for (BatchReport.Issue issue : rawIssues) {
+      issues.add(toTrackedIssue(component, issue, hashes));
+    }
+
+    return issues;
+  }
+
+  public static TrackedIssue toTrackedIssue(BatchComponent component, BatchReport.Issue rawIssue, @Nullable SourceHashHolder hashes) {
     RuleKey ruleKey = RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey());
 
     Preconditions.checkNotNull(component.key(), "Component key must be set");
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
 
-    TrackedIssue issue = new TrackedIssue();
+    TrackedIssue issue = new TrackedIssue(hashes != null ? hashes.getHashedSource() : null);
 
-    issue.setKey(Uuids.create());
+    issue.setKey(Uuids.createFast());
     issue.setComponentKey(component.key());
     issue.setRuleKey(ruleKey);
     issue.setEffortToFix(rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null);

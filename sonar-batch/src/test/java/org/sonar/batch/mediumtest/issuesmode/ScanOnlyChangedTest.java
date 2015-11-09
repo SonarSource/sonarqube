@@ -193,7 +193,7 @@ public class ScanOnlyChangedTest {
     int resolvedIssue = 0;
     for (TrackedIssue issue : result.trackedIssues()) {
       System.out
-        .println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " "
+        .println(issue.getMessage() + " " + issue.key() + " " + issue.getRuleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " "
           + issue.startLine());
       if (issue.isNew()) {
         newIssues++;

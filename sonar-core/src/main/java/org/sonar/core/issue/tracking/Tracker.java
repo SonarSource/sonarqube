@@ -19,18 +19,25 @@
  */
 package org.sonar.core.issue.tracking;
 
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.InstantiationStrategy;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
+
 import javax.annotation.Nonnull;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
-
 import static com.google.common.collect.FluentIterable.from;
 
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+@BatchSide
 public class Tracker<RAW extends Trackable, BASE extends Trackable> {
 
   public Tracking<RAW, BASE> track(Input<RAW> rawInput, Input<BASE> baseInput) {
@@ -98,10 +105,10 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
           baseHash = baseInput.getLineHashSequence().getHashForLine(base.getLine());
         }
         if (!Strings.isNullOrEmpty(baseHash)) {
-          int[] rawLines = rawInput.getLineHashSequence().getLinesForHash(baseHash);
-          if (rawLines.length == 1) {
-            tracking.keepManualIssueOpen(base, rawLines[0]);
-          } else if (rawLines.length == 0 && rawInput.getLineHashSequence().hasLine(base.getLine())) {
+          Set<Integer> rawLines = rawInput.getLineHashSequence().getLinesForHash(baseHash);
+          if (rawLines.size() == 1) {
+            tracking.keepManualIssueOpen(base, rawLines.iterator().next());
+          } else if (rawLines.isEmpty() && rawInput.getLineHashSequence().hasLine(base.getLine())) {
             // still valid (???). We didn't manage to correctly detect code move, so the
             // issue is kept at the same location, even if code changes
             tracking.keepManualIssueOpen(base, base.getLine());

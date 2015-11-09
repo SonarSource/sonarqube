@@ -13,7 +13,7 @@
         <#assign issues=resourceReport.getIssues()>
         <#list issues as issue>
           <#if complete || issue.isNew()>
-          {'k': '${issue.key()}', 'r': 'R${issue.ruleKey()}', 'l': ${(issue.startLine()!0)?c}, 'new': ${issue.isNew()?string}, 's': '${issue.severity()?lower_case}'}<#if issue_has_next>,</#if>
+          {'k': '${issue.key()}', 'r': 'R${issue.getRuleKey()}', 'l': ${(issue.startLine()!0)?c}, 'new': ${issue.isNew()?string}, 's': '${issue.severity()?lower_case}'}<#if issue_has_next>,</#if>
           </#if>
         </#list>
       ]
@@ -365,10 +365,10 @@
             <div class="issue" id="${issue.key()}">
               <div class="vtitle">
                 <i class="icon-severity-${issue.severity()?lower_case}"></i>
-                <#if issue.message()??>
-                <span class="rulename">${issue.message()?html}</span>
+                <#if issue.getMessage()?has_content>
+                <span class="rulename">${issue.getMessage()?html}</span>
                 <#else>
-                <span class="rulename">${ruleNameProvider.nameForHTML(issue.ruleKey())}</span>
+                <span class="rulename">${ruleNameProvider.nameForHTML(issue.getRuleKey())}</span>
                 </#if>
                 &nbsp;
                 <img src="issuesreport_files/sep12.png">&nbsp;
@@ -382,7 +382,7 @@
                 </span>
               </div>
               <div class="discussionComment">
-              ${ruleNameProvider.nameForHTML(issue.ruleKey())}
+              ${ruleNameProvider.nameForHTML(issue.getRuleKey())}
               </div>
             </div>
             <#assign issueId = issueId + 1>
@@ -414,10 +414,10 @@
                         <div class="issue" id="${issue.key()}">
                           <div class="vtitle">
                             <i class="icon-severity-${issue.severity()?lower_case}"></i>
-                            <#if issue.message()??>
-                            <span class="rulename">${issue.message()?html}</span>
+                            <#if issue.getMessage()?has_content>
+                            <span class="rulename">${issue.getMessage()?html}</span>
                             <#else>
-                            <span class="rulename">${ruleNameProvider.nameForHTML(issue.ruleKey())}</span>
+                            <span class="rulename">${ruleNameProvider.nameForHTML(issue.getRuleKey())}</span>
                             </#if>
                             &nbsp;
                             <img src="issuesreport_files/sep12.png">&nbsp;
@@ -433,7 +433,7 @@
 
                           </div>
                           <div class="discussionComment">
-                            ${ruleNameProvider.nameForHTML(issue.ruleKey())}
+                            ${ruleNameProvider.nameForHTML(issue.getRuleKey())}
                           </div>
                         </div>
                         <#assign issueId = issueId + 1>

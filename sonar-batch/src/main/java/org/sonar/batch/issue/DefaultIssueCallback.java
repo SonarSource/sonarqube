@@ -77,11 +77,11 @@ public class DefaultIssueCallback implements IssueCallback {
       newIssue.setAssigneeName(getAssigneeName(issue.assignee()));
       newIssue.setComponentKey(issue.componentKey());
       newIssue.setKey(issue.key());
-      newIssue.setMessage(issue.message());
+      newIssue.setMessage(issue.getMessage());
       newIssue.setNew(issue.isNew());
       newIssue.setResolution(issue.resolution());
-      newIssue.setRuleKey(issue.ruleKey().toString());
-      newIssue.setRuleName(getRuleName(issue.ruleKey()));
+      newIssue.setRuleKey(issue.getRuleKey().toString());
+      newIssue.setRuleName(getRuleName(issue.getRuleKey()));
       newIssue.setSeverity(issue.severity());
       newIssue.setStatus(issue.status());
       newIssue.setStartLine(issue.startLine());
@@ -97,8 +97,8 @@ public class DefaultIssueCallback implements IssueCallback {
     if (!StringUtils.isEmpty(issue.assignee())) {
       userLoginNames.add(issue.assignee());
     }
-    if (issue.ruleKey() != null) {
-      ruleKeys.add(issue.ruleKey());
+    if (issue.getRuleKey() != null) {
+      ruleKeys.add(issue.getRuleKey());
     }
   }
 

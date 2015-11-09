@@ -19,31 +19,40 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.junit.Test;
+import org.sonar.core.issue.tracking.Trackable;
+import org.sonar.core.issue.tracking.BlockHashSequence;
+import org.sonar.core.issue.tracking.LineHashSequence;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Collection;
+import java.util.List;
 
-public class IssueTrackingBlocksRecognizerTest {
+import org.sonar.core.issue.tracking.Input;
 
-  @Test
-  public void test() {
-    assertThat(compute(t("abcde"), t("abcde"), 4, 4)).isEqualTo(5);
-    assertThat(compute(t("abcde"), t("abcd"), 4, 4)).isEqualTo(4);
-    assertThat(compute(t("bcde"), t("abcde"), 4, 4)).isEqualTo(0);
-    assertThat(compute(t("bcde"), t("abcde"), 3, 4)).isEqualTo(4);
+public class IssueTrackingInput<T extends Trackable> implements Input<T> {
+
+  private final Collection<T> issues;
+  private final LineHashSequence lineHashes;
+  private final BlockHashSequence blockHashes;
+
+  public IssueTrackingInput(Collection<T> issues, List<String> hashes) {
+    this.issues = issues;
+    this.lineHashes = new LineHashSequence(hashes);
+    this.blockHashes = BlockHashSequence.create(lineHashes);
   }
 
-  private static int compute(FileHashes a, FileHashes b, int ai, int bi) {
-    IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(a, b);
-    return rec.computeLengthOfMaximalBlock(ai, bi);
+  @Override
+  public LineHashSequence getLineHashSequence() {
+    return lineHashes;
   }
 
-  private static FileHashes t(String text) {
-    String[] array = new String[text.length()];
-    for (int i = 0; i < text.length(); i++) {
-      array[i] = "" + text.charAt(i);
-    }
-    return FileHashes.create(array);
+  @Override
+  public BlockHashSequence getBlockHashSequence() {
+    return blockHashes;
+  }
+
+  @Override
+  public Collection<T> getIssues() {
+    return issues;
   }
 
 }

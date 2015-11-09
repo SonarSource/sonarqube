@@ -52,7 +52,7 @@ public class TrackedIssueAdapter implements Issue {
 
   @Override
   public RuleKey ruleKey() {
-    return issue.ruleKey();
+    return issue.getRuleKey();
   }
 
   @Override
@@ -62,7 +62,7 @@ public class TrackedIssueAdapter implements Issue {
 
   @Override
   public String message() {
-    return issue.message();
+    return issue.getMessage();
   }
 
   @Override

@@ -19,12 +19,19 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import com.google.common.base.Preconditions;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import org.sonar.core.issue.tracking.Trackable;
+
 import java.io.Serializable;
 import java.util.Date;
 
 import org.sonar.api.rule.RuleKey;
 
-public class TrackedIssue implements Serializable {
+public class TrackedIssue implements Trackable, Serializable {
   private static final long serialVersionUID = -1755017079070964287L;
 
   private RuleKey ruleKey;
@@ -44,7 +51,31 @@ public class TrackedIssue implements Serializable {
   private String componentKey;
   private String message;
 
-  public String message() {
+  private transient FileHashes hashes;
+
+  public TrackedIssue() {
+    hashes = null;
+  }
+
+  public TrackedIssue(@Nullable FileHashes hashes) {
+    this.hashes = hashes;
+  }
+
+  @Override
+  @CheckForNull
+  public String getLineHash() {
+    if (getLine() == null || hashes == null) {
+      return null;
+    }
+
+    int line = getLine();
+    Preconditions.checkState(line <= hashes.length(), "Invalid line number for issue %s. File has only %s line(s)", this, hashes.length());
+
+    return hashes.getHash(line);
+  }
+
+  @Override
+  public String getMessage() {
     return message;
   }
 
@@ -65,6 +96,11 @@ public class TrackedIssue implements Serializable {
   }
 
   public Integer startLine() {
+    return startLine;
+  }
+
+  @Override
+  public Integer getLine() {
     return startLine;
   }
 
@@ -132,7 +168,8 @@ public class TrackedIssue implements Serializable {
     this.status = status;
   }
 
-  public RuleKey ruleKey() {
+  @Override
+  public RuleKey getRuleKey() {
     return ruleKey;
   }
 

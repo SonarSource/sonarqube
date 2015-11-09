@@ -97,7 +97,7 @@ public class IssuesReportBuilder {
 
   @CheckForNull
   private Rule findRule(TrackedIssue issue) {
-    return rules.find(issue.ruleKey());
+    return rules.find(issue.getRuleKey());
   }
 
 }
