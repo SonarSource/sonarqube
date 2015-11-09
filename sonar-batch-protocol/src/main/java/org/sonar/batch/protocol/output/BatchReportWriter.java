@@ -98,9 +98,9 @@ public class BatchReportWriter {
     return file;
   }
 
-  public File writeDuplicationBlocks(int componentRef, Iterable<BatchReport.DuplicationBlock> duplicationBlocks) {
-    File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATION_BLOCKS, componentRef);
-    Protobuf.writeStream(duplicationBlocks, file, false);
+  public File writeCpdTextBlocks(int componentRef, Iterable<BatchReport.CpdTextBlock> blocks) {
+    File file = fileStructure.fileFor(FileStructure.Domain.CPD_TEXT_BLOCKS, componentRef);
+    Protobuf.writeStream(blocks, file, false);
     return file;
   }
 

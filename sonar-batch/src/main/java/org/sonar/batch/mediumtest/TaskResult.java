@@ -231,10 +231,10 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return result;
   }
 
-  public List<BatchReport.DuplicationBlock> duplicationBlocksFor(InputFile file) {
-    List<BatchReport.DuplicationBlock> result = new ArrayList<>();
+  public List<BatchReport.CpdTextBlock> duplicationBlocksFor(InputFile file) {
+    List<BatchReport.CpdTextBlock> result = new ArrayList<>();
     int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
-    try (CloseableIterator<BatchReport.DuplicationBlock> it = getReportReader().readComponentDuplicationBlocks(ref)) {
+    try (CloseableIterator<BatchReport.CpdTextBlock> it = getReportReader().readCpdTextBlocks(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
       }

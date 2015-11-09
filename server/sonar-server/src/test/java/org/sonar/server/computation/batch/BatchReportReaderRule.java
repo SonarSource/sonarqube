@@ -43,7 +43,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, BatchReport.Component> components = new HashMap<>();
   private Map<Integer, List<BatchReport.Issue>> issues = new HashMap<>();
   private Map<Integer, List<BatchReport.Duplication>> duplications = new HashMap<>();
-  private Map<Integer, List<BatchReport.DuplicationBlock>> duplicationBlocks = new HashMap<>();
+  private Map<Integer, List<BatchReport.CpdTextBlock>> duplicationBlocks = new HashMap<>();
   private Map<Integer, List<BatchReport.Symbol>> symbols = new HashMap<>();
   private Map<Integer, List<BatchReport.SyntaxHighlighting>> syntaxHighlightings = new HashMap<>();
   private Map<Integer, List<BatchReport.Coverage>> coverages = new HashMap<>();
@@ -177,11 +177,11 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public CloseableIterator<BatchReport.DuplicationBlock> readComponentDuplicationBlocks(int componentRef) {
+  public CloseableIterator<BatchReport.CpdTextBlock> readCpdTextBlocks(int componentRef) {
     return closeableIterator(this.duplicationBlocks.get(componentRef));
   }
 
-  public BatchReportReaderRule putDuplicationBlocks(int componentRef, List<BatchReport.DuplicationBlock> duplicationBlocks) {
+  public BatchReportReaderRule putDuplicationBlocks(int componentRef, List<BatchReport.CpdTextBlock> duplicationBlocks) {
     this.duplicationBlocks.put(componentRef, duplicationBlocks);
     return this;
   }

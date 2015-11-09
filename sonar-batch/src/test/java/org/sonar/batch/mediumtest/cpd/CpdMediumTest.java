@@ -37,7 +37,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.protocol.output.BatchReport.DuplicationBlock;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Measure;
 import org.sonar.xoo.XooPlugin;
 
@@ -157,7 +157,7 @@ public class CpdMediumTest {
 
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
 
-    List<DuplicationBlock> duplicationBlocks = result.duplicationBlocksFor(inputFile1);
+    List<BatchReport.CpdTextBlock> duplicationBlocks = result.duplicationBlocksFor(inputFile1);
     assertThat(duplicationBlocks).hasSize(3);
     assertThat(duplicationBlocks.get(0).getStartLine()).isEqualTo(1);
     assertThat(duplicationBlocks.get(0).getEndLine()).isEqualTo(5);

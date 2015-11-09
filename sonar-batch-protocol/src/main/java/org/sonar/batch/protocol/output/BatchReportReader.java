@@ -91,10 +91,10 @@ public class BatchReportReader {
     return emptyCloseableIterator();
   }
 
-  public CloseableIterator<BatchReport.DuplicationBlock> readComponentDuplicationBlocks(int componentRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATION_BLOCKS, componentRef);
+  public CloseableIterator<BatchReport.CpdTextBlock> readCpdTextBlocks(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.CPD_TEXT_BLOCKS, componentRef);
     if (fileExists(file)) {
-      return Protobuf.readStream(file, BatchReport.DuplicationBlock.parser());
+      return Protobuf.readStream(file, BatchReport.CpdTextBlock.parser());
     }
     return emptyCloseableIterator();
   }

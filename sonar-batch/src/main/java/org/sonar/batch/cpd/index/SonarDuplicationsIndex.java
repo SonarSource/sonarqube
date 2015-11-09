@@ -28,7 +28,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.DuplicationBlock;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
@@ -52,10 +51,10 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
   public void insert(InputFile inputFile, Collection<Block> blocks) {
     if (isCrossProjectDuplicationEnabled(settings)) {
       int id = batchComponentCache.get(inputFile).batchId();
-      final BatchReport.DuplicationBlock.Builder builder = BatchReport.DuplicationBlock.newBuilder();
-      publisher.getWriter().writeDuplicationBlocks(id, Iterables.transform(blocks, new Function<Block, BatchReport.DuplicationBlock>() {
+      final BatchReport.CpdTextBlock.Builder builder = BatchReport.CpdTextBlock.newBuilder();
+      publisher.getWriter().writeCpdTextBlocks(id, Iterables.transform(blocks, new Function<Block, BatchReport.CpdTextBlock>() {
         @Override
-        public DuplicationBlock apply(Block input) {
+        public BatchReport.CpdTextBlock apply(Block input) {
           builder.clear();
           builder.setStartLine(input.getStartLine());
           builder.setEndLine(input.getEndLine());
