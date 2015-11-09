@@ -21,16 +21,22 @@
 package org.sonarqube.ws.client;
 
 import com.google.common.net.HttpHeaders;
-import com.google.common.net.MediaType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
+import org.sonarqube.ws.client.permission.WsGroupsRequest;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.client.HttpConnector.newDefaultHttpConnector;
+import static org.sonarqube.ws.client.HttpConnector.newHttpConnector;
+import static org.sonarqube.ws.client.WsRequest.newGetRequest;
+import static org.sonarqube.ws.client.WsRequest.newPostRequest;
 
 public class WsClientTest {
   @Rule
@@ -45,7 +51,7 @@ public class WsClientTest {
     server = new MockHttpServer();
     server.start();
 
-    underTest = WsClient.create("http://localhost:" + server.getPort());
+    underTest = new WsClient(newDefaultHttpConnector("http://localhost:" + server.getPort()));
   }
 
   @After
@@ -64,14 +70,16 @@ public class WsClientTest {
         .build()
         .toByteArray());
     server.doReturnStatus(HTTP_OK);
-    server.doReturnContentType(MediaType.PROTOBUF.toString());
+    server.doReturnContentType(MediaTypes.PROTOBUF);
 
     WsComponents.WsSearchResponse response = underTest.execute(
-      new WsRequest("api/components/search").setMediaType(WsRequest.MediaType.PROTOBUF),
-      WsComponents.WsSearchResponse.PARSER);
+      newGetRequest("api/components/search")
+        .setMediaType(WsRequest.MediaType.PROTOBUF),
+      WsComponents.WsSearchResponse.parser());
 
     assertThat(response.getComponentsCount()).isEqualTo(1);
-    assertThat(server.requestHeaders().get(HttpHeaders.ACCEPT)).isEqualTo(MediaType.PROTOBUF.toString());
+    assertThat(server.requestHeaders().get(HttpHeaders.ACCEPT))
+      .isEqualTo(MediaTypes.PROTOBUF);
   }
 
   @Test
@@ -79,12 +87,12 @@ public class WsClientTest {
     String expectedResponse = "{\"key\":value}";
     server.doReturnBody(expectedResponse);
     server.doReturnStatus(HTTP_OK);
-    server.doReturnContentType(MediaType.JSON_UTF_8.toString());
+    server.doReturnContentType(MediaTypes.JSON);
 
-    String response = underTest.execute(new WsRequest("api/components/search"));
+    String response = underTest.execute(newGetRequest("api/components/search"));
 
     assertThat(response).isEqualTo(expectedResponse);
-    assertThat(server.requestHeaders().get(HttpHeaders.ACCEPT)).isEqualTo(MediaType.JSON_UTF_8.toString());
+    assertThat(server.requestHeaders().get(HttpHeaders.ACCEPT)).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
@@ -92,7 +100,7 @@ public class WsClientTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Server URL must be set");
 
-    WsClient.builder().build();
+    new WsClient(newHttpConnector().build());
   }
 
   @Test
@@ -100,26 +108,28 @@ public class WsClientTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Server URL must be set");
 
-    WsClient.create("");
+    new WsClient(newDefaultHttpConnector(""));
   }
 
   @Test
   public void test_default_configuration() throws Exception {
-    underTest = WsClient.create("http://localhost:9000");
-    assertThat(underTest.requestFactory.getBaseUrl()).isEqualTo("http://localhost:9000");
-    assertThat(underTest.requestFactory.getLogin()).isNull();
-    assertThat(underTest.requestFactory.getPassword()).isNull();
-    assertThat(underTest.requestFactory.getConnectTimeoutInMilliseconds()).isEqualTo(WsClient.DEFAULT_CONNECT_TIMEOUT_MILLISECONDS);
-    assertThat(underTest.requestFactory.getReadTimeoutInMilliseconds()).isEqualTo(WsClient.DEFAULT_READ_TIMEOUT_MILLISECONDS);
-    assertThat(underTest.requestFactory.getProxyHost()).isNull();
-    assertThat(underTest.requestFactory.getProxyPort()).isEqualTo(0);
-    assertThat(underTest.requestFactory.getProxyLogin()).isNull();
-    assertThat(underTest.requestFactory.getProxyPassword()).isNull();
+    underTest = new WsClient(newDefaultHttpConnector("http://localhost:9000"));
+
+    HttpRequestFactory requestFactory = ((HttpConnector) underTest.wsConnector).requestFactory;
+    assertThat(requestFactory.getBaseUrl()).isEqualTo("http://localhost:9000");
+    assertThat(requestFactory.getLogin()).isNull();
+    assertThat(requestFactory.getPassword()).isNull();
+    assertThat(requestFactory.getConnectTimeoutInMilliseconds()).isEqualTo(HttpConnector.DEFAULT_CONNECT_TIMEOUT_MILLISECONDS);
+    assertThat(requestFactory.getReadTimeoutInMilliseconds()).isEqualTo(HttpConnector.DEFAULT_READ_TIMEOUT_MILLISECONDS);
+    assertThat(requestFactory.getProxyHost()).isNull();
+    assertThat(requestFactory.getProxyPort()).isEqualTo(0);
+    assertThat(requestFactory.getProxyLogin()).isNull();
+    assertThat(requestFactory.getProxyPassword()).isNull();
   }
 
   @Test
   public void test_custom_configuration() throws Exception {
-    underTest = WsClient.builder()
+    underTest = new WsClient(newHttpConnector()
       .url("http://localhost:9000")
       .login("eric")
       .password("pass")
@@ -128,15 +138,46 @@ public class WsClientTest {
       .proxy("localhost", 2052)
       .proxyLogin("proxyLogin")
       .proxyPassword("proxyPass")
-      .build();
-    assertThat(underTest.requestFactory.getBaseUrl()).isEqualTo("http://localhost:9000");
-    assertThat(underTest.requestFactory.getLogin()).isEqualTo("eric");
-    assertThat(underTest.requestFactory.getPassword()).isEqualTo("pass");
-    assertThat(underTest.requestFactory.getConnectTimeoutInMilliseconds()).isEqualTo(12345);
-    assertThat(underTest.requestFactory.getReadTimeoutInMilliseconds()).isEqualTo(6789);
-    assertThat(underTest.requestFactory.getProxyHost()).isEqualTo("localhost");
-    assertThat(underTest.requestFactory.getProxyPort()).isEqualTo(2052);
-    assertThat(underTest.requestFactory.getProxyLogin()).isEqualTo("proxyLogin");
-    assertThat(underTest.requestFactory.getProxyPassword()).isEqualTo("proxyPass");
+      .build());
+
+    HttpRequestFactory requestFactory = ((HttpConnector) underTest.wsConnector).requestFactory;
+    assertThat(requestFactory.getBaseUrl()).isEqualTo("http://localhost:9000");
+    assertThat(requestFactory.getLogin()).isEqualTo("eric");
+    assertThat(requestFactory.getPassword()).isEqualTo("pass");
+    assertThat(requestFactory.getConnectTimeoutInMilliseconds()).isEqualTo(12345);
+    assertThat(requestFactory.getReadTimeoutInMilliseconds()).isEqualTo(6789);
+    assertThat(requestFactory.getProxyHost()).isEqualTo("localhost");
+    assertThat(requestFactory.getProxyPort()).isEqualTo(2052);
+    assertThat(requestFactory.getProxyLogin()).isEqualTo("proxyLogin");
+    assertThat(requestFactory.getProxyPassword()).isEqualTo("proxyPass");
+  }
+
+  @Test
+  public void contact_localhost() {
+    /**
+     * This is a temporary test to have a simple end-to-end test
+     * To make it work launch a default sonar server locally
+     */
+    WsClient ws = new WsClient(newHttpConnector()
+      .url("http://localhost:9000")
+      .login("admin")
+      .password("admin")
+      .build());
+
+    // test with json response
+    String stringResponse = ws.execute(newGetRequest("api/webservices/list"));
+    assertThat(stringResponse).contains("webservices", "permissions");
+
+    // test with protobuf response
+    WsGroupsResponse protobufResponse = ws.execute(newPostRequest("api/permissions/groups")
+      .setMediaType(WsRequest.MediaType.PROTOBUF)
+      .setParam("permission", "admin"),
+      WsGroupsResponse.parser());
+    assertThat(protobufResponse.getGroups(0).getName()).contains("sonar-administrator");
+
+    // test with specific client
+    WsGroupsResponse groupsResponse = ws.permissionsClient().groups(new WsGroupsRequest()
+      .setPermission("admin"));
+    assertThat(groupsResponse.getGroups(0).getName()).contains("sonar-administrator");
   }
 }

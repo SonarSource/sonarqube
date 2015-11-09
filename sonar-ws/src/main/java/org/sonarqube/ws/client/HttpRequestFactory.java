@@ -21,12 +21,12 @@ package org.sonarqube.ws.client;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.base.Throwables;
-import com.google.common.net.MediaType;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 import java.util.Arrays;
 import javax.annotation.Nullable;
+import org.sonarqube.ws.MediaTypes;
 
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
@@ -136,8 +136,9 @@ public class HttpRequestFactory {
 
   public <T extends Message> T execute(WsRequest wsRequest, Parser<T> protobufParser) {
     HttpRequest httpRequest = wsRequestToHttpRequest(wsRequest);
+    String response = execute(httpRequest);
     try {
-      return protobufParser.parseFrom(httpRequest.bytes());
+      return protobufParser.parseFrom(response.getBytes());
     } catch (InvalidProtocolBufferException e) {
       Throwables.propagate(e);
     }
@@ -147,19 +148,21 @@ public class HttpRequestFactory {
 
   private HttpRequest wsRequestToHttpRequest(WsRequest wsRequest) {
     HttpRequest httpRequest = wsRequest.getMethod().equals(WsRequest.Method.GET)
-      ? HttpRequest.post(buildUrl(wsRequest.getUrl()), wsRequest.getParams(), true)
-      : HttpRequest.get(buildUrl(wsRequest.getUrl()), wsRequest.getParams(), true);
+      ? HttpRequest.post(buildUrl(wsRequest.getEndpoint()), wsRequest.getParams(), true)
+      : HttpRequest.get(buildUrl(wsRequest.getEndpoint()), wsRequest.getParams(), true);
     httpRequest = prepare(httpRequest);
     switch (wsRequest.getMediaType()) {
       case PROTOBUF:
-        httpRequest.accept(MediaType.PROTOBUF.toString());
+        httpRequest.accept(MediaTypes.PROTOBUF);
         break;
       case JSON:
-        httpRequest.accept(MediaType.JSON_UTF_8.toString());
+        httpRequest.accept(MediaTypes.JSON);
         break;
       case TEXT:
+        httpRequest.accept(MediaTypes.TXT);
+        break;
       default:
-        httpRequest.accept(MediaType.PLAIN_TEXT_UTF_8.toString());
+        httpRequest.accept(MediaTypes.DEFAULT);
         break;
     }
 

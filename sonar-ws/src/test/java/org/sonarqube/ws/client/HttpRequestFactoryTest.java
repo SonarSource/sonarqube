@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.client.WsRequest.newGetRequest;
 
 public class HttpRequestFactoryTest {
   @Rule
@@ -36,7 +37,7 @@ public class HttpRequestFactoryTest {
     httpServer.stubStatusCode(200).stubResponseBody("{'issues': []}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    String json = factory.execute(new WsRequest("/api/issues"));
+    String json = factory.execute(newGetRequest("/api/issues"));
 
     assertThat(json).isEqualTo("{'issues': []}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
@@ -48,7 +49,7 @@ public class HttpRequestFactoryTest {
     expectedException.expectMessage("Fail to request http://localhost:1/api/issues");
 
     HttpRequestFactory factory = new HttpRequestFactory("http://localhost:1");
-    factory.execute(new WsRequest("/api/issues"));
+    factory.execute(newGetRequest("/api/issues"));
   }
 
   @Test
@@ -56,7 +57,7 @@ public class HttpRequestFactoryTest {
     httpServer.stubStatusCode(200).stubResponseBody("{}");
 
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url()).setLogin("karadoc").setPassword("legrascestlavie");
-    String json = factory.execute(new WsRequest("/api/issues"));
+    String json = factory.execute(newGetRequest("/api/issues"));
 
     assertThat(json).isEqualTo("{}");
     assertThat(httpServer.requestedPath()).isEqualTo("/api/issues");
@@ -70,16 +71,16 @@ public class HttpRequestFactoryTest {
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url())
       .setProxyHost("localhost").setProxyPort(1)
       .setProxyLogin("john").setProxyPassword("smith");
-    factory.execute(new WsRequest("/api/issues"));
+    factory.execute(newGetRequest("/api/issues"));
   }
 
   @Test
   public void beginning_slash_is_optional() throws Exception {
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
-    factory.execute(new WsRequest("api/foo"));
+    factory.execute(newGetRequest("api/foo"));
     assertThat(httpServer.requestedPath()).isEqualTo("/api/foo");
 
-    factory.execute(new WsRequest("/api/bar"));
+    factory.execute(newGetRequest("/api/bar"));
     assertThat(httpServer.requestedPath()).isEqualTo("/api/bar");
   }
 }
