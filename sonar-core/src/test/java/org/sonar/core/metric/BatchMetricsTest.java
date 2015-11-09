@@ -37,7 +37,7 @@ public class BatchMetricsTest {
 
   @Test
   public void check_number_of_allowed_core_metrics() throws Exception {
-    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN.getMetrics()).hasSize(53);
+    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN.getMetrics()).hasSize(52);
   }
 
   @Test

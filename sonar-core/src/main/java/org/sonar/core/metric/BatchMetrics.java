@@ -49,7 +49,6 @@ import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_BLOCKS;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_FILES;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.FILES;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS;
@@ -88,7 +87,7 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 
 /**
- * This class is used to know the list of metrics that can be send in the batch report.
+ * This class is used to know the list of metrics that can be sent in the batch report.
  * <p/>
  * The batch should not send other metrics, and the Compute Engine should not allow other metrics.
  */
@@ -120,7 +119,6 @@ public class BatchMetrics {
     DUPLICATED_LINES,
     DUPLICATED_BLOCKS,
     DUPLICATED_FILES,
-    DUPLICATED_LINES_DENSITY,
 
     COMPLEXITY,
     COMPLEXITY_IN_CLASSES,
