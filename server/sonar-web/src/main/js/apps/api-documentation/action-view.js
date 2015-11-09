@@ -23,6 +23,7 @@ export default Marionette.ItemView.extend({
     this.$el.attr('data-web-service', this.model.get('path'));
     this.$el.attr('data-action', this.model.get('key'));
     this.toggleHidden();
+    this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
   onShowResponseExampleClick: function (e) {

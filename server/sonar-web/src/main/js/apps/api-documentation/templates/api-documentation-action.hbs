@@ -3,10 +3,20 @@
 
   <div class="page-actions">
     {{#if internal}}
-      <span class="badge spacer-right">internal</span>
+      <span class="spacer-right">
+        <span class="badge">internal</span>
+      </span>
+    {{/if}}
+    {{#if deprecatedSince}}
+      <span class="spacer-right">
+        <span class="badge badge-danger" data-toggle="tooltip"
+              title="{{t 'api_documentation.deprecation_tooltip'}}">deprecated since {{deprecatedSince}}</span>
+      </span>
     {{/if}}
     {{#if since}}
-      <span class="note spacer-right">Since {{since}}</span>
+      <span class="spacer-right">
+        <span class="note">Since {{since}}</span>
+      </span>
     {{/if}}
 
     <a class="js-permalink icon-link" href="{{link '/api_documentation/' path '/' key}}" target="_blank"></a>
