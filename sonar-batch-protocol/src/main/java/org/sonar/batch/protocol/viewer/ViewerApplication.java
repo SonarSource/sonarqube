@@ -74,10 +74,18 @@ public class ViewerApplication {
   private TextLineNumber textLineNumber;
 
   /**
+   * Create the application.
+   */
+  public ViewerApplication() {
+    initialize();
+  }
+
+  /**
    * Launch the application.
    */
   public static void main(String[] args) {
     EventQueue.invokeLater(new Runnable() {
+      @Override
       public void run() {
         try {
           ViewerApplication window = new ViewerApplication();
@@ -132,17 +140,16 @@ public class ViewerApplication {
     getComponentTree().setModel(new DefaultTreeModel(project));
   }
 
-  private DefaultMutableTreeNode createNode(Component component) {
-    DefaultMutableTreeNode node = new DefaultMutableTreeNode(component) {
+  private static DefaultMutableTreeNode createNode(Component component) {
+    return new DefaultMutableTreeNode(component) {
       @Override
       public String toString() {
         return getNodeName((Component) getUserObject());
       }
     };
-    return node;
   }
 
-  private String getNodeName(Component component) {
+  private static String getNodeName(Component component) {
     switch (component.getType()) {
       case PROJECT:
       case MODULE:
@@ -220,13 +227,6 @@ public class ViewerApplication {
   }
 
   /**
-   * Create the application.
-   */
-  public ViewerApplication() {
-    initialize();
-  }
-
-  /**
    * Initialize the contents of the frame.
    */
   private void initialize() {
@@ -291,6 +291,7 @@ public class ViewerApplication {
     treeScrollPane.setViewportView(componentTree);
     componentTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     componentTree.addTreeSelectionListener(new TreeSelectionListener() {
+      @Override
       public void valueChanged(TreeSelectionEvent e) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) componentTree.getLastSelectedPathComponent();
 

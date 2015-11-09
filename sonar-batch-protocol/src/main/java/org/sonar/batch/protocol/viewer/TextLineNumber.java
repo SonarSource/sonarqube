@@ -56,15 +56,14 @@ import javax.swing.text.Utilities;
  *  This class was designed to be used as a component added to the row header
  *  of a JScrollPane.
  */
-public class TextLineNumber extends JPanel
-  implements CaretListener, DocumentListener, PropertyChangeListener {
-  public final static float LEFT = 0.0f;
-  public final static float CENTER = 0.5f;
-  public final static float RIGHT = 1.0f;
+public class TextLineNumber extends JPanel implements CaretListener, DocumentListener, PropertyChangeListener {
+  public static final float LEFT = 0.0f;
+  public static final float CENTER = 0.5f;
+  public static final float RIGHT = 1.0f;
 
-  private final static Border OUTER = new MatteBorder(0, 0, 0, 2, Color.GRAY);
+  private static final Border OUTER = new MatteBorder(0, 0, 0, 2, Color.GRAY);
 
-  private final static int HEIGHT = Integer.MAX_VALUE - 1000000;
+  private static final int HEIGHT = Integer.MAX_VALUE - 1000000;
 
   // Text component this TextTextLineNumber component is in sync with
 
@@ -88,7 +87,7 @@ public class TextLineNumber extends JPanel
   private HashMap<String, FontMetrics> fonts;
 
   /**
-   *	Create a line number component for a text component. This minimum
+   *  Create a line number component for a text component. This minimum
    *  display width will be based on 3 digits.
    *
    *  @param component  the related text component
@@ -98,7 +97,7 @@ public class TextLineNumber extends JPanel
   }
 
   /**
-   *	Create a line number component for a text component.
+   *  Create a line number component for a text component.
    *
    *  @param component  the related text component
    *  @param minimumDisplayDigits  the number of digits used to calculate
@@ -197,7 +196,7 @@ public class TextLineNumber extends JPanel
    *  <li>TextLineNumber.LEFT
    *  <li>TextLineNumber.CENTER
    *  <li>TextLineNumber.RIGHT (default)
-   *	</ul>
+   *  </ul>
    *  @param currentLineForeground  the Color used to render the current line
    */
   public void setDigitAlignment(float digitAlignment) {
@@ -301,10 +300,7 @@ public class TextLineNumber extends JPanel
     int caretPosition = component.getCaretPosition();
     Element root = component.getDocument().getDefaultRootElement();
 
-    if (root.getElementIndex(rowStartOffset) == root.getElementIndex(caretPosition))
-      return true;
-    else
-      return false;
+    return root.getElementIndex(rowStartOffset) == root.getElementIndex(caretPosition);
   }
 
   /*
@@ -436,7 +432,8 @@ public class TextLineNumber extends JPanel
             lastHeight = rect.y;
           }
         } catch (BadLocationException ex) {
-          /* nothing to do */ }
+          /* nothing to do */
+        }
       }
     });
   }
