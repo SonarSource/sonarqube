@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.TreeRootHolder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
@@ -40,7 +41,12 @@ import static java.util.Objects.requireNonNull;
  * In-memory implementation of {@link DuplicationRepository}.
  */
 public class DuplicationRepositoryImpl implements DuplicationRepository {
+  private final TreeRootHolder treeRootHolder;
   private final Map<String, Duplications> duplicationsByComponentUuid = new HashMap<>();
+
+  public DuplicationRepositoryImpl(TreeRootHolder treeRootHolder) {
+    this.treeRootHolder = treeRootHolder;
+  }
 
   @Override
   public Set<Duplication> getDuplications(Component file) {
@@ -48,8 +54,8 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
 
     if (duplicationsByComponentUuid.containsKey(file.getUuid())) {
       return from(duplicationsByComponentUuid.get(file.getUuid()).getDuplicates())
-          .transform(DuplicatesEntryToDuplication.INSTANCE)
-          .toSet();
+        .transform(DuplicatesEntryToDuplication.INSTANCE)
+        .toSet();
     }
     return Collections.emptySet();
   }
@@ -97,6 +103,7 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
     checkOriginalTextBlockArgument(original);
     requireNonNull(otherFileKey, "otherFileKey can not be null");
     checkDuplicateTextBlockArgument(duplicate);
+    checkArgument(!treeRootHolder.hasComponentWithKey(otherFileKey), "otherFileKey '%s' can not be the key of a Component in the project", otherFileKey);
 
     Optional<Duplicates> duplicates = getDuplicates(file, original);
     if (duplicates.isPresent()) {
@@ -118,25 +125,25 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
 
   private void checkDuplicationAlreadyExists(Optional<Duplicates> duplicates, Component file, TextBlock original, TextBlock duplicate) {
     checkArgument(!duplicates.get().hasDuplicate(duplicate),
-        "Inner duplicate %s is already associated to original %s in file %s", duplicate, original, file.getKey());
+      "Inner duplicate %s is already associated to original %s in file %s", duplicate, original, file.getKey());
   }
 
   private void checkReverseDuplicationAlreadyExists(Component file, TextBlock original, TextBlock duplicate) {
     Optional<Duplicates> reverseDuplication = getDuplicates(file, duplicate);
     if (reverseDuplication.isPresent()) {
       checkArgument(!reverseDuplication.get().hasDuplicate(original),
-          "Inner duplicate %s is already associated to original %s in file %s", duplicate, original, file.getKey());
+        "Inner duplicate %s is already associated to original %s in file %s", duplicate, original, file.getKey());
     }
   }
 
   private static void checkDuplicationAlreadyExists(Optional<Duplicates> duplicates, Component file, TextBlock original, Component otherFile, TextBlock duplicate) {
     checkArgument(!duplicates.get().hasDuplicate(otherFile, duplicate),
-        "In-project duplicate %s in file %s is already associated to original %s in file %s", duplicate, otherFile.getKey(), original, file.getKey());
+      "In-project duplicate %s in file %s is already associated to original %s in file %s", duplicate, otherFile.getKey(), original, file.getKey());
   }
 
   private static void checkDuplicationAlreadyExists(Optional<Duplicates> duplicates, Component file, TextBlock original, String otherFileKey, TextBlock duplicate) {
     checkArgument(!duplicates.get().hasDuplicate(otherFileKey, duplicate),
-        "Cross-project duplicate %s in file %s is already associated to original %s in file %s", duplicate, otherFileKey, original, file.getKey());
+      "Cross-project duplicate %s in file %s is already associated to original %s in file %s", duplicate, otherFileKey, original, file.getKey());
   }
 
   private Duplicates getOrCreate(Component file, TextBlock original) {
@@ -246,7 +253,7 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
 
     public Iterable<DuplicateWithLocation> getDuplicates() {
       return from(duplicatesByLocation.entrySet())
-          .transformAndConcat(MapEntryToDuplicateWithLocation.INSTANCE);
+        .transformAndConcat(MapEntryToDuplicateWithLocation.INSTANCE);
     }
 
     public void add(TextBlock duplicate) {
@@ -296,13 +303,13 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
       @Nonnull
       public Iterable<DuplicateWithLocation> apply(@Nonnull final Map.Entry<DuplicateLocation, Set<TextBlock>> entry) {
         return from(entry.getValue())
-            .transform(new Function<TextBlock, DuplicateWithLocation>() {
-              @Override
-              @Nonnull
-              public DuplicateWithLocation apply(@Nonnull TextBlock input) {
-                return new DuplicateWithLocation(entry.getKey(), input);
-              }
-            });
+          .transform(new Function<TextBlock, DuplicateWithLocation>() {
+            @Override
+            @Nonnull
+            public DuplicateWithLocation apply(@Nonnull TextBlock input) {
+              return new DuplicateWithLocation(entry.getKey(), input);
+            }
+          });
       }
     }
   }
@@ -351,9 +358,8 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
     @Nonnull
     public Duplication apply(@Nonnull Map.Entry<TextBlock, Duplicates> entry) {
       return new Duplication(
-          entry.getKey(),
-          from(entry.getValue().getDuplicates()).transform(DuplicateLocationEntryToDuplicate.INSTANCE)
-      );
+        entry.getKey(),
+        from(entry.getValue().getDuplicates()).transform(DuplicateLocationEntryToDuplicate.INSTANCE));
     }
 
     private enum DuplicateLocationEntryToDuplicate implements Function<DuplicateWithLocation, Duplicate> {

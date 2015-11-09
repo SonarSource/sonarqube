@@ -24,33 +24,26 @@ import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentProvider;
-import org.sonar.server.computation.component.NoComponentProvider;
-import org.sonar.server.computation.component.TreeComponentProvider;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolderComponentProvider;
 
 public class DuplicationRepositoryRule extends ExternalResource implements DuplicationRepository {
+  private final TreeRootHolder treeRootHolder;
   private final ComponentProvider componentProvider;
   private DuplicationRepositoryImpl delegate;
 
-  private DuplicationRepositoryRule(ComponentProvider componentProvider) {
-    this.componentProvider = componentProvider;
-  }
-
-  public static DuplicationRepositoryRule standalone() {
-    return new DuplicationRepositoryRule(NoComponentProvider.INSTANCE);
+  private DuplicationRepositoryRule(TreeRootHolder treeRootHolder) {
+    this.treeRootHolder = treeRootHolder;
+    this.componentProvider = new TreeRootHolderComponentProvider(treeRootHolder);
   }
 
   public static DuplicationRepositoryRule create(TreeRootHolderRule treeRootHolder) {
-    return new DuplicationRepositoryRule(new TreeRootHolderComponentProvider(treeRootHolder));
-  }
-
-  public static DuplicationRepositoryRule create(Component root) {
-    return new DuplicationRepositoryRule(new TreeComponentProvider(root));
+    return new DuplicationRepositoryRule(treeRootHolder);
   }
 
   @Override
   protected void before() throws Throwable {
-    this.delegate = new DuplicationRepositoryImpl();
+    this.delegate = new DuplicationRepositoryImpl(treeRootHolder);
   }
 
   @Override
