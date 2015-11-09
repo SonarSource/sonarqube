@@ -6,6 +6,9 @@ export let getPeriodLabel = (periods, periodIndex) => {
   if (!period) {
     return null;
   }
+  if (period.mode === 'previous_version' && !period.modeParam) {
+    return window.t('overview.period.previous_version_only_date');
+  }
   return window.tp(`overview.period.${period.mode}`, period.modeParam);
 };
 
