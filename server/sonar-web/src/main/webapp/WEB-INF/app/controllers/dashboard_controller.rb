@@ -25,13 +25,22 @@ class DashboardController < ApplicationController
   before_filter :login_required, :except => [:index]
 
   def index
-    if params[:id] && !params[:did] && !params[:name]
-      return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
-    end
-
     load_resource()
       if !@resource || @resource.display_dashboard?
-        redirect_if_bad_component()
+        if params[:id]
+          unless @resource
+            return project_not_found
+          end
+          unless @snapshot
+            return project_not_analyzed
+          end
+        end
+
+        # redirect to the project overview
+        if params[:id] && !params[:did] && !params[:name]
+          return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
+        end
+
         load_dashboard()
         load_authorized_widget_definitions()
       else
