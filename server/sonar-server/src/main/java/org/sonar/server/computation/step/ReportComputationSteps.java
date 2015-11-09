@@ -92,6 +92,7 @@ public class ReportComputationSteps implements ComputationSteps {
       PersistDuplicationsStep.class,
       PersistFileSourcesStep.class,
       PersistTestsStep.class,
+      PersistCrossProjectDuplicationIndexStep.class,
 
       // Switch snapshot and purge
       SwitchSnapshotStep.class,

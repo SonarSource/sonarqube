@@ -53,11 +53,8 @@ public class DuplicationDao implements Dao {
    * Insert rows in the table DUPLICATIONS_INDEX.
    * Note that generated ids are not returned.
    */
-  public void insert(DbSession session, Collection<DuplicationUnitDto> units) {
-    DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
-    for (DuplicationUnitDto unit : units) {
-      mapper.batchInsert(unit);
-    }
+  public void insert(DbSession session, DuplicationUnitDto dto) {
+    session.getMapper(DuplicationMapper.class).batchInsert(dto);
   }
 
 }
