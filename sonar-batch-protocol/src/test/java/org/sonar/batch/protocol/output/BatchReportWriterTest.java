@@ -194,7 +194,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, 1)).isFalse();
 
     BatchReport.CpdTextBlock duplicationBlock = BatchReport.CpdTextBlock.newBuilder()
-      .addAllHash(asList(1, 2, 3, 5, 7))
+      .setHash("abcdefghijklmnop")
       .setStartLine(1)
       .setEndLine(2)
       .setStartTokenIndex(10)
@@ -207,7 +207,7 @@ public class BatchReportWriterTest {
     assertThat(file).exists().isFile();
     try (CloseableIterator<BatchReport.CpdTextBlock> duplicationBlocks = Protobuf.readStream(file, BatchReport.CpdTextBlock.parser())) {
       BatchReport.CpdTextBlock duplicationBlockResult = duplicationBlocks.next();
-      assertThat(duplicationBlockResult.getHashList()).containsOnly(1, 2, 3, 5, 7);
+      assertThat(duplicationBlockResult.getHash()).isEqualTo("abcdefghijklmnop");
       assertThat(duplicationBlockResult.getStartLine()).isEqualTo(1);
       assertThat(duplicationBlockResult.getEndLine()).isEqualTo(2);
       assertThat(duplicationBlockResult.getStartTokenIndex()).isEqualTo(10);
