@@ -19,77 +19,42 @@
  */
 package org.sonar.server.computation.batch;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.MutableTreeRootHolder;
-import org.sonar.server.computation.component.ReportTreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.component.TreeRootHolderImpl;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
-
-public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder, ReportTreeRootHolder {
-  private Component root;
-  private Map<Integer, Component> componentsByRef = new HashMap<>();
+public class TreeRootHolderRule extends ExternalResource implements TreeRootHolder {
+  protected TreeRootHolderImpl delegate = new TreeRootHolderImpl();
 
   @Override
-  public Statement apply(final Statement statement, Description description) {
-    return new Statement() {
-      @Override
-      public void evaluate() throws Throwable {
-        try {
-          statement.evaluate();
-        } finally {
-          clear();
-        }
-      }
-    };
+  protected void after() {
+    this.delegate = null;
   }
 
-  private void clear() {
-    this.root = null;
-    this.componentsByRef.clear();
+  public TreeRootHolderRule setRoot(Component newRoot) {
+    delegate = new TreeRootHolderImpl();
+    delegate.setRoot(newRoot);
+    return this;
   }
 
   @Override
   public Component getRoot() {
-    checkInitialized();
-
-    return root;
+    return delegate.getRoot();
   }
 
   @Override
   public Component getComponentByRef(int ref) {
-    checkInitialized();
-
-    Component component = componentsByRef.get(ref);
-    checkArgument(component != null, "Component with ref '%s' hasn't been found", ref);
-    return component;
+    return delegate.getComponentByRef(ref);
   }
 
-  private void checkInitialized() {
-    checkState(root != null, "Root has not been set in %s", TreeRootHolder.class.getSimpleName());
+  @Override
+  public Component getComponentByKey(String key) {
+    return delegate.getComponentByKey(key);
   }
 
-  public TreeRootHolderRule setRoot(Component newRoot) {
-    this.root = requireNonNull(newRoot);
-    if (newRoot.getType().isReportType()) {
-      new DepthTraversalTypeAwareCrawler(new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
-        @Override
-        public void visitAny(Component component) {
-          componentsByRef.put(component.getReportAttributes().getRef(), component);
-        }
-      }).visit(root);
-    }
-    return this;
+  @Override
+  public boolean hasComponentWithKey(String key) {
+    return delegate.hasComponentWithKey(key);
   }
 }

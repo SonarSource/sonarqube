@@ -26,4 +26,29 @@ public interface TreeRootHolder {
    * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
    */
   Component getRoot();
+
+  /**
+   * Return a component by its batch reference
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   * @throws IllegalArgumentException if there's no {@link Component} with the specified reference
+   */
+  Component getComponentByRef(int ref);
+
+  /**
+   * Retrieves the component with the specified key in the {@link Component} tree in the holder.
+   *
+   * @throws NullPointerException if {@code key} is {@code null}
+   * @throws IllegalStateException if the holder is empty (ie. there is not root  yet)
+   * @throws IllegalArgumentException if there is no {@link Component} with the specified key in the tree
+   */
+  Component getComponentByKey(String key);
+
+  /**
+   * Checks whether the {@link Component} with the specified key exists in the tree.
+   * 
+   * @throws NullPointerException if {@code key} is {@code null}
+   * @throws IllegalStateException if the holder is empty (ie. there is not root  yet)
+   */
+  boolean hasComponentWithKey(String key);
 }

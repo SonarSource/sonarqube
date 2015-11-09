@@ -28,6 +28,7 @@ public interface MutableTreeRootHolder extends TreeRootHolder {
    * @param newRoot a {@link Component}, can not be {@code null}
    *                
    * @throws NullPointerException if {@code newRoot} is {@code null}
+   * @throws IllegalStateException if root {@link Component} has already been set
    */
   MutableTreeRootHolder setRoot(Component newRoot);
 }

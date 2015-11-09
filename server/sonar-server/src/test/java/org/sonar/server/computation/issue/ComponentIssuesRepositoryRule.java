@@ -25,7 +25,7 @@ import javax.annotation.CheckForNull;
 import org.junit.rules.ExternalResource;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ReportTreeRootHolder;
+import org.sonar.server.computation.component.TreeRootHolder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -34,7 +34,7 @@ import static java.util.Objects.requireNonNull;
 
 public class ComponentIssuesRepositoryRule extends ExternalResource implements MutableComponentIssuesRepository, ComponentIssuesRepository {
 
-  private final ReportTreeRootHolder reportTreeRootHolder;
+  private final TreeRootHolder treeRootHolder;
 
   @CheckForNull
   private List<DefaultIssue> issues;
@@ -42,8 +42,8 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
   @CheckForNull
   private Component component;
 
-  public ComponentIssuesRepositoryRule(ReportTreeRootHolder reportTreeRootHolder) {
-    this.reportTreeRootHolder = reportTreeRootHolder;
+  public ComponentIssuesRepositoryRule(TreeRootHolder treeRootHolder) {
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
@@ -54,7 +54,7 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
 
   public void setIssues(int componentRef, List<DefaultIssue> issues) {
     this.issues = requireNonNull(issues, "issues cannot be null");
-    Component component = reportTreeRootHolder.getComponentByRef(componentRef);
+    Component component = treeRootHolder.getComponentByRef(componentRef);
     checkArgument(component != null, String.format("Component '%s' does not exists in the report ", componentRef));
     this.component = component;
   }
@@ -67,7 +67,7 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
 
   public List<DefaultIssue> getIssues(int componentRef) {
     checkState(this.component != null && this.issues != null, "Issues have not been initialized");
-    Component component = reportTreeRootHolder.getComponentByRef(componentRef);
+    Component component = treeRootHolder.getComponentByRef(componentRef);
     checkArgument(component != null, String.format("Component '%s' does not exists in the report ", componentRef));
     checkArgument(component == this.component,
       String.format("Only issues from component '%s' are available, but wanted component is '%s'.",

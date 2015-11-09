@@ -27,8 +27,8 @@ import org.sonar.server.computation.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
-import org.sonar.server.computation.component.ReportTreeRootHolderImpl;
 import org.sonar.server.computation.component.SettingsRepositoryImpl;
+import org.sonar.server.computation.component.TreeRootHolderImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.duplication.DuplicationRepositoryImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
@@ -117,7 +117,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       // holders
       AnalysisMetadataHolderImpl.class,
       BatchReportDirectoryHolderImpl.class,
-      ReportTreeRootHolderImpl.class,
+      TreeRootHolderImpl.class,
       PeriodsHolderImpl.class,
       QualityGateHolderImpl.class,
       DebtModelHolderImpl.class,

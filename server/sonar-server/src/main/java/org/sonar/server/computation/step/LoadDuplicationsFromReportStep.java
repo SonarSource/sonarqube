@@ -25,7 +25,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.ReportTreeRootHolder;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.duplication.DuplicationRepository;
 import org.sonar.server.computation.duplication.TextBlock;
@@ -36,11 +36,11 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.POST
  * Loads duplication information from the report and loads them into the {@link DuplicationRepository}.
  */
 public class LoadDuplicationsFromReportStep implements ComputationStep {
-  private final ReportTreeRootHolder treeRootHolder;
+  private final TreeRootHolder treeRootHolder;
   private final BatchReportReader batchReportReader;
   private final DuplicationRepository duplicationRepository;
 
-  public LoadDuplicationsFromReportStep(ReportTreeRootHolder treeRootHolder, BatchReportReader batchReportReader, DuplicationRepository duplicationRepository) {
+  public LoadDuplicationsFromReportStep(TreeRootHolder treeRootHolder, BatchReportReader batchReportReader, DuplicationRepository duplicationRepository) {
     this.treeRootHolder = treeRootHolder;
     this.batchReportReader = batchReportReader;
     this.duplicationRepository = duplicationRepository;

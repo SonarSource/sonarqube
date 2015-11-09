@@ -32,7 +32,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.ReportTreeRootHolder;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.duplication.CrossProjectDuplicate;
 import org.sonar.server.computation.duplication.Duplicate;
@@ -51,11 +51,11 @@ public class PersistDuplicationsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final DbIdsRepository dbIdsRepository;
-  private final ReportTreeRootHolder treeRootHolder;
+  private final TreeRootHolder treeRootHolder;
   private final DuplicationRepository duplicationRepository;
 
-  public PersistDuplicationsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, ReportTreeRootHolder treeRootHolder,
-                                 DuplicationRepository duplicationRepository) {
+  public PersistDuplicationsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder,
+    DuplicationRepository duplicationRepository) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.treeRootHolder = treeRootHolder;
@@ -68,7 +68,7 @@ public class PersistDuplicationsStep implements ComputationStep {
     try {
       MetricDto duplicationMetric = dbClient.metricDao().selectOrFailByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
       new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(session, duplicationMetric))
-          .visit(treeRootHolder.getRoot());
+        .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -97,10 +97,10 @@ public class PersistDuplicationsStep implements ComputationStep {
     private void saveDuplications(Component component, Iterable<Duplication> duplications) {
       String duplicationXml = createXmlDuplications(component.getKey(), duplications);
       MeasureDto measureDto = new MeasureDto()
-          .setMetricId(duplicationMetric.getId())
-          .setData(duplicationXml)
-          .setComponentId(dbIdsRepository.getComponentId(component))
-          .setSnapshotId(dbIdsRepository.getSnapshotId(component));
+        .setMetricId(duplicationMetric.getId())
+        .setData(duplicationXml)
+        .setComponentId(dbIdsRepository.getComponentId(component))
+        .setSnapshotId(dbIdsRepository.getSnapshotId(component));
       dbClient.measureDao().insert(session, measureDto);
     }
 
@@ -142,9 +142,9 @@ public class PersistDuplicationsStep implements ComputationStep {
     private void appendDuplication(StringBuilder xml, String componentKey, TextBlock textBlock) {
       int length = textBlock.getEnd() - textBlock.getStart() + 1;
       xml.append("<b s=\"").append(textBlock.getStart())
-          .append("\" l=\"").append(length)
-          .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentKey))
-          .append("\"/>");
+        .append("\" l=\"").append(length)
+        .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentKey))
+        .append("\"/>");
     }
   }
 

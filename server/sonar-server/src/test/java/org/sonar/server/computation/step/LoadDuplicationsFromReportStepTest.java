@@ -136,7 +136,7 @@ public class LoadDuplicationsFromReportStepTest {
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(666, line + 1)));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component with ref '666' hasn't been found");
+    expectedException.expectMessage("Component with ref '666' can't be found");
 
     underTest.execute();
   }

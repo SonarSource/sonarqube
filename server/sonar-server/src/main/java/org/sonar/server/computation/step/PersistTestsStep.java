@@ -36,11 +36,11 @@ import java.util.Set;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.Uuids;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -52,7 +52,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.ReportTreeRootHolder;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
 public class PersistTestsStep implements ComputationStep {
@@ -62,9 +62,9 @@ public class PersistTestsStep implements ComputationStep {
   private final DbClient dbClient;
   private final System2 system;
   private final BatchReportReader reportReader;
-  private final ReportTreeRootHolder treeRootHolder;
+  private final TreeRootHolder treeRootHolder;
 
-  public PersistTestsStep(DbClient dbClient, System2 system, BatchReportReader reportReader, ReportTreeRootHolder treeRootHolder) {
+  public PersistTestsStep(DbClient dbClient, System2 system, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.system = system;
     this.reportReader = reportReader;

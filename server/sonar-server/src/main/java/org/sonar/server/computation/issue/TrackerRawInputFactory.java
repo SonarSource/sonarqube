@@ -19,6 +19,9 @@
  */
 package org.sonar.server.computation.issue;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Loggers;
@@ -32,25 +35,21 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ReportTreeRootHolder;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.rule.CommonRuleKeys;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 public class TrackerRawInputFactory {
 
-  private final ReportTreeRootHolder treeRootHolder;
+  private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
   private final SourceLinesRepository sourceLinesRepository;
   private final CommonRuleEngine commonRuleEngine;
 
-  public TrackerRawInputFactory(ReportTreeRootHolder treeRootHolder, BatchReportReader reportReader,
+  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
     SourceLinesRepository sourceLinesRepository, CommonRuleEngine commonRuleEngine) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
