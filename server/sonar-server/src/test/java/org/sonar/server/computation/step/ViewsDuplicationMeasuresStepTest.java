@@ -60,15 +60,15 @@ public class ViewsDuplicationMeasuresStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
     .setRoot(builder(VIEW, ROOT_REF)
       .addChildren(
-          builder(SUBVIEW, SUBVIEW_REF)
+        builder(SUBVIEW, SUBVIEW_REF)
+          .addChildren(
+            builder(SUBVIEW, SUB_SUBVIEW_REF)
               .addChildren(
-                  builder(SUBVIEW, SUB_SUBVIEW_REF)
-                      .addChildren(
-                          builder(PROJECT_VIEW, PROJECT_VIEW_1_REF).build(),
-                          builder(PROJECT_VIEW, PROJECT_VIEW_2_REF).build())
-                      .build())
-              .build(),
-          builder(PROJECT_VIEW, PROJECT_VIEW_3_REF).build())
+                builder(PROJECT_VIEW, PROJECT_VIEW_1_REF).build(),
+                builder(PROJECT_VIEW, PROJECT_VIEW_2_REF).build())
+              .build())
+          .build(),
+        builder(PROJECT_VIEW, PROJECT_VIEW_3_REF).build())
       .build());
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
