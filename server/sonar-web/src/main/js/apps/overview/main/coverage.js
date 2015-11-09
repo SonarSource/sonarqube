@@ -45,7 +45,7 @@ export const GeneralCoverage = React.createClass({
     }
 
     return <Domain>
-      <DomainHeader title="Tests"/>
+      <DomainHeader title="Tests" linkTo="/tests"/>
 
       <DomainPanel domain="coverage">
         <DomainNutshell>

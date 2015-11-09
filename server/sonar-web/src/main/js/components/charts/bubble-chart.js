@@ -166,6 +166,9 @@ export const BubbleChart = React.createClass({
         .domain([0, d3.max(this.props.items, d => d.size)])
         .range(this.props.sizeRange);
 
+    let xScaleOriginal = xScale.copy();
+    let yScaleOriginal = yScale.copy();
+
     xScale.range(this.getXRange(xScale, sizeScale, availableWidth));
     yScale.range(this.getYRange(yScale, sizeScale, availableHeight));
 
@@ -180,9 +183,9 @@ export const BubbleChart = React.createClass({
     return <svg className="bubble-chart" width={this.state.width} height={this.state.height}>
       <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
         {this.renderXGrid(xScale, yScale)}
-        {this.renderXTicks(xScale, yScale)}
+        {this.renderXTicks(xScale, yScaleOriginal)}
         {this.renderYGrid(xScale, yScale)}
-        {this.renderYTicks(xScale, yScale)}
+        {this.renderYTicks(xScaleOriginal, yScale)}
         {bubbles}
       </g>
     </svg>;

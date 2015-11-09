@@ -245,15 +245,24 @@
   overflow: hidden;
 }
 
+.overview-detailed-measures-list + .overview-detailed-measures-list {
+  margin-top: 40px;
+}
+
 .overview-detailed-measure {
   display: flex;
   background-color: #fff;
 }
 
 .overview-detailed-measure-nutshell,
-.overview-detailed-measure-leak {
+.overview-detailed-measure-leak,
+.overview-detailed-measure-chart {
   position: relative;
   padding: 7px 10px;
+
+  & & {
+    padding-right: 0;
+  }
 }
 
 .overview-detailed-measure-nutshell {
@@ -268,6 +277,10 @@
   flex: 1;
   background-color: #fffae7;
   text-align: center;
+}
+
+.overview-detailed-measure-name {
+  flex: 1;
 }
 
 .overview-detailed-measure-value {
@@ -482,6 +495,14 @@
     text-anchor: end;
   }
 }
+
+.overview-donut-chart {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 8px;
+}
+
+
 
 /*
  * Responsive Stuff

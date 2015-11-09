@@ -5,6 +5,7 @@ import GeneralMain from './main/main';
 import Meta from './meta';
 import { SizeMain } from './size/main';
 import { DuplicationsMain } from './duplications/main';
+import { CoverageMain } from './coverage/main';
 
 import { getMetrics } from '../../api/metrics';
 import { RouterMixin } from '../../components/router/router';
@@ -53,6 +54,12 @@ export const Overview = React.createClass({
     </div>;
   },
 
+  renderTests () {
+    return <div className="overview">
+      <CoverageMain {...this.props} {...this.state}/>
+    </div>;
+  },
+
   render () {
     if (!this.state.ready) {
       return this.renderLoading();
@@ -64,6 +71,8 @@ export const Overview = React.createClass({
         return this.renderSize();
       case '/duplications':
         return this.renderDuplications();
+      case '/tests':
+        return this.renderTests();
       default:
         throw new Error('Unknown route: ' + this.state.route);
     }

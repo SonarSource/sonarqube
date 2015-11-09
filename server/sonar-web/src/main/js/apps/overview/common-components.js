@@ -27,10 +27,12 @@ export const DetailedMeasure = React.createClass({
 
     return <div className="overview-detailed-measure">
       <div className="overview-detailed-measure-nutshell">
-        <span>{localizeMetric(this.props.metric)}</span>
-        <DrilldownLink component={this.props.component.key} metric={this.props.metric}>
-          <span className="overview-detailed-measure-value">{formatMeasure(measure, this.props.type)}</span>
-        </DrilldownLink>
+        <span className="overview-detailed-measure-name">{localizeMetric(this.props.metric)}</span>
+        <span className="overview-detailed-measure-value">
+          <DrilldownLink component={this.props.component.key} metric={this.props.metric}>
+            {formatMeasure(measure, this.props.type)}
+          </DrilldownLink>
+        </span>
         {this.props.children}
       </div>
       {this.renderLeak()}
