@@ -96,6 +96,7 @@ public class SearchAction implements IssuesWsAction {
       .setPossibleValues(IssueFilterParameters.FACET_MODE_COUNT, IssueFilterParameters.FACET_MODE_DEBT);
     action.addSortParams(IssueQuery.SORTS, null, true);
     action.createParam(ADDITIONAL_FIELDS)
+      .setSince("5.2")
       .setDescription("Comma-separated list of the optional fields to be returned in response.")
       .setPossibleValues(SearchAdditionalField.possibleValues());
     addComponentRelatedParams(action);

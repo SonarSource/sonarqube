@@ -33,6 +33,9 @@
         <td style="width: 10em;">
           <code>{{key}}</code>
           <div class="note">{{#if required}}required{{else}}optional{{/if}}</div>
+          {{#if since}}
+            <div class="note">since {{since}}</div>
+          {{/if}}
         </td>
         <td>
           <div class="markdown">{{{description}}}</div>
