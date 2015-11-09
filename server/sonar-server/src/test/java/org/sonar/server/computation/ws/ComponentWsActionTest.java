@@ -33,7 +33,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -68,7 +68,7 @@ public class ComponentWsActionTest {
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("componentId", "PROJECT_1")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
     WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.PARSER);
@@ -87,7 +87,7 @@ public class ComponentWsActionTest {
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("componentId", "PROJECT_1")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
     WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.PARSER);

@@ -31,7 +31,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 
 import static java.lang.String.format;
 
@@ -44,11 +44,11 @@ public class WsUtils {
   public static void writeProtobuf(Message msg, Request request, Response response) throws Exception {
     OutputStream output = response.stream().output();
     try {
-      if (request.getMediaType().equals(MimeTypes.PROTOBUF)) {
-        response.stream().setMediaType(MimeTypes.PROTOBUF);
+      if (request.getMediaType().equals(MediaTypes.PROTOBUF)) {
+        response.stream().setMediaType(MediaTypes.PROTOBUF);
         msg.writeTo(output);
       } else {
-        response.stream().setMediaType(MimeTypes.JSON);
+        response.stream().setMediaType(MediaTypes.JSON);
         try (OutputStreamWriter writer = new OutputStreamWriter(output)) {
           ProtobufJsonFormat.write(msg, JsonWriter.of(writer));
         }

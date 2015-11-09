@@ -26,7 +26,7 @@ import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import org.jruby.RubyFile;
 import org.junit.Test;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,25 +46,25 @@ public class ServletRequestTest {
 
   @Test
   public void getMediaType() throws Exception {
-    when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MimeTypes.JSON);
+    when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MediaTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
-    assertThat(request.getMediaType()).isEqualTo(MimeTypes.JSON);
+    assertThat(request.getMediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
   public void default_media_type_is_octet_stream() throws Exception {
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
-    assertThat(request.getMediaType()).isEqualTo(MimeTypes.DEFAULT);
+    assertThat(request.getMediaType()).isEqualTo(MediaTypes.DEFAULT);
   }
 
   @Test
   public void media_type_taken_in_url_first() throws Exception {
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
-    when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MimeTypes.JSON);
+    when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MediaTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search.protobuf");
-    assertThat(request.getMediaType()).isEqualTo(MimeTypes.PROTOBUF);
+    assertThat(request.getMediaType()).isEqualTo(MediaTypes.PROTOBUF);
   }
 
   @Test

@@ -33,8 +33,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.MediaTypes;
 
 import static java.lang.String.format;
 import static org.sonar.server.ws.RequestVerifier.verifyRequest;
@@ -116,7 +116,7 @@ public class WebServiceEngine implements Startable {
     ServletResponse.ServletStream stream = response.stream();
     stream.reset();
     stream.setStatus(status);
-    stream.setMediaType(MimeTypes.JSON);
+    stream.setMediaType(MediaTypes.JSON);
     JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
 
     try {

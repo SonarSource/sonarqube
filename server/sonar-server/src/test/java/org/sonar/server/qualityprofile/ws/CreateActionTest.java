@@ -27,7 +27,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -57,12 +57,12 @@ public class CreateActionTest {
 
     TestResponse response = wsTester.newRequest()
       .setMethod("POST")
-      .setMediaType(MimeTypes.JSON)
+      .setMediaType(MediaTypes.JSON)
       .setParam("language", "xoo")
       .setParam("name", "Yeehaw!")
       .execute();
     JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("CreateActionTest/create-no-importer.json"));
-    assertThat(response.getMediaType()).isEqualTo(MimeTypes.JSON);
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   /**
@@ -81,7 +81,7 @@ public class CreateActionTest {
       .setParam("language", "xoo")
       .setParam("name", "Yeehaw!")
       .execute();
-    assertThat(response.getMediaType()).isEqualTo(MimeTypes.TXT);
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
 
   }
 }

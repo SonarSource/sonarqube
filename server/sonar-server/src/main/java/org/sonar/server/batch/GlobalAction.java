@@ -33,7 +33,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.user.UserSession;
 
 public class GlobalAction implements BatchWsAction {
@@ -72,7 +72,7 @@ public class GlobalAction implements BatchWsAction {
       addMetrics(ref, session);
       addSettings(ref, hasScanPerm, hasPreviewPerm, session);
 
-      response.stream().setMediaType(MimeTypes.JSON);
+      response.stream().setMediaType(MediaTypes.JSON);
       IOUtils.write(ref.toJson(), response.stream().output());
     } finally {
       MyBatis.closeQuietly(session);

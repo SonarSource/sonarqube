@@ -30,7 +30,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 
 public class ServletResponse implements Response {
 
@@ -81,13 +81,13 @@ public class ServletResponse implements Response {
 
   @Override
   public JsonWriter newJsonWriter() {
-    stream.setMediaType(MimeTypes.JSON);
+    stream.setMediaType(MediaTypes.JSON);
     return JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
   }
 
   @Override
   public XmlWriter newXmlWriter() {
-    stream.setMediaType(MimeTypes.XML);
+    stream.setMediaType(MediaTypes.XML);
     return XmlWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
   }
 

@@ -37,9 +37,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
-import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.ws.WsTester.TestResponse.TestStream;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.ws.RequestVerifier.verifyRequest;
@@ -66,7 +66,7 @@ public class WsTester {
 
     @Override
     public String getMediaType() {
-      return MimeTypes.JSON;
+      return MediaTypes.JSON;
     }
 
     @Override

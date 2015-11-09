@@ -23,8 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.plugins.MimeTypes;
 import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +41,7 @@ public class WsUtilsTest {
     Issues.Issue msg = Issues.Issue.newBuilder().setKey("I1").build();
     WsUtils.writeProtobuf(msg, request, response);
 
-    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
     assertThat(response.outputAsString())
       .startsWith("{")
       .contains("\"key\":\"I1\"")
@@ -51,13 +51,13 @@ public class WsUtilsTest {
   @Test
   public void write_protobuf() throws Exception {
     TestRequest request = new TestRequest();
-    request.setMediaType(MimeTypes.PROTOBUF);
+    request.setMediaType(MediaTypes.PROTOBUF);
     DumbResponse response = new DumbResponse();
 
     Issues.Issue msg = Issues.Issue.newBuilder().setKey("I1").build();
     WsUtils.writeProtobuf(msg, request, response);
 
-    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.PROTOBUF);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.PROTOBUF);
     assertThat(Issues.Issue.parseFrom(response.getFlushedOutput()).getKey()).isEqualTo("I1");
   }
 

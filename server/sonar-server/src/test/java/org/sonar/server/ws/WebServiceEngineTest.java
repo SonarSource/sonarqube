@@ -39,8 +39,8 @@ import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -200,7 +200,7 @@ public class WebServiceEngineTest {
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unexpected\"}]}");
     assertThat(response.stream().httpStatus()).isEqualTo(500);
-    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
@@ -216,7 +216,7 @@ public class WebServiceEngineTest {
       "{\"errors\":[{\"msg\":\"reason #0\"}]}"
       );
     assertThat(response.stream().httpStatus()).isEqualTo(400);
-    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
@@ -232,7 +232,7 @@ public class WebServiceEngineTest {
       + "{\"msg\":\"Bad request reason #2\"}"
       + "]}");
     assertThat(response.stream().httpStatus()).isEqualTo(400);
-    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
@@ -252,7 +252,7 @@ public class WebServiceEngineTest {
       "{\"msg\":\"reason #1\"}," +
       "{\"msg\":\"reason #2\"}]}");
     assertThat(response.stream().httpStatus()).isEqualTo(400);
-    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+    assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
@@ -280,7 +280,7 @@ public class WebServiceEngineTest {
 
     @Override
     public String getMediaType() {
-      return MimeTypes.JSON;
+      return MediaTypes.JSON;
     }
 
     @Override

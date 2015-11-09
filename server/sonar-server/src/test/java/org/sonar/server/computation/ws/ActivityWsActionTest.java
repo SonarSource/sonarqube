@@ -40,7 +40,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -84,7 +84,7 @@ public class ActivityWsActionTest {
     insert("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
     TestResponse wsResponse = tester.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
     // verify the protobuf response
@@ -111,7 +111,7 @@ public class ActivityWsActionTest {
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("status", "FAILED")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
     WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
@@ -128,7 +128,7 @@ public class ActivityWsActionTest {
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("onlyCurrents", "true")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
     WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
@@ -150,7 +150,7 @@ public class ActivityWsActionTest {
 
   private void assertPage(int pageIndex, int pageSize, int expectedTotal, List<String> expectedOrderedTaskIds) {
     TestResponse wsResponse = tester.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(WebService.Param.PAGE, Integer.toString(pageIndex))
       .setParam(WebService.Param.PAGE_SIZE, Integer.toString(pageSize))
       .execute();
@@ -176,7 +176,7 @@ public class ActivityWsActionTest {
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("componentId", "PROJECT_1")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
     WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
@@ -200,7 +200,7 @@ public class ActivityWsActionTest {
 
     TestResponse wsResponse = tester.newRequest()
       .setParam("componentQuery", "apac")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
     WsCe.ActivityResponse activityResponse = WsCe.ActivityResponse.parseFrom(wsResponse.getInputStream());
@@ -215,7 +215,7 @@ public class ActivityWsActionTest {
     tester.newRequest()
       .setParam("componentId", "ID1")
       .setParam("componentQuery", "apache")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
   }
 
@@ -223,7 +223,7 @@ public class ActivityWsActionTest {
   public void support_json_response() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
     TestResponse wsResponse = tester.newRequest()
-      .setMediaType(MimeTypes.JSON)
+      .setMediaType(MediaTypes.JSON)
       .execute();
 
     JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[]}");

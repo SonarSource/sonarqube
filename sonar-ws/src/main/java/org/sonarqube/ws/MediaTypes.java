@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonarqube.ws;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * @since 3.1
  */
-public final class MimeTypes {
+public final class MediaTypes {
 
   public static final String JSON = "application/json";
   public static final String XML = "application/xml";
@@ -67,7 +67,7 @@ public final class MimeTypes {
     .put("tsv", "text/tab-separated-values")
     .build();
 
-  private MimeTypes() {
+  private MediaTypes() {
     // only static methods
   }
 

@@ -41,7 +41,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -109,7 +109,7 @@ public class SearchActionTest {
     db.commit();
 
     String response = newRequest(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.FILE)
-      .setMediaType(MimeTypes.JSON)
+      .setMediaType(MediaTypes.JSON)
       .execute()
       .getInput();
 
@@ -177,7 +177,7 @@ public class SearchActionTest {
 
   private TestRequest newRequest(String... qualifiers) {
     return ws.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(qualifiers));
   }
 

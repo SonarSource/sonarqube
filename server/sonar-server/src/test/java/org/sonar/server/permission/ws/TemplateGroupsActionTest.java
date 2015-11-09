@@ -46,7 +46,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.WsActionTester;
@@ -141,7 +141,7 @@ public class TemplateGroupsActionTest {
   @Test
   public void search_by_template_name() throws IOException {
     InputStream responseStream = ws.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_PERMISSION, UserRole.USER)
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
       .execute()
@@ -154,7 +154,7 @@ public class TemplateGroupsActionTest {
   @Test
   public void search_with_admin_permission_does_not_return_anyone() throws IOException {
     InputStream responseStream = ws.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
       .setParam(PARAM_TEMPLATE_UUID, template1.getUuid())
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
@@ -168,7 +168,7 @@ public class TemplateGroupsActionTest {
   @Test
   public void search_with_pagination() throws IOException {
     InputStream responseStream = ws.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_PERMISSION, UserRole.USER)
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
       .setParam(PAGE, "2")
@@ -183,7 +183,7 @@ public class TemplateGroupsActionTest {
   @Test
   public void search_with_selected() throws IOException {
     InputStream responseStream = ws.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_PERMISSION, UserRole.USER)
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
       .setParam(SELECTED, SelectionMode.ALL.value())
@@ -197,7 +197,7 @@ public class TemplateGroupsActionTest {
   @Test
   public void search_with_text_query() throws IOException {
     InputStream responseStream = ws.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_PERMISSION, UserRole.USER)
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
       .setParam(TEXT_QUERY, "-name")

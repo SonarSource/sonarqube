@@ -36,7 +36,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -83,7 +83,7 @@ public class TaskWsActionTest {
     dbTester.commit();
 
     TestResponse wsResponse = tester.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
 
@@ -116,7 +116,7 @@ public class TaskWsActionTest {
     dbTester.commit();
 
     TestResponse wsResponse = tester.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
 
@@ -150,7 +150,7 @@ public class TaskWsActionTest {
 
     userSession.setGlobalPermissions(UserRole.ADMIN);
     TestResponse wsResponse = tester.newRequest()
-      .setMediaType(MimeTypes.JSON)
+      .setMediaType(MediaTypes.JSON)
       .setParam("id", "TASK_1")
       .execute();
 

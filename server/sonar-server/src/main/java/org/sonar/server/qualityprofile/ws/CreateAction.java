@@ -32,7 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -134,7 +134,7 @@ public class CreateAction implements QProfileWsAction {
       // This will be fixed in 5.3 when support of IE9/10 will be dropped in order to use
       // more recent JS libs.
       // We detect that caller is IE because it asks for application/html or text/html
-      return MimeTypes.TXT;
+      return MediaTypes.TXT;
     }
     return request.getMediaType();
   }

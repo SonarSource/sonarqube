@@ -35,7 +35,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -107,7 +107,7 @@ public class LogsWsAction implements CeWsAction {
   private static void writeFile(File file, Response wsResponse) {
     try {
       Response.Stream stream = wsResponse.stream();
-      stream.setMediaType(MimeTypes.TXT);
+      stream.setMediaType(MediaTypes.TXT);
       FileUtils.copyFile(file, stream.output());
     } catch (IOException e) {
       throw new IllegalStateException("Fail to copy compute engine log file to HTTP response: " + file.getAbsolutePath(), e);

@@ -27,7 +27,7 @@ import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 import org.jruby.RubyFile;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.Objects.firstNonNull;
 
@@ -36,9 +36,9 @@ public class ServletRequest extends ValidatingRequest {
   private final HttpServletRequest source;
   private final Map<String, Object> params;
   private static final Map<String, String> SUPPORTED_FORMATS = ImmutableMap.of(
-    "JSON", MimeTypes.JSON,
-    "PROTOBUF", MimeTypes.PROTOBUF,
-    "TEXT", MimeTypes.TXT);
+    "JSON", MediaTypes.JSON,
+    "PROTOBUF", MediaTypes.PROTOBUF,
+    "TEXT", MediaTypes.TXT);
 
   public ServletRequest(HttpServletRequest source, Map<String, Object> params) {
     this.source = source;
@@ -56,7 +56,7 @@ public class ServletRequest extends ValidatingRequest {
       mediaTypeFromUrl(source.getRequestURI()),
       firstNonNull(
         acceptedContentTypeInResponse(),
-        MimeTypes.DEFAULT));
+        MediaTypes.DEFAULT));
   }
 
   @Override

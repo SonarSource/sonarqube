@@ -26,7 +26,7 @@ import org.sonar.core.util.Protobuf;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.queue.report.ReportSubmitter;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
@@ -54,7 +54,7 @@ public class SubmitWsActionTest {
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
       .setParam("report", "{binary}")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setMethod("POST")
       .execute();
 
@@ -74,7 +74,7 @@ public class SubmitWsActionTest {
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
       .setParam("report", "{binary}")
-      .setMediaType(MimeTypes.JSON)
+      .setMediaType(MediaTypes.JSON)
       .setMethod("POST")
       .execute();
 
@@ -92,7 +92,7 @@ public class SubmitWsActionTest {
     tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("report", "{binary}")
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .setMethod("POST")
       .execute();
 

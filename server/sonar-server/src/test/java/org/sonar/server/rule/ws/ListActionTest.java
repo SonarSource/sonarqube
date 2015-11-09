@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Rules;
@@ -55,10 +55,10 @@ public class ListActionTest {
     dbTester.getSession().commit();
 
     TestResponse response = tester.newRequest()
-      .setMediaType(MimeTypes.PROTOBUF)
+      .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
-    assertThat(response.getMediaType()).isEqualTo(MimeTypes.PROTOBUF);
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.PROTOBUF);
     Rules.ListResponse listResponse = Rules.ListResponse.parseFrom(response.getInputStream());
     assertThat(listResponse.getRulesCount()).isEqualTo(2);
 

@@ -38,7 +38,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -126,7 +126,7 @@ public class ExportAction implements QProfileWsAction {
 
       String profileKey = profile.getKey();
       if (format == null) {
-        stream.setMediaType(MimeTypes.XML);
+        stream.setMediaType(MediaTypes.XML);
         backuper.backup(profileKey, writer);
       } else {
         stream.setMediaType(exporters.mimeType(format));

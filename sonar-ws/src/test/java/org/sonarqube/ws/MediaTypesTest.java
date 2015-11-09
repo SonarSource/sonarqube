@@ -17,28 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonarqube.ws;
 
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MimeTypesTest {
+public class MediaTypesTest {
   @Test
   public void getByFilename_default_mime_type() {
-    assertThat(MimeTypes.getByFilename("")).isEqualTo(MimeTypes.DEFAULT);
-    assertThat(MimeTypes.getByFilename("unknown.extension")).isEqualTo(MimeTypes.DEFAULT);
+    assertThat(MediaTypes.getByFilename("")).isEqualTo(MediaTypes.DEFAULT);
+    assertThat(MediaTypes.getByFilename("unknown.extension")).isEqualTo(MediaTypes.DEFAULT);
   }
 
   @Test
   public void getByFilename() {
-    assertThat(MimeTypes.getByFilename("static/sqale/sqale.css")).isEqualTo("text/css");
-    assertThat(MimeTypes.getByFilename("sqale.css")).isEqualTo("text/css");
+    assertThat(MediaTypes.getByFilename("static/sqale/sqale.css")).isEqualTo("text/css");
+    assertThat(MediaTypes.getByFilename("sqale.css")).isEqualTo("text/css");
   }
 
   @Test
   public void only_statics() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(MimeTypes.class)).isTrue();
+    assertThat(TestUtils.hasOnlyPrivateConstructors(MediaTypes.class)).isTrue();
   }
 }

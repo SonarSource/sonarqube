@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.sonarqube.ws.MediaTypes;
 
 public class StaticResourcesServlet extends HttpServlet {
 
@@ -92,6 +93,6 @@ public class StaticResourcesServlet extends HttpServlet {
 
   @VisibleForTesting
   void completeContentType(HttpServletResponse response, String filename) {
-    response.setContentType(MimeTypes.getByFilename(filename));
+    response.setContentType(MediaTypes.getByFilename(filename));
   }
 }

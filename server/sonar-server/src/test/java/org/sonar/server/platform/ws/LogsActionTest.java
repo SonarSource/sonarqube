@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.web.UserRole;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.ServerLogging;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -62,7 +62,7 @@ public class LogsActionTest {
     when(serverLogging.getCurrentLogFile()).thenReturn(file);
 
     TestResponse response = actionTester.newRequest().execute();
-    assertThat(response.getMediaType()).isEqualTo(MimeTypes.TXT);
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
     assertThat(response.getInput()).isEqualTo("{logs}");
   }
 
@@ -75,7 +75,7 @@ public class LogsActionTest {
     when(serverLogging.getCurrentLogFile()).thenReturn(file);
 
     TestResponse response = actionTester.newRequest().execute();
-    assertThat(response.getMediaType()).isEqualTo(MimeTypes.TXT);
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
     assertThat(response.getInput()).isEqualTo("");
   }
 

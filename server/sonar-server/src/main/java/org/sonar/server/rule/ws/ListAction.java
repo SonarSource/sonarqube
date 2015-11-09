@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.plugins.MimeTypes;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Rules.ListResponse;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -75,7 +75,7 @@ public class ListAction implements RulesWsAction {
     }
 
     // JSON response is voluntarily not supported. This WS is for internal use.
-    wsResponse.stream().setMediaType(MimeTypes.PROTOBUF);
+    wsResponse.stream().setMediaType(MediaTypes.PROTOBUF);
     listResponseBuilder.build().writeTo(wsResponse.stream().output());
   }
 
