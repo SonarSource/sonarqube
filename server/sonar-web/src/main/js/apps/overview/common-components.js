@@ -3,6 +3,7 @@ import React from 'react';
 import { formatMeasure, formatMeasureVariation, localizeMetric } from '../../helpers/measures';
 import DrilldownLink from './helpers/drilldown-link';
 import { getShortType } from './helpers/metrics';
+import { DomainLeakTitle } from './main/components';
 
 
 export const DetailedMeasure = React.createClass({
@@ -34,5 +35,19 @@ export const DetailedMeasure = React.createClass({
       </div>
       {this.renderLeak()}
     </div>;
+  }
+});
+
+
+export const Legend = React.createClass({
+  render() {
+    if (!this.props.leakPeriodDate) {
+      return null;
+    }
+    return <ul className="overview-legend list-inline">
+      <li><span className="overview-legend-nutshell"/> Nutshell</li>
+      <li><span className="overview-legend-leak"/> <DomainLeakTitle label={this.props.leakPeriodLabel}
+                                                                    date={this.props.leakPeriodDate}/></li>
+    </ul>;
   }
 });

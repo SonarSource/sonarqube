@@ -3,6 +3,7 @@ import React from 'react';
 
 import { Timeline } from './timeline';
 import { navigate } from '../../../components/router/router';
+import { Legend } from '../common-components';
 
 
 export const Domain = React.createClass({
@@ -13,8 +14,23 @@ export const Domain = React.createClass({
 
 
 export const DomainTitle = React.createClass({
+  handleClick(e) {
+    e.preventDefault();
+    navigate(this.props.linkTo);
+  },
+
   render () {
-    return <div className="overview-title">{this.props.children}</div>;
+    if (this.props.linkTo) {
+      return <div>
+        <div className="overview-title">
+          {this.props.children}
+          <a onClick={this.handleClick} className="small big-spacer-left link-no-underline" href="#">
+            More <i className="icon-chevron-right" style={{ position: 'relative', top: -1 }}/></a>
+        </div>
+      </div>;
+    } else {
+      return <div className="overview-title">{this.props.children}</div>;
+    }
   }
 });
 
@@ -33,17 +49,10 @@ export const DomainLeakTitle = React.createClass({
 
 
 export const DomainHeader = React.createClass({
-  handleClick(e) {
-    e.preventDefault();
-    navigate(this.props.linkTo);
-  },
-
   render () {
     return <div className="overview-domain-header">
-      <DomainTitle>
-        <a onClick={this.handleClick} href="#">{this.props.title}</a>
-      </DomainTitle>
-      <DomainLeakTitle label={this.props.leakPeriodLabel} date={this.props.leakPeriodDate}/>
+      <DomainTitle linkTo={this.props.linkTo}>{this.props.title}</DomainTitle>
+      <Legend leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
     </div>;
   }
 });

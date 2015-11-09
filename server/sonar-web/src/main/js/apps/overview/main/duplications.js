@@ -31,8 +31,7 @@ export const GeneralDuplications = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader title="Duplications"
-                    leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
+      <DomainHeader title="Duplications"/>
 
       <DomainPanel domain="duplications">
         <DomainNutshell>

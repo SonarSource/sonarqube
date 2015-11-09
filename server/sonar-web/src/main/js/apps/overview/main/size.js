@@ -40,7 +40,7 @@ export const GeneralSize = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader {...this.props} title="Size" linkTo="/size"/>
+      <DomainHeader title="Size" linkTo="/size"/>
 
       <DomainPanel domain="size">
         <DomainNutshell>

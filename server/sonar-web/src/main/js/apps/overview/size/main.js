@@ -10,6 +10,7 @@ import { DomainTreemap } from '../domain/treemap';
 import { getPeriodLabel, getPeriodDate } from './../helpers/period-label';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
+import { Legend } from '../common-components';
 
 
 export const SizeMain = React.createClass({
@@ -64,14 +65,7 @@ export const SizeMain = React.createClass({
   },
 
   renderLegend () {
-    if (!this.state.leakPeriodDate) {
-      return null;
-    }
-    return <ul className="overview-legend list-inline">
-      <li><span className="overview-legend-nutshell"/> Nutshell</li>
-      <li><span className="overview-legend-leak"/> <DomainLeakTitle label={this.state.leakPeriodLabel}
-                                                                    date={this.state.leakPeriodDate}/></li>
-    </ul>;
+    return <Legend leakPeriodDate={this.state.leakPeriodDate} leakPeriodLabel={this.state.leakPeriodLabel}/>;
   },
 
   renderOtherMeasures(domain, hiddenMetrics) {

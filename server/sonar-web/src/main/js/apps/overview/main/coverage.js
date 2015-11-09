@@ -45,8 +45,7 @@ export const GeneralCoverage = React.createClass({
     }
 
     return <Domain>
-      <DomainHeader title="Tests"
-                    leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
+      <DomainHeader title="Tests"/>
 
       <DomainPanel domain="coverage">
         <DomainNutshell>
