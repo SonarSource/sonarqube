@@ -3,9 +3,10 @@
 @import (reference) "../init/links";
 
 body {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 100vh;
 }
 
 .page {
@@ -20,13 +21,14 @@ body {
 
 .page-wrapper {
   box-sizing: border-box;
-  flex: 1;
+  flex: 1 0 auto;
 }
 
 .page-wrapper-simple {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 100px 0;
 }
 
 .page-wrapper-global {
