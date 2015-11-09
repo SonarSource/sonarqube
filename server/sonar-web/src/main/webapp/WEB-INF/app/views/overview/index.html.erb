@@ -61,7 +61,7 @@
             index: '<%= index -%>',
             mode: '<%= @snapshot.period_mode(index) -%>',
             modeParam: '<%= @snapshot.period_param(index) -%>',
-            date: '<%= @snapshot.period_datetime(index).to_date.strftime('%FT%T%z') -%>'
+            date: '<%= @snapshot.period_datetime(index).strftime('%FT%T%z') -%>'
           },
           <% end %>
           <% end %>

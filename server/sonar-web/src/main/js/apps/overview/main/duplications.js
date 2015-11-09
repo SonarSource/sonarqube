@@ -31,7 +31,7 @@ export const GeneralDuplications = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader title="Duplications"/>
+      <DomainHeader title="Duplications" linkTo="/duplications"/>
 
       <DomainPanel domain="duplications">
         <DomainNutshell>

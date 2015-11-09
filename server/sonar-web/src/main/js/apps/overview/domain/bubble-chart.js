@@ -101,7 +101,7 @@ export class DomainBubbleChart extends React.Component {
   }
 
   render () {
-    return <div className="overview-bubble-chart overview-domain-dark">
+    return <div className="overview-domain overview-domain-chart">
       <div className="overview-domain-header">
         <h2 className="overview-title">Project Files</h2>
         <ul className="list-inline small">
@@ -110,7 +110,7 @@ export class DomainBubbleChart extends React.Component {
           <li>Size: {this.getSizeMetricsTitle()}</li>
         </ul>
       </div>
-      <div>
+      <div className="overview-bubble-chart">
         {this.renderBubbleChart()}
       </div>
     </div>;

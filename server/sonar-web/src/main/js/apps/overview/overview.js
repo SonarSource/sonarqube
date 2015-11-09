@@ -4,6 +4,7 @@ import Gate from './main/gate/gate';
 import GeneralMain from './main/main';
 import Meta from './meta';
 import { SizeMain } from './size/main';
+import { DuplicationsMain } from './duplications/main';
 
 import { getMetrics } from '../../api/metrics';
 import { RouterMixin } from '../../components/router/router';
@@ -46,6 +47,12 @@ export const Overview = React.createClass({
     </div>;
   },
 
+  renderDuplications () {
+    return <div className="overview">
+      <DuplicationsMain {...this.props} {...this.state}/>
+    </div>;
+  },
+
   render () {
     if (!this.state.ready) {
       return this.renderLoading();
@@ -55,6 +62,8 @@ export const Overview = React.createClass({
         return this.renderMain();
       case '/size':
         return this.renderSize();
+      case '/duplications':
+        return this.renderDuplications();
       default:
         throw new Error('Unknown route: ' + this.state.route);
     }

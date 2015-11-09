@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
 
@@ -93,8 +94,7 @@ export const BubbleChart = React.createClass({
       let x = xScale(tick);
       let y1 = yScale.range()[0];
       let y2 = yScale.range()[1];
-      return <line key={index} x1={x} x2={x} y1={y1} y2={y2} className="bubble-chart-grid"
-                   shapeRendering="crispEdges" strokeWidth="0.3"/>;
+      return <line key={index} x1={x} x2={x} y1={y1} y2={y2} className="bubble-chart-grid"/>;
     });
 
     return <g ref="xGrid">{lines}</g>;
@@ -109,8 +109,7 @@ export const BubbleChart = React.createClass({
       let y = yScale(tick);
       let x1 = xScale.range()[0];
       let x2 = xScale.range()[1];
-      return <line key={index} x1={x1} x2={x2} y1={y} y2={y} className="bubble-chart-grid"
-                   shapeRendering="crispEdges" strokeWidth="0.3"/>;
+      return <line key={index} x1={x1} x2={x2} y1={y} y2={y} className="bubble-chart-grid"/>;
     });
 
     return <g ref="yGrid">{lines}</g>;
@@ -156,27 +155,27 @@ export const BubbleChart = React.createClass({
     let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
     let xScale = d3.scale.linear()
-                   .domain([0, d3.max(this.props.items, d => d.x)])
-                   .range([0, availableWidth])
-                   .nice();
+        .domain([0, d3.max(this.props.items, d => d.x)])
+        .range([0, availableWidth])
+        .nice();
     let yScale = d3.scale.linear()
-                   .domain([0, d3.max(this.props.items, d => d.y)])
-                   .range([availableHeight, 0])
-                   .nice();
+        .domain([0, d3.max(this.props.items, d => d.y)])
+        .range([availableHeight, 0])
+        .nice();
     let sizeScale = d3.scale.linear()
-                      .domain([0, d3.max(this.props.items, d => d.size)])
-                      .range(this.props.sizeRange);
+        .domain([0, d3.max(this.props.items, d => d.size)])
+        .range(this.props.sizeRange);
 
     xScale.range(this.getXRange(xScale, sizeScale, availableWidth));
     yScale.range(this.getYRange(yScale, sizeScale, availableHeight));
 
-    let bubbles = this.props.items
-                      .map((item, index) => {
-                        return <Bubble key={index}
-                                       tooltip={item.tooltip}
-                                       link={item.link}
-                                       x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}/>;
-                      });
+    let bubbles = _.sortBy(this.props.items, (a, b) => b.size - a.size)
+        .map((item, index) => {
+          return <Bubble key={index}
+                         tooltip={item.tooltip}
+                         link={item.link}
+                         x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}/>;
+        });
 
     return <svg className="bubble-chart" width={this.state.width} height={this.state.height}>
       <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>

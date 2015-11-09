@@ -236,6 +236,7 @@
 
 .overview-detailed-page {
   flex: 1;
+  animation: fadeIn 0.5s forwards;
 }
 
 .overview-detailed-measures-list {
@@ -316,8 +317,13 @@
 .overview-domain-charts {
   display: flex;
 
-  .overview-domain-chart {
+  & > .overview-domain,
+  & > .overview-domain-chart {
     flex: 1;
+  }
+
+  & > .overview-domain {
+    max-width: 560px;
   }
 }
 
@@ -443,6 +449,38 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.overview-bubble-chart {
+  padding: 10px;
+  border: 1px solid @barBorderColor;
+  box-sizing: border-box;
+  background-color: #fff;
+
+  .bubble-chart-bubble {
+    fill: @blue;
+    fill-opacity: 0.2;
+    stroke: @blue;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover { fill-opacity: 0.8; }
+  }
+
+  .bubble-chart-grid {
+    shape-rendering: crispedges;
+    stroke: #eee;
+  }
+
+  .bubble-chart-tick {
+    fill: @secondFontColor;
+    font-size: 11px;
+    text-anchor: middle;
+  }
+
+  .bubble-chart-tick-y {
+    text-anchor: end;
+  }
 }
 
 /*
