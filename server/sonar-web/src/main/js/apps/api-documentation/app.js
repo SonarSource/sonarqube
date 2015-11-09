@@ -16,9 +16,10 @@ var App = new Marionette.Application(),
 
       // State
       this.state = new Backbone.Model({ internal: false });
-      this.state.match = function (test) {
+      this.state.match = function (test, internal) {
         var pattern = new RegExp(this.get('query'), 'i');
-        return test.search(pattern) !== -1;
+        var internalCheck = !this.get('internal') && internal;
+        return test.search(pattern) !== -1 && !internalCheck;
       };
 
       // Layout

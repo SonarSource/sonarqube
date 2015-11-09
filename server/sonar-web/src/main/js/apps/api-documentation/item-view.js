@@ -25,7 +25,7 @@ export default Marionette.ItemView.extend({
     var match = this.options.state.match(this.model.get('path')) ||
         _.some(this.model.get('actions'), function (action) {
           var test = action.path + '/' + action.key;
-          return that.options.state.match(test);
+          return that.options.state.match(test, action.internal);
         });
 
     var showInternal = this.options.state.get('internal'),

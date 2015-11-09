@@ -62,7 +62,13 @@ export default Marionette.Controller.extend({
     this.options.app.layout.headerRegion.show(new HeaderView({ model: item }));
 
     if (opts.action != null) {
-      actionsView.scrollToAction(opts.action);
+      var model = actions.findWhere({ key: opts.action });
+      if (model) {
+        if (model.get('internal')) {
+          this.options.state.set({ internal: true });
+        }
+        actionsView.scrollToAction(opts.action);
+      }
     } else {
       actionsView.scrollToTop();
     }

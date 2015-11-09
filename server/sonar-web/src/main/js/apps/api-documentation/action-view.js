@@ -16,7 +16,7 @@ export default Marionette.ItemView.extend({
   },
 
   initialize: function () {
-    this.listenTo(this.options.state, 'change:query', this.toggleHidden);
+    this.listenTo(this.options.state, 'change', this.toggleHidden);
   },
 
   onRender: function () {
@@ -47,6 +47,6 @@ export default Marionette.ItemView.extend({
 
   toggleHidden: function () {
     var test = this.model.get('path') + '/' + this.model.get('key');
-    this.$el.toggleClass('hidden', !this.options.state.match(test));
+    this.$el.toggleClass('hidden', !this.options.state.match(test, this.model.get('internal')));
   }
 });
