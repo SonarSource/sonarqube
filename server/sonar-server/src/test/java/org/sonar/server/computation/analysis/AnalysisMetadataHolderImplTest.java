@@ -112,4 +112,40 @@ public class AnalysisMetadataHolderImplTest {
     expectedException.expectMessage("Base project snapshot has already been set");
     underTest.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
   }
+
+  @Test
+  public void isCrossProjectDuplicationEnabled_return_true() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setIsCrossProjectDuplicationEnabled(true);
+
+    assertThat(underTest.isCrossProjectDuplicationEnabled()).isEqualTo(true);
+  }
+
+  @Test
+  public void isCrossProjectDuplicationEnabled_return_false() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setIsCrossProjectDuplicationEnabled(false);
+
+    assertThat(underTest.isCrossProjectDuplicationEnabled()).isEqualTo(false);
+  }
+
+  @Test
+  public void isCrossProjectDuplicationEnabled_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Cross project duplication flag has not been set");
+
+    new AnalysisMetadataHolderImpl().isCrossProjectDuplicationEnabled();
+  }
+
+  @Test
+  public void setIsCrossProjectDuplicationEnabled_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setIsCrossProjectDuplicationEnabled(true);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Cross project duplication flag has already been set");
+    underTest.setIsCrossProjectDuplicationEnabled(false);
+  }
 }

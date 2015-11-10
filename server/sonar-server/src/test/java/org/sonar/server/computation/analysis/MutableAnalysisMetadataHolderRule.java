@@ -50,13 +50,23 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
+  public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
+    delegate.setBaseProjectSnapshot(baseProjectSnapshot);
+  }
+
+  @Override
   @CheckForNull
   public Snapshot getBaseProjectSnapshot() {
     return delegate.getBaseProjectSnapshot();
   }
 
   @Override
-  public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
-    delegate.setBaseProjectSnapshot(baseProjectSnapshot);
+  public boolean isCrossProjectDuplicationEnabled() {
+    return delegate.isCrossProjectDuplicationEnabled();
+  }
+
+  @Override
+  public void setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
+    delegate.setIsCrossProjectDuplicationEnabled(isCrossProjectDuplicationEnabled);
   }
 }
