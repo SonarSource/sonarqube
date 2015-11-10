@@ -24,30 +24,31 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.snapshot.Snapshot;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
   @CheckForNull
-  private Long analysisDate;
+  private InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
-  private boolean baseProjectSnapshotInitialized = false;
-
-  @CheckForNull
-  private Snapshot baseProjectSnapshot;
+  private InitializedProperty<Snapshot> baseProjectSnapshot = new InitializedProperty<>();
 
   @CheckForNull
-  private Boolean isCrossProjectDuplicationEnabled;
+  private InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
+
+  private InitializedProperty<String> branch = new InitializedProperty<>();
 
   @Override
   public void setAnalysisDate(Date date) {
-    checkState(analysisDate == null, "Analysis date has already been set");
-    this.analysisDate = date.getTime();
+    checkNotNull(date, "Date must not be null");
+    checkState(!analysisDate.isInitialized(), "Analysis date has already been set");
+    this.analysisDate.setProperty(date.getTime());
   }
 
   @Override
   public Date getAnalysisDate() {
-    checkState(analysisDate != null, "Analysis date has not been set");
-    return new Date(this.analysisDate);
+    checkState(analysisDate.isInitialized(), "Analysis date has not been set");
+    return new Date(this.analysisDate.getProperty());
   }
 
   @Override
@@ -57,27 +58,58 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
 
   @Override
   public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
-    checkState(!baseProjectSnapshotInitialized, "Base project snapshot has already been set");
-    this.baseProjectSnapshot = baseProjectSnapshot;
-    this.baseProjectSnapshotInitialized = true;
+    checkState(!this.baseProjectSnapshot.isInitialized(), "Base project snapshot has already been set");
+    this.baseProjectSnapshot.setProperty(baseProjectSnapshot);
   }
 
   @Override
   @CheckForNull
   public Snapshot getBaseProjectSnapshot() {
-    checkState(baseProjectSnapshotInitialized, "Base project snapshot has not been set");
-    return baseProjectSnapshot;
+    checkState(baseProjectSnapshot.isInitialized(), "Base project snapshot has not been set");
+    return baseProjectSnapshot.getProperty();
   }
 
   @Override
-  public void setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
-    checkState(this.isCrossProjectDuplicationEnabled == null, "Cross project duplication flag has already been set");
-    this.isCrossProjectDuplicationEnabled = isCrossProjectDuplicationEnabled;
+  public void setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
+    checkState(!this.crossProjectDuplicationEnabled.isInitialized(), "Cross project duplication flag has already been set");
+    this.crossProjectDuplicationEnabled.setProperty(isCrossProjectDuplicationEnabled);
   }
 
   @Override
   public boolean isCrossProjectDuplicationEnabled() {
-    checkState(isCrossProjectDuplicationEnabled != null, "Cross project duplication flag has not been set");
-    return isCrossProjectDuplicationEnabled;
+    checkState(crossProjectDuplicationEnabled.isInitialized(), "Cross project duplication flag has not been set");
+    return crossProjectDuplicationEnabled.getProperty();
+  }
+
+  @Override
+  public void setBranch(@Nullable String branch) {
+    checkState(!this.branch.isInitialized(), "Branch has already been set");
+    this.branch.setProperty(branch);
+  }
+
+  @Override
+  public String getBranch() {
+    checkState(branch.isInitialized(), "Branch has not been set");
+    return branch.getProperty();
+  }
+
+  private static class InitializedProperty<E> {
+    private E property;
+    private boolean initialized = false;
+
+    public InitializedProperty setProperty(@Nullable E property) {
+      this.property = property;
+      this.initialized = true;
+      return this;
+    }
+
+    @CheckForNull
+    public E getProperty() {
+      return property;
+    }
+
+    public boolean isInitialized() {
+      return initialized;
+    }
   }
 }

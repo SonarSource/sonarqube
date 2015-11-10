@@ -39,6 +39,11 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
   /**
    * @throws IllegalStateException if cross project duplication flag has already been set
    */
-  void setIsCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled);
+  void setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled);
+
+  /**
+   * @throws IllegalStateException if branch has already been set
+   */
+  void setBranch(@Nullable String branch);
 
 }
