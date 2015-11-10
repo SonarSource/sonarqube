@@ -10,7 +10,7 @@
     {{#if deprecatedSince}}
       <span class="spacer-right">
         <span class="badge badge-danger" data-toggle="tooltip"
-              title="{{t 'api_documentation.deprecation_tooltip'}}">deprecated since {{deprecatedSince}}</span>
+              title="{{t 'api_documentation.deprecation_tooltip'}}">Deprecated since {{deprecatedSince}}</span>
       </span>
     {{/if}}
     {{#if since}}
@@ -35,6 +35,10 @@
           <div class="note">{{#if required}}required{{else}}optional{{/if}}</div>
           {{#if since}}
             <div class="note">since {{since}}</div>
+          {{/if}}
+          {{#if deprecatedSince}}
+            <span class="badge badge-danger little-spacer-top" data-toggle="tooltip"
+                  title="{{t 'api_documentation.deprecation_tooltip'}}">Deprecated since {{deprecatedSince}}</span>
           {{/if}}
         </td>
         <td>

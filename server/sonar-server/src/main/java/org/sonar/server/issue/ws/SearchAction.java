@@ -176,7 +176,8 @@ public class SearchAction implements IssuesWsAction {
         "If this parameter is set, componentUuids must not be set.")
       .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
     action.createParam(IssueFilterParameters.COMPONENTS)
-      .setDescription("Deprecated since 5.1. If used, will have the same meaning as componentKeys AND onComponentOnly=true.");
+      .setDeprecatedSince("5.1")
+      .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=true.");
     action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
@@ -185,12 +186,15 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
 
     action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
-      .setDescription("Deprecated since 5.1. If used, will have the same meaning as componentKeys AND onComponentOnly=false.");
+      .setDeprecatedSince("5.1")
+      .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=false.");
     action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
-      .setDescription("Deprecated since 5.1. If used, will have the same meaning as componentUuids AND onComponentOnly=false.");
+      .setDeprecatedSince("5.1")
+      .setDescription("If used, will have the same meaning as componentUuids AND onComponentOnly=false.");
 
     action.createParam(IssueFilterParameters.PROJECTS)
-      .setDescription("Deprecated since 5.1. See projectKeys");
+      .setDeprecatedSince("5.1")
+      .setDescription("See projectKeys");
     action.createParam(IssueFilterParameters.PROJECT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
         INTERNAL_PARAMETER_DISCLAIMER +
