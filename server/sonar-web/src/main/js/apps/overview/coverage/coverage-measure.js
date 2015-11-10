@@ -49,7 +49,7 @@ export const CoverageMeasure = React.createClass({
   },
 
   renderDonut (measure) {
-    if (this.props.metric !== 'PERCENT') {
+    if (this.props.type !== 'PERCENT') {
       return null;
     }
 

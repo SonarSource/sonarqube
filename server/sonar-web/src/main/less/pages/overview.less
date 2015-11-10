@@ -253,6 +253,45 @@
   margin-top: 40px;
 }
 
+.overview-detailed-measures-list-inline {
+  display: flex;
+  border: none;
+  background: none;
+
+  .overview-detailed-measure {
+    flex: 1;
+    flex-direction: column;
+    border: 1px solid @barBorderColor;
+  }
+
+  .overview-detailed-measure-name {
+    margin-bottom: 8px;
+    flex: 0 1 auto;
+    font-weight: 500;
+  }
+
+  .overview-detailed-measure + .overview-detailed-measure {
+    margin-left: 10px;
+  }
+
+  .overview-detailed-measure-nutshell {
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+
+    .overview-detailed-measure-value {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .overview-detailed-measure-leak {
+    flex: 0 1 auto;
+  }
+}
+
 .overview-detailed-measure {
   display: flex;
   background-color: #fff;
@@ -264,7 +303,9 @@
   position: relative;
   padding: 7px 10px;
 
-  & & {
+  .overview-detailed-measure-nutshell,
+  .overview-detailed-measure-leak,
+  .overview-detailed-measure-chart {
     padding-right: 0;
   }
 }

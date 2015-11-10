@@ -16,11 +16,6 @@ export default class extends React.Component {
   }
 
   render () {
-    return <div className="overview-domain-section">
-      <DomainHeader title="Issues By Tag"/>
-      <div>
-        {this.renderWordCloud()}
-      </div>
-    </div>;
+    return this.renderWordCloud();
   }
 }

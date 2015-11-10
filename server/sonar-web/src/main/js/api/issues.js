@@ -3,11 +3,18 @@ import _ from 'underscore';
 import { getJSON } from '../helpers/request.js';
 
 
-export function getFacet (query, facet) {
+export function getFacets (query, facets) {
   let url = baseUrl + '/api/issues/search';
-  let data = _.extend({}, query, { facets: facet, ps: 1, additionalFields: '_all' });
+  let data = _.extend({}, query, { facets: facets.join(), ps: 1, additionalFields: '_all' });
   return getJSON(url, data).then(r => {
-    return { facet: r.facets[0].values, response: r };
+    return { facets: r.facets, response: r };
+  });
+}
+
+
+export function getFacet (query, facet) {
+  return getFacets(query, [facet]).then(r => {
+    return { facet: r.facets[0].values, response: r.response };
   });
 }
 
@@ -22,13 +29,16 @@ export function getTags (query) {
 }
 
 
-export function getAssignees (query) {
-  return getFacet(query, 'assignees').then(r => {
-    return r.facet.map(item => {
-      let user = _.findWhere(r.response.users, { login: item.val });
-      return _.extend(item, { user });
-    });
+export function extractAssignees (facet, response) {
+  return facet.map(item => {
+    let user = _.findWhere(response.users, { login: item.val });
+    return _.extend(item, { user });
   });
+}
+
+
+export function getAssignees (query) {
+  return getFacet(query, 'assignees').then(r => extractAssignees(r.facet, r.response));
 }
 
 

@@ -5,6 +5,6 @@ import { getComponentIssuesUrl } from '../../../helpers/urls';
 export default React.createClass({
   render() {
     let url = getComponentIssuesUrl(this.props.component, this.props.params);
-    return <a href={url}>{this.props.children}</a>;
+    return <a className={this.props.className} href={url}>{this.props.children}</a>;
   }
 });

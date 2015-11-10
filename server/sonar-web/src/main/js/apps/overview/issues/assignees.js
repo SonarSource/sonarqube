@@ -19,11 +19,8 @@ export default class extends React.Component {
       </tr>;
     });
 
-    return <div className="overview-domain-section">
-      <DomainHeader title="Issues to Review"/>
-      <table className="data zebra">
-        <tbody>{rows}</tbody>
-      </table>
-    </div>;
+    return <table className="data zebra">
+      <tbody>{rows}</tbody>
+    </table>;
   }
 }

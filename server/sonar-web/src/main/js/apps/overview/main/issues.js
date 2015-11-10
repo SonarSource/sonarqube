@@ -67,7 +67,7 @@ export const GeneralIssues = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader title="Technical Debt"
+      <DomainHeader title="Technical Debt" linkTo="/issues"
                     leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
 
       <DomainPanel domain="issues">
