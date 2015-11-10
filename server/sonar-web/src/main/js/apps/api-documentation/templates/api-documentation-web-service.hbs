@@ -1,7 +1,7 @@
 <h3 class="list-group-item-heading">
   {{path}}
   {{#if internal}}
-    <span class="badge">internal</span>
+    <span class="badge" data-toggle="tooltip" title="{{t 'api_documentation.internal_tooltip'}}">internal</span>
   {{/if}}
 </h3>
 <p class="list-group-item-text">{{{description}}}</p>

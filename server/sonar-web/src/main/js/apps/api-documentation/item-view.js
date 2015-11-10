@@ -37,6 +37,7 @@ export default Marionette.ItemView.extend({
     this.$el.attr('data-path', this.model.get('path'));
     this.$el.toggleClass('active', this.options.highlighted);
     this.toggleHidden();
+    this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'right' });
   },
 
   onClick: function (e) {
