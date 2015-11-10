@@ -46,4 +46,9 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
    */
   void setBranch(@Nullable String branch);
 
+  /**
+   * @throws IllegalStateException if root component ref has already been set
+   */
+  void setRootComponentRef(int rootComponentRef);
+
 }

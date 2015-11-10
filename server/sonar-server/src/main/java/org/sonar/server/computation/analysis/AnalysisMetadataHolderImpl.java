@@ -28,15 +28,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
-  @CheckForNull
+
   private InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
   private InitializedProperty<Snapshot> baseProjectSnapshot = new InitializedProperty<>();
 
-  @CheckForNull
   private InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
 
   private InitializedProperty<String> branch = new InitializedProperty<>();
+
+  private InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
 
   @Override
   public void setAnalysisDate(Date date) {
@@ -93,6 +94,18 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     return branch.getProperty();
   }
 
+  @Override
+  public void setRootComponentRef(int rootComponentRef) {
+    checkState(!this.rootComponentRef.isInitialized(), "Root component ref has already been set");
+    this.rootComponentRef.setProperty(rootComponentRef);
+  }
+
+  @Override
+  public int getRootComponentRef() {
+    checkState(rootComponentRef.isInitialized(), "Root component ref has not been set");
+    return rootComponentRef.getProperty();
+  }
+
   private static class InitializedProperty<E> {
     private E property;
     private boolean initialized = false;
@@ -112,4 +125,5 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
       return initialized;
     }
   }
+
 }

@@ -56,4 +56,9 @@ public interface AnalysisMetadataHolder {
   @CheckForNull
   String getBranch();
 
+  /**
+   * @throws IllegalStateException if root component ref has not been set
+   */
+  int getRootComponentRef();
+
 }

@@ -194,4 +194,31 @@ public class AnalysisMetadataHolderImplTest {
     expectedException.expectMessage("Branch has already been set");
     underTest.setBranch("origin/master");
   }
+
+  @Test
+  public void getRootComponentRef() throws InterruptedException {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+
+    underTest.setRootComponentRef(10);
+
+    assertThat(underTest.getRootComponentRef()).isEqualTo(10);
+  }
+
+  @Test
+  public void getRootComponentRef_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Root component ref has not been set");
+
+    new AnalysisMetadataHolderImpl().getRootComponentRef();
+  }
+
+  @Test
+  public void setRootComponentRef_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setRootComponentRef(10);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Root component ref has already been set");
+    underTest.setRootComponentRef(9);
+  }
 }
