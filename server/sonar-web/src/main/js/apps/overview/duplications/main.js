@@ -86,7 +86,7 @@ export const DuplicationsMain = React.createClass({
         .range(CHART_COLORS_RANGE_PERCENT);
     return <div className="overview-detailed-page">
       <div className="overview-domain-charts">
-        <div className="overview-domain">
+        <div className="overview-domain overview-domain-fixed-width">
           <div className="overview-domain-header">
             <div className="overview-title">Duplications Overview</div>
             {this.renderLegend()}
@@ -97,8 +97,8 @@ export const DuplicationsMain = React.createClass({
         </div>
         <DomainBubbleChart {...this.props}
             xMetric="ncloc"
-            yMetric="duplicated_blocks"
-            sizeMetrics={['duplicated_lines']}/>
+            yMetric="duplicated_lines"
+            sizeMetrics={['duplicated_blocks']}/>
       </div>
 
       <div className="overview-domain-charts">

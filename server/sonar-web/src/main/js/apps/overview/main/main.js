@@ -25,7 +25,7 @@ const METRICS_LIST = [
 ];
 
 const HISTORY_METRICS_LIST = [
-  'violations',
+  'sqale_index',
   'overall_coverage',
   'duplicated_lines_density',
   'ncloc'
@@ -158,7 +158,7 @@ export default React.createClass({
     let props = _.extend({}, this.props, this.state);
 
     return <div className="overview-domains">
-      <GeneralIssues {...props} history={this.state.history['violations']}/>
+      <GeneralIssues {...props} history={this.state.history['sqale_index']}/>
       <GeneralCoverage {...props} history={this.state.history['overall_coverage']}/>
       <GeneralDuplications {...props} history={this.state.history['duplicated_lines_density']}/>
       <GeneralSize {...props} history={this.state.history['ncloc']}/>

@@ -130,6 +130,10 @@
   margin: 30px @side-padding;
 }
 
+.overview-domain-fixed-width {
+  max-width: 560px;
+}
+
 .overview-domain-header {
   display: flex;
   align-items: baseline;
@@ -302,7 +306,6 @@
   padding: 0 10px;
 }
 
-.overview-legend-nutshell,
 .overview-legend-leak {
   display: inline-block;
   vertical-align: middle;
@@ -313,13 +316,6 @@
   margin-right: 8px;
   border: 1px solid @barBorderColor;
   box-sizing: border-box;
-}
-
-.overview-legend-nutshell {
-  background-color: #fff;
-}
-
-.overview-legend-leak {
   background-color: #fffae7;
 }
 
@@ -333,10 +329,6 @@
   & > .overview-domain,
   & > .overview-domain-chart {
     flex: 1;
-  }
-
-  & > .overview-domain {
-    max-width: 560px;
   }
 }
 

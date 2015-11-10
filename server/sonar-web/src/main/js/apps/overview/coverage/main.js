@@ -151,7 +151,7 @@ export const CoverageMain = React.createClass({
         .range(CHART_COLORS_RANGE_PERCENT);
     return <div className="overview-detailed-page">
       <div className="overview-domain-charts">
-        <div className="overview-domain">
+        <div className="overview-domain overview-domain-fixed-width">
           <div className="overview-domain-header">
             <div className="overview-title">Tests Overview</div>
             {this.renderLegend()}
