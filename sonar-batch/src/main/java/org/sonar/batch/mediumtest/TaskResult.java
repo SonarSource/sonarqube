@@ -19,11 +19,8 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,10 +28,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +43,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
@@ -231,10 +227,10 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return result;
   }
 
-  public List<BatchReport.DuplicationBlock> duplicationBlocksFor(InputFile file) {
-    List<BatchReport.DuplicationBlock> result = new ArrayList<>();
+  public List<BatchReport.CpdTextBlock> duplicationBlocksFor(InputFile file) {
+    List<BatchReport.CpdTextBlock> result = new ArrayList<>();
     int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
-    try (CloseableIterator<BatchReport.DuplicationBlock> it = getReportReader().readComponentDuplicationBlocks(ref)) {
+    try (CloseableIterator<BatchReport.CpdTextBlock> it = getReportReader().readCpdTextBlocks(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
       }
