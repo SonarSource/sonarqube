@@ -107,7 +107,7 @@ public class TrackedIssueAdapter implements Issue {
 
   @Override
   public Date creationDate() {
-    return null;
+    return issue.getCreationDate();
   }
 
   @Override

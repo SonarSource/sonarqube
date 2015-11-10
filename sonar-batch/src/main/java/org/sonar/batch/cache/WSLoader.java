@@ -122,7 +122,7 @@ public class WSLoader {
   }
 
   private int getReadTimeout() {
-    return userProperties.properties().containsKey(SONAR_WS_TIMEOUT_PROPS) ? Integer.parseInt(userProperties.property(SONAR_WS_TIMEOUT_PROPS)) * 1000 : DEFAULT_READ_TIMEOUT;
+    return userProperties.properties().containsKey(SONAR_WS_TIMEOUT_PROPS) ? (Integer.parseInt(userProperties.property(SONAR_WS_TIMEOUT_PROPS)) * 1000) : DEFAULT_READ_TIMEOUT;
   }
 
   @Nonnull
@@ -221,7 +221,7 @@ public class WSLoader {
     if (result == null) {
       throw new NotAvailableException("resource not cached");
     }
-    return new WSLoaderResult<T>(result, true);
+    return new WSLoaderResult<>(result, true);
   }
 
   @Nonnull
@@ -232,7 +232,7 @@ public class WSLoader {
     try {
       T t = loader.load(id);
       switchToOnline();
-      return new WSLoaderResult<T>(t, false);
+      return new WSLoaderResult<>(t, false);
     } catch (IllegalStateException e) {
       if (e.getCause() instanceof HttpException) {
         // fail fast if it could connect but there was a application-level error
