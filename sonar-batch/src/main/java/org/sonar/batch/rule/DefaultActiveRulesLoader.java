@@ -19,13 +19,17 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.batch.util.BatchUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.rule.RuleKey;
@@ -75,7 +79,7 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static String getUrl(String qualityProfileKey, int page, int pageSize) {
     StringBuilder builder = new StringBuilder(1024);
     builder.append(RULES_SEARCH_URL);
-    builder.append("&qprofile=").append(qualityProfileKey);
+    builder.append("&qprofile=").append(BatchUtils.encodeForUrl(qualityProfileKey));
     builder.append("&p=").append(page);
     builder.append("&ps=").append(pageSize);
     return builder.toString();
