@@ -20,7 +20,6 @@
 package org.sonar.batch.rule;
 
 import org.sonar.api.rule.RuleKey;
-
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 import com.google.common.io.Resources;
@@ -48,16 +47,16 @@ public class DefaultActiveRulesLoaderTest {
   }
 
   @Test
-  public void feed_real_response() throws IOException {
+  public void feed_real_response_encode_qp() throws IOException {
     InputStream response1 = loadResource("active_rule_search1.protobuf");
     InputStream response2 = loadResource("active_rule_search2.protobuf");
 
-    String req1 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=java-sonar-way-26368&p=1&ps=500";
-    String req2 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=java-sonar-way-26368&p=2&ps=500";
+    String req1 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=1&ps=500";
+    String req2 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=2&ps=500";
     when(ws.loadStream(req1)).thenReturn(new WSLoaderResult<InputStream>(response1, false));
     when(ws.loadStream(req2)).thenReturn(new WSLoaderResult<InputStream>(response2, false));
 
-    Collection<LoadedActiveRule> activeRules = loader.load("java-sonar-way-26368", null);
+    Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445", null);
     assertThat(activeRules).hasSize(226);
     assertActiveRule(activeRules);
     
@@ -65,7 +64,7 @@ public class DefaultActiveRulesLoaderTest {
     verify(ws).loadStream(req2);
     verifyNoMoreInteractions(ws);
   }
-
+  
   private static void assertActiveRule(Collection<LoadedActiveRule> activeRules) {
     RuleKey key = RuleKey.of("squid", "S3008");
     for (LoadedActiveRule r : activeRules) {
