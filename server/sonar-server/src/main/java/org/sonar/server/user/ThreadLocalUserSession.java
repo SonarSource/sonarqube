@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
  */
 public class ThreadLocalUserSession implements UserSession {
 
-  private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<UserSession>();
+  private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<>();
 
   public UserSession get() {
     return Objects.firstNonNull(THREAD_LOCAL.get(), AnonymousUserSession.INSTANCE);

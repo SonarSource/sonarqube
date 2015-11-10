@@ -35,8 +35,8 @@ import static java.util.Objects.requireNonNull;
 
 @Immutable
 public final class Duplication {
-  private static Ordering<Duplicate> DUPLICATE_ORDERING = Ordering.from(DuplicateComparatorByType.INSTANCE)
-      .compound(Ordering.natural().onResultOf(DuplicateToFileKey.INSTANCE))
+  private static final Ordering<Duplicate> DUPLICATE_ORDERING = Ordering.from(DuplicateComparatorByType.INSTANCE)
+    .compound(Ordering.natural().onResultOf(DuplicateToFileKey.INSTANCE))
     .compound(Ordering.natural().onResultOf(DuplicateToTextBlock.INSTANCE));
 
   private final TextBlock original;

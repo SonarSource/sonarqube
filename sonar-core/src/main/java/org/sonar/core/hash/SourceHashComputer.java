@@ -33,7 +33,7 @@ public class SourceHashComputer {
   private final MessageDigest md5Digest = DigestUtils.getMd5Digest();
 
   public void addLine(String line, boolean hasNextLine) {
-    String lineToHash = hasNextLine ? line + '\n' : line;
+    String lineToHash = hasNextLine ? (line + '\n') : line;
     this.md5Digest.update(lineToHash.getBytes(UTF_8));
   }
 
