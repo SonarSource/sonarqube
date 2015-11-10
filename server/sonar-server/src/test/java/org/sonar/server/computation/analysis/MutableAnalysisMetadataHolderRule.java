@@ -30,7 +30,7 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   private AnalysisMetadataHolderImpl delegate = new AnalysisMetadataHolderImpl();
 
   @Override
-  protected void before() throws Throwable {
+  protected void after() {
     delegate = new AnalysisMetadataHolderImpl();
   }
 
@@ -39,9 +39,9 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
     return delegate.getAnalysisDate();
   }
 
-  @Override
-  public void setAnalysisDate(Date date) {
+  public MutableAnalysisMetadataHolderRule setAnalysisDate(Date date) {
     delegate.setAnalysisDate(date);
+    return this;
   }
 
   @Override
@@ -50,8 +50,9 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
+  public MutableAnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
     delegate.setBaseProjectSnapshot(baseProjectSnapshot);
+    return this;
   }
 
   @Override
@@ -66,8 +67,9 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public void setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
+  public MutableAnalysisMetadataHolderRule setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
     delegate.setCrossProjectDuplicationEnabled(isCrossProjectDuplicationEnabled);
+    return this;
   }
 
   @Override
@@ -76,13 +78,15 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public void setBranch(@Nullable String branch) {
+  public MutableAnalysisMetadataHolderRule setBranch(@Nullable String branch) {
     delegate.setBranch(branch);
+    return this;
   }
 
   @Override
-  public void setRootComponentRef(int rootComponentRef) {
+  public MutableAnalysisMetadataHolderRule setRootComponentRef(int rootComponentRef) {
     delegate.setRootComponentRef(rootComponentRef);
+    return this;
   }
 
   @Override

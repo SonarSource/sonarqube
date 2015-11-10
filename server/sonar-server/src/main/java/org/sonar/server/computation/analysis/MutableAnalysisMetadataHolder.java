@@ -29,26 +29,26 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
    * @throws NullPointerException if specified date is {@code null}
    * @throws IllegalStateException if the analysis date has already been set
    */
-  void setAnalysisDate(Date date);
+  MutableAnalysisMetadataHolder setAnalysisDate(Date date);
 
   /**
    * @throws IllegalStateException if baseProjectSnapshot has already been set
    */
-  void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot);
+  MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot);
 
   /**
    * @throws IllegalStateException if cross project duplication flag has already been set
    */
-  void setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled);
+  MutableAnalysisMetadataHolder setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled);
 
   /**
    * @throws IllegalStateException if branch has already been set
    */
-  void setBranch(@Nullable String branch);
+  MutableAnalysisMetadataHolder setBranch(@Nullable String branch);
 
   /**
    * @throws IllegalStateException if root component ref has already been set
    */
-  void setRootComponentRef(int rootComponentRef);
+  MutableAnalysisMetadataHolder setRootComponentRef(int rootComponentRef);
 
 }

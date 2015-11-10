@@ -21,7 +21,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,10 +60,8 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   @Override
   public void execute() {
-    analysisMetadataHolder.setAnalysisDate(new Date(reportReader.readMetadata().getAnalysisDate()));
-    BatchReport.Metadata reportMetadata = reportReader.readMetadata();
-    String branch = reportMetadata.hasBranch() ? reportMetadata.getBranch() : null;
-    BatchReport.Component reportProject = reportReader.readComponent(reportMetadata.getRootComponentRef());
+    String branch = analysisMetadataHolder.getBranch();
+    BatchReport.Component reportProject = reportReader.readComponent(analysisMetadataHolder.getRootComponentRef());
     UuidFactory uuidFactory = new UuidFactory(dbClient, moduleKey(reportProject, branch));
     Component project = new ComponentRootBuilder(reportProject, uuidFactory, branch).build();
     treeRootHolder.setRoot(project);

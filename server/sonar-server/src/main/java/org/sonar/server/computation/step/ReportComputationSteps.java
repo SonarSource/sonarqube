@@ -42,6 +42,7 @@ public class ReportComputationSteps implements ComputationSteps {
       LogScannerContextStep.class,
 
       // Builds Component tree
+      LoadReportAnalysisMetadataHolderStep.class,
       BuildComponentTreeStep.class,
       ValidateProjectStep.class,
 

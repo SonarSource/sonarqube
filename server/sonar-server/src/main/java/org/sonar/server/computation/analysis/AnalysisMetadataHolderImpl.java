@@ -40,10 +40,11 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
 
   @Override
-  public void setAnalysisDate(Date date) {
+  public MutableAnalysisMetadataHolder setAnalysisDate(Date date) {
     checkNotNull(date, "Date must not be null");
     checkState(!analysisDate.isInitialized(), "Analysis date has already been set");
     this.analysisDate.setProperty(date.getTime());
+    return this;
   }
 
   @Override
@@ -58,9 +59,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
+  public MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
     checkState(!this.baseProjectSnapshot.isInitialized(), "Base project snapshot has already been set");
     this.baseProjectSnapshot.setProperty(baseProjectSnapshot);
+    return this;
   }
 
   @Override
@@ -71,9 +73,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
+  public MutableAnalysisMetadataHolder setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
     checkState(!this.crossProjectDuplicationEnabled.isInitialized(), "Cross project duplication flag has already been set");
     this.crossProjectDuplicationEnabled.setProperty(isCrossProjectDuplicationEnabled);
+    return this;
   }
 
   @Override
@@ -83,9 +86,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setBranch(@Nullable String branch) {
+  public MutableAnalysisMetadataHolder setBranch(@Nullable String branch) {
     checkState(!this.branch.isInitialized(), "Branch has already been set");
     this.branch.setProperty(branch);
+    return this;
   }
 
   @Override
@@ -95,9 +99,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setRootComponentRef(int rootComponentRef) {
+  public MutableAnalysisMetadataHolder setRootComponentRef(int rootComponentRef) {
     checkState(!this.rootComponentRef.isInitialized(), "Root component ref has already been set");
     this.rootComponentRef.setProperty(rootComponentRef);
+    return this;
   }
 
   @Override
