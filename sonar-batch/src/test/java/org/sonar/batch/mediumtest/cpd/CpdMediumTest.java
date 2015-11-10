@@ -42,7 +42,6 @@ import org.sonar.batch.protocol.output.BatchReport.Measure;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 public class CpdMediumTest {
 
@@ -105,10 +104,6 @@ public class CpdMediumTest {
     assertThat(result.inputFiles()).hasSize(2);
 
     Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
-    assertThat(allMeasures.get("com.foo.project:src/sample1.xoo")).extracting("metricKey", "intValue")
-      .contains(tuple("duplicated_blocks", 1),
-        tuple("duplicated_files", 1),
-        tuple("duplicated_lines", 17));
 
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
     InputFile inputFile2 = result.inputFile("src/sample2.xoo");
@@ -208,10 +203,7 @@ public class CpdMediumTest {
         "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
 
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue").containsOnly(
-      Tuple.tuple(CoreMetrics.LINES_KEY, blockCount * 2 + 1),
-      Tuple.tuple(CoreMetrics.DUPLICATED_FILES_KEY, 1),
-      Tuple.tuple(CoreMetrics.DUPLICATED_BLOCKS_KEY, blockCount),
-      Tuple.tuple(CoreMetrics.DUPLICATED_LINES_KEY, blockCount));
+      Tuple.tuple(CoreMetrics.LINES_KEY, blockCount * 2 + 1));
 
     List<org.sonar.batch.protocol.output.BatchReport.Duplication> duplicationGroups = result.duplicationsFor(result.inputFile("src/sample.xoo"));
     assertThat(duplicationGroups).hasSize(1);
@@ -238,12 +230,6 @@ public class CpdMediumTest {
         .put("sonar.verbose", "true")
         .build())
       .start();
-
-    Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue")
-      .contains(tuple("duplicated_blocks", 2),
-        tuple("duplicated_files", 1),
-        tuple("duplicated_lines", 4));
 
     InputFile inputFile = result.inputFile("src/sample.xoo");
     // One clone group

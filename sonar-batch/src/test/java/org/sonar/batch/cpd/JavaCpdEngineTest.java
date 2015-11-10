@@ -36,7 +36,6 @@ import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 
@@ -87,10 +86,6 @@ public class JavaCpdEngineTest {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 2, 4), new ClonePart("key2", 0, 15, 17)));
     JavaCpdEngine.save(context, inputFile, groups);
 
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).on(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).on(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).on(inputFile).withValue(3));
-
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 2, 4)
       .isDuplicatedBy("key2", 15, 17));
@@ -101,10 +96,6 @@ public class JavaCpdEngineTest {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 5, 204), new ClonePart("key1", 0, 215, 414)));
     JavaCpdEngine.save(context, inputFile, groups);
 
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).on(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).on(inputFile).withValue(2));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).on(inputFile).withValue(400));
-
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 5, 204)
       .isDuplicatedBy("key1", 215, 414));
@@ -114,10 +105,6 @@ public class JavaCpdEngineTest {
   public void testOneDuplicatedGroupInvolvingMoreThanTwoFiles() throws Exception {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 5, 204), new ClonePart("key2", 0, 15, 214), new ClonePart("key3", 0, 25, 224)));
     JavaCpdEngine.save(context, inputFile, groups);
-
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).on(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).on(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).on(inputFile).withValue(200));
 
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 5, 204)
@@ -131,10 +118,6 @@ public class JavaCpdEngineTest {
       newCloneGroup(new ClonePart("key1", 0, 5, 204), new ClonePart("key2", 0, 15, 214)),
       newCloneGroup(new ClonePart("key1", 0, 15, 214), new ClonePart("key3", 0, 15, 214)));
     JavaCpdEngine.save(context, inputFile, groups);
-
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).on(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).on(inputFile).withValue(2));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).on(inputFile).withValue(210));
 
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 5, 204)
