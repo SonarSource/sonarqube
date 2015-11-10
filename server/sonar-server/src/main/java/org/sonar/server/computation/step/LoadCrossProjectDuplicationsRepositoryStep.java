@@ -105,8 +105,13 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
 
       Collection<String> hashes = from(cpdTextBlocks).transform(CpdTextBlockToHash.INSTANCE).toList();
       List<DuplicationUnitDto> dtos = selectDuplicates(component, hashes);
+      if (dtos.isEmpty()) {
+        return;
+      }
+
       Collection<Block> duplicatedBlocks = from(dtos).transform(DtoToBlock.INSTANCE).toList();
       Collection<Block> originBlocks = from(cpdTextBlocks).transform(new CpdTextBlockToBlock(component.getKey())).toList();
+      LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), component.getKey());
 
       integrateCrossProjectDuplications.computeCpd(component, originBlocks, duplicatedBlocks);
     }

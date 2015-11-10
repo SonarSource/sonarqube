@@ -255,6 +255,27 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     verifyZeroInteractions(integrateCrossProjectDuplications);
   }
 
+  @Test
+  public void nothing_to_do_when_cpd_text_blocks_exists_but_no_duplicated_found() throws Exception {
+    analysisMetadataHolder
+      .setCrossProjectDuplicationEnabled(true)
+      .setBranch(null)
+      .setBaseProjectSnapshot(baseProjectSnapshot);
+
+    BatchReport.CpdTextBlock originBlock = BatchReport.CpdTextBlock.newBuilder()
+      .setHash("a8998353e96320ec")
+      .setStartLine(30)
+      .setEndLine(45)
+      .setStartTokenIndex(0)
+      .setEndTokenIndex(10)
+      .build();
+    batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock));
+
+    underTest.execute();
+
+    verifyZeroInteractions(integrateCrossProjectDuplications);
+  }
+
   private ComponentDto createProject(String projectKey) {
     ComponentDto project = ComponentTesting.newProjectDto().setKey(projectKey);
     dbClient.componentDao().insert(dbSession, project);
