@@ -181,7 +181,7 @@ public class BatchReportReaderTest {
       .setRef(1).build());
 
     BatchReport.CpdTextBlock duplicationBlock = BatchReport.CpdTextBlock.newBuilder()
-      .addAllHash(asList(1, 2, 3, 5, 7))
+      .setHash("abcdefghijklmnop")
       .setStartLine(1)
       .setEndLine(2)
       .setStartTokenIndex(10)

@@ -60,9 +60,7 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
           builder.setEndLine(input.getEndLine());
           builder.setStartTokenIndex(input.getStartUnit());
           builder.setEndTokenIndex(input.getEndUnit());
-          for (int i : input.getBlockHash().toIntArray()) {
-            builder.addHash(i);
-          }
+          builder.setHash(input.getBlockHash().toHexString());
           return builder.build();
         }
       }));

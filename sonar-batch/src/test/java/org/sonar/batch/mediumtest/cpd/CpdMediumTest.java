@@ -158,19 +158,19 @@ public class CpdMediumTest {
     assertThat(duplicationBlocks.get(0).getEndLine()).isEqualTo(5);
     assertThat(duplicationBlocks.get(0).getStartTokenIndex()).isEqualTo(1);
     assertThat(duplicationBlocks.get(0).getEndTokenIndex()).isEqualTo(6);
-    assertThat(duplicationBlocks.get(0).getHashList()).isNotEmpty();
+    assertThat(duplicationBlocks.get(0).getHash()).isNotEmpty();
 
     assertThat(duplicationBlocks.get(1).getStartLine()).isEqualTo(2);
     assertThat(duplicationBlocks.get(1).getEndLine()).isEqualTo(6);
     assertThat(duplicationBlocks.get(1).getStartTokenIndex()).isEqualTo(3);
     assertThat(duplicationBlocks.get(1).getEndTokenIndex()).isEqualTo(7);
-    assertThat(duplicationBlocks.get(0).getHashList()).isNotEmpty();
+    assertThat(duplicationBlocks.get(0).getHash()).isNotEmpty();
 
     assertThat(duplicationBlocks.get(2).getStartLine()).isEqualTo(3);
     assertThat(duplicationBlocks.get(2).getEndLine()).isEqualTo(7);
     assertThat(duplicationBlocks.get(2).getStartTokenIndex()).isEqualTo(4);
     assertThat(duplicationBlocks.get(2).getEndTokenIndex()).isEqualTo(8);
-    assertThat(duplicationBlocks.get(0).getHashList()).isNotEmpty();
+    assertThat(duplicationBlocks.get(0).getHash()).isNotEmpty();
   }
 
   // SONAR-6000
