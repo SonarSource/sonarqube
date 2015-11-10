@@ -19,97 +19,85 @@
  */
 package org.sonar.db.duplication;
 
-/**
- * A simple DTO (Data Transfer Object) class that provides the mapping of data to a table.
- */
 public final class DuplicationUnitDto {
 
-  private Long id;
-  private Integer snapshotId;
-  private Integer projectSnapshotId;
+  private long id;
+  private long snapshotId;
+  private long projectSnapshotId;
 
   private String hash;
   private int indexInFile;
   private int startLine;
   private int endLine;
 
-  private String resourceKey;
+  // Return by join
+  private String componentKey;
 
-  public DuplicationUnitDto() {
-  }
-
-  public DuplicationUnitDto(Integer projectSnapshotId, Integer snapshotId, String hash, Integer indexInFile, Integer startLine, Integer endLine) {
-    this.projectSnapshotId = projectSnapshotId;
-    this.snapshotId = snapshotId;
-    this.hash = hash;
-    this.indexInFile = indexInFile;
-    this.startLine = startLine;
-    this.endLine = endLine;
-  }
-
-  public Long getId() {
+  public long getId() {
     return id;
   }
 
-  public DuplicationUnitDto setId(Long id) {
+  public DuplicationUnitDto setId(long id) {
     this.id = id;
     return this;
   }
 
-  public Integer getSnapshotId() {
+  public long getSnapshotId() {
     return snapshotId;
   }
 
-  public void setSnapshotId(Integer snapshotId) {
+  public DuplicationUnitDto setSnapshotId(long snapshotId) {
     this.snapshotId = snapshotId;
+    return this;
   }
 
-  public Integer getProjectSnapshotId() {
+  public long getProjectSnapshotId() {
     return projectSnapshotId;
   }
 
-  public void setProjectSnapshotId(Integer projectSnapshotId) {
+  public DuplicationUnitDto setProjectSnapshotId(long projectSnapshotId) {
     this.projectSnapshotId = projectSnapshotId;
+    return this;
   }
 
   public String getHash() {
     return hash;
   }
 
-  public void setHash(String hash) {
+  public DuplicationUnitDto setHash(String hash) {
     this.hash = hash;
+    return this;
   }
 
   public int getIndexInFile() {
     return indexInFile;
   }
 
-  public void setIndexInFile(int indexInFile) {
+  public DuplicationUnitDto setIndexInFile(int indexInFile) {
     this.indexInFile = indexInFile;
+    return this;
   }
 
   public int getStartLine() {
     return startLine;
   }
 
-  public void setStartLine(int startLine) {
+  public DuplicationUnitDto setStartLine(int startLine) {
     this.startLine = startLine;
+    return this;
   }
 
   public int getEndLine() {
     return endLine;
   }
 
-  public void setEndLine(int endLine) {
+  public DuplicationUnitDto setEndLine(int endLine) {
     this.endLine = endLine;
+    return this;
   }
 
-  public String getResourceKey() {
-    return resourceKey;
-  }
-
-  public void setResourceKey(String resourceKey) {
-    this.resourceKey = resourceKey;
+  public String getComponentKey() {
+    return componentKey;
   }
 
 }
