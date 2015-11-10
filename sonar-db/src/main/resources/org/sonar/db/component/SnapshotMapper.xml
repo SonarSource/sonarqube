@@ -69,6 +69,9 @@
     SELECT
     <include refid="snapshotColumns"/>
     FROM snapshots s
+    <if test="query.componentUuid != null">
+      INNER JOIN projects p ON p.id=s.project_id AND p.uuid=#{query.componentUuid} AND p.enabled=${_true}
+    </if>
     <where>
       <if test="query.componentId != null">
         AND s.project_id=#{query.componentId}

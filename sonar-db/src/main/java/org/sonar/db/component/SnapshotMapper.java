@@ -37,6 +37,9 @@ public interface SnapshotMapper {
 
   int countLastSnapshotByComponentUuid(String componentUuid);
 
+  @CheckForNull
+  SnapshotDto selectLastSnapshotByComponentUuid(String componentUuid);
+
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 
   List<SnapshotDto> selectPreviousVersionSnapshots(@Param(value = "componentId") Long componentId, @Param(value = "lastVersion") String lastVersion);
