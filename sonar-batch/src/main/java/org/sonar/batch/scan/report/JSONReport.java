@@ -219,7 +219,7 @@ public class JSONReport implements Reporter {
   }
 
   private void writeUsers(JsonWriter json, Collection<String> userLogins) throws IOException {
-    List<BatchInput.User> users = new LinkedList<BatchInput.User>();
+    List<BatchInput.User> users = new LinkedList<>();
     for (String userLogin : userLogins) {
       User user = userRepository.load(userLogin);
       if (user != null) {
