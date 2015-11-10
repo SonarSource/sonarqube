@@ -23,26 +23,33 @@ import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.server.computation.snapshot.Snapshot;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnalysisMetadataHolderImplTest {
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Date someDate = new Date();
+  static Snapshot BASE_PROJECT_SNAPSHOT = new Snapshot.Builder()
+    .setId(1)
+    .setCreatedAt(123456789L)
+    .build();
+
+  static Date SOME_DATE = new Date();
 
   @Test
   public void getAnalysisDate_returns_date_with_same_time_as_the_one_set_with_setAnalysisDate() throws InterruptedException {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setAnalysisDate(someDate);
+    underTest.setAnalysisDate(SOME_DATE);
 
     Thread.sleep(10);
 
     Date analysisDate = underTest.getAnalysisDate();
-    assertThat(analysisDate.getTime()).isEqualTo(someDate.getTime());
-    assertThat(analysisDate).isNotSameAs(someDate);
+    assertThat(analysisDate.getTime()).isEqualTo(SOME_DATE.getTime());
+    assertThat(analysisDate).isNotSameAs(SOME_DATE);
   }
 
   @Test
@@ -55,20 +62,20 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void setAnalysisDate_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setAnalysisDate(SOME_DATE);
+
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Analysis date has already been set");
 
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-
-    underTest.setAnalysisDate(someDate);
-    underTest.setAnalysisDate(someDate);
+    underTest.setAnalysisDate(SOME_DATE);
   }
 
   @Test
   public void isFirstAnalysis_return_true() throws Exception {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setIsFirstAnalysis(true);
+    underTest.setBaseProjectSnapshot(null);
     assertThat(underTest.isFirstAnalysis()).isTrue();
   }
 
@@ -76,26 +83,33 @@ public class AnalysisMetadataHolderImplTest {
   public void isFirstAnalysis_return_false() throws Exception {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
 
-    underTest.setIsFirstAnalysis(false);
+    underTest.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     assertThat(underTest.isFirstAnalysis()).isFalse();
   }
 
   @Test
-  public void isFirstAnalysis_throws_ISE_when_holder_is_not_initialized() {
+  public void isFirstAnalysis_throws_ISE_when_base_project_snapshot_is_not_set() {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("firstAnalysis flag has not been set");
+    expectedException.expectMessage("Base project snapshot has not been set");
 
     new AnalysisMetadataHolderImpl().isFirstAnalysis();
   }
 
   @Test
-  public void setIsFirstAnalysis_throws_ISE_when_called_twice() {
+  public void baseProjectSnapshot_throws_ISE_when_base_project_snapshot_is_not_set() {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("firstAnalysis flag has already been set");
+    expectedException.expectMessage("Base project snapshot has not been set");
 
+    new AnalysisMetadataHolderImpl().getBaseProjectSnapshot();
+  }
+
+  @Test
+  public void setBaseProjectSnapshot_throws_ISE_when_called_twice() {
     AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
+    underTest.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
 
-    underTest.setIsFirstAnalysis(true);
-    underTest.setIsFirstAnalysis(true);
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Base project snapshot has already been set");
+    underTest.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
   }
 }

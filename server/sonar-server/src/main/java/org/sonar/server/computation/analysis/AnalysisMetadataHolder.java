@@ -20,6 +20,8 @@
 package org.sonar.server.computation.analysis;
 
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import org.sonar.server.computation.snapshot.Snapshot;
 
 public interface AnalysisMetadataHolder {
   /**
@@ -28,7 +30,19 @@ public interface AnalysisMetadataHolder {
   Date getAnalysisDate();
 
   /**
-   * @throws IllegalStateException if isFirstAnalysis has not been set
+   * Convenience method equivalent to calling {@link #getBaseProjectSnapshot() == null}
+   *
+   * @throws IllegalStateException if baseProjectSnapshot has not been set
    */
   boolean isFirstAnalysis();
+
+  /**
+   * Return the last snapshot of the project.
+   * If it's the first analysis, it will return null.
+   *
+   * @throws IllegalStateException if baseProjectSnapshot has not been set
+   */
+  @CheckForNull
+  Snapshot getBaseProjectSnapshot();
+
 }

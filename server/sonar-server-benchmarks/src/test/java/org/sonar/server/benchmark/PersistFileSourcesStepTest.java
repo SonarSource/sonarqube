@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -89,7 +88,7 @@ public class PersistFileSourcesStepTest {
     BatchReportDirectoryHolderImpl batchReportDirectoryHolder = new BatchReportDirectoryHolderImpl();
     batchReportDirectoryHolder.setDirectory(reportDir);
     org.sonar.server.computation.batch.BatchReportReader batchReportReader = new BatchReportReaderImpl(batchReportDirectoryHolder);
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(null);
     SourceLinesRepositoryImpl sourceLinesRepository = new SourceLinesRepositoryImpl(batchReportReader);
     SourceHashRepositoryImpl sourceHashRepository = new SourceHashRepositoryImpl(sourceLinesRepository);
     ScmInfoRepositoryImpl scmInfoRepository = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadataHolder, dbClient, sourceHashRepository);

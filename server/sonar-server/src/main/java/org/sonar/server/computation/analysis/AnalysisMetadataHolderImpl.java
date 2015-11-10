@@ -21,6 +21,8 @@ package org.sonar.server.computation.analysis;
 
 import java.util.Date;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.server.computation.snapshot.Snapshot;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -28,8 +30,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   @CheckForNull
   private Long analysisDate;
 
+  private boolean baseProjectSnapshotInitialized = false;
+
   @CheckForNull
-  private Boolean firstAnalysis;
+  private Snapshot baseProjectSnapshot;
 
   @Override
   public void setAnalysisDate(Date date) {
@@ -44,14 +48,22 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public void setIsFirstAnalysis(boolean firstAnalysis) {
-    checkState(this.firstAnalysis == null, "firstAnalysis flag has already been set");
-    this.firstAnalysis = firstAnalysis;
+  public boolean isFirstAnalysis() {
+    return getBaseProjectSnapshot() == null;
   }
 
   @Override
-  public boolean isFirstAnalysis() {
-    checkState(firstAnalysis != null, "firstAnalysis flag has not been set");
-    return firstAnalysis;
+  public void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
+    checkState(!baseProjectSnapshotInitialized, "Base project snapshot has already been set");
+    this.baseProjectSnapshot = baseProjectSnapshot;
+    this.baseProjectSnapshotInitialized = true;
   }
+
+  @Override
+  @CheckForNull
+  public Snapshot getBaseProjectSnapshot() {
+    checkState(baseProjectSnapshotInitialized, "Base project snapshot has not been set");
+    return baseProjectSnapshot;
+  }
+
 }

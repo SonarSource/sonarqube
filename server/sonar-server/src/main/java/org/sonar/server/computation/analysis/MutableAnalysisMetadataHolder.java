@@ -20,6 +20,8 @@
 package org.sonar.server.computation.analysis;
 
 import java.util.Date;
+import javax.annotation.Nullable;
+import org.sonar.server.computation.snapshot.Snapshot;
 
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
 
@@ -30,7 +32,8 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
   void setAnalysisDate(Date date);
 
   /**
-   * @throws IllegalStateException if isFirstAnalysis has already been set
+   * @throws IllegalStateException if baseProjectSnapshot has already been set
    */
-  void setIsFirstAnalysis(boolean isFirstAnalysis);
+  void setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot);
+
 }
