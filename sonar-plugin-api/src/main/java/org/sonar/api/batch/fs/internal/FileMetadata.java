@@ -302,7 +302,7 @@ public class FileMetadata {
   }
 
   private static void read(Reader reader, CharHandler... handlers) throws IOException {
-    char c = (char) 0;
+    char c;
     int i = reader.read();
     boolean afterCR = false;
     while (i != -1) {
@@ -315,12 +315,10 @@ public class FileMetadata {
           } else if (c == LINE_FEED) {
             handler.handleAll(c);
             handler.newLine();
-            afterCR = false;
           } else {
             handler.newLine();
             handler.handleIgnoreEoL(c);
             handler.handleAll(c);
-            afterCR = false;
           }
         }
         afterCR = c == CARRIAGE_RETURN;
