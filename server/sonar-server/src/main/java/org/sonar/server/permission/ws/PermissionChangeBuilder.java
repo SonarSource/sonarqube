@@ -54,7 +54,7 @@ public class PermissionChangeBuilder {
   }
 
   private void addProjectToPermissionChange(DbSession dbSession, PermissionChange permissionChange, PermissionRequest request) {
-    Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request);
+    Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request.project());
     if (project.isPresent()) {
       permissionChange.setComponentKey(project.get().key());
     }

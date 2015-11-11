@@ -12,7 +12,7 @@ public class PermissionsWsClient {
     this.wsClient = wsClient;
   }
 
-  public WsPermissions.WsGroupsResponse groups(WsGroupsRequest request) {
+  public WsPermissions.WsGroupsResponse groups(GroupsWsRequest request) {
     return wsClient.execute(newGetRequest("api/permissions/groups")
         .setParam("permission", request.getPermission())
         .setParam("projectId", request.getProjectId())

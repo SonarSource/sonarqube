@@ -34,17 +34,23 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.permission.PermissionFinder;
-import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsPermissions.Group;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
+import org.sonarqube.ws.client.permission.GroupsWsRequest;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
 import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateGlobalPermission;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectParameter;
+import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GroupsAction implements PermissionsWsAction {
@@ -82,25 +88,62 @@ public class GroupsAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    GroupsWsRequest groupsRequest = toGroupsWsRequest(wsRequest);
+    WsGroupsResponse groupsResponse = doHandle(groupsRequest);
+    writeProtobuf(groupsResponse, wsRequest, wsResponse);
+  }
+
+  private WsGroupsResponse doHandle(GroupsWsRequest request) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionRequest request = new Builder(wsRequest).withPagination().build();
-      Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request);
+      Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey()));
       checkProjectAdminUserByComponentDto(userSession, project);
 
       PermissionQuery permissionQuery = buildPermissionQuery(request, project);
       Long projectIdIfPresent = project.isPresent() ? project.get().getId() : null;
       int total = dbClient.permissionDao().countGroups(dbSession, permissionQuery.permission(), projectIdIfPresent);
       List<GroupWithPermissionDto> groupsWithPermission = permissionFinder.findGroupsWithPermission(dbSession, permissionQuery);
-      WsGroupsResponse groupsResponse = buildResponse(groupsWithPermission, request, total);
-
-      writeProtobuf(groupsResponse, wsRequest, wsResponse);
+      return buildResponse(groupsWithPermission, request, total);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private static WsGroupsResponse buildResponse(List<GroupWithPermissionDto> groupsWithPermission, PermissionRequest permissionRequest, int total) {
+  private GroupsWsRequest toGroupsWsRequest(Request request) {
+    String permission = request.mandatoryParam(PARAM_PERMISSION);
+    String projectUuid = request.param(PARAM_PROJECT_ID);
+    String projectKey = request.param(PARAM_PROJECT_KEY);
+    if (newOptionalWsProjectRef(projectUuid, projectKey).isPresent()) {
+      validateProjectPermission(permission);
+    } else {
+      validateGlobalPermission(permission);
+    }
+
+    return new GroupsWsRequest()
+      .setPermission(permission)
+      .setProjectId(projectUuid)
+      .setProjectKey(projectKey)
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+      .setQuery(request.param(Param.TEXT_QUERY))
+      .setSelected(request.mandatoryParam(Param.SELECTED));
+  }
+
+  private static PermissionQuery buildPermissionQuery(GroupsWsRequest request, Optional<ComponentDto> project) {
+    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+      .permission(request.getPermission())
+      .pageIndex(request.getPage())
+      .pageSize(request.getPageSize())
+      .membership(fromSelectionModeToMembership(firstNonNull(request.getSelected(), SelectionMode.SELECTED.value())))
+      .search(request.getQuery());
+    if (project.isPresent()) {
+      permissionQuery.component(project.get().getKey());
+    }
+
+    return permissionQuery.build();
+  }
+
+  private static WsGroupsResponse buildResponse(List<GroupWithPermissionDto> groupsWithPermission, GroupsWsRequest permissionRequest, int total) {
     WsGroupsResponse.Builder groupsResponse = WsGroupsResponse.newBuilder();
     Group.Builder group = Group.newBuilder();
     Common.Paging.Builder paging = Common.Paging.newBuilder();
@@ -123,25 +166,10 @@ public class GroupsAction implements PermissionsWsAction {
 
     groupsResponse.setPaging(
       paging
-        .setPageIndex(permissionRequest.page())
-        .setPageSize(permissionRequest.pageSize())
-        .setTotal(total)
-      );
+        .setPageIndex(permissionRequest.getPage())
+        .setPageSize(permissionRequest.getPageSize())
+        .setTotal(total));
 
     return groupsResponse.build();
-  }
-
-  private static PermissionQuery buildPermissionQuery(PermissionRequest request, Optional<ComponentDto> project) {
-    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
-      .permission(request.permission())
-      .pageIndex(request.page())
-      .pageSize(request.pageSize())
-      .membership(fromSelectionModeToMembership(firstNonNull(request.selected(), SelectionMode.SELECTED.value())))
-      .search(request.query());
-    if (project.isPresent()) {
-      permissionQuery.component(project.get().getKey());
-    }
-
-    return permissionQuery.build();
   }
 }

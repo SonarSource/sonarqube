@@ -23,13 +23,14 @@ package org.sonarqube.ws.client;
 import com.google.common.net.HttpHeaders;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
-import org.sonarqube.ws.client.permission.WsGroupsRequest;
+import org.sonarqube.ws.client.permission.GroupsWsRequest;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,6 +153,7 @@ public class WsClientTest {
     assertThat(requestFactory.getProxyPassword()).isEqualTo("proxyPass");
   }
 
+  @Ignore
   @Test
   public void contact_localhost() {
     /**
@@ -176,7 +178,7 @@ public class WsClientTest {
     assertThat(protobufResponse.getGroups(0).getName()).contains("sonar-administrator");
 
     // test with specific client
-    WsGroupsResponse groupsResponse = ws.permissionsClient().groups(new WsGroupsRequest()
+    WsGroupsResponse groupsResponse = ws.permissionsClient().groups(new GroupsWsRequest()
       .setPermission("admin"));
     assertThat(groupsResponse.getGroups(0).getName()).contains("sonar-administrator");
   }

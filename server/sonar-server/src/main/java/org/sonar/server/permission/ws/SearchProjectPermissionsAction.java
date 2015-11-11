@@ -87,7 +87,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   }
 
   private void checkRequestAndPermissions(Request wsRequest) {
-    Optional<WsProjectRef> project = WsProjectRef.optionalFromRequest(wsRequest);
+    Optional<WsProjectRef> project = WsProjectRef.newOptionalWsProjectRef(wsRequest);
     boolean hasProject = project.isPresent();
     boolean hasProjectUuid = hasProject && project.get().uuid() != null;
     boolean hasProjectKey = hasProject && project.get().key() != null;

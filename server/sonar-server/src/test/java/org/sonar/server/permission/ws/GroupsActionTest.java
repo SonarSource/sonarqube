@@ -59,8 +59,8 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @Category(DbTests.class)
@@ -86,7 +86,11 @@ public class GroupsActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
-    underTest = new GroupsAction(dbClient, userSession, permissionFinder, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes));
+    underTest = new GroupsAction(
+      dbClient,
+      userSession,
+      permissionFinder,
+      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes));
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
@@ -150,7 +154,7 @@ public class GroupsActionTest {
       .execute().getInput();
 
     assertThat(result)
-      .contains("group-1", "group-2", "group-3")
+      .contains("group-1", "group-2")
       .doesNotContain(DefaultGroups.ANYONE);
   }
 

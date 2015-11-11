@@ -89,7 +89,7 @@ public class SearchProjectPermissionsDataLoader {
 
   private List<ComponentDto> searchRootComponents(DbSession dbSession, Request wsRequest, Paging paging) {
     String query = wsRequest.param(TEXT_QUERY);
-    Optional<WsProjectRef> project = WsProjectRef.optionalFromRequest(wsRequest);
+    Optional<WsProjectRef> project = WsProjectRef.newOptionalWsProjectRef(wsRequest);
 
     if (project.isPresent()) {
       return singletonList(finder.getRootComponentOrModule(dbSession, project.get()));

@@ -87,7 +87,7 @@ public class UsersAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionRequest request = new Builder(wsRequest).withPagination().build();
-      Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request);
+      Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request.project());
       checkProjectAdminUserByComponentDto(userSession, project);
       PermissionQuery permissionQuery = buildPermissionQuery(request, project);
       Long projectIdIfPresent = project.isPresent() ? project.get().getId() : null;

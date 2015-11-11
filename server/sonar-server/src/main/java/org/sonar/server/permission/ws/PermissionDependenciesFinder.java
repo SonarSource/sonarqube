@@ -53,12 +53,12 @@ public class PermissionDependenciesFinder {
   /**
    * @throws org.sonar.server.exceptions.NotFoundException if a project identifier is provided but it's not found
    */
-  public Optional<ComponentDto> searchProject(DbSession dbSession, PermissionRequest request) {
-    if (!request.project().isPresent()) {
+  public Optional<ComponentDto> searchProject(DbSession dbSession, Optional<WsProjectRef> optionalWsProjectRef) {
+    if (!optionalWsProjectRef.isPresent()) {
       return Optional.absent();
     }
 
-    WsProjectRef wsProjectRef = request.project().get();
+    WsProjectRef wsProjectRef = optionalWsProjectRef.get();
     return Optional.of(componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, wsProjectRef.uuid(), wsProjectRef.key(), resourceTypes));
   }
 
