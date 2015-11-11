@@ -74,7 +74,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
     checkGlobalAdminUser(userSession);
 
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    WsGroupRef group = WsGroupRef.fromPermissionRequest(wsRequest);
+    WsGroupRef group = WsGroupRef.newWsGroupRefFromPermissionRequest(wsRequest);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

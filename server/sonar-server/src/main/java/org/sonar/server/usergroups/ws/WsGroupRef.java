@@ -42,14 +42,18 @@ public class WsGroupRef {
     this.name = name;
   }
 
-  public static WsGroupRef fromPermissionRequest(Request wsRequest) {
+  public static WsGroupRef newWsGroupRefFromPermissionRequest(Request wsRequest) {
     Long id = wsRequest.paramAsLong(PermissionsWsParameters.PARAM_GROUP_ID);
     String name = wsRequest.param(PermissionsWsParameters.PARAM_GROUP_NAME);
 
     return new WsGroupRef(id, name);
   }
 
-  public static WsGroupRef fromUserGroupsRequest(Request wsRequest) {
+  public static WsGroupRef newWsGroupRef(@Nullable Long id, @Nullable String name) {
+    return new WsGroupRef(id, name);
+  }
+
+  public static WsGroupRef newWsGroupRefFromUserGroupRequest(Request wsRequest) {
     Long id = wsRequest.paramAsLong(UserGroupsWsParameters.PARAM_GROUP_ID);
     String name = wsRequest.param(UserGroupsWsParameters.PARAM_GROUP_NAME);
 

@@ -135,7 +135,7 @@ class PermissionRequest {
 
     private void setGroup(Request request) {
       if (withGroup) {
-        this.group = WsGroupRef.fromPermissionRequest(request);
+        this.group = WsGroupRef.newWsGroupRefFromPermissionRequest(request);
       }
     }
 

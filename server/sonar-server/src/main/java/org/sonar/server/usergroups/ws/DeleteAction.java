@@ -69,7 +69,7 @@ public class DeleteAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    WsGroupRef groupRef = WsGroupRef.fromUserGroupsRequest(request);
+    WsGroupRef groupRef = WsGroupRef.newWsGroupRefFromUserGroupRequest(request);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

@@ -70,7 +70,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    WsGroupRef wsGroupRef = WsGroupRef.fromUserGroupsRequest(request);
+    WsGroupRef wsGroupRef = WsGroupRef.newWsGroupRefFromUserGroupRequest(request);
     String login = request.mandatoryParam(PARAM_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);

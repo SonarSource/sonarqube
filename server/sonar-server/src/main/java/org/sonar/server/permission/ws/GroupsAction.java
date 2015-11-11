@@ -109,7 +109,7 @@ public class GroupsAction implements PermissionsWsAction {
     }
   }
 
-  private GroupsWsRequest toGroupsWsRequest(Request request) {
+  private static GroupsWsRequest toGroupsWsRequest(Request request) {
     String permission = request.mandatoryParam(PARAM_PERMISSION);
     String projectUuid = request.param(PARAM_PROJECT_ID);
     String projectKey = request.param(PARAM_PROJECT_KEY);

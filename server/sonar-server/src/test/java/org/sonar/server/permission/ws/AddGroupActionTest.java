@@ -190,7 +190,7 @@ public class AddGroupActionTest {
   }
 
   @Test
-  public void fail_if_project_permission_withou_project() throws Exception {
+  public void fail_if_project_permission_without_project() throws Exception {
     expectedException.expect(BadRequestException.class);
 
     insertGroup("sonar-administrators");

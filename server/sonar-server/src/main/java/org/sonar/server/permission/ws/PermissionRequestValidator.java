@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -32,9 +33,9 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PATTERN;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_QUALIFIER;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PATTERN;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionRequestValidator {
@@ -43,6 +44,14 @@ public class PermissionRequestValidator {
 
   private PermissionRequestValidator() {
     // static methods only
+  }
+
+  public static void validatePermission(String permission, Optional<WsProjectRef> projectRef) {
+    if (projectRef.isPresent()) {
+      validateProjectPermission(permission);
+    } else {
+      validateGlobalPermission(permission);
+    }
   }
 
   public static String validateProjectPermission(String permission) {

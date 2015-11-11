@@ -70,7 +70,11 @@ public class RemoveGroupAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionRequest permissionRequest = new Builder(request).withGroup().build();
-      PermissionChange permissionChange = permissionChangeBuilder.buildGroupPermissionChange(dbSession, permissionRequest);
+      PermissionChange permissionChange = permissionChangeBuilder.buildGroupPermissionChange(
+        dbSession,
+        permissionRequest.permission(),
+        permissionRequest.project(),
+        permissionRequest.group());
       permissionUpdater.removePermission(permissionChange);
     } finally {
       dbClient.closeSession(dbSession);

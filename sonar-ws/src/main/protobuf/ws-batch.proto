@@ -25,7 +25,7 @@ option java_outer_classname = "WsBatch";
 
 option optimize_for = SPEED;
 
-// WS api/batch/project
+// WS batch/project
 message WsProjectResponse {
   optional int64 timestamp = 1;
   map<string, Settings> settingsByModule = 2;
