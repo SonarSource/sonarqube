@@ -29,17 +29,23 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.usergroups.ws.WsGroupRef;
-import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.usergroups.ws.WsGroupRef;
+import org.sonarqube.ws.client.permission.RemoveGroupFromTemplateWsRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.usergroups.ws.WsGroupRef.newWsGroupRef;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -70,17 +76,21 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(Request request, Response response) throws Exception {
     checkGlobalAdminUser(userSession);
+    doHandle(toRemoveGroupFromTemplateWsRequest(request));
+    response.noContent();
+  }
 
-    String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    WsGroupRef group = WsGroupRef.newWsGroupRefFromPermissionRequest(wsRequest);
+  private void doHandle(RemoveGroupFromTemplateWsRequest request) {
+    String permission = request.getPermission();
+    Long groupIdInRequest = request.getGroupId() == null ? null : Long.valueOf(request.getGroupId());
+    WsGroupRef group = newWsGroupRef(groupIdInRequest, request.getGroupName());
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
-
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
       GroupDto groupDto = dependenciesFinder.getGroup(dbSession, group);
 
       Long groupId = groupDto == null ? null : groupDto.getId();
@@ -88,7 +98,14 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
 
-    wsResponse.noContent();
+  private static RemoveGroupFromTemplateWsRequest toRemoveGroupFromTemplateWsRequest(Request request) {
+    return new RemoveGroupFromTemplateWsRequest()
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setGroupId(request.param(PARAM_GROUP_ID))
+      .setGroupName(request.param(PARAM_GROUP_NAME))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 }

@@ -123,6 +123,15 @@ public class PermissionsWsClient {
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey()));
   }
 
+  public void removeGroupFromTemplate(RemoveGroupFromTemplateWsRequest request) {
+    wsClient.execute(newPostRequest(action("remove_group_from_template"))
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_GROUP_ID, request.getGroupId())
+      .setParam(PARAM_GROUP_NAME, request.getGroupName())
+      .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
+      .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
   private static String action(String action) {
     return PermissionsWsParameters.ENDPOINT + "/" + action;
   }
