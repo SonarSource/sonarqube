@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React from 'react';
-import ProfileLink from './helpers/profile-link';
-import GateLink from './helpers/gate-link';
+import { QualityProfileLink } from './../../components/shared/quality-profile-link';
+import { QualityGateLink } from './../../components/shared/quality-gate-link';
 
 export default React.createClass({
   render() {
@@ -10,7 +10,7 @@ export default React.createClass({
           return (
               <li key={profile.key}>
                 <span className="note spacer-right">({profile.language})</span>
-                <ProfileLink profile={profile.key}>{profile.name}</ProfileLink>
+                <QualityProfileLink profile={profile.key}>{profile.name}</QualityProfileLink>
               </li>
           );
         }),
@@ -50,7 +50,7 @@ export default React.createClass({
                 <li>
                   {this.props.component.gate.isDefault ?
                       <span className="note spacer-right">(Default)</span> : null}
-                  <GateLink gate={this.props.component.gate.key}>{this.props.component.gate.name}</GateLink>
+                  <QualityGateLink gate={this.props.component.gate.key}>{this.props.component.gate.name}</QualityGateLink>
                 </li>
               </ul>
             </div>

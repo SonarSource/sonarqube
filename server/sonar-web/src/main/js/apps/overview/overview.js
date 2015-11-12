@@ -1,12 +1,12 @@
 import React from 'react';
 
-import Gate from './main/gate/gate';
+import Gate from './gate/gate';
 import GeneralMain from './main/main';
 import Meta from './meta';
-import { SizeMain } from './size/main';
-import { DuplicationsMain } from './duplications/main';
-import { CoverageMain } from './coverage/main';
-import { IssuesMain } from './issues/main';
+import { SizeMain } from './domains/size-domain';
+import { DuplicationsMain } from './domains/duplications-domain';
+import { CoverageMain } from './domains/coverage-domain';
+import { IssuesMain } from './domains/debt-domain';
 
 import { getMetrics } from '../../api/metrics';
 import { RouterMixin } from '../../components/router/router';

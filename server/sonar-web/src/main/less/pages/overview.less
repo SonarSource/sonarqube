@@ -3,8 +3,6 @@
 @import (reference) "../init/type";
 @import (reference) "../init/links";
 
-@side-padding: 20px;
-
 .overview {
   display: flex;
   flex-wrap: wrap;
@@ -32,7 +30,7 @@
   background-color: @barBackgroundColor;
 
   .overview-title {
-    margin: 0 @side-padding;
+    margin: 0 20px;
   }
 }
 
@@ -42,11 +40,7 @@
 }
 
 .overview-gate-condition {
-  padding: 10px @side-padding;
-}
-
-.overview-gate-condition-metric {
-
+  padding: 10px 20px;
 }
 
 .overview-gate-condition-value {
@@ -56,7 +50,7 @@
 }
 
 .overview-gate-warning {
-  margin: 15px @side-padding 0;
+  margin: 15px 20px 0;
 }
 
 /*
@@ -78,16 +72,6 @@
 }
 
 /*
- * Cards
- * TODO drop it
- */
-
-.overview-cards {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-/*
  * Meta
  */
 
@@ -99,7 +83,7 @@
 
 .overview-meta-card {
   min-width: 200px;
-  padding: @side-padding;
+  padding: 20px;
   box-sizing: border-box;
 }
 
@@ -122,19 +106,28 @@
  * Domain
  */
 
-.overview-domains {
+.overview-domains-list {
   animation: fadeIn 0.5s forwards;
 }
 
-.overview-domain {
-  margin: 30px @side-padding;
+.overview-cards-list {
+  display: flex;
+
+  & > .overview-card,
+  & > .overview-domain-chart {
+    flex: 1;
+  }
 }
 
-.overview-domain-fixed-width {
+.overview-card {
+  margin: 30px 20px;
+}
+
+.overview-card-fixed-width {
   max-width: 560px;
 }
 
-.overview-domain-header {
+.overview-card-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -205,7 +198,6 @@
 }
 
 .overview-domain-measure {
-
 }
 
 .overview-domain-measure-value {
@@ -268,6 +260,7 @@
     margin-bottom: 8px;
     flex: 0 1 auto;
     font-weight: 500;
+    text-align: center;
   }
 
   .overview-detailed-measure + .overview-detailed-measure {
@@ -295,6 +288,13 @@
 .overview-detailed-measure {
   display: flex;
   background-color: #fff;
+}
+
+.overview-detailed-measure-rating {
+  border: none !important;
+  background: none;
+
+  .overview-detailed-measure-value { font-size: 30px; }
 }
 
 .overview-detailed-measure-nutshell,
@@ -364,15 +364,6 @@
  * Charts
  */
 
-.overview-domain-charts {
-  display: flex;
-
-  & > .overview-domain,
-  & > .overview-domain-chart {
-    flex: 1;
-  }
-}
-
 .overview-domain-chart {
   .overview-title {
     display: inline-block;
@@ -380,28 +371,32 @@
   }
 }
 
+.overview-domain-chart + .overview-domain-chart {
+  margin-top: 60px;
+}
+
 .overview-bar-chart {
   width: 100%;
   padding-top: 10px;
   padding-bottom: 15px;
-}
 
-.bar-chart-bar {
-  fill: @blue;
-}
+  .bar-chart-bar {
+    fill: @blue;
+  }
 
-.bar-chart-tick {
-  fill: @secondFontColor;
-  font-size: 11px;
-  text-anchor: middle;
-}
+  .bar-chart-tick {
+    fill: @secondFontColor;
+    font-size: 11px;
+    text-anchor: middle;
+  }
 
-.histogram-tick {
-  text-anchor: end;
-}
+  .histogram-tick {
+    text-anchor: end;
+  }
 
-.histogram-value {
-  text-anchor: start;
+  .histogram-value {
+    text-anchor: start;
+  }
 }
 
 .overview-timeline {
@@ -510,7 +505,9 @@
     cursor: pointer;
     transition: all 0.2s ease;
 
-    &:hover { fill-opacity: 0.8; }
+    &:hover {
+      fill-opacity: 0.8;
+    }
   }
 
   .bubble-chart-grid {
@@ -530,12 +527,29 @@
 }
 
 .overview-donut-chart {
-  display: inline-block;
-  vertical-align: top;
-  margin-right: 8px;
+  position: relative;
+  text-align: center;
+
+  .overview-detailed-measure-value {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
 }
 
+/*
+ * Misc
+ */
 
+.overview-nutshell {
+  background-color: #fff;
+}
+
+.overview-leak {
+  background-color: #fffae7;
+}
 
 /*
  * Responsive Stuff

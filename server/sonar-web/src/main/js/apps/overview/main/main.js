@@ -6,7 +6,7 @@ import { GeneralIssues } from './issues';
 import { GeneralCoverage } from './coverage';
 import { GeneralDuplications } from './duplications';
 import { GeneralSize } from './size';
-import { getPeriodLabel, getPeriodDate } from './../helpers/period-label';
+import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { getMeasuresAndVariations } from '../../../api/measures';
 import { getFacet, getIssuesCount } from '../../../api/issues';
 import { getTimeMachineData } from '../../../api/time-machine';
@@ -157,7 +157,7 @@ export default React.createClass({
 
     let props = _.extend({}, this.props, this.state);
 
-    return <div className="overview-domains">
+    return <div className="overview-domains-list">
       <GeneralIssues {...props} history={this.state.history['sqale_index']}/>
       <GeneralCoverage {...props} history={this.state.history['overall_coverage']}/>
       <GeneralDuplications {...props} history={this.state.history['duplicated_lines_density']}/>

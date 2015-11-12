@@ -3,12 +3,12 @@ import React from 'react';
 
 import { Timeline } from './timeline';
 import { navigate } from '../../../components/router/router';
-import { Legend } from '../common-components';
+import { Legend } from '../components/legend';
 
 
 export const Domain = React.createClass({
   render () {
-    return <div className="overview-domain">{this.props.children}</div>;
+    return <div className="overview-card">{this.props.children}</div>;
   }
 });
 
@@ -50,7 +50,7 @@ export const DomainLeakTitle = React.createClass({
 
 export const DomainHeader = React.createClass({
   render () {
-    return <div className="overview-domain-header">
+    return <div className="overview-card-header">
       <DomainTitle linkTo={this.props.linkTo}>{this.props.title}</DomainTitle>
       <Legend leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
     </div>;

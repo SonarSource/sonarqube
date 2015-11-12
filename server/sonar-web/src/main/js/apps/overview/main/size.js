@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, MeasuresList, Measure, DomainMixin } from './components';
-import DrilldownLink from '../helpers/drilldown-link';
+import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
-import { LanguageDistribution } from '../size/language-distribution';
+import { LanguageDistribution } from '../components/language-distribution';
 
 
 export const GeneralSize = React.createClass({
