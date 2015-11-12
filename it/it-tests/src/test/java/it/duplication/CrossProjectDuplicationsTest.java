@@ -10,7 +10,6 @@ import com.sonar.orchestrator.build.MavenBuild;
 import it.Category4Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
@@ -20,7 +19,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-@Ignore("Cross project duplications are temporary disabled, waiting to be reimplemented in CE or correctly implemented in the batch")
 public class CrossProjectDuplicationsTest {
 
   @ClassRule
@@ -52,7 +50,6 @@ public class CrossProjectDuplicationsTest {
 
   @Test
   public void testMeasures() throws Exception {
-
     Resource project = getResource("com.sonarsource.it.samples.duplications:a");
     assertThat(project, notNullValue());
     assertThat(project.getMeasureIntValue("duplicated_lines"), is(0));
