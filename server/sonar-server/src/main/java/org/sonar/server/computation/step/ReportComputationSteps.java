@@ -53,6 +53,8 @@ public class ReportComputationSteps implements ComputationSteps {
       LoadQualityGateStep.class,
       LoadPeriodsStep.class,
 
+      LoadCrossProjectDuplicationsRepositoryStep.class,
+
       // data computation
       SizeMeasuresStep.class,
       NewCoverageMeasuresStep.class,

@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.analysis;
 
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.snapshot.Snapshot;
 import org.sonar.server.computation.util.InitializedProperty;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
+public class AnalysisMetadataHolderRule extends ExternalResource implements AnalysisMetadataHolder {
 
   private InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
@@ -40,10 +42,8 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
 
   private InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
 
-  @Override
-  public MutableAnalysisMetadataHolder setAnalysisDate(Date date) {
+  public AnalysisMetadataHolderRule setAnalysisDate(Date date) {
     checkNotNull(date, "Date must not be null");
-    checkState(!analysisDate.isInitialized(), "Analysis date has already been set");
     this.analysisDate.setProperty(date.getTime());
     return this;
   }
@@ -59,9 +59,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     return getBaseProjectSnapshot() == null;
   }
 
-  @Override
-  public MutableAnalysisMetadataHolder setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
-    checkState(!this.baseProjectSnapshot.isInitialized(), "Base project snapshot has already been set");
+  public AnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
     this.baseProjectSnapshot.setProperty(baseProjectSnapshot);
     return this;
   }
@@ -73,9 +71,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     return baseProjectSnapshot.getProperty();
   }
 
-  @Override
-  public MutableAnalysisMetadataHolder setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
-    checkState(!this.crossProjectDuplicationEnabled.isInitialized(), "Cross project duplication flag has already been set");
+  public AnalysisMetadataHolderRule setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
     this.crossProjectDuplicationEnabled.setProperty(isCrossProjectDuplicationEnabled);
     return this;
   }
@@ -86,9 +82,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     return crossProjectDuplicationEnabled.getProperty();
   }
 
-  @Override
-  public MutableAnalysisMetadataHolder setBranch(@Nullable String branch) {
-    checkState(!this.branch.isInitialized(), "Branch has already been set");
+  public AnalysisMetadataHolderRule setBranch(@Nullable String branch) {
     this.branch.setProperty(branch);
     return this;
   }
@@ -99,9 +93,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     return branch.getProperty();
   }
 
-  @Override
-  public MutableAnalysisMetadataHolder setRootComponentRef(int rootComponentRef) {
-    checkState(!this.rootComponentRef.isInitialized(), "Root component ref has already been set");
+  public AnalysisMetadataHolderRule setRootComponentRef(int rootComponentRef) {
     this.rootComponentRef.setProperty(rootComponentRef);
     return this;
   }
@@ -111,5 +103,4 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     checkState(rootComponentRef.isInitialized(), "Root component ref has not been set");
     return rootComponentRef.getProperty();
   }
-
 }

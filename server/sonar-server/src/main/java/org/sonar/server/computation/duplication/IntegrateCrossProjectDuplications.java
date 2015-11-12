@@ -1,0 +1,155 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.computation.duplication;
+
+import com.google.common.base.Predicate;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
+import org.sonar.duplications.index.CloneGroup;
+import org.sonar.duplications.index.CloneIndex;
+import org.sonar.duplications.index.ClonePart;
+import org.sonar.duplications.index.PackedMemoryCloneIndex;
+import org.sonar.server.computation.component.Component;
+
+import static com.google.common.collect.FluentIterable.from;
+
+/**
+ * Transform a list of duplication blocks into clone groups, then add these clone groups into the duplication repository.
+ */
+public class IntegrateCrossProjectDuplications {
+
+  private static final Logger LOGGER = Loggers.get(IntegrateCrossProjectDuplications.class);
+
+  private static final String JAVA_KEY = "java";
+
+  private static final int MAX_CLONE_GROUP_PER_FILE = 100;
+  private static final int MAX_CLONE_PART_PER_GROUP = 100;
+
+  private final Settings settings;
+  private final DuplicationRepository duplicationRepository;
+
+  private Map<String, NumberOfUnitsNotLessThan> numberOfUnitsByLanguage = new HashMap<>();
+
+  public IntegrateCrossProjectDuplications(Settings settings, DuplicationRepository duplicationRepository) {
+    this.settings = settings;
+    this.duplicationRepository = duplicationRepository;
+  }
+
+  public void computeCpd(Component component, Collection<Block> originBlocks, Collection<Block> duplicationBlocks) {
+    CloneIndex duplicationIndex = new PackedMemoryCloneIndex();
+    populateIndex(duplicationIndex, originBlocks);
+    populateIndex(duplicationIndex, duplicationBlocks);
+
+    List<CloneGroup> duplications = SuffixTreeCloneDetectionAlgorithm.detect(duplicationIndex, originBlocks);
+    Iterable<CloneGroup> filtered = from(duplications).filter(getNumberOfUnitsNotLessThan(component.getFileAttributes().getLanguageKey()));
+    addDuplications(component, filtered);
+  }
+
+  private static void populateIndex(CloneIndex duplicationIndex, Collection<Block> duplicationBlocks) {
+    for (Block block : duplicationBlocks) {
+      duplicationIndex.insert(block);
+    }
+  }
+
+  private void addDuplications(Component file, Iterable<CloneGroup> duplications) {
+    int cloneGroupCount = 0;
+    for (CloneGroup duplication : duplications) {
+      cloneGroupCount++;
+      if (cloneGroupCount > MAX_CLONE_GROUP_PER_FILE) {
+        LOGGER.warn("Too many duplication groups on file {}. Keeping only the first {} groups.", file.getKey(), MAX_CLONE_GROUP_PER_FILE);
+        break;
+      }
+      addDuplication(file, duplication);
+    }
+  }
+
+  private void addDuplication(Component file, CloneGroup duplication) {
+    ClonePart originPart = duplication.getOriginPart();
+    TextBlock originTextBlock = new TextBlock(originPart.getStartLine(), originPart.getEndLine());
+    int clonePartCount = 0;
+    for (ClonePart part : from(duplication.getCloneParts()).filter(new DoesNotMatchOriginalPart(originPart))) {
+      clonePartCount++;
+      if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
+        LOGGER.warn("Too many duplication references on file {} for block at line {}. Keeping only the first {} references.",
+          file.getKey(), originPart.getStartLine(), MAX_CLONE_PART_PER_GROUP);
+        break;
+      }
+      duplicationRepository.addDuplication(file, originTextBlock, part.getResourceId(),
+        new TextBlock(part.getStartLine(), part.getEndLine()));
+    }
+  }
+
+  private NumberOfUnitsNotLessThan getNumberOfUnitsNotLessThan(String language) {
+    NumberOfUnitsNotLessThan numberOfUnitsNotLessThan = numberOfUnitsByLanguage.get(language);
+    if (numberOfUnitsNotLessThan == null) {
+      numberOfUnitsNotLessThan = new NumberOfUnitsNotLessThan(getMinimumTokens(language));
+      numberOfUnitsByLanguage.put(language, numberOfUnitsNotLessThan);
+    }
+    return numberOfUnitsNotLessThan;
+  }
+
+  private int getMinimumTokens(String languageKey) {
+    // The java language is an exception : it doesn't compute tokens but statement, so the settings could not be used.
+    if (languageKey.equalsIgnoreCase(JAVA_KEY)) {
+      return 0;
+    }
+    int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
+    if (minimumTokens == 0) {
+      return 100;
+    }
+    return minimumTokens;
+  }
+
+  private static class NumberOfUnitsNotLessThan implements Predicate<CloneGroup> {
+    private final int min;
+
+    public NumberOfUnitsNotLessThan(int min) {
+      this.min = min;
+    }
+
+    @Override
+    public boolean apply(@Nonnull CloneGroup input) {
+      return input.getLengthInUnits() >= min;
+    }
+  }
+
+  private static class DoesNotMatchOriginalPart implements Predicate<ClonePart> {
+    private final ClonePart originPart;
+
+    private DoesNotMatchOriginalPart(ClonePart originPart) {
+      this.originPart = originPart;
+    }
+
+    @Override
+    public boolean apply(ClonePart part) {
+      return !part.equals(originPart);
+    }
+  }
+
+}
