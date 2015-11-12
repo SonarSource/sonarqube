@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.permission;
 
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
+import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
 import org.sonarqube.ws.client.WsClient;
 
 import static org.sonarqube.ws.client.WsRequest.newGetRequest;
@@ -146,6 +147,12 @@ public class PermissionsWsClient {
       .setParam(PARAM_USER_LOGIN, request.getLogin())
       .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
+  public WsSearchGlobalPermissionsResponse searchGlobalPermissions() {
+    return wsClient.execute(
+      newGetRequest(action("search_global_permissions")),
+      WsSearchGlobalPermissionsResponse.parser());
   }
 
   private static String action(String action) {
