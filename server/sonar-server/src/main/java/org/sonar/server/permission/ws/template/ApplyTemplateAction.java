@@ -31,12 +31,17 @@ import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.ws.WsProjectRef;
-import org.sonar.server.permission.ws.WsTemplateRef;
+import org.sonarqube.ws.client.permission.ApplyTemplateWsRequest;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsProjectRef.newWsProjectRef;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class ApplyTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -64,11 +69,16 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(Request request, Response response) throws Exception {
+    doHandle(toApplyTemplateWsRequest(request));
+    response.noContent();
+  }
+
+  private void doHandle(ApplyTemplateWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionTemplateDto template = finder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
-      ComponentDto project = finder.getRootComponentOrModule(dbSession, WsProjectRef.newWsProjectRef(wsRequest));
+      PermissionTemplateDto template = finder.getTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
+      ComponentDto project = finder.getRootComponentOrModule(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
 
       ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.create(
         template.getUuid(),
@@ -77,7 +87,13 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
 
-    wsResponse.noContent();
+  private static ApplyTemplateWsRequest toApplyTemplateWsRequest(Request request) {
+    return new ApplyTemplateWsRequest()
+      .setProjectId(request.param(PARAM_PROJECT_ID))
+      .setProjectKey(request.param(PARAM_PROJECT_KEY))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 }

@@ -25,14 +25,15 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Project identifiers from a WS request. Guaranties the project id and project key are not provided at the same time.
  */
 public class WsProjectRef {
+  private static final String MSG_ID_OR_KEY_MUST_BE_PROVIDED = "Project id or project key must be provided, not both.";
   private final String uuid;
   private final String key;
 
@@ -63,9 +64,14 @@ public class WsProjectRef {
   }
 
   public static WsProjectRef newWsProjectRef(Request wsRequest) {
-    checkRequest(hasProjectParam(wsRequest), "Project id or project key must be provided, not both.");
+    checkRequest(hasProjectParam(wsRequest), MSG_ID_OR_KEY_MUST_BE_PROVIDED);
 
     return new WsProjectRef(wsRequest);
+  }
+
+  public static WsProjectRef newWsProjectRef(@Nullable String uuid, @Nullable String key) {
+    checkRequest(uuid == null ^ key == null, MSG_ID_OR_KEY_MUST_BE_PROVIDED);
+    return new WsProjectRef(uuid, key);
   }
 
   @CheckForNull
