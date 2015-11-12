@@ -23,6 +23,8 @@ package org.sonarqube.ws.client.permission;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static java.util.Objects.requireNonNull;
+
 public class AddGroupToTemplateWsRequest {
   private String groupId;
   private String groupName;
@@ -55,7 +57,7 @@ public class AddGroupToTemplateWsRequest {
   }
 
   public AddGroupToTemplateWsRequest setPermission(String permission) {
-    this.permission = permission;
+    this.permission = requireNonNull(permission, "permission must not be null");
     return this;
   }
 
