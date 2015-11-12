@@ -45,11 +45,11 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjec
 import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateGlobalPermission;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_ID;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 

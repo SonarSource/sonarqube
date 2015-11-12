@@ -22,9 +22,9 @@ package org.sonar.server.permission.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-public class PermissionsWs implements WebService {
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
 
-  public static final String ENDPOINT = "api/permissions";
+public class PermissionsWs implements WebService {
 
   private final PermissionsWsAction[] actions;
 

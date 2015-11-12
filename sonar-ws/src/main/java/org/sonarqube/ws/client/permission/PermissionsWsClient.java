@@ -25,10 +25,15 @@ import org.sonarqube.ws.client.WsClient;
 
 import static org.sonarqube.ws.client.WsRequest.newGetRequest;
 import static org.sonarqube.ws.client.WsRequest.newPostRequest;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
 
 public class PermissionsWsClient {
-  private static final String ENDPOINT = "api/permissions/";
-
   private final WsClient wsClient;
 
   public PermissionsWsClient(WsClient wsClient) {
@@ -37,9 +42,9 @@ public class PermissionsWsClient {
 
   public WsPermissions.WsGroupsResponse groups(GroupsWsRequest request) {
     return wsClient.execute(newGetRequest(action("groups"))
-      .setParam("permission", request.getPermission())
-      .setParam("projectId", request.getProjectId())
-      .setParam("projectKey", request.getProjectKey())
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_PROJECT_ID, request.getProjectId())
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize())
       .setParam("selected", request.getSelected())
@@ -49,23 +54,23 @@ public class PermissionsWsClient {
 
   public void addGroup(AddGroupWsRequest request) {
     wsClient.execute(newPostRequest(action("add_group"))
-      .setParam("permission", request.getPermission())
-      .setParam("projectId", request.getProjectId())
-      .setParam("projectKey", request.getProjectKey())
-      .setParam("groupId", request.getGroupId())
-      .setParam("groupName", request.getGroupName()));
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_PROJECT_ID, request.getProjectId())
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
+      .setParam(PARAM_GROUP_ID, request.getGroupId())
+      .setParam(PARAM_GROUP_NAME, request.getGroupName()));
   }
 
   public void addGroupToTemplate(AddGroupToTemplateWsRequest request) {
     wsClient.execute(newPostRequest(action("add_group_to_template"))
-      .setParam("groupId", request.getGroupId())
-      .setParam("groupName", request.getGroupName())
-      .setParam("permission", request.getPermission())
-      .setParam("templateId", request.getTemplateId())
-      .setParam("templateName", request.getTemplateName()));
+      .setParam(PARAM_GROUP_ID, request.getGroupId())
+      .setParam(PARAM_GROUP_NAME, request.getGroupName())
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_TEMPLATE_UUID, request.getTemplateId())
+      .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
   }
 
   private static String action(String action) {
-    return ENDPOINT + action;
+    return PermissionsWsParameters.ENDPOINT + "/" + action;
   }
 }

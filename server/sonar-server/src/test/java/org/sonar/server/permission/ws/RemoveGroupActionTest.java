@@ -53,11 +53,11 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
 
 @Category(DbTests.class)

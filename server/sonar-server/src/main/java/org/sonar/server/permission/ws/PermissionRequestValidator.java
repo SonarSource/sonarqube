@@ -33,9 +33,9 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PATTERN;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PATTERN;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionRequestValidator {

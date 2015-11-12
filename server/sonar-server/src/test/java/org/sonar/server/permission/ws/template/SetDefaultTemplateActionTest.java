@@ -62,9 +62,9 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_QUALIFIER;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
 public class SetDefaultTemplateActionTest {

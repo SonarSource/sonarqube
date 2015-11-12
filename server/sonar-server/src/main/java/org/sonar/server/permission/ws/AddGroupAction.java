@@ -29,15 +29,15 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_ID;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createGroupIdParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createGroupNameParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.usergroups.ws.WsGroupRef.newWsGroupRef;
 

@@ -27,23 +27,7 @@ import org.sonar.core.util.Uuids;
 
 import static java.lang.String.format;
 
-public class PermissionsWsParameters {
-
-  public static final String PARAM_PERMISSION = "permission";
-  public static final String PARAM_GROUP_NAME = "groupName";
-  public static final String PARAM_GROUP_ID = "groupId";
-  public static final String PARAM_PROJECT_ID = "projectId";
-  public static final String PARAM_PROJECT_KEY = "projectKey";
-  public static final String PARAM_USER_LOGIN = "login";
-  public static final String PARAM_TEMPLATE_UUID = "templateId";
-  public static final String PARAM_TEMPLATE_NAME = "templateName";
-
-  public static final String PARAM_ID = "id";
-  public static final String PARAM_NAME = "name";
-  public static final String PARAM_DESCRIPTION = "description";
-  public static final String PARAM_PATTERN = "projectKeyPattern";
-
-  public static final String PARAM_QUALIFIER = "qualifier";
+public class PermissionsWsParametersBuilder {
 
   private static final String PERMISSION_PARAM_DESCRIPTION = format("Permission" +
     "<ul>" +
@@ -58,30 +42,30 @@ public class PermissionsWsParameters {
     "</ul>",
     ProjectPermissions.ALL_ON_ONE_LINE);
 
-  private PermissionsWsParameters() {
+  private PermissionsWsParametersBuilder() {
     // static methods only
   }
 
   public static void createPermissionParameter(NewAction action) {
-    action.createParam(PARAM_PERMISSION)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION)
       .setDescription(PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true);
   }
 
   public static void createProjectPermissionParameter(NewAction action) {
-    action.createParam(PARAM_PERMISSION)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION)
       .setDescription(PROJECT_PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true);
   }
 
   public static void createGroupNameParameter(NewAction action) {
-    action.createParam(PARAM_GROUP_NAME)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME)
       .setDescription("Group name or 'anyone' (case insensitive)")
       .setExampleValue("sonar-administrators");
   }
 
   public static void createGroupIdParameter(NewAction action) {
-    action.createParam(PARAM_GROUP_ID)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID)
       .setDescription("Group id")
       .setExampleValue("42");
   }
@@ -92,19 +76,19 @@ public class PermissionsWsParameters {
   }
 
   private static void createProjectIdParameter(NewAction action) {
-    action.createParam(PARAM_PROJECT_ID)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID)
       .setDescription("Project id")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
   }
 
   private static void createProjectKeyParameter(NewAction action) {
-    action.createParam(PARAM_PROJECT_KEY)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY)
       .setDescription("Project key")
       .setExampleValue("org.apache.hbas:hbase");
   }
 
   public static void createUserLoginParameter(NewAction action) {
-    action.createParam(PARAM_USER_LOGIN)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN)
       .setRequired(true)
       .setDescription("User login")
       .setExampleValue("g.hopper");
@@ -116,31 +100,31 @@ public class PermissionsWsParameters {
   }
 
   private static void createTemplateIdParameter(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_UUID)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID)
       .setDescription("Template id")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }
 
   private static void createTemplateNameParameter(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_NAME)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME)
       .setDescription("Template name")
       .setExampleValue("Default Permission Template for Projects");
   }
 
   public static void createTemplateProjectKeyPatternParameter(NewAction action) {
-    action.createParam(PARAM_PATTERN)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PATTERN)
       .setDescription("Project key pattern. Must be a valid Java regular expression")
       .setExampleValue(".*\\.finance\\..*");
   }
 
   public static void createTemplateDescriptionParameter(NewAction action) {
-    action.createParam(PARAM_DESCRIPTION)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION)
       .setDescription("Description")
       .setExampleValue("Permissions for all projects related to the financial service");
   }
 
   public static void createIdParameter(NewAction action) {
-    action.createParam(PARAM_ID)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID)
       .setRequired(true)
       .setDescription("Id")
       .setExampleValue("af8cb8cc-1e78-4c4e-8c00-ee8e814009a5");

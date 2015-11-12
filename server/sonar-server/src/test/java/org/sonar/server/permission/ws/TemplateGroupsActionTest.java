@@ -62,9 +62,9 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateGroupDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @Category(DbTests.class)

@@ -31,7 +31,7 @@ import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.WsTemplateRef.fromRequest;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 

@@ -45,7 +45,7 @@ import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.component.ws.WsComponentsParameters.PARAM_QUALIFIERS;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 

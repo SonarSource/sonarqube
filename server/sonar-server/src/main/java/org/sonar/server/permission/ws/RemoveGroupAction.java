@@ -29,10 +29,10 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createGroupIdParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createGroupNameParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
 
 public class RemoveGroupAction implements PermissionsWsAction {
 

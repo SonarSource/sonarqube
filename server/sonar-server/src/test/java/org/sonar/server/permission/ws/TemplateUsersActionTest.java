@@ -122,7 +122,7 @@ public class TemplateUsersActionTest {
   @Test
   public void search_for_users_by_template_name() throws IOException {
     InputStream responseStream = newRequest(UserRole.USER, null)
-      .setParam(PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
+      .setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
       .setMediaType(PROTOBUF)
       .execute().getInputStream();
 
@@ -134,7 +134,7 @@ public class TemplateUsersActionTest {
   @Test
   public void search_using_text_query() throws IOException {
     InputStream responseStream = newRequest(UserRole.USER, null)
-      .setParam(PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
+      .setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
       .setParam(WebService.Param.TEXT_QUERY, "ame-1")
       .setMediaType(PROTOBUF)
       .execute().getInputStream();
@@ -147,7 +147,7 @@ public class TemplateUsersActionTest {
   @Test
   public void search_using_selected() throws IOException {
     InputStream responseStream = newRequest(UserRole.USER, null)
-      .setParam(PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
+      .setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
       .setParam(WebService.Param.SELECTED, "all")
       .setMediaType(PROTOBUF)
       .execute().getInputStream();
@@ -161,7 +161,7 @@ public class TemplateUsersActionTest {
   @Test
   public void search_with_pagination() throws IOException {
     InputStream responseStream = newRequest(UserRole.USER, null)
-      .setParam(PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
+      .setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
       .setParam(WebService.Param.SELECTED, "all")
       .setParam(WebService.Param.PAGE, "2")
       .setParam(WebService.Param.PAGE_SIZE, "1")
@@ -194,7 +194,7 @@ public class TemplateUsersActionTest {
     expectedException.expect(BadRequestException.class);
 
     newRequest(UserRole.USER, template1.getUuid())
-      .setParam(PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
+      .setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME, template1.getName())
       .execute();
   }
 
@@ -236,9 +236,9 @@ public class TemplateUsersActionTest {
 
   private TestRequest newRequest(String permission, @Nullable String templateUuid) {
     TestRequest request = ws.newRequest();
-    request.setParam(PermissionsWsParameters.PARAM_PERMISSION, permission);
+    request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION, permission);
     if (templateUuid != null) {
-      request.setParam(PermissionsWsParameters.PARAM_TEMPLATE_UUID, templateUuid);
+      request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID, templateUuid);
     }
 
     return request;

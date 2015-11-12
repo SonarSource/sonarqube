@@ -39,11 +39,11 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_USER_LOGIN;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createTemplateParameters;
-import static org.sonar.server.permission.ws.PermissionsWsParameters.createUserLoginParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 
 public class AddUserToTemplateAction implements PermissionsWsAction {
