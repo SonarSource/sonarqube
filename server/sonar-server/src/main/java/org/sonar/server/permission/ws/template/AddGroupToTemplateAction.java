@@ -31,20 +31,26 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.usergroups.ws.WsGroupRef;
-import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.usergroups.ws.WsGroupRef;
+import org.sonarqube.ws.client.permission.AddGroupToTemplateWsRequest;
 
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonar.server.permission.ws.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParameters.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.usergroups.ws.WsGroupRef.newWsGroupRef;
 
 public class AddGroupToTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -75,18 +81,23 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(Request wsRequest, Response wsResponse) {
     checkGlobalAdminUser(userSession);
+    doHandle(toAddGroupToTemplateWsRequest(wsRequest));
+    wsResponse.noContent();
+  }
 
-    String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    WsGroupRef group = WsGroupRef.newWsGroupRefFromPermissionRequest(wsRequest);
+  private void doHandle(AddGroupToTemplateWsRequest wsRequest) {
+    String permission = wsRequest.getPermission();
+    Long requestGroupId = wsRequest.getGroupId() == null ? null : Long.valueOf(wsRequest.getGroupId());
+    WsGroupRef group = newWsGroupRef(requestGroupId, wsRequest.getGroupName());
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
       validateNotAnyoneAndAdminPermission(permission, group.name());
 
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, newTemplateRef(wsRequest.getTemplateId(), wsRequest.getTemplateName()));
       GroupDto groupDto = dependenciesFinder.getGroup(dbSession, group);
 
       if (!groupAlreadyAdded(dbSession, template.getId(), groupDto, permission)) {
@@ -96,13 +107,20 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
-
-    wsResponse.noContent();
   }
 
   private boolean groupAlreadyAdded(DbSession dbSession, long templateId, @Nullable GroupDto group, String permission) {
     String groupName = group == null ? ANYONE : group.getName();
     PermissionQuery permissionQuery = PermissionQuery.builder().membership(IN).permission(permission).build();
     return dbClient.permissionTemplateDao().hasGroup(dbSession, permissionQuery, templateId, groupName);
+  }
+
+  private static AddGroupToTemplateWsRequest toAddGroupToTemplateWsRequest(Request request) {
+    return new AddGroupToTemplateWsRequest()
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setGroupId(request.param(PARAM_GROUP_ID))
+      .setGroupName(request.param(PARAM_GROUP_NAME))
+      .setTemplateId(request.param(PARAM_TEMPLATE_UUID))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 }

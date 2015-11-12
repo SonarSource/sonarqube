@@ -27,6 +27,8 @@ import static org.sonarqube.ws.client.WsRequest.newGetRequest;
 import static org.sonarqube.ws.client.WsRequest.newPostRequest;
 
 public class PermissionsWsClient {
+  private static final String ENDPOINT = "api/permissions/";
+
   private final WsClient wsClient;
 
   public PermissionsWsClient(WsClient wsClient) {
@@ -34,7 +36,7 @@ public class PermissionsWsClient {
   }
 
   public WsPermissions.WsGroupsResponse groups(GroupsWsRequest request) {
-    return wsClient.execute(newGetRequest("api/permissions/groups")
+    return wsClient.execute(newGetRequest(action("groups"))
       .setParam("permission", request.getPermission())
       .setParam("projectId", request.getProjectId())
       .setParam("projectKey", request.getProjectKey())
@@ -46,11 +48,24 @@ public class PermissionsWsClient {
   }
 
   public void addGroup(AddGroupWsRequest request) {
-    wsClient.execute(newPostRequest("api/permissions/add_group")
+    wsClient.execute(newPostRequest(action("add_group"))
       .setParam("permission", request.getPermission())
       .setParam("projectId", request.getProjectId())
       .setParam("projectKey", request.getProjectKey())
       .setParam("groupId", request.getGroupId())
       .setParam("groupName", request.getGroupName()));
+  }
+
+  public void addGroupToTemplate(AddGroupToTemplateWsRequest request) {
+    wsClient.execute(newPostRequest(action("add_group_to_template"))
+      .setParam("groupId", request.getGroupId())
+      .setParam("groupName", request.getGroupName())
+      .setParam("permission", request.getPermission())
+      .setParam("templateId", request.getTemplateId())
+      .setParam("templateName", request.getTemplateName()));
+  }
+
+  private static String action(String action) {
+    return ENDPOINT + action;
   }
 }
