@@ -41,7 +41,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
-import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
@@ -79,7 +79,7 @@ public class ScmInfoRepositoryImplTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
-  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
@@ -217,7 +217,7 @@ public class ScmInfoRepositoryImplTest {
   private void addFileSourceInDb(@Nullable String author, @Nullable Long date, @Nullable String revision, String srcHash) {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     DbFileSources.Line.Builder builder = fileDataBuilder.addLinesBuilder()
-        .setLine(1);
+      .setLine(1);
     if (author != null) {
       builder.setScmAuthor(author);
     }
