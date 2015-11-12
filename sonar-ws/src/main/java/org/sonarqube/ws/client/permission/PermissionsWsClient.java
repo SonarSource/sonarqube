@@ -108,6 +108,12 @@ public class PermissionsWsClient {
       CreateTemplateWsResponse.parser());
   }
 
+  public void deleteTemplate(DeleteTemplateWsRequest request) {
+    wsClient.execute(newPostRequest(action("delete_template"))
+      .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
+      .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
   private static String action(String action) {
     return PermissionsWsParameters.ENDPOINT + "/" + action;
   }

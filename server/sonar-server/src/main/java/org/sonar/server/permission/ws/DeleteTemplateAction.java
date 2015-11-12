@@ -29,11 +29,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.permission.DeleteTemplateWsRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
-import static org.sonar.server.permission.ws.WsTemplateRef.fromRequest;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
 import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class DeleteTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -61,20 +64,28 @@ public class DeleteTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(Request request, Response response) throws Exception {
     checkGlobalAdminUser(userSession);
+    doHandle(toDeleteTemplateWsRequest(request));
+    response.noContent();
+  }
 
+  private void doHandle(DeleteTemplateWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionTemplateDto template = finder.getTemplate(dbSession, fromRequest(wsRequest));
+      PermissionTemplateDto template = finder.getTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
       checkTemplateUuidIsNotDefault(template.getUuid());
       dbClient.permissionTemplateDao().deleteById(dbSession, template.getId());
       dbSession.commit();
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
 
-    wsResponse.noContent();
+  private static DeleteTemplateWsRequest toDeleteTemplateWsRequest(Request request) {
+    return new DeleteTemplateWsRequest()
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
   private void checkTemplateUuidIsNotDefault(String key) {
