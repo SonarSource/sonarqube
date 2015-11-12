@@ -29,7 +29,7 @@ public class PermissionsWsParameters {
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_USER_LOGIN = "login";
-  public static final String PARAM_TEMPLATE_UUID = "templateId";
+  public static final String PARAM_TEMPLATE_ID = "templateId";
   public static final String PARAM_TEMPLATE_NAME = "templateName";
   public static final String PARAM_ID = "id";
   public static final String PARAM_NAME = "name";

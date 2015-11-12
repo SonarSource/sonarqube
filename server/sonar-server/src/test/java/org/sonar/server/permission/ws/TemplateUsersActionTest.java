@@ -238,7 +238,7 @@ public class TemplateUsersActionTest {
     TestRequest request = ws.newRequest();
     request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION, permission);
     if (templateUuid != null) {
-      request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID, templateUuid);
+      request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID, templateUuid);
     }
 
     return request;

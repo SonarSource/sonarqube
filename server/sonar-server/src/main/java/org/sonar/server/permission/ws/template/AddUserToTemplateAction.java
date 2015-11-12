@@ -33,18 +33,21 @@ import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class AddUserToTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -73,16 +76,20 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(Request request, Response response) throws Exception {
     checkGlobalAdminUser(userSession);
+    doHandle(toAddUserToTemplateWsRequest(request));
+    response.noContent();
+  }
 
-    String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    final String userLogin = wsRequest.mandatoryParam(PARAM_USER_LOGIN);
+  private void doHandle(AddUserToTemplateWsRequest request) {
+    String permission = request.getPermission();
+    final String userLogin = request.getLogin();
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
       UserDto user = dependenciesFinder.getUser(dbSession, userLogin);
 
       if (!isUserAlreadyAdded(dbSession, template.getId(), userLogin, permission)) {
@@ -91,8 +98,14 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
 
-    wsResponse.noContent();
+  private static AddUserToTemplateWsRequest toAddUserToTemplateWsRequest(Request request) {
+    return new AddUserToTemplateWsRequest()
+      .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
   private boolean isUserAlreadyAdded(DbSession dbSession, long templateId, String userLogin, String permission) {

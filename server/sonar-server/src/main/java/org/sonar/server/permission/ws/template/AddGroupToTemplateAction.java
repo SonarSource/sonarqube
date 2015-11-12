@@ -44,7 +44,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_G
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
@@ -120,7 +120,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setGroupId(request.param(PARAM_GROUP_ID))
       .setGroupName(request.param(PARAM_GROUP_NAME))
-      .setTemplateId(request.param(PARAM_TEMPLATE_UUID))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 }

@@ -100,7 +100,7 @@ public class PermissionsWsParametersBuilder {
   }
 
   private static void createTemplateIdParameter(NewAction action) {
-    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID)
       .setDescription("Template id")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }

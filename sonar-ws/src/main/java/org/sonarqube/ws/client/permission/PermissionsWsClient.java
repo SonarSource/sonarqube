@@ -30,8 +30,8 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_G
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class PermissionsWsClient {
@@ -67,7 +67,7 @@ public class PermissionsWsClient {
       .setParam(PARAM_GROUP_ID, request.getGroupId())
       .setParam(PARAM_GROUP_NAME, request.getGroupName())
       .setParam(PARAM_PERMISSION, request.getPermission())
-      .setParam(PARAM_TEMPLATE_UUID, request.getTemplateId())
+      .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
   }
 
@@ -77,6 +77,14 @@ public class PermissionsWsClient {
       .setParam(PARAM_PERMISSION, request.getPermission())
       .setParam(PARAM_PROJECT_ID, request.getProjectId())
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey()));
+  }
+
+  public void addUserToTemplate(AddUserToTemplateWsRequest request) {
+    wsClient.execute(newPostRequest(action("add_user_to_template"))
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_USER_LOGIN, request.getLogin())
+      .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
+      .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
   }
 
   private static String action(String action) {

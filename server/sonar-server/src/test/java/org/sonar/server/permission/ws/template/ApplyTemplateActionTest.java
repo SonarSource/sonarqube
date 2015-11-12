@@ -74,7 +74,7 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
@@ -238,7 +238,7 @@ public class ApplyTemplateActionTest {
   private TestResponse newRequest(@Nullable String templateUuid, @Nullable String projectUuid, @Nullable String projectKey) {
     TestRequest request = ws.newRequest();
     if (templateUuid != null) {
-      request.setParam(PARAM_TEMPLATE_UUID, templateUuid);
+      request.setParam(PARAM_TEMPLATE_ID, templateUuid);
     }
     if (projectUuid != null) {
       request.setParam(PARAM_PROJECT_ID, projectUuid);

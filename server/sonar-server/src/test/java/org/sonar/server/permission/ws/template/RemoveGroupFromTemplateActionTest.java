@@ -63,7 +63,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_G
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 
 @Category(DbTests.class)
 public class RemoveGroupFromTemplateActionTest {
@@ -130,7 +130,7 @@ public class RemoveGroupFromTemplateActionTest {
     commit();
 
     ws.newRequest()
-      .setParam(PARAM_TEMPLATE_UUID, permissionTemplate.getUuid())
+      .setParam(PARAM_TEMPLATE_ID, permissionTemplate.getUuid())
       .setParam(PARAM_PERMISSION, PERMISSION)
       .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
       .execute();
@@ -222,7 +222,7 @@ public class RemoveGroupFromTemplateActionTest {
       request.setParam(PARAM_GROUP_NAME, groupName);
     }
     if (templateKey != null) {
-      request.setParam(PARAM_TEMPLATE_UUID, templateKey);
+      request.setParam(PARAM_TEMPLATE_ID, templateKey);
     }
     if (permission != null) {
       request.setParam(PARAM_PERMISSION, permission);

@@ -212,7 +212,7 @@ public class RemoveUserFromTemplateActionTest {
       request.setParam(PARAM_USER_LOGIN, userLogin);
     }
     if (templateKey != null) {
-      request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID, templateKey);
+      request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID, templateKey);
     }
     if (permission != null) {
       request.setParam(PARAM_PERMISSION, permission);

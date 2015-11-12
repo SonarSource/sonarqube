@@ -64,7 +64,7 @@ import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTem
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @Category(DbTests.class)
@@ -129,7 +129,7 @@ public class TemplateGroupsActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
-      .setParam(PARAM_TEMPLATE_UUID, template1.getUuid())
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
       .execute().getInput();
 
     assertJson(response)
@@ -156,7 +156,7 @@ public class TemplateGroupsActionTest {
     InputStream responseStream = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_PERMISSION, UserRole.ADMIN)
-      .setParam(PARAM_TEMPLATE_UUID, template1.getUuid())
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInputStream();
@@ -215,7 +215,7 @@ public class TemplateGroupsActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PERMISSION, UserRole.USER)
-      .setParam(PARAM_TEMPLATE_UUID, template1.getUuid())
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
       .execute();
   }
 
@@ -226,7 +226,7 @@ public class TemplateGroupsActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PERMISSION, UserRole.USER)
-      .setParam(PARAM_TEMPLATE_UUID, template1.getUuid())
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
       .execute();
   }
 
@@ -236,7 +236,7 @@ public class TemplateGroupsActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PERMISSION, UserRole.USER)
-      .setParam(PARAM_TEMPLATE_UUID, template1.getUuid())
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
       .execute();
   }
@@ -256,7 +256,7 @@ public class TemplateGroupsActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PERMISSION, UserRole.USER)
-      .setParam(PARAM_TEMPLATE_UUID, "unknown-uuid")
+      .setParam(PARAM_TEMPLATE_ID, "unknown-uuid")
       .execute();
   }
 
@@ -266,7 +266,7 @@ public class TemplateGroupsActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PERMISSION, GlobalPermissions.DASHBOARD_SHARING)
-      .setParam(PARAM_TEMPLATE_UUID, template1.getUuid())
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
       .execute();
   }
 

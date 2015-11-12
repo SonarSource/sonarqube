@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -44,7 +44,7 @@ public class WsTemplateRef {
   }
 
   public static WsTemplateRef fromRequest(Request wsRequest) {
-    String uuid = wsRequest.param(PARAM_TEMPLATE_UUID);
+    String uuid = wsRequest.param(PARAM_TEMPLATE_ID);
     String name = wsRequest.param(PARAM_TEMPLATE_NAME);
 
     return new WsTemplateRef(uuid, name);
