@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -27,11 +28,17 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ws.PermissionRequest.Builder;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
 
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validatePermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
+import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class AddUserAction implements PermissionsWsAction {
 
@@ -64,15 +71,32 @@ public class AddUserAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    doHandle(toAddUserWsRequest(request));
+    response.noContent();
+  }
+
+  private void doHandle(AddUserWsRequest request) {
+    Optional<WsProjectRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
+    validatePermission(request.getPermission(), projectRef);
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionRequest permissionRequest = new Builder(request).withUser().build();
-      PermissionChange permissionChange = permissionChangeBuilder.buildUserPermissionChange(dbSession, permissionRequest);
+      PermissionChange permissionChange = permissionChangeBuilder.buildUserPermissionChange(
+        dbSession,
+        request.getPermission(),
+        projectRef,
+        request.getLogin());
       permissionUpdater.addPermission(permissionChange);
 
-      response.noContent();
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private static AddUserWsRequest toAddUserWsRequest(Request request) {
+    return new AddUserWsRequest()
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
+      .setProjectId(request.param(PARAM_PROJECT_ID))
+      .setProjectKey(request.param(PARAM_PROJECT_KEY));
   }
 }

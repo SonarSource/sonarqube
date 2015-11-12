@@ -53,12 +53,13 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
-import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
 @Category(DbTests.class)
 public class RemoveGroupActionTest {
@@ -204,7 +205,7 @@ public class RemoveGroupActionTest {
   public void fail_when_get_request() throws Exception {
     expectedException.expect(ServerException.class);
 
-    ws.newGetRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newGetRequest(ENDPOINT, ACTION)
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -255,7 +256,7 @@ public class RemoveGroupActionTest {
   }
 
   private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION);
+    return ws.newPostRequest(ENDPOINT, ACTION);
   }
 
   private GroupDto insertGroup(String groupName) {

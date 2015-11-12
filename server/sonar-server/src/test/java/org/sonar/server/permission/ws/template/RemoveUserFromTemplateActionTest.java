@@ -46,7 +46,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.permission.ws.PermissionsWsParametersBuilder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -216,7 +215,7 @@ public class RemoveUserFromTemplateActionTest {
       request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID, templateKey);
     }
     if (permission != null) {
-      request.setParam(PermissionsWsParametersBuilder.PARAM_PERMISSION, permission);
+      request.setParam(PARAM_PERMISSION, permission);
     }
 
     request.execute();
@@ -238,8 +237,8 @@ public class RemoveUserFromTemplateActionTest {
     PermissionQuery permissionQuery = PermissionQuery.builder().permission(permission).membership(IN).build();
     return from(dbClient.permissionTemplateDao()
       .selectUsers(dbSession, permissionQuery, templateId, 0, Integer.MAX_VALUE))
-      .transform(UserWithPermissionToUserLogin.INSTANCE)
-      .toList();
+        .transform(UserWithPermissionToUserLogin.INSTANCE)
+        .toList();
   }
 
   private enum UserWithPermissionToUserLogin implements Function<UserWithPermissionDto, String> {

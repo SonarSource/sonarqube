@@ -67,7 +67,11 @@ public class RemoveUserAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionRequest permissionRequest = new Builder(request).withUser().build();
-      PermissionChange permissionChange = permissionChangeBuilder.buildUserPermissionChange(dbSession, permissionRequest);
+      PermissionChange permissionChange = permissionChangeBuilder.buildUserPermissionChange(
+        dbSession,
+        permissionRequest.permission(),
+        permissionRequest.project(),
+        permissionRequest.userLogin());
       permissionUpdater.removePermission(permissionChange);
 
       response.noContent();

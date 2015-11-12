@@ -32,6 +32,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class PermissionsWsClient {
   private final WsClient wsClient;
@@ -68,6 +69,14 @@ public class PermissionsWsClient {
       .setParam(PARAM_PERMISSION, request.getPermission())
       .setParam(PARAM_TEMPLATE_UUID, request.getTemplateId())
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
+  public void addUser(AddUserWsRequest request) {
+    wsClient.execute(newPostRequest(action("add_user"))
+      .setParam(PARAM_USER_LOGIN, request.getLogin())
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_PROJECT_ID, request.getProjectId())
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey()));
   }
 
   private static String action(String action) {

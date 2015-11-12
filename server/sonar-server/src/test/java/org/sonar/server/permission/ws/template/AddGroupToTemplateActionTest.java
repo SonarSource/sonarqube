@@ -47,7 +47,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.permission.ws.PermissionsWsParametersBuilder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -66,8 +65,8 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID;
 
 @Category(DbTests.class)
 public class AddGroupToTemplateActionTest {
@@ -217,13 +216,13 @@ public class AddGroupToTemplateActionTest {
   private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = ws.newRequest();
     if (groupName != null) {
-      request.setParam(PermissionsWsParametersBuilder.PARAM_GROUP_NAME, groupName);
+      request.setParam(PARAM_GROUP_NAME, groupName);
     }
     if (templateKey != null) {
       request.setParam(PARAM_TEMPLATE_UUID, templateKey);
     }
     if (permission != null) {
-      request.setParam(PermissionsWsParametersBuilder.PARAM_PERMISSION, permission);
+      request.setParam(PARAM_PERMISSION, permission);
     }
 
     request.execute();

@@ -46,7 +46,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
-import org.sonar.server.permission.ws.PermissionsWsParametersBuilder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -192,7 +191,7 @@ public class AddUserToTemplateActionTest {
       request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_UUID, templateKey);
     }
     if (permission != null) {
-      request.setParam(PermissionsWsParametersBuilder.PARAM_PERMISSION, permission);
+      request.setParam(PARAM_PERMISSION, permission);
     }
 
     request.execute();

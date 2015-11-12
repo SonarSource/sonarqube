@@ -53,7 +53,7 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
-import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;

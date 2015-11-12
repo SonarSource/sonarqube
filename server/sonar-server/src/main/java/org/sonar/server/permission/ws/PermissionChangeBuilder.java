@@ -36,11 +36,11 @@ public class PermissionChangeBuilder {
     this.dependenciesFinder = dependenciesFinder;
   }
 
-  public PermissionChange buildUserPermissionChange(DbSession dbSession, PermissionRequest request) {
+  public PermissionChange buildUserPermissionChange(DbSession dbSession, String permission, Optional<WsProjectRef> projectRef, String login) {
     PermissionChange permissionChange = new PermissionChange()
-      .setPermission(request.permission())
-      .setUserLogin(request.userLogin());
-    addProjectToPermissionChange(dbSession, permissionChange, request.project());
+      .setPermission(permission)
+      .setUserLogin(login);
+    addProjectToPermissionChange(dbSession, permissionChange, projectRef);
 
     return permissionChange;
   }

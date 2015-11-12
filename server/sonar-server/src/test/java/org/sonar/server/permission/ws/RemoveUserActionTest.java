@@ -52,12 +52,12 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
-import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 import static org.sonar.server.permission.ws.RemoveUserAction.ACTION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 @Category(DbTests.class)
 public class RemoveUserActionTest {
@@ -86,7 +86,7 @@ public class RemoveUserActionTest {
 
   @Test
   public void call_permission_service_with_right_data() throws Exception {
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -101,7 +101,7 @@ public class RemoveUserActionTest {
   public void remove_with_project_uuid() throws Exception {
     insertComponent(newProjectDto("project-uuid").setKey("project-key"));
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -116,7 +116,7 @@ public class RemoveUserActionTest {
   public void remove_with_project_key() throws Exception {
     insertComponent(newProjectDto("project-uuid").setKey("project-key"));
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_KEY, "project-key")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -131,7 +131,7 @@ public class RemoveUserActionTest {
   public void remove_with_view_uuid() throws Exception {
     insertComponent(newView("view-uuid").setKey("view-key"));
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "view-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -146,7 +146,7 @@ public class RemoveUserActionTest {
   public void fail_when_project_does_not_exist() throws Exception {
     expectedException.expect(NotFoundException.class);
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
@@ -157,7 +157,7 @@ public class RemoveUserActionTest {
   public void fail_when_project_permission_without_permission() throws Exception {
     expectedException.expect(BadRequestException.class);
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
@@ -168,7 +168,7 @@ public class RemoveUserActionTest {
     expectedException.expect(BadRequestException.class);
     insertComponent(newFileDto(newProjectDto(), "file-uuid"));
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "file-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -179,7 +179,7 @@ public class RemoveUserActionTest {
   public void fail_when_get_request() throws Exception {
     expectedException.expect(ServerException.class);
 
-    ws.newGetRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newGetRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "george.orwell")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -189,7 +189,7 @@ public class RemoveUserActionTest {
   public void fail_when_user_login_is_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -198,7 +198,7 @@ public class RemoveUserActionTest {
   public void fail_when_permission_is_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+    ws.newPostRequest(ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "jrr.tolkien")
       .execute();
   }

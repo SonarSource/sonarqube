@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.WebService;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
 
 public class PermissionsWs implements WebService {
-
   private final PermissionsWsAction[] actions;
 
   public PermissionsWs(PermissionsWsAction... actions) {

@@ -53,7 +53,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.AddUserAction.ACTION;
-import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
