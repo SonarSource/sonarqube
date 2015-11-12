@@ -53,6 +53,8 @@ public class ReportComputationSteps implements ComputationSteps {
       LoadQualityGateStep.class,
       LoadPeriodsStep.class,
 
+      // load duplications related stuff
+      LoadDuplicationsFromReportStep.class,
       LoadCrossProjectDuplicationsRepositoryStep.class,
 
       // data computation
@@ -61,8 +63,8 @@ public class ReportComputationSteps implements ComputationSteps {
       CoverageMeasuresStep.class,
       CommentMeasuresStep.class,
       CustomMeasuresCopyStep.class,
-      LoadDuplicationsFromReportStep.class,
       DuplicationMeasuresStep.class,
+      DuplicationDataMeasuresStep.class,
       LanguageDistributionMeasuresStep.class,
       UnitTestMeasuresStep.class,
       ComplexityMeasuresStep.class,
@@ -89,7 +91,6 @@ public class ReportComputationSteps implements ComputationSteps {
       PersistIssuesStep.class,
       PersistProjectLinksStep.class,
       PersistEventsStep.class,
-      PersistDuplicationsStep.class,
       PersistFileSourcesStep.class,
       PersistTestsStep.class,
       PersistCrossProjectDuplicationIndexStep.class,
