@@ -102,9 +102,10 @@ public class ViewerApplication {
 
   private void loadReport() {
     final JFileChooser fc = new JFileChooser();
-    fc.setDialogTitle("Choose batch report directory");
+    fc.setDialogTitle("Choose scanner report directory");
     fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    fc.setApproveButtonText("Open batch report");
+    fc.setFileHidingEnabled(false);
+    fc.setApproveButtonText("Open scanner report");
     int returnVal = fc.showOpenDialog(frame);
     if (returnVal == JFileChooser.APPROVE_OPTION) {
       File file = fc.getSelectedFile();

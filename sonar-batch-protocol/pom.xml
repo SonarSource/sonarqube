@@ -64,6 +64,8 @@
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
+          <finalName>scanner-report-viewer-${project.version}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
           <archive>
             <manifest>
               <mainClass>org.sonar.batch.protocol.viewer.ViewerApplication</mainClass>
