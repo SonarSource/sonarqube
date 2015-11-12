@@ -3,19 +3,16 @@
 
 .select-list-container {
   min-width: 500px;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
 .select-list-control {
   margin-bottom: 10px;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
 .select-list-list-container {
   border: 1px solid #bfbfbf;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
@@ -39,48 +36,37 @@
   overflow-x: hidden;
 }
 
-  .select-list-list > li {
-    position: relative;
-    display: block;
-    margin-top: -1px;
-    padding: 5px 10px;
-    border-top: 1px solid #e0e0e0;
-    color: #404040;
-    transition: -webkit-transform 0.3s ease;
-    transition: -ms-transform 0.3s ease;
-    transition: transform 0.3s ease;
-  }
+.select-list-list > li {
+  position: relative;
+  display: block;
+  margin-top: -1px;
+  padding: 5px 10px;
+  border-top: 1px solid #e0e0e0;
+  color: #404040;
+  transition: transform 0.3s ease;
+}
 
-  .select-list-list > li.removed {
-    -webkit-transform: translateX(100%);
-       -moz-transform: translateX(100%);
-        -ms-transform: translateX(100%);
-         -o-transform: translateX(100%);
-            transform: translateX(100%);
-  }
+.select-list-list > li.removed {
+  transform: translateX(100%);
+}
 
-  .select-list-list > li.added {
-    -webkit-transform: translateX(-100%);
-       -moz-transform: translateX(-100%);
-        -ms-transform: translateX(-100%);
-         -o-transform: translateX(-100%);
-            transform: translateX(-100%);
-  }
+.select-list-list > li.added {
+  transform: translateX(-100%);
+}
 
-  .select-list-list > li.progress {
-    background: url(../images/loading.gif) no-repeat 10px 5px;
-  }
+.select-list-list > li.progress {
+  background: url(../images/loading.gif) no-repeat 10px 5px;
+}
 
-  .select-list-list > li.progress .select-list-list-checkbox {
-    visibility: hidden;
-  }
+.select-list-list > li.progress .select-list-list-checkbox {
+  visibility: hidden;
+}
 
-  .select-list-list > li.empty-message {
-    padding: 6px 5px;
-    border: 1px solid #ddd;
-    background-color: #efefef;
-  }
-
+.select-list-list > li.empty-message {
+  padding: 6px 5px;
+  border: 1px solid #ddd;
+  background-color: #efefef;
+}
 
 .select-list-list-checkbox {
   display: inline-block;
@@ -121,13 +107,13 @@
   height: 27px;
   line-height: 25px;
   padding: 0 12px;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   border: 1px solid @darkBlue;
   color: @darkBlue;
   font-size: @smallFontSize;
   text-align: center;
   cursor: pointer;
-  .trans(none);
+  transition: none;
 }
 
 .select-list-control-button:first-child {

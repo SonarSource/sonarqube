@@ -22,7 +22,7 @@
 
 .select2-container .select2-choice,
 .select2-container .select2-choices {
-  .trans(border-color);
+  transition: border-color 0.2s ease;
 }
 
 .select2-container .select2-choice abbr {
@@ -161,7 +161,7 @@
 .select2-search-choice-close,
 .select2-container .select2-choice abbr,
 .select2-container .select2-choice div b {
-  background-image: url(@imagesPath);
+  background-image: url(@imagesPath2x);
 }
 
 .select2-search input.select2-active,
@@ -169,15 +169,6 @@
 .select2-container-multi .select2-choices .select2-search-field input.select2-active {
   background-image: url(@spinnerPath);
 }
-
-@media @retina {
-  .select2-search-choice-close,
-  .select2-container .select2-choice abbr,
-  .select2-container .select2-choice div b {
-    background-image: url(@imagesPath2x) !important;
-  }
-}
-
 
 
 

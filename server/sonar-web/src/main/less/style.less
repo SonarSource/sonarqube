@@ -409,7 +409,7 @@ ul.bullet li {
   a > & {
     margin-bottom: -1px;
     border-bottom: 1px solid @orange;
-    .trans;
+    transition: all 0.2s ease;
 
     &:hover { opacity: 0.8; }
   }
@@ -424,7 +424,7 @@ ul.bullet li {
   a > & {
     margin-bottom: -1px;
     border-bottom: 1px solid @red;
-    .trans;
+    transition: all 0.2s ease;
 
     &:hover { opacity: 0.8; }
   }
@@ -457,7 +457,7 @@ ul.bullet li {
   margin: 10px 0 !important;
   padding: 10px !important;
   border: 1px dashed #aaa;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   font-size: 12px;
   font-family: @monoFontFamily;
 }
@@ -775,9 +775,7 @@ select.medium-width {
 
 textarea.width100 {
   width: 100%;
-  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box; /* Firefox, other Gecko */
-  box-sizing: border-box; /* Opera/IE 8+ */
+  box-sizing: border-box;
 }
 
 .property {

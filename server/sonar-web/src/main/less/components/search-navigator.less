@@ -43,7 +43,7 @@
   left: 0;
   bottom: 0;
   border-right: 1px solid @barBorderColor;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   background-color: @barBorderColor;
   overflow-x: hidden;
 }
@@ -97,13 +97,13 @@
   padding: 3px 5px;
   border: 1px solid transparent;
   border-radius: 2px;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   background-color: @barBackgroundColor;
   white-space: normal;
   overflow: hidden;
   font-size: 0;
   cursor: pointer;
-  .trans(none);
+  transition: none;
 
   &:hover {
     border: 1px solid @blue;
@@ -279,7 +279,7 @@
     display: block;
     padding-bottom: 3px;
     .link-no-underline;
-    .trans(none);
+    transition: none;
 
     &:hover, &:focus,
     &:hover .search-navigator-facet-histogram-bar-inner, &:focus .search-navigator-facet-histogram-bar-inner {
@@ -376,7 +376,7 @@
   margin-bottom: 8px;
   padding: 5px 10px;
   border: 1px solid #e8e8e8;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   line-height: 1.5;
   background-color: #fff;
   box-shadow: @defaultShadow;

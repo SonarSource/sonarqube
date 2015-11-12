@@ -6,6 +6,7 @@ var gulpif = require('gulp-if');
 var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
 var sourcemaps = require('gulp-sourcemaps');
+var autoprefixer = require('gulp-autoprefixer');
 
 
 module.exports.styles = function (output, production, dev) {
@@ -24,6 +25,15 @@ module.exports.styles = function (output, production, dev) {
       ])
       .pipe(gulpif(dev, sourcemaps.init()))
       .pipe(less())
+      .pipe(autoprefixer({
+        browsers: [
+          'last 3 Chrome versions',
+          'last 3 Firefox versions',
+          'Safari >= 8',
+          'Edge >= 12',
+          'IE 11'
+        ]
+      }))
       .pipe(gulpif(production, minifyCss()))
       .pipe(concat('sonar.css'))
       .pipe(gulpif(dev, sourcemaps.write({ includeContent: true })))

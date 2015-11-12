@@ -9,20 +9,20 @@
 .navigator-element() {
   position: fixed;
   z-index: @navigator-element-z-index;
-  .box-sizing(border-box);
+  box-sizing: border-box;
 }
 
 .navigator-header {
   height: @navigatorHeaderHeight;
   margin: @navigatorPadding;
   border: 1px solid @navigatorBorderLightColor;
-  .box-sizing(border-box);
+  box-sizing: border-box;
 }
 
 .navigator-filters {
   position: relative;
   border: 1px solid @navigatorBorderLightColor;
-  .box-sizing(border-box);
+  box-sizing: border-box;
 }
 
 .navigator-content {
@@ -51,7 +51,7 @@
   min-width: 275px;
   max-width: 600px;
   margin: @navigatorPadding @navigatorPadding 0;
-  .box-sizing(border-box);
+  box-sizing: border-box;
 }
 
 .navigator-actions {
@@ -59,7 +59,7 @@
   z-index: @navigator-actions-z-index;
   margin: 0 @navigatorPadding @navigatorPadding;
   border: 1px solid @navigatorBorderLightColor;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   .clearfix;
 }
 
@@ -159,9 +159,9 @@
   margin-left: -10px;
   padding: 10px;
   border-right: 1px solid transparent;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   cursor: pointer;
-  .trans;
+  transition: all 0.2s ease;
 
   &:hover {
     background-color: @navigatorHover;
@@ -257,7 +257,7 @@
     border: 1px solid;
     border-color: @navigatorBorderLightColor transparent;
     cursor: pointer;
-    .trans;
+    transition: all 0.2s ease;
 
     .line {
       padding: @navigatorPadding / 2 @navigatorPadding;
@@ -333,7 +333,7 @@
   padding: 0 @navigatorPadding;
   line-height: @navigatorStatusHeight;
   cursor: pointer;
-  .trans;
+  transition: all 0.2s ease;
 
   &:hover {
     background-color: @navigatorHover;
@@ -356,7 +356,7 @@
     line-height: @navigatorStatusHeight;
     padding: 0 10px;
     cursor: pointer;
-    .trans;
+    transition: all 0.2s ease;
 
     &:hover {
       background-color: @navigatorBarBackground;

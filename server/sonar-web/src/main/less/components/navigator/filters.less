@@ -26,14 +26,15 @@
 .navigator-filter-submit {
   position: absolute;
   bottom: 0; right: 0;
-  .size(85px, @navigatorFiltersHeight);
+  width: 85px;
+  height: @navigatorFiltersHeight;
   margin: -1px -1px -1px 0;
   padding: 0;
   border: 1px solid darken(@blue, 10%);
   background: @blue;
   color: #fff;
   font-weight: normal;
-  .trans;
+  transition: all 0.2s ease;
 
   &::-moz-focus-inner { border: 0; }
 
@@ -66,10 +67,10 @@
   margin: -1px 0 0 -1px;
   padding: 0 1.5 * @navigatorFilterPadding;
   border: 1px solid @navigatorBorderLightColor;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   white-space: nowrap;
   cursor: pointer;
-  .trans;
+  transition: all 0.2s ease;
 
   &:hover {
     z-index: @above-normal-z-index;
@@ -146,7 +147,8 @@
 .navigator-filter-disable {
   display: inline-block;
   vertical-align: middle;
-  .square(20px);
+  width: 20px;
+  height: 20px;
   line-height: 20px;
   margin: 0 0 0 5px;
   font-size: 18px;
@@ -202,7 +204,6 @@
   max-height: 182px;
   padding: 5px 0;
   overflow-y: auto;
-  .webkit-scrollbar;
   -ms-overflow-style: scrollbar;
 
   label {
@@ -212,7 +213,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    .trans(background);
+    transition: background 0.2s ease;
 
     &:hover,
     &.current {
@@ -267,10 +268,11 @@
   margin: @navigatorFilterPadding 26px @navigatorFilterPadding @navigatorFilterPadding;
 
   input {
-    .size(100%, 26px);
+    width: 100%;
+    height: 26px;
     padding: 0 7px;
     border: 1px solid @darkGrey;
-    .box-sizing(border-box);
+    box-sizing: border-box;
   }
 
   .fetching &:after {
@@ -278,7 +280,8 @@
     position: absolute;
     top: 6px; right: -21px;
     display: block;
-    .square(16px);
+    width: 16px;
+    height: 16px;
     background: #fff url(../images/loading.gif) no-repeat center center;
   }
 
@@ -307,13 +310,10 @@
 }
 
 .navigator-filter-favorite-toggle {
-  .size(16px, @navigatorFiltersHeight);
-  background: url('../images/navigator/favorite-filters.png') no-repeat center center;
-
-  @media @retina {
-    background-image: url(../images/navigator/favorite-filters@2x.png);
-    background-size: 16px 14px;
-  }
+  width: 16px;
+  height: @navigatorFiltersHeight;
+  background: url(../images/navigator/favorite-filters@2x.png) no-repeat center center;
+  background-size: 16px 14px;
 }
 
 .navigator-filter-more-criteria {

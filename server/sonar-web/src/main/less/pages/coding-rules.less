@@ -340,7 +340,7 @@
   z-index: @dropdown-menu-z-index;
   width: 200px;
   border: 1px solid @navigatorBorderLightColor;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   background-color: #fff;
 }
@@ -356,7 +356,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   .link-no-underline;
-  .trans;
+  transition: all 0.2s ease;
 
   &:hover { background-color: @navigatorBarBackground; }
 

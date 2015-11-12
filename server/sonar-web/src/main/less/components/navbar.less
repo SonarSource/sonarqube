@@ -9,7 +9,7 @@
 @navbarTopPadding: (@navbarGlobalHeight - @navbarLineHeight) / 2;
 
 .navbar, [class^="navbar-"], [class*=" navbar-"] {
-  .box-sizing(border-box);
+  box-sizing: border-box;
 }
 
 .navbar {
@@ -23,12 +23,12 @@
 .navbar-fade {
   .navbar-nav {
     opacity: 0;
-    .trans(opacity);
+    transition: opacity 0.2s ease;
   }
 
   .navbar-favorite {
     margin-right: -23px;
-    .trans(margin);
+    transition: margin 0.2s ease;
   }
 
   &.in {
@@ -44,7 +44,7 @@
 
 .navbar a {
   .link-no-underline;
-  .trans(none);
+  transition: none;
 }
 
 .navbar-header {
@@ -106,8 +106,8 @@
 .navbar-search {
   position: relative;
   width: 480px;
-  .box-sizing(border-box);
-  .trans(width);
+  box-sizing: border-box;
+  transition: width 0.2s ease;
 }
 
 .navbar-search-input {

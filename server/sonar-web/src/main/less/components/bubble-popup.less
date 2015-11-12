@@ -11,7 +11,7 @@
   padding: 10px;
   border: 1px solid @barBorderColor;
   border-radius: 3px;
-  .box-sizing(border-box);
+  box-sizing: border-box;
   background-color: @white;
   box-shadow: @defaultShadow;
 }
@@ -24,7 +24,8 @@
 .bubble-popup-arrow:after {
   position: absolute;
   display: block;
-  .size(0, 0);
+  width: 0;
+  height: 0;
   border: @popupArrowSize solid transparent;
 }
 
