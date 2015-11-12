@@ -20,13 +20,13 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
@@ -50,6 +50,7 @@ import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplication
 import org.sonar.server.computation.snapshot.Snapshot;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
@@ -214,37 +215,48 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
     underTest.execute();
 
-    verify(integrateCrossProjectDuplications).computeCpd(CURRENT_FILE,
-      Arrays.asList(
-        new Block.Builder()
-          .setResourceId(CURRENT_FILE_KEY)
-          .setBlockHash(new ByteArray(originBlock1.getHash()))
-          .setIndexInFile(0)
-          .setLines(originBlock1.getStartLine(), originBlock1.getEndLine())
-          .setUnit(originBlock1.getStartTokenIndex(), originBlock1.getEndTokenIndex())
-          .build(),
-        new Block.Builder()
-          .setResourceId(CURRENT_FILE_KEY)
-          .setBlockHash(new ByteArray(originBlock2.getHash()))
-          .setIndexInFile(1)
-          .setLines(originBlock2.getStartLine(), originBlock2.getEndLine())
-          .setUnit(originBlock2.getStartTokenIndex(), originBlock2.getEndTokenIndex())
-          .build()
-        ),
-      Arrays.asList(
-        new Block.Builder()
-          .setResourceId(otherFIle.getKey())
-          .setBlockHash(new ByteArray(originBlock1.getHash()))
-          .setIndexInFile(duplicate1.getIndexInFile())
-          .setLines(duplicate1.getStartLine(), duplicate1.getEndLine())
-          .build(),
-        new Block.Builder()
-          .setResourceId(otherFIle.getKey())
-          .setBlockHash(new ByteArray(originBlock2.getHash()))
-          .setIndexInFile(duplicate2.getIndexInFile())
-          .setLines(duplicate2.getStartLine(), duplicate2.getEndLine())
-          .build()
-        )
+    Class<ArrayList<Block>> listClass = (Class<ArrayList<Block>>) (Class) ArrayList.class;
+    ArgumentCaptor<ArrayList<Block>> originBlocks = ArgumentCaptor.forClass(listClass);
+    ArgumentCaptor<ArrayList<Block>> duplicationBlocks = ArgumentCaptor.forClass(listClass);
+
+    verify(integrateCrossProjectDuplications).computeCpd(eq(CURRENT_FILE), originBlocks.capture(), duplicationBlocks.capture());
+
+    Map<Integer, Block> originBlocksByIndex = blocksByIndexInFile(originBlocks.getValue());
+    assertThat(originBlocksByIndex.get(0)).isEqualTo(
+      new Block.Builder()
+        .setResourceId(CURRENT_FILE_KEY)
+        .setBlockHash(new ByteArray(originBlock1.getHash()))
+        .setIndexInFile(0)
+        .setLines(originBlock1.getStartLine(), originBlock1.getEndLine())
+        .setUnit(originBlock1.getStartTokenIndex(), originBlock1.getEndTokenIndex())
+        .build()
+      );
+    assertThat(originBlocksByIndex.get(1)).isEqualTo(
+      new Block.Builder()
+        .setResourceId(CURRENT_FILE_KEY)
+        .setBlockHash(new ByteArray(originBlock2.getHash()))
+        .setIndexInFile(1)
+        .setLines(originBlock2.getStartLine(), originBlock2.getEndLine())
+        .setUnit(originBlock2.getStartTokenIndex(), originBlock2.getEndTokenIndex())
+        .build()
+      );
+
+    Map<Integer, Block> duplicationBlocksByIndex = blocksByIndexInFile(duplicationBlocks.getValue());
+    assertThat(duplicationBlocksByIndex.get(0)).isEqualTo(
+      new Block.Builder()
+        .setResourceId(otherFIle.getKey())
+        .setBlockHash(new ByteArray(originBlock1.getHash()))
+        .setIndexInFile(duplicate1.getIndexInFile())
+        .setLines(duplicate1.getStartLine(), duplicate1.getEndLine())
+        .build()
+      );
+    assertThat(duplicationBlocksByIndex.get(1)).isEqualTo(
+      new Block.Builder()
+        .setResourceId(otherFIle.getKey())
+        .setBlockHash(new ByteArray(originBlock2.getHash()))
+        .setIndexInFile(duplicate2.getIndexInFile())
+        .setLines(duplicate2.getStartLine(), duplicate2.getEndLine())
+        .build()
       );
   }
 
@@ -343,6 +355,14 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     dbClient.snapshotDao().insert(dbSession, fileSnapshot);
     dbSession.commit();
     return fileSnapshot;
+  }
+
+  private static Map<Integer, Block> blocksByIndexInFile(List<Block> blocks) {
+    Map<Integer, Block> blocksByIndexInFile = new HashMap<>();
+    for (Block block : blocks) {
+      blocksByIndexInFile.put(block.getIndexInFile(), block);
+    }
+    return blocksByIndexInFile;
   }
 
 }
