@@ -66,13 +66,13 @@ public class DuplicationDaoTest {
     db.prepareDbUnit(getClass(), "insert.xml");
     dbSession.commit();
 
-    dao.insert(dbSession, singletonList(new DuplicationUnitDto()
+    dao.insert(dbSession, new DuplicationUnitDto()
       .setProjectSnapshotId(1)
       .setSnapshotId(2)
       .setHash("bb")
       .setIndexInFile(0)
       .setStartLine(1)
-      .setEndLine(2)));
+      .setEndLine(2));
     dbSession.commit();
 
     db.assertDbUnit(getClass(), "insert-result.xml", "duplications_index");

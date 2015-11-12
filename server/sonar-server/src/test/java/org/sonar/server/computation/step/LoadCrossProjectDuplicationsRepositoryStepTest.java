@@ -49,7 +49,6 @@ import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplication
 import org.sonar.server.computation.snapshot.Snapshot;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -134,7 +133,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setIndexInFile(0)
       .setProjectSnapshotId(otherProjectSnapshot.getId())
       .setSnapshotId(otherFileSnapshot.getId());
-    dbClient.duplicationDao().insert(dbSession, singletonList(duplicate));
+    dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
 
     BatchReport.CpdTextBlock originBlock = BatchReport.CpdTextBlock.newBuilder()
@@ -188,7 +187,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setIndexInFile(0)
       .setProjectSnapshotId(otherProjectSnapshot.getId())
       .setSnapshotId(otherFileSnapshot.getId());
-    dbClient.duplicationDao().insert(dbSession, singletonList(duplicate));
+    dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
 
     BatchReport.CpdTextBlock originBlock = BatchReport.CpdTextBlock.newBuilder()
@@ -213,6 +212,27 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setBaseProjectSnapshot(baseProjectSnapshot);
 
     batchReportReader.putDuplicationBlocks(FILE_REF, Collections.<BatchReport.CpdTextBlock>emptyList());
+
+    underTest.execute();
+
+    verifyZeroInteractions(integrateCrossProjectDuplications);
+  }
+
+  @Test
+  public void nothing_to_do_when_cpd_text_blocks_exists_but_no_duplicated_found() throws Exception {
+    analysisMetadataHolder
+      .setCrossProjectDuplicationEnabled(true)
+      .setBranch(null)
+      .setBaseProjectSnapshot(baseProjectSnapshot);
+
+    BatchReport.CpdTextBlock originBlock = BatchReport.CpdTextBlock.newBuilder()
+      .setHash("a8998353e96320ec")
+      .setStartLine(30)
+      .setEndLine(45)
+      .setStartTokenIndex(0)
+      .setEndTokenIndex(10)
+      .build();
+    batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock));
 
     underTest.execute();
 
