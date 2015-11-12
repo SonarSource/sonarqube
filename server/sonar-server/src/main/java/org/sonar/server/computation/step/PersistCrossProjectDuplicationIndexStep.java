@@ -26,12 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.component.*;
 import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHolder;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
@@ -89,7 +84,8 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     private void visitComponent(Component component) {
       int indexInFile = 0;
-      try (CloseableIterator<BatchReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef())) {
+      CloseableIterator<BatchReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef());
+      try {
         while (blocks.hasNext()) {
           BatchReport.CpdTextBlock block = blocks.next();
           dbClient.duplicationDao().insert(
@@ -98,11 +94,14 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
               .setHash(block.getHash())
               .setStartLine(block.getStartLine())
               .setEndLine(block.getEndLine())
-              .setIndexInFile(indexInFile++)
+              .setIndexInFile(indexInFile)
               .setSnapshotId(dbIdsRepository.getSnapshotId(component))
               .setProjectSnapshotId(projectSnapshotId)
             );
+          indexInFile++;
         }
+      } finally {
+        blocks.close();
       }
     }
   }

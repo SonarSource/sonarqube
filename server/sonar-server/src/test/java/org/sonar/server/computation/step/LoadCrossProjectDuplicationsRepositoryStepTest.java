@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 
 import java.util.Arrays;
 import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,10 +50,7 @@ import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplication
 import org.sonar.server.computation.snapshot.Snapshot;
 
 import static java.util.Arrays.asList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 
@@ -115,7 +113,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   @Test
-  public void call_compute_cpd() throws Exception {
+  public void call_compute_cpd_on_one_duplication() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
 
@@ -169,6 +167,88 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   @Test
+  public void call_compute_cpd_on_many_duplication() throws Exception {
+    when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
+    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
+
+    ComponentDto otherProject = createProject("OTHER_PROJECT_KEY");
+    SnapshotDto otherProjectSnapshot = createProjectSnapshot(otherProject);
+
+    ComponentDto otherFIle = createFile("OTHER_FILE_KEY", otherProject);
+    SnapshotDto otherFileSnapshot = createFileSnapshot(otherFIle, otherProjectSnapshot);
+
+    BatchReport.CpdTextBlock originBlock1 = BatchReport.CpdTextBlock.newBuilder()
+      .setHash("a8998353e96320ec")
+      .setStartLine(30)
+      .setEndLine(45)
+      .setStartTokenIndex(0)
+      .setEndTokenIndex(10)
+      .build();
+    BatchReport.CpdTextBlock originBlock2 = BatchReport.CpdTextBlock.newBuilder()
+      .setHash("b1234353e96320ff")
+      .setStartLine(10)
+      .setEndLine(25)
+      .setStartTokenIndex(5)
+      .setEndTokenIndex(15)
+      .build();
+    batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock1, originBlock2));
+
+    DuplicationUnitDto duplicate1 = new DuplicationUnitDto()
+      .setHash(originBlock1.getHash())
+      .setStartLine(40)
+      .setEndLine(55)
+      .setIndexInFile(0)
+      .setProjectSnapshotId(otherProjectSnapshot.getId())
+      .setSnapshotId(otherFileSnapshot.getId());
+
+    DuplicationUnitDto duplicate2 = new DuplicationUnitDto()
+      .setHash(originBlock2.getHash())
+      .setStartLine(20)
+      .setEndLine(35)
+      .setIndexInFile(1)
+      .setProjectSnapshotId(otherProjectSnapshot.getId())
+      .setSnapshotId(otherFileSnapshot.getId());
+    dbClient.duplicationDao().insert(dbSession, duplicate1);
+    dbClient.duplicationDao().insert(dbSession, duplicate2);
+    dbSession.commit();
+
+    underTest.execute();
+
+    verify(integrateCrossProjectDuplications).computeCpd(CURRENT_FILE,
+      Arrays.asList(
+        new Block.Builder()
+          .setResourceId(CURRENT_FILE_KEY)
+          .setBlockHash(new ByteArray(originBlock1.getHash()))
+          .setIndexInFile(0)
+          .setLines(originBlock1.getStartLine(), originBlock1.getEndLine())
+          .setUnit(originBlock1.getStartTokenIndex(), originBlock1.getEndTokenIndex())
+          .build(),
+        new Block.Builder()
+          .setResourceId(CURRENT_FILE_KEY)
+          .setBlockHash(new ByteArray(originBlock2.getHash()))
+          .setIndexInFile(1)
+          .setLines(originBlock2.getStartLine(), originBlock2.getEndLine())
+          .setUnit(originBlock2.getStartTokenIndex(), originBlock2.getEndTokenIndex())
+          .build()
+        ),
+      Arrays.asList(
+        new Block.Builder()
+          .setResourceId(otherFIle.getKey())
+          .setBlockHash(new ByteArray(originBlock1.getHash()))
+          .setIndexInFile(duplicate1.getIndexInFile())
+          .setLines(duplicate1.getStartLine(), duplicate1.getEndLine())
+          .build(),
+        new Block.Builder()
+          .setResourceId(otherFIle.getKey())
+          .setBlockHash(new ByteArray(originBlock2.getHash()))
+          .setIndexInFile(duplicate2.getIndexInFile())
+          .setLines(duplicate2.getStartLine(), duplicate2.getEndLine())
+          .build()
+        )
+      );
+  }
+
+  @Test
   public void nothing_to_do_when_cross_project_duplication_is_disabled() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(false);
     analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
@@ -206,10 +286,8 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
   @Test
   public void nothing_to_do_when_no_cpd_text_blocks_found() throws Exception {
-    analysisMetadataHolder
-      .setCrossProjectDuplicationEnabled(true)
-      .setBranch(null)
-      .setBaseProjectSnapshot(baseProjectSnapshot);
+    when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
+    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
 
     batchReportReader.putDuplicationBlocks(FILE_REF, Collections.<BatchReport.CpdTextBlock>emptyList());
 
@@ -220,10 +298,8 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
   @Test
   public void nothing_to_do_when_cpd_text_blocks_exists_but_no_duplicated_found() throws Exception {
-    analysisMetadataHolder
-      .setCrossProjectDuplicationEnabled(true)
-      .setBranch(null)
-      .setBaseProjectSnapshot(baseProjectSnapshot);
+    when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
+    analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
 
     BatchReport.CpdTextBlock originBlock = BatchReport.CpdTextBlock.newBuilder()
       .setHash("a8998353e96320ec")

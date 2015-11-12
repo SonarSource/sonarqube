@@ -21,9 +21,11 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
+
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
+
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport.CpdTextBlock;
@@ -34,11 +36,7 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.component.*;
 import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplications;
 import org.sonar.server.computation.snapshot.Snapshot;
@@ -96,27 +94,23 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
 
     @Override
     public void visitFile(Component file) {
-      visitComponent(file);
-    }
-
-    private void visitComponent(Component component) {
-      List<CpdTextBlock> cpdTextBlocks = newArrayList(reportReader.readCpdTextBlocks(component.getReportAttributes().getRef()));
-      LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), component.getKey());
+      List<CpdTextBlock> cpdTextBlocks = newArrayList(reportReader.readCpdTextBlocks(file.getReportAttributes().getRef()));
+      LOGGER.trace("Found {} cpd blocks on file {}", cpdTextBlocks.size(), file.getKey());
       if (cpdTextBlocks.isEmpty()) {
         return;
       }
 
       Collection<String> hashes = from(cpdTextBlocks).transform(CpdTextBlockToHash.INSTANCE).toList();
-      List<DuplicationUnitDto> dtos = selectDuplicates(component, hashes);
+      List<DuplicationUnitDto> dtos = selectDuplicates(file, hashes);
       if (dtos.isEmpty()) {
         return;
       }
 
       Collection<Block> duplicatedBlocks = from(dtos).transform(DtoToBlock.INSTANCE).toList();
-      Collection<Block> originBlocks = from(cpdTextBlocks).transform(new CpdTextBlockToBlock(component.getKey())).toList();
-      LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), component.getKey());
+      Collection<Block> originBlocks = from(cpdTextBlocks).transform(new CpdTextBlockToBlock(file.getKey())).toList();
+      LOGGER.trace("Found {} duplicated cpd blocks on file {}", duplicatedBlocks.size(), file.getKey());
 
-      integrateCrossProjectDuplications.computeCpd(component, originBlocks, duplicatedBlocks);
+      integrateCrossProjectDuplications.computeCpd(file, originBlocks, duplicatedBlocks);
     }
 
     private List<DuplicationUnitDto> selectDuplicates(Component file, Collection<String> hashes) {
@@ -145,7 +139,7 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
 
     @Override
     public Block apply(@Nonnull DuplicationUnitDto dto) {
-      // Not that the dto doesn't contains start/end token indexes
+      // Note that the dto doesn't contains start/end token indexes
       return Block.builder()
         .setResourceId(dto.getComponentKey())
         .setBlockHash(new ByteArray(dto.getHash()))
@@ -165,13 +159,15 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
 
     @Override
     public Block apply(@Nonnull CpdTextBlock duplicationBlock) {
-      return Block.builder()
+      Block block = Block.builder()
         .setResourceId(fileKey)
         .setBlockHash(new ByteArray(duplicationBlock.getHash()))
-        .setIndexInFile(indexInFile++)
+        .setIndexInFile(indexInFile)
         .setLines(duplicationBlock.getStartLine(), duplicationBlock.getEndLine())
         .setUnit(duplicationBlock.getStartTokenIndex(), duplicationBlock.getEndTokenIndex())
         .build();
+      indexInFile++;
+      return block;
     }
   }
 
