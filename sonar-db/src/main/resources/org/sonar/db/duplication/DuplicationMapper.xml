@@ -12,10 +12,11 @@
     duplication_block.index_in_file as indexInFile,
     duplication_block.start_line as startLine,
     duplication_block.end_line as endLine,
-    file.kee as componentKey
+    file_component.kee as componentKey
     FROM duplications_index duplication_block
     INNER JOIN snapshots snapshot ON duplication_block.snapshot_id=snapshot.id AND snapshot.islast=${_true}
-    INNER JOIN projects file ON file.id=snapshot.project_id AND file.language=#{language} AND file.enabled=${_true}
+    INNER JOIN projects file_component ON file_component.id=snapshot.project_id AND file_component.language=#{language}
+    AND file_component.enabled=${_true}
     <where>
       AND duplication_block.hash in
       <foreach collection="hashes" open="(" close=")" item="hash" separator=",">#{hash}</foreach>
