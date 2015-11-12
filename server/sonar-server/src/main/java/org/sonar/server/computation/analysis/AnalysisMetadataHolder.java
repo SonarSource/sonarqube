@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.analysis;
 
-import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.server.computation.snapshot.Snapshot;
 
@@ -27,7 +26,7 @@ public interface AnalysisMetadataHolder {
   /**
    * @throws IllegalStateException if no analysis date has been set
    */
-  Date getAnalysisDate();
+  long getAnalysisDate();
 
   /**
    * Convenience method equivalent to calling {@link #getBaseProjectSnapshot() == null}

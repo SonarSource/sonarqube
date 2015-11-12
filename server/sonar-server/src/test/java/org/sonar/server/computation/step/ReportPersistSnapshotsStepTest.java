@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -84,7 +83,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
   public void setup() {
     dbTester.truncateTables();
     analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
-    analysisMetadataHolder.setAnalysisDate(new Date(analysisDate));
+    analysisMetadataHolder.setAnalysisDate(analysisDate);
     dbIdsRepository = new DbIdsRepositoryImpl();
 
     now = DateUtils.parseDateQuietly("2015-06-02").getTime();

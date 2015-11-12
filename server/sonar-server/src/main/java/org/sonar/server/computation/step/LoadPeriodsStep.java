@@ -30,7 +30,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
@@ -69,7 +68,7 @@ import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMax
  * Populates the {@link org.sonar.server.computation.period.PeriodsHolder}
  * <p/>
  * Here is how these periods are computed :
- * - Read the 5 period properties ${@link CoreProperties#TIMEMACHINE_PERIOD_PREFIX}
+ * - Read the 5 period properties ${@link org.sonar.core.config.CorePropertyDefinitions#TIMEMACHINE_PERIOD_PREFIX}
  * - Try to find the matching snapshots from the properties
  * - If a snapshot is found, a new period is added to the repository
  */
@@ -127,7 +126,7 @@ public class LoadPeriodsStep implements ComputationStep {
     }
 
     boolean isReportType = projectOrView.getType().isReportType();
-    PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), analysisMetadataHolder.getAnalysisDate().getTime(),
+    PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), analysisMetadataHolder.getAnalysisDate(),
       isReportType ? projectOrView.getReportAttributes().getVersion() : null,
       isReportType ? Qualifiers.PROJECT : Qualifiers.VIEW);
 

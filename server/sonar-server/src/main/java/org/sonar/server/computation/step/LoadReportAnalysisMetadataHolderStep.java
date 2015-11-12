@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.Date;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
@@ -43,7 +42,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     BatchReport.Metadata reportMetadata = reportReader.readMetadata();
     mutableAnalysisMetadataHolder.setRootComponentRef(reportMetadata.getRootComponentRef());
     mutableAnalysisMetadataHolder.setBranch(reportMetadata.hasBranch() ? reportMetadata.getBranch() : null);
-    mutableAnalysisMetadataHolder.setAnalysisDate(new Date(reportMetadata.getAnalysisDate()));
+    mutableAnalysisMetadataHolder.setAnalysisDate(reportMetadata.getAnalysisDate());
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.hasCrossProjectDuplicationActivated() && reportMetadata.getCrossProjectDuplicationActivated());
   }
 

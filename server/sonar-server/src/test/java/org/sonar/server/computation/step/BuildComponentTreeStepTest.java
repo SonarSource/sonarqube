@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -75,7 +74,7 @@ public class BuildComponentTreeStepTest {
   static final String REPORT_DIR_KEY_2 = "src/main/java/dir2";
   static final String REPORT_FILE_KEY_2 = "src/main/java/dir2/File2.java";
 
-  static final Date ANALYSIS_DATE = new Date();
+  static final long ANALYSIS_DATE = 123456789L;
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

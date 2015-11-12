@@ -68,8 +68,8 @@ public class PersistSnapshotsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       new PathAwareCrawler<>(
-        new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate().getTime(), dbIdsRepository))
-          .visit(treeRootHolder.getRoot());
+        new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate(), dbIdsRepository))
+        .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       dbClient.closeSession(session);

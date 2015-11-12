@@ -19,17 +19,15 @@
  */
 package org.sonar.server.computation.analysis;
 
-import java.util.Date;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.snapshot.Snapshot;
 
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
 
   /**
-   * @throws NullPointerException if specified date is {@code null}
    * @throws IllegalStateException if the analysis date has already been set
    */
-  MutableAnalysisMetadataHolder setAnalysisDate(Date date);
+  MutableAnalysisMetadataHolder setAnalysisDate(long date);
 
   /**
    * @throws IllegalStateException if baseProjectSnapshot has already been set

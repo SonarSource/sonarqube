@@ -63,7 +63,7 @@ public class PersistEventsStep implements ComputationStep {
   public void execute() {
     final DbSession session = dbClient.openSession(false);
     try {
-      long analysisDate = analysisMetadataHolder.getAnalysisDate().getTime();
+      long analysisDate = analysisMetadataHolder.getAnalysisDate();
       new DepthTraversalTypeAwareCrawler(new PersistEventComponentVisitor(session, analysisDate))
         .visit(treeRootHolder.getRoot());
       session.commit();

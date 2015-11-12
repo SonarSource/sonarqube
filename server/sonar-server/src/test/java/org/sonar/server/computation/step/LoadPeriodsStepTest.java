@@ -86,7 +86,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @Before
   public void setUp() throws Exception {
-    analysisMetadataHolder.setAnalysisDate(DATE_FORMAT.parse("2008-11-30"));
+    analysisMetadataHolder.setAnalysisDate(DATE_FORMAT.parse("2008-11-30").getTime());
 
     underTest = new LoadPeriodsStep(dbClient, settingsRepository, treeRootHolder, analysisMetadataHolder, periodsHolder);
   }

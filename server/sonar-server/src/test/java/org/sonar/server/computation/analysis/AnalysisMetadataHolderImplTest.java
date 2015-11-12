@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.analysis;
 
-import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -37,7 +36,7 @@ public class AnalysisMetadataHolderImplTest {
     .setCreatedAt(123456789L)
     .build();
 
-  static Date SOME_DATE = new Date();
+  static long SOME_DATE = 10000000L;
 
   @Test
   public void getAnalysisDate_returns_date_with_same_time_as_the_one_set_with_setAnalysisDate() throws InterruptedException {
@@ -45,11 +44,7 @@ public class AnalysisMetadataHolderImplTest {
 
     underTest.setAnalysisDate(SOME_DATE);
 
-    Thread.sleep(10);
-
-    Date analysisDate = underTest.getAnalysisDate();
-    assertThat(analysisDate.getTime()).isEqualTo(SOME_DATE.getTime());
-    assertThat(analysisDate).isNotSameAs(SOME_DATE);
+    assertThat(underTest.getAnalysisDate()).isEqualTo(SOME_DATE);
   }
 
   @Test
@@ -58,16 +53,6 @@ public class AnalysisMetadataHolderImplTest {
     expectedException.expectMessage("Analysis date has not been set");
 
     new AnalysisMetadataHolderImpl().getAnalysisDate();
-  }
-
-  @Test
-  public void setAnalysisDate_throws_NPE_when_date_is_null() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl();
-
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Date must not be null");
-
-    underTest.setAnalysisDate(null);
   }
 
   @Test

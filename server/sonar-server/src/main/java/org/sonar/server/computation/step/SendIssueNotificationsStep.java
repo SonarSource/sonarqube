@@ -83,7 +83,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
       issues.close();
     }
     if (newIssuesStats.hasIssues()) {
-      long analysisDate = analysisMetadataHolder.getAnalysisDate().getTime();
+      long analysisDate = analysisMetadataHolder.getAnalysisDate();
       sendNewIssuesNotification(newIssuesStats, project, analysisDate);
       sendNewIssuesNotificationToAssignees(newIssuesStats, project, analysisDate);
     }

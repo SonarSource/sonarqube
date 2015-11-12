@@ -20,6 +20,7 @@
 package org.sonar.server.computation.issue;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
@@ -45,7 +46,7 @@ public class IssueLifecycle {
   private final DebtCalculator debtCalculator;
 
   public IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueWorkflow workflow, IssueUpdater updater, DebtCalculator debtCalculator) {
-    this(IssueChangeContext.createScan(analysisMetadataHolder.getAnalysisDate()), workflow, updater, debtCalculator);
+    this(IssueChangeContext.createScan(new Date(analysisMetadataHolder.getAnalysisDate())), workflow, updater, debtCalculator);
   }
 
   @VisibleForTesting

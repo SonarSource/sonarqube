@@ -48,10 +48,16 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
     return this;
   }
 
+  public AnalysisMetadataHolderRule setAnalysisDate(long date) {
+    checkNotNull(date, "Date must not be null");
+    this.analysisDate.setProperty(date);
+    return this;
+  }
+
   @Override
-  public Date getAnalysisDate() {
+  public long getAnalysisDate() {
     checkState(analysisDate.isInitialized(), "Analysis date has not been set");
-    return new Date(this.analysisDate.getProperty());
+    return this.analysisDate.getProperty();
   }
 
   @Override

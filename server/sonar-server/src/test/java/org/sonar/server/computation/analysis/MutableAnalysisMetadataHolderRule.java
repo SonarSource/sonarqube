@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.analysis;
 
-import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -35,11 +34,11 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public Date getAnalysisDate() {
+  public long getAnalysisDate() {
     return delegate.getAnalysisDate();
   }
 
-  public MutableAnalysisMetadataHolderRule setAnalysisDate(Date date) {
+  public MutableAnalysisMetadataHolderRule setAnalysisDate(long date) {
     delegate.setAnalysisDate(date);
     return this;
   }

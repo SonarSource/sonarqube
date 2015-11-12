@@ -19,13 +19,11 @@
  */
 package org.sonar.server.computation.analysis;
 
-import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.snapshot.Snapshot;
 import org.sonar.server.computation.util.InitializedProperty;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
@@ -41,17 +39,16 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
 
   @Override
-  public MutableAnalysisMetadataHolder setAnalysisDate(Date date) {
-    checkNotNull(date, "Date must not be null");
+  public MutableAnalysisMetadataHolder setAnalysisDate(long date) {
     checkState(!analysisDate.isInitialized(), "Analysis date has already been set");
-    this.analysisDate.setProperty(date.getTime());
+    this.analysisDate.setProperty(date);
     return this;
   }
 
   @Override
-  public Date getAnalysisDate() {
+  public long getAnalysisDate() {
     checkState(analysisDate.isInitialized(), "Analysis date has not been set");
-    return new Date(this.analysisDate.getProperty());
+    return this.analysisDate.getProperty();
   }
 
   @Override
