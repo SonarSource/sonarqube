@@ -140,6 +140,14 @@ public class PermissionsWsClient {
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey()));
   }
 
+  public void removeUserFromTemplate(RemoveUserFromTemplateWsRequest request) {
+    wsClient.execute(newPostRequest(action("remove_user_from_template"))
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_USER_LOGIN, request.getLogin())
+      .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
+      .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
   private static String action(String action) {
     return PermissionsWsParameters.ENDPOINT + "/" + action;
   }

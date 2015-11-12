@@ -31,14 +31,17 @@ import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
 public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -67,16 +70,21 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(Request request, Response response) throws Exception {
+    doHandle(toRemoveUserFromTemplateWsRequest(request));
+    response.noContent();
+  }
+
+  private void doHandle(RemoveUserFromTemplateWsRequest request) {
     checkGlobalAdminUser(userSession);
 
-    String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    String userLogin = wsRequest.mandatoryParam(PARAM_USER_LOGIN);
+    String permission = request.getPermission();
+    String userLogin = request.getLogin();
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
       UserDto user = dependenciesFinder.getUser(dbSession, userLogin);
 
       dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);
@@ -84,7 +92,13 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
 
-    wsResponse.noContent();
+  private static RemoveUserFromTemplateWsRequest toRemoveUserFromTemplateWsRequest(Request request) {
+    return new RemoveUserFromTemplateWsRequest()
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 }

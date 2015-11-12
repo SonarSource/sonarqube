@@ -25,47 +25,47 @@ import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-public class RemoveUserWsRequest {
-  private String permission;
+public class RemoveUserFromTemplateWsRequest {
   private String login;
-  private String projectId;
-  private String projectKey;
-
-  public String getPermission() {
-    return permission;
-  }
-
-  public RemoveUserWsRequest setPermission(String permission) {
-    this.permission = requireNonNull(permission);
-    return this;
-  }
+  private String permission;
+  private String templateId;
+  private String templateName;
 
   public String getLogin() {
     return login;
   }
 
-  public RemoveUserWsRequest setLogin(String login) {
+  public RemoveUserFromTemplateWsRequest setLogin(String login) {
     this.login = requireNonNull(login);
     return this;
   }
 
-  @CheckForNull
-  public String getProjectId() {
-    return projectId;
+  public String getPermission() {
+    return permission;
   }
 
-  public RemoveUserWsRequest setProjectId(@Nullable String projectId) {
-    this.projectId = projectId;
+  public RemoveUserFromTemplateWsRequest setPermission(String permission) {
+    this.permission = requireNonNull(permission);
     return this;
   }
 
   @CheckForNull
-  public String getProjectKey() {
-    return projectKey;
+  public String getTemplateId() {
+    return templateId;
   }
 
-  public RemoveUserWsRequest setProjectKey(@Nullable String projectKey) {
-    this.projectKey = projectKey;
+  public RemoveUserFromTemplateWsRequest setTemplateId(@Nullable String templateId) {
+    this.templateId = templateId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getTemplateName() {
+    return templateName;
+  }
+
+  public RemoveUserFromTemplateWsRequest setTemplateName(@Nullable String templateName) {
+    this.templateName = templateName;
     return this;
   }
 }
