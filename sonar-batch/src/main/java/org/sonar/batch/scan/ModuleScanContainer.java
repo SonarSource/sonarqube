@@ -25,7 +25,6 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.batch.DefaultProjectTree;
@@ -161,7 +160,6 @@ public class ModuleScanContainer extends ComponentContainer {
       IssueExclusionsLoader.class,
       EnforceIssuesFilter.class,
       IgnoreIssuesFilter.class,
-      NoSonarFilter.class,
 
       // Perspectives
       BatchPerspectives.class,
