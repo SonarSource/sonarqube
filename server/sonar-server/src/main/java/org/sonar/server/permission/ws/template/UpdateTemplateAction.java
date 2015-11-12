@@ -42,7 +42,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PATTERN;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateDescriptionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateProjectKeyPatternParameter;
@@ -93,7 +93,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     String uuid = wsRequest.mandatoryParam(PARAM_ID);
     String nameParam = wsRequest.param(PARAM_NAME);
     String descriptionParam = wsRequest.param(PARAM_DESCRIPTION);
-    String projectPatternParam = wsRequest.param(PARAM_PATTERN);
+    String projectPatternParam = wsRequest.param(PARAM_PROJECT_KEY_PATTERN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

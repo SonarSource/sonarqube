@@ -58,7 +58,7 @@ message WsSearchProjectPermissionsResponse {
   repeated Permission permissions = 3;
 }
 
-message WsCreatePermissionTemplateResponse {
+message CreateTemplateWsResponse {
   optional PermissionTemplate permissionTemplate = 1;
 }
 

@@ -20,20 +20,42 @@
 
 package org.sonarqube.ws.client.permission;
 
-public class PermissionsWsParameters {
-  public static final String ENDPOINT = "api/permissions";
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-  public static final String PARAM_PERMISSION = "permission";
-  public static final String PARAM_GROUP_NAME = "groupName";
-  public static final String PARAM_GROUP_ID = "groupId";
-  public static final String PARAM_PROJECT_ID = "projectId";
-  public static final String PARAM_PROJECT_KEY = "projectKey";
-  public static final String PARAM_USER_LOGIN = "login";
-  public static final String PARAM_TEMPLATE_ID = "templateId";
-  public static final String PARAM_TEMPLATE_NAME = "templateName";
-  public static final String PARAM_ID = "id";
-  public static final String PARAM_NAME = "name";
-  public static final String PARAM_DESCRIPTION = "description";
-  public static final String PARAM_PROJECT_KEY_PATTERN = "projectKeyPattern";
-  public static final String PARAM_QUALIFIER = "qualifier";
+import static java.util.Objects.requireNonNull;
+
+public class CreateTemplateWsRequest {
+  private String description;
+  private String name;
+  private String projectKeyPattern;
+
+  @CheckForNull
+  public String getDescription() {
+    return description;
+  }
+
+  public CreateTemplateWsRequest setDescription(@Nullable String description) {
+    this.description = description;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public CreateTemplateWsRequest setName(String name) {
+    this.name = requireNonNull(name);
+    return this;
+  }
+
+  @CheckForNull
+  public String getProjectKeyPattern() {
+    return projectKeyPattern;
+  }
+
+  public CreateTemplateWsRequest setProjectKeyPattern(@Nullable String projectKeyPattern) {
+    this.projectKeyPattern = projectKeyPattern;
+    return this;
+  }
 }

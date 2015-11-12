@@ -112,7 +112,7 @@ public class PermissionsWsParametersBuilder {
   }
 
   public static void createTemplateProjectKeyPatternParameter(NewAction action) {
-    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PATTERN)
+    action.createParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN)
       .setDescription("Project key pattern. Must be a valid Java regular expression")
       .setExampleValue(".*\\.finance\\..*");
   }

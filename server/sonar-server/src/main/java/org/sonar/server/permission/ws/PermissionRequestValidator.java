@@ -33,7 +33,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PATTERN;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -87,7 +87,7 @@ public class PermissionRequestValidator {
     try {
       Pattern.compile(projectPattern);
     } catch (PatternSyntaxException e) {
-      throw new BadRequestException(format("The '%s' parameter must be a valid Java regular expression. '%s' was passed", PARAM_PATTERN, projectPattern));
+      throw new BadRequestException(format("The '%s' parameter must be a valid Java regular expression. '%s' was passed", PARAM_PROJECT_KEY_PATTERN, projectPattern));
     }
   }
 }

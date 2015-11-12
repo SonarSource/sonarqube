@@ -29,23 +29,24 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.WsPermissions.PermissionTemplate;
-import org.sonarqube.ws.WsPermissions.WsCreatePermissionTemplateResponse;
+import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PATTERN;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateDescriptionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateDescriptionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.template.PermissionTemplateDtoBuilder.create;
 import static org.sonar.server.permission.ws.template.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 
 public class CreateTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -78,10 +79,15 @@ public class CreateTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    String name = wsRequest.mandatoryParam(PARAM_NAME);
-    String description = wsRequest.param(PARAM_DESCRIPTION);
-    String projectPattern = wsRequest.param(PARAM_PATTERN);
+  public void handle(Request request, Response response) throws Exception {
+    CreateTemplateWsResponse createTemplateWsResponse = doHandle(toCreateTemplateWsRequest(request));
+    writeProtobuf(createTemplateWsResponse, request, response);
+  }
+
+  private CreateTemplateWsResponse doHandle(CreateTemplateWsRequest request) {
+    String name = request.getName();
+    String description = request.getDescription();
+    String projectPattern = request.getProjectKeyPattern();
 
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -91,11 +97,17 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
       PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, name, description, projectPattern);
 
-      WsCreatePermissionTemplateResponse response = buildResponse(permissionTemplate);
-      writeProtobuf(response, wsRequest, wsResponse);
+      return buildResponse(permissionTemplate);
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private static CreateTemplateWsRequest toCreateTemplateWsRequest(Request request) {
+    return new CreateTemplateWsRequest()
+      .setName(request.mandatoryParam(PARAM_NAME))
+      .setDescription(request.param(PARAM_DESCRIPTION))
+      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN));
   }
 
   private void validateTemplateNameForCreation(DbSession dbSession, String name) {
@@ -115,8 +127,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
     return template;
   }
 
-  private static WsCreatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
+  private static CreateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
     PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplateDto);
-    return WsCreatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
+    return CreateTemplateWsResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 }

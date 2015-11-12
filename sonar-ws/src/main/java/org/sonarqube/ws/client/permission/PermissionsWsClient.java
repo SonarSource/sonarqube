@@ -21,15 +21,19 @@
 package org.sonarqube.ws.client.permission;
 
 import org.sonarqube.ws.WsPermissions;
+import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.client.WsClient;
 
 import static org.sonarqube.ws.client.WsRequest.newGetRequest;
 import static org.sonarqube.ws.client.WsRequest.newPostRequest;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
@@ -93,6 +97,15 @@ public class PermissionsWsClient {
       .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
       .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
+  public CreateTemplateWsResponse createTemplate(CreateTemplateWsRequest request) {
+    return wsClient.execute(newPostRequest(
+      action("create_template"))
+        .setParam(PARAM_NAME, request.getName())
+        .setParam(PARAM_DESCRIPTION, request.getDescription())
+        .setParam(PARAM_PROJECT_KEY_PATTERN, request.getProjectKeyPattern()),
+      CreateTemplateWsResponse.parser());
   }
 
   private static String action(String action) {
