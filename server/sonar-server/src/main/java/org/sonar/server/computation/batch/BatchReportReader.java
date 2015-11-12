@@ -42,6 +42,8 @@ public interface BatchReportReader {
 
   CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef);
 
+  CloseableIterator<BatchReport.CpdTextBlock> readCpdTextBlocks(int componentRef);
+
   CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef);
 
   CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef);

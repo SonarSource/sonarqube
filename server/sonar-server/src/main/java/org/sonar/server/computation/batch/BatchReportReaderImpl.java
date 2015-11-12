@@ -100,6 +100,11 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
+  public CloseableIterator<BatchReport.CpdTextBlock> readCpdTextBlocks(int componentRef) {
+    return delegate.readCpdTextBlocks(componentRef);
+  }
+
+  @Override
   public CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef) {
     return delegate.readComponentSymbols(componentRef);
   }

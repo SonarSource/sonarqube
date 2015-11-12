@@ -43,6 +43,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, BatchReport.Component> components = new HashMap<>();
   private Map<Integer, List<BatchReport.Issue>> issues = new HashMap<>();
   private Map<Integer, List<BatchReport.Duplication>> duplications = new HashMap<>();
+  private Map<Integer, List<BatchReport.CpdTextBlock>> duplicationBlocks = new HashMap<>();
   private Map<Integer, List<BatchReport.Symbol>> symbols = new HashMap<>();
   private Map<Integer, List<BatchReport.SyntaxHighlighting>> syntaxHighlightings = new HashMap<>();
   private Map<Integer, List<BatchReport.Coverage>> coverages = new HashMap<>();
@@ -72,6 +73,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     this.components.clear();
     this.issues.clear();
     this.duplications.clear();
+    this.duplicationBlocks.clear();
     this.symbols.clear();
     this.syntaxHighlightings.clear();
     this.coverages.clear();
@@ -88,8 +90,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return metadata;
   }
 
-  public void setMetadata(BatchReport.Metadata metadata) {
+  public BatchReportReaderRule setMetadata(BatchReport.Metadata metadata) {
     this.metadata = metadata;
+    return this;
   }
 
   @Override
@@ -100,8 +103,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(scannerLogs.iterator());
   }
 
-  public void setScannerLogs(@Nullable List<String> logs) {
+  public BatchReportReaderRule setScannerLogs(@Nullable List<String> logs) {
     this.scannerLogs = logs;
+    return this;
   }
 
   @Override
@@ -112,8 +116,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(activeRules.iterator());
   }
 
-  public void putActiveRules(List<BatchReport.ActiveRule> activeRules) {
+  public BatchReportReaderRule putActiveRules(List<BatchReport.ActiveRule> activeRules) {
     this.activeRules = activeRules;
+    return this;
   }
 
   @Override
@@ -125,8 +130,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(res.iterator());
   }
 
-  public void putMeasures(int componentRef, List<BatchReport.Measure> measures) {
+  public BatchReportReaderRule putMeasures(int componentRef, List<BatchReport.Measure> measures) {
     this.measures.put(componentRef, measures);
+    return this;
   }
 
   @Override
@@ -135,8 +141,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return changesets.get(componentRef);
   }
 
-  public void putChangesets(BatchReport.Changesets changesets) {
+  public BatchReportReaderRule putChangesets(BatchReport.Changesets changesets) {
     this.changesets.put(changesets.getComponentRef(), changesets);
+    return this;
   }
 
   @Override
@@ -144,8 +151,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return components.get(componentRef);
   }
 
-  public void putComponent(BatchReport.Component component) {
+  public BatchReportReaderRule putComponent(BatchReport.Component component) {
     this.components.put(component.getRef(), component);
+    return this;
   }
 
   @Override
@@ -153,8 +161,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return closeableIterator(issues.get(componentRef));
   }
 
-  public void putIssues(int componentRef, List<BatchReport.Issue> issue) {
+  public BatchReportReaderRule putIssues(int componentRef, List<BatchReport.Issue> issue) {
     this.issues.put(componentRef, issue);
+    return this;
   }
 
   @Override
@@ -162,8 +171,19 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return closeableIterator(this.duplications.get(componentRef));
   }
 
-  public void putDuplications(int componentRef, BatchReport.Duplication... duplications) {
+  public BatchReportReaderRule putDuplications(int componentRef, BatchReport.Duplication... duplications) {
     this.duplications.put(componentRef, Arrays.asList(duplications));
+    return this;
+  }
+
+  @Override
+  public CloseableIterator<BatchReport.CpdTextBlock> readCpdTextBlocks(int componentRef) {
+    return closeableIterator(this.duplicationBlocks.get(componentRef));
+  }
+
+  public BatchReportReaderRule putDuplicationBlocks(int componentRef, List<BatchReport.CpdTextBlock> duplicationBlocks) {
+    this.duplicationBlocks.put(componentRef, duplicationBlocks);
+    return this;
   }
 
   @Override
@@ -175,8 +195,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return list == null ? CloseableIterator.<T>emptyCloseableIterator() : CloseableIterator.from(list.iterator());
   }
 
-  public void putSymbols(int componentRef, List<BatchReport.Symbol> symbols) {
+  public BatchReportReaderRule putSymbols(int componentRef, List<BatchReport.Symbol> symbols) {
     this.symbols.put(componentRef, symbols);
+    return this;
   }
 
   @Override
@@ -189,8 +210,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(res.iterator());
   }
 
-  public void putSyntaxHighlighting(int fileRef, List<BatchReport.SyntaxHighlighting> syntaxHighlightings) {
+  public BatchReportReaderRule putSyntaxHighlighting(int fileRef, List<BatchReport.SyntaxHighlighting> syntaxHighlightings) {
     this.syntaxHighlightings.put(fileRef, syntaxHighlightings);
+    return this;
   }
 
   @Override
@@ -203,8 +225,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(res.iterator());
   }
 
-  public void putCoverage(int fileRef, List<BatchReport.Coverage> coverages) {
+  public BatchReportReaderRule putCoverage(int fileRef, List<BatchReport.Coverage> coverages) {
     this.coverages.put(fileRef, coverages);
+    return this;
   }
 
   @Override
@@ -217,13 +240,15 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return Optional.of(CloseableIterator.from(lines.iterator()));
   }
 
-  public void putFileSourceLines(int fileRef, @Nullable String... lines) {
+  public BatchReportReaderRule putFileSourceLines(int fileRef, @Nullable String... lines) {
     Preconditions.checkNotNull(lines);
     this.fileSources.put(fileRef, Arrays.asList(lines));
+    return this;
   }
 
-  public void putFileSourceLines(int fileRef, List<String> lines) {
+  public BatchReportReaderRule putFileSourceLines(int fileRef, List<String> lines) {
     this.fileSources.put(fileRef, lines);
+    return this;
   }
 
   @Override
@@ -236,8 +261,9 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(res.iterator());
   }
 
-  public void putTests(int testFileRed, List<BatchReport.Test> tests) {
+  public BatchReportReaderRule putTests(int testFileRed, List<BatchReport.Test> tests) {
     this.tests.put(testFileRed, tests);
+    return this;
   }
 
   @Override
@@ -250,7 +276,8 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(res.iterator());
   }
 
-  public void putCoverageDetails(int testFileRef, List<BatchReport.CoverageDetail> coverageDetails) {
+  public BatchReportReaderRule putCoverageDetails(int testFileRef, List<BatchReport.CoverageDetail> coverageDetails) {
     this.coverageDetails.put(testFileRef, coverageDetails);
+    return this;
   }
 }

@@ -143,8 +143,8 @@ message Duplication {
 }
 
 // Used for cross project duplication
-message DuplicationBlock {
-  repeated int32 hash = 1 [packed = true];
+message CpdTextBlock {
+  optional string hash = 1;
   optional int32 start_line = 2;
   optional int32 end_line = 3;
   optional int32 start_token_index = 4;

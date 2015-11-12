@@ -17,20 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.duplication;
 
-import java.util.Collection;
-import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.ibatis.annotations.Param;
+package org.sonar.server.computation.snapshot;
 
-public interface DuplicationMapper {
+public interface Snapshot {
 
-  List<DuplicationUnitDto> selectCandidates(
-    @Nullable @Param("projectSnapshotId") Long projectSnapshotId,
-    @Param("language") String language,
-    @Param("hashes") Collection<String> hashes);
+  long id();
 
-  void batchInsert(DuplicationUnitDto unit);
-
+  long createdAt();
 }

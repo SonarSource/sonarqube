@@ -4,22 +4,30 @@
 <mapper namespace="org.sonar.db.duplication.DuplicationMapper">
 
   <select id="selectCandidates" parameterType="map" resultType="DuplicationUnit">
-    SELECT DISTINCT to_blocks.hash as hash, res.kee as resourceKey, to_blocks.index_in_file as indexInFile,
-    to_blocks.start_line as startLine, to_blocks.end_line as endLine
-    FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects res
-    WHERE from_blocks.snapshot_id = #{resource_snapshot_id}
-    AND to_blocks.hash = from_blocks.hash
-    AND to_blocks.snapshot_id = snapshot.id
-    AND snapshot.islast = ${_true}
-    AND snapshot.project_id = res.id
-    AND res.language = #{language}
-    <if test="last_project_snapshot_id != null">
-      AND to_blocks.project_snapshot_id != #{last_project_snapshot_id}
-    </if>
+    SELECT DISTINCT
+    duplication_block.id as id,
+    duplication_block.snapshot_id as snapshotId,
+    duplication_block.project_snapshot_id as projectSnapshotId,
+    duplication_block.hash as hash,
+    duplication_block.index_in_file as indexInFile,
+    duplication_block.start_line as startLine,
+    duplication_block.end_line as endLine,
+    file.kee as componentKey
+    FROM duplications_index duplication_block
+    INNER JOIN snapshots snapshot ON duplication_block.snapshot_id=snapshot.id AND snapshot.islast=${_true}
+    INNER JOIN projects file ON file.id=snapshot.project_id AND file.language=#{language} AND file.enabled=${_true}
+    <where>
+      AND duplication_block.hash in
+      <foreach collection="hashes" open="(" close=")" item="hash" separator=",">#{hash}</foreach>
+      <if test="projectSnapshotId != null">
+        AND duplication_block.project_snapshot_id &lt;&gt; #{projectSnapshotId}
+      </if>
+    </where>
   </select>
 
   <insert id="batchInsert" parameterType="DuplicationUnit" useGeneratedKeys="false">
     INSERT INTO duplications_index (snapshot_id, project_snapshot_id, hash, index_in_file, start_line, end_line)
     VALUES (#{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
   </insert>
+
 </mapper>

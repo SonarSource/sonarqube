@@ -42,6 +42,7 @@ public class ReportComputationSteps implements ComputationSteps {
       LogScannerContextStep.class,
 
       // Builds Component tree
+      LoadReportAnalysisMetadataHolderStep.class,
       BuildComponentTreeStep.class,
       ValidateProjectStep.class,
 
@@ -51,6 +52,8 @@ public class ReportComputationSteps implements ComputationSteps {
       // load project related stuffs
       LoadQualityGateStep.class,
       LoadPeriodsStep.class,
+
+      LoadCrossProjectDuplicationsRepositoryStep.class,
 
       // data computation
       SizeMeasuresStep.class,
@@ -89,6 +92,7 @@ public class ReportComputationSteps implements ComputationSteps {
       PersistDuplicationsStep.class,
       PersistFileSourcesStep.class,
       PersistTestsStep.class,
+      PersistCrossProjectDuplicationIndexStep.class,
 
       // Switch snapshot and purge
       SwitchSnapshotStep.class,

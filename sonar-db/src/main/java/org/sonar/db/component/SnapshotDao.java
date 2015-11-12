@@ -70,6 +70,18 @@ public class SnapshotDao implements Dao {
     return mapper(session).selectSnapshotsByQuery(query);
   }
 
+  @CheckForNull
+  public SnapshotDto selectSnapshotByQuery(DbSession session, SnapshotQuery query) {
+    List<SnapshotDto> snapshotDtos = mapper(session).selectSnapshotsByQuery(query);
+    if (snapshotDtos.isEmpty()) {
+      return null;
+    }
+    if (snapshotDtos.size() > 1) {
+      throw new IllegalStateException(String.format("Expected one snapshot to be returned, got %s", snapshotDtos.size()));
+    }
+    return snapshotDtos.get(0);
+  }
+
   public List<SnapshotDto> selectPreviousVersionSnapshots(DbSession session, long componentId, String lastVersion) {
     return mapper(session).selectPreviousVersionSnapshots(componentId, lastVersion);
   }

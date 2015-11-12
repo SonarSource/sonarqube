@@ -31,6 +31,7 @@ import org.sonar.server.computation.component.SettingsRepositoryImpl;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.duplication.DuplicationRepositoryImpl;
+import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplications;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.filesystem.ComputationTempFolderProvider;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
@@ -184,6 +185,9 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       Tracker.class,
       TrackerExecution.class,
       BaseIssuesLoader.class,
+
+      // duplication
+      IntegrateCrossProjectDuplications.class,
 
       // views
       ViewIndex.class);

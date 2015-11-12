@@ -41,6 +41,7 @@ public class BatchReportReaderImplTest {
   private static final BatchReport.Component COMPONENT = BatchReport.Component.newBuilder().setRef(COMPONENT_REF).build();
   private static final BatchReport.Issue ISSUE = BatchReport.Issue.newBuilder().build();
   private static final BatchReport.Duplication DUPLICATION = BatchReport.Duplication.newBuilder().build();
+  private static final BatchReport.CpdTextBlock DUPLICATION_BLOCK = BatchReport.CpdTextBlock.newBuilder().build();
   private static final BatchReport.Symbol SYMBOL = BatchReport.Symbol.newBuilder().build();
   private static final BatchReport.SyntaxHighlighting SYNTAX_HIGHLIGHTING_1 = BatchReport.SyntaxHighlighting.newBuilder().build();
   private static final BatchReport.SyntaxHighlighting SYNTAX_HIGHLIGHTING_2 = BatchReport.SyntaxHighlighting.newBuilder().build();
@@ -198,6 +199,28 @@ public class BatchReportReaderImplTest {
     writer.writeComponentDuplications(COMPONENT_REF, of(DUPLICATION));
 
     assertThat(underTest.readComponentDuplications(COMPONENT_REF)).isNotSameAs(underTest.readComponentDuplications(COMPONENT_REF));
+  }
+
+  @Test
+  public void readComponentDuplicationBlocks_returns_empty_list_if_file_does_not_exist() {
+    assertThat(underTest.readCpdTextBlocks(COMPONENT_REF)).isEmpty();
+  }
+
+  @Test
+  public void verify_readComponentDuplicationBlocks_returns_Issues() {
+    writer.writeCpdTextBlocks(COMPONENT_REF, of(DUPLICATION_BLOCK));
+
+    try (CloseableIterator<BatchReport.CpdTextBlock> res = underTest.readCpdTextBlocks(COMPONENT_REF)) {
+      assertThat(res.next()).isEqualTo(DUPLICATION_BLOCK);
+      assertThat(res.hasNext()).isFalse();
+    }
+  }
+
+  @Test
+  public void readComponentDuplicationBlocks_it_not_cached() {
+    writer.writeCpdTextBlocks(COMPONENT_REF, of(DUPLICATION_BLOCK));
+
+    assertThat(underTest.readCpdTextBlocks(COMPONENT_REF)).isNotSameAs(underTest.readCpdTextBlocks(COMPONENT_REF));
   }
 
   @Test

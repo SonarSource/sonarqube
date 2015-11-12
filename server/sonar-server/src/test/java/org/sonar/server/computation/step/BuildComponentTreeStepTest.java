@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -34,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -75,6 +73,8 @@ public class BuildComponentTreeStepTest {
   static final String REPORT_DIR_KEY_2 = "src/main/java/dir2";
   static final String REPORT_FILE_KEY_2 = "src/main/java/dir2/File2.java";
 
+  static final Date ANALYSIS_DATE = new Date();
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
@@ -85,21 +85,14 @@ public class BuildComponentTreeStepTest {
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
 
   @Rule
-  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-
-  Date someDate = new Date();
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule()
+    .setRootComponentRef(ROOT_REF)
+    .setAnalysisDate(ANALYSIS_DATE)
+    .setBranch(null);
 
   DbClient dbClient = dbTester.getDbClient();
 
   BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
-
-  @Before
-  public void setUp() {
-    reportReader.setMetadata(Metadata.newBuilder()
-      .setRootComponentRef(ROOT_REF)
-      .setAnalysisDate(someDate.getTime())
-      .build());
-  }
 
   @Test(expected = NullPointerException.class)
   public void fails_if_root_component_does_not_exist_in_reportReader() {
@@ -130,8 +123,6 @@ public class BuildComponentTreeStepTest {
     assertThat(root.getType()).isEqualTo(Component.Type.valueOf(componentType.name()));
     assertThat(root.getReportAttributes().getRef()).isEqualTo(ROOT_REF);
     assertThat(root.getChildren()).isEmpty();
-
-    assertThat(analysisMetadataHolder.getAnalysisDate().getTime()).isEqualTo(someDate.getTime());
   }
 
   @Test
@@ -158,8 +149,6 @@ public class BuildComponentTreeStepTest {
     Component dir2 = module.getChildren().get(1);
     verifyComponent(dir2, Component.Type.DIRECTORY, DIR_REF_2, 1);
     verifyComponent(dir2.getChildren().iterator().next(), Component.Type.FILE, FILE_3_REF, 0);
-
-    assertThat(analysisMetadataHolder.getAnalysisDate().getTime()).isEqualTo(someDate.getTime());
   }
 
   @Test
@@ -199,11 +188,12 @@ public class BuildComponentTreeStepTest {
 
   @Test
   public void use_branch_to_generate_keys() {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+    MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule()
       .setRootComponentRef(ROOT_REF)
-      .setBranch("origin/master")
-      .setProjectKey("")
-      .build());
+      .setAnalysisDate(ANALYSIS_DATE)
+      .setBranch("origin/master");
+
+    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
 
     reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
     reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
@@ -277,7 +267,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_first_analysis_to_true_when_no_snapshot() throws Exception {
+  public void set_no_base_project_snapshot_when_no_snapshot() throws Exception {
     reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
     underTest.execute();
 
@@ -285,7 +275,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_first_analysis_to_true_when_no_last_snapshot() throws Exception {
+  public void set_no_base_project_snapshot_when_no_last_snapshot() throws Exception {
     ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newSnapshotForProject(project).setLast(false));
 
@@ -296,7 +286,7 @@ public class BuildComponentTreeStepTest {
   }
 
   @Test
-  public void set_first_analysis_to_false_when_last_snapshot_exist() throws Exception {
+  public void set_base_project_snapshot_last_snapshot_exist() throws Exception {
     ComponentDto project = insertComponent(newProjectDto("ABCD").setKey(REPORT_PROJECT_KEY));
     insertSnapshot(newSnapshotForProject(project).setLast(true));
 

@@ -19,17 +19,17 @@
  */
 package org.sonar.db.duplication;
 
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class DuplicationDaoTest {
@@ -37,34 +37,45 @@ public class DuplicationDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  DbSession dbSession = db.getSession();
+
   DuplicationDao dao = db.getDbClient().duplicationDao();
 
   @Test
-  public void shouldGetByHash() {
-    db.prepareDbUnit(getClass(), "shouldGetByHash.xml");
+  public void select_candidates() {
+    db.prepareDbUnit(getClass(), "select_candidates.xml");
+    dbSession.commit();
 
-    List<DuplicationUnitDto> blocks = dao.selectCandidates(10, 7, "java");
-    assertThat(blocks.size(), is(1));
+    List<DuplicationUnitDto> blocks = dao.selectCandidates(dbSession, 7L, "java", singletonList("aa"));
+    assertThat(blocks).hasSize(1);
 
     DuplicationUnitDto block = blocks.get(0);
-    assertThat("block resourceId", block.getResourceKey(), is("bar-last"));
-    assertThat("block hash", block.getHash(), is("aa"));
-    assertThat("block index in file", block.getIndexInFile(), is(0));
-    assertThat("block start line", block.getStartLine(), is(1));
-    assertThat("block end line", block.getEndLine(), is(2));
+    assertThat(block.getComponentKey()).isEqualTo("bar-last");
+    assertThat(block.getHash()).isEqualTo("aa");
+    assertThat(block.getIndexInFile()).isEqualTo(0);
+    assertThat(block.getStartLine()).isEqualTo(1);
+    assertThat(block.getEndLine()).isEqualTo(2);
 
     // check null for lastSnapshotId
-    blocks = dao.selectCandidates(10, null, "java");
-    assertThat(blocks.size(), is(2));
+    blocks = dao.selectCandidates(dbSession, null, "java", singletonList("aa"));
+    assertThat(blocks).hasSize(2);
   }
 
   @Test
-  public void shouldInsert() {
-    db.prepareDbUnit(getClass(), "shouldInsert.xml");
+  public void insert() {
+    db.prepareDbUnit(getClass(), "insert.xml");
+    dbSession.commit();
 
-    dao.insert(Arrays.asList(new DuplicationUnitDto(1, 2, "bb", 0, 1, 2)));
+    dao.insert(dbSession, new DuplicationUnitDto()
+      .setProjectSnapshotId(1)
+      .setSnapshotId(2)
+      .setHash("bb")
+      .setIndexInFile(0)
+      .setStartLine(1)
+      .setEndLine(2));
+    dbSession.commit();
 
-    db.assertDbUnit(getClass(), "shouldInsert-result.xml", "duplications_index");
+    db.assertDbUnit(getClass(), "insert-result.xml", "duplications_index");
   }
 
 }

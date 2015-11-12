@@ -180,17 +180,17 @@ public class BatchReportReaderTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
-    BatchReport.DuplicationBlock duplicationBlock = BatchReport.DuplicationBlock.newBuilder()
-      .addAllHash(asList(1, 2, 3, 5, 7))
+    BatchReport.CpdTextBlock duplicationBlock = BatchReport.CpdTextBlock.newBuilder()
+      .setHash("abcdefghijklmnop")
       .setStartLine(1)
       .setEndLine(2)
       .setStartTokenIndex(10)
       .setEndTokenIndex(15)
       .build();
-    writer.writeDuplicationBlocks(1, singletonList(duplicationBlock));
+    writer.writeCpdTextBlocks(1, singletonList(duplicationBlock));
 
     BatchReportReader sut = new BatchReportReader(dir);
-    assertThat(sut.readComponentDuplicationBlocks(1)).hasSize(1);
+    assertThat(sut.readCpdTextBlocks(1)).hasSize(1);
   }
 
   @Test

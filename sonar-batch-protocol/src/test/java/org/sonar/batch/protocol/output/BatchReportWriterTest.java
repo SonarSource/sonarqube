@@ -191,23 +191,23 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_duplication_blocks() {
-    assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATION_BLOCKS, 1)).isFalse();
+    assertThat(underTest.hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, 1)).isFalse();
 
-    BatchReport.DuplicationBlock duplicationBlock = BatchReport.DuplicationBlock.newBuilder()
-      .addAllHash(asList(1, 2, 3, 5, 7))
+    BatchReport.CpdTextBlock duplicationBlock = BatchReport.CpdTextBlock.newBuilder()
+      .setHash("abcdefghijklmnop")
       .setStartLine(1)
       .setEndLine(2)
       .setStartTokenIndex(10)
       .setEndTokenIndex(15)
       .build();
-    underTest.writeDuplicationBlocks(1, asList(duplicationBlock));
+    underTest.writeCpdTextBlocks(1, asList(duplicationBlock));
 
-    assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATION_BLOCKS, 1)).isTrue();
-    File file = underTest.getFileStructure().fileFor(FileStructure.Domain.DUPLICATION_BLOCKS, 1);
+    assertThat(underTest.hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, 1)).isTrue();
+    File file = underTest.getFileStructure().fileFor(FileStructure.Domain.CPD_TEXT_BLOCKS, 1);
     assertThat(file).exists().isFile();
-    try (CloseableIterator<BatchReport.DuplicationBlock> duplicationBlocks = Protobuf.readStream(file, BatchReport.DuplicationBlock.parser())) {
-      BatchReport.DuplicationBlock duplicationBlockResult = duplicationBlocks.next();
-      assertThat(duplicationBlockResult.getHashList()).containsOnly(1, 2, 3, 5, 7);
+    try (CloseableIterator<BatchReport.CpdTextBlock> duplicationBlocks = Protobuf.readStream(file, BatchReport.CpdTextBlock.parser())) {
+      BatchReport.CpdTextBlock duplicationBlockResult = duplicationBlocks.next();
+      assertThat(duplicationBlockResult.getHash()).isEqualTo("abcdefghijklmnop");
       assertThat(duplicationBlockResult.getStartLine()).isEqualTo(1);
       assertThat(duplicationBlockResult.getEndLine()).isEqualTo(2);
       assertThat(duplicationBlockResult.getStartTokenIndex()).isEqualTo(10);

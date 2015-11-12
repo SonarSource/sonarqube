@@ -37,7 +37,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.protocol.output.BatchReport.DuplicationBlock;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Measure;
 import org.sonar.xoo.XooPlugin;
 
@@ -152,25 +152,25 @@ public class CpdMediumTest {
 
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
 
-    List<DuplicationBlock> duplicationBlocks = result.duplicationBlocksFor(inputFile1);
+    List<BatchReport.CpdTextBlock> duplicationBlocks = result.duplicationBlocksFor(inputFile1);
     assertThat(duplicationBlocks).hasSize(3);
     assertThat(duplicationBlocks.get(0).getStartLine()).isEqualTo(1);
     assertThat(duplicationBlocks.get(0).getEndLine()).isEqualTo(5);
     assertThat(duplicationBlocks.get(0).getStartTokenIndex()).isEqualTo(1);
     assertThat(duplicationBlocks.get(0).getEndTokenIndex()).isEqualTo(6);
-    assertThat(duplicationBlocks.get(0).getHashList()).isNotEmpty();
+    assertThat(duplicationBlocks.get(0).getHash()).isNotEmpty();
 
     assertThat(duplicationBlocks.get(1).getStartLine()).isEqualTo(2);
     assertThat(duplicationBlocks.get(1).getEndLine()).isEqualTo(6);
     assertThat(duplicationBlocks.get(1).getStartTokenIndex()).isEqualTo(3);
     assertThat(duplicationBlocks.get(1).getEndTokenIndex()).isEqualTo(7);
-    assertThat(duplicationBlocks.get(0).getHashList()).isNotEmpty();
+    assertThat(duplicationBlocks.get(0).getHash()).isNotEmpty();
 
     assertThat(duplicationBlocks.get(2).getStartLine()).isEqualTo(3);
     assertThat(duplicationBlocks.get(2).getEndLine()).isEqualTo(7);
     assertThat(duplicationBlocks.get(2).getStartTokenIndex()).isEqualTo(4);
     assertThat(duplicationBlocks.get(2).getEndTokenIndex()).isEqualTo(8);
-    assertThat(duplicationBlocks.get(0).getHashList()).isNotEmpty();
+    assertThat(duplicationBlocks.get(0).getHash()).isNotEmpty();
   }
 
   // SONAR-6000

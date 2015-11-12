@@ -35,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
@@ -46,7 +47,8 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.ViewsComponent;
-import org.sonar.core.hash.SourceHashComputer;
+import org.sonar.server.computation.snapshot.Snapshot;
+import org.sonar.server.computation.snapshot.SnapshotImpl;
 import org.sonar.server.computation.source.SourceHashRepository;
 import org.sonar.server.computation.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.source.SourceLinesRepositoryImpl;
@@ -61,10 +63,15 @@ import static org.sonar.server.computation.component.ReportComponent.builder;
 @RunWith(DataProviderRunner.class)
 public class ScmInfoRepositoryImplTest {
 
-  private static final int FILE_REF = 1;
-  private static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
-  private static final long DATE_1 = 123456789L;
-  private static final long DATE_2 = 1234567810L;
+  static final int FILE_REF = 1;
+  static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
+  static final long DATE_1 = 123456789L;
+  static final long DATE_2 = 1234567810L;
+
+  static Snapshot BASE_PROJECT_SNAPSHOT = new SnapshotImpl.Builder()
+    .setId(1)
+    .setCreatedAt(123456789L)
+    .build();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -84,7 +91,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void read_from_report() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     addChangesetInReport("john", DATE_1, "rev-1");
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
@@ -95,7 +102,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void getScmInfo_returns_ScmInfo_from_DB_if_hashes_are_the_same() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addFileSourceInReport(1);
 
@@ -107,7 +114,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void getScmInfo_returns_absent_if_hash_from_db_does_not_match() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1) + "_different");
     addFileSourceInReport(1);
 
@@ -118,7 +125,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void read_from_report_even_if_data_in_db_exists() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addChangesetInReport("john", DATE_2, "rev-2");
 
@@ -132,13 +139,13 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void return_nothing_when_no_data_in_report_and_db() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     assertThat(underTest.getScmInfo(FILE)).isAbsent();
   }
 
   @Test
   public void return_nothing_when_nothing_in_report_and_db_has_no_scm() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     addFileSourceInDb(null, null, null, "don't care");
     addFileSourceInReport(1);
 
@@ -147,7 +154,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void fail_with_NPE_when_component_is_null() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
 
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Component cannot be bull");
@@ -186,7 +193,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void load_scm_info_from_cache_when_already_read() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(false);
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     addChangesetInReport("john", DATE_1, "rev-1");
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
@@ -200,7 +207,7 @@ public class ScmInfoRepositoryImplTest {
 
   @Test
   public void not_read_in_db_on_first_analysis() throws Exception {
-    analysisMetadataHolder.setIsFirstAnalysis(true);
+    analysisMetadataHolder.setBaseProjectSnapshot(null);
     addFileSourceInDb("henry", DATE_1, "rev-1", "don't care");
     addFileSourceInReport(1);
 
