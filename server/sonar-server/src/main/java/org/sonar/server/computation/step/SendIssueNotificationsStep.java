@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.IssueCache;
@@ -52,17 +52,17 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private final RuleRepository rules;
   private final TreeRootHolder treeRootHolder;
   private final NotificationService service;
-  private final BatchReportReader reportReader;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private NewIssuesNotificationFactory newIssuesNotificationFactory;
 
   public SendIssueNotificationsStep(IssueCache issueCache, RuleRepository rules, TreeRootHolder treeRootHolder,
-    NotificationService service, BatchReportReader reportReader,
+    NotificationService service, AnalysisMetadataHolder analysisMetadataHolder,
     NewIssuesNotificationFactory newIssuesNotificationFactory) {
     this.issueCache = issueCache;
     this.rules = rules;
     this.treeRootHolder = treeRootHolder;
     this.service = service;
-    this.reportReader = reportReader;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.newIssuesNotificationFactory = newIssuesNotificationFactory;
   }
 
@@ -83,7 +83,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
       issues.close();
     }
     if (newIssuesStats.hasIssues()) {
-      long analysisDate = reportReader.readMetadata().getAnalysisDate();
+      long analysisDate = analysisMetadataHolder.getAnalysisDate().getTime();
       sendNewIssuesNotification(newIssuesStats, project, analysisDate);
       sendNewIssuesNotificationToAssignees(newIssuesStats, project, analysisDate);
     }

@@ -29,13 +29,13 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
@@ -64,11 +64,13 @@ public class ValidateProjectStep implements ComputationStep {
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public ValidateProjectStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
+  public ValidateProjectStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -135,7 +137,7 @@ public class ValidateProjectStep implements ComputationStep {
     private void validateAnalysisDate(Optional<ComponentDto> baseProject) {
       if (baseProject.isPresent()) {
         SnapshotDto snapshotDto = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, baseProject.get().getId());
-        long currentAnalysisDate = reportReader.readMetadata().getAnalysisDate();
+        long currentAnalysisDate = analysisMetadataHolder.getAnalysisDate().getTime();
         Long lastAnalysisDate = snapshotDto != null ? snapshotDto.getCreatedAt() : null;
         if (lastAnalysisDate != null && currentAnalysisDate <= snapshotDto.getCreatedAt()) {
           validationMessages.add(String.format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
@@ -185,11 +187,10 @@ public class ValidateProjectStep implements ComputationStep {
 
     @CheckForNull
     private void validateBranch() {
-      BatchReport.Metadata metadata = reportReader.readMetadata();
-      if (!metadata.hasBranch()) {
+      String branch = analysisMetadataHolder.getBranch();
+      if (branch == null) {
         return;
       }
-      String branch = metadata.getBranch();
       if (!ComponentKeys.isValidBranch(branch)) {
         validationMessages.add(String.format("\"%s\" is not a valid branch name. "
           + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branch));

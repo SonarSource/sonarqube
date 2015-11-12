@@ -20,11 +20,13 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
@@ -34,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -43,9 +46,10 @@ import org.sonar.test.DbTests;
 @Category(DbTests.class)
 public class ValidateProjectStepTest {
 
-  private static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
-  private static final String PROJECT_KEY = "PROJECT_KEY";
-  private static final String MODULE_KEY = "MODULE_KEY";
+  static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
+  static final String PROJECT_KEY = "PROJECT_KEY";
+  static final String MODULE_KEY = "MODULE_KEY";
+  static final String DEFAULT_BRANCH = "origin/master";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -59,9 +63,14 @@ public class ValidateProjectStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
+    .setAnalysisDate(new Date(DEFAULT_ANALYSIS_TIME))
+    .setBranch(DEFAULT_BRANCH);
+
   DbClient dbClient = dbTester.getDbClient();
 
-  ValidateProjectStep underTest = new ValidateProjectStep(dbClient, reportReader, treeRootHolder);
+  ValidateProjectStep underTest = new ValidateProjectStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
 
   @Before
   public void setUp() {
@@ -70,10 +79,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void not_fail_on_valid_branch() {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(DEFAULT_ANALYSIS_TIME)
-      .setBranch("origin/master")
-      .build());
+    analysisMetadataHolder.setBranch(DEFAULT_BRANCH);
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -90,10 +96,7 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Validation of project failed:\n" +
       "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(DEFAULT_ANALYSIS_TIME)
-      .setBranch("bran#ch")
-      .build());
+    analysisMetadataHolder.setBranch("bran#ch");
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -113,7 +116,6 @@ public class ValidateProjectStepTest {
       "  o \"Project\\Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.\n" +
       "  o \"Module$Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -140,7 +142,6 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -171,7 +172,6 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Validation of project failed:\n" +
       "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -207,7 +207,6 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + anotherProjectKey + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -235,9 +234,6 @@ public class ValidateProjectStepTest {
 
   @Test
   public void not_fail_if_analysis_date_is_after_last_analysis() {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(DEFAULT_ANALYSIS_TIME) // 2015-06-01
-      .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -262,9 +258,8 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Date of analysis cannot be older than the date of the last known analysis on this project. Value: ");
     thrown.expectMessage("Latest analysis: ");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(1420088400000L) // 2015-01-01
-      .build());
+    analysisMetadataHolder.setAnalysisDate(DateUtils.parseDate("2015-01-01"));
+
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)

@@ -28,9 +28,8 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.Component.Type;
@@ -67,11 +66,12 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   static final Component PROJECT = builder(Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).setName(PROJECT_NAME).build();
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
-  @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
     .setRoot(PROJECT);
+
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
+    .setAnalysisDate(new Date(ANALYSE_DATE));
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -87,15 +87,11 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    underTest = new SendIssueNotificationsStep(issueCache, mock(RuleRepository.class), treeRootHolder, notificationService, reportReader, newIssuesNotificationFactory);
+    underTest = new SendIssueNotificationsStep(issueCache, mock(RuleRepository.class), treeRootHolder, notificationService, analysisMetadataHolder,
+      newIssuesNotificationFactory);
 
     when(newIssuesNotificationFactory.newNewIssuesNotication()).thenReturn(newIssuesNotificationMock);
     when(newIssuesNotificationFactory.newMyNewIssuesNotification()).thenReturn(myNewIssuesNotificationMock);
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setAnalysisDate(ANALYSE_DATE)
-      .build());
   }
 
   @Test
