@@ -79,6 +79,7 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
     Preconditions.checkState(inputFile != null, "Call onFile() first");
     TextRange newRange;
     try {
+      Preconditions.checkArgument(startOffset < endOffset, "start offset should be strictly before end offset");
       newRange = inputFile.newRange(startOffset, endOffset);
     } catch (Exception e) {
       throw new IllegalArgumentException("Unable to highlight file " + inputFile + " from offset " + startOffset + " to offset " + endOffset, e);
