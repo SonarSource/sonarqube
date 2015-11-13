@@ -44,7 +44,7 @@ message WsSearchGlobalPermissionsResponse {
   repeated Permission permissions = 1;
 }
 
-message WsSearchProjectPermissionsResponse {
+message SearchProjectPermissionsWsResponse {
   message Project {
     optional string id = 1;
     optional string key = 2;

@@ -32,20 +32,18 @@ import javax.annotation.Nonnull;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.CountByProjectAndPermissionDto;
+import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.api.server.ws.WebService.Param.PAGE;
-import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
-import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
+import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 
 public class SearchProjectPermissionsDataLoader {
   private final DbClient dbClient;
@@ -58,16 +56,16 @@ public class SearchProjectPermissionsDataLoader {
     this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER);
   }
 
-  SearchProjectPermissionsData load(Request wsRequest) {
+  SearchProjectPermissionsData load(SearchProjectPermissionsWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchProjectPermissionsData.Builder data = newBuilder();
-      int countRootComponents = countRootComponents(dbSession, rootQualifiers, wsRequest);
-      List<ComponentDto> rootComponents = searchRootComponents(dbSession, wsRequest, paging(wsRequest, countRootComponents));
+      int countRootComponents = countRootComponents(dbSession, rootQualifiers, request);
+      List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
       List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentToIdFunction.INSTANCE);
 
       data.rootComponents(rootComponents)
-        .paging(paging(wsRequest, countRootComponents))
+        .paging(paging(request, countRootComponents))
         .userCountByProjectIdAndPermission(userCountByRootComponentIdAndPermission(dbSession, rootComponentIds))
         .groupCountByProjectIdAndPermission(groupCountByRootComponentIdAndPermission(dbSession, rootComponentIds));
 
@@ -77,19 +75,19 @@ public class SearchProjectPermissionsDataLoader {
     }
   }
 
-  private static Paging paging(Request wsRequest, int total) {
-    return forPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
-      .withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))
+  private static Paging paging(SearchProjectPermissionsWsRequest request, int total) {
+    return forPageIndex(request.getPage())
+      .withPageSize(request.getPageSize())
       .andTotal(total);
   }
 
-  private int countRootComponents(DbSession dbSession, Collection<String> qualifiers, Request wsRequest) {
-    return dbClient.componentDao().countRootComponents(dbSession, qualifiers, wsRequest.param(TEXT_QUERY));
+  private int countRootComponents(DbSession dbSession, Collection<String> qualifiers, SearchProjectPermissionsWsRequest request) {
+    return dbClient.componentDao().countRootComponents(dbSession, qualifiers, request.getQuery());
   }
 
-  private List<ComponentDto> searchRootComponents(DbSession dbSession, Request wsRequest, Paging paging) {
-    String query = wsRequest.param(TEXT_QUERY);
-    Optional<WsProjectRef> project = WsProjectRef.newOptionalWsProjectRef(wsRequest);
+  private List<ComponentDto> searchRootComponents(DbSession dbSession, SearchProjectPermissionsWsRequest request, Paging paging) {
+    String query = request.getQuery();
+    Optional<WsProjectRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
 
     if (project.isPresent()) {
       return singletonList(finder.getRootComponentOrModule(dbSession, project.get()));

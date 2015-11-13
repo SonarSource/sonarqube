@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.permission;
 
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
+import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
 import org.sonarqube.ws.client.WsClient;
 
@@ -153,6 +154,17 @@ public class PermissionsWsClient {
     return wsClient.execute(
       newGetRequest(action("search_global_permissions")),
       WsSearchGlobalPermissionsResponse.parser());
+  }
+
+  public SearchProjectPermissionsWsResponse searchProjectPermissions(SearchProjectPermissionsWsRequest request) {
+    return wsClient.execute(
+      newGetRequest("search_project_permissions")
+        .setParam(PARAM_PROJECT_ID, request.getProjectId())
+        .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
+        .setParam("p", request.getPage())
+        .setParam("ps", request.getPageSize())
+        .setParam("q", request.getQuery()),
+      SearchProjectPermissionsWsResponse.parser());
   }
 
   private static String action(String action) {
