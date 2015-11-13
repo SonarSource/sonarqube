@@ -27,7 +27,7 @@ option java_outer_classname = "WsComponents";
 option optimize_for = SPEED;
 
 // WS api/components/search
-message WsSearchResponse {
+message SearchWsResponse {
   message Component {
     optional string id = 1;
     optional string key = 2;

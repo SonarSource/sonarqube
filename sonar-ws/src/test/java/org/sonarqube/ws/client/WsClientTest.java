@@ -65,18 +65,18 @@ public class WsClientTest {
   @Test
   public void return_protobuf_response() throws Exception {
     server.doReturnBody(
-      WsComponents.WsSearchResponse
+      WsComponents.SearchWsResponse
         .newBuilder()
-        .addComponents(WsComponents.WsSearchResponse.Component.getDefaultInstance())
+        .addComponents(WsComponents.SearchWsResponse.Component.getDefaultInstance())
         .build()
         .toByteArray());
     server.doReturnStatus(HTTP_OK);
     server.doReturnContentType(MediaTypes.PROTOBUF);
 
-    WsComponents.WsSearchResponse response = underTest.execute(
+    WsComponents.SearchWsResponse response = underTest.execute(
       newGetRequest("api/components/search")
         .setMediaType(WsRequest.MediaType.PROTOBUF),
-      WsComponents.WsSearchResponse.parser());
+      WsComponents.SearchWsResponse.parser());
 
     assertThat(response.getComponentsCount()).isEqualTo(1);
     assertThat(server.requestHeaders().get(HttpHeaders.ACCEPT))

@@ -18,31 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonarqube.ws.client.qualityprofile;
+@ParametersAreNonnullByDefault
+package org.sonarqube.ws.client.component;
 
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
-import org.sonarqube.ws.client.WsClient;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static org.sonarqube.ws.client.WsRequest.newGetRequest;
-
-public class QualityProfilesWsClient {
-  private final WsClient wsClient;
-
-  public QualityProfilesWsClient(WsClient wsClient) {
-    this.wsClient = wsClient;
-  }
-
-  public SearchWsResponse search(SearchWsRequest request) {
-    return wsClient.execute(
-      newGetRequest(action("search"))
-        .setParam("defaults", request.getDefaults())
-        .setParam("language", request.getLanguage())
-        .setParam("profileName", request.getProfileName())
-        .setParam("projectKey", request.getProjectKey()),
-      SearchWsResponse.parser());
-  }
-
-  private static String action(String action) {
-    return "api/qualityprofiles/" + action;
-  }
-}

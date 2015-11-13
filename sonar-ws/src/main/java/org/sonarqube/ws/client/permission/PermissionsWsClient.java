@@ -163,7 +163,7 @@ public class PermissionsWsClient {
 
   public SearchProjectPermissionsWsResponse searchProjectPermissions(SearchProjectPermissionsWsRequest request) {
     return wsClient.execute(
-      newGetRequest("search_project_permissions")
+      newGetRequest(action("search_project_permissions"))
         .setParam(PARAM_PROJECT_ID, request.getProjectId())
         .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
         .setParam("p", request.getPage())
@@ -174,14 +174,14 @@ public class PermissionsWsClient {
 
   public SearchTemplatesWsResponse searchTemplates(SearchTemplatesWsRequest request) {
     return wsClient.execute(
-      newGetRequest("search_templates")
+      newGetRequest(action("search_templates"))
         .setParam("q", request.getQuery()),
       SearchTemplatesWsResponse.parser());
   }
 
   public void setDefaultTemplate(SetDefaultTemplateWsRequest request) {
     wsClient.execute(
-      newPostRequest("set_default_template")
+      newPostRequest(action("set_default_template"))
         .setParam(PARAM_QUALIFIER, request.getQualifier())
         .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
         .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
@@ -189,7 +189,7 @@ public class PermissionsWsClient {
 
   public UpdateTemplateWsResponse updateTemplate(UpdateTemplateWsRequest request) {
     return wsClient.execute(
-      newPostRequest("update_template")
+      newPostRequest(action("update_template"))
         .setParam(PARAM_DESCRIPTION, request.getDescription())
         .setParam(PARAM_ID, request.getId())
         .setParam(PARAM_NAME, request.getName())
@@ -199,7 +199,7 @@ public class PermissionsWsClient {
 
   public UsersWsResponse users(UsersWsRequest request) {
     return wsClient.execute(
-      newGetRequest("users")
+      newGetRequest(action("users"))
         .setParam(PARAM_PERMISSION, request.getPermission())
         .setParam(PARAM_PROJECT_ID, request.getProjectId())
         .setParam(PARAM_PROJECT_KEY, request.getProjectKey())

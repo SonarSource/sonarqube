@@ -38,16 +38,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsComponents.WsSearchResponse;
+import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsComponents.SearchWsResponse;
+import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.component.ws.WsComponentsParameters.PARAM_QUALIFIERS;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
 public class SearchAction implements ComponentsWsAction {
   private static final String QUALIFIER_PROPERTY_PREFIX = "qualifiers.";
@@ -83,21 +85,33 @@ public class SearchAction implements ComponentsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(wsRequest));
+    writeProtobuf(searchWsResponse, wsRequest, wsResponse);
+  }
+
+  private SearchWsResponse doHandle(SearchWsRequest request) {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    List<String> qualifiers = wsRequest.mandatoryParamAsStrings(PARAM_QUALIFIERS);
+    List<String> qualifiers = request.getQualifiers();
     validateQualifiers(qualifiers);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentQuery query = buildQuery(wsRequest, qualifiers);
-      Paging paging = buildPaging(dbSession, wsRequest, query);
+      ComponentQuery query = buildQuery(request, qualifiers);
+      Paging paging = buildPaging(dbSession, request, query);
       List<ComponentDto> components = searchComponents(dbSession, query, paging);
-      WsSearchResponse response = buildResponse(components, paging);
-      writeProtobuf(response, wsRequest, wsResponse);
+      return buildResponse(components, paging);
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private static SearchWsRequest toSearchWsRequest(Request request) {
+    return new SearchWsRequest()
+      .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
+      .setQuery(request.param(Param.TEXT_QUERY))
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
   }
 
   private List<ComponentDto> searchComponents(DbSession dbSession, ComponentQuery query, Paging paging) {
@@ -108,8 +122,8 @@ public class SearchAction implements ComponentsWsAction {
       paging.pageSize());
   }
 
-  private WsSearchResponse buildResponse(List<ComponentDto> components, Paging paging) {
-    WsSearchResponse.Builder responseBuilder = WsSearchResponse.newBuilder();
+  private SearchWsResponse buildResponse(List<ComponentDto> components, Paging paging) {
+    WsComponents.SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())
@@ -123,16 +137,16 @@ public class SearchAction implements ComponentsWsAction {
     return responseBuilder.build();
   }
 
-  private Paging buildPaging(DbSession dbSession, Request wsRequest, ComponentQuery query) {
+  private Paging buildPaging(DbSession dbSession, SearchWsRequest request, ComponentQuery query) {
     int total = dbClient.componentDao().countByQuery(dbSession, query);
-    return Paging.forPageIndex(wsRequest.mandatoryParamAsInt(Param.PAGE))
-      .withPageSize(wsRequest.mandatoryParamAsInt(Param.PAGE_SIZE))
+    return Paging.forPageIndex(request.getPage())
+      .withPageSize(request.getPageSize())
       .andTotal(total);
   }
 
-  private ComponentQuery buildQuery(Request wsRequest, List<String> qualifiers) {
+  private ComponentQuery buildQuery(SearchWsRequest request, List<String> qualifiers) {
     return new ComponentQuery(
-      wsRequest.param(Param.TEXT_QUERY),
+      request.getQuery(),
       qualifiers.toArray(new String[qualifiers.size()]));
   }
 
@@ -166,12 +180,12 @@ public class SearchAction implements ComponentsWsAction {
     return i18n.message(userSession.locale(), QUALIFIER_PROPERTY_PREFIX + qualifier, "");
   }
 
-  private enum ComponentDToComponentResponseFunction implements Function<ComponentDto, WsSearchResponse.Component> {
+  private enum ComponentDToComponentResponseFunction implements Function<ComponentDto, WsComponents.SearchWsResponse.Component> {
     INSTANCE;
 
     @Override
-    public WsSearchResponse.Component apply(@Nonnull ComponentDto dto) {
-      return WsSearchResponse.Component.newBuilder()
+    public WsComponents.SearchWsResponse.Component apply(@Nonnull ComponentDto dto) {
+      return SearchWsResponse.Component.newBuilder()
         .setId(dto.uuid())
         .setKey(dto.key())
         .setName(dto.name())

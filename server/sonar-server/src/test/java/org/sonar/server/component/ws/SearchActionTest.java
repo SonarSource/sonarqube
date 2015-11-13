@@ -41,11 +41,11 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsComponents.WsSearchResponse;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsComponents.SearchWsResponse;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,7 +130,7 @@ public class SearchActionTest {
       .setParam(Param.PAGE_SIZE, "3")
       .execute()
       .getInputStream();
-    WsSearchResponse response = WsSearchResponse.parseFrom(responseStream);
+    SearchWsResponse response = SearchWsResponse.parseFrom(responseStream);
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
     assertThat(response.getComponentsList()).extracting("id").containsExactly("project-uuid-4", "project-uuid-5", "project-uuid-6");
@@ -145,7 +145,7 @@ public class SearchActionTest {
     InputStream responseStream = newRequest(Qualifiers.PROJECT)
       .setParam(Param.TEXT_QUERY, "project-_%")
       .execute().getInputStream();
-    WsSearchResponse response = WsSearchResponse.parseFrom(responseStream);
+    SearchWsResponse response = SearchWsResponse.parseFrom(responseStream);
 
     assertThat(response.getComponentsCount()).isEqualTo(1);
     assertThat(response.getComponentsList()).extracting("key").containsExactly("project-_%-key");
