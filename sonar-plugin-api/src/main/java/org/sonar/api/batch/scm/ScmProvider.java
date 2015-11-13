@@ -42,7 +42,7 @@ public abstract class ScmProvider {
   public abstract String key();
 
   /**
-   * Does this provider able to manage files located in this directory.
+   * Whether this provider is able to manage files located in this directory.
    * Used by autodetection. Not considered if user has forced the provider key.
    * @return false by default
    */
