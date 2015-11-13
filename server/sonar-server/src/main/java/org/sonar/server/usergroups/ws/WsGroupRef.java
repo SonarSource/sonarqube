@@ -41,13 +41,6 @@ public class WsGroupRef {
     this.name = name;
   }
 
-  public static WsGroupRef newWsGroupRefFromPermissionRequest(Request wsRequest) {
-    Long id = wsRequest.paramAsLong(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID);
-    String name = wsRequest.param(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME);
-
-    return new WsGroupRef(id, name);
-  }
-
   public static WsGroupRef newWsGroupRef(@Nullable Long id, @Nullable String name) {
     return new WsGroupRef(id, name);
   }
