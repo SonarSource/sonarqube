@@ -28,8 +28,8 @@ public class GroupsWsRequest {
   private String permission;
   private String projectId;
   private String projectKey;
-  private int page;
-  private int pageSize;
+  private Integer page;
+  private Integer pageSize;
   private String query;
   private String selected;
 
@@ -62,7 +62,8 @@ public class GroupsWsRequest {
     return this;
   }
 
-  public int getPage() {
+  @CheckForNull
+  public Integer getPage() {
     return page;
   }
 
@@ -71,7 +72,8 @@ public class GroupsWsRequest {
     return this;
   }
 
-  public int getPageSize() {
+  @CheckForNull
+  public Integer getPageSize() {
     return pageSize;
   }
 

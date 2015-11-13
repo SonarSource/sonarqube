@@ -26,8 +26,8 @@ import javax.annotation.Nullable;
 public class SearchProjectPermissionsWsRequest {
   private String projectId;
   private String projectKey;
-  private int page;
-  private int pageSize;
+  private Integer page;
+  private Integer pageSize;
   private String query;
 
   @CheckForNull
@@ -50,7 +50,8 @@ public class SearchProjectPermissionsWsRequest {
     return this;
   }
 
-  public int getPage() {
+  @CheckForNull
+  public Integer getPage() {
     return page;
   }
 
@@ -59,7 +60,8 @@ public class SearchProjectPermissionsWsRequest {
     return this;
   }
 
-  public int getPageSize() {
+  @CheckForNull
+  public Integer getPageSize() {
     return pageSize;
   }
 
