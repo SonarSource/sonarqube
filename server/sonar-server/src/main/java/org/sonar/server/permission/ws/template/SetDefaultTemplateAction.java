@@ -32,19 +32,22 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.permission.SetDefaultTemplateWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
+import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class SetDefaultTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -82,15 +85,25 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(Request request, Response response) throws Exception {
+    doHandle(toSetDefaultTemplateWsRequest(request));
+    response.noContent();
+  }
+
+  private void doHandle(SetDefaultTemplateWsRequest request) {
     checkGlobalAdminUser(userSession);
 
-    String qualifier = wsRequest.mandatoryParam(PARAM_QUALIFIER);
-
-    PermissionTemplateDto template = getTemplate(wsRequest);
+    String qualifier = request.getQualifier();
+    PermissionTemplateDto template = getTemplate(request);
     validateQualifier(qualifier, getRootQualifiers());
     setDefaultTemplateUuid(template.getUuid(), qualifier);
-    wsResponse.noContent();
+  }
+
+  private static SetDefaultTemplateWsRequest toSetDefaultTemplateWsRequest(Request request) {
+    return new SetDefaultTemplateWsRequest()
+      .setQualifier(request.param(PARAM_QUALIFIER))
+      .setTemplateId(request.param(PARAM_TEMPLATE_ID))
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
   private Set<String> getRootQualifiers() {
@@ -116,10 +129,10 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     return i18n.message(userSession.locale(), qualifiersPropertyPrefix + qualifier, "");
   }
 
-  private PermissionTemplateDto getTemplate(Request wsRequest) {
+  private PermissionTemplateDto getTemplate(SetDefaultTemplateWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      return finder.getTemplate(dbSession, WsTemplateRef.fromRequest(wsRequest));
+      return finder.getTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
     } finally {
       dbClient.closeSession(dbSession);
     }

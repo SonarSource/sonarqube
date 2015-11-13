@@ -37,6 +37,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
@@ -173,6 +174,14 @@ public class PermissionsWsClient {
       newGetRequest("search_templates")
         .setParam("q", request.getQuery()),
       SearchTemplatesWsResponse.parser());
+  }
+
+  public void setDefaultTemplate(SetDefaultTemplateWsRequest request) {
+    wsClient.execute(
+      newPostRequest("set_default_template")
+        .setParam(PARAM_QUALIFIER, request.getQualifier())
+        .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
+        .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
   }
 
   private static String action(String action) {
