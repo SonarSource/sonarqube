@@ -20,14 +20,12 @@
 package org.sonar.batch.mediumtest.fs;
 
 import com.google.common.collect.ImmutableMap;
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
@@ -35,12 +33,20 @@ import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectBuilderMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
@@ -62,17 +68,8 @@ public class ProjectBuilderMediumTest {
 
   @Test
   public void testProjectBuilder() throws IOException {
-
-    File baseDir = temp.getRoot();
-    File module1Dir = new File(baseDir, "module1");
-    module1Dir.mkdir();
-
-    File srcDir = new File(module1Dir, "src");
-    srcDir.mkdir();
-
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
-
+    File baseDir = prepareProject();
+    
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
@@ -99,19 +96,32 @@ public class ProjectBuilderMediumTest {
     assertThat(foundIssueAtLine1).isTrue();
 
   }
+  
+  @Test
+  // SONAR-6976
+  public void testProjectBuilderWithNewLine() throws IOException {
+    File baseDir = prepareProject();
+    
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("is not a valid branch name");
+    tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.branch", "branch\n")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", ".")
+        .put("sonar.xoo.enableProjectBuilder", "true")
+        .build())
+      .start();
+  }
 
   @Test
   public void testProjectBuilderWithBranch() throws IOException {
-
-    File baseDir = temp.getRoot();
-    File module1Dir = new File(baseDir, "module1");
-    module1Dir.mkdir();
-
-    File srcDir = new File(module1Dir, "src");
-    srcDir.mkdir();
-
-    File xooFile = new File(srcDir, "sample.xoo");
-    FileUtils.write(xooFile, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
+    File baseDir = prepareProject();
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -139,6 +149,20 @@ public class ProjectBuilderMediumTest {
       }
     }
     assertThat(foundIssueAtLine1).isTrue();
+  }
+  
+  private File prepareProject() throws IOException {
+    File baseDir = temp.getRoot();
+    File module1Dir = new File(baseDir, "module1");
+    module1Dir.mkdir();
+
+    File srcDir = new File(module1Dir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
+    
+    return baseDir;
   }
 
 }
