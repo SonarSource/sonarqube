@@ -46,7 +46,7 @@ import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.rule.DefaultActiveRulesLoader;
 import org.sonar.batch.rule.LoadedActiveRule;
 import org.sonar.batch.rule.RulesLoader;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;

@@ -17,17 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.repository;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+package org.sonarqube.ws.client.qualityprofile;
 
-import javax.annotation.Nullable;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonarqube.ws.client.WsClient;
 
-import java.util.List;
+import static org.sonarqube.ws.client.WsRequest.newGetRequest;
 
-public interface QualityProfileLoader {
-  List<QualityProfile> load(String projectKey, @Nullable String profileName, @Nullable MutableBoolean fromCache);
-  
-  List<QualityProfile> loadDefault(@Nullable String profileName, @Nullable MutableBoolean fromCache);
+public class QualityProfilesWsClient {
+  private final WsClient wsClient;
+
+  public QualityProfilesWsClient(WsClient wsClient) {
+    this.wsClient = wsClient;
+  }
+
+  public SearchWsResponse search(SearchWsRequest request) {
+    return wsClient.execute(
+      newGetRequest("search")
+        .setParam("defaults", request.getDefaults())
+        .setParam("language", request.getLanguage())
+        .setParam("profileName", request.getProfileName())
+        .setParam("projectKey", request.getProjectKey()),
+      SearchWsResponse.parser());
+  }
 }

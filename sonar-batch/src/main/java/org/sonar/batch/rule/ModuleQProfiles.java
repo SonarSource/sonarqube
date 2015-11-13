@@ -21,7 +21,7 @@ package org.sonar.batch.rule;
 
 import org.sonar.api.utils.DateUtils;
 
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.batch.BatchSide;
 

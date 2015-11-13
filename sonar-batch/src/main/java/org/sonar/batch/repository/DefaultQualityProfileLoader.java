@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 
 import org.sonar.batch.util.BatchUtils;
 import org.apache.commons.io.IOUtils;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
@@ -74,10 +74,10 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
       fromCache.setValue(result.isFromCache());
     }
     InputStream is = result.get();
-    WsSearchResponse profiles = null;
+    SearchWsResponse profiles = null;
 
     try {
-      profiles = WsSearchResponse.parseFrom(is);
+      profiles = SearchWsResponse.parseFrom(is);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to load quality profiles", e);
     } finally {

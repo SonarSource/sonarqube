@@ -30,7 +30,7 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.rule.RulesLoader;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 public class NonAssociatedCacheSynchronizer {
   private static final Logger LOG = LoggerFactory.getLogger(NonAssociatedCacheSynchronizer.class);

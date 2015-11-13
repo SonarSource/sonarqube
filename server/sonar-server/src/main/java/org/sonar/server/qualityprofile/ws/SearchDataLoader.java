@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -38,14 +37,11 @@ import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_DEFAULTS;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_LANGUAGE;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROFILE_NAME;
-import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class SearchDataLoader {
@@ -66,7 +62,7 @@ public class SearchDataLoader {
     this.componentFinder = componentFinder;
   }
 
-  SearchData load(Request request) {
+  SearchData load(SearchWsRequest request) {
     validateRequest(request);
 
     return new SearchData()
@@ -75,7 +71,7 @@ public class SearchDataLoader {
       .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey());
   }
 
-  private List<QProfile> findProfiles(Request request) {
+  private List<QProfile> findProfiles(SearchWsRequest request) {
     List<QProfile> profiles;
     if (askDefaultProfiles(request)) {
       profiles = findDefaultProfiles(request);
@@ -93,8 +89,8 @@ public class SearchDataLoader {
       .toSortedList(QProfileComparator.INSTANCE);
   }
 
-  private List<QProfile> findAllProfiles(Request request) {
-    String language = request.param(PARAM_LANGUAGE);
+  private List<QProfile> findAllProfiles(SearchWsRequest request) {
+    String language = request.getLanguage();
 
     List<QProfile> profiles = language != null ? profileLookup.profiles(language)
       : profileLookup.allProfiles();
@@ -104,9 +100,9 @@ public class SearchDataLoader {
       .toList();
   }
 
-  private List<QProfile> findProjectProfiles(Request request) {
-    String moduleKey = request.param(PARAM_PROJECT_KEY);
-    String profileName = request.param(PARAM_PROFILE_NAME);
+  private List<QProfile> findProjectProfiles(SearchWsRequest request) {
+    String moduleKey = request.getProjectKey();
+    String profileName = request.getProfileName();
 
     List<QProfile> profiles = new ArrayList<>();
 
@@ -133,8 +129,8 @@ public class SearchDataLoader {
     }
   }
 
-  private List<QProfile> findDefaultProfiles(Request request) {
-    String profileName = request.param(PARAM_PROFILE_NAME);
+  private List<QProfile> findDefaultProfiles(SearchWsRequest request) {
+    String profileName = request.getProfileName();
     List<QProfile> profiles = new ArrayList<>();
 
     DbSession dbSession = dbClient.openSession(false);
@@ -186,7 +182,7 @@ public class SearchDataLoader {
     return profileDtoToQProfile(profile);
   }
 
-  private static void validateRequest(Request request) {
+  private static void validateRequest(SearchWsRequest request) {
     boolean hasLanguage = hasLanguage(request);
     boolean isDefault = askDefaultProfiles(request);
     boolean hasComponentKey = hasComponentKey(request);
@@ -197,20 +193,20 @@ public class SearchDataLoader {
     checkRequest(!isDefault || !hasComponentKey, "The default parameter cannot be provided at the same time than the component key");
   }
 
-  private static boolean hasProfileName(Request request) {
-    return request.hasParam(PARAM_PROFILE_NAME);
+  private static boolean hasProfileName(SearchWsRequest request) {
+    return request.getProfileName() != null;
   }
 
-  private static boolean hasComponentKey(Request request) {
-    return request.hasParam(PARAM_PROJECT_KEY);
+  private static boolean hasComponentKey(SearchWsRequest request) {
+    return request.getProjectKey() != null;
   }
 
-  private static Boolean askDefaultProfiles(Request request) {
-    return request.paramAsBoolean(PARAM_DEFAULTS);
+  private static Boolean askDefaultProfiles(SearchWsRequest request) {
+    return request.getDefaults();
   }
 
-  private static boolean hasLanguage(Request request) {
-    return request.hasParam(PARAM_LANGUAGE);
+  private static boolean hasLanguage(SearchWsRequest request) {
+    return request.getLanguage() != null;
   }
 
   private enum QProfileComparator implements Comparator<QProfile> {

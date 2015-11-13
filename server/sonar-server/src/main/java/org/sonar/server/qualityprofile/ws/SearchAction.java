@@ -29,8 +29,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.server.qualityprofile.QProfile;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static com.google.common.collect.Maps.uniqueIndex;
 import static java.lang.String.format;
@@ -86,16 +88,28 @@ public class SearchAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchData data = dataLoader.load(request);
-    WsSearchResponse protobufResponse = buildResponse(data);
-    writeProtobuf(protobufResponse, request, response);
+    SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(request));
+    writeProtobuf(searchWsResponse, request, response);
   }
 
-  private WsSearchResponse buildResponse(SearchData data) {
+  private SearchWsResponse doHandle(SearchWsRequest request) {
+    SearchData data = dataLoader.load(request);
+    return buildResponse(data);
+  }
+
+  private static SearchWsRequest toSearchWsRequest(Request request) {
+    return new SearchWsRequest()
+      .setProjectKey(request.param(PARAM_PROJECT_KEY))
+      .setProfileName(request.param(PARAM_PROFILE_NAME))
+      .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
+      .setLanguage(request.param(PARAM_LANGUAGE));
+  }
+
+  private SearchWsResponse buildResponse(SearchData data) {
     List<QProfile> profiles = data.getProfiles();
     Map<String, QProfile> profilesByKey = uniqueIndex(profiles, new QProfileToKey());
 
-    WsSearchResponse.Builder response = WsSearchResponse.newBuilder();
+    QualityProfiles.SearchWsResponse.Builder response = QualityProfiles.SearchWsResponse.newBuilder();
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder();
 
     for (QProfile profile : profiles) {

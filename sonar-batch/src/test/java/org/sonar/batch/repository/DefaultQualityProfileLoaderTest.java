@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse;
+import org.sonarqube.ws.QualityProfiles;
 
 import com.google.common.io.Resources;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.cache.WSLoader;
 import org.junit.Rule;
@@ -102,7 +102,7 @@ public class DefaultQualityProfileLoaderTest {
 
   private static InputStream createEncodedQP(String... names) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
-    WsSearchResponse.Builder responseBuilder = WsSearchResponse.newBuilder();
+    QualityProfiles.SearchWsResponse.Builder responseBuilder = QualityProfiles.SearchWsResponse.newBuilder();
 
     for (String n : names) {
       QualityProfile qp = QualityProfile.newBuilder().setKey(n).setName(n).setLanguage("lang").build();

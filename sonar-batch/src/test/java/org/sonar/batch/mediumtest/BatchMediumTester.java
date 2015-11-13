@@ -28,7 +28,7 @@ import com.google.common.collect.Table;
 import com.google.common.collect.HashBasedTable;
 import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonar.batch.repository.QualityProfileLoader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;

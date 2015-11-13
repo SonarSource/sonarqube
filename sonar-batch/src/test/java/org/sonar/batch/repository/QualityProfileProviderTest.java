@@ -21,12 +21,10 @@ package org.sonar.batch.repository;
 
 import static org.mockito.Mockito.when;
 
-import org.mockito.Matchers;
-
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 import java.util.ArrayList;
 import java.util.List;

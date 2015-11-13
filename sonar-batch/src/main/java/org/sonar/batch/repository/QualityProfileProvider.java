@@ -25,7 +25,7 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 

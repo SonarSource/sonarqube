@@ -40,7 +40,7 @@ import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonar.batch.rule.RulesLoader;
-import org.sonarqube.ws.QualityProfiles.WsSearchResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 public class ProjectCacheSynchronizer {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectCacheSynchronizer.class);

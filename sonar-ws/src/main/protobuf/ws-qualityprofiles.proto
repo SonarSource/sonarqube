@@ -25,7 +25,7 @@ option java_outer_classname = "QualityProfiles";
 option optimize_for = SPEED;
 
 // WS api/qualityprofiles/search
-message WsSearchResponse {
+message SearchWsResponse {
   repeated QualityProfile profiles = 1;
 
   message QualityProfile {
