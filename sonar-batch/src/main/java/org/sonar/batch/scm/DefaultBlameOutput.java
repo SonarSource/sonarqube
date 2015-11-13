@@ -21,7 +21,6 @@ package org.sonar.batch.scm;
 
 import com.google.common.base.Preconditions;
 import java.text.Normalizer;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,17 +83,14 @@ class DefaultBlameOutput implements BlameOutput {
     Map<String, Integer> changesetsIdByRevision = new HashMap<>();
 
     for (BlameLine line : lines) {
-      if (StringUtils.isNotBlank(line.revision())) {
-        Integer changesetId = changesetsIdByRevision.get(line.revision());
-        if (changesetId == null) {
-          addChangeset(scmBuilder, line);
-          changesetId = scmBuilder.getChangesetCount() - 1;
-          changesetsIdByRevision.put(line.revision(), changesetId);
-        }
-        scmBuilder.addChangesetIndexByLine(changesetId);
-      } else {
+      validateLine(line);
+      Integer changesetId = changesetsIdByRevision.get(line.revision());
+      if (changesetId == null) {
         addChangeset(scmBuilder, line);
+        changesetId = scmBuilder.getChangesetCount() - 1;
+        changesetsIdByRevision.put(line.revision(), changesetId);
       }
+      scmBuilder.addChangesetIndexByLine(changesetId);
     }
     writer.writeComponentChangesets(scmBuilder.build());
     allFilesToBlame.remove(file);
@@ -102,18 +98,19 @@ class DefaultBlameOutput implements BlameOutput {
     progressReport.message(count + "/" + total + " files analyzed, last one was " + file.absolutePath());
   }
 
+  private static void validateLine(BlameLine line) {
+    Preconditions.checkNotNull(line.revision(), "Blame revision cannot be null");
+    Preconditions.checkNotNull(line.date(), "Blame date cannot be null");
+  }
+
   private static void addChangeset(Builder scmBuilder, BlameLine line) {
     BatchReport.Changesets.Changeset.Builder changesetBuilder = BatchReport.Changesets.Changeset.newBuilder();
-    if (StringUtils.isNotBlank(line.revision())) {
-      changesetBuilder.setRevision(line.revision());
-    }
+    changesetBuilder.setRevision(line.revision());
+    changesetBuilder.setDate(line.date().getTime());
     if (StringUtils.isNotBlank(line.author())) {
       changesetBuilder.setAuthor(normalizeString(line.author()));
     }
-    Date date = line.date();
-    if (date != null) {
-      changesetBuilder.setDate(date.getTime());
-    }
+
     scmBuilder.addChangeset(changesetBuilder.build());
   }
 
