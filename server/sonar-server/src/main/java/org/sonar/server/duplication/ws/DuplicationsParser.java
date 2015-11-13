@@ -21,6 +21,7 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Collections;
@@ -86,7 +87,8 @@ public class DuplicationsParser {
   private Duplication createDuplication(Map<String, ComponentDto> componentsByKey, String from, String size, String componentKey, DbSession session) {
     ComponentDto component = componentsByKey.get(componentKey);
     if (component == null) {
-      component = componentDao.selectOrFailByKey(session, componentKey);
+      Optional<ComponentDto> componentDtoOptional = componentDao.selectByKey(session, componentKey);
+      component = componentDtoOptional.isPresent() ? componentDtoOptional.get() : null;
       componentsByKey.put(componentKey, component);
     }
     return new Duplication(component, Integer.valueOf(from), Integer.valueOf(size));

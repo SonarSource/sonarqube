@@ -30,72 +30,72 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
-@RunWith(MockitoJUnitRunner.class)
+@Category(DbTests.class)
 public class DuplicationsParserTest {
 
-  @Mock
-  ComponentDao componentDao;
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Mock
-  DbSession session;
+  DbSession dbSession = db.getSession();
+
+  ComponentDao componentDao = db.getDbClient().componentDao();
 
   ComponentDto currentFile;
   ComponentDto fileOnSameProject;
   ComponentDto fileOnDifferentProject;
 
-  DuplicationsParser parser;
-
   ComponentDto project1;
   ComponentDto project2;
 
+  DuplicationsParser parser = new DuplicationsParser(componentDao);
+
   @Before
   public void setUp() {
-    project1 = ComponentTesting.newProjectDto()
-      .setId(1L)
+    project1 = newProjectDto()
       .setName("SonarQube")
       .setLongName("SonarQube")
       .setKey("org.codehaus.sonar:sonar");
-
-    project2 = ComponentTesting.newProjectDto().setId(2L);
+    project2 = newProjectDto();
+    componentDao.insert(dbSession, project1, project2);
 
     // Current file
     String key1 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java";
-    currentFile = ComponentTesting.newFileDto(project1).setId(10L).setKey(key1).setLongName("CommandExecutor");
-    when(componentDao.selectOrFailByKey(session, key1)).thenReturn(currentFile);
+    currentFile = newFileDto(project1).setKey(key1).setLongName("CommandExecutor");
 
     // File on same project
     String key2 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
-    fileOnSameProject = ComponentTesting.newFileDto(project1).setId(11L).setKey(key2).setLongName("CommandExecutor");
-    when(componentDao.selectOrFailByKey(session, key2)).thenReturn(fileOnSameProject);
+    fileOnSameProject = newFileDto(project1).setKey(key2).setLongName("CommandExecutor");
 
     // File on different project
     String key3 = "com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
-    fileOnDifferentProject = ComponentTesting.newFileDto(project2).setId(12L).setKey(key3).setLongName("CommandExecutor");
-    when(componentDao.selectOrFailByKey(session, key3)).thenReturn(fileOnDifferentProject);
+    fileOnDifferentProject = newFileDto(project2).setKey(key3).setLongName("CommandExecutor");
 
-    parser = new DuplicationsParser(componentDao);
+    componentDao.insert(dbSession, currentFile, fileOnSameProject, fileOnDifferentProject);
+    dbSession.commit();
   }
 
   @Test
   public void empty_list_when_no_data() {
-    assertThat(parser.parse(currentFile, null, session)).isEmpty();
+    assertThat(parser.parse(currentFile, null, dbSession)).isEmpty();
   }
 
   @Test
   public void duplication_on_same_file() throws Exception {
-    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_same_file.xml"), session);
+    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_same_file.xml"), dbSession);
     assertThat(blocks).hasSize(1);
 
     List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
@@ -115,7 +115,7 @@ public class DuplicationsParserTest {
 
   @Test
   public void duplication_on_same_project() throws Exception {
-    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_same_project.xml"), session);
+    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_same_project.xml"), dbSession);
     assertThat(blocks).hasSize(1);
 
     List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
@@ -135,7 +135,7 @@ public class DuplicationsParserTest {
 
   @Test
   public void duplications_on_different_project() throws Exception {
-    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplications_on_different_project.xml"), session);
+    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplications_on_different_project.xml"), dbSession);
     assertThat(blocks).hasSize(1);
 
     List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
@@ -163,7 +163,7 @@ public class DuplicationsParserTest {
 
   @Test
   public void duplications_on_many_blocks() throws Exception {
-    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplications_on_many_blocks.xml"), session);
+    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplications_on_many_blocks.xml"), dbSession);
     assertThat(blocks).hasSize(2);
 
     // Block with smaller line should come first
@@ -177,7 +177,7 @@ public class DuplicationsParserTest {
 
   @Test
   public void duplication_on_removed_file() throws Exception {
-    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_removed_file.xml"), session);
+    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_removed_file.xml"), dbSession);
     assertThat(blocks).hasSize(1);
 
     List<DuplicationsParser.Duplication> duplications = blocks.get(0).getDuplications();
@@ -197,9 +197,9 @@ public class DuplicationsParserTest {
 
   @Test
   public void compare_duplications() {
-    ComponentDto currentFile = ComponentTesting.newFileDto(project1).setId(11L);
-    ComponentDto fileOnSameProject = ComponentTesting.newFileDto(project1).setId(12L);
-    ComponentDto fileOnDifferentProject = ComponentTesting.newFileDto(project2).setId(13L);
+    ComponentDto currentFile = newFileDto(project1).setId(11L);
+    ComponentDto fileOnSameProject = newFileDto(project1).setId(12L);
+    ComponentDto fileOnDifferentProject = newFileDto(project2).setId(13L);
 
     DuplicationsParser.DuplicationComparator comparator = new DuplicationsParser.DuplicationComparator(currentFile.uuid(), currentFile.projectUuid());
 
@@ -212,7 +212,7 @@ public class DuplicationsParserTest {
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnSameProject, 5, 2), new DuplicationsParser.Duplication(fileOnDifferentProject, 2, 2))).isEqualTo(-1);
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnDifferentProject, 5, 2), new DuplicationsParser.Duplication(fileOnSameProject, 2, 2))).isEqualTo(1);
     // Files on 2 different projects
-    ComponentDto project3 = ComponentTesting.newProjectDto().setId(3L);
+    ComponentDto project3 = newProjectDto().setId(3L);
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnDifferentProject, 5, 2),
       new DuplicationsParser.Duplication(project3, 2, 2))).isEqualTo(1);
 
