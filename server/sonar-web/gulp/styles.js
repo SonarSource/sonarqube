@@ -34,7 +34,7 @@ module.exports.styles = function (output, production, dev) {
           'IE 11'
         ]
       }))
-      .pipe(gulpif(production, minifyCss()))
+      .pipe(gulpif(production, minifyCss({ rebase: false })))
       .pipe(concat('sonar.css'))
       .pipe(gulpif(dev, sourcemaps.write({ includeContent: true })))
       .pipe(gulp.dest(path.join(output, 'css')));
