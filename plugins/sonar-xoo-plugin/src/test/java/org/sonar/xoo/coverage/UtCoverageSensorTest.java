@@ -71,7 +71,7 @@ public class UtCoverageSensorTest {
   public void testLineHitNoConditions() throws IOException {
     File coverage = new File(baseDir, "src/foo.xoo.coverage");
     FileUtils.write(coverage, "1:3\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo").setLines(10);
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);
@@ -85,7 +85,7 @@ public class UtCoverageSensorTest {
   public void testLineHitAndConditions() throws IOException {
     File coverage = new File(baseDir, "src/foo.xoo.coverage");
     FileUtils.write(coverage, "1:3:4:2");
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo").setLines(10);
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);

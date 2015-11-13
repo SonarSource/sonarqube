@@ -130,7 +130,6 @@ public class CoverageMediumTest {
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey")
       .doesNotContain(CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY,
         CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
-
   }
 
 }
