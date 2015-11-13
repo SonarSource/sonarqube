@@ -20,8 +20,12 @@
 
 package org.sonar.batch.source;
 
+import org.sonar.api.batch.fs.TextRange;
 import com.google.common.base.Strings;
+
 import java.io.StringReader;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +34,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultSymbolTableTest {
@@ -58,6 +61,25 @@ public class DefaultSymbolTableTest {
     Symbolizable.SymbolTable symbolTable = symbolTableBuilder.build();
 
     assertThat(symbolTable.symbols()).containsExactly(firstSymbol, secondSymbol, thirdSymbol);
+  }
+
+  @Test
+  public void variable_length_references() {
+    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder(inputFile);
+    Symbol firstSymbol = symbolTableBuilder.newSymbol(10, 20);
+    symbolTableBuilder.newReference(firstSymbol, 32);
+    symbolTableBuilder.newReference(firstSymbol, 44, 47);
+
+    DefaultSymbolTable symbolTable = (DefaultSymbolTable) symbolTableBuilder.build();
+
+    assertThat(symbolTable.symbols()).containsExactly(firstSymbol);
+
+    Set<TextRange> references = symbolTable.getReferencesBySymbol().get(firstSymbol);
+    assertThat(references).containsExactly(range(32, 42), range(44, 47));
+  }
+
+  private TextRange range(int start, int end) {
+    return inputFile.newRange(start, end);
   }
 
   @Test

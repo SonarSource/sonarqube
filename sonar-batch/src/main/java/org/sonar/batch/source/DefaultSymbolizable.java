@@ -46,6 +46,11 @@ public class DefaultSymbolizable implements Symbolizable {
     }
 
     @Override
+    public void newReference(Symbol symbol, int fromOffset, int toOffset) {
+      // Do nothing
+    }
+
+    @Override
     public SymbolTable build() {
       return NO_OP_SYMBOL_TABLE;
     }
