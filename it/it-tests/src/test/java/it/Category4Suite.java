@@ -69,6 +69,5 @@ public class Category4Suite {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
-    .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
     .build();
 }

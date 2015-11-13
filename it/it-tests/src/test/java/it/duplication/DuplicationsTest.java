@@ -1,155 +1,107 @@
 /*
- * Copyright (C) 2009-2014 SonarSource SA
- * All rights reserved
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
  * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package it.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.MavenBuild;
+import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
+import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.wsclient.issue.Issue;
+import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
-import util.ItUtils;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
+import static util.ItUtils.runProjectAnalysis;
+import static util.ItUtils.setServerProperty;
 
 public class DuplicationsTest {
 
-  private static final String DUPLICATIONS = "com.sonarsource.it.samples:duplications";
-  private static final String DUPLICATIONS_WITH_EXCLUSIONS = "com.sonarsource.it.samples:duplications-with-exclusions";
+  static final String DUPLICATIONS = "file-duplications";
+  static final String DUPLICATIONS_WITH_EXCLUSIONS = "file-duplications-with-exclusions";
+  static final String WITHOUT_ENOUGH_TOKENS = "project_without_enough_tokens";
 
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @BeforeClass
-  public static void init() {
+  public static void analyzeProjects() {
     orchestrator.resetData();
 
-    MavenBuild build = MavenBuild.create(ItUtils.projectPom("duplications/file-duplications"))
-      .setCleanPackageSonarGoals();
-    orchestrator.executeBuild(build);
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/duplication/xoo-duplication-profile.xml"));
+    analyzeProject(DUPLICATIONS);
+    analyzeProject(DUPLICATIONS_WITH_EXCLUSIONS, "sonar.cpd.exclusions", "**/File*");
 
-    // Use a new project key to avoid conflict with other tests
-    String projectKey = DUPLICATIONS_WITH_EXCLUSIONS;
-    build = MavenBuild.create(ItUtils.projectPom("duplications/file-duplications"))
-      .setCleanPackageSonarGoals()
-      .setProperties("sonar.projectKey", projectKey,
-        "sonar.cpd.exclusions", "**/Class*");
-    orchestrator.executeBuild(build);
-
+    // Set minimum tokens to a big value in order to not get duplications
+    setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", "1000");
+    analyzeProject(WITHOUT_ENOUGH_TOKENS);
   }
 
   @Test
-  public void duplicated_lines_within_same_class() {
-    Resource file = getResource(DUPLICATIONS + ":src/main/java/duplicated_lines_within_same_class/DuplicatedLinesInSameClass.java");
-    assertThat(file, not(nullValue()));
-    assertThat(file.getMeasureValue("duplicated_blocks"), is(2.0));
-    assertThat(file.getMeasureValue("duplicated_lines"), is(27.0 * 2)); // 2 blocks with 27 lines
-    assertThat(file.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(file.getMeasureValue("duplicated_lines_density"), is(60.0));
+  public void duplicated_lines_within_same_file() {
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo",
+      2,
+      30 * 2, // 2 blocks with 30 lines
+      1,
+      84.5);
   }
 
   @Test
   public void duplicated_same_lines_within_3_classes() {
-    Resource file1 = getResource(DUPLICATIONS + ":src/main/java/duplicated_same_lines_within_3_classes/Class1.java");
-    assertThat(file1, not(nullValue()));
-    assertThat(file1.getMeasureValue("duplicated_blocks"), is(1.0));
-    assertThat(file1.getMeasureValue("duplicated_lines"), is(29.0));
-    assertThat(file1.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(file1.getMeasureValue("duplicated_lines_density"), is(47.5));
-
-    Resource file2 = getResource(DUPLICATIONS + ":src/main/java/duplicated_same_lines_within_3_classes/Class2.java");
-    assertThat(file2, not(nullValue()));
-    assertThat(file2.getMeasureValue("duplicated_blocks"), is(1.0));
-    assertThat(file2.getMeasureValue("duplicated_lines"), is(29.0));
-    assertThat(file2.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(file2.getMeasureValue("duplicated_lines_density"), is(48.3));
-
-    Resource file3 = getResource(DUPLICATIONS + ":src/main/java/duplicated_same_lines_within_3_classes/Class3.java");
-    assertThat(file3, not(nullValue()));
-    assertThat(file3.getMeasureValue("duplicated_blocks"), is(1.0));
-    assertThat(file3.getMeasureValue("duplicated_lines"), is(29.0));
-    assertThat(file3.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(file3.getMeasureValue("duplicated_lines_density"), is(46.0));
-
-    Resource pkg = getResource(DUPLICATIONS + ":src/main/java/duplicated_same_lines_within_3_classes");
-    assertThat(pkg, not(nullValue()));
-    assertThat(pkg.getMeasureValue("duplicated_blocks"), is(3.0));
-    assertThat(pkg.getMeasureValue("duplicated_lines"), is(29.0 * 3)); // 3 blocks with 29 lines
-    assertThat(pkg.getMeasureValue("duplicated_files"), is(3.0));
-    assertThat(pkg.getMeasureValue("duplicated_lines_density"), is(47.3));
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_same_lines_within_3_files/File1.xoo", 1, 33, 1, 78.6);
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_same_lines_within_3_files/File2.xoo", 1, 31, 1, 75.6);
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_same_lines_within_3_files/File3.xoo", 1, 31, 1, 70.5);
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_same_lines_within_3_files", 3, 95, 3, 74.8);
   }
 
   @Test
-  public void duplicated_lines_within_package() {
-    Resource file1 = getResource(DUPLICATIONS + ":src/main/java/duplicated_lines_within_package/DuplicatedLinesInSamePackage1.java");
-    assertThat(file1, not(nullValue()));
-    assertThat(file1.getMeasureValue("duplicated_blocks"), is(4.0));
-    assertThat(file1.getMeasureValue("duplicated_lines"), is(72.0));
-    assertThat(file1.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(file1.getMeasureValue("duplicated_lines_density"), is(58.1));
-
-    Resource file2 = getResource(DUPLICATIONS + ":src/main/java/duplicated_lines_within_package/DuplicatedLinesInSamePackage2.java");
-    assertThat(file2, not(nullValue()));
-    assertThat(file2.getMeasureValue("duplicated_blocks"), is(3.0));
-    assertThat(file2.getMeasureValue("duplicated_lines"), is(58.0));
-    assertThat(file2.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(file2.getMeasureValue("duplicated_lines_density"), is(64.4));
-
-    Resource pkg = getResource(DUPLICATIONS + ":src/main/java/duplicated_lines_within_package");
-    assertThat(pkg, not(nullValue()));
-    assertThat(pkg.getMeasureValue("duplicated_blocks"), is(4.0 + 3.0));
-    assertThat(pkg.getMeasureValue("duplicated_lines"), is(72.0 + 58.0));
-    assertThat(pkg.getMeasureValue("duplicated_files"), is(2.0));
-    assertThat(pkg.getMeasureValue("duplicated_lines_density"), is(60.7));
+  public void duplicated_lines_within_directory() {
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_lines_within_dir/DuplicatedLinesInSameDirectory1.xoo", 1, 30, 1, 28.3);
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_lines_within_dir/DuplicatedLinesInSameDirectory2.xoo", 1, 30, 1, 41.7);
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_lines_within_dir", 2, 60, 2, 33.7);
   }
 
   @Test
-  public void duplicated_lines_with_other_package() {
-    Resource file1 = getResource(DUPLICATIONS + ":src/main/java/duplicated_lines_with_other_package1/DuplicatedLinesWithOtherPackage.java");
-    assertThat(file1, not(nullValue()));
-    assertThat(file1.getMeasureValue("duplicated_blocks"), is(1.0));
-    assertThat(file1.getMeasureValue("duplicated_lines"), is(36.0));
-    assertThat(file1.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(file1.getMeasureValue("duplicated_lines_density"), is(60.0));
+  public void duplicated_lines_with_other_directory() {
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_lines_with_other_dir1/DuplicatedLinesWithOtherDirectory.xoo", 1, 39, 1, 92.9);
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_lines_with_other_dir1", 1, 39, 1, 92.9);
 
-    Resource pkg1 = getResource(DUPLICATIONS + ":src/main/java/duplicated_lines_with_other_package1");
-    assertThat(pkg1, not(nullValue()));
-    assertThat(pkg1.getMeasureValue("duplicated_blocks"), is(1.0));
-    assertThat(pkg1.getMeasureValue("duplicated_lines"), is(36.0));
-    assertThat(pkg1.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(pkg1.getMeasureValue("duplicated_lines_density"), is(60.0));
-
-    Resource file2 = getResource(DUPLICATIONS + ":src/main/java/duplicated_lines_with_other_package2/DuplicatedLinesWithOtherPackage.java");
-    assertThat(file2, not(nullValue()));
-    assertThat(file2.getMeasureValue("duplicated_blocks"), is(1.0));
-    assertThat(file2.getMeasureValue("duplicated_lines"), is(36.0));
-    assertThat(file2.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(file2.getMeasureValue("duplicated_lines_density"), is(60.0));
-
-    Resource pkg2 = getResource(DUPLICATIONS + ":src/main/java/duplicated_lines_with_other_package2");
-    assertThat(pkg2, not(nullValue()));
-    assertThat(pkg2.getMeasureValue("duplicated_blocks"), is(1.0));
-    assertThat(pkg2.getMeasureValue("duplicated_lines"), is(36.0));
-    assertThat(pkg2.getMeasureValue("duplicated_files"), is(1.0));
-    assertThat(pkg2.getMeasureValue("duplicated_lines_density"), is(60.0));
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_lines_with_other_dir2/DuplicatedLinesWithOtherDirectory.xoo", 1, 39, 1, 92.9);
+    verifyDuplicationMeasures(DUPLICATIONS + ":src/main/xoo/duplicated_lines_with_other_dir2", 1, 39, 1, 92.9);
   }
 
   @Test
-  public void consolidation() {
-    Resource project = getResource(DUPLICATIONS);
-    assertThat(project, not(nullValue()));
-    assertThat(project.getMeasureValue("duplicated_blocks"), is(14.0));
-    assertThat(project.getMeasureValue("duplicated_lines"), is(343.0));
-    assertThat(project.getMeasureValue("duplicated_files"), is(8.0));
-    assertThat(project.getMeasureValue("duplicated_lines_density"), is(56.4));
+  public void duplication_measures_on_project() {
+    verifyDuplicationMeasures(DUPLICATIONS, 9, 293, 8, 63.7);
+  }
+
+  @Test
+  public void project_without_enough_tokens_has_duplication() {
+    verifyDuplicationMeasures(WITHOUT_ENOUGH_TOKENS, 0, 0, 0, 0d);
   }
 
   /**
@@ -157,17 +109,62 @@ public class DuplicationsTest {
    */
   @Test
   public void use_duplication_exclusions() {
-    Resource project = getResource(DUPLICATIONS_WITH_EXCLUSIONS);
-    assertThat(project, not(nullValue()));
-    assertThat(project.getMeasureValue("duplicated_blocks"), is(11.0));
-    assertThat(project.getMeasureValue("duplicated_lines"), is(256.0));
-    assertThat(project.getMeasureValue("duplicated_files"), is(5.0));
-    assertThat(project.getMeasureValue("duplicated_lines_density"), is(42.1));
+    verifyDuplicationMeasures(DUPLICATIONS_WITH_EXCLUSIONS, 6, 198, 5, 43d);
   }
 
-  private Resource getResource(String key) {
-    return orchestrator.getServer().getWsClient()
+  @Test
+  public void issues_on_duplicated_blocks_are_generated_on_each_file() throws Exception {
+    List<Issue> issues = orchestrator.getServer().wsClient().issueClient()
+      .find(IssueQuery.create()
+        .rules("common-xoo:DuplicatedBlocks"))
+      .list();
+    assertThat(issues).hasSize(13);
+  }
+
+  @Test
+  public void verify_sources_lines_ws_duplication_information() throws Exception {
+    verifyWsResultOnDuplicateFile(DUPLICATIONS + ":src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo",
+      "api/sources/lines", "sources_lines_duplication-expected.json");
+  }
+
+  @Test
+  public void verify_duplications_show_ws() throws Exception {
+    verifyWsResultOnDuplicateFile(DUPLICATIONS + ":src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo",
+      "api/duplications/show", "duplications_show-expected.json");
+  }
+
+  private static Resource getComponent(String key) {
+    Resource component = orchestrator.getServer().getWsClient()
       .find(ResourceQuery.createForMetrics(key, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density"));
+    assertThat(component).isNotNull();
+    return component;
+  }
+
+  private static void verifyDuplicationMeasures(String componentKey, int duplicatedBlocks, int duplicatedLines, int duplicatedFiles, double duplicatedLinesDensity) {
+    Resource file = getComponent(componentKey);
+    assertThat(file.getMeasureValue("duplicated_blocks").intValue()).isEqualTo(duplicatedBlocks);
+    assertThat(file.getMeasureValue("duplicated_lines").intValue()).isEqualTo(duplicatedLines);
+    assertThat(file.getMeasureValue("duplicated_files").intValue()).isEqualTo(duplicatedFiles);
+    assertThat(file.getMeasureValue("duplicated_lines_density")).isEqualTo(duplicatedLinesDensity);
+  }
+
+  private static void analyzeProject(String projectKey, String... additionalProperties) {
+    orchestrator.getServer().provisionProject(projectKey, projectKey);
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "xoo", "xoo-duplication-profile");
+
+    runProjectAnalysis(orchestrator, "duplications/file-duplications",
+      ArrayUtils.addAll(
+        new String[] {
+          "sonar.projectKey", projectKey,
+          "sonar.projectName", projectKey
+        },
+        additionalProperties));
+  }
+
+  private static void verifyWsResultOnDuplicateFile(String fileKey, String ws, String expectedFilePath) throws Exception {
+    String duplication = orchestrator.getServer().adminWsClient().get(ws, "key", fileKey);
+    assertEquals(IOUtils.toString(CrossProjectDuplicationsTest.class.getResourceAsStream("/duplication/DuplicationsTest/" + expectedFilePath), "UTF-8"), duplication,
+      false);
   }
 
 }

@@ -1,33 +1,14 @@
-/*
- * Sonar, entreprise quality control tool.
- * Copyright (C) 2007-2008 Hortis-GRC SA
- * mailto:be_agile HAT hortis DOT ch
- *
- * Sonar is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * Sonar is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Sonar; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
- */
-package duplicated_lines_within_package;
+package duplicated_lines_within_dir;
 
-public class DuplicatedLinesInSamePackage1 {
+public class DuplicatedLinesInSameDirectory1 {
 
-  public DuplicatedLinesInSamePackage1() {
+  public DuplicatedLinesInSameDirectory1() {
   }
 
   /*
    * sddfgdfgfg
    */
-  public void duplicatedMethodInSameClass1() {
+  public void duplicatedMethodInSameFile1() {
     int intergerToBeIncremented = 0;
     while (intergerToBeIncremented < 100) {
       intergerToBeIncremented++;
@@ -60,7 +41,7 @@ public class DuplicatedLinesInSamePackage1 {
   }
 
 
-  public void duplicatedMethodInSameClass3() {
+  public void duplicatedMethodInSameFile3() {
     int intergerToBeIncremented = 0;
     while (intergerToBeIncremented < 100) {
       intergerToBeIncremented++;
@@ -92,8 +73,8 @@ public class DuplicatedLinesInSamePackage1 {
       intergerToBeIncremented70++;
     }
   }
-  
-  public void duplicated2MethodInSameClass3() {
+
+  public void duplicated2MethodInSameFile3() {
     System.out.print("copy test start");
     int intergerToBeIncremented1 = 0;
     while (intergerToBeIncremented1 < 100) {
