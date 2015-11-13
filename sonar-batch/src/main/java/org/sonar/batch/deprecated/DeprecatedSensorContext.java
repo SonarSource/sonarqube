@@ -60,6 +60,7 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
     this.index = index;
     this.project = project;
     this.coverageFilter = coverageFilter;
+
   }
 
   public Project getProject() {
@@ -157,12 +158,15 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   @Override
   public Measure saveMeasure(Resource resource, Metric metric, Double value) {
-    return saveMeasure(resource, new Measure(metric, value));
+    Measure<?> measure = new Measure(metric, value);
+    coverageFilter.validate(measure, resource.getPath());
+    return saveMeasure(resource, measure);
   }
 
   @Override
   public Measure saveMeasure(Resource resource, Measure measure) {
     Resource resourceOrProject = resourceOrProject(resource);
+
     if (coverageFilter.accept(resourceOrProject, measure)) {
       return index.addMeasure(resourceOrProject, measure);
     } else {
@@ -190,11 +194,14 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   @Override
   public Measure saveMeasure(InputFile inputFile, Metric metric, Double value) {
-    return saveMeasure(getResource(inputFile), metric, value);
+    Measure<?> measure = new Measure(metric, value);
+    coverageFilter.validate(measure, inputFile);
+    return saveMeasure(getResource(inputFile), measure);
   }
 
   @Override
   public Measure saveMeasure(InputFile inputFile, Measure measure) {
+    coverageFilter.validate(measure, inputFile);
     return saveMeasure(getResource(inputFile), measure);
   }
 
