@@ -1,3 +1,4 @@
+
 /*
  * SonarQube, open source software quality management tool.
  * Copyright (C) 2008-2014 SonarSource
@@ -18,5 +19,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-@javax.annotation.ParametersAreNonnullByDefault
+@ParametersAreNonnullByDefault
 package org.sonarqube.ws.client;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
