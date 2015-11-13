@@ -28,8 +28,34 @@ export const Timeline = React.createClass({
     return { width: this.props.width, height: this.props.height };
   },
 
+  getRatingScale(availableHeight) {
+    return d3.scale.ordinal()
+        .domain([5, 4, 3, 2, 1])
+        .rangePoints([availableHeight, 0]);
+  },
+
+  getLevelScale(availableHeight) {
+    return d3.scale.ordinal()
+        .domain(['ERROR', 'WARN', 'OK'])
+        .rangePoints([availableHeight, 0]);
+  },
+
+  getYScale(availableHeight) {
+    if (this.props.metricType === 'RATING') {
+      return this.getRatingScale(availableHeight);
+    } else if (this.props.metricType === 'LEVEL') {
+      return this.getLevelScale(availableHeight);
+    } else {
+      return d3.scale.linear()
+          .range([availableHeight, 0])
+          .domain([0, d3.max(this.props.data, d => d.y || 0)])
+          .nice();
+    }
+  },
+
   renderHorizontalGrid (xScale, yScale) {
-    let ticks = yScale.ticks(4);
+    let hasTicks = typeof yScale.ticks === 'function';
+    let ticks = hasTicks ? yScale.ticks(4) : yScale.domain();
     if (!ticks.length) {
       ticks.push(yScale.domain()[1]);
     }
@@ -69,9 +95,9 @@ export const Timeline = React.createClass({
     }
     let opts = {
       x: xScale(this.props.leakPeriodDate),
-      y: yScale.range()[1],
+      y: _.last(yScale.range()),
       width: xScale.range()[1] - xScale(this.props.leakPeriodDate),
-      height: yScale.range()[0] - yScale.range()[1],
+      height: _.first(yScale.range()) - _.last(yScale.range()),
       fill: '#fffae7'
     };
     return <rect {...opts}/>;
@@ -118,10 +144,7 @@ export const Timeline = React.createClass({
         .domain(d3.extent(this.props.data, d => d.x || 0))
         .range([0, availableWidth])
         .clamp(true);
-    let yScale = d3.scale.linear()
-        .range([availableHeight, 0])
-        .domain([0, d3.max(this.props.data, d => d.y || 0)])
-        .nice();
+    let yScale = this.getYScale(availableHeight);
 
     return <svg className="line-chart" width={this.state.width} height={this.state.height}>
       <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>

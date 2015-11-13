@@ -133,6 +133,7 @@ export const DomainTimeline = React.createClass({
     return <div className={'overview-timeline-' + index}>
       <Timeline key={metric}
                 data={data}
+                metricType={metricType}
                 events={this.state.events}
                 height={HEIGHT}
                 interpolate="linear"
