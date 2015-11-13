@@ -40,6 +40,21 @@ describe('Overview :: GeneralCoverage', function () {
     expect(newCoverageElement.textContent).to.equal('72.5%');
   });
 
+  it('should display tests', function () {
+    let component = <GeneralCoverage measures={MEASURES} component={COMPONENT}/>;
+    let output = TestUtils.renderIntoDocument(component);
+    let coverageElement = TestUtils.findRenderedDOMComponentWithClass(output, 'js-overview-main-tests');
+    expect(coverageElement.textContent).to.equal('137');
+  });
+
+  it('should not display tests', function () {
+    let measuresWithoutTests = _.omit(MEASURES, 'tests');
+    let component = <GeneralCoverage measures={measuresWithoutTests} component={COMPONENT}/>;
+    let output = TestUtils.renderIntoDocument(component);
+    let coverageElements = TestUtils.scryRenderedDOMComponentsWithClass(output, 'js-overview-main-tests');
+    expect(coverageElements).to.be.empty;
+  });
+
   it('should fall back to UT coverage', function () {
     let component = <GeneralCoverage measures={MEASURES_FOR_UT} leak={LEAK_FOR_UT} component={COMPONENT}
                                      leakPeriodDate={DATE}/>;

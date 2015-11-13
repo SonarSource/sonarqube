@@ -64,6 +64,18 @@ export const GeneralCoverage = React.createClass({
     </DomainLeak>;
   },
 
+  renderTests() {
+    let tests = this.props.measures['tests'];
+    if (tests == null) {
+      return null;
+    }
+    return <Measure label={getMetricName('tests')}>
+      <DrilldownLink component={this.props.component.key} metric="tests">
+        <span className="js-overview-main-tests">{formatMeasure(tests, 'SHORT_INT')}</span>
+      </DrilldownLink>
+    </Measure>;
+  },
+
   render () {
     let coverageMetric = this.getCoverageMetric();
     if (this.props.measures[coverageMetric] == null) {
@@ -83,13 +95,7 @@ export const GeneralCoverage = React.createClass({
                 </span>
               </DrilldownLink>
             </Measure>
-            <Measure label={getMetricName('tests')}>
-              <DrilldownLink component={this.props.component.key} metric="tests">
-                <span className="js-overview-main-tests">
-                  {formatMeasure(this.props.measures['tests'], 'SHORT_INT')}
-                </span>
-              </DrilldownLink>
-            </Measure>
+            {this.renderTests()}
           </MeasuresList>
           {this.renderTimeline('before')}
         </DomainNutshell>
