@@ -24,8 +24,9 @@ import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
-import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
 import org.sonarqube.ws.WsPermissions.UpdateTemplateWsResponse;
+import org.sonarqube.ws.WsPermissions.UsersWsResponse;
+import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
 import org.sonarqube.ws.client.WsClient;
 
 import static org.sonarqube.ws.client.WsRequest.newGetRequest;
@@ -194,6 +195,19 @@ public class PermissionsWsClient {
         .setParam(PARAM_NAME, request.getName())
         .setParam(PARAM_PROJECT_KEY_PATTERN, request.getProjectKeyPattern()),
       UpdateTemplateWsResponse.parser());
+  }
+
+  public UsersWsResponse users(UsersWsRequest request) {
+    return wsClient.execute(
+      newGetRequest("users")
+        .setParam(PARAM_PERMISSION, request.getPermission())
+        .setParam(PARAM_PROJECT_ID, request.getProjectId())
+        .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
+        .setParam("selected", request.getSelected())
+        .setParam("p", request.getPage())
+        .setParam("ps", request.getPageSize())
+        .setParam("q", request.getQuery()),
+      UsersWsResponse.parser());
   }
 
   private static String action(String action) {

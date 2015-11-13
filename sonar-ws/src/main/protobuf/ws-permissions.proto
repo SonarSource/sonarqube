@@ -28,7 +28,7 @@ option optimize_for = SPEED;
 
 // WS api/permissions/users for internal use only
 // and WS api/permissions/template_users for internal use only
-message WsUsersResponse {
+message UsersWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
   repeated User users = 2;
 }

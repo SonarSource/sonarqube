@@ -42,6 +42,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
+import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -78,12 +79,12 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    checkRequestAndPermissions(wsRequest);
     SearchProjectPermissionsWsResponse searchProjectPermissionsWsResponse = doHandle(toSearchProjectPermissionsWsRequest(wsRequest));
     writeProtobuf(searchProjectPermissionsWsResponse, wsRequest, wsResponse);
   }
 
   private SearchProjectPermissionsWsResponse doHandle(SearchProjectPermissionsWsRequest request) {
+    checkRequestAndPermissions(request);
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchProjectPermissionsData data = dataLoader.load(request);
@@ -102,8 +103,8 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .setQuery(request.param(Param.TEXT_QUERY));
   }
 
-  private void checkRequestAndPermissions(Request wsRequest) {
-    Optional<WsProjectRef> project = WsProjectRef.newOptionalWsProjectRef(wsRequest);
+  private void checkRequestAndPermissions(SearchProjectPermissionsWsRequest request) {
+    Optional<WsProjectRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
     boolean hasProject = project.isPresent();
     boolean hasProjectUuid = hasProject && project.get().uuid() != null;
     boolean hasProjectKey = hasProject && project.get().key() != null;

@@ -34,19 +34,24 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.permission.PermissionFinder;
-import org.sonar.server.permission.ws.PermissionRequest.Builder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.WsUsersResponse;
+import org.sonarqube.ws.WsPermissions.UsersWsResponse;
+import org.sonarqube.ws.client.permission.UsersWsRequest;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
 import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validatePermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
+import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
 public class UsersAction implements PermissionsWsAction {
 
@@ -84,25 +89,40 @@ public class UsersAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    UsersWsResponse usersWsResponse = doHandle(toUsersWsRequest(wsRequest));
+    writeProtobuf(usersWsResponse, wsRequest, wsResponse);
+  }
+
+  private UsersWsResponse doHandle(UsersWsRequest request) {
+    Optional<WsProjectRef> wsProjectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
+    validatePermission(request.getPermission(), wsProjectRef);
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionRequest request = new Builder(wsRequest).withPagination().build();
-      Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request.project());
+      Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, wsProjectRef);
       checkProjectAdminUserByComponentDto(userSession, project);
       PermissionQuery permissionQuery = buildPermissionQuery(request, project);
       Long projectIdIfPresent = project.isPresent() ? project.get().getId() : null;
       int total = dbClient.permissionDao().countUsers(dbSession, permissionQuery, projectIdIfPresent);
       List<UserWithPermissionDto> usersWithPermission = permissionFinder.findUsersWithPermission(dbSession, permissionQuery);
-      WsUsersResponse wsUsersResponse = buildResponse(usersWithPermission, forPageIndex(request.page()).withPageSize(request.pageSize()).andTotal(total));
-
-      writeProtobuf(wsUsersResponse, wsRequest, wsResponse);
+      return buildResponse(usersWithPermission, forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(total));
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private static WsUsersResponse buildResponse(List<UserWithPermissionDto> usersWithPermission, Paging paging) {
-    WsUsersResponse.Builder userResponse = WsUsersResponse.newBuilder();
+  private static UsersWsRequest toUsersWsRequest(Request request) {
+    return new UsersWsRequest()
+      .setPermission(request.mandatoryParam(PARAM_PERMISSION))
+      .setProjectId(request.param(PARAM_PROJECT_ID))
+      .setProjectKey(request.param(PARAM_PROJECT_KEY))
+      .setSelected(request.param(Param.SELECTED))
+      .setQuery(request.param(Param.TEXT_QUERY))
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
+  }
+
+  private static UsersWsResponse buildResponse(List<UserWithPermissionDto> usersWithPermission, Paging paging) {
+    UsersWsResponse.Builder userResponse = UsersWsResponse.newBuilder();
     WsPermissions.User.Builder user = WsPermissions.User.newBuilder();
     for (UserWithPermissionDto userWithPermission : usersWithPermission) {
       userResponse.addUsers(
@@ -124,13 +144,13 @@ public class UsersAction implements PermissionsWsAction {
     return userResponse.build();
   }
 
-  private static PermissionQuery buildPermissionQuery(PermissionRequest request, Optional<ComponentDto> project) {
+  private static PermissionQuery buildPermissionQuery(UsersWsRequest request, Optional<ComponentDto> project) {
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
-      .permission(request.permission())
-      .pageIndex(request.page())
-      .pageSize(request.pageSize())
-      .membership(fromSelectionModeToMembership(firstNonNull(request.selected(), SelectionMode.SELECTED.value())))
-      .search(request.query());
+      .permission(request.getPermission())
+      .pageIndex(request.getPage())
+      .pageSize(request.getPageSize())
+      .membership(fromSelectionModeToMembership(firstNonNull(request.getSelected(), SelectionMode.SELECTED.value())))
+      .search(request.getQuery());
     if (project.isPresent()) {
       permissionQuery.component(project.get().getKey());
     }

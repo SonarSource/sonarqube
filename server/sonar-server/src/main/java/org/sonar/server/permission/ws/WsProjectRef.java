@@ -23,11 +23,8 @@ package org.sonar.server.permission.ws;
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.server.ws.Request;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
 /**
  * Project identifiers from a WS request. Guaranties the project id and project key are not provided at the same time.
@@ -43,30 +40,12 @@ public class WsProjectRef {
     checkRequest(this.uuid != null ^ this.key != null, "Project id or project key can be provided, not both.");
   }
 
-  private WsProjectRef(Request wsRequest) {
-    this(wsRequest.param(PARAM_PROJECT_ID), wsRequest.param(PARAM_PROJECT_KEY));
-  }
-
-  public static Optional<WsProjectRef> newOptionalWsProjectRef(Request wsRequest) {
-    if (!hasProjectParam(wsRequest)) {
-      return Optional.absent();
-    }
-
-    return Optional.of(new WsProjectRef(wsRequest));
-  }
-
   public static Optional<WsProjectRef> newOptionalWsProjectRef(@Nullable String uuid, @Nullable String key) {
     if (uuid == null && key == null) {
       return Optional.absent();
     }
 
     return Optional.of(new WsProjectRef(uuid, key));
-  }
-
-  public static WsProjectRef newWsProjectRef(Request wsRequest) {
-    checkRequest(hasProjectParam(wsRequest), MSG_ID_OR_KEY_MUST_BE_PROVIDED);
-
-    return new WsProjectRef(wsRequest);
   }
 
   public static WsProjectRef newWsProjectRef(@Nullable String uuid, @Nullable String key) {
@@ -82,9 +61,5 @@ public class WsProjectRef {
   @CheckForNull
   public String key() {
     return this.key;
-  }
-
-  private static boolean hasProjectParam(Request wsRequest) {
-    return wsRequest.hasParam(PARAM_PROJECT_ID) || wsRequest.hasParam(PARAM_PROJECT_KEY);
   }
 }
