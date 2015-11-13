@@ -39,9 +39,9 @@ export const GeneralCoverage = React.createClass({
   renderNewCoverage () {
     let newCoverageMetric = this.getNewCoverageMetric();
 
-    // FIXME fix period index
     if (this.props.leak[newCoverageMetric] != null) {
-      return <DrilldownLink component={this.props.component.key} metric={newCoverageMetric} period="1">
+      return <DrilldownLink component={this.props.component.key} metric={newCoverageMetric}
+                            period={this.props.leakPeriodIndex}>
         <span className="js-overview-main-new-coverage">
           {formatMeasure(this.props.leak[newCoverageMetric], 'PERCENT')}
         </span>
