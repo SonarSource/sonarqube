@@ -34,24 +34,25 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions.PermissionTemplate;
-import org.sonarqube.ws.WsPermissions.WsUpdatePermissionTemplateResponse;
+import org.sonarqube.ws.WsPermissions.UpdateTemplateWsResponse;
+import org.sonarqube.ws.client.permission.UpdateTemplateWsRequest;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createIdParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateDescriptionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createIdParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateDescriptionParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.template.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 
 public class UpdateTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -87,13 +88,18 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(Request request, Response response) throws Exception {
+    UpdateTemplateWsResponse updateTemplateWsResponse = doHandle(toUpdateTemplateWsRequest(request));
+    writeProtobuf(updateTemplateWsResponse, request, response);
+  }
+
+  private UpdateTemplateWsResponse doHandle(UpdateTemplateWsRequest request) {
     checkGlobalAdminUser(userSession);
 
-    String uuid = wsRequest.mandatoryParam(PARAM_ID);
-    String nameParam = wsRequest.param(PARAM_NAME);
-    String descriptionParam = wsRequest.param(PARAM_DESCRIPTION);
-    String projectPatternParam = wsRequest.param(PARAM_PROJECT_KEY_PATTERN);
+    String uuid = request.getId();
+    String nameParam = request.getName();
+    String descriptionParam = request.getDescription();
+    String projectPatternParam = request.getProjectKeyPattern();
 
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -101,11 +107,18 @@ public class UpdateTemplateAction implements PermissionsWsAction {
       validateTemplate(dbSession, templateToUpdate);
       PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
 
-      WsUpdatePermissionTemplateResponse response = buildResponse(updatedTemplate);
-      writeProtobuf(response, wsRequest, wsResponse);
+      return buildResponse(updatedTemplate);
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private static UpdateTemplateWsRequest toUpdateTemplateWsRequest(Request request) {
+    return new UpdateTemplateWsRequest()
+      .setId(request.mandatoryParam(PARAM_ID))
+      .setName(request.param(PARAM_NAME))
+      .setDescription(request.param(PARAM_DESCRIPTION))
+      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN));
   }
 
   private void validateTemplate(DbSession dbSession, PermissionTemplateDto templateToUpdate) {
@@ -128,9 +141,9 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     return dbClient.permissionTemplateDao().update(dbSession, templateToUpdate);
   }
 
-  private static WsUpdatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplate) {
+  private static UpdateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplate) {
     PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplate);
-    return WsUpdatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
+    return UpdateTemplateWsResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 
   private void validateTemplateNameForUpdate(DbSession dbSession, String name, long id) {

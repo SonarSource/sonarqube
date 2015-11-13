@@ -62,7 +62,7 @@ message CreateTemplateWsResponse {
   optional PermissionTemplate permissionTemplate = 1;
 }
 
-message WsUpdatePermissionTemplateResponse {
+message UpdateTemplateWsResponse {
   optional PermissionTemplate permissionTemplate = 1;
 }
 

@@ -25,6 +25,7 @@ import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
+import org.sonarqube.ws.WsPermissions.UpdateTemplateWsResponse;
 import org.sonarqube.ws.client.WsClient;
 
 import static org.sonarqube.ws.client.WsRequest.newGetRequest;
@@ -32,6 +33,7 @@ import static org.sonarqube.ws.client.WsRequest.newPostRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -182,6 +184,16 @@ public class PermissionsWsClient {
         .setParam(PARAM_QUALIFIER, request.getQualifier())
         .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
         .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
+  public UpdateTemplateWsResponse updateTemplate(UpdateTemplateWsRequest request) {
+    return wsClient.execute(
+      newPostRequest("update_template")
+        .setParam(PARAM_DESCRIPTION, request.getDescription())
+        .setParam(PARAM_ID, request.getId())
+        .setParam(PARAM_NAME, request.getName())
+        .setParam(PARAM_PROJECT_KEY_PATTERN, request.getProjectKeyPattern()),
+      UpdateTemplateWsResponse.parser());
   }
 
   private static String action(String action) {
