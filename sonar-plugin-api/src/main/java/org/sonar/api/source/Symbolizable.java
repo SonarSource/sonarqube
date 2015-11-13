@@ -33,11 +33,29 @@ public interface Symbolizable extends Perspective {
 
   interface SymbolTableBuilder {
 
+    /**
+     * Creates a new Symbol.
+     * The offsets are global in the file.
+     */
     Symbol newSymbol(int fromOffset, int toOffset);
 
+    /**
+     * Creates a new reference for a symbol.
+     * The length of the reference is assumed to be the same as the symbol's length.
+     */
     void newReference(Symbol symbol, int fromOffset);
+    
+    /**
+     * Creates a new reference for a symbol.
+     * The offsets are global in the file.
+     */
+    void newReference(Symbol symbol, int fromOffset, int toOffset);
 
+    /**
+     * Creates a {@link SymbolTable} containing all symbols and references previously created in this file.
+     */
     SymbolTable build();
+
   }
 
   interface SymbolTable {

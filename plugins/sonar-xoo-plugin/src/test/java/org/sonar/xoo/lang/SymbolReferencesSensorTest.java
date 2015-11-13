@@ -74,7 +74,7 @@ public class SymbolReferencesSensorTest {
   @Test
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.symbol");
-    FileUtils.write(symbol, "1,4,7\n12,15,23\n\n#comment");
+    FileUtils.write(symbol, "1:4,7\n12:15,23:33\n\n#comment");
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo");
     fileSystem.add(inputFile);
     Symbolizable symbolizable = mock(Symbolizable.class);
@@ -92,7 +92,7 @@ public class SymbolReferencesSensorTest {
     verify(symbolTableBuilder).newSymbol(1, 4);
     verify(symbolTableBuilder).newReference(symbol1, 7);
     verify(symbolTableBuilder).newSymbol(12, 15);
-    verify(symbolTableBuilder).newReference(symbol2, 23);
+    verify(symbolTableBuilder).newReference(symbol2, 23, 33);
   }
 
 }

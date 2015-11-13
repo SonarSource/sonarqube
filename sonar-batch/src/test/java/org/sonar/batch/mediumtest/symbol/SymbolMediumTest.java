@@ -66,7 +66,7 @@ public class SymbolMediumTest {
     File xooSymbolFile = new File(srcDir, "sample.xoo.symbol");
     FileUtils.write(xooFile, "Sample xoo\ncontent\nanother xoo");
     // Highlight xoo symbol
-    FileUtils.write(xooSymbolFile, "7,10,27");
+    FileUtils.write(xooSymbolFile, "7:10,27");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -82,6 +82,35 @@ public class SymbolMediumTest {
 
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.symbolReferencesFor(file, 1, 7)).containsOnly(BatchReport.TextRange.newBuilder().setStartLine(3).setStartOffset(8).setEndLine(3).setEndOffset(11).build());
+  }
+
+  @Test
+  public void computeSymbolReferencesWithVariableLength() throws IOException {
+
+    File baseDir = temp.getRoot();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    File xooSymbolFile = new File(srcDir, "sample.xoo.symbol");
+    FileUtils.write(xooFile, "Sample xoo\ncontent\nanother xoo\nyet another");
+    // Highlight xoo symbol
+    FileUtils.write(xooSymbolFile, "7:10,27:32");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    InputFile file = result.inputFile("src/sample.xoo");
+    assertThat(result.symbolReferencesFor(file, 1, 7)).containsOnly(BatchReport.TextRange.newBuilder().setStartLine(3).setStartOffset(8).setEndLine(4).setEndOffset(1).build());
   }
 
 }
