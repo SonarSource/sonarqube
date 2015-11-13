@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import d3 from 'd3';
 import moment from 'moment';
 import React from 'react';
 
@@ -29,6 +30,9 @@ export const Timeline = React.createClass({
 
   renderHorizontalGrid (xScale, yScale) {
     let ticks = yScale.ticks(4);
+    if (!ticks.length) {
+      ticks.push(yScale.domain()[1]);
+    }
     let grid = ticks.map(tick => {
       let opts = {
         x: xScale.range()[0],
@@ -111,12 +115,12 @@ export const Timeline = React.createClass({
     let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
     let xScale = d3.time.scale()
-        .domain(d3.extent(this.props.data, d => d.x))
+        .domain(d3.extent(this.props.data, d => d.x || 0))
         .range([0, availableWidth])
         .clamp(true);
     let yScale = d3.scale.linear()
         .range([availableHeight, 0])
-        .domain([0, d3.max(this.props.data, d => d.y)])
+        .domain([0, d3.max(this.props.data, d => d.y || 0)])
         .nice();
 
     return <svg className="line-chart" width={this.state.width} height={this.state.height}>
