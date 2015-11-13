@@ -29,7 +29,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
@@ -51,7 +50,7 @@ public class ProjectReactorValidator {
   }
 
   public void validate(ProjectReactor reactor) {
-    String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String branch = reactor.getRoot().getBranch();
 
     List<String> validationMessages = new ArrayList<>();
     checkDeprecatedProperties(validationMessages);

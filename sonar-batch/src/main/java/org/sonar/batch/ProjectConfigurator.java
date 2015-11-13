@@ -48,13 +48,9 @@ public class ProjectConfigurator {
   }
 
   public Project create(ProjectDefinition definition) {
-    Project project = new Project(definition.getKey(), loadProjectBranch(), definition.getName());
+    Project project = new Project(definition.getKey(), definition.getBranch(), definition.getName());
     project.setDescription(StringUtils.defaultString(definition.getDescription()));
     return project;
-  }
-
-  private String loadProjectBranch() {
-    return settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
   }
 
   public ProjectConfigurator configure(Project project) {
