@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>duplications-with-deleted-project</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+  <thead>
+  <tr>
+    <td rowspan="1" colspan="3">duplications-with-deleted-project</td>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td>open</td>
+    <td>/sonar/component/index?id=duplicate-project%3Asrc%2Fmain%2Fxoo%2Fsample%2FFile1.xoo</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>css=.source-viewer</td>
+    <td>*src/main/xoo/sample/File1.xoo*</td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>css=.source-table</td>
+    <td>*File1*</td>
+  </tr>
+  <tr>
+    <td>click</td>
+    <td>css=.source-line-duplicated</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>waitForElementPresent</td>
+    <td>css=.bubble-popup</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>assertElementPresent</td>
+    <td>css=.bubble-popup .alert</td>
+    <td></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

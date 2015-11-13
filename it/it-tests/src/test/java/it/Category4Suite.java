@@ -24,6 +24,7 @@ import it.analysisExclusion.FileExclusionsTest;
 import it.analysisExclusion.IssueExclusionsTest;
 import it.componentSearch.ProjectSearchTest;
 import it.dbCleaner.PurgeTest;
+import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
 import it.serverSystem.DevModeTest;
@@ -58,6 +59,7 @@ import static util.ItUtils.xooPlugin;
   IssueExclusionsTest.class,
   // duplication
   CrossProjectDuplicationsTest.class,
+  CrossProjectDuplicationsOnRemoveFileTest.class,
   DuplicationsTest.class,
   // db cleaner
   PurgeTest.class
