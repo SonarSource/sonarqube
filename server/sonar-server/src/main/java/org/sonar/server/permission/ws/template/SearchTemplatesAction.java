@@ -24,16 +24,19 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.Permission;
 import org.sonarqube.ws.WsPermissions.PermissionTemplate;
-import org.sonarqube.ws.WsPermissions.WsSearchTemplatesResponse;
-import org.sonarqube.ws.WsPermissions.WsSearchTemplatesResponse.TemplateIdQualifier;
+import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
+import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse.TemplateIdQualifier;
+import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
@@ -70,18 +73,26 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
+    SearchTemplatesWsResponse searchTemplatesWsResponse = doHandle(toSearchTemplatesWsRequest(wsRequest));
+    writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
+  }
+
+  private SearchTemplatesWsResponse doHandle(SearchTemplatesWsRequest wsRequest) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchTemplatesData data = dataLoader.load(wsRequest);
-      WsSearchTemplatesResponse response = buildResponse(data);
-      writeProtobuf(response, wsRequest, wsResponse);
+      return buildResponse(data);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private WsSearchTemplatesResponse buildResponse(SearchTemplatesData data) {
-    WsSearchTemplatesResponse.Builder response = WsSearchTemplatesResponse.newBuilder();
+  private static SearchTemplatesWsRequest toSearchTemplatesWsRequest(Request request) {
+    return new SearchTemplatesWsRequest().setQuery(request.param(Param.TEXT_QUERY));
+  }
+
+  private WsPermissions.SearchTemplatesWsResponse buildResponse(SearchTemplatesData data) {
+    SearchTemplatesWsResponse.Builder response = SearchTemplatesWsResponse.newBuilder();
 
     buildTemplatesResponse(response, data);
     buildDefaultTemplatesResponse(response, data);
@@ -90,7 +101,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     return response.build();
   }
 
-  private static void buildDefaultTemplatesResponse(WsSearchTemplatesResponse.Builder response, SearchTemplatesData data) {
+  private static void buildDefaultTemplatesResponse(SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
     TemplateIdQualifier.Builder templateUuidQualifierBuilder = TemplateIdQualifier.newBuilder();
     for (DefaultPermissionTemplateFinder.TemplateUuidQualifier templateUuidQualifier : data.defaultTempltes()) {
       response.addDefaultTemplates(templateUuidQualifierBuilder
@@ -100,7 +111,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     }
   }
 
-  private static void buildTemplatesResponse(WsSearchTemplatesResponse.Builder response, SearchTemplatesData data) {
+  private static void buildTemplatesResponse(WsPermissions.SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
     Permission.Builder permissionResponse = Permission.newBuilder();
     PermissionTemplate.Builder templateBuilder = PermissionTemplate.newBuilder();
 
@@ -129,7 +140,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     }
   }
 
-  private void buildPermissionsResponse(WsSearchTemplatesResponse.Builder response) {
+  private void buildPermissionsResponse(SearchTemplatesWsResponse.Builder response) {
     Permission.Builder permissionResponse = Permission.newBuilder();
     for (String permissionKey : ProjectPermissions.ALL) {
       response.addPermissions(
@@ -137,8 +148,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
           .clear()
           .setKey(permissionKey)
           .setName(i18nName(permissionKey))
-          .setDescription(i18nDescriptionMessage(permissionKey))
-        );
+          .setDescription(i18nDescriptionMessage(permissionKey)));
     }
   }
 

@@ -28,14 +28,13 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.CountByTemplateAndPermissionDto;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
+import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
-import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.permission.ws.template.SearchTemplatesData.newBuilder;
 
 public class SearchTemplatesDataLoader {
@@ -47,11 +46,11 @@ public class SearchTemplatesDataLoader {
     this.defaultPermissionTemplateFinder = defaultPermissionTemplateFinder;
   }
 
-  public SearchTemplatesData load(Request wsRequest) {
+  public SearchTemplatesData load(SearchTemplatesWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchTemplatesData.Builder data = newBuilder();
-      List<PermissionTemplateDto> templates = searchTemplates(dbSession, wsRequest);
+      List<PermissionTemplateDto> templates = searchTemplates(dbSession, request);
       List<Long> templateIds = Lists.transform(templates, TemplateToIdFunction.INSTANCE);
       List<TemplateUuidQualifier> defaultTemplates = defaultPermissionTemplateFinder.getDefaultTemplatesByQualifier();
 
@@ -66,11 +65,10 @@ public class SearchTemplatesDataLoader {
     }
   }
 
-  private List<PermissionTemplateDto> searchTemplates(DbSession dbSession, Request wsRequest) {
-    String nameMatch = wsRequest.param(TEXT_QUERY);
+  private List<PermissionTemplateDto> searchTemplates(DbSession dbSession, SearchTemplatesWsRequest request) {
+    String nameMatch = request.getQuery();
 
-    return nameMatch == null ?
-      dbClient.permissionTemplateDao().selectAll(dbSession)
+    return nameMatch == null ? dbClient.permissionTemplateDao().selectAll(dbSession)
       : dbClient.permissionTemplateDao().selectAll(dbSession, nameMatch);
   }
 

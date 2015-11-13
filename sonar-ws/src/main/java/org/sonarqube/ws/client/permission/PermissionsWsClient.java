@@ -23,6 +23,7 @@ package org.sonarqube.ws.client.permission;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
+import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
 import org.sonarqube.ws.client.WsClient;
 
@@ -165,6 +166,13 @@ public class PermissionsWsClient {
         .setParam("ps", request.getPageSize())
         .setParam("q", request.getQuery()),
       SearchProjectPermissionsWsResponse.parser());
+  }
+
+  public SearchTemplatesWsResponse searchTemplates(SearchTemplatesWsRequest request) {
+    return wsClient.execute(
+      newGetRequest("search_templates")
+        .setParam("q", request.getQuery()),
+      SearchTemplatesWsResponse.parser());
   }
 
   private static String action(String action) {
