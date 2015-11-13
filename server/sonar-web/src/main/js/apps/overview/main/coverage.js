@@ -16,10 +16,35 @@ export const GeneralCoverage = React.createClass({
     leakPeriodDate: React.PropTypes.object
   },
 
-  renderNewCoverage () {
+  getCoverageMetric () {
+    if (this.props.measures['overall_coverage'] != null) {
+      return 'overall_coverage';
+    } else if (this.props.measures['coverage'] != null) {
+      return 'coverage';
+    } else {
+      return 'it_coverage';
+    }
+  },
+
+  getNewCoverageMetric () {
     if (this.props.leak['new_overall_coverage'] != null) {
-      return <DrilldownLink component={this.props.component.key} metric="new_overall_coverage" period="1">
-        {formatMeasure(this.props.leak['new_overall_coverage'], 'PERCENT')}
+      return 'new_overall_coverage';
+    } else if (this.props.leak['new_coverage'] != null) {
+      return 'new_coverage';
+    } else {
+      return 'new_it_coverage';
+    }
+  },
+
+  renderNewCoverage () {
+    let newCoverageMetric = this.getNewCoverageMetric();
+
+    // FIXME fix period index
+    if (this.props.leak[newCoverageMetric] != null) {
+      return <DrilldownLink component={this.props.component.key} metric={newCoverageMetric} period="1">
+        <span className="js-overview-main-new-coverage">
+          {formatMeasure(this.props.leak[newCoverageMetric], 'PERCENT')}
+        </span>
       </DrilldownLink>;
     } else {
       return <span>—</span>;
@@ -40,7 +65,8 @@ export const GeneralCoverage = React.createClass({
   },
 
   render () {
-    if (this.props.measures['overall_coverage'] == null) {
+    let coverageMetric = this.getCoverageMetric();
+    if (this.props.measures[coverageMetric] == null) {
       return null;
     }
 
@@ -51,13 +77,17 @@ export const GeneralCoverage = React.createClass({
         <DomainNutshell>
           <MeasuresList>
             <Measure label={getMetricName('coverage')}>
-              <DrilldownLink component={this.props.component.key} metric="overall_coverage">
-                {formatMeasure(this.props.measures['overall_coverage'], 'PERCENT')}
+              <DrilldownLink component={this.props.component.key} metric={coverageMetric}>
+                <span className="js-overview-main-coverage">
+                  {formatMeasure(this.props.measures[coverageMetric], 'PERCENT')}
+                </span>
               </DrilldownLink>
             </Measure>
             <Measure label={getMetricName('tests')}>
               <DrilldownLink component={this.props.component.key} metric="tests">
-                {formatMeasure(this.props.measures['tests'], 'SHORT_INT')}
+                <span className="js-overview-main-tests">
+                  {formatMeasure(this.props.measures['tests'], 'SHORT_INT')}
+                </span>
               </DrilldownLink>
             </Measure>
           </MeasuresList>
