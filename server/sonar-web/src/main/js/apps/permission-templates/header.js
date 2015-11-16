@@ -9,10 +9,18 @@ export default React.createClass({
     }).render();
   },
 
+  renderSpinner () {
+    if (this.props.ready) {
+      return null;
+    }
+    return <i className="spinner"/>;
+  },
+
   render() {
     return (
         <header id="project-permissions-header" className="page-header">
           <h1 className="page-title">{window.t('permission_templates.page')}</h1>
+          {this.renderSpinner()}
           <div className="page-actions">
             <button onClick={this.onCreate}>Create</button>
           </div>

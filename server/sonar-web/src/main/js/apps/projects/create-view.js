@@ -1,6 +1,7 @@
 import ModalForm from '../../components/common/modal-form';
-import {createProject} from '../../api/components';
+import { createProject } from '../../api/components';
 import Template from './templates/projects-create-form.hbs';
+
 
 export default ModalForm.extend({
   template: Template,
@@ -27,20 +28,18 @@ export default ModalForm.extend({
       key: this.$('#create-project-key').val()
     };
     this.disableForm();
-    return createProject({
-      data,
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(() => {
-      if (this.options.refresh) {
-        this.options.refresh();
-      }
-      this.destroy();
-    }).fail((jqXHR) => {
-      this.enableForm();
-      this.showErrors([{ msg: jqXHR.responseJSON.err_msg }]);
-    });
+    return createProject(data)
+        .then(() => {
+          if (this.options.refresh) {
+            this.options.refresh();
+          }
+          this.destroy();
+        })
+        .catch(error => {
+          this.enableForm();
+          if (error.response.status === 400) {
+            error.response.json().then(obj => this.showErrors([{ msg: obj.err_msg }]));
+          }
+        });
   }
 });

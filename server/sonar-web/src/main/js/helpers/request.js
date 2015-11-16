@@ -147,3 +147,13 @@ export function post (url, data) {
       .submit()
       .then(checkStatus);
 }
+
+
+/**
+ * Delay promise for testing purposes
+ * @param response
+ * @returns {Promise}
+ */
+export function delay (response) {
+  return new Promise(resolve => setTimeout(() => resolve(response), 3000));
+}

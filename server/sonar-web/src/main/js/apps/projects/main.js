@@ -15,6 +15,7 @@ export default React.createClass({
 
   getInitialState() {
     return {
+      ready: false,
       projects: [],
       total: 0,
       page: 1,
@@ -62,48 +63,49 @@ export default React.createClass({
 
   requestGhosts() {
     let data = this.getFilters();
-    getGhosts(data).done(r => {
+    getGhosts(data).then(r => {
       let projects = r.projects.map(project => {
         return _.extend(project, { id: project.uuid, qualifier: 'TRK' });
       });
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
-      this.setState({ projects: projects, total: r.total });
+      this.setState({ ready: true, projects: projects, total: r.total });
     });
   },
 
   requestProvisioned() {
     let data = this.getFilters();
-    getProvisioned(data).done(r => {
+    getProvisioned(data).then(r => {
       let projects = r.projects.map(project => {
         return _.extend(project, { id: project.uuid, qualifier: 'TRK' });
       });
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
-      this.setState({ projects: projects, total: r.total });
+      this.setState({ ready: true, projects: projects, total: r.total });
     });
   },
 
   requestAllProjects() {
     let data = this.getFilters();
     data.qualifiers = this.state.qualifiers;
-    getComponents(data).done(r => {
+    getComponents(data).then(r => {
       let projects = r.components;
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
-      this.setState({ projects: projects, total: r.paging.total });
+      this.setState({ ready: true, projects: projects, total: r.paging.total });
     });
   },
 
   loadMore() {
-    this.setState({ page: this.state.page + 1 }, this.requestProjects);
+    this.setState({ ready: false, page: this.state.page + 1 }, this.requestProjects);
   },
 
   onSearch(query) {
     this.setState({
+      ready: false,
       page: 1,
       query,
       selection: []
@@ -112,6 +114,7 @@ export default React.createClass({
 
   onTypeChanged(newType) {
     this.setState({
+      ready: false,
       page: 1,
       query: '',
       type: newType,
@@ -122,6 +125,7 @@ export default React.createClass({
 
   onQualifierChanged(newQualifier) {
     this.setState({
+      ready: false,
       page: 1,
       query: '',
       type: TYPE.ALL,
@@ -153,7 +157,7 @@ export default React.createClass({
 
   deleteProjects() {
     let ids = this.state.selection.join(',');
-    deleteComponents({ ids }).done(() => {
+    deleteComponents({ ids }).then(() => {
       this.setState({ page: 1, selection: [] }, this.requestProjects);
     });
   },
@@ -174,6 +178,7 @@ export default React.createClass({
               deleteProjects={this.deleteProjects}/>
 
           <Projects
+              ready={this.state.ready}
               projects={this.state.projects}
               refresh={this.requestProjects}
               selection={this.state.selection}
@@ -181,6 +186,7 @@ export default React.createClass({
               onProjectDeselected={this.onProjectDeselected}/>
 
           <ListFooter
+              ready={this.state.ready}
               count={this.state.projects.length}
               total={this.state.total}
               loadMore={this.loadMore}/>

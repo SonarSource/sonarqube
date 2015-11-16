@@ -14,7 +14,7 @@ export default React.createClass({
   },
 
   getInitialState() {
-    return { permissions: [], projects: [], total: 0 };
+    return { ready: false, permissions: [], projects: [], total: 0 };
   },
 
   componentDidMount() {
@@ -42,18 +42,21 @@ export default React.createClass({
     if (this.props.componentId) {
       data = { projectId: this.props.componentId };
     }
-    $.get(url, data).done(r => {
-      let permissions = this.sortPermissions(r.permissions);
-      let projects = this.mergePermissionsToProjects(r.projects, permissions);
-      if (page > 1) {
-        projects = [].concat(this.state.projects, projects);
-      }
-      this.setState({
-        projects: projects,
-        permissions: permissions,
-        total: r.paging.total,
-        page: r.paging.pageIndex,
-        query: query
+    this.setState({ ready: false }, () => {
+      $.get(url, data).done(r => {
+        let permissions = this.sortPermissions(r.permissions);
+        let projects = this.mergePermissionsToProjects(r.projects, permissions);
+        if (page > 1) {
+          projects = [].concat(this.state.projects, projects);
+        }
+        this.setState({
+          ready: true,
+          projects: projects,
+          permissions: permissions,
+          total: r.paging.total,
+          page: r.paging.pageIndex,
+          query: query
+        });
       });
     });
   },
@@ -88,11 +91,19 @@ export default React.createClass({
     );
   },
 
+  renderSpinner () {
+    if (this.state.ready) {
+      return null;
+    }
+    return <i className="spinner"/>;
+  },
+
   render() {
     return (
         <div className="page">
           <header id="project-permissions-header" className="page-header">
             <h1 className="page-title">{window.t('roles.page')}</h1>
+            {this.renderSpinner()}
             <div className="page-actions">
               {this.renderBulkApplyButton()}
             </div>
@@ -103,12 +114,14 @@ export default React.createClass({
               search={this.search}/>
 
           <Permissions
+              ready={this.state.ready}
               projects={this.state.projects}
               permissions={this.state.permissions}
               permissionTemplates={this.props.permissionTemplates}
               refresh={this.refresh}/>
 
           <PermissionsFooter {...this.props}
+              ready={this.state.ready}
               count={this.state.projects.length}
               total={this.state.total}
               loadMore={this.loadMore}/>

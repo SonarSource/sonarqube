@@ -1,5 +1,8 @@
+import classNames from 'classnames';
 import React from 'react';
+
 import Permission from './permission';
+
 
 export default React.createClass({
   propTypes:{
@@ -13,6 +16,7 @@ export default React.createClass({
   },
 
   render() {
-    return <ul id="global-permissions-list">{this.renderPermissions()}</ul>;
+    let className = classNames({ 'new-loading': !this.props.ready });
+    return <ul id="global-permissions-list" className={className}>{this.renderPermissions()}</ul>;
   }
 });

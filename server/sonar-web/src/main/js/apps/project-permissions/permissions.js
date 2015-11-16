@@ -1,6 +1,9 @@
+import classNames from 'classnames';
 import React from 'react';
+
 import PermissionsHeader from './permissions-header';
 import Project from './project';
+
 
 export default React.createClass({
   propTypes:{
@@ -18,8 +21,9 @@ export default React.createClass({
           permissionTemplates={this.props.permissionTemplates}
           refresh={this.props.refresh}/>;
     });
+    let className = classNames('data zebra', { 'new-loading': !this.props.ready });
     return (
-        <table id="projects" className="data zebra">
+        <table id="projects" className={className}>
           <PermissionsHeader permissions={this.props.permissions}/>
           <tbody>{projects}</tbody>
         </table>

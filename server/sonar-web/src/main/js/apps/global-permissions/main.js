@@ -4,7 +4,7 @@ import PermissionsList from './permissions-list';
 
 export default React.createClass({
   getInitialState() {
-    return { permissions: [] };
+    return { ready: false, permissions: [] };
   },
 
   componentDidMount() {
@@ -14,8 +14,15 @@ export default React.createClass({
   requestPermissions() {
     const url = `${window.baseUrl}/api/permissions/search_global_permissions`;
     $.get(url).done(r => {
-      this.setState({ permissions: r.permissions });
+      this.setState({ ready: true, permissions: r.permissions });
     });
+  },
+
+  renderSpinner () {
+    if (this.state.ready) {
+      return null;
+    }
+    return <i className="spinner"/>;
   },
 
   render() {
@@ -23,9 +30,10 @@ export default React.createClass({
         <div className="page">
           <header id="global-permissions-header" className="page-header">
             <h1 className="page-title">{window.t('global_permissions.page')}</h1>
+            {this.renderSpinner()}
             <p className="page-description">{window.t('global_permissions.page.description')}</p>
           </header>
-          <PermissionsList permissions={this.state.permissions}/>
+          <PermissionsList ready={this.state.ready} permissions={this.state.permissions}/>
         </div>
     );
   }

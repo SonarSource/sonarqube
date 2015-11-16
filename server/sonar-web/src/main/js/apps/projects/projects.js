@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from 'react';
 import { getComponentUrl } from '../../helpers/urls';
 import Checkbox from '../../components/shared/checkbox';
@@ -43,8 +44,9 @@ export default React.createClass({
   },
 
   render() {
+    let className = classNames('data', 'zebra', { 'new-loading': !this.props.ready });
     return (
-        <table className="data zebra">
+        <table className={className}>
           <tbody>{this.props.projects.map(this.renderProject)}</tbody>
         </table>
     );

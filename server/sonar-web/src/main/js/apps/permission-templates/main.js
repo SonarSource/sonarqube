@@ -12,7 +12,7 @@ export default React.createClass({
   },
 
   getInitialState() {
-    return { permissions: [], permissionTemplates: [] };
+    return { ready: false, permissions: [], permissionTemplates: [] };
   },
 
   componentDidMount() {
@@ -53,6 +53,7 @@ export default React.createClass({
       let permissionTemplates = this.mergePermissionsToTemplates(r.permissionTemplates, permissions);
       let permissionTemplatesWithDefaults = this.mergeDefaultsToTemplates(permissionTemplates, r.defaultTemplates);
       this.setState({
+        ready: true,
         permissionTemplates: permissionTemplatesWithDefaults,
         permissions: permissions
       });
@@ -62,10 +63,10 @@ export default React.createClass({
   render() {
     return (
         <div className="page">
-          <Header
-              refresh={this.requestPermissions}/>
+          <Header ready={this.state.ready} refresh={this.requestPermissions}/>
 
           <PermissionTemplates
+              ready={this.state.ready}
               permissionTemplates={this.state.permissionTemplates}
               permissions={this.state.permissions}
               topQualifiers={this.props.topQualifiers}

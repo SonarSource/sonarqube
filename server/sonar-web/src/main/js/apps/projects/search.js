@@ -47,6 +47,10 @@ export default React.createClass({
     return <Checkbox onCheck={this.onCheck} initiallyChecked={isChecked} thirdState={thirdState}/>;
   },
 
+  renderSpinner() {
+    return <i className="spinner"/>;
+  },
+
   onCheck(checked) {
     if (checked) {
       this.props.onAllSelected();
@@ -56,7 +60,7 @@ export default React.createClass({
   },
 
   renderGhostsDescription () {
-    if (this.props.type !== TYPE.GHOSTS) {
+    if (this.props.type !== TYPE.GHOSTS || !this.props.ready) {
       return null;
     }
     return <div className="spacer-top alert alert-info">{window.t('bulk_deletion.ghosts.description')}</div>;
@@ -89,7 +93,7 @@ export default React.createClass({
             <tbody>
             <tr>
               <td className="thin text-middle">
-                {this.renderCheckbox()}
+                {this.props.ready ? this.renderCheckbox() : this.renderSpinner()}
               </td>
               {this.renderQualifierFilter()}
               <td className="thin nowrap text-middle">
