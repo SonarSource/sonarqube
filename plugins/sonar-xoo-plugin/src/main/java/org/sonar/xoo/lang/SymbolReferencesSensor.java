@@ -81,15 +81,34 @@ public class SymbolReferencesSensor implements Sensor {
   private static void processLine(File symbolFile, int lineNumber, Symbolizable.SymbolTableBuilder symbolTableBuilder, String line) {
     try {
       Iterator<String> split = Splitter.on(",").split(line).iterator();
-      int startOffset = Integer.parseInt(split.next());
-      int endOffset = Integer.parseInt(split.next());
-      Symbol s = symbolTableBuilder.newSymbol(startOffset, endOffset);
+
+      Symbol s = addSymbol(symbolTableBuilder, split.next());
       while (split.hasNext()) {
-        symbolTableBuilder.newReference(s, Integer.parseInt(split.next()));
+        addReference(symbolTableBuilder, s, split.next());
       }
     } catch (Exception e) {
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + symbolFile.getAbsolutePath(), e);
     }
+  }
+
+  private static void addReference(Symbolizable.SymbolTableBuilder symbolTableBuilder, Symbol s, String str) {
+    if (str.contains(":")) {
+      Iterator<String> split = Splitter.on(":").split(str).iterator();
+      int startOffset = Integer.parseInt(split.next());
+      int toOffset = Integer.parseInt(split.next());
+      symbolTableBuilder.newReference(s, startOffset, toOffset);
+    } else {
+      symbolTableBuilder.newReference(s, Integer.parseInt(str));
+    }
+  }
+
+  private static Symbol addSymbol(Symbolizable.SymbolTableBuilder symbolTableBuilder, String str) {
+    Iterator<String> split = Splitter.on(":").split(str).iterator();
+
+    int startOffset = Integer.parseInt(split.next());
+    int endOffset = Integer.parseInt(split.next());
+
+    return symbolTableBuilder.newSymbol(startOffset, endOffset);
   }
 
   @Override

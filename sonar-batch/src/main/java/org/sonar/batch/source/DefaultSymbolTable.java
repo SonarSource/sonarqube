@@ -99,10 +99,15 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
     @Override
     public void newReference(Symbol symbol, int fromOffset) {
+      newReference(symbol, fromOffset, fromOffset + ((DefaultSymbol) symbol).getLength());
+    }
+
+    @Override
+    public void newReference(Symbol symbol, int fromOffset, int toOffset) {
       if (!referencesBySymbol.containsKey(symbol)) {
         throw new UnsupportedOperationException("Cannot add reference to a symbol in another file");
       }
-      TextRange referenceRange = inputFile.newRange(fromOffset, fromOffset + ((DefaultSymbol) symbol).getLength());
+      TextRange referenceRange = inputFile.newRange(fromOffset, toOffset);
 
       if (referenceRange.overlap(((DefaultSymbol) symbol).range())) {
         throw new UnsupportedOperationException("Cannot add reference (" + fromOffset + ") overlapping " + symbol + " in " + inputFile.key());
