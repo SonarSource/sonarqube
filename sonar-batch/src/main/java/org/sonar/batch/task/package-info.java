@@ -17,19 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.task;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.task;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.InstantiationStrategy;
-
-/**
- * All the classes implementing this interface can be injected in public constructors of {@link TaskExtension}.
- *
- * @since 3.6
- * @deprecated since 5.1. Use {@link BatchSide} and {@link InstantiationStrategy#PER_TASK} 
- */
-@Deprecated
-@BatchSide
-@InstantiationStrategy(InstantiationStrategy.PER_TASK)
-public interface TaskComponent {
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.issue.DefaultProjectIssues;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -49,6 +47,7 @@ import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.DefaultIssueCallback;
+import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.issue.tracking.IssueTransition;
@@ -99,20 +98,15 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private static final Logger LOG = Loggers.get(ProjectScanContainer.class);
 
-  private final Object[] components;
   private final AnalysisProperties props;
 
-  public ProjectScanContainer(ComponentContainer globalContainer, AnalysisProperties props, Object... components) {
+  public ProjectScanContainer(ComponentContainer globalContainer, AnalysisProperties props) {
     super(globalContainer);
     this.props = props;
-    this.components = components;
   }
 
   @Override
   protected void doBeforeStart() {
-    for (Object component : components) {
-      add(component);
-    }
     addBatchComponents();
     getComponentByType(ProjectLock.class).tryLock();
     addBatchExtensions();

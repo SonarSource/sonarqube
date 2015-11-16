@@ -34,7 +34,12 @@ import java.lang.annotation.Target;
 public @interface InstantiationStrategy {
 
   /**
-   * Shared extension. Lifecycle is the full analysis.
+   * Shared task extension. Available in task container.
+   */
+  String PER_TASK = "PER_TASK";
+
+  /**
+   * Shared extension. Available in top level project container.
    */
   String PER_BATCH = "PER_BATCH";
 

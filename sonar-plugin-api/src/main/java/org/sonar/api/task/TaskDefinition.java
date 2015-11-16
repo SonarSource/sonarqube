@@ -21,17 +21,20 @@ package org.sonar.api.task;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-
 import java.util.regex.Pattern;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.InstantiationStrategy;
 
 /**
  * Register and describe a {@link TaskExtension}.
  *
  * @since 3.6
- * @deprecated since 5.1 all tasks (devcockpit, views) will be moved to server side
  */
-@Deprecated
-public class TaskDefinition implements TaskExtension, Comparable<TaskDefinition> {
+@ExtensionPoint
+@BatchSide
+@InstantiationStrategy(InstantiationStrategy.PER_TASK)
+public class TaskDefinition implements Comparable<TaskDefinition> {
   static final String KEY_PATTERN = "[a-zA-Z0-9\\-\\_]+";
 
   private final String key;

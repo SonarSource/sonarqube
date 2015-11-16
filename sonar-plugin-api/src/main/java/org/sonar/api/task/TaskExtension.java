@@ -19,14 +19,17 @@
  */
 package org.sonar.api.task;
 
-import org.sonar.api.Extension;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.InstantiationStrategy;
 
 /**
  * Task extension point
  *
  * @since 3.6
- * @deprecated since 5.1 all tasks (devcockpit, views) will be moved to server side
+ * @deprecated since 5.1. Not used.
  */
 @Deprecated
-public interface TaskExtension extends Extension, TaskComponent {
+@BatchSide
+@InstantiationStrategy(InstantiationStrategy.PER_TASK)
+public interface TaskExtension {
 }

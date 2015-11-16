@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.task;
+package org.sonar.batch.task;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.InstantiationStrategy;
+import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.batch.bootstrap.UserProperties;
 
 /**
- * All the classes implementing this interface can be injected in public constructors of {@link TaskExtension}.
- *
- * @since 3.6
- * @deprecated since 5.1. Use {@link BatchSide} and {@link InstantiationStrategy#PER_TASK} 
+ * Batch properties that are specific to a task (for example
+ * coming from sonar-project.properties).
  */
-@Deprecated
-@BatchSide
-@InstantiationStrategy(InstantiationStrategy.PER_TASK)
-public interface TaskComponent {
+public class TaskProperties extends UserProperties {
+
+  public TaskProperties(Map<String, String> properties, @Nullable String pathToSecretKey) {
+    super(properties, pathToSecretKey);
+  }
+
 }

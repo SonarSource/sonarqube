@@ -19,16 +19,12 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
-import org.sonar.batch.issue.tracking.ServerIssueFromWs;
-import org.sonar.core.issue.tracking.Tracker;
 import com.google.common.collect.Lists;
-
 import java.util.Collection;
 import java.util.List;
-
 import org.sonar.batch.cpd.CpdComponents;
+import org.sonar.batch.issue.tracking.ServerIssueFromWs;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.batch.scan.report.HtmlReport;
 import org.sonar.batch.scan.report.IssuesReportBuilder;
@@ -39,8 +35,13 @@ import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
+import org.sonar.batch.task.ListTask;
+import org.sonar.batch.task.ScanTask;
+import org.sonar.batch.task.Tasks;
+import org.sonar.batch.task.ViewsTask;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.issue.tracking.Tracker;
 
 public class BatchComponents {
   private BatchComponents() {
@@ -66,8 +67,16 @@ public class BatchComponents {
       HtmlReport.class,
       IssuesReportBuilder.class,
       SourceProvider.class,
-      RuleNameProvider.class
-      );
+      RuleNameProvider.class,
+
+      // Tasks
+      Tasks.class,
+      ListTask.DEFINITION,
+      ListTask.class,
+      ScanTask.DEFINITION,
+      ScanTask.class,
+      ViewsTask.DEFINITION,
+      ViewsTask.class);
     components.addAll(CorePropertyDefinitions.all());
     // CPD
     components.addAll(CpdComponents.all());
