@@ -55,9 +55,10 @@ export default class App {
 
   static renderSettingsNav (options) {
     return getSettingsNavigation().then(r => {
-      const el = document.getElementById('context-navigation');
+      let el = document.getElementById('context-navigation');
+      let opts = _.extend(r, options);
       if (el) {
-        ReactDOM.render(<SettingsNav {...options}/>, el);
+        ReactDOM.render(<SettingsNav {...opts}/>, el);
       }
       return r;
     });
