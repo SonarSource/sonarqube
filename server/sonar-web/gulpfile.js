@@ -4,15 +4,21 @@ var del = require('del');
 
 var gulp = require('gulp');
 var gutil = require('gulp-util');
+var env = require('gulp-env');
 
 var argv = require('yargs').argv;
 var production = !argv.dev && !argv.fast;
 var dev = !!argv.dev && !argv.fast;
 var output = argv.output || './src/main/webapp';
+var nodeEnv = production ? 'production' : 'development';
 
 var styles = require('./gulp/styles').styles;
 var scripts = require('./gulp/scripts');
 
+
+gulp.task('set-env', function () {
+  env({ vars: { 'NODE_ENV': nodeEnv } });
+});
 
 gulp.task('scripts-sonar', function () {
   return scripts.sonar(output, production);
@@ -62,4 +68,4 @@ gulp.task('watch', ['scripts-main-watch', 'scripts-apps-watch', 'scripts-widgets
   gutil.log(gutil.colors.bgGreen('Watching for changes...'));
 });
 
-gulp.task('default', ['build']);
+gulp.task('default', ['set-env', 'build']);
