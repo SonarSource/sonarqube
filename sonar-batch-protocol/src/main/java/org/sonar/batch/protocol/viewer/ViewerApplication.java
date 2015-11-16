@@ -20,6 +20,7 @@
 package org.sonar.batch.protocol.viewer;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.io.File;
@@ -30,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
+
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -46,6 +48,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
@@ -200,16 +203,18 @@ public class ViewerApplication {
 
   private void updateSource(Component component) {
     File sourceFile = reader.getFileStructure().fileFor(Domain.SOURCE, component.getRef());
+    sourceEditor.setText("");
+
     if (sourceFile.exists()) {
       try (Scanner s = new Scanner(sourceFile, StandardCharsets.UTF_8.name()).useDelimiter("\\Z")) {
-        sourceEditor.setText(s.next());
+        if (s.hasNext()) {
+          sourceEditor.setText(s.next());
+        }
       } catch (IOException ex) {
         StringWriter errors = new StringWriter();
         ex.printStackTrace(new PrintWriter(errors));
         sourceEditor.setText(errors.toString());
       }
-    } else {
-      sourceEditor.setText("");
     }
   }
 
@@ -301,7 +306,9 @@ public class ViewerApplication {
           return;
         }
 
+        frame.setCursor(new Cursor(Cursor.WAIT_CURSOR));
         updateDetails((Component) node.getUserObject());
+        frame.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
       }
 
