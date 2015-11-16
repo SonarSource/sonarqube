@@ -19,13 +19,22 @@
  */
 package org.sonar.batch.sensor.coverage;
 
+import org.sonar.api.batch.fs.FileSystem;
+
+import javax.annotation.CheckForNull;
+
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.utils.KeyValueFormat;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -42,11 +51,16 @@ public class CoverageExclusions {
 
   private final Settings settings;
   private final Set<Metric> coverageMetrics;
+  private final Set<Metric> byLineMetrics;
   private Collection<WildcardPattern> resourcePatterns;
 
-  public CoverageExclusions(Settings settings) {
+  private final FileSystem fs;
+
+  public CoverageExclusions(Settings settings, FileSystem fs) {
     this.settings = settings;
+    this.fs = fs;
     this.coverageMetrics = new HashSet<>();
+    this.byLineMetrics = new HashSet<>();
     // UT
     coverageMetrics.add(CoreMetrics.COVERAGE);
     coverageMetrics.add(CoreMetrics.LINE_COVERAGE);
@@ -90,10 +104,72 @@ public class CoverageExclusions {
     coverageMetrics.add(CoreMetrics.NEW_OVERALL_UNCOVERED_LINES);
     coverageMetrics.add(CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
 
+    byLineMetrics.add(CoreMetrics.OVERALL_CONDITIONS_BY_LINE);
+    byLineMetrics.add(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE);
+    byLineMetrics.add(CoreMetrics.COVERED_CONDITIONS_BY_LINE);
+    byLineMetrics.add(CoreMetrics.CONDITIONS_BY_LINE);
+    byLineMetrics.add(CoreMetrics.IT_CONDITIONS_BY_LINE);
+    byLineMetrics.add(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE);
+
     initPatterns();
   }
 
-  public boolean accept(Resource resource, Measure measure) {
+  private boolean isLineMetrics(Metric<?> metric) {
+    return this.byLineMetrics.contains(metric);
+  }
+
+  public void validate(Measure<?> measure, InputFile inputFile) {
+    Metric<?> metric = measure.getMetric();
+
+    if (!isLineMetrics(metric)) {
+      return;
+    }
+
+    Map<Integer, Integer> m = KeyValueFormat.parseIntInt(measure.getData());
+    validatePositiveLine(m, inputFile.absolutePath());
+    validateMaxLine(m, inputFile);
+  }
+
+  @CheckForNull
+  private InputFile getInputFile(String filePath) {
+    return fs.inputFile(fs.predicates().hasRelativePath(filePath));
+  }
+
+  public void validate(Measure<?> measure, String filePath) {
+    Metric<?> metric = measure.getMetric();
+
+    if (!isLineMetrics(metric)) {
+      return;
+    }
+    
+    InputFile inputFile = getInputFile(filePath);
+
+    if (inputFile == null) {
+      throw new IllegalStateException(String.format("Can't create measure for resource '%s': resource is not indexed as a file", filePath));
+    }
+
+    validate(measure, inputFile);
+  }
+
+  private static void validateMaxLine(Map<Integer, Integer> m, InputFile inputFile) {
+    int maxLine = inputFile.lines();
+
+    for (int l : m.keySet()) {
+      if (l > maxLine) {
+        throw new IllegalStateException(String.format("Can't create measure for line %d for file '%s' with %d lines", l, inputFile.absolutePath(), maxLine));
+      }
+    }
+  }
+
+  private static void validatePositiveLine(Map<Integer, Integer> m, String filePath) {
+    for (int l : m.keySet()) {
+      if (l <= 0) {
+        throw new IllegalStateException(String.format("Measure with line %d for file '%s' must be > 0", l, filePath));
+      }
+    }
+  }
+
+  public boolean accept(Resource resource, Measure<?> measure) {
     if (isCoverageMetric(measure.getMetric())) {
       return !hasMatchingPattern(resource);
     } else {
@@ -101,7 +177,7 @@ public class CoverageExclusions {
     }
   }
 
-  private boolean isCoverageMetric(Metric metric) {
+  private boolean isCoverageMetric(Metric<?> metric) {
     return this.coverageMetrics.contains(metric);
   }
 

@@ -54,7 +54,6 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   @Override
   public DefaultCoverage onFile(InputFile inputFile) {
-    Preconditions.checkNotNull(inputFile, "file can't be null");
     this.inputFile = (DefaultInputFile) inputFile;
     return this;
   }
@@ -65,6 +64,7 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   @Override
   public NewCoverage ofType(CoverageType type) {
+    validateFile();
     Preconditions.checkNotNull(type, "type can't be null");
     this.type = type;
     return this;
@@ -76,6 +76,9 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   @Override
   public NewCoverage lineHits(int line, int hits) {
+    validateFile();
+    validateLine(line);
+
     if (!hitsByLine.containsKey(line)) {
       hitsByLine.put(line, hits);
       if (hits > 0) {
@@ -85,8 +88,34 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
     return this;
   }
 
+  private void validateLine(int line) {
+    Preconditions.checkState(line <= inputFile.lines(), String.format("Line %d is out of range in the file %s (lines: %d)", line, inputFile.relativePath(), inputFile.lines()));
+    Preconditions.checkState(line > 0, "Line number must be strictly positive: " + line);
+  }
+
+  private void validateLines() {
+    for (int l : hitsByLine.keySet()) {
+      validateLine(l);
+    }
+
+    for (int l : conditionsByLine.keySet()) {
+      validateLine(l);
+    }
+
+    for (int l : coveredConditionsByLine.keySet()) {
+      validateLine(l);
+    }
+  }
+
+  private void validateFile() {
+    Preconditions.checkNotNull(inputFile, "Call onFile() first");
+  }
+
   @Override
   public NewCoverage conditions(int line, int conditions, int coveredConditions) {
+    validateFile();
+    validateLine(line);
+
     if (conditions > 0 && !conditionsByLine.containsKey(line)) {
       totalConditions += conditions;
       totalCoveredConditions += coveredConditions;
@@ -126,8 +155,9 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   @Override
   public void doSave() {
-    Preconditions.checkNotNull(inputFile, "Call onFile() first");
+    validateFile();
     Preconditions.checkNotNull(type, "Call ofType() first");
+    validateLines();
     storage.store(this);
   }
 
