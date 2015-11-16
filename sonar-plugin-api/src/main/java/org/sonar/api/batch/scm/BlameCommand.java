@@ -39,6 +39,7 @@ public abstract class BlameCommand {
    * Computation can be done in parallel if this is more efficient.
    * If there is an error that prevent to blame a file then an exception should be raised. If 
    * one file is new or contains local modifications then an exception should be raised.
+   * @see BlameOutput#blameResult(InputFile, List)
    */
   public abstract void blame(BlameInput input, BlameOutput output);
 
@@ -67,7 +68,7 @@ public abstract class BlameCommand {
     /**
      * Add result of the blame command for a single file. Number of lines should
      * be consistent with {@link InputFile#lines()}. This method is thread safe.
-     * @param lines One entry per line in the file.
+     * @param lines One entry per line in the file. <b>Every line must have a <code>non-null</code> date and revision </b>.
      */
     void blameResult(InputFile file, List<BlameLine> lines);
 

@@ -37,11 +37,27 @@ public class BlameLine {
   private Date date;
   private String revision;
   private String author;
+  
+  public BlameLine() {
+    // for backward compatibility
+  }
+  
+  /**
+   * Preferred constructor. Date and revision must be set.
+   * @since 5.2
+   */
+  public BlameLine(Date date, String revision) {
+    this.date = date;
+    this.revision = revision;
+  }
 
   public String revision() {
     return revision;
   }
 
+  /**
+   * Mandatory field
+   */
   public BlameLine revision(String revision) {
     this.revision = revision;
     return this;
@@ -60,11 +76,13 @@ public class BlameLine {
   /**
    * @return the commit date
    */
-  @CheckForNull
   public Date date() {
     return date;
   }
 
+  /**
+   * Mandatory field
+   */
   public BlameLine date(@Nullable Date date) {
     this.date = date;
     return this;

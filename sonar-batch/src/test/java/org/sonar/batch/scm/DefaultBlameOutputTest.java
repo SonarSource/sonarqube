@@ -19,19 +19,39 @@
  */
 package org.sonar.batch.scm;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 
 import java.util.Arrays;
+import java.util.Date;
+
+import static org.mockito.Matchers.any;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultBlameOutputTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  private BatchComponentCache componentCache;
+
+  @Before
+  public void prepare() {
+    componentCache = mock(BatchComponentCache.class);
+    BatchComponent component = mock(BatchComponent.class);
+    when(component.batchId()).thenReturn(1);
+    when(componentCache.get(any(InputComponent.class))).thenReturn(component);
+  }
 
   @Test
   public void shouldNotFailIfNotSameNumberOfLines() {
@@ -49,6 +69,28 @@ public class DefaultBlameOutputTest {
 
     new DefaultBlameOutput(null, null, Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/main/java/Foo2.java")))
       .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
+  }
+
+  @Test
+  public void shouldFailIfNullDate() {
+    InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(1);
+
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Blame date cannot be null");
+
+    new DefaultBlameOutput(null, componentCache, Arrays.<InputFile>asList(file))
+      .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
+  }
+
+  @Test
+  public void shouldFailIfNullRevision() {
+    InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(1);
+
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Blame revision cannot be null");
+
+    new DefaultBlameOutput(null, componentCache, Arrays.<InputFile>asList(file))
+      .blameResult(file, Arrays.asList(new BlameLine().date(new Date()).author("guy")));
   }
 
 }
