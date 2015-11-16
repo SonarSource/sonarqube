@@ -601,18 +601,9 @@ a[class^="icon-"], a[class*=" icon-"] {
   vertical-align: middle;
   width: 16px;
   height: 16px;
-  border: 2px solid #0cf;
+  border: 2px solid @blue;
   border-radius: 50%;
   animation: spin 0.75s infinite linear;
-
-  // For IE9 only, because it does not support css animations
-  // Show animated gif
-  .ie9 & {
-    background-image: url(../images/loading.gif);
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    border: none;
-  }
 }
 
 .spinner:before,
@@ -650,5 +641,5 @@ a[class^="icon-"], a[class*=" icon-"] {
 
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(36deg); }
+  to { transform: rotate(360deg); }
 }
