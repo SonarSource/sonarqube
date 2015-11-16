@@ -23,9 +23,9 @@ export default ModalFormView.extend({
   sendRequest: function () {
     var that = this,
         url = baseUrl + '/api/qualityprofiles/restore_built_in',
-        options = {
-          language: this.$('#restore-built-in-profiles-language').val()
-        };
+        lang = this.$('#restore-built-in-profiles-language').val(),
+        langName = _.findWhere(this.options.languages, { key: lang }).name,
+        options = { language: lang };
     return $.ajax({
       type: 'POST',
       url: url,
@@ -37,7 +37,10 @@ export default ModalFormView.extend({
     }).done(function () {
       that.collection.fetch({ reset: true });
       that.collection.trigger('destroy');
-      that.destroy();
+      that.$('#restore-built-in-profiles-form-success')
+          .text(window.tp('quality_profiles.restore_built_in_profiles_success_message', langName))
+          .removeClass('hidden');
+      that.enableForm();
     }).fail(function (jqXHR) {
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       that.enableForm();
