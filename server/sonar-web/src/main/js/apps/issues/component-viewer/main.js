@@ -190,7 +190,8 @@ export default SourceViewer.extend({
 
   scrollToLine: function (line) {
     var row = this.$('[data-line-number=' + line + ']'),
-        goal = row.length > 0 ? row.offset().top - 200 : 0;
+        topOffset = $(window).height() / 2 - 60,
+        goal = row.length > 0 ? row.offset().top - topOffset : 0;
     return $(window).scrollTop(goal);
   },
 
