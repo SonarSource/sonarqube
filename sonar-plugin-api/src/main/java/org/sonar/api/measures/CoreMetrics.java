@@ -190,7 +190,7 @@ public final class CoreMetrics {
     .setDescription("Public API")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_SIZE)
+    .setDomain(DOMAIN_DOCUMENTATION)
     .create();
 
   /**
