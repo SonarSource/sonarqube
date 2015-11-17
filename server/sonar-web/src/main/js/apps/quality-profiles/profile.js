@@ -86,7 +86,6 @@ export default Backbone.Model.extend({
     });
   },
 
-
   resetChangelog: function () {
     this.unset('events', { silent: true });
     this.unset('eventsPage', { silent: true });
@@ -108,6 +107,11 @@ export default Backbone.Model.extend({
         comparedWith: withKey
       });
     });
+  },
+
+  resetComparison: function () {
+    this.unset('comparedWith', { silent: true });
+    this.unset('comparison');
   }
 });
 
