@@ -29,19 +29,24 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import util.selenium.SeleneseTest;
 
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
 public class MeasureFiltersTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static WsClient adminWsClient;
 
   @BeforeClass
   public static void scanStruts() {
     orchestrator.resetData();
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+    adminWsClient = newAdminWsClient(orchestrator);
 
     createUser("user-measure-filters", "User Measure Filters");
   }
@@ -61,8 +66,7 @@ public class MeasureFiltersTest {
       // SONAR-4195
       "/measureFilter/MeasureFiltersTest/search-by-key.html",
       "/measureFilter/MeasureFiltersTest/search-by-name.html",
-      "/measureFilter/MeasureFiltersTest/empty_filter.html"
-      ).build();
+      "/measureFilter/MeasureFiltersTest/empty_filter.html").build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
@@ -73,8 +77,7 @@ public class MeasureFiltersTest {
       "/measureFilter/MeasureFiltersTest/list_delete_column.html",
       "/measureFilter/MeasureFiltersTest/list_move_columns.html",
       "/measureFilter/MeasureFiltersTest/list_sort_by_descending_name.html",
-      "/measureFilter/MeasureFiltersTest/list_sort_by_ncloc.html"
-      ).build();
+      "/measureFilter/MeasureFiltersTest/list_sort_by_ncloc.html").build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
@@ -87,8 +90,7 @@ public class MeasureFiltersTest {
     try {
       Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("share_measure_filters",
         // SONAR-4469
-        "/measureFilter/MeasureFiltersTest/should-unshare-filter-remove-other-filters-favourite.html"
-        ).build();
+        "/measureFilter/MeasureFiltersTest/should-unshare-filter-remove-other-filters-favourite.html").build();
       new SeleneseTest(selenese).runOn(orchestrator);
     } finally {
       deactivateUser(user);
@@ -105,8 +107,7 @@ public class MeasureFiltersTest {
 
     try {
       new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("should_not_share_filter_when_user_have_no_sharing_permissions",
-        "/measureFilter/MeasureFiltersTest/should-not-share-filter-when-user-have-no-sharing-permissions.html"
-        ).build()).runOn(orchestrator);
+        "/measureFilter/MeasureFiltersTest/should-not-share-filter-when-user-have-no-sharing-permissions.html").build()).runOn(orchestrator);
     } finally {
       deactivateUser(user);
     }
@@ -116,16 +117,14 @@ public class MeasureFiltersTest {
   public void copy_measure_filters() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("copy_measure_filters",
       "/measureFilter/MeasureFiltersTest/copy_measure_filter.html",
-      "/measureFilter/MeasureFiltersTest/copy_uniqueness_of_name.html"
-      ).build();
+      "/measureFilter/MeasureFiltersTest/copy_uniqueness_of_name.html").build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   @Test
   public void manage_measure_filters() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("manage_measure_filters",
-      "/measureFilter/MeasureFiltersTest/save_with_special_characters.html"
-      ).build();
+      "/measureFilter/MeasureFiltersTest/save_with_special_characters.html").build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
@@ -134,8 +133,7 @@ public class MeasureFiltersTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("measure_filter_list_widget",
       "/measureFilter/MeasureFiltersTest/list_widget.html",
       "/measureFilter/MeasureFiltersTest/list_widget_sort.html",
-      "/measureFilter/MeasureFiltersTest/list_widget_warning_if_missing_filter.html"
-      ).build();
+      "/measureFilter/MeasureFiltersTest/list_widget_warning_if_missing_filter.html").build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
@@ -149,9 +147,9 @@ public class MeasureFiltersTest {
     client.userClient().create(userCreationParameters);
 
     if (permission != null) {
-      client.post("api/permissions/add_user",
-        "login", login,
-        "permission", permission);
+      adminWsClient.permissionsClient().addUser(new AddUserWsRequest()
+        .setLogin(login)
+        .setPermission(permission));
     }
   }
 

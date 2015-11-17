@@ -33,15 +33,20 @@ import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
 public class IssuePermissionTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public WsClient adminWsClient = newAdminWsClient(orchestrator);
 
   @Before
   public void init() {
@@ -223,17 +228,18 @@ public class IssuePermissionTest {
     }
   }
 
-  private static void addUserPermission(String login, String projectKey, String permission) {
-    orchestrator.getServer().adminWsClient().post("api/permissions/add_user",
-      "login", login,
-      "projectKey", projectKey,
-      "permission", permission);
+  private void addUserPermission(String login, String projectKey, String permission) {
+    adminWsClient.permissionsClient().addUser(
+      new AddUserWsRequest()
+        .setLogin(login)
+        .setProjectKey(projectKey)
+        .setPermission(permission));
   }
 
-  private static void removeGroupPermission(String groupName, String projectKey, String permission) {
-    orchestrator.getServer().adminWsClient().post("api/permissions/remove_group",
-      "groupName", groupName,
-      "projectKey", projectKey,
-      "permission", permission);
+  private void removeGroupPermission(String groupName, String projectKey, String permission) {
+    adminWsClient.permissionsClient().removeGroup(new RemoveGroupWsRequest()
+      .setGroupName(groupName)
+      .setProjectKey(projectKey)
+      .setPermission(permission));
   }
 }

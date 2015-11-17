@@ -80,7 +80,8 @@ public class HttpConnector implements WsConnector {
     private String proxyPassword;
     private int proxyPort = 0;
 
-    private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS, readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
+    private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS;
+    private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
 
     private Builder() {
     }

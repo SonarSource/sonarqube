@@ -80,7 +80,7 @@ public class AddGroupAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(AddGroupWsRequest request) throws Exception {
+  private void doHandle(AddGroupWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Long groupId = request.getGroupId() == null ? null : Long.valueOf(request.getGroupId());

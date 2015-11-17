@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
+import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,6 +39,8 @@ import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsPermissions;
 
 import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
@@ -90,6 +93,15 @@ public class SearchGlobalPermissionsActionTest {
     String result = ws.newRequest().execute().getInput();
 
     assertJson(result).isSimilarTo(getClass().getResource("search_global_permissions-example.json"));
+  }
+
+  @Test
+  public void protobuf_response() throws IOException {
+    WsPermissions.WsSearchGlobalPermissionsResponse wsSearchGlobalPermissionsResponse = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
+      ws.newRequest()
+        .setMediaType(MediaTypes.PROTOBUF)
+        .execute().getInputStream());
+    System.out.println(wsSearchGlobalPermissionsResponse.getPermissionsList());
   }
 
   @Test

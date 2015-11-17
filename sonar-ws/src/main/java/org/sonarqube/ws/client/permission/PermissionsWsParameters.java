@@ -36,4 +36,8 @@ public class PermissionsWsParameters {
   public static final String PARAM_DESCRIPTION = "description";
   public static final String PARAM_PROJECT_KEY_PATTERN = "projectKeyPattern";
   public static final String PARAM_QUALIFIER = "qualifier";
+
+  private PermissionsWsParameters() {
+    // static utils only
+  }
 }

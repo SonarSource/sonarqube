@@ -38,6 +38,12 @@
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-ws</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>it-plugins</artifactId>
       <version>${project.version}</version>
       <type>pom</type>

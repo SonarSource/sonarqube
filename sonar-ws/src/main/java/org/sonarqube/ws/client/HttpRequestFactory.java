@@ -24,6 +24,7 @@ import com.google.common.base.Throwables;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
+import java.io.InputStream;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.MediaTypes;
@@ -136,9 +137,9 @@ public class HttpRequestFactory {
 
   public <T extends Message> T execute(WsRequest wsRequest, Parser<T> protobufParser) {
     HttpRequest httpRequest = wsRequestToHttpRequest(wsRequest);
-    String response = execute(httpRequest);
+    InputStream response = executeWithStream(httpRequest);
     try {
-      return protobufParser.parseFrom(response.getBytes());
+      return protobufParser.parseFrom(response);
     } catch (InvalidProtocolBufferException e) {
       Throwables.propagate(e);
     }
@@ -147,9 +148,9 @@ public class HttpRequestFactory {
   }
 
   private HttpRequest wsRequestToHttpRequest(WsRequest wsRequest) {
-    HttpRequest httpRequest = wsRequest.getMethod().equals(WsRequest.Method.GET)
-      ? HttpRequest.post(buildUrl(wsRequest.getEndpoint()), wsRequest.getParams(), true)
-      : HttpRequest.get(buildUrl(wsRequest.getEndpoint()), wsRequest.getParams(), true);
+    HttpRequest httpRequest = WsRequest.Method.GET.equals(wsRequest.getMethod())
+      ? HttpRequest.get(buildUrl(wsRequest.getEndpoint()), wsRequest.getParams(), true)
+      : HttpRequest.post(buildUrl(wsRequest.getEndpoint()), wsRequest.getParams(), true);
     httpRequest = prepare(httpRequest);
     switch (wsRequest.getMediaType()) {
       case PROTOBUF:
@@ -183,6 +184,15 @@ public class HttpRequestFactory {
     try {
       checkSuccess(request);
       return request.body(HttpRequest.CHARSET_UTF8);
+    } catch (HttpRequest.HttpRequestException e) {
+      throw new IllegalStateException("Fail to request " + request.url(), e);
+    }
+  }
+
+  private static InputStream executeWithStream(HttpRequest request) {
+    try {
+      checkSuccess(request);
+      return request.stream();
     } catch (HttpRequest.HttpRequestException e) {
       throw new IllegalStateException("Fail to request " + request.url(), e);
     }

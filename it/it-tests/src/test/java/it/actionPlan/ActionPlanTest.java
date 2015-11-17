@@ -38,9 +38,12 @@ import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.issue.NewActionPlan;
 import org.sonar.wsclient.issue.UpdateActionPlan;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.toDate;
 import static util.ItUtils.verifyHttpException;
@@ -49,6 +52,7 @@ public class ActionPlanTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  private static WsClient adminWsClient;
   private static final String PROJECT_KEY = "sample";
 
   @BeforeClass
@@ -59,6 +63,8 @@ public class ActionPlanTest {
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
+
+    adminWsClient = newAdminWsClient(orchestrator);
   }
 
   protected static ActionPlanClient adminActionPlanClient() {
@@ -131,17 +137,19 @@ public class ActionPlanTest {
     try {
       // Create a user having admin permission on the project
       adminClient.userClient().create(UserParameters.create().login(projectAdminUser).name(projectAdminUser).password("password").passwordConfirmation("password"));
-      orchestrator.getServer().adminWsClient().post("api/permissions/add_user",
-        "login", projectAdminUser,
-        "projectKey", PROJECT_KEY,
-        "permission", "admin");
+      adminWsClient.permissionsClient().addUser(
+        new AddUserWsRequest()
+          .setLogin(projectAdminUser)
+          .setProjectKey(PROJECT_KEY)
+          .setPermission("admin"));
 
       // Create a user having browse permission on the project
       adminClient.userClient().create(UserParameters.create().login(projectUser).name(projectUser).password("password").passwordConfirmation("password"));
-      orchestrator.getServer().adminWsClient().post("api/permissions/add_user",
-        "login", projectUser,
-        "projectKey", PROJECT_KEY,
-        "permission", "user");
+      adminWsClient.permissionsClient().addUser(
+        new AddUserWsRequest()
+          .setLogin(projectUser)
+          .setProjectKey(PROJECT_KEY)
+          .setPermission("user"));
 
       // Without project admin permission, a user cannot set action plan
       try {

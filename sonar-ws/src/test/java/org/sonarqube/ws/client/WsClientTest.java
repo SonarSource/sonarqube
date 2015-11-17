@@ -23,21 +23,17 @@ package org.sonarqube.ws.client;
 import com.google.common.net.HttpHeaders;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
-import org.sonarqube.ws.client.permission.GroupsWsRequest;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.HttpConnector.newDefaultHttpConnector;
 import static org.sonarqube.ws.client.HttpConnector.newHttpConnector;
 import static org.sonarqube.ws.client.WsRequest.newGetRequest;
-import static org.sonarqube.ws.client.WsRequest.newPostRequest;
 
 public class WsClientTest {
   @Rule
@@ -151,35 +147,5 @@ public class WsClientTest {
     assertThat(requestFactory.getProxyPort()).isEqualTo(2052);
     assertThat(requestFactory.getProxyLogin()).isEqualTo("proxyLogin");
     assertThat(requestFactory.getProxyPassword()).isEqualTo("proxyPass");
-  }
-
-  @Ignore
-  @Test
-  public void contact_localhost() {
-    /**
-     * This is a temporary test to have a simple end-to-end test
-     * To make it work launch a default sonar server locally
-     */
-    WsClient ws = new WsClient(newHttpConnector()
-      .url("http://localhost:9000")
-      .login("admin")
-      .password("admin")
-      .build());
-
-    // test with json response
-    String stringResponse = ws.execute(newGetRequest("api/webservices/list"));
-    assertThat(stringResponse).contains("webservices", "permissions");
-
-    // test with protobuf response
-    WsGroupsResponse protobufResponse = ws.execute(newPostRequest("api/permissions/groups")
-      .setMediaType(WsRequest.MediaType.PROTOBUF)
-      .setParam("permission", "admin"),
-      WsGroupsResponse.parser());
-    assertThat(protobufResponse.getGroups(0).getName()).contains("sonar-administrator");
-
-    // test with specific client
-    WsGroupsResponse groupsResponse = ws.permissionsClient().groups(new GroupsWsRequest()
-      .setPermission("admin"));
-    assertThat(groupsResponse.getGroups(0).getName()).contains("sonar-administrator");
   }
 }

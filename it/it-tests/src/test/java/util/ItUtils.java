@@ -1,13 +1,9 @@
 package util;/*
- * Copyright (C) 2009-2014 SonarSource SA
- * All rights reserved
- * mailto:contact AT sonarsource DOT com
- */
+             * Copyright (C) 2009-2014 SonarSource SA
+             * All rights reserved
+             * mailto:contact AT sonarsource DOT com
+             */
 
-import org.sonar.wsclient.issue.Issue;
-
-import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.issue.IssueClient;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
@@ -15,8 +11,8 @@ import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -25,20 +21,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.annotation.Nullable;
-
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.base.HttpException;
+import org.sonar.wsclient.issue.Issue;
+import org.sonar.wsclient.issue.IssueClient;
+import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
+import org.sonarqube.ws.client.WsClient;
+
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.sonarqube.ws.client.HttpConnector.newHttpConnector;
 
 public class ItUtils {
 
@@ -73,7 +73,15 @@ public class ItUtils {
   public static List<Issue> getAllServerIssues(Orchestrator orchestrator) {
     IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();
     return issueClient.find(IssueQuery.create()).list();
+  }
 
+  public static WsClient newAdminWsClient(Orchestrator orchestrator) {
+    Server server = orchestrator.getServer();
+    return new WsClient(newHttpConnector()
+      .url(server.getUrl())
+      .login(server.ADMIN_LOGIN)
+      .password(server.ADMIN_PASSWORD)
+      .build());
   }
 
   /**
