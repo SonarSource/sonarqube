@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.CheckForNull;
@@ -238,6 +240,11 @@ public class TrackedIssue implements Trackable, Serializable {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

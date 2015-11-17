@@ -19,11 +19,12 @@
  */
 package org.sonar.api.checks;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.batch.IssueFilterChain;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.resources.File;
 import org.sonar.api.rule.RuleKey;
 
@@ -44,7 +45,7 @@ public class NoSonarFilterTest {
 
   @Before
   public void prepare() {
-    when(chain.accept(isA(Issue.class))).thenReturn(true);
+    when(chain.accept(isA(FilterableIssue.class))).thenReturn(true);
     javaFile = File.create("org/foo/Bar.java");
     javaFile.setEffectiveKey("struts:org/foo/Bar.java");
     when(sonarIndex.getResource(javaFile)).thenReturn(javaFile);
@@ -57,7 +58,7 @@ public class NoSonarFilterTest {
     noSonarLines.add(55);
     filter.addResource(javaFile, noSonarLines);
 
-    Issue issue = mock(Issue.class);
+    FilterableIssue issue = mock(FilterableIssue.class);
     when(issue.componentKey()).thenReturn("struts:org/foo/Bar.java");
     when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "Foo"));
 
@@ -79,7 +80,7 @@ public class NoSonarFilterTest {
     noSonarLines.add(31);
     filter.addResource(javaFile, noSonarLines);
 
-    Issue issue = mock(Issue.class);
+    FilterableIssue issue = mock(FilterableIssue.class);
     when(issue.componentKey()).thenReturn("struts:org.apache.Action");
     when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "NoSonarCheck"));
 

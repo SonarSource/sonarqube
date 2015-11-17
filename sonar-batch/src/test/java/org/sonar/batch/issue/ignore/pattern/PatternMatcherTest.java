@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.issue.ignore.pattern;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 
@@ -99,8 +100,8 @@ public class PatternMatcherTest {
     assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isNull();
   }
 
-  private Issue create(Rule rule, String component, Integer line) {
-    Issue mockIssue = mock(Issue.class);
+  private FilterableIssue create(Rule rule, String component, Integer line) {
+    FilterableIssue mockIssue = mock(FilterableIssue.class);
     RuleKey ruleKey = null;
     if (rule != null) {
       ruleKey = rule.ruleKey();

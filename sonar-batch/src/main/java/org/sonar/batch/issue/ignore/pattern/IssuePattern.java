@@ -20,10 +20,11 @@
 
 package org.sonar.batch.issue.ignore.pattern;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
 
@@ -115,7 +116,7 @@ public class IssuePattern {
     return allLines;
   }
 
-  public boolean match(Issue issue) {
+  public boolean match(FilterableIssue issue) {
     boolean match = matchResource(issue.componentKey())
       && matchRule(issue.ruleKey());
     if (checkLines) {

@@ -20,16 +20,16 @@
 
 package org.sonar.batch.issue.ignore;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.batch.IssueFilterChain;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssuePattern;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -40,13 +40,13 @@ public class EnforceIssuesFilterTest {
 
   private IssueInclusionPatternInitializer exclusionPatternInitializer;
   private EnforceIssuesFilter ignoreFilter;
-  private Issue issue;
+  private FilterableIssue issue;
   private IssueFilterChain chain;
 
   @Before
   public void init() {
     exclusionPatternInitializer = mock(IssueInclusionPatternInitializer.class);
-    issue = mock(Issue.class);
+    issue = mock(FilterableIssue.class);
     chain = mock(IssueFilterChain.class);
     when(chain.accept(issue)).thenReturn(true);
 

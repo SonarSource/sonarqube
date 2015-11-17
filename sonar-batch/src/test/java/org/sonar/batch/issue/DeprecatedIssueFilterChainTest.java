@@ -19,47 +19,48 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
 import org.junit.Test;
-import org.sonar.api.scan.issue.filter.IssueFilter;
-import org.sonar.api.scan.issue.filter.IssueFilterChain;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilter;
+import org.sonar.api.issue.batch.IssueFilterChain;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public class DefaultIssueFilterChainTest {
-  private final FilterableIssue issue = mock(FilterableIssue.class);
+public class DeprecatedIssueFilterChainTest {
+
+  private final Issue issue = mock(Issue.class);
 
   @Test
   public void should_accept_when_no_filter() {
-    assertThat(new DefaultIssueFilterChain().accept(issue)).isTrue();
+    assertThat(new DeprecatedIssueFilterChain().accept(issue)).isTrue();
   }
 
   class PassingFilter implements IssueFilter {
     @Override
-    public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
+    public boolean accept(Issue issue, IssueFilterChain chain) {
       return chain.accept(issue);
     }
   }
 
   class AcceptingFilter implements IssueFilter {
     @Override
-    public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
+    public boolean accept(Issue issue, IssueFilterChain chain) {
       return true;
     }
   }
 
   class RefusingFilter implements IssueFilter {
     @Override
-    public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
+    public boolean accept(Issue issue, IssueFilterChain chain) {
       return false;
     }
   }
 
   class FailingFilter implements IssueFilter {
     @Override
-    public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
+    public boolean accept(Issue issue, IssueFilterChain chain) {
       fail();
       return false;
     }
@@ -68,7 +69,7 @@ public class DefaultIssueFilterChainTest {
 
   @Test
   public void should_accept_if_all_filters_pass() {
-    assertThat(new DefaultIssueFilterChain(
+    assertThat(new DeprecatedIssueFilterChain(
       new PassingFilter(),
       new PassingFilter(),
       new PassingFilter()
@@ -77,7 +78,7 @@ public class DefaultIssueFilterChainTest {
 
   @Test
   public void should_accept_and_not_go_further_if_filter_accepts() {
-    assertThat(new DefaultIssueFilterChain(
+    assertThat(new DeprecatedIssueFilterChain(
       new PassingFilter(),
       new AcceptingFilter(),
       new FailingFilter()
@@ -86,7 +87,7 @@ public class DefaultIssueFilterChainTest {
 
   @Test
   public void should_refuse_and_not_go_further_if_filter_refuses() {
-    assertThat(new DefaultIssueFilterChain(
+    assertThat(new DeprecatedIssueFilterChain(
       new PassingFilter(),
       new RefusingFilter(),
       new FailingFilter()

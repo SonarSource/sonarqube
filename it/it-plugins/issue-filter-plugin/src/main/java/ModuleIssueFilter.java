@@ -1,6 +1,8 @@
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.config.Settings;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFilter;
+import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.rule.RuleKey;
 
 /**
@@ -19,7 +21,7 @@ public class ModuleIssueFilter implements IssueFilter {
   }
 
   @Override
-  public boolean accept(Issue issue) {
+  public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
     if (issue.componentKey() == null) {
       throw new IllegalStateException("Issue component is not set");
     }
@@ -27,6 +29,12 @@ public class ModuleIssueFilter implements IssueFilter {
       throw new IllegalStateException("Issue rule is not set");
     }
 
-    return !settings.getBoolean("enableIssueFilters") || !ONE_ISSUE_PER_MODULE_RULEKEY.equals(issue.ruleKey());
+    boolean b = !settings.getBoolean("enableIssueFilters") || !ONE_ISSUE_PER_MODULE_RULEKEY.equals(issue.ruleKey());
+
+    if (!b) {
+      return false;
+    }
+
+    return chain.accept(issue);
   }
 }

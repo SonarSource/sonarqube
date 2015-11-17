@@ -20,11 +20,11 @@
 
 package org.sonar.batch.issue.ignore.pattern;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -88,8 +88,8 @@ public class IssuePatternTest {
     assertThat(pattern.match(create((Rule) null, null, null))).isFalse();
   }
 
-  private Issue create(Rule rule, String component, Integer line) {
-    Issue mockIssue = mock(Issue.class);
+  private FilterableIssue create(Rule rule, String component, Integer line) {
+    FilterableIssue mockIssue = mock(FilterableIssue.class);
     RuleKey ruleKey = null;
     if (rule != null) {
       ruleKey = rule.ruleKey();
@@ -109,6 +109,7 @@ public class IssuePatternTest {
   public void shouldPrintPatternToString() {
     IssuePattern pattern = new IssuePattern("*", "checkstyle:*");
 
-    assertThat(pattern.toString()).isEqualTo("IssuePattern[resourcePattern=*,rulePattern=checkstyle:*,lines=[],lineRanges=[],beginBlockRegexp=<null>,endBlockRegexp=<null>,allFileRegexp=<null>,checkLines=true]");
+    assertThat(pattern.toString()).isEqualTo(
+      "IssuePattern[resourcePattern=*,rulePattern=checkstyle:*,lines=[],lineRanges=[],beginBlockRegexp=<null>,endBlockRegexp=<null>,allFileRegexp=<null>,checkLines=true]");
   }
 }

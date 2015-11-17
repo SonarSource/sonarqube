@@ -17,25 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.batch;
+package org.sonar.batch.issue;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilter;
+import org.sonar.api.issue.batch.IssueFilterChain;
+
+import java.util.List;
 
 /**
- * A filter chain is an object provided to issues filters for fine control over the filtering logic. Each filter has the choice to:
- * <ul>
- *  <li>Accept the issue</li>
- *  <li>Reject the issue</li>
- *  <li>Let downstream filters decide by passing the issue to the rest of the chain</li>
- * </ul>
- * @since 4.0
- * @deprecated since 5.3. Use {@link org.sonar.api.issue.filter.IssueFilterChain} instead.
+ * @deprecated since 5.3
  */
 @Deprecated
-public interface IssueFilterChain {
+public class DeprecatedIssueFilterChain implements IssueFilterChain {
 
-  /**
-   * Called by a filter to let downstream filters decide the fate of the issue
-   */
-  boolean accept(Issue issue);
+  private final List<IssueFilter> filters;
+
+  public DeprecatedIssueFilterChain(IssueFilter... filters) {
+    this.filters = ImmutableList.copyOf(filters);
+  }
+
+  public DeprecatedIssueFilterChain() {
+    this.filters = ImmutableList.of();
+  }
+
+  private DeprecatedIssueFilterChain(List<IssueFilter> filters) {
+    this.filters = filters;
+  }
+
+  @Override
+  public boolean accept(Issue issue) {
+    if (filters.isEmpty()) {
+      return true;
+    } else {
+      return filters.get(0).accept(issue, new DeprecatedIssueFilterChain(filters.subList(1, filters.size())));
+    }
+  }
 }

@@ -19,14 +19,14 @@
  */
 package org.sonar.batch.issue.ignore;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssuePattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.batch.IssueFilter;
-import org.sonar.api.issue.batch.IssueFilterChain;
+import org.sonar.api.scan.issue.filter.IssueFilter;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 
 public class EnforceIssuesFilter implements IssueFilter {
 
@@ -39,7 +39,7 @@ public class EnforceIssuesFilter implements IssueFilter {
   }
 
   @Override
-  public boolean accept(Issue issue, IssueFilterChain chain) {
+  public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
     boolean atLeastOneRuleMatched = false;
     boolean atLeastOnePatternFullyMatched = false;
     IssuePattern matchingPattern = null;
