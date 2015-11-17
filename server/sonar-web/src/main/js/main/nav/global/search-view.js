@@ -93,6 +93,7 @@ export default Marionette.LayoutView.extend({
     }
     if (e.keyCode === 13) {
       this.resultsView.submitCurrent();
+      this.destroy();
       return false;
     }
     if (e.keyCode === 27) {
