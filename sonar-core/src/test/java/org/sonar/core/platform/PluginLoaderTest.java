@@ -147,8 +147,17 @@ public class PluginLoaderTest {
   }
 
   @Test
-  public void plugin_is_recognised_as_server_extension_if_key_is_views_and_extends_no_other_plugin_and_runs_in_compatibility_mode() throws IOException {
+  public void plugin_is_recognised_as_priviledge_if_key_is_views_and_extends_no_other_plugin_and_runs_in_compatibility_mode() throws IOException {
     PluginInfo views = create52PluginInfo("views");
+
+    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("views", views));
+
+    assertThat(defs.iterator().next().isPrivileged()).isTrue();
+  }
+
+  @Test
+  public void plugin_is_recognised_as_priviledge_if_key_is_devcockpit_and_extends_no_other_plugin_and_runs_in_compatibility_mode() throws IOException {
+    PluginInfo views = create52PluginInfo("devcockpit");
 
     Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("views", views));
 
