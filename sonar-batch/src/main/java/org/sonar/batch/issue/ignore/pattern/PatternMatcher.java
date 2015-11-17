@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.issue.ignore.pattern;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import org.sonar.api.issue.Issue;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +32,7 @@ public class PatternMatcher {
 
   private Multimap<String, IssuePattern> patternByComponent = LinkedHashMultimap.create();
 
-  public IssuePattern getMatchingPattern(Issue issue) {
+  public IssuePattern getMatchingPattern(FilterableIssue issue) {
     IssuePattern matchingPattern = null;
     Iterator<IssuePattern> patternIterator = getPatternsForComponent(issue.componentKey()).iterator();
     while(matchingPattern == null && patternIterator.hasNext()) {

@@ -19,16 +19,17 @@
  */
 package org.sonar.api.issue;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.issue.batch.IssueFilterChain;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.rule.RuleKey;
 
 import java.util.Set;
 
 import static org.mockito.Mockito.times;
-
 import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.isA;
@@ -42,12 +43,12 @@ public class NoSonarFilterTest {
 
   @Before
   public void setupChain() {
-    when(chain.accept(isA(Issue.class))).thenReturn(true);
+    when(chain.accept(isA(FilterableIssue.class))).thenReturn(true);
   }
 
   @Test
   public void should_ignore_lines_commented_with_nosonar() {
-    Issue issue = mock(Issue.class);
+    FilterableIssue issue = mock(FilterableIssue.class);
     when(issue.componentKey()).thenReturn("struts:org.apache.Action");
     when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "AvoidCycles"));
 
@@ -71,7 +72,7 @@ public class NoSonarFilterTest {
   @Test
   public void should_accept_issues_on_no_sonar_rules() {
     // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
-    Issue issue = mock(Issue.class);
+    FilterableIssue issue = mock(FilterableIssue.class);
     when(issue.componentKey()).thenReturn("struts:org.apache.Action");
     when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "NoSonarCheck"));
 

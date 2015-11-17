@@ -26,10 +26,12 @@ import org.sonar.api.issue.Issue;
 /**
  * <p>An issue filter is an object that allows filtering of {@link Issue}s on batch side, preventing them from being persisted.</p>
  * @since 4.0
+ * @deprecated since 5.3. Use {@link org.sonar.api.issue.filter.IssueFilter} instead.
  *
  */
 @BatchSide
 @ExtensionPoint
+@Deprecated
 public interface IssueFilter {
 
   /**

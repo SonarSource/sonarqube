@@ -19,11 +19,13 @@
  */
 package org.sonar.api.checks;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
+import org.sonar.api.scan.issue.filter.IssueFilter;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.batch.IssueFilterChain;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.resources.Resource;
 
 import java.util.Map;
@@ -34,7 +36,7 @@ import java.util.Set;
  * @deprecated in 3.6. Replaced by {@link org.sonar.api.issue.NoSonarFilter}
  */
 @Deprecated
-public class NoSonarFilter implements org.sonar.api.issue.batch.IssueFilter {
+public class NoSonarFilter implements IssueFilter {
 
   private final Map<String, Set<Integer>> noSonarLinesByKey = Maps.newHashMap();
   private SonarIndex sonarIndex;
@@ -54,7 +56,7 @@ public class NoSonarFilter implements org.sonar.api.issue.batch.IssueFilter {
   }
 
   @Override
-  public boolean accept(Issue issue, IssueFilterChain chain) {
+  public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
     boolean accepted = true;
     if (issue.line() != null) {
       Set<Integer> noSonarLines = noSonarLinesByKey.get(issue.componentKey());

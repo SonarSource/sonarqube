@@ -20,14 +20,14 @@
 package org.sonar.batch.issue;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.batch.IssueFilter;
-import org.sonar.api.issue.batch.IssueFilterChain;
+import org.sonar.api.scan.issue.filter.IssueFilter;
 
 import java.util.List;
 
-public class DefaultIssueFilterChain implements IssueFilterChain {
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 
+public class DefaultIssueFilterChain implements IssueFilterChain {
   private final List<IssueFilter> filters;
 
   public DefaultIssueFilterChain(IssueFilter... filters) {
@@ -43,11 +43,12 @@ public class DefaultIssueFilterChain implements IssueFilterChain {
   }
 
   @Override
-  public boolean accept(Issue issue) {
+  public boolean accept(FilterableIssue issue) {
     if (filters.isEmpty()) {
       return true;
     } else {
       return filters.get(0).accept(issue, new DefaultIssueFilterChain(filters.subList(1, filters.size())));
     }
   }
+
 }

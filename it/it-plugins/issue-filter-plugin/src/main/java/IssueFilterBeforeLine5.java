@@ -1,6 +1,8 @@
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
+
+import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.config.Settings;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFilter;
+import org.sonar.api.scan.issue.filter.IssueFilter;
 
 /**
  * This filter removes the issues that are on line < 5
@@ -16,7 +18,7 @@ public class IssueFilterBeforeLine5 implements IssueFilter {
   }
 
   @Override
-  public boolean accept(Issue issue) {
+  public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
     if (issue.componentKey() == null) {
       throw new IllegalStateException("Issue component is not set");
     }
@@ -24,6 +26,11 @@ public class IssueFilterBeforeLine5 implements IssueFilter {
       throw new IllegalStateException("Issue rule is not set");
     }
 
-    return !settings.getBoolean("enableIssueFilters") || issue.line() == null || issue.line() >= 5;
+    boolean b = !settings.getBoolean("enableIssueFilters") || issue.line() == null || issue.line() >= 5;
+    if (!b) {
+      return false;
+    }
+
+    return chain.accept(issue);
   }
 }

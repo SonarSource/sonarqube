@@ -30,7 +30,6 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.PatternMatcher;
@@ -151,7 +150,7 @@ public class IssueExclusionsLoaderTest {
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
     doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:src/Foo.php", phpFile1, UTF_8);
 
-    thrown.expect(SonarException.class);
+    thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unable to read the source file");
 
     scanner.execute();

@@ -20,14 +20,14 @@
 
 package org.sonar.batch.issue.ignore;
 
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.batch.IssueFilterChain;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssuePattern;
 import org.sonar.batch.issue.ignore.pattern.PatternMatcher;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +37,7 @@ public class IgnoreIssuesFilterTest {
   private IssueExclusionPatternInitializer exclusionPatternInitializer;
   private PatternMatcher exclusionPatternMatcher;
   private IgnoreIssuesFilter ignoreFilter;
-  private Issue issue;
+  private FilterableIssue issue;
   private IssueFilterChain chain;
 
   @Before
@@ -45,7 +45,7 @@ public class IgnoreIssuesFilterTest {
     exclusionPatternMatcher = mock(PatternMatcher.class);
     exclusionPatternInitializer = mock(IssueExclusionPatternInitializer.class);
     when(exclusionPatternInitializer.getPatternMatcher()).thenReturn(exclusionPatternMatcher);
-    issue = mock(Issue.class);
+    issue = mock(FilterableIssue.class);
     chain = mock(IssueFilterChain.class);
     when(chain.accept(issue)).thenReturn(true);
 

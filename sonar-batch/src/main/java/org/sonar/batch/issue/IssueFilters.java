@@ -19,203 +19,51 @@
  */
 package org.sonar.batch.issue;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.batch.IssueFilter;
+import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Duration;
 import org.sonar.batch.protocol.output.BatchReport;
 
 @BatchSide
 public class IssueFilters {
-
-  private static final class IssueAdapterForFilter implements Issue {
-    private final Project project;
-    private final org.sonar.batch.protocol.output.BatchReport.Issue rawIssue;
-    private final String componentKey;
-
-    private IssueAdapterForFilter(Project project, org.sonar.batch.protocol.output.BatchReport.Issue rawIssue, String componentKey) {
-      this.project = project;
-      this.rawIssue = rawIssue;
-      this.componentKey = componentKey;
-    }
-
-    @Override
-    public String key() {
-      throw unsupported();
-    }
-
-    @Override
-    public String componentKey() {
-      return componentKey;
-    }
-
-    @Override
-    public RuleKey ruleKey() {
-      return RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey());
-    }
-
-    @Override
-    public String language() {
-      throw unsupported();
-    }
-
-    @Override
-    public String severity() {
-      return rawIssue.getSeverity().name();
-    }
-
-    @Override
-    public String message() {
-      return rawIssue.getMsg();
-    }
-
-    @Override
-    public Integer line() {
-      return rawIssue.hasLine() ? rawIssue.getLine() : null;
-    }
-
-    @Override
-    public Double effortToFix() {
-      return rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null;
-    }
-
-    @Override
-    public String status() {
-      return Issue.STATUS_OPEN;
-    }
-
-    @Override
-    public String resolution() {
-      return null;
-    }
-
-    @Override
-    public String reporter() {
-      throw unsupported();
-    }
-
-    @Override
-    public String assignee() {
-      return null;
-    }
-
-    @Override
-    public Date creationDate() {
-      return project.getAnalysisDate();
-    }
-
-    @Override
-    public Date updateDate() {
-      return null;
-    }
-
-    @Override
-    public Date closeDate() {
-      return null;
-    }
-
-    @Override
-    public String attribute(String key) {
-      return attributes().get(key);
-    }
-
-    @Override
-    public Map<String, String> attributes() {
-      return Collections.emptyMap();
-    }
-
-    @Override
-    public String authorLogin() {
-      throw unsupported();
-    }
-
-    @Override
-    public String actionPlanKey() {
-      throw unsupported();
-    }
-
-    @Override
-    public List<IssueComment> comments() {
-      throw unsupported();
-    }
-
-    @Override
-    public boolean isNew() {
-      throw unsupported();
-    }
-
-    @Override
-    public Duration debt() {
-      throw unsupported();
-    }
-
-    @Override
-    public String projectKey() {
-      return project.getEffectiveKey();
-    }
-
-    @Override
-    public String projectUuid() {
-      throw unsupported();
-    }
-
-    @Override
-    public String componentUuid() {
-      throw unsupported();
-    }
-
-    @Override
-    public Collection<String> tags() {
-      throw unsupported();
-    }
-
-    private static UnsupportedOperationException unsupported() {
-      return new UnsupportedOperationException("Not available for issues filters");
-    }
-  }
-
-  private final org.sonar.api.issue.IssueFilter[] exclusionFilters;
   private final IssueFilter[] filters;
+  private final org.sonar.api.issue.batch.IssueFilter[] deprecatedFilters;
   private final Project project;
 
-  public IssueFilters(Project project, org.sonar.api.issue.IssueFilter[] exclusionFilters, IssueFilter[] filters) {
+  public IssueFilters(Project project, IssueFilter[] exclusionFilters, org.sonar.api.issue.batch.IssueFilter[] filters) {
     this.project = project;
-    this.exclusionFilters = exclusionFilters;
-    this.filters = filters;
-  }
-
-  public IssueFilters(Project project, org.sonar.api.issue.IssueFilter[] exclusionFilters) {
-    this(project, exclusionFilters, new IssueFilter[0]);
+    this.filters = exclusionFilters;
+    this.deprecatedFilters = filters;
   }
 
   public IssueFilters(Project project, IssueFilter[] filters) {
-    this(project, new org.sonar.api.issue.IssueFilter[0], filters);
+    this(project, filters, new org.sonar.api.issue.batch.IssueFilter[0]);
+  }
+
+  public IssueFilters(Project project, org.sonar.api.issue.batch.IssueFilter[] deprecatedFilters) {
+    this(project, new IssueFilter[0], deprecatedFilters);
   }
 
   public IssueFilters(Project project) {
-    this(project, new org.sonar.api.issue.IssueFilter[0], new IssueFilter[0]);
+    this(project, new IssueFilter[0], new org.sonar.api.issue.batch.IssueFilter[0]);
   }
 
   public boolean accept(String componentKey, BatchReport.Issue rawIssue) {
-    Issue issue = new IssueAdapterForFilter(project, rawIssue, componentKey);
-    if (new DefaultIssueFilterChain(filters).accept(issue)) {
-      // Apply deprecated rules only if filter chain accepts the current issue
-      for (org.sonar.api.issue.IssueFilter filter : exclusionFilters) {
-        if (!filter.accept(issue)) {
-          return false;
-        }
-      }
-      return true;
-    } else {
-      return false;
+    IssueFilterChain filterChain = new DefaultIssueFilterChain(filters);
+    FilterableIssue fIssue = new DefaultFilterableIssue(project, rawIssue, componentKey);
+    if (filterChain.accept(fIssue)) {
+      return acceptDeprecated(componentKey, rawIssue);
     }
+
+    return false;
+  }
+
+  public boolean acceptDeprecated(String componentKey, BatchReport.Issue rawIssue) {
+    Issue issue = new DeprecatedIssueAdapterForFilter(project, rawIssue, componentKey);
+    return new DeprecatedIssueFilterChain(deprecatedFilters).accept(issue);
   }
 }

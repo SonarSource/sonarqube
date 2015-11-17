@@ -24,7 +24,6 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 
@@ -69,7 +68,7 @@ public final class IssueExclusionsLoader {
           }
         }
       } catch (Exception e) {
-        throw new SonarException("Unable to read the source file : '" + inputFile.absolutePath() + "' with the charset : '"
+        throw new IllegalStateException("Unable to read the source file : '" + inputFile.absolutePath() + "' with the charset : '"
           + sourcesEncoding.name() + "'.", e);
       }
     }

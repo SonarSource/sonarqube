@@ -17,25 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue.batch;
+package org.sonar.api.scan.issue.filter;
 
-import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
+
+import java.util.Date;
 
 /**
- * A filter chain is an object provided to issues filters for fine control over the filtering logic. Each filter has the choice to:
- * <ul>
- *  <li>Accept the issue</li>
- *  <li>Reject the issue</li>
- *  <li>Let downstream filters decide by passing the issue to the rest of the chain</li>
- * </ul>
- * @since 4.0
- * @deprecated since 5.3. Use {@link org.sonar.api.issue.filter.IssueFilterChain} instead.
+ * @since 5.3
  */
-@Deprecated
-public interface IssueFilterChain {
+public interface FilterableIssue {
 
-  /**
-   * Called by a filter to let downstream filters decide the fate of the issue
-   */
-  boolean accept(Issue issue);
+  String componentKey();
+
+  RuleKey ruleKey();
+
+  String severity();
+
+  String message();
+
+  Integer line();
+
+  Double effortToFix();
+
+  Date creationDate();
+
+  String projectKey();
 }
