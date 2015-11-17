@@ -12,6 +12,57 @@ import MetricFilterView from '../../components/navigator/filters/metric-filters'
 import '../../helpers/handlebars-helpers';
 
 var NavigatorApp = new Marionette.Application(),
+
+    newLastAnalysisFilter = function () {
+      return new BaseFilters.Filter({
+        name: window.SS.phrases.lastAnalysis,
+        propertyFrom: 'ageMinDays',
+        propertyTo: 'ageMaxDays',
+        type: RangeFilters.RangeFilterView,
+        placeholder: window.SS.phrases.days,
+        enabled: false,
+        optional: true
+      });
+    },
+
+    newMetricFilter = function (property) {
+      return new BaseFilters.Filter({
+        name: window.SS.phrases.metric,
+        property: property,
+        type: MetricFilterView,
+        metrics: window.SS.metrics,
+        periods: window.SS.metricPeriods,
+        operations: { 'eq': '=', 'lt': '<', 'lte': '≤', 'gt': '>', 'gte': '≥' },
+        enabled: false,
+        optional: true
+      });
+    },
+
+    newNameFilter = function () {
+      return new BaseFilters.Filter({
+        name: window.SS.phrases.nameContains,
+        property: 'nameSearch',
+        type: StringFilterView,
+        enabled: false,
+        optional: true
+      });
+    },
+
+    newAlertFilter = function () {
+      return new BaseFilters.Filter({
+        name: window.SS.phrases.alert,
+        property: 'alertLevels[]',
+        type: ChoiceFilters.ChoiceFilterView,
+        enabled: false,
+        optional: true,
+        choices: {
+          'error': window.SS.phrases.error,
+          'warn': window.SS.phrases.warning,
+          'ok': window.SS.phrases.ok
+        }
+      });
+    },
+
     init = function () {
       NavigatorApp.addRegions({ filtersRegion: '.navigator-filters' });
 
@@ -77,69 +128,12 @@ var NavigatorApp = new Marionette.Application(),
       ]);
 
       this.filters.add([
-        new BaseFilters.Filter({
-          name: window.SS.phrases.lastAnalysis,
-          propertyFrom: 'ageMinDays',
-          propertyTo: 'ageMaxDays',
-          type: RangeFilters.RangeFilterView,
-          placeholder: window.SS.phrases.days,
-          enabled: false,
-          optional: true
-        }),
-
-        new BaseFilters.Filter({
-          name: window.SS.phrases.metric,
-          property: 'c3',
-          type: MetricFilterView,
-          metrics: window.SS.metrics,
-          periods: window.SS.metricPeriods,
-          operations: { 'eq': '=', 'lt': '<', 'lte': '≤', 'gt': '>', 'gte': '≥' },
-          enabled: false,
-          optional: true
-        }),
-
-        new BaseFilters.Filter({
-          name: window.SS.phrases.metric,
-          property: 'c2',
-          type: MetricFilterView,
-          metrics: window.SS.metrics,
-          periods: window.SS.metricPeriods,
-          operations: { 'eq': '=', 'lt': '<', 'lte': '≤', 'gt': '>', 'gte': '≥' },
-          enabled: false,
-          optional: true
-        }),
-
-        new BaseFilters.Filter({
-          name: window.SS.phrases.metric,
-          property: 'c1',
-          type: MetricFilterView,
-          metrics: window.SS.metrics,
-          periods: window.SS.metricPeriods,
-          operations: { 'eq': '=', 'lt': '<', 'lte': '≤', 'gt': '>', 'gte': '≥' },
-          enabled: false,
-          optional: true
-        }),
-
-        new BaseFilters.Filter({
-          name: window.SS.phrases.nameContains,
-          property: 'nameSearch',
-          type: StringFilterView,
-          enabled: false,
-          optional: true
-        }),
-
-        new BaseFilters.Filter({
-          name: window.SS.phrases.alert,
-          property: 'alertLevels[]',
-          type: ChoiceFilters.ChoiceFilterView,
-          enabled: false,
-          optional: true,
-          choices: {
-            'error': window.SS.phrases.error,
-            'warn': window.SS.phrases.warning,
-            'ok': window.SS.phrases.ok
-          }
-        })
+        newLastAnalysisFilter(),
+        newMetricFilter('c3'),
+        newMetricFilter('c2'),
+        newMetricFilter('c1'),
+        newNameFilter(),
+        newAlertFilter()
       ]);
 
       this.filterBarView = new FilterBar({

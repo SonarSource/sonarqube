@@ -143,9 +143,9 @@ export default Marionette.LayoutView.extend({
           that.trigger('loaded');
         }
       }
-    }).done(function (data) {
-      that.model.set(data);
-      that.model.set({ isUnitTest: data.q === 'UTS' });
+    }).done(function (r) {
+      that.model.set(r);
+      that.model.set({ isUnitTest: r.q === 'UTS' });
     });
   },
 
