@@ -93,7 +93,8 @@ public class IntegrateCrossProjectDuplications {
     ClonePart originPart = duplication.getOriginPart();
     TextBlock originTextBlock = new TextBlock(originPart.getStartLine(), originPart.getEndLine());
     int clonePartCount = 0;
-    for (ClonePart part : from(duplication.getCloneParts()).filter(new DoesNotMatchOriginalPart(originPart))) {
+    for (ClonePart part : from(duplication.getCloneParts())
+      .filter(new DoesNotMatchSameComponentKey(originPart.getResourceId()))) {
       clonePartCount++;
       if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
         LOGGER.warn("Too many duplication references on file {} for block at line {}. Keeping only the first {} references.",
@@ -139,16 +140,16 @@ public class IntegrateCrossProjectDuplications {
     }
   }
 
-  private static class DoesNotMatchOriginalPart implements Predicate<ClonePart> {
-    private final ClonePart originPart;
+  private static class DoesNotMatchSameComponentKey implements Predicate<ClonePart> {
+    private final String componentKey;
 
-    private DoesNotMatchOriginalPart(ClonePart originPart) {
-      this.originPart = originPart;
+    private DoesNotMatchSameComponentKey(String componentKey) {
+      this.componentKey = componentKey;
     }
 
     @Override
-    public boolean apply(ClonePart part) {
-      return !part.equals(originPart);
+    public boolean apply(@Nonnull ClonePart part) {
+      return !part.getResourceId().equals(componentKey);
     }
   }
 

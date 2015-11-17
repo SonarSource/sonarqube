@@ -148,6 +148,42 @@ public class IntegrateCrossProjectDuplicationsTest {
   }
 
   @Test
+  public void add_no_duplication_from_current_file() {
+    settings.setProperty("sonar.cpd.xoo.minimumTokens", 10);
+
+    Collection<Block> originBlocks = asList(
+      new Block.Builder()
+        .setResourceId(ORIGIN_FILE_KEY)
+        .setBlockHash(new ByteArray("a8998353e96320ec"))
+        .setIndexInFile(0)
+        .setLines(30, 45)
+        .setUnit(0, 10)
+        .build(),
+      // Duplication is on the same file
+      new Block.Builder()
+        .setResourceId(ORIGIN_FILE_KEY)
+        .setBlockHash(new ByteArray("a8998353e96320ec"))
+        .setIndexInFile(0)
+        .setLines(46, 60)
+        .setUnit(0, 10)
+        .build()
+      );
+
+    Collection<Block> duplicatedBlocks = singletonList(
+      new Block.Builder()
+        .setResourceId(OTHER_FILE_KEY)
+        .setBlockHash(new ByteArray("a8998353e96320ed"))
+        .setIndexInFile(0)
+        .setLines(40, 55)
+        .build()
+      );
+
+    underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
+
+    verifyNoMoreInteractions(duplicationRepository);
+  }
+
+  @Test
   public void add_no_duplication_when_not_enough_tokens() {
     settings.setProperty("sonar.cpd.xoo.minimumTokens", 10);
 
