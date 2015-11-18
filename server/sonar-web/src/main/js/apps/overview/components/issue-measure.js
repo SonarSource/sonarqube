@@ -64,7 +64,7 @@ export const AddedRemovedMeasure = React.createClass({
     }
 
     let leak = this.props.leak[this.props.metric];
-    let added = this.props.leak[this.props.leakMetric];
+    let added = this.props.leak[this.props.leakMetric] || 0;
     let removed = added - leak;
 
     return <div className="overview-detailed-measure-leak">
@@ -117,7 +117,7 @@ export const AddedRemovedDebt = React.createClass({
     }
 
     let leak = this.props.leak[this.props.metric];
-    let added = this.props.leak[this.props.leakMetric];
+    let added = this.props.leak[this.props.leakMetric] || 0;
     let removed = added - leak;
 
     return <div className="overview-detailed-measure-leak">
@@ -224,7 +224,7 @@ export const SeverityMeasure = React.createClass({
     }
 
     let leak = this.props.leak[this.getMetric()];
-    let added = this.props.leak[this.getNewMetric()];
+    let added = this.props.leak[this.getNewMetric()] || 0;
     let removed = added - leak;
 
     let createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');

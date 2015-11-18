@@ -17,6 +17,13 @@ const PERIOD_WITHOUT_VERSION = {
   modeParam: ''
 };
 
+const PERIOD_WITHOUT_DATE = {
+  date: '',
+  index: '1',
+  mode: 'previous_version',
+  modeParam: ''
+};
+
 
 describe('Overview Helpers', function () {
   describe('Periods', function () {
@@ -27,8 +34,13 @@ describe('Overview Helpers', function () {
         expect(result.getFullYear()).to.equal(2015);
       });
 
-      it('should return null', function () {
+      it('should return null when can not find period', function () {
         let result = getPeriodDate([], '1');
+        expect(result).to.be.null;
+      });
+
+      it('should return null when date is empty', function () {
+        let result = getPeriodDate([PERIOD_WITHOUT_DATE], '1');
         expect(result).to.be.null;
       });
     });

@@ -29,6 +29,17 @@ export const GeneralDuplications = React.createClass({
     </DomainLeak>;
   },
 
+  renderDuplicatedBlocks () {
+    if (this.props.measures['duplicated_blocks'] == null) {
+      return null;
+    }
+    return <Measure label={getMetricName('duplicated_blocks')}>
+      <DrilldownLink component={this.props.component.key} metric="duplicated_blocks">
+        {formatMeasure(this.props.measures['duplicated_blocks'], 'SHORT_INT')}
+      </DrilldownLink>
+    </Measure>;
+  },
+
   render () {
     return <Domain>
       <DomainHeader title="Duplications" linkTo="/duplications"/>
@@ -41,11 +52,7 @@ export const GeneralDuplications = React.createClass({
                 {formatMeasure(this.props.measures['duplicated_lines_density'], 'PERCENT')}
               </DrilldownLink>
             </Measure>
-            <Measure label={getMetricName('duplicated_blocks')}>
-              <DrilldownLink component={this.props.component.key} metric="duplicated_blocks">
-                {formatMeasure(this.props.measures['duplicated_blocks'], 'SHORT_INT')}
-              </DrilldownLink>
-            </Measure>
+            {this.renderDuplicatedBlocks()}
           </MeasuresList>
           {this.renderTimeline('before')}
         </DomainNutshell>

@@ -67,7 +67,7 @@ export default React.createClass({
       measures.debt = responses[1].debt;
 
       let leak;
-      if (this.state.leakPeriodLabel) {
+      if (this.state.leakPeriodDate) {
         leak = this.getMeasuresValues(responses[0], 'var' + this.props.leakPeriodIndex);
         leak.issues = responses[2].issues;
         leak.debt = responses[2].debt;
@@ -104,7 +104,7 @@ export default React.createClass({
   },
 
   requestLeakIssuesAndDebt() {
-    if (!this.state.leakPeriodLabel) {
+    if (!this.state.leakPeriodDate) {
       return Promise.resolve();
     }
 
@@ -120,7 +120,7 @@ export default React.createClass({
   },
 
   requestIssuesLeakSeverities() {
-    if (!this.state.leakPeriodLabel) {
+    if (!this.state.leakPeriodDate) {
       return Promise.resolve();
     }
 

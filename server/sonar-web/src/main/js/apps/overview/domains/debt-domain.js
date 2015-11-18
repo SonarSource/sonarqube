@@ -99,11 +99,41 @@ export const IssuesMain = React.createClass({
   renderOtherMeasures() {
     let metrics = filterMetricsForDomains(this.props.metrics, ['Issues', 'Technical Debt'])
         .filter(metric => KNOWN_METRICS.indexOf(metric.key) === -1)
+        .filter(metric => this.state.measures[metric.key] != null)
         .map(metric => {
           return <DetailedMeasure key={metric.key} {...this.props} {...this.state} metric={metric.key}
                                   type={metric.type}/>;
         });
-    return <div>{metrics}</div>;
+    if (!metrics.length) {
+      return null;
+    }
+    return <div className="overview-detailed-measures-list">{metrics}</div>;
+  },
+
+  renderRating () {
+    if (this.state.measures['sqale_rating'] == null) {
+      return null;
+    }
+    return <div className="overview-detailed-measure overview-detailed-measure-rating">
+      <div className="overview-detailed-measure-nutshell">
+        <span className="overview-detailed-measure-value">
+          <DrilldownLink component={this.props.component.key} metric="sqale_rating">
+            <Rating value={this.state.measures['sqale_rating']}/>
+          </DrilldownLink>
+        </span>
+      </div>
+    </div>;
+  },
+
+  renderTags () {
+    if (!this.state.tags.length) {
+      return null;
+    }
+    return <div className="overview-detailed-measure">
+      <div className="overview-detailed-measure-nutshell">
+        <IssuesTags {...this.props} tags={this.state.tags}/>
+      </div>
+    </div>;
   },
 
   render () {
@@ -124,15 +154,7 @@ export const IssuesMain = React.createClass({
           </div>
 
           <div className="overview-detailed-measures-list overview-detailed-measures-list-inline">
-            <div className="overview-detailed-measure overview-detailed-measure-rating">
-              <div className="overview-detailed-measure-nutshell">
-                <span className="overview-detailed-measure-value">
-                  <DrilldownLink component={this.props.component.key} metric="sqale_rating">
-                    <Rating value={this.state.measures['sqale_rating']}/>
-                  </DrilldownLink>
-                </span>
-              </div>
-            </div>
+            {this.renderRating()}
             <AddedRemovedMeasure {...this.props} {...this.state}
                 metric="violations" leakMetric="new_violations" type="INT"/>
             <AddedRemovedDebt {...this.props} {...this.state}
@@ -150,11 +172,7 @@ export const IssuesMain = React.createClass({
           </div>
 
           <div className="overview-detailed-measures-list overview-detailed-measures-list-inline">
-            <div className="overview-detailed-measure">
-              <div className="overview-detailed-measure-nutshell">
-                <IssuesTags {...this.props} tags={this.state.tags}/>
-              </div>
-            </div>
+            {this.renderTags()}
             <div className="overview-detailed-measure">
               <div className="overview-detailed-measure-nutshell">
                 <div className="overview-detailed-measure-name">
@@ -167,9 +185,7 @@ export const IssuesMain = React.createClass({
             </div>
           </div>
 
-          <div className="overview-detailed-measures-list">
-            {this.renderOtherMeasures()}
-          </div>
+          {this.renderOtherMeasures()}
         </div>
 
         <div className="overview-card">

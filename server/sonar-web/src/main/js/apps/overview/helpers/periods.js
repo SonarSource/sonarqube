@@ -19,5 +19,5 @@ export function getPeriodDate (periods, periodIndex) {
   if (!period) {
     return null;
   }
-  return moment(period.date).toDate();
+  return period.date ? moment(period.date).toDate() : null;
 }

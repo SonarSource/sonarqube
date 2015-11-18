@@ -32,10 +32,15 @@ export const GeneralSize = React.createClass({
   },
 
   renderLanguageDistribution() {
-    return <div style={{ width: 200 }}>
-      <LanguageDistribution lines={this.props.measures['ncloc']}
-                            distribution={this.props.measures['ncloc_language_distribution']}/>
-    </div>;
+    if (!this.props.measures['ncloc'] || !this.props.measures['ncloc_language_distribution']) {
+      return null;
+    }
+    return <Measure composite={true}>
+      <div style={{ width: 200 }}>
+        <LanguageDistribution lines={this.props.measures['ncloc']}
+                              distribution={this.props.measures['ncloc_language_distribution']}/>
+      </div>
+    </Measure>;
   },
 
   render () {
@@ -50,9 +55,7 @@ export const GeneralSize = React.createClass({
                 {formatMeasure(this.props.measures['ncloc'], 'SHORT_INT')}
               </DrilldownLink>
             </Measure>
-            <Measure composite={true}>
-              {this.renderLanguageDistribution()}
-            </Measure>
+            {this.renderLanguageDistribution()}
           </MeasuresList>
           {this.renderTimeline('before')}
         </DomainNutshell>
