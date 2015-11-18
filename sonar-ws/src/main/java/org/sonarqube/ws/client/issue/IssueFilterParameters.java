@@ -25,8 +25,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
  * @since 3.7
  */
@@ -80,7 +78,8 @@ public class IssueFilterParameters {
   public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED, COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS, TAGS,
     ASSIGNEES, LANGUAGES, ASSIGNED, PLANNED, HIDE_RULES, CREATED_AT, CREATED_AFTER, CREATED_BEFORE, CREATED_IN_LAST, COMPONENT_UUIDS, COMPONENT_ROOT_UUIDS, FACET_MODE,
     PROJECTS, PROJECT_UUIDS, PROJECT_KEYS, COMPONENT_KEYS, MODULE_UUIDS, DIRECTORIES, FILE_UUIDS, AUTHORS, HIDE_COMMENTS, PAGE_SIZE, PAGE_INDEX, SORT, ASC);
-  public static final List<String> ALL_WITHOUT_PAGINATION = newArrayList(Iterables.filter(ALL, new Predicate<String>() {
+
+  public static final List<String> ALL_WITHOUT_PAGINATION = ImmutableList.copyOf(Iterables.filter(ALL, new Predicate<String>() {
     @Override
     public boolean apply(String input) {
       return !PAGE_INDEX.equals(input) && !PAGE_SIZE.equals(input);
