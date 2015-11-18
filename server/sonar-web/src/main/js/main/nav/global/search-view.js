@@ -24,6 +24,19 @@ var SearchItemView = Marionette.ItemView.extend({
         this.$('a')[0].click();
       },
 
+      onRender: function () {
+        this.$('[data-toggle="tooltip"]').tooltip({
+          container: 'body',
+          html: true,
+          placement: 'left',
+          delay: { show: 500, hide: 0 }
+        });
+      },
+
+      onDestroy: function () {
+        this.$('[data-toggle="tooltip"]').tooltip('destroy');
+      },
+
       serializeData: function () {
         return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
           index: this.options.index
