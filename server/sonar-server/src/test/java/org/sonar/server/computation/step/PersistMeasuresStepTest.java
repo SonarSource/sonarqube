@@ -34,10 +34,13 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.Developer;
+import org.sonar.server.computation.component.DumbDeveloper;
 import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
+import org.sonar.server.computation.measure.MeasureToMeasureDto;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.period.Period;
 import org.sonar.test.DbTests;
@@ -106,7 +109,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void setUp() {
     dbTester.truncateTables();
 
-    underTest = new PersistMeasuresStep(dbClient, metricRepository, dbIdsRepository, treeRootHolder, measureRepository);
+    underTest = new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(dbIdsRepository), treeRootHolder, measureRepository);
   }
 
   private void setupReportComponents() {
@@ -164,17 +167,17 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void insert_measures_from_report() {
     setupReportComponents();
 
-    insert_measures_impl();
+    insertMeasures();
   }
 
   @Test
   public void insert_measures_from_views() {
     setupViewsComponents();
 
-    insert_measures_impl();
+    insertMeasures();
   }
 
-  private void insert_measures_impl() {
+  private void insertMeasures() {
     int stringMetricId = 1;
     int doubleMetricId = 2;
     int intMetricId = 3;
@@ -245,17 +248,17 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void insert_measure_with_variations_from_report() {
     setupReportComponents();
 
-    insert_measure_with_variations_impl();
+    insertMeasureWithVariations();
   }
 
   @Test
   public void insert_measure_with_variations_from_views() {
     setupViewsComponents();
 
-    insert_measure_with_variations_impl();
+    insertMeasureWithVariations();
   }
 
-  private void insert_measure_with_variations_impl() {
+  private void insertMeasureWithVariations() {
     metricRepository.add(1, DOUBLE_METRIC);
 
     measureRepository.addRawMeasure(ROOT_REF, DOUBLE_METRIC_KEY,
@@ -280,6 +283,64 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("variation_value_3")).isEqualTo(3.3d);
     assertThat(dto.get("variation_value_4")).isEqualTo(4.4d);
     assertThat(dto.get("variation_value_5")).isEqualTo(5.5d);
+  }
+
+  @Test
+  public void insert_rule_measure_from_report() {
+    setupReportComponents();
+
+    insertRuleMeasure();
+  }
+
+  @Test
+  public void insert_rule_measure_from_view() {
+    setupViewsComponents();
+
+    insertRuleMeasure();
+  }
+
+  private void insertRuleMeasure() {
+    metricRepository.add(1, INT_METRIC);
+
+    measureRepository.addRawMeasure(ROOT_REF, INT_METRIC_KEY, newMeasureBuilder().forRule(10).create(1));
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+    List<Map<String, Object>> dtos = selectSnapshots();
+    Map<String, Object> dto = dtos.get(0);
+
+    assertThat(dto.get("value")).isEqualTo(1d);
+    assertThat(dto.get("ruleId")).isEqualTo(10L);
+  }
+
+  @Test
+  public void insert_characteristic_measure_from_report() {
+    setupReportComponents();
+
+    insertCharacteristicMeasure();
+  }
+
+  @Test
+  public void insert_characteristic__measure_from_view() {
+    setupViewsComponents();
+
+    insertCharacteristicMeasure();
+  }
+
+  private void insertCharacteristicMeasure() {
+    metricRepository.add(1, INT_METRIC);
+
+    measureRepository.addRawMeasure(ROOT_REF, INT_METRIC_KEY, newMeasureBuilder().forCharacteristic(10).create(1));
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+    List<Map<String, Object>> dtos = selectSnapshots();
+    Map<String, Object> dto = dtos.get(0);
+
+    assertThat(dto.get("value")).isEqualTo(1d);
+    assertThat(dto.get("characteristicId")).isEqualTo(10L);
   }
 
   @Test
@@ -373,6 +434,26 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
   }
 
+  @Test
+  public void insert_developer_measure_from_report() {
+    setupReportComponents();
+
+    metricRepository.add(1, INT_METRIC);
+
+    Developer developer = new DumbDeveloper("DEV1");
+    dbIdsRepository.setDeveloperId(developer, 10);
+    measureRepository.addRawMeasure(ROOT_REF, INT_METRIC_KEY, newMeasureBuilder().forDeveloper(developer).create(1));
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+    List<Map<String, Object>> dtos = selectSnapshots();
+    Map<String, Object> dto = dtos.get(0);
+
+    assertThat(dto.get("value")).isEqualTo(1d);
+    assertThat(dto.get("developerId")).isEqualTo(10L);
+  }
+
   private ComponentDto addComponent(String key) {
     ComponentDto componentDto = new ComponentDto().setKey(key).setUuid(Uuids.create());
     dbClient.componentDao().insert(dbTester.getSession(), componentDto);
@@ -384,8 +465,11 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   private List<Map<String, Object>> selectSnapshots() {
-    return dbTester.select(
-      "SELECT snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\", " +
+    return dbTester
+      .select(
+      "SELECT snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", characteristic_id as \"characteristicId\", person_id as \"developerId\", "
+        +
+        "value as \"value\", text_value as \"textValue\", " +
         "rule_priority as \"severity\", " +
         "variation_value_1 as \"variation_value_1\", " +
         "variation_value_2 as \"variation_value_2\", " +

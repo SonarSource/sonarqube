@@ -70,6 +70,7 @@ import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureComputersHolderImpl;
 import org.sonar.server.computation.measure.MeasureComputersVisitor;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
+import org.sonar.server.computation.measure.MeasureToMeasureDto;
 import org.sonar.server.computation.metric.MetricModule;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
@@ -192,7 +193,10 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       IntegrateCrossProjectDuplications.class,
 
       // views
-      ViewIndex.class);
+      ViewIndex.class,
+
+      MeasureToMeasureDto.class
+      );
   }
 
 }

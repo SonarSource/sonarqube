@@ -33,7 +33,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -62,15 +61,15 @@ public class PersistMeasuresStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
-  private final DbIdsRepository dbIdsRepository;
+  private final MeasureToMeasureDto measureToMeasureDto;
   private final TreeRootHolder treeRootHolder;
   private final MeasureRepository measureRepository;
 
-  public PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, DbIdsRepository dbIdsRepository,
+  public PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, MeasureToMeasureDto measureToMeasureDto,
     TreeRootHolder treeRootHolder, MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.metricRepository = metricRepository;
-    this.dbIdsRepository = dbIdsRepository;
+    this.measureToMeasureDto = measureToMeasureDto;
     this.treeRootHolder = treeRootHolder;
     this.measureRepository = measureRepository;
   }
@@ -102,13 +101,10 @@ public class PersistMeasuresStep implements ComputationStep {
     @Override
     public void visitAny(Component component) {
       Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
-      long componentId = dbIdsRepository.getComponentId(component);
-      long snapshotId = dbIdsRepository.getSnapshotId(component);
-
-      persistMeasures(component, measures, componentId, snapshotId);
+      persistMeasures(component, measures);
     }
 
-    private void persistMeasures(Component component, Multimap<String, Measure> batchReportMeasures, long componentId, long snapshotId) {
+    private void persistMeasures(Component component, Multimap<String, Measure> batchReportMeasures) {
       for (Map.Entry<String, Collection<Measure>> measures : batchReportMeasures.asMap().entrySet()) {
         String metricKey = measures.getKey();
         if (NOT_TO_PERSIST_ON_FILE_METRIC_KEYS.contains(metricKey) && component.getType() == Component.Type.FILE) {
@@ -118,7 +114,7 @@ public class PersistMeasuresStep implements ComputationStep {
         Metric metric = metricRepository.getByKey(metricKey);
         Predicate<Measure> notBestValueOptimized = Predicates.not(BestValueOptimization.from(metric, component));
         for (Measure measure : from(measures.getValue()).filter(NonEmptyMeasure.INSTANCE).filter(notBestValueOptimized)) {
-          MeasureDto measureDto = MeasureToMeasureDto.INSTANCE.toMeasureDto(measure, metric, componentId, snapshotId);
+          MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
           dbClient.measureDao().insert(session, measureDto);
         }
       }

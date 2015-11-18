@@ -47,7 +47,7 @@ public class MeasureDto {
   private Integer metricId;
   private Integer ruleId;
   private Integer characteristicId;
-  private Integer personId;
+  private Long developerId;
 
   // TODO to delete – not in db
   private String metricKey;
@@ -213,12 +213,12 @@ public class MeasureDto {
   }
 
   @CheckForNull
-  public Integer getPersonId() {
-    return personId;
+  public Long getDeveloperId() {
+    return developerId;
   }
 
-  public MeasureDto setPersonId(@Nullable Integer personId) {
-    this.personId = personId;
+  public MeasureDto setDeveloperId(@Nullable Long developerId) {
+    this.developerId = developerId;
     return this;
   }
 
@@ -251,7 +251,7 @@ public class MeasureDto {
       .add("metricId", metricId)
       .add("ruleId", ruleId)
       .add("characteristicId", characteristicId)
-      .add("personId", personId)
+      .add("developerId", developerId)
       .add("metricKey", metricKey)
       .toString();
   }

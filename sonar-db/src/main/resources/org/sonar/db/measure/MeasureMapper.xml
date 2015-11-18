@@ -7,6 +7,7 @@
     pm.metric_id as metricId,
     pm.rule_id as ruleId,
     pm.characteristic_id as characteristicId,
+    pm.person_id as developerId,
     pm.snapshot_id as snapshotId,
     pm.value as value,
     pm.text_value as textValue,
@@ -118,7 +119,7 @@
     #{ruleId, jdbcType=INTEGER}, #{textValue, jdbcType=VARCHAR},
     #{componentId, jdbcType=INTEGER}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
     #{description, jdbcType=VARCHAR}, #{characteristicId, jdbcType=INTEGER},
-    #{personId, jdbcType=INTEGER}, #{variation1, jdbcType=DOUBLE}, #{variation2, jdbcType=DOUBLE},
+    #{developerId, jdbcType=INTEGER}, #{variation1, jdbcType=DOUBLE}, #{variation2, jdbcType=DOUBLE},
     #{variation3, jdbcType=DOUBLE},
     #{variation4, jdbcType=DOUBLE}, #{variation5, jdbcType=DOUBLE}, #{dataValue, jdbcType=BINARY}
     )
