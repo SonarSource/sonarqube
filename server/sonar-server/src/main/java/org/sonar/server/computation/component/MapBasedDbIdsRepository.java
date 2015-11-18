@@ -38,6 +38,7 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
   private final Function<Component, T> componentToKey;
   private final Map<T, Long> componentIdsByRef = new HashMap<>();
   private final Map<T, Long> snapshotIdsByRef = new HashMap<>();
+  private final Map<Developer, Long> developerIdsByKey = new HashMap<>();
 
   public MapBasedDbIdsRepository(Function<Component, T> componentToKey) {
     this.componentToKey = componentToKey;
@@ -47,7 +48,8 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
   public DbIdsRepository setComponentId(Component component, long componentId) {
     T ref = componentToKey.apply(component);
     Long existingComponentId = componentIdsByRef.get(ref);
-    checkState(existingComponentId == null, format("Component ref '%s' has already a component id", ref));
+    checkState(existingComponentId == null,
+      format("Component id '%s' is already registered in repository for Component '%s', can not set new id '%s'", existingComponentId, component.getKey(), componentId));
     componentIdsByRef.put(ref, componentId);
     return this;
   }
@@ -56,7 +58,7 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
   public long getComponentId(Component component) {
     T ref = componentToKey.apply(component);
     Long componentId = componentIdsByRef.get(ref);
-    checkState(componentId != null, format("Component ref '%s' has no component id", ref));
+    checkState(componentId != null, format("No component id registered in repository for Component '%s'", component.getKey()));
     return componentId;
   }
 
@@ -64,7 +66,8 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
   public DbIdsRepository setSnapshotId(Component component, long snapshotId) {
     T ref = componentToKey.apply(component);
     Long existingSnapshotId = snapshotIdsByRef.get(ref);
-    checkState(existingSnapshotId == null, format("Component ref '%s' has already a snapshot id", ref));
+    checkState(existingSnapshotId == null,
+      format("Snapshot id '%s' is already registered in repository for Component '%s', can not set new id '%s'", existingSnapshotId, component.getKey(), snapshotId));
     snapshotIdsByRef.put(ref, snapshotId);
     return this;
   }
@@ -73,8 +76,22 @@ public final class MapBasedDbIdsRepository<T> implements MutableDbIdsRepository 
   public long getSnapshotId(Component component) {
     T ref = componentToKey.apply(component);
     Long snapshotId = snapshotIdsByRef.get(ref);
-    checkState(snapshotId != null, format("Component ref '%s' has no snapshot id", ref));
+    checkState(snapshotId != null, format("No snapshot id registered in repository for Component '%s'", component.getKey()));
     return snapshotId;
   }
 
+  @Override
+  public DbIdsRepository setDeveloperId(Developer developer, long developerId) {
+    Long existingId = developerIdsByKey.get(developer);
+    checkState(existingId == null, format("Id '%s' is already registered in repository for Developer '%s', can not set new id '%s'", existingId, developer, developerId));
+    developerIdsByKey.put(developer, developerId);
+    return this;
+  }
+
+  @Override
+  public long getDeveloperId(Developer developer) {
+    Long devId = developerIdsByKey.get(developer);
+    checkState(devId != null, format("No id registered in repository for Developer '%s'", developer));
+    return devId;
+  }
 }

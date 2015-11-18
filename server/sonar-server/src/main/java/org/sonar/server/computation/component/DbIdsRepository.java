@@ -29,4 +29,9 @@ public interface DbIdsRepository {
    * @throws IllegalStateException if there is no Snapshot id for the specified Component
    */
   long getSnapshotId(Component component);
+
+  /**
+   * @throws IllegalStateException if there is no id for the specified Developer
+   */
+  long getDeveloperId(Developer developer);
 }
