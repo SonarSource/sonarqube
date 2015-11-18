@@ -95,21 +95,6 @@ public class TasksMediumTest {
       .start();
   }
 
-  @Test
-  public void triggerViews() throws Exception {
-    startServer(200, "OK");
-    tester = BatchMediumTester.builder()
-      .bootstrapProperties(ImmutableMap.of("sonar.host.url", "http://localhost:" + server.getPort()))
-      .build();
-    tester.start();
-    tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "views").build())
-      .start();
-
-    assertThat(logTester.logs()).contains("Trigger Views update");
-  }
-
   @Test(expected = MessageException.class)
   public void unsupportedTask() throws Exception {
     tester = BatchMediumTester.builder()

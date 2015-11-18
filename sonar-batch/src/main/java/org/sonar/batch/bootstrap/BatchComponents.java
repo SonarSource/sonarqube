@@ -38,7 +38,6 @@ import org.sonar.batch.source.LinesSensor;
 import org.sonar.batch.task.ListTask;
 import org.sonar.batch.task.ScanTask;
 import org.sonar.batch.task.Tasks;
-import org.sonar.batch.task.ViewsTask;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.issue.tracking.Tracker;
@@ -74,9 +73,7 @@ public class BatchComponents {
       ListTask.DEFINITION,
       ListTask.class,
       ScanTask.DEFINITION,
-      ScanTask.class,
-      ViewsTask.DEFINITION,
-      ViewsTask.class);
+      ScanTask.class);
     components.addAll(CorePropertyDefinitions.all());
     // CPD
     components.addAll(CpdComponents.all());
