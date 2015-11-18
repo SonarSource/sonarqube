@@ -11,6 +11,11 @@
   <name>SonarQube :: Batch :: Protocol</name>
   
   <description>Classes used for communication between batch and server</description>
+  
+  <properties>
+    <!-- Viewer is for our internal use. This is not production code and mostly generated with Eclipse GUI builder -->
+    <sonar.exclusions>src/main/java/org/sonar/batch/protocol/viewer/**</sonar.exclusions>
+  </properties>
 
   <dependencies>
     <dependency>
