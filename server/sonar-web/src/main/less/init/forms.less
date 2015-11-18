@@ -11,7 +11,8 @@ input[type=password],
 input[type=email],
 input[type=search],
 input[type=date],
-textarea {
+textarea,
+select {
   border: 1px solid @darkGrey;
   box-sizing: border-box;
   border-radius: 2px;
@@ -44,6 +45,11 @@ input[type=search] {
 
 textarea {
   padding: 3px;
+}
+
+select {
+  height: @formControlHeight;
+  line-height: @formControlHeight;
 }
 
 button,

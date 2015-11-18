@@ -90,16 +90,18 @@ ul.modal-head-metadata li {
 }
 
 .modal-field label {
+  position: relative;
+  left: -140px;
   display: block;
   float: left;
-  text-align: right;
   width: 130px;
-  left: -140px;
   margin-right: -130px;
-  line-height: 1;
-  word-wrap: break-word;
-  position: relative;
   padding-top: 5px;
+  padding-bottom: 2px;
+  line-height: 1;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &.simple-label {
     display: inline-block;
@@ -118,7 +120,9 @@ ul.modal-head-metadata li {
   line-height: 1;
 }
 
-.modal-field input {
+.modal-field input,
+.modal-field select,
+.modal-field textarea {
   margin-right: 5px;
   margin-bottom: 10px;
 }
@@ -131,8 +135,13 @@ ul.modal-head-metadata li {
   width: 250px;
 }
 
-.modal-field .text {
-  line-height: 20px;
+.modal-field-description {
+  padding-bottom: 4px;
+  line-height: 1.4;
+  color: @secondFontColor;
+  font-size: @smallFontSize;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .modal-foot {
@@ -148,12 +157,6 @@ ul.modal-head-metadata li {
   input[type=button] {
     margin-right: 10px;
   }
-}
-
-.modal-field-description {
-  clear: both;
-  font-size: 93%;
-  color: #777;
 }
 
 .modal-error, .modal-warning, .modal-notice {
