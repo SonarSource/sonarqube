@@ -2,9 +2,15 @@ import $ from 'jquery';
 import _ from 'underscore';
 import ModalFormView from '../../components/common/modal-form';
 import Template from './templates/quality-profiles-restore-built-in-profiles.hbs';
+import TemplateSuccess from './templates/quality-profiles-restore-built-in-profiles-success.hbs';
 
 export default ModalFormView.extend({
   template: Template,
+  successTemplate: TemplateSuccess,
+
+  getTemplate: function () {
+    return this.selectedLanguage ? this.successTemplate : this.template;
+  },
 
   onFormSubmit: function () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
@@ -24,8 +30,8 @@ export default ModalFormView.extend({
     var that = this,
         url = baseUrl + '/api/qualityprofiles/restore_built_in',
         lang = this.$('#restore-built-in-profiles-language').val(),
-        langName = _.findWhere(this.options.languages, { key: lang }).name,
         options = { language: lang };
+    this.selectedLanguage = _.findWhere(this.options.languages, { key: lang }).name;
     return $.ajax({
       type: 'POST',
       url: url,
@@ -37,10 +43,7 @@ export default ModalFormView.extend({
     }).done(function () {
       that.collection.fetch({ reset: true });
       that.collection.trigger('destroy');
-      that.$('#restore-built-in-profiles-form-success')
-          .text(window.tp('quality_profiles.restore_built_in_profiles_success_message', langName))
-          .removeClass('hidden');
-      that.enableForm();
+      that.render();
     }).fail(function (jqXHR) {
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       that.enableForm();
@@ -49,7 +52,8 @@ export default ModalFormView.extend({
 
   serializeData: function () {
     return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
-      languages: this.options.languages
+      languages: this.options.languages,
+      selectedLanguage: this.selectedLanguage
     });
   }
 });
