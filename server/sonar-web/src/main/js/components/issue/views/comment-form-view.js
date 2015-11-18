@@ -41,6 +41,9 @@ export default PopupView.extend({
     if (e.keyCode === 27) {
       this.destroy();
     }
+    if (e.keyCode === 13 && (e.metaKey || e.ctrlKey)) {
+      this.submit();
+    }
   },
 
   cancel: function () {
