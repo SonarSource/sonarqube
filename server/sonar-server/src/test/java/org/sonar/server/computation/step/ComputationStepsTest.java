@@ -27,12 +27,13 @@ import java.util.Set;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.container.ComputeEngineContainerImpl;
 import org.sonar.server.computation.container.ReportComputeEngineContainerPopulator;
 import org.sonar.server.computation.container.StepsExplorer;
+import org.sonar.server.computation.queue.CeTask;
 
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Sets.difference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -51,7 +52,7 @@ public class ComputationStepsTest {
 
   @Test
   public void all_steps_from_package_step_are_present_in_container() {
-    ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(new ComponentContainer(), new ReportComputeEngineContainerPopulator(mock(CeTask.class)));
+    ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(new ComponentContainer(), new ReportComputeEngineContainerPopulator(mock(CeTask.class), null));
 
     Set<String> stepsCanonicalNames = StepsExplorer.retrieveStepPackageStepsCanonicalNames();
 
@@ -61,7 +62,8 @@ public class ComputationStepsTest {
         .transform(StepsExplorer.toCanonicalName())
         .toSet();
 
-    assertThat(typesInContainer).isEqualTo(stepsCanonicalNames);
+    // PersistDevelopersStep is the only step that is not in the report container (it's only added when Dev Cockpit plugin is installed);
+    assertThat(difference(stepsCanonicalNames, typesInContainer)).containsOnly(PersistDevelopersStep.class.getCanonicalName());
   }
 
   private enum ComponentAdapterToImplementationClass implements Function<ComponentAdapter<?>, Class<?>> {

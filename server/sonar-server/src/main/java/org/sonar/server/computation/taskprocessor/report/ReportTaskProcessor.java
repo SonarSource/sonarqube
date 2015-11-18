@@ -21,13 +21,15 @@ package org.sonar.server.computation.taskprocessor.report;
 
 import java.util.Collections;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.taskprocessor.CeTaskProcessor;
-import org.sonar.server.computation.step.ComputationStepExecutor;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
 import org.sonar.server.computation.queue.CeTask;
+import org.sonar.server.computation.step.ComputationStepExecutor;
+import org.sonar.server.computation.taskprocessor.CeTaskProcessor;
+import org.sonar.server.devcockpit.DevCockpitBridge;
 
 public class ReportTaskProcessor implements CeTaskProcessor {
 
@@ -35,10 +37,25 @@ public class ReportTaskProcessor implements CeTaskProcessor {
 
   private final ContainerFactory containerFactory;
   private final ComponentContainer serverContainer;
+  @CheckForNull
+  private final DevCockpitBridge devCockpitBridge;
 
+  /**
+   * Used when Developer Cockpit plugin is installed
+   */
+  public ReportTaskProcessor(ContainerFactory containerFactory, ComponentContainer serverContainer, DevCockpitBridge devCockpitBridge) {
+    this.containerFactory = containerFactory;
+    this.serverContainer = serverContainer;
+    this.devCockpitBridge = devCockpitBridge;
+  }
+
+  /**
+   * Used when Developer Cockpit plugin is not installed
+   */
   public ReportTaskProcessor(ContainerFactory containerFactory, ComponentContainer serverContainer) {
     this.containerFactory = containerFactory;
     this.serverContainer = serverContainer;
+    this.devCockpitBridge = null;
   }
 
   @Override
@@ -48,7 +65,7 @@ public class ReportTaskProcessor implements CeTaskProcessor {
 
   @Override
   public void process(CeTask task) {
-    ComputeEngineContainer ceContainer = containerFactory.create(serverContainer, task);
+    ComputeEngineContainer ceContainer = containerFactory.create(serverContainer, task, devCockpitBridge);
     try {
       ceContainer.getComponentByType(ComputationStepExecutor.class).execute();
     } finally {

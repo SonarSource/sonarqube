@@ -21,6 +21,7 @@ package org.sonar.server.computation.container;
 
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderImpl;
@@ -88,13 +89,16 @@ import org.sonar.server.computation.sqale.SqaleRatingSettings;
 import org.sonar.server.computation.step.ComputationStepExecutor;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.computation.step.ReportComputationSteps;
+import org.sonar.server.devcockpit.DevCockpitBridge;
 import org.sonar.server.view.index.ViewIndex;
 
 public final class ReportComputeEngineContainerPopulator implements ContainerPopulator<ComputeEngineContainer> {
   private final CeTask task;
+  private final DevCockpitBridge devCockpitBridge;
 
-  public ReportComputeEngineContainerPopulator(CeTask task) {
+  public ReportComputeEngineContainerPopulator(CeTask task, @Nullable DevCockpitBridge devCockpitBridge) {
     this.task = task;
+    this.devCockpitBridge = devCockpitBridge;
   }
 
   @Override
@@ -103,6 +107,9 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
     container.add(task);
     container.add(steps);
     container.addSingletons(componentClasses());
+    if (devCockpitBridge != null) {
+      container.addSingletons(devCockpitBridge.getCeComponents());
+    }
     container.addSingletons(steps.orderedStepClasses());
   }
 

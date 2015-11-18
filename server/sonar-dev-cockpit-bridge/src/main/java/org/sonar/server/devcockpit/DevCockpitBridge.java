@@ -19,6 +19,7 @@
  */
 package org.sonar.server.devcockpit;
 
+import java.util.List;
 import org.sonar.core.platform.ComponentContainer;
 
 /**
@@ -40,5 +41,10 @@ public interface DevCockpitBridge {
    * This method is called when Platform is shutting down.
    */
   void stopDevCockpit();
+
+  /**
+   * Return the list of components to add to the state-full container of a Compute Engine report analysis task
+   */
+  List<Object> getCeComponents();
 
 }

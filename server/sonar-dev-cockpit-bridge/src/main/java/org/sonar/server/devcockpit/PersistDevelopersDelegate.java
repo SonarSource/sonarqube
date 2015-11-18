@@ -17,16 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.container;
 
-import javax.annotation.Nullable;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.devcockpit.DevCockpitBridge;
+package org.sonar.server.devcockpit;
 
-public class ContainerFactoryImpl implements ContainerFactory {
-  @Override
-  public ComputeEngineContainer create(ComponentContainer parent, CeTask task, @Nullable DevCockpitBridge devCockpitBridge) {
-    return new ComputeEngineContainerImpl(parent, new ReportComputeEngineContainerPopulator(task, devCockpitBridge));
-  }
+/**
+ * This interface is used to delegate the persistence of developers to the Developer Cockpit plugin
+ */
+public interface PersistDevelopersDelegate {
+
+  void execute();
+
 }

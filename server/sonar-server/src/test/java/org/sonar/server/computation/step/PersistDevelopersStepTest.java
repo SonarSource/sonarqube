@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.container;
 
-import javax.annotation.Nullable;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.devcockpit.DevCockpitBridge;
+package org.sonar.server.computation.step;
 
-public class ContainerFactoryImpl implements ContainerFactory {
-  @Override
-  public ComputeEngineContainer create(ComponentContainer parent, CeTask task, @Nullable DevCockpitBridge devCockpitBridge) {
-    return new ComputeEngineContainerImpl(parent, new ReportComputeEngineContainerPopulator(task, devCockpitBridge));
+import org.junit.Test;
+import org.sonar.server.devcockpit.PersistDevelopersDelegate;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class PersistDevelopersStepTest {
+
+  PersistDevelopersDelegate persistDevelopersDelegate = mock(PersistDevelopersDelegate.class);
+
+  PersistDevelopersStep underTest = new PersistDevelopersStep(persistDevelopersDelegate);
+
+  @Test
+  public void execute_calls_delegate_execute() throws Exception {
+    underTest.execute();
+
+    verify(persistDevelopersDelegate).execute();
   }
 }

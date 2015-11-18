@@ -30,19 +30,25 @@ import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.step.ComputationStep;
+import org.sonar.server.computation.step.PersistComponentsStep;
+import org.sonar.server.computation.step.PersistDevelopersStep;
+import org.sonar.server.devcockpit.DevCockpitBridge;
+import org.sonar.server.devcockpit.PersistDevelopersDelegate;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.difference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ReportComputeEngineContainerPopulatorTest {
   private CeTask task = mock(CeTask.class);
-  private ReportComputeEngineContainerPopulator underTest = new ReportComputeEngineContainerPopulator(task);
+  private ReportComputeEngineContainerPopulator underTest;
 
   @Test
   public void item_is_added_to_the_container() {
+    underTest = new ReportComputeEngineContainerPopulator(task, null);
     AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
     underTest.populateContainer(container);
 
@@ -51,6 +57,7 @@ public class ReportComputeEngineContainerPopulatorTest {
 
   @Test
   public void all_computation_steps_are_added_in_order_to_the_container() {
+    underTest = new ReportComputeEngineContainerPopulator(task, null);
     AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
     underTest.populateContainer(container);
 
@@ -70,7 +77,52 @@ public class ReportComputeEngineContainerPopulatorTest {
       .transform(StepsExplorer.toCanonicalName())
       .toSet();
 
-    assertThat(difference(StepsExplorer.retrieveStepPackageStepsCanonicalNames(), computationStepClassNames)).isEmpty();
+    // PersistDevelopersStep is the only step that is not in the report container (it's only added when Dev Cockpit plugin is installed)
+    assertThat(difference(StepsExplorer.retrieveStepPackageStepsCanonicalNames(), computationStepClassNames)).containsOnly(PersistDevelopersStep.class.getCanonicalName());
+  }
+
+  @Test
+  public void at_least_one_core_step_is_added_to_the_container() {
+    underTest = new ReportComputeEngineContainerPopulator(task, null);
+    AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
+    underTest.populateContainer(container);
+
+    assertThat(container.added).contains(PersistComponentsStep.class);
+  }
+
+  @Test
+  public void PersistDevelopersStep_is_not_added_to_the_container_when_DevCockpitBridge_is_null() {
+    underTest = new ReportComputeEngineContainerPopulator(task, null);
+    AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
+    underTest.populateContainer(container);
+
+    assertThat(container.added).doesNotContain(PersistDevelopersStep.class);
+  }
+
+  @Test
+  public void PersistDevelopersStep_is_added_to_the_container_when_DevCockpitBridge_exist() {
+    DevCockpitBridge devCockpitBridge = mock(DevCockpitBridge.class);
+    when(devCockpitBridge.getCeComponents()).thenReturn(Arrays.<Object>asList(PersistDevelopersDelegateImpl.class));
+
+    underTest = new ReportComputeEngineContainerPopulator(task, devCockpitBridge);
+    AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
+    container.add(devCockpitBridge);
+    underTest.populateContainer(container);
+
+    assertThat(container.added).contains(PersistDevelopersStep.class);
+  }
+
+  @Test
+  public void components_from_DevCockpitBridge_are_added_to_the_container_when_DevCockpitBridge_exist() {
+    DevCockpitBridge devCockpitBridge = mock(DevCockpitBridge.class);
+    when(devCockpitBridge.getCeComponents()).thenReturn(Arrays.<Object>asList(PersistDevelopersDelegateImpl.class));
+
+    underTest = new ReportComputeEngineContainerPopulator(task, devCockpitBridge);
+    AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
+    container.add(devCockpitBridge);
+    underTest.populateContainer(container);
+
+    assertThat(container.added).contains(PersistDevelopersDelegateImpl.class);
   }
 
   private enum IsComputationStep implements Predicate<Class<?>> {
@@ -111,7 +163,19 @@ public class ReportComputeEngineContainerPopulatorTest {
 
     @Override
     public <T> T getComponentByType(Class<T> type) {
-      throw new UnsupportedOperationException("getComponentByType is not implemented");
+      for (Object add : added) {
+        if (add.getClass().getSimpleName().contains(type.getSimpleName())) {
+          return (T) add;
+        }
+      }
+      return null;
+    }
+  }
+
+  private static class PersistDevelopersDelegateImpl implements PersistDevelopersDelegate {
+    @Override
+    public void execute() {
+      // nothing to do
     }
   }
 }

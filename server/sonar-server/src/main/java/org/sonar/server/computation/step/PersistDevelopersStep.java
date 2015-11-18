@@ -17,16 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.container;
 
-import javax.annotation.Nullable;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.devcockpit.DevCockpitBridge;
+package org.sonar.server.computation.step;
 
-public class ContainerFactoryImpl implements ContainerFactory {
-  @Override
-  public ComputeEngineContainer create(ComponentContainer parent, CeTask task, @Nullable DevCockpitBridge devCockpitBridge) {
-    return new ComputeEngineContainerImpl(parent, new ReportComputeEngineContainerPopulator(task, devCockpitBridge));
+import org.sonar.server.devcockpit.PersistDevelopersDelegate;
+
+/**
+ * Persist developers, should only be execute when the Dev Cockpit plugin is installed.
+ */
+public class PersistDevelopersStep implements ComputationStep {
+
+  private final PersistDevelopersDelegate persistDevelopersDelegate;
+
+  public PersistDevelopersStep(PersistDevelopersDelegate persistDevelopersDelegate) {
+    this.persistDevelopersDelegate = persistDevelopersDelegate;
   }
+
+  @Override
+  public String getDescription() {
+    return "Persist developers";
+  }
+
+  @Override
+  public void execute() {
+    persistDevelopersDelegate.execute();
+  }
+
 }
