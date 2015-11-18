@@ -108,6 +108,8 @@ import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
+import org.sonar.server.devcockpit.bridge.DevCockpitBootstrap;
+import org.sonar.server.devcockpit.bridge.DevCockpitStopper;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
@@ -308,8 +310,8 @@ import org.sonar.server.view.bridge.ViewsStopper;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
-import org.sonar.server.ws.WebServicesWs;
 import org.sonar.server.ws.WebServiceEngine;
+import org.sonar.server.ws.WebServicesWs;
 import org.sonar.server.ws.WsResponseCommonFormat;
 
 public class PlatformLevel4 extends PlatformLevel {
@@ -711,6 +713,10 @@ public class PlatformLevel4 extends PlatformLevel {
       // Views plugin
       ViewsBootstrap.class,
       ViewsStopper.class,
+
+      // Developer Cockpit plugin
+      DevCockpitBootstrap.class,
+      DevCockpitStopper.class,
 
       // UI
       GlobalNavigationAction.class,
