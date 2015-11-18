@@ -30,6 +30,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.server.computation.component.Developer;
+import org.sonar.server.computation.component.DumbDeveloper;
 import org.sonar.server.computation.measure.Measure.ValueType;
 import org.sonar.server.util.WrapInSingleElementArray;
 
@@ -54,6 +56,7 @@ public class MeasureTest {
     );
   private static final int SOME_RULE_ID = 95236;
   private static final int SOME_CHARACTERISTIC_ID = 42;
+  private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   @Rule
   public final ExpectedException expectedException = ExpectedException.none();
@@ -140,6 +143,33 @@ public class MeasureTest {
   @Test
   public void getCharacteristicId_returns_id_set_in_builder() {
     assertThat(newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getCharacteristicId()).isEqualTo(SOME_CHARACTERISTIC_ID);
+  }
+
+  @Test
+  public void getDeveloper_returns_dev_set_in_builder() {
+    assertThat(newMeasureBuilder().forDeveloper(SOME_DEVELOPER).createNoValue().getDeveloper()).isEqualTo(SOME_DEVELOPER);
+  }
+
+  @Test
+  public void create_measure_for_dev_and_rule() {
+    Measure measure = newMeasureBuilder()
+      .forDeveloper(SOME_DEVELOPER)
+      .forRule(SOME_RULE_ID)
+      .createNoValue();
+    assertThat(measure.getDeveloper()).isEqualTo(SOME_DEVELOPER);
+    assertThat(measure.getRuleId()).isEqualTo(SOME_RULE_ID);
+    assertThat(measure.getCharacteristicId()).isNull();
+  }
+
+  @Test
+  public void create_measure_for_dev_and_characteristic() {
+    Measure measure = newMeasureBuilder()
+      .forDeveloper(SOME_DEVELOPER)
+      .forCharacteristic(SOME_CHARACTERISTIC_ID)
+      .createNoValue();
+    assertThat(measure.getDeveloper()).isEqualTo(SOME_DEVELOPER);
+    assertThat(measure.getCharacteristicId()).isEqualTo(SOME_CHARACTERISTIC_ID);
+    assertThat(measure.getRuleId()).isNull();
   }
 
   @Test(expected = NullPointerException.class)

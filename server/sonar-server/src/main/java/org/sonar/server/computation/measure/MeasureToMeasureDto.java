@@ -22,17 +22,25 @@ package org.sonar.server.computation.measure;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.Developer;
 import org.sonar.server.computation.metric.Metric;
 
-public enum MeasureToMeasureDto {
-  INSTANCE;
+public class MeasureToMeasureDto {
+
+  private final DbIdsRepository dbIdsRepository;
+
+  public MeasureToMeasureDto(DbIdsRepository dbIdsRepository) {
+    this.dbIdsRepository = dbIdsRepository;
+  }
 
   @Nonnull
-  public MeasureDto toMeasureDto(Measure measure, Metric metric, long componentId, long snapshotId) {
+  public MeasureDto toMeasureDto(Measure measure, Metric metric, Component component) {
     MeasureDto out = new MeasureDto();
     out.setMetricId(metric.getId());
-    out.setComponentId(componentId);
-    out.setSnapshotId(snapshotId);
+    out.setComponentId(dbIdsRepository.getComponentId(component));
+    out.setSnapshotId(dbIdsRepository.getSnapshotId(component));
     out.setCharacteristicId(measure.getCharacteristicId());
     out.setRuleId(measure.getRuleId());
     if (measure.hasVariations()) {
@@ -41,8 +49,10 @@ public enum MeasureToMeasureDto {
     if (measure.hasQualityGateStatus()) {
       setAlert(out, measure.getQualityGateStatus());
     }
-    // TODO persist personId if DevCockpit is reactivated
-//    out.setPersonId(measure.hasPersonId() ? measure.getPersonId() : null);
+    Developer developer = measure.getDeveloper();
+    if (developer != null) {
+      out.setDeveloperId(dbIdsRepository.getDeveloperId(developer));
+    }
     out.setDescription(measure.getDescription());
     out.setValue(valueAsDouble(measure));
     out.setData(data(measure));

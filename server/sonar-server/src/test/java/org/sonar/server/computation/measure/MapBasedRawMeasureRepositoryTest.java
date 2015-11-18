@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
@@ -42,6 +43,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.Developer;
+import org.sonar.server.computation.component.DumbDeveloper;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.debt.CharacteristicImpl;
@@ -49,6 +52,7 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.metric.ReportMetricValidator;
+import org.sonar.test.DbTests;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
@@ -60,6 +64,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
+@Category(DbTests.class)
 public class MapBasedRawMeasureRepositoryTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -69,13 +74,17 @@ public class MapBasedRawMeasureRepositoryTest {
   private static final String FILE_COMPONENT_KEY = "file cpt key";
   private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1).setKey(FILE_COMPONENT_KEY).build();
   private static final ReportComponent OTHER_COMPONENT = ReportComponent.builder(Component.Type.FILE, 2).setKey("some other key").build();
+
   private static final String METRIC_KEY_1 = "metric 1";
   private static final String METRIC_KEY_2 = "metric 2";
   private final Metric metric1 = mock(Metric.class);
   private final Metric metric2 = mock(Metric.class);
+
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
+
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
   private static final Characteristic SOME_CHARACTERISTIC = new CharacteristicImpl(741, "key", null);
+  private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
 
@@ -320,6 +329,45 @@ public class MapBasedRawMeasureRepositoryTest {
     Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
     assertThat(measures).hasSize(1);
     assertThat(measures.iterator().next()).isSameAs(characteristicMeasure);
+  }
+
+  @Test
+  public void getRawMeasures_for_metric_returns_developer_measure() {
+    Measure devMeasure = Measure.newMeasureBuilder().forDeveloper(SOME_DEVELOPER).createNoValue();
+
+    underTest.add(FILE_COMPONENT, metric1, devMeasure);
+
+    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
+    assertThat(measures).hasSize(1);
+    assertThat(measures.iterator().next()).isSameAs(devMeasure);
+  }
+
+  @Test
+  public void getRawMeasures_for_metric_returns_developer_with_rule_measure() {
+    Measure devMeasure = Measure.newMeasureBuilder()
+      .forDeveloper(SOME_DEVELOPER)
+      .forRule(SOME_RULE.getId())
+      .createNoValue();
+
+    underTest.add(FILE_COMPONENT, metric1, devMeasure);
+
+    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
+    assertThat(measures).hasSize(1);
+    assertThat(measures.iterator().next()).isSameAs(devMeasure);
+  }
+
+  @Test
+  public void getRawMeasures_for_metric_returns_developer_with_characteristic_measure() {
+    Measure devMeasure = Measure.newMeasureBuilder()
+      .forDeveloper(SOME_DEVELOPER)
+      .forCharacteristic(SOME_CHARACTERISTIC.getId())
+      .createNoValue();
+
+    underTest.add(FILE_COMPONENT, metric1, devMeasure);
+
+    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
+    assertThat(measures).hasSize(1);
+    assertThat(measures.iterator().next()).isSameAs(devMeasure);
   }
 
 }

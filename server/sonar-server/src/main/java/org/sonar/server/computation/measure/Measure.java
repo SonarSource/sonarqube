@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.server.computation.component.Developer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -76,6 +77,8 @@ public final class Measure {
   @CheckForNull
   private final Integer characteristicId;
   @CheckForNull
+  private final Developer developer;
+  @CheckForNull
   private final Double value;
   @CheckForNull
   private final String data;
@@ -88,13 +91,14 @@ public final class Measure {
   @CheckForNull
   private final MeasureVariations variations;
 
-  private Measure(ValueType valueType, @Nullable Integer ruleId, @Nullable Integer characteristicId,
+  private Measure(ValueType valueType, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer,
     @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
     @Nullable String description, @Nullable QualityGateStatus qualityGateStatus, @Nullable MeasureVariations variations) {
     checkArgument(value == null || !Double.isNaN(value), "Nan is not allowed as a Measure value");
     this.valueType = valueType;
     this.ruleId = ruleId;
     this.characteristicId = characteristicId;
+    this.developer = developer;
     this.value = scale(value);
     this.data = data;
     this.dataLevel = dataLevel;
@@ -125,6 +129,7 @@ public final class Measure {
 
     private Integer ruleId;
     private Integer characteristicId;
+    private Developer developer;
     private String description;
     private QualityGateStatus qualityGateStatus;
     private MeasureVariations variations;
@@ -160,6 +165,15 @@ public final class Measure {
     }
 
     /**
+     * Sets the developer this measure is associated to.
+     *
+     */
+    public NewMeasureBuilder forDeveloper(Developer developer) {
+      this.developer = developer;
+      return this;
+    }
+
+    /**
      * Sets the description of the measure
      *
      * @throws NullPointerException if the specified argument is {@code null}
@@ -180,7 +194,7 @@ public final class Measure {
     }
 
     public Measure create(boolean value, @Nullable String data) {
-      return new Measure(ValueType.BOOLEAN, ruleId, characteristicId, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.BOOLEAN, ruleId, characteristicId, developer, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(boolean value) {
@@ -188,7 +202,7 @@ public final class Measure {
     }
 
     public Measure create(int value, @Nullable String data) {
-      return new Measure(ValueType.INT, ruleId, characteristicId, (double) value, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.INT, ruleId, characteristicId, developer, (double) value, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(int value) {
@@ -196,7 +210,7 @@ public final class Measure {
     }
 
     public Measure create(long value, @Nullable String data) {
-      return new Measure(ValueType.LONG, ruleId, characteristicId, (double) value, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.LONG, ruleId, characteristicId, developer, (double) value, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(long value) {
@@ -204,7 +218,7 @@ public final class Measure {
     }
 
     public Measure create(double value, @Nullable String data) {
-      return new Measure(ValueType.DOUBLE, ruleId, characteristicId, value, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.DOUBLE, ruleId, characteristicId, developer, value, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(double value) {
@@ -212,15 +226,15 @@ public final class Measure {
     }
 
     public Measure create(String value) {
-      return new Measure(ValueType.STRING, ruleId, characteristicId, null, requireNonNull(value), null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.STRING, ruleId, characteristicId, developer, null, requireNonNull(value), null, description, qualityGateStatus, variations);
     }
 
     public Measure create(Level level) {
-      return new Measure(ValueType.LEVEL, ruleId, characteristicId, null, null, requireNonNull(level), description, qualityGateStatus, variations);
+      return new Measure(ValueType.LEVEL, ruleId, characteristicId, developer, null, null, requireNonNull(level), description, qualityGateStatus, variations);
     }
 
     public Measure createNoValue() {
-      return new Measure(ValueType.NO_VALUE, ruleId, characteristicId, null, null, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.NO_VALUE, ruleId, characteristicId, developer, null, null, null, description, qualityGateStatus, variations);
     }
   }
 
@@ -262,11 +276,11 @@ public final class Measure {
     }
 
     public Measure create() {
-      return new Measure(source.valueType, source.ruleId, source.characteristicId,
-          source.value, source.data, source.dataLevel,
-          source.description,
-          source.qualityGateStatus == null ? qualityGateStatus : source.qualityGateStatus,
-          source.variations == null ? variations : source.variations);
+      return new Measure(source.valueType, source.ruleId, source.characteristicId, source.developer,
+        source.value, source.data, source.dataLevel,
+        source.description,
+        source.qualityGateStatus == null ? qualityGateStatus : source.qualityGateStatus,
+        source.variations == null ? variations : source.variations);
     }
   }
 
@@ -278,6 +292,11 @@ public final class Measure {
   @CheckForNull
   public Integer getCharacteristicId() {
     return characteristicId;
+  }
+
+  @CheckForNull
+  public Developer getDeveloper() {
+    return developer;
   }
 
   /**
@@ -425,12 +444,13 @@ public final class Measure {
     }
     Measure measure = (Measure) o;
     return Objects.equals(ruleId, measure.ruleId) &&
-      Objects.equals(characteristicId, measure.characteristicId);
+      Objects.equals(characteristicId, measure.characteristicId) &&
+      Objects.equals(developer, measure.developer);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ruleId, characteristicId);
+    return Objects.hash(ruleId, characteristicId, developer);
   }
 
   @Override
@@ -439,6 +459,7 @@ public final class Measure {
       .add("valueType", valueType)
       .add("ruleId", ruleId)
       .add("characteristicId", characteristicId)
+      .add("developer", developer)
       .add("value", value)
       .add("data", data)
       .add("dataLevel", dataLevel)

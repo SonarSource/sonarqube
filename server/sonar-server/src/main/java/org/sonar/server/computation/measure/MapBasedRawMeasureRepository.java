@@ -30,9 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -67,7 +65,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     requireNonNull(component);
     requireNonNull(metric);
 
-    return find(component, metric, null, null);
+    return find(component, metric);
   }
 
   @Override
@@ -149,13 +147,13 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     return builder.build();
   }
 
-  private Optional<Measure> find(Component component, Metric metric, @Nullable RuleDto rule, @Nullable Characteristic characteristic) {
+  private Optional<Measure> find(Component component, Metric metric) {
     T componentKey = componentToKey.apply(component);
     Map<MeasureKey, Measure> measuresPerMetric = measures.get(componentKey);
     if (measuresPerMetric == null) {
       return Optional.absent();
     }
-    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), rule, characteristic)));
+    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), (Integer) null, null, null)));
   }
 
   private Optional<Measure> find(Component component, Metric metric, Measure measure) {
@@ -164,7 +162,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (measuresPerMetric == null) {
       return Optional.absent();
     }
-    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId())));
+    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId(), measure.getDeveloper())));
   }
 
   public void add(Component component, Metric metric, Measure measure, OverridePolicy overridePolicy) {
@@ -179,7 +177,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
       measuresPerMetric = new HashMap<>();
       measures.put(componentKey, measuresPerMetric);
     }
-    MeasureKey key = new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
+    MeasureKey key = new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId(), measure.getDeveloper());
     if (!measuresPerMetric.containsKey(key) || overridePolicy == OverridePolicy.OVERRIDE) {
       measuresPerMetric.put(key, measure);
     }

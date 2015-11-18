@@ -21,10 +21,10 @@
 package org.sonar.server.computation.measure;
 
 import java.util.Objects;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.server.computation.debt.Characteristic;
+import org.sonar.server.computation.component.Developer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -36,8 +36,10 @@ public final class MeasureKey {
   private final String metricKey;
   private final int ruleId;
   private final int characteristicId;
+  @CheckForNull
+  private final Developer developer;
 
-  public MeasureKey(String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId) {
+  public MeasureKey(String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer) {
     // defensive code in case we badly chose the default value, we want to know it right away!
     checkArgument(ruleId == null || ruleId != DEFAULT_INT_VALUE, "Unsupported rule id");
     checkArgument(characteristicId == null || characteristicId != DEFAULT_INT_VALUE, "Unsupported characteristic id");
@@ -45,10 +47,7 @@ public final class MeasureKey {
     this.metricKey = requireNonNull(metricKey, "MetricKey can not be null");
     this.ruleId = ruleId == null ? DEFAULT_INT_VALUE : ruleId;
     this.characteristicId = characteristicId == null ? DEFAULT_INT_VALUE : characteristicId;
-  }
-
-  public MeasureKey(String key, @Nullable RuleDto rule, @Nullable Characteristic characteristic) {
-    this(key, rule == null ? null : rule.getId(), characteristic == null ? null : characteristic.getId());
+    this.developer = developer;
   }
 
   public int getCharacteristicId() {
@@ -63,6 +62,11 @@ public final class MeasureKey {
     return ruleId;
   }
 
+  @CheckForNull
+  public Developer getDevelope() {
+    return developer;
+  }
+
   @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
@@ -74,7 +78,8 @@ public final class MeasureKey {
     MeasureKey that = (MeasureKey) o;
     return metricKey.equals(that.metricKey)
       && ruleId == that.ruleId
-      && characteristicId == that.characteristicId;
+      && characteristicId == that.characteristicId
+      && developer == that.developer;
   }
 
   @Override
@@ -88,6 +93,7 @@ public final class MeasureKey {
       "metricKey='" + metricKey + '\'' +
       ", ruleId=" + ruleId +
       ", characteristicId=" + characteristicId +
+      ", developer=" + developer +
       '}';
   }
 }

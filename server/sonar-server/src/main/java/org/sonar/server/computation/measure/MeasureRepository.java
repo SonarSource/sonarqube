@@ -47,14 +47,14 @@ public interface MeasureRepository {
   /**
    * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified
    * {@link Metric} if it exists (ie. one created by the Compute Engine or the Batch) and which is <strong>not</strong>
-   * associated to a rule nor a characteristic.
+   * associated to a rule, a characteristic, or a developer.
    */
   Optional<Measure> getRawMeasure(Component component, Metric metric);
 
   /**
    * Returns the {@link Measure}s for the specified {@link Component} and the specified {@link Metric}.
    * <p>
-   * Their will be one measure not associated to rules or characteristics, the other ones will be associated to rules or to characteristics
+   * Their will be one measure not associated to rules, characteristics or developers, the other ones will be associated to rules or to characteristics
    * (see {@link Measure#equals(Object)}.
    * </p>
    */

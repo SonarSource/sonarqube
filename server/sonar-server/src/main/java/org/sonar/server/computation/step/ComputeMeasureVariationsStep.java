@@ -71,7 +71,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     @Override
     public MeasureKey apply(@Nonnull PastMeasureDto input) {
       Metric metric = metricRepository.getById(input.getMetricId());
-      return new MeasureKey(metric.getKey(), input.getCharacteristicId(), input.getRuleId());
+      return new MeasureKey(metric.getKey(), input.getCharacteristicId(), input.getRuleId(), null);
     }
   };
 
@@ -146,7 +146,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
       for (Map.Entry<String, Measure> entry : measureRepository.getRawMeasures(component).entries()) {
         String metricKey = entry.getKey();
         Measure measure = entry.getValue();
-        PastMeasureDto pastMeasure = pastMeasuresByMeasureKey.get(new MeasureKey(metricKey, measure.getCharacteristicId(), measure.getRuleId()));
+        PastMeasureDto pastMeasure = pastMeasuresByMeasureKey.get(new MeasureKey(metricKey, measure.getCharacteristicId(), measure.getRuleId(), null));
         if (pastMeasure != null && pastMeasure.hasValue()) {
           Metric metric = metricByKeys.get(metricKey);
           measuresWithVariationRepository.add(metric, measure, period, computeVariation(measure, pastMeasure.getValue()));
@@ -175,7 +175,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     private final Map<MeasureKey, MeasureWithVariations> measuresWithVariations = new HashMap<>();
 
     public void add(Metric metric, final Measure measure, int variationIndex, double variationValue) {
-      MeasureKey measureKey = new MeasureKey(metric.getKey(), measure.getCharacteristicId(), measure.getRuleId());
+      MeasureKey measureKey = new MeasureKey(metric.getKey(), measure.getCharacteristicId(), measure.getRuleId(), null);
       MeasureWithVariations measureWithVariations = measuresWithVariations.get(measureKey);
       if (measureWithVariations == null) {
         measureWithVariations = new MeasureWithVariations(metric, measure);
