@@ -23,16 +23,21 @@ import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 
 public class CommonRulesTest extends AbstractIssueTest {
 
   public static final String FILE_KEY = "common-rules-project:src/Sample.xoo";
   public static final String TEST_FILE_KEY = "common-rules-project:test/SampleTest.xoo";
+
+  private static WsClient adminWsClient;
 
   @BeforeClass
   public static void setUp() {
@@ -43,6 +48,8 @@ public class CommonRulesTest extends AbstractIssueTest {
     runProjectAnalysis(ORCHESTRATOR, "issue/common-rules",
       "sonar.cpd.xoo.minimumTokens", "2",
       "sonar.cpd.xoo.minimumLines", "2");
+
+    adminWsClient = newAdminWsClient(ORCHESTRATOR);
   }
 
   @Test
@@ -79,6 +86,10 @@ public class CommonRulesTest extends AbstractIssueTest {
   }
 
   private List<Issue> findIssues(String componentKey, String ruleKey) {
-    return searchIssues(IssueQuery.create().components(componentKey).rules(ruleKey));
+    return adminWsClient.issuesWsClient().search(
+      new SearchWsRequest()
+        .setComponents(singletonList(componentKey))
+        .setRules(singletonList(ruleKey)))
+      .getIssuesList();
   }
 }

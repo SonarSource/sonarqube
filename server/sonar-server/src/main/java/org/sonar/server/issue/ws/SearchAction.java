@@ -43,22 +43,55 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.ACTION_PLANS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASC;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNED;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNEES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.AUTHORS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_ROOTS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_ROOT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AFTER;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AT;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_BEFORE;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.DIRECTORIES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.FILE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.ISSUES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.LANGUAGES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.MODULE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.ON_COMPONENT_ONLY;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.PLANNED;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECTS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECT_KEYS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.REPORTERS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLUTIONS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLVED;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.RULES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.STATUSES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.TAGS;
 
 public class SearchAction implements IssuesWsAction {
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
-  public static final String ADDITIONAL_FIELDS = "additionalFields";
   public static final String SEARCH_ACTION = "search";
 
   private final UserSession userSession;
@@ -95,7 +128,7 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Choose the returned value for facet items, either count of issues or sum of debt.")
       .setPossibleValues(IssueFilterParameters.FACET_MODE_COUNT, IssueFilterParameters.FACET_MODE_DEBT);
     action.addSortParams(IssueQuery.SORTS, null, true);
-    action.createParam(ADDITIONAL_FIELDS)
+    action.createParam(IssueFilterParameters.ADDITIONAL_FIELDS)
       .setSince("5.2")
       .setDescription("Comma-separated list of the optional fields to be returned in response.")
       .setPossibleValues(SearchAdditionalField.possibleValues());
@@ -124,7 +157,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(IssueFilterParameters.TAGS)
       .setDescription("Comma-separated list of tags.")
       .setExampleValue("security,convention");
-    action.createParam(IssueFilterParameters.ACTION_PLANS)
+    action.createParam(ACTION_PLANS)
       .setDescription("Comma-separated list of action plan keys (not names)")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
     action.createParam(IssueFilterParameters.PLANNED)
@@ -227,10 +260,15 @@ public class SearchAction implements IssuesWsAction {
 
   @Override
   public final void handle(Request request, Response response) throws Exception {
+    SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(request), request);
+    writeProtobuf(searchWsResponse, request, response);
+  }
+
+  private SearchWsResponse doHandle(SearchWsRequest request, Request wsRequest) {
     // prepare the Elasticsearch request
     SearchOptions options = new SearchOptions();
-    options.setPage(request.mandatoryParamAsInt(Param.PAGE), request.mandatoryParamAsInt(Param.PAGE_SIZE));
-    options.addFacets(request.paramAsStrings(Param.FACETS));
+    options.setPage(request.getPage(), request.getPageSize());
+    options.addFacets(request.getFacets());
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
     IssueQuery query = issueQueryService.createFromRequest(request);
 
@@ -248,7 +286,7 @@ public class SearchAction implements IssuesWsAction {
       // add missing values to facets. For example if assignee "john" and facet on "assignees" are requested, then
       // "john" should always be listed in the facet. If it is not present, then it is added with value zero.
       // This is a constraint from webapp UX.
-      completeFacets(facets, options, request);
+      completeFacets(facets, request, wsRequest);
       collectFacets(collector, facets);
     }
     SearchResponseData data = searchResponseLoader.load(collector, facets);
@@ -262,8 +300,8 @@ public class SearchAction implements IssuesWsAction {
 
     // FIXME allow long in Paging
     Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getTotal());
-    Issues.Search responseBody = searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
-    WsUtils.writeProtobuf(responseBody, request, response);
+
+    return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
 
   private Facets reorderFacets(@Nullable Facets facets, Collection<String> orderedNames) {
@@ -280,37 +318,37 @@ public class SearchAction implements IssuesWsAction {
     return new Facets(orderedFacets);
   }
 
-  private void completeFacets(Facets facets, SearchOptions options, Request request) {
+  private void completeFacets(Facets facets, SearchWsRequest request, Request wsRequest) {
     addMandatoryValuesToFacet(facets, IssueFilterParameters.SEVERITIES, Severity.ALL);
     addMandatoryValuesToFacet(facets, IssueFilterParameters.STATUSES, Issue.STATUSES);
     addMandatoryValuesToFacet(facets, IssueFilterParameters.RESOLUTIONS, concat(singletonList(""), Issue.RESOLUTIONS));
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.PROJECT_UUIDS, request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS));
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.PROJECT_UUIDS, request.getProjectUuids());
 
     List<String> assignees = Lists.newArrayList("");
-    List<String> assigneesFromRequest = request.paramAsStrings(IssueFilterParameters.ASSIGNEES);
+    List<String> assigneesFromRequest = request.getAssignees();
     if (assigneesFromRequest != null) {
       assignees.addAll(assigneesFromRequest);
       assignees.remove(IssueQueryService.LOGIN_MYSELF);
     }
     addMandatoryValuesToFacet(facets, IssueFilterParameters.ASSIGNEES, assignees);
     addMandatoryValuesToFacet(facets, IssueFilterParameters.FACET_ASSIGNED_TO_ME, singletonList(userSession.getLogin()));
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.TAGS, request.paramAsStrings(IssueFilterParameters.TAGS));
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.REPORTERS, request.getReporters());
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.RULES, request.getRules());
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.LANGUAGES, request.getLanguages());
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.TAGS, request.getTags());
     List<String> actionPlans = Lists.newArrayList("");
-    List<String> actionPlansFromRequest = request.paramAsStrings(IssueFilterParameters.ACTION_PLANS);
+    List<String> actionPlansFromRequest = request.getActionPlans();
     if (actionPlansFromRequest != null) {
       actionPlans.addAll(actionPlansFromRequest);
     }
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.ACTION_PLANS, actionPlans);
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.COMPONENT_UUIDS, request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS));
+    addMandatoryValuesToFacet(facets, ACTION_PLANS, actionPlans);
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.COMPONENT_UUIDS, request.getComponentUuids());
 
-    for (String facetName : options.getFacets()) {
+    for (String facetName : request.getFacets()) {
       LinkedHashMap<String, Long> buckets = facets.get(facetName);
       if (!IssueFilterParameters.FACET_ASSIGNED_TO_ME.equals(facetName)) {
         if (buckets != null) {
-          List<String> requestParams = request.paramAsStrings(facetName);
+          List<String> requestParams = wsRequest.paramAsStrings(facetName);
           if (requestParams != null) {
             for (String param : requestParams) {
               if (!buckets.containsKey(param) && !IssueQueryService.LOGIN_MYSELF.equals(param)) {
@@ -352,21 +390,63 @@ public class SearchAction implements IssuesWsAction {
     collector.addComponentUuids(facets.getBucketKeys(IssueFilterParameters.MODULE_UUIDS));
     collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(IssueFilterParameters.ASSIGNEES));
     collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(IssueFilterParameters.REPORTERS));
-    collector.addAll(SearchAdditionalField.ACTION_PLANS, facets.getBucketKeys(IssueFilterParameters.ACTION_PLANS));
+    collector.addAll(SearchAdditionalField.ACTION_PLANS, facets.getBucketKeys(ACTION_PLANS));
   }
 
-  private void collectRequestParams(SearchResponseLoader.Collector collector, Request request) {
-    collector.addProjectUuids(request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS));
-    collector.addComponentUuids(request.paramAsStrings(IssueFilterParameters.FILE_UUIDS));
-    collector.addComponentUuids(request.paramAsStrings(IssueFilterParameters.MODULE_UUIDS));
-    collector.addComponentUuids(request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOT_UUIDS));
-    collector.addAll(SearchAdditionalField.USERS, request.paramAsStrings(IssueFilterParameters.ASSIGNEES));
-    collector.addAll(SearchAdditionalField.USERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
-    collector.addAll(SearchAdditionalField.ACTION_PLANS, request.paramAsStrings(IssueFilterParameters.ACTION_PLANS));
+  private void collectRequestParams(SearchResponseLoader.Collector collector, SearchWsRequest request) {
+    collector.addProjectUuids(request.getProjectUuids());
+    collector.addComponentUuids(request.getFileUuids());
+    collector.addComponentUuids(request.getModuleUuids());
+    collector.addComponentUuids(request.getComponentRootUuids());
+    collector.addAll(SearchAdditionalField.USERS, request.getAssignees());
+    collector.addAll(SearchAdditionalField.USERS, request.getReporters());
+    collector.addAll(SearchAdditionalField.ACTION_PLANS, request.getActionPlans());
+  }
+
+  private static SearchWsRequest toSearchWsRequest(Request request) {
+    return new SearchWsRequest()
+      .setActionPlans(request.paramAsStrings(ACTION_PLANS))
+      .setAdditionalFields(request.paramAsStrings(ADDITIONAL_FIELDS))
+      .setAsc(request.paramAsBoolean(ASC))
+      .setAssigned(request.paramAsBoolean(ASSIGNED))
+      .setAssignees(request.paramAsStrings(ASSIGNEES))
+      .setAuthors(request.paramAsStrings(AUTHORS))
+      .setComponentKeys(request.paramAsStrings(COMPONENT_KEYS))
+      .setComponentRootUuids(request.paramAsStrings(COMPONENT_ROOT_UUIDS))
+      .setComponentRoots(request.paramAsStrings(COMPONENT_ROOTS))
+      .setComponentUuids(request.paramAsStrings(COMPONENT_UUIDS))
+      .setComponents(request.paramAsStrings(COMPONENTS))
+      .setCreatedAfter(request.param(CREATED_AFTER))
+      .setCreatedAt(request.param(CREATED_AT))
+      .setCreatedBefore(request.param(CREATED_BEFORE))
+      .setCreatedInLast(request.param(CREATED_IN_LAST))
+      .setDirectories(request.paramAsStrings(DIRECTORIES))
+      .setFacetMode(request.mandatoryParam(FACET_MODE))
+      .setFacets(request.paramAsStrings(Param.FACETS))
+      .setFileUuids(request.paramAsStrings(FILE_UUIDS))
+      .setIssues(request.paramAsStrings(ISSUES))
+      .setLanguages(request.paramAsStrings(LANGUAGES))
+      .setModuleUuids(request.paramAsStrings(MODULE_UUIDS))
+      .setOnComponentOnly(request.paramAsBoolean(ON_COMPONENT_ONLY))
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+      .setPlanned(request.paramAsBoolean(PLANNED))
+      .setProjectKeys(request.paramAsStrings(PROJECT_KEYS))
+      .setProjectUuids(request.paramAsStrings(PROJECT_UUIDS))
+      .setProjects(request.paramAsStrings(PROJECTS))
+      .setReporters(request.paramAsStrings(REPORTERS))
+      .setResolutions(request.paramAsStrings(RESOLUTIONS))
+      .setResolved(request.paramAsBoolean(RESOLVED))
+      .setRules(request.paramAsStrings(RULES))
+      .setSort(request.param(Param.SORT))
+      .setSeverities(request.paramAsStrings(SEVERITIES))
+      .setStatuses(request.paramAsStrings(STATUSES))
+      .setTags(request.paramAsStrings(TAGS));
   }
 
   private enum IssueDocToKey implements Function<IssueDoc, String> {
     INSTANCE;
+
     @Override
     public String apply(IssueDoc input) {
       return input.key();

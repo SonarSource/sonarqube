@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.server.ws.Request;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 public enum SearchAdditionalField {
 
@@ -66,8 +66,8 @@ public enum SearchAdditionalField {
     return possibles;
   }
 
-  public static EnumSet<SearchAdditionalField> getFromRequest(Request request) {
-    List<String> labels = request.paramAsStrings(SearchAction.ADDITIONAL_FIELDS);
+  public static EnumSet<SearchAdditionalField> getFromRequest(SearchWsRequest request) {
+    List<String> labels = request.getAdditionalFields();
     if (labels == null) {
       return EnumSet.noneOf(SearchAdditionalField.class);
     }

@@ -47,7 +47,7 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.filter.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
@@ -336,7 +336,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(SearchAction.ADDITIONAL_FIELDS, "_all").execute();
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.ADDITIONAL_FIELDS, "_all").execute();
     result.assertJson(this.getClass(), "components_contains_sub_projects.json");
   }
 

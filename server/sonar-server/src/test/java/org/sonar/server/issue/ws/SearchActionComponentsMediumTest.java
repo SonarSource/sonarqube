@@ -42,7 +42,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.filter.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
@@ -134,7 +134,7 @@ public class SearchActionComponentsMediumTest {
     TestResponse response = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
-    Issues.Search searchResponse = Issues.Search.parseFrom(response.getInputStream());
+    Issues.SearchWsResponse searchResponse = Issues.SearchWsResponse.parseFrom(response.getInputStream());
     assertThat(searchResponse.getIssuesCount()).isEqualTo(2);
 
     for (Issues.Issue issue : searchResponse.getIssuesList()) {

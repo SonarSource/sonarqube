@@ -43,8 +43,8 @@ import org.joda.time.format.ISOPeriodFormat;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.rule.RuleKeyFunctions;
@@ -52,9 +52,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.db.component.ComponentDtoFunctions.toCopyResourceId;
@@ -156,51 +157,52 @@ public class IssueQueryService {
     return actualCreatedAfter;
   }
 
-  public IssueQuery createFromRequest(Request request) {
+  public IssueQuery createFromRequest(SearchWsRequest request) {
     DbSession session = dbClient.openSession(false);
     try {
       IssueQuery.Builder builder = IssueQuery.builder(userSession)
-        .issueKeys(request.paramAsStrings(IssueFilterParameters.ISSUES))
-        .severities(request.paramAsStrings(IssueFilterParameters.SEVERITIES))
-        .statuses(request.paramAsStrings(IssueFilterParameters.STATUSES))
-        .resolutions(request.paramAsStrings(IssueFilterParameters.RESOLUTIONS))
-        .resolved(request.paramAsBoolean(IssueFilterParameters.RESOLVED))
-        .rules(stringsToRules(request.paramAsStrings(IssueFilterParameters.RULES)))
-        .actionPlans(request.paramAsStrings(IssueFilterParameters.ACTION_PLANS))
-        .reporters(request.paramAsStrings(IssueFilterParameters.REPORTERS))
-        .assignees(buildAssignees(request.paramAsStrings(IssueFilterParameters.ASSIGNEES)))
-        .languages(request.paramAsStrings(IssueFilterParameters.LANGUAGES))
-        .tags(request.paramAsStrings(IssueFilterParameters.TAGS))
-        .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
-        .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
-        .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
-        .createdAfter(buildCreatedAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER), request.param(IssueFilterParameters.CREATED_IN_LAST)))
-        .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
-        .facetMode(request.mandatoryParam(IssueFilterParameters.FACET_MODE));
+        .issueKeys(request.getIssues())
+        .severities(request.getSeverities())
+        .statuses(request.getStatuses())
+        .resolutions(request.getResolutions())
+        .resolved(request.getResolved())
+        .rules(stringsToRules(request.getRules()))
+        .actionPlans(request.getActionPlans())
+        .reporters(request.getReporters())
+        .assignees(buildAssignees(request.getAssignees()))
+        .languages(request.getLanguages())
+        .tags(request.getTags())
+        .assigned(request.getAssigned())
+        .planned(request.getPlanned())
+        .createdAt(parseAsDateTime(request.getCreatedAt()))
+        .createdAfter(buildCreatedAfter(parseAsDateTime(request.getCreatedAfter()), request.getCreatedInLast()))
+        .createdBefore(parseAsDateTime(request.getCreatedBefore()))
+        .facetMode(request.getFacetMode());
 
       Set<String> allComponentUuids = Sets.newHashSet();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(session,
-        request.paramAsBoolean(IssueFilterParameters.ON_COMPONENT_ONLY),
-        request.paramAsStrings(IssueFilterParameters.COMPONENTS),
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS),
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_KEYS),
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOT_UUIDS),
-        request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS),
+        request.getOnComponentOnly(),
+        request.getComponents(),
+        request.getComponentUuids(),
+        request.getComponentKeys(),
+        request.getComponentRootUuids(),
+        request.getComponentRoots(),
         allComponentUuids);
 
       addComponentParameters(builder, session,
         effectiveOnComponentOnly,
         allComponentUuids,
-        request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS), request.paramAsStrings(IssueFilterParameters.PROJECT_KEYS),
-        request.paramAsStrings(IssueFilterParameters.MODULE_UUIDS),
-        request.paramAsStrings(IssueFilterParameters.DIRECTORIES),
-        request.paramAsStrings(IssueFilterParameters.FILE_UUIDS),
-        request.paramAsStrings(IssueFilterParameters.AUTHORS));
+        request.getProjectUuids(),
+        request.getProjectKeys(),
+        request.getModuleUuids(),
+        request.getDirectories(),
+        request.getFileUuids(),
+        request.getAuthors());
 
-      String sort = request.param(WebService.Param.SORT);
+      String sort = request.getSort();
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
-        builder.asc(request.paramAsBoolean(WebService.Param.ASCENDING));
+        builder.asc(request.getAsc());
       }
       return builder.build();
 
@@ -406,6 +408,22 @@ public class IssueQueryService {
   private static Collection<RuleKey> stringsToRules(@Nullable Collection<String> rules) {
     if (rules != null) {
       return newArrayList(Iterables.transform(rules, RuleKeyFunctions.stringToRuleKey()));
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private static Date parseAsDateTime(@Nullable String stringDate) {
+    if (stringDate != null) {
+      try {
+        return DateUtils.parseDateTime(stringDate);
+      } catch (SonarException notDateTime) {
+        try {
+          return DateUtils.parseDate(stringDate);
+        } catch (SonarException notDateEither) {
+          throw new SonarException(String.format("'%s' cannot be parsed as either a date or date+time", stringDate));
+        }
+      }
     }
     return null;
   }

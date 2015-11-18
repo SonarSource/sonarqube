@@ -47,6 +47,7 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
 

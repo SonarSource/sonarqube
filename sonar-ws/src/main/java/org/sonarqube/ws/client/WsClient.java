@@ -23,7 +23,10 @@ package org.sonarqube.ws.client;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
+import org.sonarqube.ws.client.component.ComponentsWsClient;
+import org.sonarqube.ws.client.issue.IssuesWsClient;
 import org.sonarqube.ws.client.permission.PermissionsWsClient;
+import org.sonarqube.ws.client.qualityprofile.QualityProfilesWsClient;
 
 import static org.sonarqube.ws.client.WsRequest.MediaType.PROTOBUF;
 
@@ -42,10 +45,16 @@ public class WsClient {
   @VisibleForTesting
   final WsConnector wsConnector;
   private final PermissionsWsClient permissionsWsClient;
+  private final ComponentsWsClient componentsWsClient;
+  private final QualityProfilesWsClient qualityProfilesWsClient;
+  private final IssuesWsClient issuesWsClient;
 
   public WsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
     this.permissionsWsClient = new PermissionsWsClient(this);
+    this.componentsWsClient = new ComponentsWsClient(this);
+    this.qualityProfilesWsClient = new QualityProfilesWsClient(this);
+    this.issuesWsClient = new IssuesWsClient(this);
   }
 
   public String execute(WsRequest wsRequest) {
@@ -58,5 +67,17 @@ public class WsClient {
 
   public PermissionsWsClient permissionsClient() {
     return this.permissionsWsClient;
+  }
+
+  public ComponentsWsClient componentsWsClient() {
+    return componentsWsClient;
+  }
+
+  public QualityProfilesWsClient qualityProfilesWsClient() {
+    return qualityProfilesWsClient;
+  }
+
+  public IssuesWsClient issuesWsClient() {
+    return issuesWsClient;
   }
 }

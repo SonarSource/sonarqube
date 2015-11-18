@@ -30,7 +30,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.issue.filter.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import java.util.Map;
 

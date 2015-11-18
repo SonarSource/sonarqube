@@ -49,7 +49,7 @@ import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
-import org.sonar.server.issue.filter.IssueFilterParameters;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
