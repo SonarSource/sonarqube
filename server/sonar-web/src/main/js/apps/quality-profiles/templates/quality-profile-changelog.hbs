@@ -58,6 +58,9 @@
 
 {{else}}
   {{#notNull totalEvents}}
-    <div class="alert alert-info">{{t 'quality_profiles.changelog.empty'}}</div>
+    <div class="alert alert-info">
+      {{t 'quality_profiles.changelog.empty'}}
+      <a class="js-hide-changelog spacer-left" href="#">{{t 'hide'}}</a>
+    </div>
   {{/notNull}}
 {{/notEmpty}}
