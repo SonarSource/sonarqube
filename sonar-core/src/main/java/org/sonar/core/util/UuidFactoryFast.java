@@ -19,14 +19,17 @@
  */
 package org.sonar.core.util;
 
+import java.security.SecureRandom;
+
 /**
  * NOT thread safe
  * About 10x faster than {@link UuidFactoryImpl}
+ * It does not take into account the MAC address to calculate the ids, so it is machine-independent.
  */
 public class UuidFactoryFast implements UuidFactory {
   private static UuidFactoryFast instance = new UuidFactoryFast();
   private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-  private static int sequenceNumber = 0;
+  private static int sequenceNumber = new SecureRandom().nextInt();
 
   private UuidFactoryFast() {
     //
