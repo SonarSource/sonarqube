@@ -20,78 +20,28 @@
 package org.sonar.db.user;
 
 import com.google.common.base.Function;
-import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.db.MyBatis;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
+import org.sonar.db.DbSession;
 
 /**
  * Be careful when updating this class because it's used by the Dev Cockpit plugin.
  */
 public class AuthorDao implements Dao {
 
-  private final MyBatis mybatis;
-  private final ResourceDao resourceDao;
-
-  public AuthorDao(MyBatis mybatis, ResourceDao resourceDao) {
-    this.mybatis = mybatis;
-    this.resourceDao = resourceDao;
+  public AuthorDto selectByLogin(DbSession session, String login) {
+    return getMapper(session).selectByLogin(login);
   }
 
-  public AuthorDto selectByLogin(String login) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      AuthorMapper mapper = session.getMapper(AuthorMapper.class);
-      return mapper.selectByLogin(login);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public int countDeveloperLogins(DbSession session, long developerId) {
+    return getMapper(session).countDeveloperLogins(developerId);
   }
 
-  public int countDeveloperLogins(long developerId) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      AuthorMapper mapper = session.getMapper(AuthorMapper.class);
-      return mapper.countDeveloperLogins(developerId);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void insertAuthor(String login, long personId) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      insertAuthor(login, personId, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void insertAuthorAndDeveloper(String login, ResourceDto resourceDto) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      // Hack in order to set the right module uuid path on DEVs
-      if (Strings.isNullOrEmpty(resourceDto.getModuleUuidPath())) {
-        resourceDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + resourceDto.getUuid() + ComponentDto.MODULE_UUID_PATH_SEP);
-      }
-      resourceDao.insertUsingExistingSession(resourceDto, session);
-      insertAuthor(login, resourceDto.getId(), session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private void insertAuthor(String login, long personId, SqlSession session) {
-    AuthorMapper authorMapper = session.getMapper(AuthorMapper.class);
+  public void insertAuthor(DbSession session, String login, long personId) {
     Date now = new Date();
     AuthorDto authorDto = new AuthorDto()
       .setLogin(login)
@@ -99,15 +49,19 @@ public class AuthorDao implements Dao {
       .setCreatedAt(now)
       .setUpdatedAt(now);
 
-    authorMapper.insert(authorDto);
+    getMapper(session).insert(authorDto);
   }
 
-  public List<String> selectScmAccountsByDeveloperUuids(final SqlSession session, Collection<String> developerUuids) {
+  public List<String> selectScmAccountsByDeveloperUuids(final DbSession session, Collection<String> developerUuids) {
     return DatabaseUtils.executeLargeInputs(developerUuids, new Function<List<String>, List<String>>() {
       @Override
       public List<String> apply(List<String> partition) {
-        return session.getMapper(AuthorMapper.class).selectScmAccountsByDeveloperUuids(partition);
+        return getMapper(session).selectScmAccountsByDeveloperUuids(partition);
       }
     });
+  }
+
+  private AuthorMapper getMapper(SqlSession session) {
+    return session.getMapper(AuthorMapper.class);
   }
 }

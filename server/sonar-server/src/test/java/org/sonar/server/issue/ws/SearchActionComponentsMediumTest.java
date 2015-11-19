@@ -522,8 +522,8 @@ public class SearchActionComponentsMediumTest {
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("FK1"));
     ComponentDto developer = insertComponent(ComponentTesting.newDeveloper("Anakin Skywalker"));
-    db.authorDao().insertAuthor("vader", developer.getId());
-    db.authorDao().insertAuthor("anakin@skywalker.name", developer.getId());
+    db.authorDao().insertAuthor(session, "vader", developer.getId());
+    db.authorDao().insertAuthor(session, "anakin@skywalker.name", developer.getId());
     RuleDto newRule = newRule();
     IssueDto issue1 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("vader").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2");
     IssueDto issue2 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("anakin@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4");
@@ -552,8 +552,8 @@ public class SearchActionComponentsMediumTest {
     ComponentDto technicalProject = insertComponent(ComponentTesting.newDevProjectCopy("COPY_P1", project, developer));
     insertComponent(ComponentTesting.newDevProjectCopy("COPY_P2", otherProject, developer));
 
-    db.authorDao().insertAuthor("vader", developer.getId());
-    db.authorDao().insertAuthor("anakin@skywalker.name", developer.getId());
+    db.authorDao().insertAuthor(session, "vader", developer.getId());
+    db.authorDao().insertAuthor(session, "anakin@skywalker.name", developer.getId());
     RuleDto newRule = newRule();
 
     IssueDto issue1 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("vader").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2");

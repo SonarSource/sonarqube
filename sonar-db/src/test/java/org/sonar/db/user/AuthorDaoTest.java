@@ -19,42 +19,54 @@
  */
 package org.sonar.db.user;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceDto;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 @Category(DbTests.class)
 public class AuthorDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
+  DbSession dbSession = dbTester.getSession();
   AuthorDao dao = dbTester.getDbClient().authorDao();
+
+  @After
+  public void tearDown() throws Exception {
+    dbSession.close();
+  }
 
   @Test
   public void shouldSelectByLogin() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectByLogin.xml");
+    dbSession.commit();
 
-    AuthorDto authorDto = dao.selectByLogin("godin");
+    AuthorDto authorDto = dao.selectByLogin(dbSession, "godin");
     assertThat(authorDto.getId()).isEqualTo(1L);
     assertThat(authorDto.getPersonId()).isEqualTo(13L);
     assertThat(authorDto.getLogin()).isEqualTo("godin");
 
-    assertThat(dao.selectByLogin("simon")).isNull();
+    assertThat(dao.selectByLogin(dbSession, "simon")).isNull();
   }
 
   @Test
   public void shouldInsertAuthor() {
     dbTester.prepareDbUnit(getClass(), "shouldInsertAuthor.xml");
+    dbSession.commit();
 
-    dao.insertAuthor("godin", 13L);
+    dao.insertAuthor(dbSession, "godin", 13L);
+    dbSession.commit();
 
     dbTester.assertDbUnit(getClass(), "shouldInsertAuthor-result.xml", new String[] {"created_at", "updated_at"}, "authors");
   }
@@ -62,70 +74,26 @@ public class AuthorDaoTest {
   @Test
   public void countDeveloperLogins() {
     dbTester.prepareDbUnit(getClass(), "countDeveloperLogins.xml");
+    dbSession.commit();
 
-    assertThat(dao.countDeveloperLogins(1L)).isEqualTo(2);
-    assertThat(dao.countDeveloperLogins(98765L)).isEqualTo(0);
-  }
-
-  @Test
-  public void shouldInsertAuthorAndDeveloper() {
-    dbTester.prepareDbUnit(getClass(), "shouldInsertAuthorAndDeveloper.xml");
-
-    String login = "developer@company.net";
-    ResourceDto resourceDto = new ResourceDto().setName(login).setQualifier("DEV").setUuid("ABCD").setProjectUuid("ABCD").setModuleUuidPath(".");
-    dao.insertAuthorAndDeveloper(login, resourceDto);
-
-    dbTester.assertDbUnit(getClass(), "shouldInsertAuthorAndDeveloper-result.xml",
-      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
-        "scope", "authorization_updated_at"},
-      "authors", "projects");
-  }
-
-  @Test
-  public void add_missing_module_uuid_path() {
-    dbTester.prepareDbUnit(getClass(), "add_missing_module_uuid_path.xml");
-
-    dao.insertAuthorAndDeveloper("developer@company.net", new ResourceDto().setKey("developer").setName("developer@company.net").setQualifier("DEV").setUuid("ABCD")
-      .setProjectUuid("ABCD")
-      .setModuleUuidPath(""));
-    dao.insertAuthorAndDeveloper("developer2@company.net", new ResourceDto().setKey("developer2").setName("developer2@company.net").setQualifier("DEV").setUuid("BCDE")
-      .setProjectUuid("BCDE"));
-
-    dbTester.assertDbUnit(getClass(), "add_missing_module_uuid_path-result.xml",
-      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
-        "scope", "authorization_updated_at"},
-      "authors", "projects");
+    assertThat(dao.countDeveloperLogins(dbSession, 1L)).isEqualTo(2);
+    assertThat(dao.countDeveloperLogins(dbSession, 98765L)).isEqualTo(0);
   }
 
   @Test
   public void shouldPreventAuthorsDuplication() {
     dbTester.prepareDbUnit(getClass(), "shouldPreventAuthorsDuplication.xml");
+    dbSession.commit();
+
+    expectedException.expect(RuntimeException.class);
 
     try {
-      dao.insertAuthor("godin", 20L);
-      fail();
+      dao.insertAuthor(dbSession, "godin", 20L);
     } catch (RuntimeException ex) {
+      dbSession.commit();
+      dbTester.assertDbUnit(getClass(), "shouldPreventAuthorsDuplication-result.xml", new String[] {"created_at", "updated_at"}, "authors");
+      throw ex;
     }
-
-    dbTester.assertDbUnit(getClass(), "shouldPreventAuthorsDuplication-result.xml", new String[] {"created_at", "updated_at"}, "authors");
   }
 
-  @Test
-  public void shouldPreventAuthorsAndDevelopersDuplication() {
-    dbTester.prepareDbUnit(getClass(), "shouldPreventAuthorsAndDevelopersDuplication.xml");
-
-    String login = "developer@company.net";
-    ResourceDto resourceDto = new ResourceDto().setName(login).setQualifier("DEV");
-
-    try {
-      dao.insertAuthorAndDeveloper("developer@company.net", resourceDto);
-      fail();
-    } catch (RuntimeException ex) {
-    }
-
-    dbTester.assertDbUnit(getClass(), "shouldPreventAuthorsAndDevelopersDuplication-result.xml",
-      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
-        "scope", "authorization_updated_at"},
-      "authors", "projects");
-  }
 }
