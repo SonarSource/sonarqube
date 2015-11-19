@@ -38,6 +38,12 @@ public class DefaultLanguagesRepository implements LanguagesRepository {
     this.languages = languages;
   }
 
+  public void start() {
+    if (languages.all().length == 0) {
+      throw new IllegalStateException("No language plugins are installed.");
+    }
+  }
+
   /**
    * Get language.
    */
