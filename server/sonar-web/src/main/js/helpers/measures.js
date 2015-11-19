@@ -56,7 +56,7 @@ export function groupByDomain (metrics) {
  */
 
 function useFormatter (value, formatter) {
-  return value != null && formatter != null ?
+  return value != null && value !== '' && formatter != null ?
       formatter(value) : null;
 }
 

@@ -146,6 +146,10 @@ describe('Measures', function () {
       expect(formatMeasure('random value', 'RANDOM_TYPE')).to.equal('random value');
     });
 
+    it('should return null if value is empty string', function () {
+      expect(formatMeasure('', 'PERCENT')).to.be.null;
+    });
+
     it('should not fail without parameters', function () {
       expect(formatMeasure()).to.be.null;
     });
