@@ -20,19 +20,23 @@
 package org.sonar.batch.util;
 
 import java.util.Set;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.Test;
-import org.junit.Before;
 
 public class ProgressReportTest {
   private static final String THREAD_NAME = "progress";
   private ProgressReport progressReport;
 
+  @Rule
+  public LogTester logTester = new LogTester();
+
   @Before
   public void setUp() {
-    progressReport = new ProgressReport(THREAD_NAME, 1000);
+    progressReport = new ProgressReport(THREAD_NAME, 100);
   }
 
   @Test
@@ -48,6 +52,19 @@ public class ProgressReportTest {
     progressReport.start("start");
     assertThat(isDaemon(THREAD_NAME)).isTrue();
     progressReport.stop("stop");
+  }
+
+  @Test
+  public void do_log() {
+    progressReport.start("start");
+    progressReport.message("Some message");
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+      // Ignore
+    }
+    progressReport.stop("stop");
+    assertThat(logTester.logs()).contains("Some message");
   }
 
   private static boolean isDaemon(String name) {

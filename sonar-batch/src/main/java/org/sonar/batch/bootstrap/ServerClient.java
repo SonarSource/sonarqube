@@ -26,7 +26,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,9 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -135,7 +132,7 @@ public class ServerClient {
       // SONAR-4397 Details are in response content
       return new IllegalStateException(tryParseAsJsonError(he.getResponseContent()), he);
     }
-    return new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
+    return new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]: %s", he.getResponseCode(), he.getUri(), he.getResponseContent()), he);
   }
 
   private static String tryParseAsJsonError(String responseContent) {

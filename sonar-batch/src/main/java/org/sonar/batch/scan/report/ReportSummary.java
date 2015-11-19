@@ -19,25 +19,22 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
 import com.google.common.collect.Maps;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 
 public class ReportSummary {
 
   private final IssueVariation total = new IssueVariation();
 
-  private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = Maps.newHashMap();
-  private final Map<String, IssueVariation> totalByRuleKey = Maps.newHashMap();
-  private final Map<String, IssueVariation> totalBySeverity = Maps.newHashMap();
+  private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = Maps.newLinkedHashMap();
+  private final Map<String, IssueVariation> totalByRuleKey = Maps.newLinkedHashMap();
+  private final Map<String, IssueVariation> totalBySeverity = Maps.newLinkedHashMap();
 
   public IssueVariation getTotal() {
     return total;
