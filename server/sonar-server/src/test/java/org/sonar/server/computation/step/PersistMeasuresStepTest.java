@@ -450,7 +450,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     List<Map<String, Object>> dtos = selectSnapshots();
     Map<String, Object> dto = dtos.get(0);
 
-    assertThat(dto.get("value")).isEqualTo(1d);
+    assertValue(dto, 1d);
     assertThat(dto.get("developerId")).isEqualTo(10L);
   }
 
