@@ -41,6 +41,37 @@ public class LoggingConfigurationTest {
   }
 
   @Test
+  public void testSetVerboseAnalysis() {
+    Map<String, String> globalProps = Maps.newHashMap();
+    LoggingConfiguration conf = new LoggingConfiguration(null).setProperties(globalProps);
+    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
+    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo("WARN");
+
+    Map<String, String> analysisProperties = Maps.newHashMap();
+    analysisProperties.put("sonar.verbose", "true");
+
+    conf.setProperties(analysisProperties, globalProps);
+    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_VERBOSE);
+    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo("WARN");
+  }
+
+  @Test
+  public void testOverrideVerbose() {
+    Map<String, String> globalProps = Maps.newHashMap();
+    globalProps.put("sonar.verbose", "true");
+    LoggingConfiguration conf = new LoggingConfiguration(null).setProperties(globalProps);
+    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_VERBOSE);
+    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo("WARN");
+
+    Map<String, String> analysisProperties = Maps.newHashMap();
+    analysisProperties.put("sonar.verbose", "false");
+
+    conf.setProperties(analysisProperties, globalProps);
+    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
+    assertThat(conf.getSubstitutionVariable(LoggingConfiguration.PROPERTY_SQL_LOGGER_LEVEL)).isEqualTo("WARN");
+  }
+
+  @Test
   public void shouldNotBeVerboseByDefault() {
     assertThat(new LoggingConfiguration(null)
       .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);

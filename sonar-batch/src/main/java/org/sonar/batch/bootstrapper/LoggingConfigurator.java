@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.core.config.Logback;
 
 public class LoggingConfigurator {
+  private static final String CUSTOM_APPENDER_NAME = "custom_stream";
+
   private LoggingConfigurator() {
   }
 
@@ -55,17 +57,18 @@ public class LoggingConfigurator {
 
   private static void setCustomRootAppender(LoggingConfiguration conf) {
     Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    String pattern = StringUtils.defaultIfBlank(conf.getSubstitutionVariables().get(LoggingConfiguration.PROPERTY_FORMAT), LoggingConfiguration.FORMAT_DEFAULT);
     String level = StringUtils.defaultIfBlank(conf.getSubstitutionVariables().get(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL), LoggingConfiguration.LEVEL_ROOT_DEFAULT);
 
-    logger.detachAndStopAllAppenders();
-    logger.addAppender(createAppender(pattern, conf.getLogOutput()));
+    if (logger.getAppender(CUSTOM_APPENDER_NAME) == null) {
+      logger.detachAndStopAllAppenders();
+      logger.addAppender(createAppender(conf.getLogOutput()));
+    }
     logger.setLevel(Level.toLevel(level));
   }
 
-  private static Appender<ILoggingEvent> createAppender(String pattern, LogOutput target) {
+  private static Appender<ILoggingEvent> createAppender(LogOutput target) {
     LogCallbackAppender appender = new LogCallbackAppender(target);
-    appender.setName("custom_stream");
+    appender.setName(CUSTOM_APPENDER_NAME);
     appender.start();
 
     return appender;

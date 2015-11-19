@@ -107,7 +107,9 @@ public final class Batch {
    */
   public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
     checkStarted();
+    configureTaskLogging(analysisProperties);
     bootstrapContainer.executeTask(analysisProperties, components);
+    configureLogging();
     return this;
   }
 
@@ -116,7 +118,9 @@ public final class Batch {
    */
   public Batch executeTask(Map<String, String> analysisProperties, IssueListener issueListener) {
     checkStarted();
+    configureTaskLogging(analysisProperties);
     bootstrapContainer.executeTask(analysisProperties, components, issueListener);
+    configureLogging();
     return this;
   }
 
@@ -150,6 +154,14 @@ public final class Batch {
 
   private void configureLogging() {
     if (loggingConfig != null) {
+      loggingConfig.setProperties(bootstrapProperties);
+      LoggingConfigurator.apply(loggingConfig);
+    }
+  }
+
+  private void configureTaskLogging(Map<String, String> taskProperties) {
+    if (loggingConfig != null) {
+      loggingConfig.setProperties(taskProperties, bootstrapProperties);
       LoggingConfigurator.apply(loggingConfig);
     }
   }
