@@ -113,6 +113,14 @@ public class QualityGateUiTest {
     qgClient.destroy(qGate.id());
   }
 
+  @Test
+  public void should_display_quality_gates_page() {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_quality_gates_page",
+        "/qualityGate/QualityGateUiTest/should_display_quality_gates_page.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
   private void scanSample() {
     scanSample(null, null);
   }
