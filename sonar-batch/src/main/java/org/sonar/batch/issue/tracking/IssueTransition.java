@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.batch.util.ProgressReport;
 import org.sonar.batch.issue.IssueTransformer;
-
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponent;
@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @BatchSide
 public class IssueTransition {
@@ -66,9 +67,24 @@ public class IssueTransition {
     }
 
     BatchReportReader reader = new BatchReportReader(reportPublisher.getReportDir());
+    int nbComponents = componentCache.all().size();
 
-    for (BatchComponent component : componentCache.all()) {
-      trackIssues(reader, component);
+    if (nbComponents == 0) {
+      return;
+    }
+
+    ProgressReport progressReport = new ProgressReport("issue-tracking-report", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start("Performing issue tracking");
+    int count = 0;
+
+    try {
+      for (BatchComponent component : componentCache.all()) {
+        trackIssues(reader, component);
+        count++;
+        progressReport.message(count + "/" + nbComponents + " components tracked");
+      }
+    } finally {
+      progressReport.stop(count + "/" + nbComponents + " components tracked");
     }
   }
 
