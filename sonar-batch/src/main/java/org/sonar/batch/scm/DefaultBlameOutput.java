@@ -95,7 +95,7 @@ class DefaultBlameOutput implements BlameOutput {
     writer.writeComponentChangesets(scmBuilder.build());
     allFilesToBlame.remove(file);
     count++;
-    progressReport.message(count + "/" + total + " files analyzed, last one was " + file.absolutePath());
+    progressReport.message(count + "/" + total + " files analyzed");
   }
 
   private static void validateLine(BlameLine line) {
@@ -131,7 +131,7 @@ class DefaultBlameOutput implements BlameOutput {
   private static String removeNonAsciiCharacters(String inputString) {
     return NON_ASCII_CHARS.matcher(inputString).replaceAll("_");
   }
-
+  
   public void finish() {
     progressReport.stop(count + "/" + total + " files analyzed");
     if (!allFilesToBlame.isEmpty()) {

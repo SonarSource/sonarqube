@@ -80,8 +80,11 @@ public final class ScmSensor implements Sensor {
       String key = configuration.provider().key();
       LOG.info("SCM provider for this project is: " + key);
       DefaultBlameOutput output = new DefaultBlameOutput(publishReportJob.getWriter(), resourceCache, filesToBlame);
-      configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
-      output.finish();
+      try {
+        configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
+      } finally {
+        output.finish();
+      }
     }
   }
 
