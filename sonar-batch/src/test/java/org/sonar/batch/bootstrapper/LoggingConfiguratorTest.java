@@ -112,6 +112,23 @@ public class LoggingConfiguratorTest {
   }
 
   @Test
+  public void testConfigureMultipleTimes() throws UnsupportedEncodingException {
+    System.setOut(new PrintStream(out, false, StandardCharsets.UTF_8.name()));
+    conf.setLogOutput(listener);
+    LoggingConfigurator.apply(conf);
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+    logger.debug("debug");
+    assertThat(listener.msg).isNull();
+
+    conf.setVerbose(true);
+    LoggingConfigurator.apply(conf);
+
+    logger.debug("debug");
+    assertThat(listener.msg).isEqualTo("debug");
+  }
+
+  @Test
   public void testFormatNoEffect() throws UnsupportedEncodingException {
     conf.setLogOutput(listener);
     conf.setFormat("%t");

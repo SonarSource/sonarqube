@@ -32,7 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -54,6 +53,7 @@ public class LogListenerTest {
 
   private Pattern simpleTimePattern = Pattern.compile("\\d{2}:\\d{2}:\\d{2}");
   private List<LogEvent> logOutput;
+  private StringBuilder logOutputStr;
   private ByteArrayOutputStream stdOutTarget = new ByteArrayOutputStream();
   private ByteArrayOutputStream stdErrTarget = new ByteArrayOutputStream();
   private static PrintStream savedStdOut;
@@ -91,6 +91,7 @@ public class LogListenerTest {
     System.setErr(new PrintStream(stdErrTarget));
     // logger from the batch might write to it asynchronously
     logOutput = Collections.synchronizedList(new LinkedList<LogEvent>());
+    logOutputStr = new StringBuilder();
     tester.start();
 
     baseDir = temp.getRoot();
@@ -121,9 +122,28 @@ public class LogListenerTest {
     assertThat(matcher.find()).isFalse();
   }
 
-  @After
-  public void stop() {
+  @Test
+  public void testChangeLogForAnalysis() throws IOException, InterruptedException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .put("sonar.verbose", "true")
+        .build())
+      .start();
+
     tester.stop();
+    for (LogEvent e : logOutput) {
+      savedStdOut.println("[captured]" + e.level + " " + e.msg);
+    }
+
+    // only done in DEBUG during analysis
+    assertThat(logOutputStr.toString()).contains("Post-jobs : ");
   }
 
   @Test
@@ -139,6 +159,7 @@ public class LogListenerTest {
         .put("sonar.sources", "src")
         .build())
       .start();
+    tester.stop();
 
     assertNoStdOutput();
     assertThat(logOutput).isNotEmpty();
@@ -163,6 +184,7 @@ public class LogListenerTest {
         .put("sonar.sources", "src")
         .build())
       .start();
+    tester.stop();
 
     assertNoStdOutput();
 
@@ -178,6 +200,7 @@ public class LogListenerTest {
     @Override
     public void log(String msg, Level level) {
       logOutput.add(new LogEvent(msg, level));
+      logOutputStr.append(msg).append("\n");
     }
   }
 
