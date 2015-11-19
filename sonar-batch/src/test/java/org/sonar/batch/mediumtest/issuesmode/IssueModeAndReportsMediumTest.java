@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
-import org.assertj.core.api.Condition;
+import org.apache.commons.lang.StringUtils;
 
+import org.sonar.api.utils.log.LoggerLevel;
+import org.assertj.core.api.Condition;
 import org.sonar.batch.issue.tracking.TrackedIssue;
 import com.google.common.collect.ImmutableMap;
 
@@ -172,6 +174,12 @@ public class IssueModeAndReportsMediumTest {
     assertThat(newIssues).isEqualTo(16);
     assertThat(openIssues).isEqualTo(3);
     assertThat(resolvedIssue).isEqualTo(1);
+    
+    // progress report
+    String logs = StringUtils.join(logTester.logs(LoggerLevel.INFO), "\n");
+    
+    assertThat(logs).contains("Performing issue tracking");
+    assertThat(logs).contains("6/6 components tracked");
 
     // assert that original fields of a matched issue are kept
     assertThat(result.trackedIssues()).haveExactly(1, new Condition<TrackedIssue>() {
