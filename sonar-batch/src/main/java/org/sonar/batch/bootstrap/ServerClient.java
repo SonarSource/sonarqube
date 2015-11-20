@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.utils.MessageException;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -126,13 +127,13 @@ public class ServerClient {
 
   public RuntimeException handleHttpException(HttpDownloader.HttpException he) {
     if (he.getResponseCode() == 401) {
-      return new IllegalStateException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD), he);
+      return MessageException.of(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD), he);
     }
     if (he.getResponseCode() == 403) {
       // SONAR-4397 Details are in response content
-      return new IllegalStateException(tryParseAsJsonError(he.getResponseContent()), he);
+      return MessageException.of(tryParseAsJsonError(he.getResponseContent()), he);
     }
-    return new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]: %s", he.getResponseCode(), he.getUri(), he.getResponseContent()), he);
+    return MessageException.of(String.format("Fail to execute request [code=%s, url=%s]: %s", he.getResponseCode(), he.getUri(), he.getResponseContent()), he);
   }
 
   private static String tryParseAsJsonError(String responseContent) {

@@ -49,6 +49,7 @@ public final class LoggingConfiguration {
 
   private Map<String, String> substitutionVariables = Maps.newHashMap();
   private LogOutput logOutput = null;
+  private boolean verbose;
 
   public LoggingConfiguration() {
     this(null);
@@ -83,11 +84,15 @@ public final class LoggingConfiguration {
   public LoggingConfiguration setVerbose(boolean verbose) {
     return setRootLevel(verbose ? LEVEL_ROOT_VERBOSE : LEVEL_ROOT_DEFAULT);
   }
+  
+  public boolean isVerbose() {
+    return verbose;
+  }
 
   public LoggingConfiguration setVerbose(Map<String, String> props, @Nullable Map<String, String> fallback) {
     String logLevel = getFallback("sonar.log.level", props, fallback);
     String deprecatedProfilingLevel = getFallback("sonar.log.profilingLevel", props, fallback);
-    boolean verbose = "true".equals(getFallback("sonar.verbose", props, fallback)) ||
+    verbose = "true".equals(getFallback("sonar.verbose", props, fallback)) ||
       "DEBUG".equals(logLevel) || "TRACE".equals(logLevel) ||
       "BASIC".equals(deprecatedProfilingLevel) || "FULL".equals(deprecatedProfilingLevel);
 
