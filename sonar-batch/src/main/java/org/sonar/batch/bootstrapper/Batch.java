@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import org.sonar.api.utils.MessageException;
+
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -95,8 +98,12 @@ public final class Batch {
     }
 
     configureLogging();
-    bootstrapContainer = GlobalContainer.create(bootstrapProperties, components, preferCache);
-    bootstrapContainer.startComponents();
+    try {
+      bootstrapContainer = GlobalContainer.create(bootstrapProperties, components, preferCache);
+      bootstrapContainer.startComponents();
+    } catch (RuntimeException e) {
+      throw handleException(e);
+    }
     this.started = true;
 
     return this;
@@ -108,8 +115,11 @@ public final class Batch {
   public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
     checkStarted();
     configureTaskLogging(analysisProperties);
-    bootstrapContainer.executeTask(analysisProperties, components);
-    configureLogging();
+    try {
+      bootstrapContainer.executeTask(analysisProperties, components);
+    } catch (RuntimeException e) {
+      throw handleException(e);
+    }
     return this;
   }
 
@@ -119,8 +129,11 @@ public final class Batch {
   public Batch executeTask(Map<String, String> analysisProperties, IssueListener issueListener) {
     checkStarted();
     configureTaskLogging(analysisProperties);
-    bootstrapContainer.executeTask(analysisProperties, components, issueListener);
-    configureLogging();
+    try {
+      bootstrapContainer.executeTask(analysisProperties, components, issueListener);
+    } catch (RuntimeException e) {
+      throw handleException(e);
+    }
     return this;
   }
 
@@ -128,6 +141,20 @@ public final class Batch {
     if (!started) {
       throw new IllegalStateException("Batch is not started. Unable to execute task.");
     }
+  }
+
+  private RuntimeException handleException(RuntimeException t) {
+    if (loggingConfig.isVerbose()) {
+      return t;
+    }
+
+    for (Throwable y : Throwables.getCausalChain(t)) {
+      if (y instanceof MessageException) {
+        return (MessageException) y;
+      }
+    }
+
+    return t;
   }
 
   /**
@@ -148,7 +175,12 @@ public final class Batch {
 
   private void doStop(boolean swallowException) {
     checkStarted();
-    bootstrapContainer.stopComponents(swallowException);
+    configureLogging();
+    try {
+      bootstrapContainer.stopComponents(swallowException);
+    } catch (RuntimeException e) {
+      throw handleException(e);
+    }
     this.started = false;
   }
 

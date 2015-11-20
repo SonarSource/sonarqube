@@ -29,11 +29,17 @@ import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Runtime exception for "functional" error. It aims to be displayed to end-users, without any technical information
- * like stack traces. It requires sonar-runner 2.4. Previous versions log stack trace.
+ * like stack traces. 
  * <p/>
- * Note that by design Maven still logs the stack trace when the option -e is set.
+ * 
+ * It's handling depends on the versions of the sonar-batch and sonar-runner. sonar-runner 2.4 will only show the 
+ * message associated with this exception.
+ * Starting from sonar-batch 5.3, this is handled in the batch side, and the main goal is to hide all wrappers of this
+ * exception. If this exception is created without cause, then only the message associated with this exception is shown; 
+ * otherwise, its causes are also shown.
+ * Previous combinations of sonar-batch/sonar-runner log all stack trace.
  * <p/>
- * Message should be clear and complete. Keep in mind that context is not added to the exception.
+ * Message should be clear and complete. Keep in mind that context might not be added to the exception.
  * Names of processed resource and decorator are for example not automatically added when throwing {@link MessageException}
  * from {@link org.sonar.api.batch.Decorator}.
  *
@@ -52,6 +58,16 @@ public class MessageException extends RuntimeException {
     super(message);
     this.l10nKey = l10nKey;
     this.l10nParams = l10nParams == null ? Collections.emptyList() : Collections.unmodifiableCollection(newArrayList(l10nParams));
+  }
+
+  private MessageException(String message, Throwable cause) {
+    super(message, cause);
+    l10nKey = null;
+    l10nParams = Collections.emptyList();
+  }
+
+  public static MessageException of(String message, Throwable cause) {
+    return new MessageException(message, cause);
   }
 
   public static MessageException of(String message) {
