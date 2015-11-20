@@ -19,9 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -33,7 +31,7 @@ import static com.google.common.collect.FluentIterable.from;
 /**
  * Ordered list of steps classes and instances to be executed for batch processing
  */
-public class ReportComputationSteps implements ComputationSteps {
+public class ReportComputationSteps extends AbstractComputationSteps {
 
   private static final List<Class<? extends ComputationStep>> STEPS = Arrays.asList(
     ExtractReportStep.class,
@@ -111,6 +109,7 @@ public class ReportComputationSteps implements ComputationSteps {
   private final ComputeEngineContainer computeEngineContainer;
 
   public ReportComputationSteps(ComputeEngineContainer computeEngineContainer) {
+    super(computeEngineContainer);
     this.computeEngineContainer = computeEngineContainer;
   }
 
@@ -125,30 +124,13 @@ public class ReportComputationSteps implements ComputationSteps {
       .toList();
   }
 
-  @Override
-  public Iterable<ComputationStep> instances() {
-    return Iterables.transform(orderedStepClasses(), new Function<Class<? extends ComputationStep>, ComputationStep>() {
-      @Override
-      public ComputationStep apply(@Nonnull Class<? extends ComputationStep> input) {
-        ComputationStep computationStepType = computeEngineContainer.getComponentByType(input);
-        if (computationStepType == null) {
-          throw new IllegalStateException(String.format("Component not found: %s", input));
-        }
-        return computationStepType;
-      }
-    });
-  }
-
   private class AllowPersistDevelopersStepIfDevCockpitPluginInstalled implements Predicate<Class<? extends ComputationStep>> {
 
     private final boolean devCockpitIsInstalled = computeEngineContainer.getComponentByType(DevCockpitBridge.class) != null;
 
     @Override
     public boolean apply(@Nonnull Class<? extends ComputationStep> input) {
-      if (devCockpitIsInstalled) {
-        return true;
-      }
-      return !input.equals(PersistDevelopersStep.class);
+      return devCockpitIsInstalled || !input.equals(PersistDevelopersStep.class);
     }
   }
 
