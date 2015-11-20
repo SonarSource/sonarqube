@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -78,7 +77,7 @@ public class ApplyPermissionsStep implements ComputationStep {
     try {
       long projectId = dbIdsRepository.getComponentId(project);
       if (dbClient.roleDao().countComponentPermissions(session, projectId) == 0) {
-        permissionRepository.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
+        permissionRepository.applyDefaultPermissionTemplate(session, projectId);
         session.commit();
         indexer.index();
       }

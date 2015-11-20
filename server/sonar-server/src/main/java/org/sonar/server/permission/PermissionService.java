@@ -75,7 +75,7 @@ public class PermissionService {
     } else {
       userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
     }
-    permissionRepository.grantDefaultRoles(session, component.getId(), component.qualifier());
+    permissionRepository.applyDefaultPermissionTemplate(session, component);
     session.commit();
     indexProjectPermissions();
   }

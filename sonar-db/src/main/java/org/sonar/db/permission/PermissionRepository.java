@@ -31,7 +31,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ResourceDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserRoleDto;
@@ -41,7 +41,7 @@ import org.sonar.db.user.UserRoleDto;
  * <p/>
  * Should be removed when batch will no more create permission, and be replaced by a new PermissionService in module server (probably be a merge with InternalPermissionService)
  * <p/>
- * WARNING, this class is called by Views to apply default permission template on new views
+ * WARNING, this class is called by Deveveloper Cockpit to apply default permission template on new developers
  */
 @ServerSide
 public class PermissionRepository {
@@ -81,12 +81,17 @@ public class PermissionRepository {
     dbClient.roleDao().deleteUserRole(userRoleDto, session);
   }
 
+  /**
+   * @param updateProjectAuthorizationDate is false when doing bulk action in order to not update the same project multiple times for nothing
+   */
   private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
     GroupRoleDto groupRole = new GroupRoleDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
-    updateProjectAuthorizationDate(session, resourceId);
+    if (updateProjectAuthorizationDate) {
+      updateProjectAuthorizationDate(session, resourceId);
+    }
     dbClient.roleDao().insertGroupRole(session, groupRole);
   }
 
@@ -155,10 +160,17 @@ public class PermissionRepository {
     }
   }
 
-  public void grantDefaultRoles(DbSession session, long componentId, String qualifier) {
-    ResourceDto resource = dbClient.resourceDao().selectResource(componentId, session);
-    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(session, resource.getKey(), qualifier);
-    applyPermissionTemplate(session, applicablePermissionTemplateKey, componentId);
+  /**
+   * Warning, this method is also used by the Developer Cockpit plugin
+   */
+  public void applyDefaultPermissionTemplate(DbSession session, long componentId) {
+    ComponentDto component = dbClient.componentDao().selectOrFailById(session, componentId);
+    applyDefaultPermissionTemplate(session, component);
+  }
+
+  public void applyDefaultPermissionTemplate(DbSession session, ComponentDto componentDto) {
+    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(session, componentDto.getKey(), componentDto.qualifier());
+    applyPermissionTemplate(session, applicablePermissionTemplateKey, componentDto.getId());
   }
 
   /**
