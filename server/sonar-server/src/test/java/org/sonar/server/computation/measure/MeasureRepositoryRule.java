@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentProvider;
+import org.sonar.server.computation.component.Developer;
 import org.sonar.server.computation.component.NoComponentProvider;
 import org.sonar.server.computation.component.TreeComponentProvider;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -281,7 +282,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   @Override
   public void add(Component component, Metric metric, Measure measure) {
     String ref = getRef(component);
-    InternalKey internalKey = new InternalKey(ref, metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
+    InternalKey internalKey = new InternalKey(ref, metric.getKey(), measure.getRuleId(), measure.getCharacteristicId(), measure.getDeveloper());
     if (rawMeasures.containsKey(internalKey)) {
       throw new UnsupportedOperationException(format(
         "A measure can only be set once for Component (ref=%s), Metric (key=%s), ruleId=%s, characteristicId=%s",
@@ -293,7 +294,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   @Override
   public void update(Component component, Metric metric, Measure measure) {
     String componentRef = getRef(component);
-    InternalKey internalKey = new InternalKey(componentRef, metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
+    InternalKey internalKey = new InternalKey(componentRef, metric.getKey(), measure.getRuleId(), measure.getCharacteristicId(), measure.getDeveloper());
     if (!rawMeasures.containsKey(internalKey)) {
       throw new UnsupportedOperationException(format(
         "A measure can only be updated if it has been added first for Component (ref=%s), Metric (key=%s), ruleId=%s, characteristicId=%s",
@@ -318,24 +319,23 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     private final String metricKey;
     private final int ruleId;
     private final int characteristicId;
+    @Nullable
+    private final Developer developer;
 
     public InternalKey(Component component, Metric metric) {
-      this(getRef(component), metric.getKey(), null, null);
+      this(getRef(component), metric.getKey(), null, null, null);
     }
 
     public InternalKey(Component component, Metric metric, @Nullable Integer ruleId, @Nullable Integer characteristicId) {
-      this(getRef(component), metric.getKey(), ruleId, characteristicId);
+      this(getRef(component), metric.getKey(), ruleId, characteristicId, null);
     }
 
-    public InternalKey(String componentRef, String metricKey) {
-      this(componentRef, metricKey, null, null);
-    }
-
-    public InternalKey(String componentRef, String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId) {
+    public InternalKey(String componentRef, String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer) {
       this.componentRef = componentRef;
       this.metricKey = metricKey;
       this.ruleId = ruleId == null ? DEFAULT_VALUE : ruleId;
       this.characteristicId = characteristicId == null ? DEFAULT_VALUE : characteristicId;
+      this.developer = developer;
     }
 
     public String getComponentRef() {
@@ -344,14 +344,6 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
     public String getMetricKey() {
       return metricKey;
-    }
-
-    public int getRuleId() {
-      return ruleId;
-    }
-
-    public int getCharacteristicId() {
-      return characteristicId;
     }
 
     @Override
@@ -364,14 +356,15 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
       }
       InternalKey that = (InternalKey) o;
       return Objects.equals(componentRef, that.componentRef) &&
+        Objects.equals(metricKey, that.metricKey) &&
         Objects.equals(ruleId, that.ruleId) &&
         Objects.equals(characteristicId, that.characteristicId) &&
-        Objects.equals(metricKey, that.metricKey);
+        Objects.equals(developer, that.developer);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(componentRef, metricKey, ruleId, characteristicId);
+      return Objects.hash(componentRef, metricKey, ruleId, characteristicId, developer);
     }
 
     @Override
@@ -381,6 +374,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
         ", metric='" + metricKey + '\'' +
         ", rule=" + ruleId +
         ", characteristic=" + characteristicId +
+        ", developer=" + developer +
         '}';
     }
   }
@@ -453,12 +447,12 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     }
   }
 
-  private enum ToMeasure implements Function<Map.Entry<InternalKey,Measure>, Measure> {
+  private enum ToMeasure implements Function<Map.Entry<InternalKey, Measure>, Measure> {
     INSTANCE;
 
     @Nullable
     @Override
-    public Measure apply(@Nonnull Map.Entry<InternalKey,Measure> input) {
+    public Measure apply(@Nonnull Map.Entry<InternalKey, Measure> input) {
       return input.getValue();
     }
   }
