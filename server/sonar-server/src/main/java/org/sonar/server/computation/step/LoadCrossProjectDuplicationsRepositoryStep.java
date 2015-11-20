@@ -21,11 +21,9 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
-
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
-
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport.CpdTextBlock;
@@ -36,7 +34,11 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.*;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
+import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHolder;
 import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplications;
 import org.sonar.server.computation.snapshot.Snapshot;

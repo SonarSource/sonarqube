@@ -26,7 +26,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.*;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
+import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHolder;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
