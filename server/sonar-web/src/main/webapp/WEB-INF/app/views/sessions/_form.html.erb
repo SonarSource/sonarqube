@@ -1,5 +1,5 @@
 <form id="login_form" action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
-  <input type="hidden" name="return_to_anchor" value="<%= @return_to_anchor %>">
+  <input type="hidden" name="return_to_anchor" value="<%= h @return_to_anchor %>">
 
   <h1 class="maintenance-title text-center">Log In to SonarQube</h1>
 
