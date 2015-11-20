@@ -14,10 +14,6 @@ export default React.createClass({
     this.attachDatePicker();
   },
 
-  componentWillMount() {
-    this.onSearch = _.debounce(this.onSearch, DEBOUNCE_DELAY);
-  },
-
   getCurrentsOptions() {
     return [
       { value: CURRENTS.ALL, label: window.t('background_tasks.currents_filter.ALL') },
@@ -107,8 +103,8 @@ export default React.createClass({
           <button className="search-box-submit button-clean">
             <i className="icon-search"></i>
           </button>
-          <input onChange={this.onSearch} ref="searchInput" className="search-box-input" type="search"
-                 placeholder="Search"/>
+          <input onChange={this.onSearch} value={this.props.searchQuery} ref="searchInput" className="search-box-input"
+                 type="search" placeholder="Search"/>
         </form>
     );
   },

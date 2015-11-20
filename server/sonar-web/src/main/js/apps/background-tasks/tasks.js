@@ -1,12 +1,17 @@
 import moment from 'moment';
 import React from 'react';
+
 import { getComponentUrl } from '../../helpers/urls';
 import QualifierIcon from '../../components/shared/qualifier-icon';
 import PendingIcon from '../../components/shared/pending-icon';
-import {STATUSES} from './constants';
-import {formatDuration} from './helpers';
+import { STATUSES } from './constants';
+import { formatDuration } from './helpers';
+import { TooltipsMixin } from '../../components/mixins/tooltips-mixin';
+
 
 export default React.createClass({
+  mixins: [TooltipsMixin],
+
   propTypes: {
     tasks: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
   },
@@ -14,6 +19,11 @@ export default React.createClass({
   onTaskCanceled (task, e) {
     e.preventDefault();
     this.props.onTaskCanceled(task);
+  },
+
+  handleFilter (task, e) {
+    e.preventDefault();
+    this.props.onFilter(task);
   },
 
   renderTaskStatus(task) {
@@ -46,12 +56,18 @@ export default React.createClass({
       return <td><span className="note">{task.id}</span></td>;
     }
 
+    let filter = <span className="background-task-filter">
+        <a onClick={this.handleFilter.bind(this, task)} className="icon-filter icon-half-transparent" href="#"
+           title={`Show only "${task.componentName}" tasks`} data-toggle="tooltip"/>
+      </span>;
+
     return (
         <td>
           <span className="little-spacer-right">
             <QualifierIcon qualifier={task.componentQualifier}/>
           </span>
           <a href={getComponentUrl(task.componentKey)}>{task.componentName}</a>
+          {filter}
         </td>
     );
   },

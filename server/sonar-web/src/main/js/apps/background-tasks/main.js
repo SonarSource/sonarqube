@@ -1,15 +1,18 @@
 import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
-import {getQueue, getActivity, cancelTask, cancelAllTasks} from '../../api/ce';
-import {STATUSES, CURRENTS, DATE} from './constants';
+
+import { getQueue, getActivity, cancelTask, cancelAllTasks } from '../../api/ce';
+import { STATUSES, CURRENTS, DATE, DEBOUNCE_DELAY } from './constants';
 import Header from './header';
 import Stats from './stats';
 import Search from './search';
 import Tasks from './tasks';
 import ListFooter from '../../components/shared/list-footer';
 
+
 const PAGE_SIZE = 200;
+
 
 export default React.createClass({
   getInitialState() {
@@ -27,6 +30,7 @@ export default React.createClass({
 
   componentDidMount() {
     this.requestData();
+    this.requestData = _.debounce(this.requestData, DEBOUNCE_DELAY);
   },
 
   getComponentFilter() {
@@ -179,6 +183,10 @@ export default React.createClass({
     cancelAllTasks().then(this.requestData);
   },
 
+  handleFilter(task) {
+    this.onSearch(task.componentKey);
+  },
+
   render() {
     return (
         <div className="page">
@@ -193,7 +201,9 @@ export default React.createClass({
               onDateChange={this.onDateChange}
               onSearch={this.onSearch}/>
 
-          <Tasks tasks={[].concat(this.state.queue, this.state.activity)} onTaskCanceled={this.onTaskCanceled}/>
+          <Tasks tasks={[].concat(this.state.queue, this.state.activity)}
+                 onTaskCanceled={this.onTaskCanceled}
+                 onFilter={this.handleFilter}/>
 
           <ListFooter count={this.state.queue.length + this.state.activity.length}
                       total={this.state.queue.length + this.state.activityTotal}
