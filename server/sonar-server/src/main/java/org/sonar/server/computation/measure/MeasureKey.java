@@ -63,7 +63,7 @@ public final class MeasureKey {
   }
 
   @CheckForNull
-  public Developer getDevelope() {
+  public Developer getDeveloper() {
     return developer;
   }
 
