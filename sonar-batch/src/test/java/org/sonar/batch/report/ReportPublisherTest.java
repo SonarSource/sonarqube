@@ -19,17 +19,10 @@
  */
 package org.sonar.batch.report;
 
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -39,6 +32,14 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.scan.ImmutableProjectReactor;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -93,6 +94,23 @@ public class ReportPublisherTest {
     verify(logger).info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report.");
     verify(logger).info("More about the report processing at {}", "http://myserver/api/ce/task?id=abc123");
     verifyNoMoreInteractions(logger);
+  }
+
+  @Test
+  public void should_write_json_file() throws IOException {
+    settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
+
+    ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), mock(AnalysisContextReportPublisher.class), reactor, mode,
+      mock(TempFolder.class), new ReportPublisherStep[0]);
+    job.logSuccess(mock(Logger.class), "abc123");
+
+    File jsonFile = new File(temp.getRoot(), "analysis-details.json");
+    assertThat(jsonFile).exists();
+
+    String jsonFileContent = new String(Files.readAllBytes(jsonFile.toPath()), StandardCharsets.UTF_8);
+    String expectedContent = "\"dashboardUrl\":\"http://myserver/dashboard/index/struts\",\"ceTaskUrl\":\"http://myserver/api/ce/task?id=abc123\"";
+    assertThat(jsonFileContent).contains(expectedContent);
+
   }
 
   @Test

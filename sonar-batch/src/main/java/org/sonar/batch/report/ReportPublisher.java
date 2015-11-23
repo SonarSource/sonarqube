@@ -19,16 +19,22 @@
  */
 package org.sonar.batch.report;
 
+import org.sonar.api.utils.text.JsonWriter;
+
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.annotation.CheckForNull;
@@ -59,6 +65,7 @@ public class ReportPublisher implements Startable {
   public static final String KEEP_REPORT_PROP_KEY = "sonar.batch.keepReport";
   public static final String VERBOSE_KEY = "sonar.verbose";
   public static final String DUMP_REPORT_PROP_KEY = "sonar.batch.dumpReportDir";
+  public static final String JSON_DETAILS_FILE = "analysis-details.json";
 
   private final ServerClient serverClient;
   private final Server server;
@@ -203,7 +210,7 @@ public class ReportPublisher implements Startable {
     }
   }
 
-  private void dumpReport(String dumpDirLocation, String projectKey, String relativeUrl, File report) {
+  private static void dumpReport(String dumpDirLocation, String projectKey, String relativeUrl, File report) {
     LOG.debug("Dump report to file");
     try {
       dumpReportImpl(dumpDirLocation, projectKey, relativeUrl, report);
@@ -244,10 +251,30 @@ public class ReportPublisher implements Startable {
       String url = baseUrl + "dashboard/index/" + effectiveKey;
       logger.info("ANALYSIS SUCCESSFUL, you can browse {}", url);
       logger.info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report.");
+      String taskUrl = null;
       if (taskId != null) {
-        String taskUrl = baseUrl + "api/ce/task?id=" + taskId;
+        taskUrl = baseUrl + "api/ce/task?id=" + taskId;
         logger.info("More about the report processing at {}", taskUrl);
       }
+
+      writeJson(url, taskUrl);
+    }
+  }
+
+  private void writeJson(String dashboardUrl, @Nullable String taskUrl) {
+    File exportFile = new File(projectReactor.getRoot().getWorkDir(), JSON_DETAILS_FILE);
+    try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), StandardCharsets.UTF_8))) {
+      JsonWriter json = JsonWriter.of(output);
+      json.beginObject();
+      json.prop("dashboardUrl", dashboardUrl);
+      if (taskUrl != null) {
+        json.prop("ceTaskUrl", taskUrl);
+      }
+      json.endObject();
+
+      LOG.debug("Analysis URLs written to {}", exportFile);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to write analysis URLs in file " + exportFile.getAbsolutePath(), e);
     }
   }
 }
