@@ -56,18 +56,12 @@ export default React.createClass({
       return <td><span className="note">{task.id}</span></td>;
     }
 
-    let filter = <span className="background-task-filter">
-        <a onClick={this.handleFilter.bind(this, task)} className="icon-filter icon-half-transparent" href="#"
-           title={`Show only "${task.componentName}" tasks`} data-toggle="tooltip"/>
-      </span>;
-
     return (
         <td>
           <span className="little-spacer-right">
             <QualifierIcon qualifier={task.componentQualifier}/>
           </span>
           <a href={getComponentUrl(task.componentKey)}>{task.componentName}</a>
-          {filter}
         </td>
     );
   },
@@ -96,6 +90,13 @@ export default React.createClass({
 
   isAnotherDay(a, b) {
     return !moment(a).isSame(moment(b), 'day');
+  },
+
+  renderFilter(task) {
+    return <td className="thin nowrap">
+      <a onClick={this.handleFilter.bind(this, task)} className="icon-filter icon-half-transparent spacer-left" href="#"
+         title={`Show only "${task.componentName}" tasks`} data-toggle="tooltip"/>
+    </td>;
   },
 
   renderCancelButton(task) {
@@ -133,6 +134,7 @@ export default React.createClass({
             {this.renderLogsLink(task)}
             {this.renderCancelButton(task)}
           </td>
+          {this.renderFilter(task)}
         </tr>
     );
   },
