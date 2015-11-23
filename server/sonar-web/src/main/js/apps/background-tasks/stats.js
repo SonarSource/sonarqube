@@ -1,7 +1,12 @@
 import React from 'react';
-import {formatDuration} from './helpers';
+
+import { formatDuration } from './helpers';
+import { TooltipsMixin } from '../../components/mixins/tooltips-mixin';
+
 
 export default React.createClass({
+  mixins: [TooltipsMixin],
+
   onPendingCanceled(e) {
     e.preventDefault();
     this.props.cancelPending();
@@ -59,7 +64,7 @@ export default React.createClass({
     if (this.props.failuresCount > 0) {
       return (
           <span>
-            <a ref="failureCount" onClick={this.onFailuresClick} className="emphasised-measure"
+            <a ref="failureCount" onClick={this.onFailuresClick} className="emphasised-measure" data-toggle="tooltip"
                title="Count of projects where processing of most recent analysis report failed"
                href="#">{this.props.failuresCount}</a>
             &nbsp;
@@ -69,7 +74,7 @@ export default React.createClass({
     } else {
       return (
           <span>
-            <span ref="failureCount" className="emphasised-measure"
+            <span ref="failureCount" className="emphasised-measure" data-toggle="tooltip"
                   title="Count of projects where processing of most recent analysis report failed">
               {this.props.failuresCount}
             </span>
