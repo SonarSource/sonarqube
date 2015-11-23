@@ -127,7 +127,24 @@ module AuthenticatedSystem
   # Called from #current_user.  Now, attempt to login by basic authentication information.
   def login_from_basic_auth
     authenticate_with_http_basic do |login, password|
-      self.current_user = User.authenticate(login, password, servlet_request)
+      # The access token is sent as the login of Basic authentication. To distinguish with regular logins,
+      # the convention is that the password is empty
+      if password.empty? && login.present?
+        # authentication by access token
+        token_authenticator = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerUsertoken::UserTokenAuthenticator.java_class)
+        authenticated_login = token_authenticator.authenticate(login)
+        if authenticated_login.isPresent()
+          user = User.find_active_by_login(authenticated_login.get())
+          if user
+            user.token_authenticated=true
+            self.current_user = user
+            self.current_user
+          end
+        end
+      else
+        # regular Basic authentication with login and password
+        self.current_user = User.authenticate(login, password, servlet_request)
+      end
     end
   end
 

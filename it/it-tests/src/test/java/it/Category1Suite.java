@@ -41,7 +41,9 @@ package it;/*
 import com.sonar.orchestrator.Orchestrator;
 import it.actionPlan.ActionPlanTest;
 import it.actionPlan.ActionPlanUiTest;
+import it.authorisation.AuthenticationTest;
 import it.authorisation.IssuePermissionTest;
+import it.authorisation.PermissionTest;
 import it.i18n.I18nTest;
 import it.measureHistory.DifferentialPeriodsTest;
 import it.measureHistory.HistoryUiTest;
@@ -85,6 +87,8 @@ import static util.ItUtils.xooPlugin;
   QualityGateUiTest.class,
   QualityGateNotificationTest.class,
   // permission
+  AuthenticationTest.class,
+  PermissionTest.class,
   IssuePermissionTest.class,
   // measure history
   DifferentialPeriodsTest.class,

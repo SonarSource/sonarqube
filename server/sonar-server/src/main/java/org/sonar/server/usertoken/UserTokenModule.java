@@ -30,6 +30,7 @@ public class UserTokenModule extends Module {
     add(
       UserTokensWs.class,
       GenerateAction.class,
+      UserTokenAuthenticator.class,
       TokenGeneratorImpl.class);
   }
 }

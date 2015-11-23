@@ -40,6 +40,11 @@ public class TokenGeneratorImplTest {
   }
 
   @Test
+  public void token_does_not_contain_colon() {
+    assertThat(underTest.generate()).doesNotContain(":");
+  }
+
+  @Test
   public void hash_token() {
     String hash = underTest.hash("1234567890123456789012345678901234567890");
 

@@ -25,6 +25,7 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -36,6 +37,7 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usertoken.TokenGenerator;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.DbTests;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
 
@@ -49,6 +51,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
 
+@Category(DbTests.class)
 public class GenerateActionTest {
   private static final String GRACE_HOPPER = "grace.hopper";
   private static final String ADA_LOVELACE = "ada.lovelace";
