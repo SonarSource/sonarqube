@@ -157,13 +157,22 @@ public class ComponentService {
 
   public ComponentDto create(DbSession session, NewComponent newComponent) {
     userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
+    checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto project = createProject(session, newComponent);
     removeDuplicatedProjects(session, project.getKey());
     return project;
   }
 
+  /**
+   * No permission check must be done when inserting a new developer as it's done on Compute Engine side.
+   * No check must be done on the key
+   * No need to remove duplicated components as it's not possible to create the same developer twice in the same time.
+   */
+  public ComponentDto createDeveloper(DbSession session, NewComponent newComponent) {
+    return createProject(session, newComponent);
+  }
+
   private ComponentDto createProject(DbSession session, NewComponent newComponent) {
-    checkKeyFormat(newComponent.qualifier(), newComponent.key());
     checkBranchFormat(newComponent.qualifier(), newComponent.branch());
     String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.branch());
 

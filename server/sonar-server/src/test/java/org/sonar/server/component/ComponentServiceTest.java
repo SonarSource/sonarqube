@@ -328,6 +328,28 @@ public class ComponentServiceTest {
   }
 
   @Test
+  public void create_developer() throws Exception {
+    // No permission should be required to create a developer
+    userSessionRule.anonymous();
+
+    String key = service.createDeveloper(dbTester.getSession(), NewComponent.create("DEV:jon.name@mail.com", "John").setQualifier("DEV")).getKey();
+    dbTester.getSession().commit();
+
+    ComponentDto dev = service.getNullableByKey(key);
+    assertThat(dev.key()).isEqualTo("DEV:jon.name@mail.com");
+    assertThat(dev.deprecatedKey()).isEqualTo("DEV:jon.name@mail.com");
+    assertThat(dev.uuid()).isNotNull();
+    assertThat(dev.projectUuid()).isEqualTo(dev.uuid());
+    assertThat(dev.moduleUuid()).isNull();
+    assertThat(dev.moduleUuidPath()).isEqualTo("." + dev.uuid() + ".");
+    assertThat(dev.name()).isEqualTo("John");
+    assertThat(dev.longName()).isEqualTo("John");
+    assertThat(dev.scope()).isEqualTo("PRJ");
+    assertThat(dev.qualifier()).isEqualTo("DEV");
+    assertThat(dev.getCreatedAt()).isNotNull();
+  }
+
+  @Test
   public void fail_to_create_new_component_on_invalid_key() {
     userSessionRule.login("john").setGlobalPermissions(PROVISIONING);
 
