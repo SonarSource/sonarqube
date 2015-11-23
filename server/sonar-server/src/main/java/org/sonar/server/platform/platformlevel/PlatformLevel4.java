@@ -304,6 +304,7 @@ import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
+import org.sonar.server.usertoken.UserTokenModule;
 import org.sonar.server.util.TypeValidationModule;
 import org.sonar.server.view.bridge.ViewsBootstrap;
 import org.sonar.server.view.bridge.ViewsStopper;
@@ -543,6 +544,7 @@ public class PlatformLevel4 extends PlatformLevel {
       UserIndexer.class,
       UserIndex.class,
       UserUpdater.class,
+      UserTokenModule.class,
 
       // groups
       GroupMembershipService.class,

@@ -17,18 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+package org.sonarqube.ws.client.usertoken;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+public class UserTokensWsParameters {
+  public static final String USER_TOKENS_ENDPOINT = "api/user_tokens";
+  public static final String ACTION_GENERATE = "generate";
 
-  void handle(Request request, Response response) throws Exception;
+  public static final String PARAM_LOGIN = "login";
+  public static final String PARAM_NAME = "name";
 
+  private UserTokensWsParameters() {
+    // constants only
+  }
 }

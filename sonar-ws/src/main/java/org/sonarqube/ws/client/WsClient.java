@@ -27,6 +27,7 @@ import org.sonarqube.ws.client.component.ComponentsWsClient;
 import org.sonarqube.ws.client.issue.IssuesWsClient;
 import org.sonarqube.ws.client.permission.PermissionsWsClient;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesWsClient;
+import org.sonarqube.ws.client.usertoken.UserTokensWsClient;
 
 import static org.sonarqube.ws.client.WsRequest.MediaType.PROTOBUF;
 
@@ -48,6 +49,7 @@ public class WsClient {
   private final ComponentsWsClient componentsWsClient;
   private final QualityProfilesWsClient qualityProfilesWsClient;
   private final IssuesWsClient issuesWsClient;
+  private final UserTokensWsClient userTokensWsClient;
 
   public WsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -55,6 +57,7 @@ public class WsClient {
     this.componentsWsClient = new ComponentsWsClient(this);
     this.qualityProfilesWsClient = new QualityProfilesWsClient(this);
     this.issuesWsClient = new IssuesWsClient(this);
+    userTokensWsClient = new UserTokensWsClient(this);
   }
 
   public String execute(WsRequest wsRequest) {
@@ -79,5 +82,9 @@ public class WsClient {
 
   public IssuesWsClient issuesWsClient() {
     return issuesWsClient;
+  }
+
+  public UserTokensWsClient userTokensWsClient() {
+    return userTokensWsClient;
   }
 }

@@ -20,21 +20,21 @@
 
 package org.sonar.server.user.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupMembershipDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -44,7 +44,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -54,6 +53,7 @@ import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 @Category(DbTests.class)
 public class DeactivateActionTest {
@@ -61,63 +61,54 @@ public class DeactivateActionTest {
   static final Settings settings = new Settings();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WebService.Controller controller;
-
-  WsTester tester;
-
+  WsTester ws;
   UserIndex index;
-
   DbClient dbClient;
-
   UserIndexer userIndexer;
 
-  DbSession session;
-
-  I18n i18n = mock(I18n.class);
+  DbSession dbSession;
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
     esTester.truncateIndices();
 
     System2 system2 = new System2();
-    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, new GroupMembershipDao(dbTester.myBatis()));
-    session = dbClient.openSession(false);
-    session.commit();
+    UserDao userDao = new UserDao(db.myBatis(), system2);
+    dbClient = new DbClient(db.database(), db.myBatis(), userDao, new GroupMembershipDao(db.myBatis()), new UserTokenDao());
+    dbSession = db.getSession();
+    dbSession.commit();
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
-    tester = new WsTester(new UsersWs(new DeactivateAction(index,
+    ws = new WsTester(new UsersWs(new DeactivateAction(index,
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)), userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
-    controller = tester.controller("api/users");
+    controller = ws.controller("api/users");
 
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
   public void deactivate_user() throws Exception {
     createUser();
+    assertThat(dbClient.userTokenDao().selectByLogin(dbSession, "john")).isNotEmpty();
+    db.commit();
 
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.newPostRequest("api/users", "deactivate")
+    ws.newPostRequest("api/users", "deactivate")
       .setParam("login", "john")
       .execute()
       .assertJson(getClass(), "deactivate_user.json");
 
     UserDoc user = index.getByLogin("john");
     assertThat(user.active()).isFalse();
+    assertThat(dbClient.userTokenDao().selectByLogin(dbSession, "john")).isEmpty();
   }
 
   @Test(expected = BadRequestException.class)
@@ -125,7 +116,7 @@ public class DeactivateActionTest {
     createUser();
 
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.newPostRequest("api/users", "deactivate")
+    ws.newPostRequest("api/users", "deactivate")
       .setParam("login", "admin")
       .execute();
   }
@@ -135,25 +126,26 @@ public class DeactivateActionTest {
     createUser();
 
     userSessionRule.login("not_admin");
-    tester.newPostRequest("api/users", "deactivate")
+    ws.newPostRequest("api/users", "deactivate")
       .setParam("login", "john").execute();
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_user() throws Exception {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.newPostRequest("api/users", "deactivate")
+    ws.newPostRequest("api/users", "deactivate")
       .setParam("login", "john").execute();
   }
 
   private void createUser() {
-    dbClient.userDao().insert(session, new UserDto()
+    dbClient.userDao().insert(dbSession, new UserDto()
       .setActive(true)
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
       .setScmAccounts("jn"));
-    session.commit();
+    dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin("john"));
+    dbSession.commit();
     userIndexer.index();
   }
 

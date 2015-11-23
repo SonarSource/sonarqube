@@ -17,18 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+package org.sonarqube.ws.client.usertoken;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+public class GenerateWsRequest {
+  private String login;
+  private String name;
 
-  void handle(Request request, Response response) throws Exception;
+  public String getLogin() {
+    return login;
+  }
 
+  public GenerateWsRequest setLogin(String login) {
+    this.login = login;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public GenerateWsRequest setName(String name) {
+    this.name = name;
+    return this;
+  }
 }

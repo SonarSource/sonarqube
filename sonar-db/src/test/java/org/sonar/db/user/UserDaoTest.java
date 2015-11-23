@@ -22,8 +22,6 @@ package org.sonar.db.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -50,19 +48,7 @@ public class UserDaoTest {
   public DbTester db = DbTester.create(system2);
 
   UserDao underTest = db.getDbClient().userDao();
-  DbSession session;
-
-  @Before
-  public void before() {
-    db.truncateTables();
-
-    this.session = db.getSession();
-  }
-
-  @After
-  public void after() {
-    this.session.close();
-  }
+  DbSession session = db.getSession();
 
   @Test
   public void selectUserByLogin_ignore_inactive() {
@@ -233,7 +219,7 @@ public class UserDaoTest {
     when(system2.now()).thenReturn(1500000000000L);
 
     String login = "marius";
-    boolean deactivated = underTest.deactivateUserByLogin(login);
+    boolean deactivated = underTest.deactivateUserByLogin(session, login);
     assertThat(deactivated).isTrue();
 
     assertThat(underTest.selectActiveUserByLogin(login)).isNull();
@@ -253,7 +239,7 @@ public class UserDaoTest {
     db.prepareDbUnit(getClass(), "deactivate_user.xml");
 
     String login = "does_not_exist";
-    boolean deactivated = underTest.deactivateUserByLogin(login);
+    boolean deactivated = underTest.deactivateUserByLogin(session, login);
     assertThat(deactivated).isFalse();
     assertThat(underTest.selectActiveUserByLogin(login)).isNull();
   }

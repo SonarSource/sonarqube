@@ -17,18 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+package org.sonar.db.user;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+public class UserTokenDto {
+  private String login;
+  private String name;
+  private String tokenHash;
+  private Long createdAt;
 
-  void handle(Request request, Response response) throws Exception;
+  public String getLogin() {
+    return login;
+  }
 
+  public UserTokenDto setLogin(String login) {
+    this.login = login;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public UserTokenDto setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public String getTokenHash() {
+    return tokenHash;
+  }
+
+  public UserTokenDto setTokenHash(String tokenHash) {
+    this.tokenHash = tokenHash;
+    return this;
+  }
+
+  public Long getCreatedAt() {
+    return createdAt;
+  }
+
+  public UserTokenDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
 }

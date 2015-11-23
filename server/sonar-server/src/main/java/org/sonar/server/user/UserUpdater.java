@@ -133,12 +133,18 @@ public class UserUpdater {
       notifyNewUser(user.getLogin(), user.getName(), user.getEmail());
       userIndexer.index();
     } finally {
-      dbSession.close();
+      dbClient.closeSession(dbSession);
     }
   }
 
   public void deactivateUserByLogin(String login) {
-    dbClient.userDao().deactivateUserByLogin(login);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      dbClient.userTokenDao().deleteByLogin(dbSession, login);
+      dbClient.userDao().deactivateUserByLogin(dbSession, login);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
     userIndexer.index();
   }
 

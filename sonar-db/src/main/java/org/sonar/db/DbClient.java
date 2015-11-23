@@ -67,6 +67,7 @@ import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
+import org.sonar.db.user.UserTokenDao;
 
 public class DbClient {
 
@@ -86,6 +87,7 @@ public class DbClient {
   private final AuthorizationDao authorizationDao;
   private final UserDao userDao;
   private final UserGroupDao userGroupDao;
+  private final UserTokenDao userTokenDao;
   private final GroupMembershipDao groupMembershipDao;
   private final RoleDao roleDao;
   private final PermissionDao permissionDao;
@@ -140,6 +142,7 @@ public class DbClient {
     authorizationDao = getDao(map, AuthorizationDao.class);
     userDao = getDao(map, UserDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
+    userTokenDao = getDao(map, UserTokenDao.class);
     groupMembershipDao = getDao(map, GroupMembershipDao.class);
     roleDao = getDao(map, RoleDao.class);
     permissionDao = getDao(map, PermissionDao.class);
@@ -261,6 +264,10 @@ public class DbClient {
 
   public UserGroupDao userGroupDao() {
     return userGroupDao;
+  }
+
+  public UserTokenDao userTokenDao() {
+    return userTokenDao;
   }
 
   public GroupMembershipDao groupMembershipDao() {

@@ -56,6 +56,10 @@ public final class DateUtils {
     return THREAD_SAFE_DATETIME_FORMAT.format(d);
   }
 
+  public static String formatDateTime(long ms) {
+    return THREAD_SAFE_DATETIME_FORMAT.format(new Date(ms));
+  }
+
   public static String formatDateTimeNullSafe(@Nullable Date date) {
     return date == null ? "" : THREAD_SAFE_DATETIME_FORMAT.format(date);
   }

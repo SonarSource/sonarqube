@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+package org.sonar.server.usertoken;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+import java.security.SecureRandom;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 
-  void handle(Request request, Response response) throws Exception;
+public class TokenGeneratorImpl implements TokenGenerator {
+  @Override
+  public String generate() {
+    SecureRandom random = new SecureRandom();
+    byte[] bytes = new byte[20];
+    random.nextBytes(bytes);
+    return Hex.encodeHexString(bytes);
+  }
 
+  @Override
+  public String hash(String token) {
+    return DigestUtils.sha384Hex(token);
+  }
 }

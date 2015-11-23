@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+package org.sonar.server.usertoken;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+public interface TokenGenerator {
+  /**
+   * Generate a token. It must be unique and non deterministic.<br />
+   * Underlying algorithm, format and max length are
+   * subject to change in subsequent SonarQube versions.
+   * <br/>
+   * Length does not exceed 40 characters (arbitrary value).
+   */
+  String generate();
 
-  void handle(Request request, Response response) throws Exception;
-
+  /**
+   * Hash a token.<br/>
+   * Underlying algorithm, format and max length are
+   * subject to change in subsequent SonarQube versions.
+   * <br />
+   * Length must not exceed 255 characters.
+   */
+  String hash(String token);
 }

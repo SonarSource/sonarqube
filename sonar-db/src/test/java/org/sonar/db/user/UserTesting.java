@@ -22,14 +22,13 @@ package org.sonar.db.user;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class UserTesting {
 
   public static UserDto newUserDto() {
     UserDto user = new UserDto()
-      .setActive(nextBoolean())
+      .setActive(true)
       .setName(randomAlphanumeric(30))
       .setEmail(randomAlphabetic(30))
       .setLogin(randomAlphanumeric(30));

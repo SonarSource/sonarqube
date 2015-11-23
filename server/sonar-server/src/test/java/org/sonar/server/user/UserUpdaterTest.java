@@ -23,7 +23,6 @@ package org.sonar.server.user;
 import com.google.common.base.Strings;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -43,6 +42,7 @@ import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDao;
+import org.sonar.db.user.UserTokenDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -90,25 +90,19 @@ public class UserUpdaterTest {
 
   @Before
   public void setUp() {
-    db.truncateTables();
     es.truncateIndices();
     settings = new Settings();
-    session = db.myBatis().openSession(false);
+    session = db.getSession();
     userDao = new UserDao(db.myBatis(), system2);
     groupDao = new GroupDao(system2);
     UserGroupDao userGroupDao = new UserGroupDao();
     GroupMembershipDao groupMembershipDao = new GroupMembershipDao(db.myBatis());
     groupMembershipFinder = new GroupMembershipFinder(userDao, groupMembershipDao);
 
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), userDao, groupDao, userGroupDao);
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), userDao, groupDao, userGroupDao, new UserTokenDao());
     userIndexer = (UserIndexer) new UserIndexer(dbClient, es.client()).setEnabled(true);
     userUpdater = new UserUpdater(newUserNotifier, settings, dbClient,
       userIndexer, system2, realmFactory);
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test

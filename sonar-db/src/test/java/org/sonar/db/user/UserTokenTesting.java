@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+package org.sonar.db.user;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
-  void handle(Request request, Response response) throws Exception;
-
+public class UserTokenTesting {
+  public static UserTokenDto newUserToken() {
+    return new UserTokenDto()
+      .setLogin(randomAlphanumeric(255))
+      .setName(randomAlphanumeric(255))
+      .setTokenHash(randomAlphanumeric(40))
+      .setCreatedAt(nextLong());
+  }
 }

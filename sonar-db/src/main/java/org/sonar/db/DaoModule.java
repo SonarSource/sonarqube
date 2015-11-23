@@ -68,6 +68,7 @@ import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
+import org.sonar.db.user.UserTokenDao;
 
 public class DaoModule extends Module {
   private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
@@ -114,6 +115,7 @@ public class DaoModule extends Module {
     SnapshotDao.class,
     UserDao.class,
     UserGroupDao.class,
+    UserTokenDao.class,
     WidgetDao.class,
     WidgetPropertyDao.class).build();
 

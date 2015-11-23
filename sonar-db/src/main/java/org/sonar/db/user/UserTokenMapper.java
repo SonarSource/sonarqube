@@ -17,18 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+package org.sonar.db.user;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
-  void handle(Request request, Response response) throws Exception;
+public interface UserTokenMapper {
 
+  void insert(UserTokenDto userToken);
+
+  UserTokenDto selectByTokenHash(String tokenHash);
+
+  UserTokenDto selectByLoginAndName(@Param("login") String login, @Param("name") String name);
+
+  List<UserTokenDto> selectByLogin(String login);
+
+  void deleteByLogin(String login);
 }

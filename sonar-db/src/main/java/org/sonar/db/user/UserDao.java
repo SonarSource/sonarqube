@@ -131,31 +131,25 @@ public class UserDao implements Dao {
    * Deactivate a user and drops all his preferences.
    * @return false if the user does not exist, true if the existing user has been deactivated
    */
-  public boolean deactivateUserByLogin(String login) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      UserMapper mapper = session.getMapper(UserMapper.class);
-      UserDto dto = mapper.selectUserByLogin(login);
-      if (dto == null) {
-        return false;
-      }
-
-      mapper.removeUserFromGroups(dto.getId());
-      mapper.deleteUserActiveDashboards(dto.getId());
-      mapper.deleteUnsharedUserDashboards(dto.getId());
-      mapper.deleteUnsharedUserIssueFilters(dto.getLogin());
-      mapper.deleteUserIssueFilterFavourites(dto.getLogin());
-      mapper.deleteUnsharedUserMeasureFilters(dto.getId());
-      mapper.deleteUserMeasureFilterFavourites(dto.getId());
-      mapper.deleteUserProperties(dto.getId());
-      mapper.deleteUserRoles(dto.getId());
-      mapper.deactivateUser(dto.getId(), system2.now());
-      session.commit();
-      return true;
-
-    } finally {
-      MyBatis.closeQuietly(session);
+  public boolean deactivateUserByLogin(DbSession dbSession, String login) {
+    UserMapper mapper = dbSession.getMapper(UserMapper.class);
+    UserDto dto = mapper.selectUserByLogin(login);
+    if (dto == null) {
+      return false;
     }
+
+    mapper.removeUserFromGroups(dto.getId());
+    mapper.deleteUserActiveDashboards(dto.getId());
+    mapper.deleteUnsharedUserDashboards(dto.getId());
+    mapper.deleteUnsharedUserIssueFilters(dto.getLogin());
+    mapper.deleteUserIssueFilterFavourites(dto.getLogin());
+    mapper.deleteUnsharedUserMeasureFilters(dto.getId());
+    mapper.deleteUserMeasureFilterFavourites(dto.getId());
+    mapper.deleteUserProperties(dto.getId());
+    mapper.deleteUserRoles(dto.getId());
+    mapper.deactivateUser(dto.getId(), system2.now());
+    dbSession.commit();
+    return true;
   }
 
   @CheckForNull

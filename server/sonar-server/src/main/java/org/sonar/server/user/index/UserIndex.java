@@ -52,6 +52,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
+
 @ServerSide
 public class UserIndex {
 
@@ -100,7 +102,7 @@ public class UserIndex {
   public UserDoc getByLogin(String login) {
     UserDoc userDoc = getNullableByLogin(login);
     if (userDoc == null) {
-      throw new NotFoundException(String.format("User '%s' not found", login));
+      throw new NotFoundException(format("User '%s' not found", login));
     }
     return userDoc;
   }

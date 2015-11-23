@@ -161,7 +161,7 @@ public class CreateActionTest {
       .setName("John")
       .setActive(true));
     session.commit();
-    dbClient.userDao().deactivateUserByLogin("john");
+    dbClient.userDao().deactivateUserByLogin(session, "john");
     userIndexer.index();
 
     when(i18n.message(Locale.FRENCH, "user.reactivated", "user.reactivated", "john")).thenReturn("The user 'john' has been reactivated.");

@@ -17,18 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+@ParametersAreNonnullByDefault
+package org.sonarqube.ws.client.usertoken;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  void handle(Request request, Response response) throws Exception;
-
-}

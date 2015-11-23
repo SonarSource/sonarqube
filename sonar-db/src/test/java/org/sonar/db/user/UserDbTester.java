@@ -17,18 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
+package org.sonar.db.user;
 
-/**
- * @since 4.2
- */
-@ServerSide
-@ExtensionPoint
-public interface RequestHandler {
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 
-  void handle(Request request, Response response) throws Exception;
+public class UserDbTester {
+  private final DbTester db;
+  private final DbClient dbClient;
+  private final DbSession dbSession;
 
+  public UserDbTester(DbTester db) {
+    this.db = db;
+    this.dbClient = db.getDbClient();
+    this.dbSession = db.getSession();
+  }
+
+  public UserDto insertUser(UserDto userDto) {
+    UserDto updatedUser = dbClient.userDao().insert(dbSession, userDto);
+    db.commit();
+
+    return updatedUser;
+  }
 }
