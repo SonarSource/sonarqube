@@ -41,6 +41,7 @@ public class ComponentDto implements Component {
   private String moduleUuidPath;
   private Long parentProjectId;
   private Long copyResourceId;
+  private Long developerId;
 
   private String path;
   private String deprecatedKey;
@@ -221,6 +222,15 @@ public class ComponentDto implements Component {
     return this;
   }
 
+  public Long getDeveloperId() {
+    return developerId;
+  }
+
+  public ComponentDto setDeveloperId(Long developerId) {
+    this.developerId = developerId;
+    return this;
+  }
+
   public Date getCreatedAt() {
     return createdAt;
   }
@@ -291,6 +301,7 @@ public class ComponentDto implements Component {
       .append("moduleUuidPath", moduleUuidPath)
       .append("parentProjectId", parentProjectId)
       .append("copyResourceId", copyResourceId)
+      .append("developerId", developerId)
       .append("path", path)
       .append("deprecatedKey", deprecatedKey)
       .append("name", name)

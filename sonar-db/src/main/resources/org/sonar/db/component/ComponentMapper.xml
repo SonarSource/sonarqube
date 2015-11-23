@@ -20,6 +20,7 @@
     p.path as path,
     p.enabled as enabled,
     p.copy_resource_id as copyResourceId,
+    p.person_id as developerId,
     p.authorization_updated_at as authorizationUpdatedAt,
     p.created_at as createdAt
   </sql>
@@ -408,13 +409,14 @@
 
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO projects (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name,
-    qualifier, scope, language, description, root_id, path, copy_resource_id, enabled,
+    qualifier, scope, language, description, root_id, path, copy_resource_id, person_id, enabled,
     created_at, authorization_updated_at)
     VALUES (#{kee,jdbcType=VARCHAR}, #{deprecatedKey,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
     #{projectUuid,jdbcType=VARCHAR}, #{moduleUuid,jdbcType=VARCHAR}, #{moduleUuidPath,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR}, #{longName,jdbcType=VARCHAR}, #{qualifier,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR},
     #{language,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
     #{parentProjectId,jdbcType=BIGINT}, #{path,jdbcType=VARCHAR}, #{copyResourceId,jdbcType=BIGINT},
+    #{developerId,jdbcType=BIGINT},
     #{enabled,jdbcType=BOOLEAN},
     #{createdAt,jdbcType=TIMESTAMP}, #{authorizationUpdatedAt,jdbcType=BIGINT})
   </insert>
@@ -435,6 +437,7 @@
     root_id=#{parentProjectId,jdbcType=BIGINT},
     path=#{path,jdbcType=VARCHAR},
     copy_resource_id=#{copyResourceId,jdbcType=BIGINT},
+    person_id=#{developerId,jdbcType=BIGINT},
     enabled=#{enabled,jdbcType=BOOLEAN},
     authorization_updated_at=#{authorizationUpdatedAt,jdbcType=BIGINT}
     WHERE uuid=#{uuid}

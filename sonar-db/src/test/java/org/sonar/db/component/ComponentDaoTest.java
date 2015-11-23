@@ -104,6 +104,14 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void get_by_uuid_on_developer_project_copy() {
+    db.prepareDbUnit(getClass(), "shared.xml");
+
+    ComponentDto result = underTest.selectByUuid(dbSession, "STUV").get();
+    assertThat(result.getDeveloperId()).isEqualTo(11L);
+  }
+
+  @Test
   public void get_by_uuid_on_disabled_component() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
@@ -564,6 +572,7 @@ public class ComponentDaoTest {
       .setPath("src/org/struts/RequestContext.java")
       .setParentProjectId(3L)
       .setCopyResourceId(5L)
+      .setDeveloperId(7L)
       .setEnabled(true)
       .setCreatedAt(DateUtils.parseDate("2014-06-18"))
       .setAuthorizationUpdatedAt(123456789L);
@@ -624,6 +633,7 @@ public class ComponentDaoTest {
       .setPath("src/org/struts/RequestContext2.java")
       .setParentProjectId(4L)
       .setCopyResourceId(6L)
+      .setDeveloperId(9L)
       .setEnabled(false)
       .setAuthorizationUpdatedAt(12345678910L);
 

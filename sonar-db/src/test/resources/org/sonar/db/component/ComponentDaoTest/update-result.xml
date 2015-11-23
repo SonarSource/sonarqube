@@ -4,7 +4,7 @@
             name="RequestContext2.java" long_name="org.struts.RequestContext2"
             uuid="GHIJ" project_uuid="DCBA" module_uuid="HGFE" module_uuid_path=".DCBA.HGFE."
             qualifier="LIF" scope="LIF" language="java2" path="src/org/struts/RequestContext2.java" root_id="4"
-            description="description2" enabled="[false]" copy_resource_id="6" person_id="[null]"
+            description="description2" enabled="[false]" copy_resource_id="6" person_id="9"
             authorization_updated_at="12345678910" created_at="2014-06-18"
       />
 
