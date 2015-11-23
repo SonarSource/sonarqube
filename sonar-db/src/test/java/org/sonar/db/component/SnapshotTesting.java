@@ -34,17 +34,26 @@ public class SnapshotTesting {
     return createBasicSnapshot(component, parentSnapshot.getRootProjectId())
       .setRootId(parentRootId != null ? parentRootId : parentSnapshot.getId())
       .setParentId(parentSnapshot.getId())
-      .setPath(Strings.isNullOrEmpty(parentSnapshot.getPath()) ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".");
+      .setPath(
+        Strings.isNullOrEmpty(parentSnapshot.getPath()) ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".");
   }
 
   public static SnapshotDto newSnapshotForProject(ComponentDto project) {
     return createBasicSnapshot(project, project.getId())
-        .setPath("");
+      .setDepth(0)
+      .setPath("");
   }
 
   public static SnapshotDto newSnapshotForView(ComponentDto view) {
     return createBasicSnapshot(view, view.getId())
-        .setPath("");
+      .setDepth(0)
+      .setPath("");
+  }
+
+  public static SnapshotDto newSnapshotForDeveloper(ComponentDto developer) {
+    return createBasicSnapshot(developer, developer.getId())
+      .setDepth(0)
+      .setPath("");
   }
 
   private static SnapshotDto createBasicSnapshot(ComponentDto component, Long rootProjectId) {
