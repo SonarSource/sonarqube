@@ -27,7 +27,7 @@ public class UserTokenTesting {
   public static UserTokenDto newUserToken() {
     return new UserTokenDto()
       .setLogin(randomAlphanumeric(255))
-      .setName(randomAlphanumeric(255))
+      .setName(randomAlphanumeric(100))
       .setTokenHash(randomAlphanumeric(40))
       .setCreatedAt(nextLong());
   }

@@ -26,7 +26,7 @@ class CreateUserTokens < ActiveRecord::Migration
   def self.up
     create_table 'user_tokens' do |t|
       t.column 'login', :string, :limit => 255, :null => false
-      t.column 'name', :string, :limit => 255, :null => false
+      t.column 'name', :string, :limit => 100, :null => false
       t.column 'token_hash', :string, :limit => 255, :null => false
       t.column 'created_at', :big_integer, :null => false
     end
