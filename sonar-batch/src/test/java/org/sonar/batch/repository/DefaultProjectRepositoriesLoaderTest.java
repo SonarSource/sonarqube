@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.api.utils.MessageException;
+
 import com.google.common.io.Resources;
 
 import java.io.ByteArrayInputStream;
@@ -78,6 +80,17 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void failFastHttpError() {
     HttpException http = new HttpException(URI.create("uri"), 403);
     IllegalStateException e = new IllegalStateException("http error", http);
+    when(wsLoader.loadStream(anyString())).thenThrow(e);
+    loader.load(PROJECT_KEY, false, null);
+  }
+  
+  @Test
+  public void failFastHttpErrorMessageException() {
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("http error");
+    
+    HttpException http = new HttpException(URI.create("uri"), 403);
+    MessageException e = MessageException.of("http error", http);
     when(wsLoader.loadStream(anyString())).thenThrow(e);
     loader.load(PROJECT_KEY, false, null);
   }

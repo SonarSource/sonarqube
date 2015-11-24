@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.api.utils.HttpDownloader.HttpException;
+import com.google.common.base.Throwables;
 
+import org.sonar.api.utils.HttpDownloader.HttpException;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
@@ -59,7 +60,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
         fromCache.setValue(result.isFromCache());
       }
       return processStream(result.get(), projectKey);
-    } catch (IllegalStateException e) {
+    } catch (RuntimeException e) {
       if (shouldThrow(e)) {
         throw e;
       }
@@ -81,9 +82,11 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   }
 
   private static boolean shouldThrow(Exception e) {
-    if (e.getCause() != null && e.getCause() instanceof HttpException) {
-      HttpException http = (HttpException) e.getCause();
-      return http.getResponseCode() != 404;
+    for (Throwable t : Throwables.getCausalChain(e)) {
+      if (t instanceof HttpException) {
+        HttpException http = (HttpException) t;
+        return http.getResponseCode() != 404;
+      }
     }
 
     return false;
