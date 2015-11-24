@@ -5,23 +5,24 @@ jdk: oraclejdk7
 script: ./travis.sh
 
 env:
-  - JOB=H2
-  - JOB=POSTGRES
-  - JOB=MYSQL
-  - JOB=WEB
-  - JOB=ITS IT_CATEGORY=Category1
-  - JOB=ITS IT_CATEGORY=Category2
-  - JOB=ITS IT_CATEGORY=Category3
-  - JOB=ITS IT_CATEGORY=Category4
-  - JOB=ITS IT_CATEGORY=Plugins
-  - JOB=PULL_REQUEST_ANALYSIS
+  - TARGET=CI
+  - TARGET=POSTGRES
+  - TARGET=MYSQL
+  - TARGET=WEB
+  - TARGET=IT IT_CATEGORY=Category1
+  - TARGET=IT IT_CATEGORY=Category2
+  - TARGET=IT IT_CATEGORY=Category3
+  - TARGET=IT IT_CATEGORY=Category4
+  - TARGET=IT IT_CATEGORY=Plugins
+
 
 matrix:
   fast_finish: true
 
 cache:
   directories:
-    - '$HOME/.m2/repository'
+    - $HOME/.m2/repository
+    - $HOME/.sonar
     - 'server/sonar-web/node'
     - 'server/sonar-web/node_modules'
 
