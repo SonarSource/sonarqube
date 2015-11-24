@@ -24,6 +24,7 @@ import com.google.common.base.Predicate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.resources.Language;
@@ -222,7 +223,7 @@ public class SearchDataLoader {
 
   private class IsLanguageKnown implements Predicate<QProfile> {
     @Override
-    public boolean apply(@Nullable QProfile profile) {
+    public boolean apply(@Nonnull QProfile profile) {
       return languages.get(profile.language()) != null;
     }
   }
