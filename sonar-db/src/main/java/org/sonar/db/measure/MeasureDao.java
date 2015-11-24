@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -75,6 +76,19 @@ public class MeasureDao implements Dao {
       public List<PastMeasureDto> apply(List<Integer> ids) {
         return mapper(session).selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds(componentUuid, projectSnapshotId, ids,
           SnapshotDto.STATUS_PROCESSED);
+      }
+    });
+  }
+
+  /**
+   * Used by plugin Developer Cockpit
+   */
+  public List<MeasureDto> selectByDeveloperForSnapshotAndMetrics(final DbSession dbSession, final long developerId, final long snapshotId, Collection<Integer> metricIds) {
+    return DatabaseUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<MeasureDto>>() {
+      @Override
+      @Nonnull
+      public List<MeasureDto> apply(@Nonnull List<Integer> input) {
+        return mapper(dbSession).selectByDeveloperForSnapshotAndMetrics(developerId, snapshotId, input);
       }
     });
   }
