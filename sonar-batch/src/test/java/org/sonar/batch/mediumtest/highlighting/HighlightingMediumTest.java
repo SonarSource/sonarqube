@@ -19,28 +19,24 @@
  */
 package org.sonar.batch.mediumtest.highlighting;
 
-import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.junit.rules.ExpectedException;
 import com.google.common.collect.ImmutableMap;
-
 import java.io.File;
 import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HighlightingMediumTest {
@@ -121,7 +117,7 @@ public class HighlightingMediumTest {
         return e.getMessage().contains("Unable to highlight file");
       }
     });
-    
+
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -132,42 +128,6 @@ public class HighlightingMediumTest {
         .put("sonar.sources", "src")
         .build())
       .start();
-  }
-
-  @Test
-  public void computeSyntaxHighlightingOnBigFile() throws IOException {
-
-    File baseDir = temp.newFolder();
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
-
-    int nbFiles = 100;
-    int ruleCount = 100000;
-    int nblines = 1000;
-    int linesize = ruleCount / nblines;
-    for (int nb = 1; nb <= nbFiles; nb++) {
-      File xooFile = new File(srcDir, "sample" + nb + ".xoo");
-      File xoohighlightingFile = new File(srcDir, "sample" + nb + ".xoo.highlighting");
-      FileUtils.write(xooFile, StringUtils.repeat(StringUtils.repeat("a", linesize) + "\n", nblines));
-      StringBuilder sb = new StringBuilder(16 * ruleCount);
-      for (int i = 0; i < ruleCount; i++) {
-        sb.append(i).append(":").append(i + 1).append(":s\n");
-      }
-      FileUtils.write(xoohighlightingFile, sb.toString());
-    }
-    long start = System.currentTimeMillis();
-    TaskResult result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
-        .put("sonar.sources", "src")
-        .build())
-      .start();
-    System.out.println("Duration: " + (System.currentTimeMillis() - start));
-
   }
 
 }
