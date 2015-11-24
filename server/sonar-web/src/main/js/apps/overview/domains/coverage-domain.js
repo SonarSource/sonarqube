@@ -5,6 +5,7 @@ import { getMeasuresAndVariations } from '../../../api/measures';
 import { DomainTimeline } from '../components/domain-timeline';
 import { DomainTreemap } from '../components/domain-treemap';
 import { DomainBubbleChart } from '../components/domain-bubble-chart';
+import { CoverageSelectionMixin } from '../components/coverage-selection-mixin';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
@@ -17,7 +18,7 @@ const TEST_DOMAINS = ['Tests', 'Tests (Integration)', 'Tests (Overall)'];
 
 
 export const CoverageMain = React.createClass({
-  mixins: [TooltipsMixin],
+  mixins: [TooltipsMixin, CoverageSelectionMixin],
 
   getInitialState() {
     return {
@@ -31,7 +32,12 @@ export const CoverageMain = React.createClass({
     this.requestMeasures().then(r => {
       let measures = this.getMeasuresValues(r, 'value');
       let leak = this.getMeasuresValues(r, 'var' + this.props.leakPeriodIndex);
-      this.setState({ ready: true, measures, leak });
+      this.setState({
+        ready: true,
+        measures,
+        leak,
+        coverageMetricPrefix: this.getCoverageMetricPrefix(measures),
+      });
     });
   },
 
@@ -80,6 +86,9 @@ export const CoverageMain = React.createClass({
         .domain([0, 100])
         .range(CHART_COLORS_RANGE_PERCENT);
 
+    let coverageMetric = this.state.coverageMetricPrefix + 'coverage',
+        uncoveredLinesMetric = this.state.coverageMetricPrefix + 'uncovered_lines';
+
     return <div className="overview-detailed-page">
       <div className="overview-cards-list">
         <div className="overview-card overview-card-fixed-width">
@@ -93,15 +102,15 @@ export const CoverageMain = React.createClass({
         <div className="overview-card">
           <DomainBubbleChart {...this.props}
               xMetric="complexity"
-              yMetric="overall_coverage"
-              sizeMetrics={['overall_uncovered_lines']}/>
+              yMetric={coverageMetric}
+              sizeMetrics={[uncoveredLinesMetric]}/>
         </div>
       </div>
 
       <div className="overview-cards-list">
         <div className="overview-card">
           <DomainTimeline {...this.props} {...this.state}
-              initialMetric="overall_coverage"
+              initialMetric={coverageMetric}
               metrics={this.getMetricsForTimeline()}
               allMetrics={this.getAllMetricsForTimeline()}/>
         </div>
@@ -109,7 +118,7 @@ export const CoverageMain = React.createClass({
         <div className="overview-card">
           <DomainTreemap {...this.props}
               sizeMetric="ncloc"
-              colorMetric="overall_coverage"
+              colorMetric={coverageMetric}
               scale={treemapScale}/>
         </div>
       </div>

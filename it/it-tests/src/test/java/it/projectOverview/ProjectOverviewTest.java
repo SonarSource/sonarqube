@@ -36,7 +36,7 @@ public class ProjectOverviewTest {
 
   @Test
   public void test_project_overview_after_first_analysis() throws Exception {
-    executeBuild("project-for-overview", "Project For Overview");
+    executeBuild("shared/xoo-sample", "project-for-overview", "Project For Overview");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_overview_after_first_analysis",
       "/projectOverview/ProjectOverviewTest/test_project_overview_after_first_analysis.html"
@@ -44,9 +44,39 @@ public class ProjectOverviewTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
-  private void executeBuild(String projectKey, String projectName) {
+  @Test
+  public void test_ut_coverage_on_project_overview() throws Exception {
+    executeBuild("testing/xoo-sample-ut-coverage", "project-for-overview-ut-coverage", "Project For Overview UT");
+
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_ut_coverage_on_project_overview",
+      "/projectOverview/ProjectOverviewTest/test_ut_coverage_on_project_overview.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
+  @Test
+  public void test_it_coverage_on_project_overview() throws Exception {
+    executeBuild("testing/xoo-sample-it-coverage", "project-for-overview-it-coverage", "Project For Overview IT");
+
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_it_coverage_onfi_project_overview",
+      "/projectOverview/ProjectOverviewTest/test_it_coverage_on_project_overview.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
+  @Test
+  public void test_overall_coverage_on_project_overview() throws Exception {
+    executeBuild("testing/xoo-sample-overall-coverage", "project-for-overview-overall-coverage", "Project For Overview Overall");
+
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_overall_coverage_on_project_overview",
+      "/projectOverview/ProjectOverviewTest/test_overall_coverage_on_project_overview.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
+  private void executeBuild(String projectLocation, String projectKey, String projectName) {
     orchestrator.executeBuild(
-      SonarRunner.create(projectDir("shared/xoo-sample"))
+      SonarRunner.create(projectDir(projectLocation))
         .setProjectKey(projectKey)
         .setProjectName(projectName)
     );

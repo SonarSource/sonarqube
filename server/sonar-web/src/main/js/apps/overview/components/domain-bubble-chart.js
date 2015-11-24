@@ -96,7 +96,7 @@ export class DomainBubbleChart extends React.Component {
     let formatYTick = (tick) => formatMeasure(tick, this.state.yMetric.type);
     return <BubbleChart items={items}
                         height={HEIGHT}
-                        padding={[25, 30, 50, 60]}
+                        padding={[25, 60, 50, 60]}
                         formatXTick={formatXTick}
                         formatYTick={formatYTick}/>;
   }

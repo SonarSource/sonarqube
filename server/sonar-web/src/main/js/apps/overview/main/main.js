@@ -6,6 +6,7 @@ import { GeneralIssues } from './issues';
 import { GeneralCoverage } from './coverage';
 import { GeneralDuplications } from './duplications';
 import { GeneralSize } from './size';
+import { CoverageSelectionMixin } from '../components/coverage-selection-mixin';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { getMeasuresAndVariations } from '../../../api/measures';
 import { getFacet, getIssuesCount } from '../../../api/issues';
@@ -30,7 +31,6 @@ const METRICS_LIST = [
 
 const HISTORY_METRICS_LIST = [
   'sqale_index',
-  'overall_coverage',
   'duplicated_lines_density',
   'ncloc'
 ];
@@ -42,6 +42,8 @@ function getFacetValue (facet, key) {
 
 
 export default React.createClass({
+  mixins: [CoverageSelectionMixin],
+
   propTypes: {
     leakPeriodIndex: React.PropTypes.string.isRequired
   },
@@ -77,7 +79,8 @@ export default React.createClass({
       this.setState({
         ready: true,
         measures: measures,
-        leak: leak
+        leak: leak,
+        coverageMetricPrefix: this.getCoverageMetricPrefix(measures)
       }, this.requestHistory);
     });
   },
@@ -134,7 +137,8 @@ export default React.createClass({
   },
 
   requestHistory () {
-    let metrics = HISTORY_METRICS_LIST.join(',');
+    let coverageMetric = this.state.coverageMetricPrefix + 'coverage';
+    let metrics = [].concat(HISTORY_METRICS_LIST, coverageMetric).join(',');
     return getTimeMachineData(this.props.component.key, metrics).then(r => {
       let history = {};
       r[0].cols.forEach((col, index) => {
@@ -159,11 +163,13 @@ export default React.createClass({
       return this.renderLoading();
     }
 
+    let coverageMetric = this.state.coverageMetricPrefix + 'coverage';
     let props = _.extend({}, this.props, this.state);
 
     return <div className="overview-domains-list">
       <GeneralIssues {...props} history={this.state.history['sqale_index']}/>
-      <GeneralCoverage {...props} history={this.state.history['overall_coverage']}/>
+      <GeneralCoverage {...props} coverageMetricPrefix={this.state.coverageMetricPrefix}
+                                  history={this.state.history[coverageMetric]}/>
       <GeneralDuplications {...props} history={this.state.history['duplicated_lines_density']}/>
       <GeneralSize {...props} history={this.state.history['ncloc']}/>
     </div>;

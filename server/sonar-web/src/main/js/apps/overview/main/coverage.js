@@ -13,27 +13,16 @@ export const GeneralCoverage = React.createClass({
   propTypes: {
     measures: React.PropTypes.object.isRequired,
     leakPeriodLabel: React.PropTypes.string,
-    leakPeriodDate: React.PropTypes.object
+    leakPeriodDate: React.PropTypes.object,
+    coverageMetricPrefix: React.PropTypes.string.isRequired
   },
 
   getCoverageMetric () {
-    if (this.props.measures['overall_coverage'] != null) {
-      return 'overall_coverage';
-    } else if (this.props.measures['coverage'] != null) {
-      return 'coverage';
-    } else {
-      return 'it_coverage';
-    }
+    return this.props.coverageMetricPrefix + 'coverage';
   },
 
   getNewCoverageMetric () {
-    if (this.props.leak['new_overall_coverage'] != null) {
-      return 'new_overall_coverage';
-    } else if (this.props.leak['new_coverage'] != null) {
-      return 'new_coverage';
-    } else {
-      return 'new_it_coverage';
-    }
+    return 'new_' + this.props.coverageMetricPrefix + 'coverage';
   },
 
   renderNewCoverage () {

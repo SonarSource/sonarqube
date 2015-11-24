@@ -28,20 +28,8 @@ const LEAK_FOR_IT = _.omit(LEAK_FOR_UT, 'new_coverage');
 
 
 describe('Overview :: GeneralCoverage', function () {
-  it('should display overall coverage', function () {
-    let component = <GeneralCoverage measures={MEASURES} leak={LEAK} component={COMPONENT}
-                                     leakPeriodDate={DATE}/>;
-    let output = TestUtils.renderIntoDocument(component);
-
-    let coverageElement = TestUtils.findRenderedDOMComponentWithClass(output, 'js-overview-main-coverage');
-    expect(coverageElement.textContent).to.equal('73.5%');
-
-    let newCoverageElement = TestUtils.findRenderedDOMComponentWithClass(output, 'js-overview-main-new-coverage');
-    expect(newCoverageElement.textContent).to.equal('72.5%');
-  });
-
   it('should display tests', function () {
-    let component = <GeneralCoverage measures={MEASURES} component={COMPONENT}/>;
+    let component = <GeneralCoverage measures={MEASURES} component={COMPONENT} coverageMetricPrefix=""/>;
     let output = TestUtils.renderIntoDocument(component);
     let coverageElement = TestUtils.findRenderedDOMComponentWithClass(output, 'js-overview-main-tests');
     expect(coverageElement.textContent).to.equal('137');
@@ -49,7 +37,7 @@ describe('Overview :: GeneralCoverage', function () {
 
   it('should not display tests', function () {
     let measuresWithoutTests = _.omit(MEASURES, 'tests');
-    let component = <GeneralCoverage measures={measuresWithoutTests} component={COMPONENT}/>;
+    let component = <GeneralCoverage measures={measuresWithoutTests} component={COMPONENT} coverageMetricPrefix=""/>;
     let output = TestUtils.renderIntoDocument(component);
     let coverageElements = TestUtils.scryRenderedDOMComponentsWithClass(output, 'js-overview-main-tests');
     expect(coverageElements).to.be.empty;
@@ -57,7 +45,7 @@ describe('Overview :: GeneralCoverage', function () {
 
   it('should fall back to UT coverage', function () {
     let component = <GeneralCoverage measures={MEASURES_FOR_UT} leak={LEAK_FOR_UT} component={COMPONENT}
-                                     leakPeriodDate={DATE}/>;
+                                     leakPeriodDate={DATE} coverageMetricPrefix=""/>;
     let output = TestUtils.renderIntoDocument(component);
 
     let coverageElement = TestUtils.findRenderedDOMComponentWithClass(output, 'js-overview-main-coverage');
@@ -69,7 +57,7 @@ describe('Overview :: GeneralCoverage', function () {
 
   it('should fall back to IT coverage', function () {
     let component = <GeneralCoverage measures={MEASURES_FOR_IT} leak={LEAK_FOR_IT} component={COMPONENT}
-                                     leakPeriodDate={DATE}/>;
+                                     leakPeriodDate={DATE} coverageMetricPrefix="it_"/>;
     let output = TestUtils.renderIntoDocument(component);
 
     let coverageElement = TestUtils.findRenderedDOMComponentWithClass(output, 'js-overview-main-coverage');

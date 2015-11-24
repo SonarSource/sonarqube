@@ -11,10 +11,9 @@ export const DetailedMeasure = React.createClass({
       return null;
     }
     let leak = this.props.leak[this.props.metric];
+    let formatted = leak != null ? formatMeasureVariation(leak, getShortType(this.props.type)) : '—';
     return <div className="overview-detailed-measure-leak">
-      <span className="overview-detailed-measure-value">
-        {formatMeasureVariation(leak, getShortType(this.props.type))}
-      </span>
+      <span className="overview-detailed-measure-value">{formatted}</span>
     </div>;
   },
 
