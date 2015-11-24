@@ -359,6 +359,39 @@ public class MeasureDaoTest {
   }
 
   @Test
+  public void selectBySnapshotAndMetrics_returns_empty_when_single_metric_id_does_not_exist() {
+    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
+
+    List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(db.getSession(),
+        SNAPSHOT_ID,
+        ImmutableList.of(666));
+
+    assertThat(measureDtos).isEmpty();
+  }
+
+  @Test
+  public void selectBySnapshotAndMetrics_returns_only_measures_not_for_developer() {
+    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
+
+    List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(db.getSession(),
+        SNAPSHOT_ID,
+        ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
+
+    assertThat(measureDtos).extracting("id").containsOnly(20L, 21L, 22L);
+  }
+
+  @Test
+  public void selectBySnapshotAndMetrics_returns_only_measures_not_for_developer_and_with_specified_metric_id() {
+    db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
+
+    List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(db.getSession(),
+        SNAPSHOT_ID,
+        ImmutableList.of(NCLOC_METRIC_ID));
+
+    assertThat(measureDtos).extracting("id").containsOnly(22L);
+  }
+
+  @Test
   public void selectByDeveloperForSnapshotAndMetrics_returns_empty_when_single_metric_id_does_not_exist() {
     db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
 

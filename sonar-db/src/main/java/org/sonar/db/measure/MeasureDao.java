@@ -93,6 +93,19 @@ public class MeasureDao implements Dao {
     });
   }
 
+  /**
+   * Used by plugin Developer Cockpit
+   */
+  public List<MeasureDto> selectBySnapshotAndMetrics(final DbSession dbSession, final long snapshotId, Collection<Integer> metricIds) {
+    return DatabaseUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<MeasureDto>>() {
+      @Override
+      @Nonnull
+      public List<MeasureDto> apply(@Nonnull List<Integer> input) {
+        return mapper(dbSession).selectBySnapshotAndMetrics(snapshotId, input);
+      }
+    });
+  }
+
   public void insert(DbSession session, MeasureDto measureDto) {
     mapper(session).insert(measureDto);
   }

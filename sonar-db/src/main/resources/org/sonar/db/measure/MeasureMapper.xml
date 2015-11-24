@@ -92,6 +92,22 @@
     </where>
   </select>
 
+  <select id="selectBySnapshotAndMetrics" parameterType="map" resultType="Measure">
+    SELECT
+    <include refid="measureColumns"/>
+    FROM project_measures pm
+    <where>
+      pm.snapshot_id = #{snapshotId}
+      AND pm.rule_id is NULL
+      AND pm.characteristic_id is NULL
+      AND pm.person_id is NULL
+      AND
+      <foreach item="metricId" index="index" collection="metricIds" open="(" separator=" or " close=")">
+        pm.metric_id=#{metricId}
+      </foreach>
+    </where>
+  </select>
+
   <select id="countByComponentAndMetric" parameterType="map" resultType="long">
     SELECT count(pm.id)
     FROM project_measures pm
