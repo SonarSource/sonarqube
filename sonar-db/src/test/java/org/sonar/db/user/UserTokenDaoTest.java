@@ -26,9 +26,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +40,8 @@ import static org.sonar.db.user.UserTokenTesting.newUserToken;
 public class UserTokenDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   DbSession dbSession;
 
@@ -61,6 +65,24 @@ public class UserTokenDaoTest {
     assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
     assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());
     assertThat(userTokenFromDb.getLogin()).isEqualTo(userToken.getLogin());
+  }
+
+  @Test
+  public void select_by_token_hash() {
+    String tokenHash = "123456789";
+    insertToken(newUserToken().setTokenHash(tokenHash));
+
+    Optional<UserTokenDto> result = underTest.selectByTokenHash(dbSession, tokenHash);
+
+    Assertions.assertThat(result).isPresent();
+  }
+
+  @Test
+  public void fail_if_token_is_not_found() {
+    expectedException.expect(RowNotFoundException.class);
+    expectedException.expectMessage("User token with token hash 'unknown-token-hash' not found");
+
+    underTest.selectOrFailByTokenHash(dbSession, "unknown-token-hash");
   }
 
   @Test
