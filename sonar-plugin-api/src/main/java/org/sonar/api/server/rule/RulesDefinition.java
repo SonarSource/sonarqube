@@ -616,22 +616,22 @@ public interface RulesDefinition {
 
     /**
      * Shortcut for {@code create(Type.LINEAR, coefficient, null)}.
-     * @param coefficient TODO. See {@link DebtRemediationFunction} for details about format.
+     * @param coefficient the duration to fix one issue. See {@link DebtRemediationFunction} for details about format.
      * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#LINEAR
      */
     DebtRemediationFunction linear(String coefficient);
 
     /**
      * Shortcut for {@code create(Type.LINEAR_OFFSET, coefficient, offset)}.
-     * @param coefficient TODO. See {@link DebtRemediationFunction} for details about format.
-     * @param offset TODO. See {@link DebtRemediationFunction} for details about format.
+     * @param coefficient duration to fix one point of complexity. See {@link DebtRemediationFunction} for details and format.
+     * @param offset duration to make basic analysis. See {@link DebtRemediationFunction} for details and format.
      * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#LINEAR_OFFSET
      */
     DebtRemediationFunction linearWithOffset(String coefficient, String offset);
 
     /**
      * Shortcut for {@code create(Type.CONSTANT_ISSUE, null, constant)}.
-     * @param constant cost per issue. See {@link DebtRemediationFunction} for details about format.
+     * @param constant cost per issue. See {@link DebtRemediationFunction} for details and format.
      * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#CONSTANT_ISSUE
      */
     DebtRemediationFunction constantPerIssue(String constant);

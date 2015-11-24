@@ -29,7 +29,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -40,6 +39,9 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang.StringUtils.trim;
 
 /**
  * Loads definitions of rules from a XML file.
@@ -157,7 +159,7 @@ import static java.lang.String.format;
  *     &lt;tag&gt;security&lt;/tag&gt;
  *     &lt;tag&gt;user-experience&lt;/tag&gt;
  *     &lt;debtSubCharacteristic&gt;SECURITY_FEATURES&lt;/debtSubCharacteristic&gt;
- *     &lt;debtRemediationFunction&gt;CONSTANT&lt;/debtRemediationFunction&gt;
+ *     &lt;debtRemediationFunction&gt;CONSTANT_ISSUE&lt;/debtRemediationFunction&gt;
  *     &lt;debtRemediationFunctionOffset&gt;10min&lt;/debtRemediationFunctionOffset&gt;
  *   &lt;/rule&gt;
  *
@@ -192,7 +194,7 @@ public class RulesDefinitionXmlLoader {
   }
 
   /**
-   * Loads rules by reading the XML input stream. The reader is closed by the method, so it
+   * Loads rules by reading the XML input stream. The reader is not closed by the method, so it
    * should be handled by the caller.
    * @since 4.3
    */
@@ -237,70 +239,70 @@ public class RulesDefinitionXmlLoader {
 
     /* BACKWARD COMPATIBILITY WITH VERY OLD FORMAT */
     String keyAttribute = ruleC.getAttrValue("key");
-    if (StringUtils.isNotBlank(keyAttribute)) {
-      key = StringUtils.trim(keyAttribute);
+    if (isNotBlank(keyAttribute)) {
+      key = trim(keyAttribute);
     }
     String priorityAttribute = ruleC.getAttrValue("priority");
-    if (StringUtils.isNotBlank(priorityAttribute)) {
-      severity = StringUtils.trim(priorityAttribute);
+    if (isNotBlank(priorityAttribute)) {
+      severity = trim(priorityAttribute);
     }
 
     SMInputCursor cursor = ruleC.childElementCursor();
     while (cursor.getNext() != null) {
       String nodeName = cursor.getLocalName();
 
-      if (StringUtils.equalsIgnoreCase("name", nodeName)) {
-        name = StringUtils.trim(cursor.collectDescendantText(false));
+      if (equalsIgnoreCase("name", nodeName)) {
+        name = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("description", nodeName)) {
-        description = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("description", nodeName)) {
+        description = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("key", nodeName)) {
-        key = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("key", nodeName)) {
+        key = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("configKey", nodeName)) {
+      } else if (equalsIgnoreCase("configKey", nodeName)) {
         // deprecated field, replaced by internalKey
-        internalKey = StringUtils.trim(cursor.collectDescendantText(false));
+        internalKey = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("internalKey", nodeName)) {
-        internalKey = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("internalKey", nodeName)) {
+        internalKey = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("priority", nodeName)) {
+      } else if (equalsIgnoreCase("priority", nodeName)) {
         // deprecated field, replaced by severity
-        severity = StringUtils.trim(cursor.collectDescendantText(false));
+        severity = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("severity", nodeName)) {
-        severity = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("severity", nodeName)) {
+        severity = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("cardinality", nodeName)) {
-        template = Cardinality.MULTIPLE == Cardinality.valueOf(StringUtils.trim(cursor.collectDescendantText(false)));
+      } else if (equalsIgnoreCase("cardinality", nodeName)) {
+        template = Cardinality.MULTIPLE == Cardinality.valueOf(trim(cursor.collectDescendantText(false)));
 
-      } else if (StringUtils.equalsIgnoreCase("effortToFixDescription", nodeName)) {
-        effortToFixDescription = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("effortToFixDescription", nodeName)) {
+        effortToFixDescription = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("debtRemediationFunction", nodeName)) {
-        debtRemediationFunction = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("debtRemediationFunction", nodeName)) {
+        debtRemediationFunction = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
-        debtRemediationFunctionOffset = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
+        debtRemediationFunctionOffset = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
-        debtRemediationFunctionCoeff = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
+        debtRemediationFunctionCoeff = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("debtSubCharacteristic", nodeName)) {
-        debtSubCharacteristic = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("debtSubCharacteristic", nodeName)) {
+        debtSubCharacteristic = trim(cursor.collectDescendantText(false));
 
-      } else if (StringUtils.equalsIgnoreCase("status", nodeName)) {
-        String s = StringUtils.trim(cursor.collectDescendantText(false));
+      } else if (equalsIgnoreCase("status", nodeName)) {
+        String s = trim(cursor.collectDescendantText(false));
         if (s != null) {
           status = RuleStatus.valueOf(s);
         }
 
-      } else if (StringUtils.equalsIgnoreCase("param", nodeName)) {
+      } else if (equalsIgnoreCase("param", nodeName)) {
         params.add(processParameter(cursor));
 
-      } else if (StringUtils.equalsIgnoreCase("tag", nodeName)) {
-        tags.add(StringUtils.trim(cursor.collectDescendantText(false)));
+      } else if (equalsIgnoreCase("tag", nodeName)) {
+        tags.add(trim(cursor.collectDescendantText(false)));
       }
     }
 
@@ -322,8 +324,9 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  private void fillRemediationFunction(RulesDefinition.NewRule rule, @Nullable String debtRemediationFunction, @Nullable String functionOffset, @Nullable String functionCoeff) {
-    if (StringUtils.isNotBlank(debtRemediationFunction)) {
+  private void fillRemediationFunction(RulesDefinition.NewRule rule, @Nullable String debtRemediationFunction,
+                                              @Nullable String functionOffset, @Nullable String functionCoeff) {
+    if (isNotBlank(debtRemediationFunction)) {
       DebtRemediationFunction.Type functionType = DebtRemediationFunction.Type.valueOf(debtRemediationFunction);
       rule.setDebtRemediationFunction(rule.debtRemediationFunctions().create(functionType, functionCoeff, functionOffset));
     }
@@ -350,30 +353,30 @@ public class RulesDefinitionXmlLoader {
 
     // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
     String keyAttribute = ruleC.getAttrValue("key");
-    if (StringUtils.isNotBlank(keyAttribute)) {
-      param.key = StringUtils.trim(keyAttribute);
+    if (isNotBlank(keyAttribute)) {
+      param.key = trim(keyAttribute);
     }
 
     // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
     String typeAttribute = ruleC.getAttrValue("type");
-    if (StringUtils.isNotBlank(typeAttribute)) {
+    if (isNotBlank(typeAttribute)) {
       param.type = RuleParamType.parse(typeAttribute);
     }
 
     SMInputCursor paramC = ruleC.childElementCursor();
     while (paramC.getNext() != null) {
       String propNodeName = paramC.getLocalName();
-      String propText = StringUtils.trim(paramC.collectDescendantText(false));
-      if (StringUtils.equalsIgnoreCase("key", propNodeName)) {
+      String propText = trim(paramC.collectDescendantText(false));
+      if (equalsIgnoreCase("key", propNodeName)) {
         param.key = propText;
 
-      } else if (StringUtils.equalsIgnoreCase("description", propNodeName)) {
+      } else if (equalsIgnoreCase("description", propNodeName)) {
         param.description = propText;
 
-      } else if (StringUtils.equalsIgnoreCase("type", propNodeName)) {
+      } else if (equalsIgnoreCase("type", propNodeName)) {
         param.type = RuleParamType.parse(propText);
 
-      } else if (StringUtils.equalsIgnoreCase("defaultValue", propNodeName)) {
+      } else if (equalsIgnoreCase("defaultValue", propNodeName)) {
         param.defaultValue = propText;
       }
     }
