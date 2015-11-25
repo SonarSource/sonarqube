@@ -20,15 +20,25 @@
 
 package org.sonarqube.ws.client.usertoken;
 
-public class UserTokensWsParameters {
-  public static final String USER_TOKENS_ENDPOINT = "api/user_tokens";
-  public static final String ACTION_GENERATE = "generate";
-  public static final String ACTION_REVOKE = "revoke";
+public class RevokeWsRequest {
+  private String login;
+  private String name;
 
-  public static final String PARAM_LOGIN = "login";
-  public static final String PARAM_NAME = "name";
+  public String getLogin() {
+    return login;
+  }
 
-  private UserTokensWsParameters() {
-    // constants only
+  public RevokeWsRequest setLogin(String login) {
+    this.login = login;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public RevokeWsRequest setName(String name) {
+    this.name = name;
+    return this;
   }
 }

@@ -116,6 +116,20 @@ public class UserTokenDaoTest {
     assertThat(underTest.selectByLogin(dbSession, "login-to-keep")).hasSize(1);
   }
 
+  @Test
+  public void delete_token_by_login_and_name() {
+    insertToken(newUserToken().setLogin("login").setName("name"));
+    insertToken(newUserToken().setLogin("login").setName("another-name"));
+    insertToken(newUserToken().setLogin("another-login").setName("name"));
+
+    underTest.deleteByLoginAndName(dbSession, "login", "name");
+    db.commit();
+
+    Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "login", "name")).isAbsent();
+    Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "login", "another-name")).isPresent();
+    Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "another-login", "name")).isPresent();
+  }
+
   private void insertToken(UserTokenDto userToken) {
     underTest.insert(dbSession, userToken);
     dbSession.commit();

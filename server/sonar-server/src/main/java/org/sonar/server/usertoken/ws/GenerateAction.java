@@ -50,7 +50,7 @@ public class GenerateAction implements UserTokensWsAction {
   private final System2 system;
   private final TokenGenerator tokenGenerator;
 
-  public GenerateAction(UserSession userSession, DbClient dbClient, System2 system, TokenGenerator tokenGenerator) {
+  public GenerateAction(DbClient dbClient, UserSession userSession, System2 system, TokenGenerator tokenGenerator) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.system = system;

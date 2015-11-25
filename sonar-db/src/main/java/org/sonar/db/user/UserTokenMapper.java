@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface UserTokenMapper {
-
   void insert(UserTokenDto userToken);
 
   UserTokenDto selectByTokenHash(String tokenHash);
@@ -34,4 +33,6 @@ public interface UserTokenMapper {
   List<UserTokenDto> selectByLogin(String login);
 
   void deleteByLogin(String login);
+
+  void deleteByLoginAndName(@Param("login") String login, @Param("name") String name);
 }

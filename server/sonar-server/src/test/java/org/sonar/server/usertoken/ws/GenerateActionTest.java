@@ -79,7 +79,7 @@ public class GenerateActionTest {
     userDb.insertUser(newUserDto().setLogin(ADA_LOVELACE));
 
     ws = new WsActionTester(
-      new GenerateAction(userSession, db.getDbClient(), System2.INSTANCE, tokenGenerator));
+      new GenerateAction(db.getDbClient(), userSession, System2.INSTANCE, tokenGenerator));
   }
 
   @Test

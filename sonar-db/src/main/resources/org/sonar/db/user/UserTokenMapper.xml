@@ -39,4 +39,9 @@
   <delete id="deleteByLogin">
     DELETE FROM user_tokens WHERE login=#{login}
   </delete>
+
+  <delete id="deleteByLoginAndName">
+    DELETE FROM user_tokens WHERE login=#{login} and name=#{name}
+  </delete>
+
 </mapper>

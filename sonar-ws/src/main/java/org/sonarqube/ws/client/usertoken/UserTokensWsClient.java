@@ -25,9 +25,10 @@ import org.sonarqube.ws.client.WsClient;
 
 import static org.sonarqube.ws.client.WsRequest.newPostRequest;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_GENERATE;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.USER_TOKENS_ENDPOINT;
+import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_REVOKE;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.USER_TOKENS_ENDPOINT;
 
 public class UserTokensWsClient {
   private static final String SLASH = "/";
@@ -43,6 +44,13 @@ public class UserTokensWsClient {
         .setParam(PARAM_LOGIN, request.getLogin())
         .setParam(PARAM_NAME, request.getName()),
       GenerateWsResponse.parser());
+  }
+
+  public void revoke(RevokeWsRequest request) {
+    wsClient.execute(
+      newPostRequest(action(ACTION_REVOKE))
+        .setParam(PARAM_LOGIN, request.getLogin())
+        .setParam(PARAM_NAME, request.getName()));
   }
 
   private static String action(String action) {

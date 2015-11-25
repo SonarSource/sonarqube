@@ -45,7 +45,8 @@ public class UserTokensWsTest {
     TokenGenerator tokenGenerator = mock(TokenGenerator.class);
 
     ws = new WsTester(new UserTokensWs(
-      new GenerateAction(userSession, dbClient, system, tokenGenerator)));
+      new GenerateAction(dbClient, userSession, system, tokenGenerator),
+      new RevokeAction(dbClient, userSession)));
   }
 
   @Test
@@ -55,6 +56,17 @@ public class UserTokensWsTest {
     assertThat(action).isNotNull();
     assertThat(action.since()).isEqualTo("5.3");
     assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.param("login").isRequired()).isTrue();
+    assertThat(action.param("name").isRequired()).isTrue();
+  }
+
+  @Test
+  public void revoke_action() {
+    WebService.Action action = ws.action(CONTROLLER_KEY, "revoke");
+
+    assertThat(action).isNotNull();
+    assertThat(action.since()).isEqualTo("5.3");
     assertThat(action.isPost()).isTrue();
     assertThat(action.param("login").isRequired()).isTrue();
     assertThat(action.param("name").isRequired()).isTrue();

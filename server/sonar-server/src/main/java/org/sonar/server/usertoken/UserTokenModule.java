@@ -22,6 +22,7 @@ package org.sonar.server.usertoken;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.usertoken.ws.GenerateAction;
+import org.sonar.server.usertoken.ws.RevokeAction;
 import org.sonar.server.usertoken.ws.UserTokensWs;
 
 public class UserTokenModule extends Module {
@@ -30,6 +31,7 @@ public class UserTokenModule extends Module {
     add(
       UserTokensWs.class,
       GenerateAction.class,
+      RevokeAction.class,
       UserTokenAuthenticator.class,
       TokenGeneratorImpl.class);
   }

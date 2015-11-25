@@ -58,6 +58,10 @@ public class UserTokenDao implements Dao {
     mapper(dbSession).deleteByLogin(login);
   }
 
+  public void deleteByLoginAndName(DbSession dbSession, String login, String name) {
+    mapper(dbSession).deleteByLoginAndName(login, name);
+  }
+
   private static UserTokenMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(UserTokenMapper.class);
   }
