@@ -25,7 +25,7 @@
 class FixSizeOfSnapshotsScope < ActiveRecord::Migration
 
   def self.up
-    change_column('snapshots', 'scope', :string, :limit => 3, :null => false)
+    change_column('snapshots', 'scope', :string, :limit => 3, :null => true)
   end
 
 end

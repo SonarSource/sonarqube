@@ -26,7 +26,7 @@ class FixSizeOfSnapshotsQualifier < ActiveRecord::Migration
 
   def self.up
     remove_index :snapshots, :name => 'snapshots_qualifier'
-    change_column('snapshots', 'qualifier', :string, :limit => 10, :null => false)
+    change_column('snapshots', 'qualifier', :string, :limit => 10, :null => true)
     add_index :snapshots, :qualifier, :name => 'snapshots_qualifier'
   end
 
