@@ -203,7 +203,7 @@ public class ReportPublisher implements Startable {
     }
   }
 
-  private void dumpReport(String dumpDirLocation, String projectKey, String relativeUrl, File report) {
+  private static void dumpReport(String dumpDirLocation, String projectKey, String relativeUrl, File report) {
     LOG.debug("Dump report to file");
     try {
       dumpReportImpl(dumpDirLocation, projectKey, relativeUrl, report);
