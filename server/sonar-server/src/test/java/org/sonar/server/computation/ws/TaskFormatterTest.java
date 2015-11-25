@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -53,8 +54,9 @@ public class TaskFormatterTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  System2 system2 = mock(System2.class);
   CeLogging ceLogging = mock(CeLogging.class, Mockito.RETURNS_DEEP_STUBS);
-  TaskFormatter underTest = new TaskFormatter(db.getDbClient(), ceLogging);
+  TaskFormatter underTest = new TaskFormatter(db.getDbClient(), ceLogging, system2);
 
   @Test
   public void formatQueue_without_component() {
@@ -78,6 +80,8 @@ public class TaskFormatterTest {
     assertThat(wsTask.hasComponentKey()).isFalse();
     assertThat(wsTask.hasComponentName()).isFalse();
     assertThat(wsTask.hasExecutedAt()).isFalse();
+    assertThat(wsTask.hasStartedAt()).isFalse();
+    assertThat(wsTask.hasExecutionTimeMs()).isFalse();
   }
 
   @Test
@@ -106,8 +110,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getStatus()).isEqualTo(WsCe.TaskStatus.IN_PROGRESS);
     assertThat(wsTask.getLogs()).isTrue();
     assertThat(wsTask.getSubmitterLogin()).isEqualTo("rob");
-
-    assertThat(wsTask.hasExecutionTimeMs()).isFalse();
+    assertThat(wsTask.hasExecutionTimeMs()).isTrue();
     assertThat(wsTask.hasExecutedAt()).isFalse();
   }
 
@@ -125,6 +128,23 @@ public class TaskFormatterTest {
     assertThat(wsTask.getComponentId()).isEqualTo("DOES_NOT_EXIST");
     assertThat(wsTask.hasComponentKey()).isFalse();
     assertThat(wsTask.hasComponentName()).isFalse();
+  }
+
+  @Test
+  public void formatQueue_compute_execute_time_if_in_progress() {
+    long startedAt = 1_450_000_001_000L;
+    long now = 1_450_000_003_000L;
+    CeQueueDto dto = new CeQueueDto();
+    dto.setUuid("UUID");
+    dto.setTaskType("TYPE");
+    dto.setStatus(CeQueueDto.Status.IN_PROGRESS);
+    dto.setCreatedAt(1_450_000_000_000L);
+    dto.setStartedAt(startedAt);
+    when(system2.now()).thenReturn(now);
+
+    WsCe.Task wsTask = underTest.formatQueue(db.getSession(), dto);
+
+    assertThat(wsTask.getExecutionTimeMs()).isEqualTo(now-startedAt);
   }
 
   @Test
