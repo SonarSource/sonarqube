@@ -49,12 +49,12 @@ export const GeneralSize = React.createClass({
       <DomainPanel domain="size">
         <DomainNutshell>
           <MeasuresList>
+            {this.renderLanguageDistribution()}
             <Measure label={getMetricName('ncloc')}>
               <DrilldownLink component={this.props.component.key} metric="ncloc">
                 {formatMeasure(this.props.measures['ncloc'], 'SHORT_INT')}
               </DrilldownLink>
             </Measure>
-            {this.renderLanguageDistribution()}
           </MeasuresList>
           {this.renderTimeline('before')}
         </DomainNutshell>

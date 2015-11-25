@@ -3,6 +3,7 @@ import React from 'react';
 import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, MeasuresList, Measure, DomainMixin } from './components';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
+import { DonutChart } from '../../../components/charts/donut-chart';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -71,12 +72,20 @@ export const GeneralCoverage = React.createClass({
       return null;
     }
 
+    let donutData = [
+      { value: this.props.measures[coverageMetric], fill: '#85bb43' },
+      { value: 100 - this.props.measures[coverageMetric], fill: '#d4333f' }
+    ];
+
     return <Domain>
       <DomainHeader component={this.props.component} title={window.t('overview.domain.coverage')} linkTo="/tests"/>
 
       <DomainPanel domain="coverage">
         <DomainNutshell>
           <MeasuresList>
+            <Measure composite={true}>
+              <DonutChart width="48" height="48" thickness="6" data={donutData}/>
+            </Measure>
             <Measure label={getMetricName('coverage')}>
               <DrilldownLink component={this.props.component.key} metric={coverageMetric}>
                 <span className="js-overview-main-coverage">

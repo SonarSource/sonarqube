@@ -3,6 +3,7 @@ import React from 'react';
 import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, MeasuresList, Measure, DomainMixin } from './components';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
+import { DonutChart } from '../../../components/charts/donut-chart';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 
@@ -43,6 +44,11 @@ export const GeneralDuplications = React.createClass({
   },
 
   render () {
+    let donutData = [
+      { value: this.props.measures['duplicated_lines_density'], fill: '#f3ca8e' },
+      { value: 100 - this.props.measures['duplicated_lines_density'], fill: '#e6e6e6' }
+    ];
+
     return <Domain>
       <DomainHeader component={this.props.component} title={window.t('overview.domain.duplications')}
                     linkTo="/duplications"/>
@@ -50,6 +56,9 @@ export const GeneralDuplications = React.createClass({
       <DomainPanel domain="duplications">
         <DomainNutshell>
           <MeasuresList>
+            <Measure composite={true}>
+              <DonutChart width="48" height="48" thickness="6" data={donutData}/>
+            </Measure>
             <Measure label={getMetricName('duplications')}>
               <DrilldownLink component={this.props.component.key} metric="duplicated_lines_density">
                 {formatMeasure(this.props.measures['duplicated_lines_density'], 'PERCENT')}
