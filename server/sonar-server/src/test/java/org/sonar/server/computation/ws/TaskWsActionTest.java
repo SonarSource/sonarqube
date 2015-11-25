@@ -57,7 +57,7 @@ public class TaskWsActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   CeLogging ceLogging = mock(CeLogging.class);
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging);
+  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
   TaskWsAction underTest = new TaskWsAction(dbTester.getDbClient(), formatter, userSession);
   WsActionTester tester = new WsActionTester(underTest);
 

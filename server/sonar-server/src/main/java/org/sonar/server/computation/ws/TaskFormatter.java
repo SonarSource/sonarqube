@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
@@ -45,10 +46,12 @@ public class TaskFormatter {
 
   private final DbClient dbClient;
   private final CeLogging ceLogging;
+  private final System2 system2;
 
-  public TaskFormatter(DbClient dbClient, CeLogging ceLogging) {
+  public TaskFormatter(DbClient dbClient, CeLogging ceLogging, System2 system2) {
     this.dbClient = dbClient;
     this.ceLogging = ceLogging;
+    this.system2 = system2;
   }
 
   public List<WsCe.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
@@ -80,6 +83,11 @@ public class TaskFormatter {
     builder.setSubmittedAt(DateUtils.formatDateTime(new Date(dto.getCreatedAt())));
     if (dto.getStartedAt() != null) {
       builder.setStartedAt(DateUtils.formatDateTime(new Date(dto.getStartedAt())));
+    }
+    //
+    Long executionTimeMs = computeExecutionTimeMs(dto);
+    if (executionTimeMs != null) {
+      builder.setExecutionTimeMs(executionTimeMs);
     }
     return builder.build();
   }
@@ -151,5 +159,17 @@ public class TaskFormatter {
       }
       return dto;
     }
+  }
+
+  /**
+   * now - startedAt
+   */
+  @CheckForNull
+  Long computeExecutionTimeMs(CeQueueDto dto) {
+    Long startedAt = dto.getStartedAt();
+    if (startedAt == null) {
+      return null;
+    }
+    return system2.now() - startedAt;
   }
 }

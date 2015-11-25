@@ -68,7 +68,7 @@ public class ActivityWsActionTest {
   ComponentDbTester componentDb = new ComponentDbTester(dbTester);
 
   CeLogging ceLogging = mock(CeLogging.class);
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging);
+  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
   ActivityWsAction underTest = new ActivityWsAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
 
