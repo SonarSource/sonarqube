@@ -452,7 +452,7 @@ public class ProjectDataLoaderMediumTest {
       loader.load(ProjectDataQuery.create().setModuleKey(project.key()));
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage(Messages.NO_PERMISSION);
     }
   }
 

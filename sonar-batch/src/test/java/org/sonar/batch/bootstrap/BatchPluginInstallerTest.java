@@ -19,18 +19,17 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.cache.WSLoaderResult;
-
-import org.sonar.batch.cache.WSLoader;
+import java.io.File;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.core.platform.RemotePlugin;
 import org.sonar.home.cache.FileCache;
-
-import java.io.File;
-import java.util.List;
+import org.sonarqube.ws.client.WsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -48,15 +47,15 @@ public class BatchPluginInstallerTest {
   public ExpectedException thrown = ExpectedException.none();
 
   FileCache fileCache = mock(FileCache.class);
-  ServerClient serverClient = mock(ServerClient.class);
+  WsClient wsClient = mock(WsClient.class);
   BatchPluginPredicate pluginPredicate = mock(BatchPluginPredicate.class);
 
   @Test
   public void listRemotePlugins() {
 
     WSLoader wsLoader = mock(WSLoader.class);
-    when(wsLoader.loadString("/deploy/plugins/index.txt")).thenReturn(new WSLoaderResult<String>("checkstyle\nsqale", true));
-    BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, serverClient, fileCache, pluginPredicate);
+    when(wsLoader.loadString("/deploy/plugins/index.txt")).thenReturn(new WSLoaderResult<>("checkstyle\nsqale", true));
+    BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, wsClient, fileCache, pluginPredicate);
 
     List<RemotePlugin> remotePlugins = installer.listRemotePlugins();
     assertThat(remotePlugins).extracting("key").containsOnly("checkstyle", "sqale");
@@ -68,7 +67,7 @@ public class BatchPluginInstallerTest {
     when(fileCache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
 
     WSLoader wsLoader = mock(WSLoader.class);
-    BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, serverClient, fileCache, pluginPredicate);
+    BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, wsClient, fileCache, pluginPredicate);
 
     RemotePlugin remote = new RemotePlugin("checkstyle").setFile("checkstyle-plugin.jar", "fakemd5_1");
     File file = installer.download(remote);
@@ -83,6 +82,6 @@ public class BatchPluginInstallerTest {
     WSLoader wsLoader = mock(WSLoader.class);
     doThrow(new IllegalStateException()).when(wsLoader).loadString("/deploy/plugins/index.txt");
 
-    new BatchPluginInstaller(wsLoader, serverClient, fileCache, pluginPredicate).installRemotes();
+    new BatchPluginInstaller(wsLoader, wsClient, fileCache, pluginPredicate).installRemotes();
   }
 }

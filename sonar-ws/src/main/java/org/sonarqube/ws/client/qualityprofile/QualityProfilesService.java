@@ -18,30 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.usertoken.ws;
+package org.sonarqube.ws.client.qualityprofile;
 
-import org.sonar.api.server.ws.WebService;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.CONTROLLER;
+public class QualityProfilesService extends BaseService {
 
-public class UserTokensWs implements WebService {
-  private final UserTokensWsAction[] actions;
-
-  public UserTokensWs(UserTokensWsAction... actions) {
-    this.actions = actions;
+  public QualityProfilesService(WsConnector wsConnector) {
+    super(wsConnector, "api/qualityprofiles");
   }
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER)
-      .setDescription("User token management. To enhance security, tokens can be used to take the place " +
-        "of user credentials in analysis configuration. A token can be revoked at any time.")
-      .setSince("5.3");
-
-    for (UserTokensWsAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
+  public SearchWsResponse search(SearchWsRequest request) {
+    return call(
+      new GetRequest(path("search"))
+        .setParam("defaults", request.getDefaults())
+        .setParam("language", request.getLanguage())
+        .setParam("profileName", request.getProfileName())
+        .setParam("projectKey", request.getProjectKey()),
+      SearchWsResponse.parser());
   }
+
 }

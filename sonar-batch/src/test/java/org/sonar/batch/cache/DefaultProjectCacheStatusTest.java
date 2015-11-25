@@ -19,23 +19,21 @@
  */
 package org.sonar.batch.cache;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.io.Files;
-import org.junit.rules.ExpectedException;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.Rule;
 import org.junit.Before;
-import org.sonar.batch.bootstrap.ServerClient;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.home.cache.PersistentCache;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultProjectCacheStatusTest {
   @Rule
@@ -45,13 +43,10 @@ public class DefaultProjectCacheStatusTest {
   public ExpectedException exception = ExpectedException.none();
 
   ProjectCacheStatus cacheStatus;
-  PersistentCache cache;
-  ServerClient client;
+  PersistentCache cache = mock(PersistentCache.class);
 
   @Before
   public void setUp() {
-    client = mock(ServerClient.class);
-    cache = mock(PersistentCache.class);
     when(cache.getDirectory()).thenReturn(tmp.getRoot().toPath());
     cacheStatus = new DefaultProjectCacheStatus(cache);
   }

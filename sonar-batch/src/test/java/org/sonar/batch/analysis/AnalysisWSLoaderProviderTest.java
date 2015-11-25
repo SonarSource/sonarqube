@@ -19,17 +19,15 @@
  */
 package org.sonar.batch.analysis;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
+import org.sonarqube.ws.client.WsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,27 +36,22 @@ public class AnalysisWSLoaderProviderTest {
   private PersistentCache cache;
 
   @Mock
-  private ServerClient client;
+  private WsClient client;
 
   @Mock
   private AnalysisMode mode;
 
   private AnalysisWSLoaderProvider loaderProvider;
-  private Map<String, String> propMap;
-  private AnalysisProperties props;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     loaderProvider = new AnalysisWSLoaderProvider();
-    propMap = new HashMap<>();
   }
 
   @Test
   public void testDefault() {
-    props = new AnalysisProperties(propMap, null);
-
-    WSLoader loader = loaderProvider.provide(props, mode, cache, client);
+    WSLoader loader = loaderProvider.provide(mode, cache, client);
     assertThat(loader.getDefaultStrategy()).isEqualTo(LoadStrategy.SERVER_ONLY);
   }
 }

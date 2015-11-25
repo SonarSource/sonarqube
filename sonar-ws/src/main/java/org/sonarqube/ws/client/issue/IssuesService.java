@@ -25,9 +25,10 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.Issues.SearchWsResponse;
-import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonarqube.ws.client.WsRequest.newGetRequest;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASC;
@@ -62,17 +63,16 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.STATUSES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.TAGS;
 
-public class IssuesWsClient {
+public class IssuesService extends BaseService {
   private static final Joiner LIST_TO_PARAMS_STRING = Joiner.on(",").skipNulls();
-  private final WsClient wsClient;
 
-  public IssuesWsClient(WsClient wsClient) {
-    this.wsClient = wsClient;
+  public IssuesService(WsConnector wsConnector) {
+    super(wsConnector, "api/issues");
   }
 
   public SearchWsResponse search(SearchWsRequest request) {
-    return wsClient.execute(
-      newGetRequest(action("search"))
+    return call(
+      new GetRequest(path("search"))
         .setParam(ACTION_PLANS, listToParamList(request.getActionPlans()))
         .setParam(ADDITIONAL_FIELDS, listToParamList(request.getAdditionalFields()))
         .setParam(ASC, request.getAsc())
@@ -111,10 +111,6 @@ public class IssuesWsClient {
         .setParam(STATUSES, listToParamList(request.getStatuses()))
         .setParam(TAGS, listToParamList(request.getTags())),
       SearchWsResponse.parser());
-  }
-
-  private static String action(String action) {
-    return "api/issues/" + action;
   }
 
   @CheckForNull

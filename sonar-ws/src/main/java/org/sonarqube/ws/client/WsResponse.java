@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonarqube.ws.client;
 
-package org.sonar.server.usertoken.ws;
+import java.io.InputStream;
+import java.io.Reader;
 
-import org.sonar.api.server.ws.WebService;
+/**
+ * @since 5.3
+ */
+public interface WsResponse {
 
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.CONTROLLER;
+  boolean hasContent();
 
-public class UserTokensWs implements WebService {
-  private final UserTokensWsAction[] actions;
+  String getContentType();
 
-  public UserTokensWs(UserTokensWsAction... actions) {
-    this.actions = actions;
-  }
+  String getRequestUrl();
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER)
-      .setDescription("User token management. To enhance security, tokens can be used to take the place " +
-        "of user credentials in analysis configuration. A token can be revoked at any time.")
-      .setSince("5.3");
+  InputStream getContentStream();
 
-    for (UserTokensWsAction action : actions) {
-      action.define(controller);
-    }
+  Reader getContentReader();
 
-    controller.done();
-  }
+  String getContent();
 }

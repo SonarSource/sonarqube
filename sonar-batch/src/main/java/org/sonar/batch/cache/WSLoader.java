@@ -21,56 +21,53 @@ package org.sonar.batch.cache;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.UserProperties;
 import org.sonar.home.cache.PersistentCache;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.WsClient;
 
 import static org.sonar.batch.cache.WSLoader.ServerStatus.ACCESSIBLE;
 import static org.sonar.batch.cache.WSLoader.ServerStatus.NOT_ACCESSIBLE;
 import static org.sonar.batch.cache.WSLoader.ServerStatus.UNKNOWN;
 
 public class WSLoader {
-  static final String SONAR_WS_TIMEOUT_PROPS = "sonar.ws.timeout";
   private static final Logger LOG = Loggers.get(WSLoader.class);
   private static final String FAIL_MSG = "Server is not accessible and data is not cached";
-  private static final int CONNECT_TIMEOUT = 5_000;
-  private static final int DEFAULT_READ_TIMEOUT = 60_000;
-  private static final String REQUEST_METHOD = "GET";
 
   public enum ServerStatus {
-    UNKNOWN, ACCESSIBLE, NOT_ACCESSIBLE;
+    UNKNOWN, ACCESSIBLE, NOT_ACCESSIBLE
   }
 
   public enum LoadStrategy {
-    SERVER_FIRST, CACHE_FIRST, SERVER_ONLY, CACHE_ONLY;
+    SERVER_FIRST, CACHE_FIRST, SERVER_ONLY, CACHE_ONLY
   }
 
   private final LoadStrategy defautLoadStrategy;
-  private final ServerClient client;
+  private final WsClient client;
   private final PersistentCache cache;
-  private final UserProperties userProperties;
   private ServerStatus serverStatus;
 
   private DataLoader<String> stringServerLoader = new DataLoader<String>() {
     @Override
     public String load(String id) throws IOException {
-      InputStream is = client.load(id, REQUEST_METHOD, true, CONNECT_TIMEOUT, getReadTimeout());
-      String str = IOUtils.toString(is, StandardCharsets.UTF_8);
-      try {
-        cache.put(id, str.getBytes(StandardCharsets.UTF_8));
-      } catch (IOException e) {
-        throw new IllegalStateException("Error saving to WS cache", e);
+      GetRequest getRequest = new GetRequest(id);
+      try (Reader reader = client.wsConnector().call(getRequest).getContentReader()) {
+        String str = IOUtils.toString(reader);
+        try {
+          cache.put(id, str.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+          throw new IllegalStateException("Error saving to WS cache", e);
+        }
+        return str;
       }
-      return str;
     }
-
   };
 
   private DataLoader<String> stringCacheLoader = new DataLoader<String>() {
@@ -83,13 +80,14 @@ public class WSLoader {
   private DataLoader<InputStream> streamServerLoader = new DataLoader<InputStream>() {
     @Override
     public InputStream load(String id) throws IOException {
-      InputStream is = client.load(id, REQUEST_METHOD, true, CONNECT_TIMEOUT, getReadTimeout());
-      try {
-        cache.put(id, is);
-      } catch (IOException e) {
-        throw new IllegalStateException("Error saving to WS cache", e);
+      GetRequest getRequest = new GetRequest(id);
+      try (InputStream is = client.wsConnector().call(getRequest).getContentStream()) {
+        try {
+          cache.put(id, is);
+        } catch (IOException e) {
+          throw new IllegalStateException("Error saving to WS cache", e);
+        }
       }
-      is.close();
       return cache.getStream(id);
     }
   };
@@ -101,7 +99,7 @@ public class WSLoader {
     }
   };
 
-  private class NotAvailableException extends Exception {
+  private static class NotAvailableException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public NotAvailableException(String message) {
@@ -113,16 +111,11 @@ public class WSLoader {
     }
   }
 
-  public WSLoader(LoadStrategy strategy, PersistentCache cache, ServerClient client, UserProperties settings) {
+  public WSLoader(LoadStrategy strategy, PersistentCache cache, WsClient client) {
     this.defautLoadStrategy = strategy;
-    this.userProperties = settings;
     this.serverStatus = UNKNOWN;
     this.cache = cache;
     this.client = client;
-  }
-
-  private int getReadTimeout() {
-    return userProperties.properties().containsKey(SONAR_WS_TIMEOUT_PROPS) ? (Integer.parseInt(userProperties.property(SONAR_WS_TIMEOUT_PROPS)) * 1000) : DEFAULT_READ_TIMEOUT;
   }
 
   @Nonnull
@@ -200,7 +193,7 @@ public class WSLoader {
           throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
         }
       }
-      throw new IllegalStateException("Server is not available", serverNotAvailable.getCause());
+      throw new IllegalStateException("Server is not available: " + client.wsConnector().baseUrl(), serverNotAvailable.getCause());
     }
   }
 

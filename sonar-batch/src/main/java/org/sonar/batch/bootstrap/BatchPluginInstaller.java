@@ -23,10 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.SonarPlugin;
@@ -39,6 +41,11 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.RemotePlugin;
 import org.sonar.core.platform.RemotePluginFile;
 import org.sonar.home.cache.FileCache;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsResponse;
+
+import static java.lang.String.format;
 
 /**
  * Downloads the plugins installed on server and stores them in a local user cache
@@ -52,13 +59,13 @@ public class BatchPluginInstaller implements PluginInstaller {
   private final WSLoader wsLoader;
   private final FileCache fileCache;
   private final BatchPluginPredicate pluginPredicate;
-  private final ServerClient serverClient;
+  private final WsClient wsClient;
 
-  public BatchPluginInstaller(WSLoader wsLoader, ServerClient serverClient, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
+  public BatchPluginInstaller(WSLoader wsLoader, WsClient wsClient, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
     this.wsLoader = wsLoader;
     this.fileCache = fileCache;
     this.pluginPredicate = pluginPredicate;
-    this.serverClient = serverClient;
+    this.wsClient = wsClient;
   }
 
   @Override
@@ -137,14 +144,17 @@ public class BatchPluginInstaller implements PluginInstaller {
 
     @Override
     public void download(String filename, File toFile) throws IOException {
-      String url = "/deploy/plugins/" + key + "/" + filename;
+      String url = format("/deploy/plugins/%s/%s", key, filename);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Download {} to {}", url, toFile.getAbsolutePath());
+        LOG.debug("Download plugin {} to {}", filename, toFile);
       } else {
         LOG.info("Download {}", filename);
       }
 
-      serverClient.download(url, toFile);
+      WsResponse response = wsClient.wsConnector().call(new GetRequest(url));
+      try (InputStream stream = response.getContentStream()) {
+        FileUtils.copyInputStreamToFile(stream, toFile);
+      }
     }
   }
 }

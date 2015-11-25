@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.sonarsource.sonarqube</groupId>
@@ -9,12 +10,13 @@
 
   <artifactId>sonar-batch-protocol</artifactId>
   <name>SonarQube :: Batch :: Protocol</name>
-  
+
   <description>Classes used for communication between batch and server</description>
-  
+
   <properties>
     <!-- Viewer is for our internal use. This is not production code and mostly generated with Eclipse GUI builder -->
-    <sonar.exclusions>src/main/java/org/sonar/batch/protocol/viewer/**</sonar.exclusions>
+    <sonar.exclusions>target/generated-sources/**/*,src/main/java/org/sonar/batch/protocol/viewer/**</sonar.exclusions>
+    <sonar.test.exclusions>target/generated-test-sources/**/*</sonar.test.exclusions>
   </properties>
 
   <dependencies>

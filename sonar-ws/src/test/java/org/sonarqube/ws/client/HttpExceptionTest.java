@@ -27,7 +27,7 @@ public class HttpExceptionTest {
   @Test
   public void test_exception() throws Exception {
     HttpException exception = new HttpException("http://localhost:9000/api/search", 500, "Not found");
-    assertThat(exception.status()).isEqualTo(500);
+    assertThat(exception.code()).isEqualTo(500);
     assertThat(exception.url()).isEqualTo("http://localhost:9000/api/search");
     assertThat(exception.getMessage()).isEqualTo("Error 500 on http://localhost:9000/api/search : Not found");
   }

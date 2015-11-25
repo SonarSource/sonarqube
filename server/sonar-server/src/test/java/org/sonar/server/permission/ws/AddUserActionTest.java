@@ -53,7 +53,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.AddUserAction.ACTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -89,7 +89,7 @@ public class AddUserActionTest {
 
   @Test
   public void call_permission_service_with_right_data() throws Exception {
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -105,7 +105,7 @@ public class AddUserActionTest {
     dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
     commit();
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -121,7 +121,7 @@ public class AddUserActionTest {
     dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
     commit();
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_KEY, "project-key")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -137,7 +137,7 @@ public class AddUserActionTest {
     dbClient.componentDao().insert(dbSession, newView("view-uuid").setKey("view-key"));
     commit();
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "view-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -152,7 +152,7 @@ public class AddUserActionTest {
   public void fail_when_project_uuid_is_unknown() throws Exception {
     expectedException.expect(NotFoundException.class);
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -163,7 +163,7 @@ public class AddUserActionTest {
   public void fail_when_project_permission_without_project() throws Exception {
     expectedException.expect(BadRequestException.class);
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
@@ -175,7 +175,7 @@ public class AddUserActionTest {
     insertComponent(newFileDto(newProjectDto("project-uuid"), "file-uuid"));
     commit();
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "file-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -186,7 +186,7 @@ public class AddUserActionTest {
   public void fail_when_get_request() throws Exception {
     expectedException.expect(ServerException.class);
 
-    ws.newGetRequest(ENDPOINT, ACTION)
+    ws.newGetRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "george.orwell")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -196,7 +196,7 @@ public class AddUserActionTest {
   public void fail_when_user_login_is_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -205,7 +205,7 @@ public class AddUserActionTest {
   public void fail_when_permission_is_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_USER_LOGIN, "jrr.tolkien")
       .execute();
   }
@@ -217,7 +217,7 @@ public class AddUserActionTest {
     insertComponent(newProjectDto("project-uuid").setKey("project-key"));
     commit();
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(CONTROLLER, ACTION)
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_ID, "project-uuid")

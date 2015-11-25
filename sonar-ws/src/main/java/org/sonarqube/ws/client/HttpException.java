@@ -20,24 +20,27 @@
 package org.sonarqube.ws.client;
 
 /**
- * @since 3.6
+ * @since 5.3
  */
 public class HttpException extends RuntimeException {
 
   private final String url;
-  private final int status;
+  private final int code;
 
-  public HttpException(String url, int status, String message) {
-    super(String.format("Error %d on %s : %s", status, url, message));
+  public HttpException(String url, int code, String message) {
+    super(String.format("Error %d on %s : %s", code, url, message));
     this.url = url;
-    this.status = status;
+    this.code = code;
   }
 
   public String url() {
     return url;
   }
 
-  public int status() {
-    return status;
+  /**
+   * @see java.net.HttpURLConnection constants
+   */
+  public int code() {
+    return code;
   }
 }

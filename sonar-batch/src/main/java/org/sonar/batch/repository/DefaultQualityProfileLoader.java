@@ -32,8 +32,9 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
@@ -62,12 +63,6 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     return loadResource(url, fromCache);
   }
 
-  private static void validate(Collection<QualityProfile> profiles) {
-    if (profiles == null || profiles.isEmpty()) {
-      throw new IllegalStateException("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
-    }
-  }
-
   private List<QualityProfile> loadResource(String url, @Nullable MutableBoolean fromCache) {
     WSLoaderResult<InputStream> result = wsLoader.loadStream(url);
     if (fromCache != null) {
@@ -85,7 +80,8 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     }
 
     List<QualityProfile> profilesList = profiles.getProfilesList();
-    validate(profilesList);
+    checkState(profilesList != null && !profilesList.isEmpty(),
+      "No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
     return profilesList;
   }
 

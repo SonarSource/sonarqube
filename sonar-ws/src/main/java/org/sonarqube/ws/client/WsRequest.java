@@ -20,77 +20,22 @@
 
 package org.sonarqube.ws.client;
 
-import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 
-import static java.util.Objects.requireNonNull;
-import static org.sonarqube.ws.client.WsRequest.Method.GET;
-import static org.sonarqube.ws.client.WsRequest.Method.POST;
+/**
+ * @since 5.3
+ */
+public interface WsRequest {
 
-public class WsRequest {
-  private final Map<String, Object> params = new HashMap<>();
-  private Method method = Method.GET;
-  private MediaType mimeType = MediaType.JSON;
-  private String endpoint;
+  Method getMethod();
 
-  private WsRequest(String endpoint) {
-    this.endpoint = endpoint;
-  }
+  String getPath();
 
-  public static WsRequest newPostRequest(String endpoint) {
-    return new WsRequest(endpoint)
-      .setMethod(POST);
-  }
+  String getMediaType();
 
-  public static WsRequest newGetRequest(String endpoint) {
-    return new WsRequest(endpoint)
-      .setMethod(GET);
-  }
+  Map<String, String> getParams();
 
-  public Method getMethod() {
-    return method;
-  }
-
-  private WsRequest setMethod(Method method) {
-    this.method = method;
-    return this;
-  }
-
-  public MediaType getMediaType() {
-    return mimeType;
-  }
-
-  public WsRequest setMediaType(MediaType type) {
-    requireNonNull(type);
-    this.mimeType = type;
-    return this;
-  }
-
-  public WsRequest setParam(String key, @Nullable Object value) {
-    requireNonNull(key, "a WS parameter key cannot be null");
-    if (value != null) {
-      this.params.put(key, value);
-    } else {
-      this.params.remove(key);
-    }
-
-    return this;
-  }
-
-  public String getEndpoint() {
-    return endpoint;
-  }
-
-  public Map<String, Object> getParams() {
-    return params;
-  }
-
-  public enum Method {
+  enum Method {
     GET, POST
-  }
-
-  public enum MediaType {
-    PROTOBUF, JSON, TEXT
   }
 }

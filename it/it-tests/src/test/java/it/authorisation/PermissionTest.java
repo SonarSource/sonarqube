@@ -30,6 +30,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddGroupToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
@@ -37,14 +38,13 @@ import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 import org.sonarqube.ws.client.permission.GroupsWsRequest;
-import org.sonarqube.ws.client.permission.PermissionsWsClient;
+import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.permission.RemoveGroupFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.client.WsRequest.newPostRequest;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -52,7 +52,7 @@ public class PermissionTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
   private static WsClient adminWsClient;
-  private static PermissionsWsClient permissionsWsClient;
+  private static PermissionsService permissionsWsClient;
 
   private static final String PROJECT_KEY = "sample";
   private static final String LOGIN = "george.orwell";
@@ -70,7 +70,7 @@ public class PermissionTest {
     orchestrator.executeBuild(sampleProject);
 
     adminWsClient = newAdminWsClient(orchestrator);
-    permissionsWsClient = adminWsClient.permissionsClient();
+    permissionsWsClient = adminWsClient.permissions();
 
     createUser(LOGIN, "George Orwell");
     createGroup(GROUP_NAME);
@@ -157,28 +157,28 @@ public class PermissionTest {
   }
 
   private static void createUser(String login, String name) {
-    adminWsClient.execute(
-      newPostRequest("api/users/create")
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/users/create")
         .setParam("login", login)
         .setParam("name", name)
         .setParam("password", "123456"));
   }
 
   private static void deactivateUser(String login) {
-    adminWsClient.execute(
-      newPostRequest("api/users/deactivate")
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/users/deactivate")
         .setParam("login", login));
   }
 
   private static void createGroup(String groupName) {
-    adminWsClient.execute(
-      newPostRequest("api/user_groups/create")
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/user_groups/create")
         .setParam("name", groupName));
   }
 
   private static void deleteGroup(String groupName) {
-    adminWsClient.execute(
-      newPostRequest("api/user_groups/delete")
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/user_groups/delete")
         .setParam("name", groupName));
   }
 }

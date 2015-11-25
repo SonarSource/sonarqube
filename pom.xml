@@ -64,6 +64,7 @@
     <slf4j.version>1.7.12</slf4j.version>
     <tomcat.version>8.0.18</tomcat.version>
     <elasticsearch.version>1.7.2</elasticsearch.version>
+    <okhttp.version>2.6.0</okhttp.version>
 
     <protobuf.version>3.0.0-beta-1</protobuf.version>
     <protobuf.compiler>${settings.localRepository}/com/google/protobuf/protoc/${protobuf.version}/protoc-${protobuf.version}-${os.detected.classifier}.exe</protobuf.compiler>
@@ -1342,9 +1343,6 @@
           <exists>src/main/protobuf</exists>
         </file>
       </activation>
-      <properties>
-        <sonar.exclusions>target/generated-sources/protobuf/**/*</sonar.exclusions>
-      </properties>
       <build>
         <plugins>
           <plugin>
@@ -1352,7 +1350,7 @@
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
-                <id>protobuf-compile</id>
+                <id>compile-protobuf-sources</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>run</goal>
@@ -1389,7 +1387,7 @@
             <artifactId>build-helper-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>protobuf-compile</id>
+                <id>add-protobuf-generated-sources</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>add-source</goal>
@@ -1412,9 +1410,6 @@
           <exists>src/test/protobuf</exists>
         </file>
       </activation>
-      <properties>
-        <sonar.test.exclusions>target/generated-test-sources/protobuf/**/*</sonar.test.exclusions>
-      </properties>
       <build>
         <plugins>
           <plugin>
@@ -1422,7 +1417,7 @@
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
-                <id>protobuf-test-compile</id>
+                <id>compile-protobuf-tests</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>run</goal>
@@ -1459,7 +1454,7 @@
             <artifactId>build-helper-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>protobuf-test-compile</id>
+                <id>add-protobuf-generated-tests</id>
                 <phase>generate-test-sources</phase>
                 <goals>
                   <goal>add-test-source</goal>

@@ -54,7 +54,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -205,7 +205,7 @@ public class RemoveGroupActionTest {
   public void fail_when_get_request() throws Exception {
     expectedException.expect(ServerException.class);
 
-    ws.newGetRequest(ENDPOINT, ACTION)
+    ws.newGetRequest(CONTROLLER, ACTION)
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -256,7 +256,7 @@ public class RemoveGroupActionTest {
   }
 
   private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest(ENDPOINT, ACTION);
+    return ws.newPostRequest(CONTROLLER, ACTION);
   }
 
   private GroupDto insertGroup(String groupName) {

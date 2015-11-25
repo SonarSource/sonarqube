@@ -229,7 +229,7 @@ public class IssuePermissionTest {
   }
 
   private void addUserPermission(String login, String projectKey, String permission) {
-    adminWsClient.permissionsClient().addUser(
+    adminWsClient.permissions().addUser(
       new AddUserWsRequest()
         .setLogin(login)
         .setProjectKey(projectKey)
@@ -237,7 +237,7 @@ public class IssuePermissionTest {
   }
 
   private void removeGroupPermission(String groupName, String projectKey, String permission) {
-    adminWsClient.permissionsClient().removeGroup(new RemoveGroupWsRequest()
+    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest()
       .setGroupName(groupName)
       .setProjectKey(projectKey)
       .setPermission(permission));

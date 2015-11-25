@@ -18,30 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.usertoken.ws;
+package org.sonarqube.ws.client.component;
 
-import org.sonar.api.server.ws.WebService;
+import org.sonarqube.ws.WsComponents.SearchWsResponse;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.CONTROLLER;
+public class ComponentsService extends BaseService {
 
-public class UserTokensWs implements WebService {
-  private final UserTokensWsAction[] actions;
-
-  public UserTokensWs(UserTokensWsAction... actions) {
-    this.actions = actions;
+  public ComponentsService(WsConnector wsConnector) {
+    super(wsConnector, "api/components");
   }
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER)
-      .setDescription("User token management. To enhance security, tokens can be used to take the place " +
-        "of user credentials in analysis configuration. A token can be revoked at any time.")
-      .setSince("5.3");
-
-    for (UserTokensWsAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
+  public SearchWsResponse search(SearchWsRequest request) {
+    GetRequest get = new GetRequest(path("search"))
+      .setParam("qualifiers", request.getQualifiers())
+      .setParam("p", request.getPage())
+      .setParam("ps", request.getPageSize())
+      .setParam("q", request.getQuery());
+    return call(get, SearchWsResponse.parser());
   }
 }

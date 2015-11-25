@@ -19,22 +19,20 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.protocol.input.ProjectRepositories;
-
-import org.sonar.batch.bootstrap.GlobalProperties;
-import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.home.cache.PersistentCache;
-
 import java.util.HashMap;
+import org.junit.Test;
+import org.sonar.batch.bootstrap.GlobalProperties;
+import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.home.cache.PersistentCache;
+import org.sonarqube.ws.client.WsClient;
 
 import static org.mockito.Mockito.mock;
-import org.sonar.core.platform.ComponentContainer;
-import org.junit.Test;
 
 public class ProjectSyncContainerTest {
   private ComponentContainer createParentContainer() {
     PersistentCache cache = mock(PersistentCache.class);
-    ServerClient server = mock(ServerClient.class);
+    WsClient server = mock(WsClient.class);
 
     GlobalProperties globalProps = new GlobalProperties(new HashMap<String, String>());
     ComponentContainer parent = new ComponentContainer();

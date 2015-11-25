@@ -137,7 +137,7 @@ public class ActionPlanTest {
     try {
       // Create a user having admin permission on the project
       adminClient.userClient().create(UserParameters.create().login(projectAdminUser).name(projectAdminUser).password("password").passwordConfirmation("password"));
-      adminWsClient.permissionsClient().addUser(
+      adminWsClient.permissions().addUser(
         new AddUserWsRequest()
           .setLogin(projectAdminUser)
           .setProjectKey(PROJECT_KEY)
@@ -145,7 +145,7 @@ public class ActionPlanTest {
 
       // Create a user having browse permission on the project
       adminClient.userClient().create(UserParameters.create().login(projectUser).name(projectUser).password("password").passwordConfirmation("password"));
-      adminWsClient.permissionsClient().addUser(
+      adminWsClient.permissions().addUser(
         new AddUserWsRequest()
           .setLogin(projectUser)
           .setProjectKey(PROJECT_KEY)

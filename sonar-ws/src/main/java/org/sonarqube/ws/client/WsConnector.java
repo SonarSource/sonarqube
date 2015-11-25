@@ -20,11 +20,23 @@
 
 package org.sonarqube.ws.client;
 
-import com.google.protobuf.Message;
-import com.google.protobuf.Parser;
-
+/**
+ * @since 5.3
+ */
 public interface WsConnector {
-  String execute(WsRequest wsRequest);
 
-  <T extends Message> T execute(WsRequest wsRequest, Parser<T> protobufParser);
+  /**
+   * @throws IllegalStateException if the request could not be executed due to
+   *     a connectivity problem or timeout. Because networks can
+   *     fail during an exchange, it is possible that the remote server
+   *     accepted the request before the failure
+   * @throws HttpException if the response code is not in range [200..300)
+   */
+  WsResponse call(WsRequest wsRequest);
+
+  /**
+   * Server base URL, always with trailing slash, for instance "http://localhost:9000/"
+   */
+  String baseUrl();
+
 }

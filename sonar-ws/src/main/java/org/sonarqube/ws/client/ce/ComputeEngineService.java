@@ -18,31 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonarqube.ws.client.qualityprofile;
+package org.sonarqube.ws.client.ce;
 
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
-import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonarqube.ws.client.WsRequest.newGetRequest;
+public class ComputeEngineService extends BaseService {
 
-public class QualityProfilesWsClient {
-  private final WsClient wsClient;
-
-  public QualityProfilesWsClient(WsClient wsClient) {
-    this.wsClient = wsClient;
+  public ComputeEngineService(WsConnector wsConnector) {
+    super(wsConnector, "api/ce");
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
-    return wsClient.execute(
-      newGetRequest(action("search"))
-        .setParam("defaults", request.getDefaults())
-        .setParam("language", request.getLanguage())
-        .setParam("profileName", request.getProfileName())
-        .setParam("projectKey", request.getProjectKey()),
-      SearchWsResponse.parser());
-  }
-
-  private static String action(String action) {
-    return "api/qualityprofiles/" + action;
+  public WsCe.SubmitResponse submit(SubmitWsRequest request) {
+    PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, request.getReport());
+    PostRequest post = new PostRequest(path("submit"))
+      .setParam("projectKey", request.getProjectKey())
+      .setParam("projectName", request.getProjectName())
+      .setParam("projectBranch", request.getProjectBranch())
+      .setPart("report", filePart);
+    return call(post, WsCe.SubmitResponse.parser());
   }
 }

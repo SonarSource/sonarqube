@@ -27,7 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * @since 3.1
+ * @since 5.3
  */
 public final class MediaTypes {
 
@@ -35,6 +35,7 @@ public final class MediaTypes {
   public static final String XML = "application/xml";
   public static final String TXT = "text/plain";
   public static final String PROTOBUF = "application/x-protobuf";
+  public static final String ZIP = "application/zip";
   public static final String DEFAULT = "application/octet-stream";
 
   private static final Map<String, String> MAP = new ImmutableMap.Builder<String, String>()

@@ -18,54 +18,54 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonarqube.ws.client;
+package org.sonarqube.ws.client.ce;
 
-import org.junit.rules.ExternalResource;
+import java.io.File;
+import javax.annotation.CheckForNull;
 
-import java.util.Map;
+public class SubmitWsRequest {
 
-public final class MockHttpServerInterceptor extends ExternalResource {
+  private String projectKey;
+  private String projectName;
+  private String projectBranch;
+  private File report;
 
-  private MockHttpServer server;
-
-  @Override
-  protected final void before() throws Throwable {
-    server = new MockHttpServer();
-    server.start();
+  public String getProjectKey() {
+    return projectKey;
   }
 
-  @Override
-  protected void after() {
-    server.stop();
-  }
-
-  public MockHttpServerInterceptor stubResponseBody(String body) {
-    server.doReturnBody(body);
+  public SubmitWsRequest setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
     return this;
   }
 
-  public MockHttpServerInterceptor stubStatusCode(int status) {
-    server.doReturnStatus(status);
+  @CheckForNull
+  public String getProjectName() {
+    return projectName;
+  }
+
+  public SubmitWsRequest setProjectName(String projectName) {
+    this.projectName = projectName;
     return this;
   }
 
-  public String requestedPath() {
-    return server.requestPath();
+  @CheckForNull
+  public String getProjectBranch() {
+    return projectBranch;
   }
 
-  public Map requestHeaders() {
-    return server.requestHeaders();
+  public SubmitWsRequest setProjectBranch(String projectBranch) {
+    this.projectBranch = projectBranch;
+    return this;
   }
 
-  public Map requestParams() {
-    return server.requestParams();
+  @CheckForNull
+  public File getReport() {
+    return report;
   }
 
-  public int port() {
-    return server.getPort();
-  }
-
-  public String url() {
-    return "http://localhost:" + port();
+  public SubmitWsRequest setReport(File report) {
+    this.report = report;
+    return this;
   }
 }
