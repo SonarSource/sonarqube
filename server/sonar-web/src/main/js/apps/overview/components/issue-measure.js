@@ -223,7 +223,7 @@ export const SeverityMeasure = React.createClass({
       return null;
     }
 
-    let leak = this.props.leak[this.getMetric()];
+    let leak = this.props.leak[this.getMetric()] || 0;
     let added = this.props.leak[this.getNewMetric()] || 0;
     let removed = added - leak;
 

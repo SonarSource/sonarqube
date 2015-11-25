@@ -93,7 +93,7 @@ export const CoverageMain = React.createClass({
       <div className="overview-cards-list">
         <div className="overview-card overview-card-fixed-width">
           <div className="overview-card-header">
-            <div className="overview-title">Coverage Overview</div>
+            <div className="overview-title">{window.t('overview.domain.coverage')}</div>
             {this.renderLegend()}
           </div>
           <CoverageMeasuresList {...this.props} {...this.state}/>

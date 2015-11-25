@@ -15,7 +15,7 @@ import { CHART_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
 import { AddedRemovedMeasure, AddedRemovedDebt, OnNewCodeMeasure, SeverityMeasure } from './../components/issue-measure';
 import { IssuesTags } from './../components/issues-tags';
 import Assignees from './../components/issues-assignees';
-import { getFacets, extractAssignees } from '../../../api/issues';
+import { getFacet, extractAssignees } from '../../../api/issues';
 import StatusHelper from '../../../components/shared/status-helper';
 import { Rating } from '../../../components/shared/rating';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
@@ -39,12 +39,13 @@ export const IssuesMain = React.createClass({
   componentDidMount() {
     Promise.all([
       this.requestMeasures(),
-      this.requestIssues()
+      this.requestIssues(),
+      this.requestAssignees()
     ]).then(responses => {
       let measures = this.getMeasuresValues(responses[0], 'value');
       let leak = this.getMeasuresValues(responses[0], 'var' + this.props.leakPeriodIndex);
-      let tags = this.getFacet(responses[1].facets, 'tags');
-      let assignees = extractAssignees(this.getFacet(responses[1].facets, 'assignees'), responses[1].response);
+      let tags = responses[1].facet;
+      let assignees = extractAssignees(responses[2].facet, responses[2].response);
       this.setState({ ready: true, measures, leak, tags, assignees });
     });
   },
@@ -80,10 +81,18 @@ export const IssuesMain = React.createClass({
   },
 
   requestIssues () {
-    return getFacets({
+    return getFacet({
       componentUuids: this.props.component.id,
       resolved: 'false'
-    }, ['tags', 'assignees']);
+    }, 'tags');
+  },
+
+  requestAssignees () {
+    return getFacet({
+      componentUuids: this.props.component.id,
+      resolved: 'false',
+      statuses: 'OPEN,REOPENED'
+    }, 'assignees');
   },
 
   renderLoading () {
@@ -149,7 +158,7 @@ export const IssuesMain = React.createClass({
       <div className="overview-cards-list">
         <div className="overview-card overview-card-fixed-width">
           <div className="overview-card-header">
-            <div className="overview-title">Technical Debt Overview</div>
+            <div className="overview-title">{window.t('overview.domain.debt')}</div>
             {this.renderLegend()}
           </div>
 
@@ -176,7 +185,7 @@ export const IssuesMain = React.createClass({
             <div className="overview-detailed-measure">
               <div className="overview-detailed-measure-nutshell">
                 <div className="overview-detailed-measure-name">
-                  <StatusHelper status="OPEN"/> & <StatusHelper status="REOPENED"/> Issues
+                  {window.t('overview.unmanaged_issues')}
                 </div>
                 <div className="spacer-top">
                   <Assignees {...this.props} assignees={this.state.assignees}/>

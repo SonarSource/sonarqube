@@ -190,7 +190,7 @@ export const DomainTimeline = React.createClass({
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
         <div>
-          <h2 className="overview-title">Timeline</h2>
+          <h2 className="overview-title">{window.t('overview.chart.history')}</h2>
           {this.renderTimelineMetricSelect()}
         </div>
         {this.renderComparisonMetricSelect()}

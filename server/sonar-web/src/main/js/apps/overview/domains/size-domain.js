@@ -97,7 +97,7 @@ export const SizeMain = React.createClass({
     return <div className="overview-detailed-page">
       <div className="overview-card">
         <div className="overview-card-header">
-          <div className="overview-title">Size Overview</div>
+          <div className="overview-title">{window.t('overview.domain.size')}</div>
           {this.renderLegend()}
         </div>
 

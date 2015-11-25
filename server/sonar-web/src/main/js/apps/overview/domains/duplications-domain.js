@@ -88,7 +88,7 @@ export const DuplicationsMain = React.createClass({
       <div className="overview-cards-list">
         <div className="overview-card overview-card-fixed-width">
           <div className="overview-card-header">
-            <div className="overview-title">Duplications Overview</div>
+            <div className="overview-title">{window.t('overview.domain.duplications')}</div>
             {this.renderLegend()}
           </div>
           <div className="overview-detailed-measures-list">

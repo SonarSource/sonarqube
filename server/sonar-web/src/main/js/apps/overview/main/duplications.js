@@ -19,10 +19,12 @@ export const GeneralDuplications = React.createClass({
     if (!this.hasLeakPeriod()) {
       return null;
     }
+    let measure = this.props.leak['duplicated_lines_density'],
+        formatted = measure != null ? formatMeasureVariation(measure, 'PERCENT') : '—';
     return <DomainLeak>
       <MeasuresList>
         <Measure label={getMetricName('duplications')}>
-          {formatMeasureVariation(this.props.leak['duplicated_lines_density'], 'PERCENT')}
+          {formatted}
         </Measure>
       </MeasuresList>
       {this.renderTimeline('after')}
@@ -42,7 +44,8 @@ export const GeneralDuplications = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader title="Duplications" linkTo="/duplications"/>
+      <DomainHeader component={this.props.component} title={window.t('overview.domain.duplications')}
+                    linkTo="/duplications"/>
 
       <DomainPanel domain="duplications">
         <DomainNutshell>

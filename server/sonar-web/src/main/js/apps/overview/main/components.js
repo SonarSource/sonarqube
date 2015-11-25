@@ -2,7 +2,6 @@ import moment from 'moment';
 import React from 'react';
 
 import { Timeline } from './timeline';
-import { navigate } from '../../../components/router/router';
 import { Legend } from '../components/legend';
 
 
@@ -14,17 +13,14 @@ export const Domain = React.createClass({
 
 
 export const DomainTitle = React.createClass({
-  handleClick(e) {
-    e.preventDefault();
-    navigate(this.props.linkTo);
-  },
-
   render () {
     if (this.props.linkTo) {
+      let url = window.baseUrl + '/overview' + this.props.linkTo +
+          '?id=' + encodeURIComponent(this.props.component.key);
       return <div>
         <div className="overview-title">
           {this.props.children}
-          <a onClick={this.handleClick} className="small big-spacer-left link-no-underline" href="#">
+          <a className="small big-spacer-left link-no-underline" href={url}>
             More <i className="icon-chevron-right" style={{ position: 'relative', top: -1 }}/></a>
         </div>
       </div>;
@@ -51,7 +47,7 @@ export const DomainLeakTitle = React.createClass({
 export const DomainHeader = React.createClass({
   render () {
     return <div className="overview-card-header">
-      <DomainTitle linkTo={this.props.linkTo}>{this.props.title}</DomainTitle>
+      <DomainTitle {...this.props}>{this.props.title}</DomainTitle>
       <Legend leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
     </div>;
   }

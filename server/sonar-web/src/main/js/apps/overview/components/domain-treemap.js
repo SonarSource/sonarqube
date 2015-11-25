@@ -48,7 +48,9 @@ export class DomainTreemap extends React.Component {
       `${this.state.sizeMetric.name}: ${formatMeasure(component.measures[this.props.sizeMetric], this.state.sizeMetric.type)}`
     ];
     if (this.state.colorMetric) {
-      inner.push(`${this.state.colorMetric.name}: ${formatMeasure(component.measures[this.props.colorMetric], this.state.colorMetric.type)}`);
+      let measure = component.measures[this.props.colorMetric],
+          formatted = measure != null ? formatMeasure(measure, this.state.colorMetric.type) : '—';
+      inner.push(`${this.state.colorMetric.name}: ${formatted}`);
     }
     inner = inner.join('<br>');
     return `<div class="text-left">${inner}</div>`;
@@ -82,7 +84,7 @@ export class DomainTreemap extends React.Component {
     let color = this.props.colorMetric ? <li>Color: {this.state.colorMetric.name}</li> : null;
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
-        <h2 className="overview-title">Treemap</h2>
+        <h2 className="overview-title">{window.t('overview.chart.components')}</h2>
         <ul className="list-inline small">
           <li>Size: {this.state.sizeMetric.name}</li>
           {color}

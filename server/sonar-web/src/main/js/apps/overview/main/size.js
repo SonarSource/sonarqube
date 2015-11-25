@@ -20,12 +20,11 @@ export const GeneralSize = React.createClass({
     if (!this.hasLeakPeriod()) {
       return null;
     }
-
+    let measure = this.props.leak['ncloc'],
+        formatted = measure != null ? formatMeasureVariation(measure, 'SHORT_INT') : '—';
     return <DomainLeak>
       <MeasuresList>
-        <Measure label={getMetricName('ncloc')}>
-          {formatMeasureVariation(this.props.leak['ncloc'], 'SHORT_INT')}
-        </Measure>
+        <Measure label={getMetricName('ncloc')}>{formatted}</Measure>
       </MeasuresList>
       {this.renderTimeline('after')}
     </DomainLeak>;
@@ -45,7 +44,7 @@ export const GeneralSize = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader title="Size" linkTo="/size"/>
+      <DomainHeader component={this.props.component} title={window.t('overview.domain.size')} linkTo="/size"/>
 
       <DomainPanel domain="size">
         <DomainNutshell>

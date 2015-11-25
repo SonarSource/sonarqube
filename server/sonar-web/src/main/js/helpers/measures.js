@@ -85,7 +85,7 @@ function getVariationFormatter (type) {
     'SHORT_WORK_DUR': shortDurationVariationFormatter,
     'RATING': ratingFormatter,
     'LEVEL': levelFormatter,
-    'MILLISEC': millisecondsFormatter
+    'MILLISEC': millisecondsVariationFormatter
   };
   return FORMATTERS[type] || noFormatter;
 }
@@ -166,6 +166,12 @@ function millisecondsFormatter (value) {
   } else {
     return `${value}ms`;
   }
+}
+
+function millisecondsVariationFormatter (value) {
+  let absValue = Math.abs(value),
+      formattedValue = millisecondsFormatter(absValue);
+  return value < 0 ? `-${formattedValue}` : `+${formattedValue}`;
 }
 
 

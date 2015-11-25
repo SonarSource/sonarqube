@@ -104,7 +104,7 @@ export class DomainBubbleChart extends React.Component {
   render () {
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
-        <h2 className="overview-title">Project Files</h2>
+        <h2 className="overview-title">{window.t('overview.chart.files')}</h2>
         <ul className="list-inline small">
           <li>X: {this.state.xMetric.name}</li>
           <li>Y: {this.state.yMetric.name}</li>
