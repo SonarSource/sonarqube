@@ -40,8 +40,8 @@ class InitialSchema < ActiveRecord::Migration
       t.column :parent_snapshot_id, :integer,   :null => true
       t.column :status,             :string,    :null => false, :default => 'U', :limit => 4
       t.column :islast,             :boolean,   :null => false, :default => false
-      t.column 'scope', :string, :limit => 10, :null => true
-      t.column 'qualifier', :string, :limit => 3
+      t.column 'scope', :string, :limit => 3
+      t.column 'qualifier', :string, :limit => 10
       t.column 'root_snapshot_id', :integer
       t.column 'version', :string, :limit => 60, :null => true
       t.column :path, :string, :null => true, :limit => 96
