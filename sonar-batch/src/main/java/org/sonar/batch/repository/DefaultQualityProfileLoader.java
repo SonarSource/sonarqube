@@ -62,7 +62,7 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     return loadResource(url, fromCache);
   }
 
-  private static void validate(Collection<QualityProfile> profiles) {
+  private static void validate(@Nullable Collection<QualityProfile> profiles) {
     if (profiles == null || profiles.isEmpty()) {
       throw new IllegalStateException("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
     }

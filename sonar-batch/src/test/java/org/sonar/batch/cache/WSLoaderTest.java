@@ -19,34 +19,28 @@
  */
 package org.sonar.batch.cache;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.utils.HttpDownloader;
-import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.UserProperties;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
+import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.MockWsResponse;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.client.WsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,35 +52,20 @@ public class WSLoaderTest {
   private final static String cacheValue = "cache";
   private final static String serverValue = "server";
 
-  @Mock
-  private ServerClient client;
-  @Mock
-  private PersistentCache cache;
   @Rule
   public ExpectedException exception = ExpectedException.none();
-  private UserProperties props;
 
-  @Before
-  public void setUp() throws IOException {
-    MockitoAnnotations.initMocks(this);
-    when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenReturn(IOUtils.toInputStream(serverValue));
-    when(cache.getString(ID)).thenReturn(cacheValue);
-    when(client.getURI(anyString())).thenAnswer(new Answer<URI>() {
-      @Override
-      public URI answer(InvocationOnMock invocation) throws Throwable {
-        return new URI((String) invocation.getArguments()[0]);
-      }
-    });
-    props = mock(UserProperties.class);
-  }
+  WsClient ws = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  PersistentCache cache = mock(PersistentCache.class);
 
   @Test
   public void dont_retry_server_offline() throws IOException {
     turnServerOffline();
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
+    when(cache.getString(ID)).thenReturn(cacheValue);
+    WSLoader underTest = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
 
-    assertResult(loader.loadString(ID), cacheValue, true);
-    assertResult(loader.loadString(ID), cacheValue, true);
+    assertResult(underTest.loadString(ID), cacheValue, true);
+    assertResult(underTest.loadString(ID), cacheValue, true);
 
     assertUsedServer(1);
     assertUsedCache(2);
@@ -94,84 +73,67 @@ public class WSLoaderTest {
 
   @Test
   public void get_stream_from_cache() throws IOException {
-    InputStream is = mock(InputStream.class);
+    InputStream is = IOUtils.toInputStream("is");
     when(cache.getStream(ID)).thenReturn(is);
-    WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, client, props);
+
+    WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, ws);
     WSLoaderResult<InputStream> result = loader.loadStream(ID);
+
     assertThat(result.get()).isEqualTo(is);
     verify(cache).getStream(ID);
-
-    verifyNoMoreInteractions(cache, client);
+    verifyNoMoreInteractions(cache, ws);
   }
 
   @Test
   public void put_stream_in_cache() throws IOException {
-    InputStream is1 = mock(InputStream.class);
-    InputStream is2 = mock(InputStream.class);
+    InputStream input = IOUtils.toInputStream("is");
 
-    when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenReturn(is1);
-    when(cache.getStream(ID)).thenReturn(is2);
+    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(input));
+    when(cache.getStream(ID)).thenReturn(input);
 
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
-    WSLoaderResult<InputStream> result = loader.loadStream(ID);
-    assertThat(result.get()).isEqualTo(is2);
+    // SERVER_FIRST -> load from server then put to cache
+    WSLoader underTest = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
+    WSLoaderResult<InputStream> result = underTest.loadStream(ID);
+    assertThat(result.get()).isEqualTo(input);
 
-    verify(client).load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt());
-    verify(cache).put(ID, is1);
-    verify(cache).getStream(ID);
-
-    verifyNoMoreInteractions(cache, client);
-  }
-
-  @Test
-  public void default_timeout() throws IOException {
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
-    loader.loadStream(ID);
-
-    verify(client).load(anyString(), anyString(), anyBoolean(), anyInt(), eq(60_000));
-
-    verifyNoMoreInteractions(client);
-  }
-
-  @Test
-  public void change_timeout() throws IOException {
-    when(props.properties()).thenReturn(ImmutableMap.of(WSLoader.SONAR_WS_TIMEOUT_PROPS, "20"));
-    when(props.property(WSLoader.SONAR_WS_TIMEOUT_PROPS)).thenReturn("20");
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
-    loader.loadStream(ID);
-
-    verify(client).load(anyString(), anyString(), anyBoolean(), anyInt(), eq(20_000));
-
-    verifyNoMoreInteractions(client);
+    WsConnector wsConnector = ws.wsConnector();
+    InOrder inOrder = inOrder(wsConnector, cache);
+    inOrder.verify(wsConnector).call(any(WsRequest.class));
+    inOrder.verify(cache).put(eq(ID), any(InputStream.class));
+    inOrder.verify(cache).getStream(ID);
+    verifyNoMoreInteractions(cache, wsConnector);
   }
 
   @Test
   public void test_cache_strategy_fallback() throws IOException {
     turnCacheEmpty();
-    WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, client, props);
+    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
+    WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, ws);
 
     assertResult(loader.loadString(ID), serverValue, false);
 
-    InOrder inOrder = Mockito.inOrder(client, cache);
+    InOrder inOrder = inOrder(ws.wsConnector(), cache);
     inOrder.verify(cache).getString(ID);
-    inOrder.verify(client).load(eq(ID), anyString(), anyBoolean(), anyInt(), anyInt());
+    inOrder.verify(ws.wsConnector()).call(any(WsRequest.class));
   }
 
   @Test
   public void test_server_strategy_fallback() throws IOException {
     turnServerOffline();
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
+    when(cache.getString(ID)).thenReturn(cacheValue);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
 
     assertResult(loader.loadString(ID), cacheValue, true);
 
-    InOrder inOrder = Mockito.inOrder(client, cache);
-    inOrder.verify(client).load(eq(ID), anyString(), anyBoolean(), anyInt(), anyInt());
+    InOrder inOrder = inOrder(ws.wsConnector(), cache);
+    inOrder.verify(ws.wsConnector()).call(any(WsRequest.class));
     inOrder.verify(cache).getString(ID);
   }
 
   @Test
   public void test_put_cache() throws IOException {
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
+    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
     loader.loadString(ID);
     verify(cache).put(ID, serverValue.getBytes());
   }
@@ -181,7 +143,7 @@ public class WSLoaderTest {
     turnServerOffline();
 
     when(cache.getString(ID)).thenThrow(new NullPointerException());
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
 
     try {
       loader.loadString(ID);
@@ -196,7 +158,7 @@ public class WSLoaderTest {
   public void test_throw_cache_exception() throws IOException {
     when(cache.getString(ID)).thenThrow(new IllegalStateException());
 
-    WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, client, props);
+    WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, ws);
 
     try {
       loader.loadString(ID);
@@ -209,12 +171,12 @@ public class WSLoaderTest {
 
   @Test
   public void test_throw_http_exceptions() {
-    HttpDownloader.HttpException httpException = mock(HttpDownloader.HttpException.class);
+    HttpException httpException = new HttpException("url", 500, "Internal Error");
     IllegalStateException wrapperException = new IllegalStateException(httpException);
 
-    when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenThrow(wrapperException);
+    when(ws.wsConnector().call(any(WsRequest.class))).thenThrow(wrapperException);
 
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
 
     try {
       loader.loadString(ID);
@@ -230,9 +192,9 @@ public class WSLoaderTest {
     turnServerOffline();
 
     exception.expect(IllegalStateException.class);
-    exception.expectMessage(Matchers.is("Server is not available"));
+    exception.expectMessage(Matchers.containsString("Server is not available"));
 
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client, props);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, ws);
     loader.loadString(ID);
   }
 
@@ -244,7 +206,7 @@ public class WSLoaderTest {
     exception.expect(IllegalStateException.class);
     exception.expectMessage(Matchers.is("Server is not accessible and data is not cached"));
 
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
     loader.loadString(ID);
   }
 
@@ -255,13 +217,14 @@ public class WSLoaderTest {
     exception.expect(IllegalStateException.class);
     exception.expectMessage(Matchers.is("Data is not cached"));
 
-    WSLoader loader = new WSLoader(LoadStrategy.CACHE_ONLY, cache, client, props);
+    WSLoader loader = new WSLoader(LoadStrategy.CACHE_ONLY, cache, ws);
     loader.loadString(ID);
   }
 
   @Test
   public void test_server_strategy() throws IOException {
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
+    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
     assertResult(loader.loadString(ID), serverValue, false);
 
     // should not fetch from cache
@@ -272,13 +235,14 @@ public class WSLoaderTest {
   @Test(expected = IllegalStateException.class)
   public void test_server_only() throws IOException {
     turnServerOffline();
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client, props);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, ws);
     loader.loadString(ID);
   }
 
   @Test
   public void test_string() {
-    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client, props);
+    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
     assertResult(loader.loadString(ID), serverValue, false);
   }
 
@@ -287,14 +251,7 @@ public class WSLoaderTest {
   }
 
   private void assertUsedServer(int times) {
-    verify(client, times(times)).load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt());
-  }
-
-  private void assertResult(WSLoaderResult<InputStream> result, byte[] expected, boolean fromCache) throws IOException {
-    byte[] content = IOUtils.toByteArray(result.get());
-    assertThat(result).isNotNull();
-    assertThat(content).isEqualTo(expected);
-    assertThat(result.isFromCache()).isEqualTo(fromCache);
+    verify(ws.wsConnector(), times(times)).call(any(WsRequest.class));
   }
 
   private void assertResult(WSLoaderResult<String> result, String expected, boolean fromCache) {
@@ -304,7 +261,7 @@ public class WSLoaderTest {
   }
 
   private void turnServerOffline() {
-    when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenThrow(new IllegalStateException());
+    when(ws.wsConnector().call(any(WsRequest.class))).thenThrow(new IllegalStateException());
   }
 
   private void turnCacheEmpty() throws IOException {

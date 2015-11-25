@@ -1,8 +1,8 @@
 package util;/*
-             * Copyright (C) 2009-2014 SonarSource SA
-             * All rights reserved
-             * mailto:contact AT sonarsource DOT com
-             */
+ * Copyright (C) 2009-2014 SonarSource SA
+ * All rights reserved
+ * mailto:contact AT sonarsource DOT com
+ */
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -32,13 +32,14 @@ import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.HttpWsClient;
 import org.sonarqube.ws.client.WsClient;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.sonarqube.ws.client.HttpConnector.newHttpConnector;
 
 public class ItUtils {
 
@@ -77,10 +78,9 @@ public class ItUtils {
 
   public static WsClient newAdminWsClient(Orchestrator orchestrator) {
     Server server = orchestrator.getServer();
-    return new WsClient(newHttpConnector()
+    return new HttpWsClient(new HttpConnector.Builder()
       .url(server.getUrl())
-      .login(server.ADMIN_LOGIN)
-      .password(server.ADMIN_PASSWORD)
+      .credentials(server.ADMIN_LOGIN, server.ADMIN_PASSWORD)
       .build());
   }
 

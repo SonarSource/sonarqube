@@ -147,7 +147,7 @@ public class MeasureFiltersTest {
     client.userClient().create(userCreationParameters);
 
     if (permission != null) {
-      adminWsClient.permissionsClient().addUser(new AddUserWsRequest()
+      adminWsClient.permissions().addUser(new AddUserWsRequest()
         .setLogin(login)
         .setPermission(permission));
     }

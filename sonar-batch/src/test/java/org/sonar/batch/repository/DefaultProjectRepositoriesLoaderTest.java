@@ -19,25 +19,22 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.api.utils.MessageException;
-
 import com.google.common.io.Resources;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-
-import org.sonar.api.utils.HttpDownloader.HttpException;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
+import org.sonarqube.ws.client.HttpException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -56,7 +53,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void prepare() throws IOException {
     wsLoader = mock(WSLoader.class);
     InputStream is = mockData();
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, true));
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
     loader = new DefaultProjectRepositoriesLoader(wsLoader);
   }
 
@@ -72,13 +69,13 @@ public class DefaultProjectRepositoriesLoaderTest {
     InputStream is = mock(InputStream.class);
     when(is.read()).thenThrow(IOException.class);
 
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, false));
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, false));
     loader.load(PROJECT_KEY, false, null);
   }
 
   @Test(expected = IllegalStateException.class)
   public void failFastHttpError() {
-    HttpException http = new HttpException(URI.create("uri"), 403);
+    HttpException http = new HttpException("url", 403, "Forbidden");
     IllegalStateException e = new IllegalStateException("http error", http);
     when(wsLoader.loadStream(anyString())).thenThrow(e);
     loader.load(PROJECT_KEY, false, null);
@@ -89,7 +86,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("http error");
     
-    HttpException http = new HttpException(URI.create("uri"), 403);
+    HttpException http = new HttpException("uri", 403, "Forbidden");
     MessageException e = MessageException.of("http error", http);
     when(wsLoader.loadStream(anyString())).thenThrow(e);
     loader.load(PROJECT_KEY, false, null);

@@ -22,7 +22,7 @@ package org.sonar.server.permission.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.ENDPOINT;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.CONTROLLER;
 
 public class PermissionsWs implements WebService {
   private final PermissionsWsAction[] actions;
@@ -33,7 +33,7 @@ public class PermissionsWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController(ENDPOINT);
+    NewController controller = context.createController(CONTROLLER);
     controller.setDescription("Permissions management");
     controller.setSince("3.7");
 

@@ -21,12 +21,12 @@ package org.sonar.batch.repository;
 
 import com.google.common.base.Throwables;
 
-import org.sonar.api.utils.HttpDownloader.HttpException;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.Map;
 
@@ -42,6 +42,7 @@ import org.sonar.batch.util.BatchUtils;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.FileDataByPath;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.Settings;
+import org.sonarqube.ws.client.HttpException;
 
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
@@ -85,7 +86,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     for (Throwable t : Throwables.getCausalChain(e)) {
       if (t instanceof HttpException) {
         HttpException http = (HttpException) t;
-        return http.getResponseCode() != 404;
+        return http.code() != HttpURLConnection.HTTP_NOT_FOUND;
       }
     }
 

@@ -20,51 +20,27 @@
 
 package org.sonarqube.ws.client.usertoken;
 
-import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
-import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonarqube.ws.client.WsRequest.newGetRequest;
-import static org.sonarqube.ws.client.WsRequest.newPostRequest;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_GENERATE;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_REVOKE;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.USER_TOKENS_ENDPOINT;
 
-public class UserTokensWsClient {
-  private static final String SLASH = "/";
-  private final WsClient wsClient;
+public class UserTokensService extends BaseService {
 
-  public UserTokensWsClient(WsClient wsClient) {
-    this.wsClient = wsClient;
+  public UserTokensService(WsConnector wsConnector) {
+    super(wsConnector, CONTROLLER);
   }
 
   public GenerateWsResponse generate(GenerateWsRequest request) {
-    return wsClient.execute(
-      newPostRequest(action(ACTION_GENERATE))
+    return call(
+      new PostRequest(path(ACTION_GENERATE))
         .setParam(PARAM_LOGIN, request.getLogin())
         .setParam(PARAM_NAME, request.getName()),
       GenerateWsResponse.parser());
-  }
-
-  public void revoke(RevokeWsRequest request) {
-    wsClient.execute(
-      newPostRequest(action(ACTION_REVOKE))
-        .setParam(PARAM_LOGIN, request.getLogin())
-        .setParam(PARAM_NAME, request.getName()));
-  }
-
-  public SearchWsResponse search(SearchWsRequest request) {
-    return wsClient.execute(
-      newGetRequest(action(ACTION_SEARCH))
-        .setParam(PARAM_LOGIN, request.getLogin()),
-      SearchWsResponse.parser()
-    );
-  }
-
-  private static String action(String action) {
-    return USER_TOKENS_ENDPOINT + SLASH + action;
   }
 }

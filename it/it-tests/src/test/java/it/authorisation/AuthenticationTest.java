@@ -32,18 +32,20 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.sonarqube.ws.WsUserTokens;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.HttpWsClient;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
-import org.sonarqube.ws.client.usertoken.UserTokensWsClient;
+import org.sonarqube.ws.client.usertoken.UserTokensService;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.client.HttpConnector.newHttpConnector;
-import static org.sonarqube.ws.client.WsRequest.newGetRequest;
-import static org.sonarqube.ws.client.WsRequest.newPostRequest;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -51,7 +53,7 @@ public class AuthenticationTest {
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
   private static WsClient adminWsClient;
-  private static UserTokensWsClient userTokensWsClient;
+  private static UserTokensService userTokensWsClient;
 
   private static final String PROJECT_KEY = "sample";
   private static final String LOGIN = "george.orwell";
@@ -64,7 +66,7 @@ public class AuthenticationTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
-    userTokensWsClient = adminWsClient.userTokensWsClient();
+    userTokensWsClient = adminWsClient.userTokens();
     removeGroupPermission("anyone", "dryRunScan");
     removeGroupPermission("anyone", "scan");
 
@@ -89,9 +91,9 @@ public class AuthenticationTest {
     createUser(login, name, password);
 
     // authenticate
-    WsClient wsClient = new WsClient(newHttpConnector().url(ORCHESTRATOR.getServer().getUrl()).login(login).password(password).build());
-    String response = wsClient.execute(newGetRequest("api/authentication/validate"));
-    assertThat(response).isEqualTo("{\"valid\":true}");
+    WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
+    WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
+    assertThat(response.getContent()).isEqualTo("{\"valid\":true}");
   }
 
   @Test
@@ -99,14 +101,13 @@ public class AuthenticationTest {
     WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
       .setLogin(LOGIN)
       .setName("Validate token based authentication"));
-    WsClient wsClient = new WsClient(newHttpConnector()
+    WsClient wsClient = new HttpWsClient(new HttpConnector.Builder()
       .url(ORCHESTRATOR.getServer().getUrl())
-      .login(generateWsResponse.getToken())
-      .password("").build());
+      .token(generateWsResponse.getToken()).build());
 
-    String response = wsClient.execute(newGetRequest("api/authentication/validate"));
+    WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
 
-    assertThat(response).isEqualTo("{\"valid\":true}");
+    assertThat(response.getContent()).isEqualTo("{\"valid\":true}");
   }
 
   /**
@@ -123,9 +124,9 @@ public class AuthenticationTest {
     createUser(login, format("name-%s", userId), password);
 
     // authenticate
-    WsClient wsClient = new WsClient(newHttpConnector().url(ORCHESTRATOR.getServer().getUrl()).login(login).password(password).build());
-    String response = wsClient.execute(newGetRequest("api/authentication/validate"));
-    assertThat(response).isEqualTo("{\"valid\":false}");
+    WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
+    WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
+    assertThat(response.getContent()).isEqualTo("{\"valid\":false}");
   }
 
   @Test
@@ -162,41 +163,41 @@ public class AuthenticationTest {
   }
 
   private static void createUser(String login, String password) {
-    adminWsClient.execute(
-      newPostRequest("api/users/create")
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/users/create")
         .setParam("login", login)
         .setParam("name", login)
         .setParam("password", password));
   }
 
   private static void createUser(String login, String name, String password) {
-    adminWsClient.execute(
-      newPostRequest("api/users/create")
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/users/create")
         .setParam("login", login)
         .setParam("name", name)
         .setParam("password", password));
   }
 
   private static void addUserPermission(String login, String permission) {
-    adminWsClient.permissionsClient().addUser(new AddUserWsRequest()
+    adminWsClient.permissions().addUser(new AddUserWsRequest()
       .setLogin(login)
       .setPermission(permission));
   }
 
   private static void deactivateUser(String login) {
-    adminWsClient.execute(
-      newPostRequest("api/users/deactivate")
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/users/deactivate")
         .setParam("login", login));
   }
 
   private static void removeGroupPermission(String groupName, String permission) {
-    adminWsClient.permissionsClient().removeGroup(new RemoveGroupWsRequest()
+    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest()
       .setGroupName(groupName)
       .setPermission(permission));
   }
 
   private static void addGroupPermission(String groupName, String permission) {
-    adminWsClient.permissionsClient().addGroup(new AddGroupWsRequest()
+    adminWsClient.permissions().addGroup(new AddGroupWsRequest()
       .setGroupName(groupName)
       .setPermission(permission));
   }

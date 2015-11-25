@@ -100,10 +100,6 @@
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.github.kevinsawicki</groupId>
-      <artifactId>http-request</artifactId>
-    </dependency>
     <!-- For HTML Report -->
     <dependency>
       <groupId>org.freemarker</groupId>
@@ -118,7 +114,6 @@
       <scope>test</scope>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.google.code.bean-matchers</groupId>
       <artifactId>bean-matchers</artifactId>

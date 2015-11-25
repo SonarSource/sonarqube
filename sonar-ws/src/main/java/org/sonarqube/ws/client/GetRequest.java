@@ -17,31 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonarqube.ws.client;
 
-package org.sonar.server.usertoken.ws;
-
-import org.sonar.api.server.ws.WebService;
-
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.CONTROLLER;
-
-public class UserTokensWs implements WebService {
-  private final UserTokensWsAction[] actions;
-
-  public UserTokensWs(UserTokensWsAction... actions) {
-    this.actions = actions;
+/**
+ * @since 5.3
+ */
+public class GetRequest extends BaseRequest<GetRequest> {
+  public GetRequest(String path) {
+    super(path);
   }
 
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER)
-      .setDescription("User token management. To enhance security, tokens can be used to take the place " +
-        "of user credentials in analysis configuration. A token can be revoked at any time.")
-      .setSince("5.3");
-
-    for (UserTokensWsAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
+  public Method getMethod() {
+    return Method.GET;
   }
 }

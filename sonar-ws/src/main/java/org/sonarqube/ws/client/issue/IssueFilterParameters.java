@@ -26,7 +26,7 @@ import com.google.common.collect.Iterables;
 import java.util.List;
 
 /**
- * @since 3.7
+ * @since 5.3
  */
 public class IssueFilterParameters {
 

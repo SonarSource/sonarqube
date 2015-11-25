@@ -17,73 +17,192 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonarqube.ws.client;
 
-import com.google.protobuf.Message;
-import com.google.protobuf.Parser;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.HttpUrl;
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+import java.io.IOException;
+import java.net.Proxy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.nullToEmpty;
+import static java.lang.String.format;
 
 public class HttpConnector implements WsConnector {
 
-  public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30000;
-  public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60000;
+  public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30_000;
+  public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
 
   /**
-   * Visibility relaxed for unit tests
+   * Base URL with trailing slash, for instance "https://localhost/sonarqube/".
+   * It is required for further usage of {@link HttpUrl#resolve(String)}.
    */
-  final HttpRequestFactory requestFactory;
+  private final HttpUrl baseUrl;
+  private final String userAgent;
+  private final String credentials;
+  private final String proxyCredentials;
+  private final OkHttpClient okHttpClient = new OkHttpClient();
 
   private HttpConnector(Builder builder) {
-    this.requestFactory = new HttpRequestFactory(builder.url)
-      .setLogin(builder.login)
-      .setPassword(builder.password)
-      .setProxyHost(builder.proxyHost)
-      .setProxyPort(builder.proxyPort)
-      .setProxyLogin(builder.proxyLogin)
-      .setProxyPassword(builder.proxyPassword)
-      .setConnectTimeoutInMilliseconds(builder.connectTimeoutMs)
-      .setReadTimeoutInMilliseconds(builder.readTimeoutMs);
+    this.baseUrl = HttpUrl.parse(builder.url.endsWith("/") ? builder.url : format("%s/", builder.url));
+    this.userAgent = builder.userAgent;
+
+    if (isNullOrEmpty(builder.login)) {
+      // no login nor access token
+      this.credentials = null;
+    } else {
+      // password is null when login represents an access token. In this case
+      // the Basic credentials consider an empty password.
+      this.credentials = Credentials.basic(builder.login, nullToEmpty(builder.password));
+    }
+
+    if (builder.proxy != null) {
+      this.okHttpClient.setProxy(builder.proxy);
+    }
+    // proxy credentials can be used on system-wide proxies, so even if builder.proxy is null
+    if (isNullOrEmpty(builder.proxyLogin)) {
+      this.proxyCredentials = null;
+    } else {
+      this.proxyCredentials = Credentials.basic(builder.proxyLogin, nullToEmpty(builder.proxyPassword));
+    }
+
+    this.okHttpClient.setConnectTimeout(builder.connectTimeoutMs, TimeUnit.MILLISECONDS);
+    this.okHttpClient.setReadTimeout(builder.readTimeoutMs, TimeUnit.MILLISECONDS);
+    this.okHttpClient.interceptors().addAll(builder.interceptors);
   }
 
   @Override
-  public String execute(WsRequest wsRequest) {
-    return requestFactory.execute(wsRequest);
+  public String baseUrl() {
+    return baseUrl.url().toExternalForm();
+  }
+
+  public OkHttpClient okHttpClient() {
+    return okHttpClient;
+  }
+
+  @CheckForNull
+  public String userAgent() {
+    return userAgent;
+  }
+
+  @CheckForNull
+  public String credentials() {
+    return credentials;
   }
 
   @Override
-  public <T extends Message> T execute(WsRequest wsRequest, Parser<T> protobufParser) {
-    return requestFactory.execute(wsRequest, protobufParser);
+  public WsResponse call(WsRequest httpRequest) {
+    if (httpRequest instanceof GetRequest) {
+      return get((GetRequest) httpRequest);
+    }
+    if (httpRequest instanceof PostRequest) {
+      return post((PostRequest) httpRequest);
+    }
+    throw new IllegalArgumentException(format("Unsupported implementation: %s", httpRequest.getClass()));
   }
 
-  /**
-   * Create a builder of {@link WsClient}s.
-   */
-  public static Builder newHttpConnector() {
-    return new Builder();
+  private WsResponse get(GetRequest getRequest) {
+    HttpUrl.Builder urlBuilder = prepareUrlBuilder(getRequest);
+    Request.Builder okRequestBuilder = prepareOkRequestBuilder(getRequest, urlBuilder).get();
+    return doCall(okRequestBuilder.build());
   }
 
-  /**
-   * Create a client with default configuration. Use {@link #newHttpConnector()} to define
-   * a custom configuration (credentials, HTTP proxy, HTTP timeouts).
-   */
-  public static HttpConnector newDefaultHttpConnector(String serverUrl) {
-    return newHttpConnector().url(serverUrl).build();
+  private WsResponse post(PostRequest postRequest) {
+    HttpUrl.Builder urlBuilder = prepareUrlBuilder(postRequest);
+    Request.Builder okRequestBuilder = prepareOkRequestBuilder(postRequest, urlBuilder);
+
+    Map<String, PostRequest.Part> parts = postRequest.getParts();
+    if (parts.isEmpty()) {
+      okRequestBuilder.post(RequestBody.create(null, ""));
+    } else {
+      MultipartBuilder body = new MultipartBuilder().type(MultipartBuilder.FORM);
+      for (Map.Entry<String, PostRequest.Part> param : parts.entrySet()) {
+        PostRequest.Part part = param.getValue();
+        body.addPart(
+          Headers.of("Content-Disposition", format("form-data; name=\"%s\"", param.getKey())),
+          RequestBody.create(MediaType.parse(part.getMediaType()), part.getFile()));
+      }
+      okRequestBuilder.post(body.build());
+    }
+
+    return doCall(okRequestBuilder.build());
+  }
+
+  private HttpUrl.Builder prepareUrlBuilder(WsRequest wsRequest) {
+    String path = wsRequest.getPath();
+    HttpUrl.Builder urlBuilder = baseUrl
+      .resolve(path.startsWith("/") ? path.replaceAll("^(/)+", "") : path)
+      .newBuilder();
+    for (Map.Entry<String, String> param : wsRequest.getParams().entrySet()) {
+      urlBuilder.addQueryParameter(param.getKey(), param.getValue());
+    }
+    return urlBuilder;
+  }
+
+  private Request.Builder prepareOkRequestBuilder(WsRequest getRequest, HttpUrl.Builder urlBuilder) {
+    Request.Builder okHttpRequestBuilder = new Request.Builder()
+      .url(urlBuilder.build())
+      .addHeader("Accept", getRequest.getMediaType())
+      .addHeader("Accept-Charset", "UTF-8");
+    if (credentials != null) {
+      okHttpRequestBuilder.header("Authorization", credentials);
+    }
+    if (proxyCredentials != null) {
+      okHttpRequestBuilder.header("Proxy-Authorization", proxyCredentials);
+    }
+    if (userAgent != null) {
+      okHttpRequestBuilder.addHeader("User-Agent", userAgent);
+    }
+    return okHttpRequestBuilder;
+  }
+
+  private HttpResponse doCall(Request okRequest) {
+    Call call = okHttpClient.newCall(okRequest);
+    try {
+      Response okResponse = call.execute();
+      if (!okResponse.isSuccessful()) {
+        throw new HttpException(okRequest.urlString(), okResponse.code(), okResponse.message());
+      }
+      return new HttpResponse(okResponse);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to request " + okRequest.urlString(), e);
+    }
   }
 
   public static class Builder {
+    private String url;
+    private String userAgent;
     private String login;
     private String password;
-    private String url;
-    private String proxyHost;
+    private Proxy proxy;
     private String proxyLogin;
     private String proxyPassword;
-    private int proxyPort = 0;
-
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS;
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
+    private final List<Interceptor> interceptors = new ArrayList<>();
 
-    private Builder() {
+    /**
+     * Optional User  Agent
+     */
+    public Builder userAgent(@Nullable String userAgent) {
+      this.userAgent = userAgent;
+      return this;
     }
 
     /**
@@ -95,43 +214,26 @@ public class HttpConnector implements WsConnector {
     }
 
     /**
-     * Optional login, for example "admin"
+     * Optional login/password, for example "admin"
      */
-    public Builder login(@Nullable String login) {
+    public Builder credentials(@Nullable String login, @Nullable String password) {
       this.login = login;
-      return this;
-    }
-
-    /**
-     * Optional password related to {@link #login(String)}, for example "admin"
-     */
-    public Builder password(@Nullable String password) {
       this.password = password;
       return this;
     }
 
     /**
-     * Host and port of the optional HTTP proxy
+     * Optional access token, for example {@code "ABCDE"}. Alternative to {@link #credentials(String, String)}
      */
-    public Builder proxy(@Nullable String proxyHost, int proxyPort) {
-      this.proxyHost = proxyHost;
-      this.proxyPort = proxyPort;
-      return this;
-    }
-
-    public Builder proxyLogin(@Nullable String proxyLogin) {
-      this.proxyLogin = proxyLogin;
-      return this;
-    }
-
-    public Builder proxyPassword(@Nullable String proxyPassword) {
-      this.proxyPassword = proxyPassword;
+    public Builder token(@Nullable String token) {
+      this.login = token;
+      this.password = null;
       return this;
     }
 
     /**
      * Sets a specified timeout value, in milliseconds, to be used when opening HTTP connection.
-     * A timeout of zero is interpreted as an infinite timeout. Default value is {@link HttpConnector#DEFAULT_CONNECT_TIMEOUT_MILLISECONDS}
+     * A timeout of zero is interpreted as an infinite timeout. Default value is {@link #DEFAULT_CONNECT_TIMEOUT_MILLISECONDS}
      */
     public Builder connectTimeoutMilliseconds(int i) {
       this.connectTimeoutMs = i;
@@ -140,20 +242,35 @@ public class HttpConnector implements WsConnector {
 
     /**
      * Sets the read timeout to a specified timeout, in milliseconds.
-     * A timeout of zero is interpreted as an infinite timeout. Default value is {@link HttpConnector#DEFAULT_READ_TIMEOUT_MILLISECONDS}
+     * A timeout of zero is interpreted as an infinite timeout. Default value is {@link #DEFAULT_READ_TIMEOUT_MILLISECONDS}
      */
     public Builder readTimeoutMilliseconds(int i) {
       this.readTimeoutMs = i;
       return this;
     }
 
+    public Builder proxy(@Nullable Proxy proxy) {
+      this.proxy = proxy;
+      return this;
+    }
+
+    public Builder proxyCredentials(@Nullable String proxyLogin, @Nullable String proxyPassword) {
+      this.proxyLogin = proxyLogin;
+      this.proxyPassword = proxyPassword;
+      return this;
+    }
+
     /**
-     * Build a new client
+     * Adds a OkHttp interceptor, for example to log request URLs or response errors.
+     * See https://github.com/square/okhttp/wiki/Interceptors
      */
+    public Builder interceptor(Interceptor interceptor) {
+      this.interceptors.add(interceptor);
+      return this;
+    }
+
     public HttpConnector build() {
-      if (url == null || "".equals(url)) {
-        throw new IllegalStateException("Server URL must be set");
-      }
+      checkArgument(!isNullOrEmpty(url), "Server URL is not defined");
       return new HttpConnector(this);
     }
 

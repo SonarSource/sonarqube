@@ -91,7 +91,7 @@ public class GlobalContainer extends ComponentContainer {
 
       CachesManager.class,
       GlobalSettings.class,
-      ServerClient.class,
+      new WsClientProvider(),
       DefaultServer.class,
       new GlobalTempFolderProvider(),
       DefaultHttpDownloader.class,

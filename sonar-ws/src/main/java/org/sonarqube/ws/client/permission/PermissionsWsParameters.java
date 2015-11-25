@@ -21,7 +21,7 @@
 package org.sonarqube.ws.client.permission;
 
 public class PermissionsWsParameters {
-  public static final String ENDPOINT = "api/permissions";
+  public static final String CONTROLLER = "api/permissions";
 
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_GROUP_NAME = "groupName";

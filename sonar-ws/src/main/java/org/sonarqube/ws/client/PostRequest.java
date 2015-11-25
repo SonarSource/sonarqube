@@ -17,33 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonarqube.ws.client;
 
-package org.sonarqube.ws.client.component;
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.sonarqube.ws.WsComponents.SearchWsResponse;
-import org.sonarqube.ws.client.WsClient;
+/**
+ * @since 5.3
+ */
+public class PostRequest extends BaseRequest<PostRequest> {
 
-import static org.sonarqube.ws.client.WsRequest.newGetRequest;
+  private final Map<String, Part> parts = new LinkedHashMap<>();
 
-public class ComponentsWsClient {
-  private static final String ENDPOINT = "api/components/";
-  private final WsClient wsClient;
-
-  public ComponentsWsClient(WsClient wsClient) {
-    this.wsClient = wsClient;
+  public PostRequest(String path) {
+    super(path);
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
-    return wsClient.execute(
-      newGetRequest(action("search"))
-        .setParam("qualifiers", request.getQualifiers())
-        .setParam("p", request.getPage())
-        .setParam("ps", request.getPageSize())
-        .setParam("q", request.getQuery()),
-      SearchWsResponse.parser());
+  @Override
+  public Method getMethod() {
+    return Method.POST;
   }
 
-  private static String action(String action) {
-    return ENDPOINT + action;
+  public PostRequest setPart(String name, Part part) {
+    this.parts.put(name, part);
+    return this;
   }
+
+  public Map<String, Part> getParts() {
+    return parts;
+  }
+
+  public static class Part {
+    private final String mediaType;
+    private final File file;
+
+    public Part(String mediaType, File file) {
+      this.mediaType = mediaType;
+      this.file = file;
+    }
+
+    public String getMediaType() {
+      return mediaType;
+    }
+
+    public File getFile() {
+      return file;
+    }
+  }
+
 }
