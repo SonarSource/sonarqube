@@ -4,8 +4,8 @@
   <metrics id="11" name="coverage_line_hits_data"/>
   <metrics id="12" name="ncloc"/>
 
-  <projects id="1" kee="org.struts:struts-core:src/org/struts/RequestContext.java" enabled="[true]"/>
-  <projects id="333" kee="dev:John-Doe" enabled="[true]"/>
+  <projects id="1" kee="org.struts:struts-core:src/org/struts/RequestContext.java" enabled="[true]" uuid="1"/>
+  <projects id="333" kee="dev:John-Doe" enabled="[true]" uuid="333"/>
 
   <snapshots id="5" project_id="1" islast="[true]" />
 
