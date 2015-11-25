@@ -11,6 +11,7 @@
   <name>SonarQube :: Server :: Benchmarks</name>
 
   <properties>
+    <sonar.skip>true</sonar.skip>
     <skipBenchmarks>true</skipBenchmarks>
     <enableBenchmarkAssertions>false</enableBenchmarkAssertions>
   </properties>
