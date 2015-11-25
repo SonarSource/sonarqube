@@ -40,23 +40,6 @@ export const GeneralIssues = React.createClass({
             {formatMeasure(this.props.leak.debt, 'SHORT_WORK_DUR')}
           </IssuesLink>
         </Measure>
-        <Measure composite={true}>
-          <div>
-            <span className="spacer-right"><SeverityIcon severity="BLOCKER"/></span>
-            <IssuesLink component={this.props.component.key}
-                        params={{ resolved: 'false', severities: 'BLOCKER', createdAfter: createdAfter }}>
-              {formatMeasure(this.props.leak.issuesSeverities[0], 'SHORT_INT')}
-            </IssuesLink>
-          </div>
-          <div className="little-spacer-top">
-            <span className="spacer-right"><SeverityIcon severity="CRITICAL"/></span>
-            <IssuesLink component={this.props.component.key}
-                        params={{ resolved: 'false', severities: 'CRITICAL', createdAfter: createdAfter }}>
-              {formatMeasure(this.props.leak.issuesSeverities[1], 'SHORT_INT')}
-            </IssuesLink>
-          </div>
-          <div className="little-spacer-top">&nbsp;</div>
-        </Measure>
       </MeasuresList>
       {this.renderTimeline('after')}
     </DomainLeak>;

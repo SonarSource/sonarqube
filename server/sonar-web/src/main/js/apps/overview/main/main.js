@@ -61,8 +61,7 @@ export default React.createClass({
     Promise.all([
       this.requestMeasures(),
       this.requestIssuesAndDebt(),
-      this.requestLeakIssuesAndDebt(),
-      this.requestIssuesLeakSeverities()
+      this.requestLeakIssuesAndDebt()
     ]).then(responses => {
       let measures = this.getMeasuresValues(responses[0], 'value');
       measures.issues = responses[1].issues;
@@ -73,7 +72,6 @@ export default React.createClass({
         leak = this.getMeasuresValues(responses[0], 'var' + this.props.leakPeriodIndex);
         leak.issues = responses[2].issues;
         leak.debt = responses[2].debt;
-        leak.issuesSeverities = SEVERITIES.map(s => getFacetValue(responses[3].facet, s));
       }
 
       this.setState({
@@ -120,20 +118,6 @@ export default React.createClass({
       resolved: 'false',
       facets: 'severities'
     });
-  },
-
-  requestIssuesLeakSeverities() {
-    if (!this.state.leakPeriodDate) {
-      return Promise.resolve();
-    }
-
-    let createdAfter = moment(this.state.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
-
-    return getFacet({
-      componentUuids: this.props.component.id,
-      createdAfter: createdAfter,
-      resolved: 'false'
-    }, 'severities');
   },
 
   requestHistory () {
