@@ -8,6 +8,7 @@ import { getComponentDrilldownUrl } from '../../helpers/urls';
 
 const ISSUE_MEASURES = [
   'violations',
+  'new_violations',
   'blocker_violations',
   'critical_violations',
   'major_violations',

@@ -1024,7 +1024,7 @@ module ApplicationHelper
 
 
   def get_issue_metrics
-    ['violations',
+    ['violations', 'new_violations',
      'blocker_violations', 'critical_violations', 'major_violations', 'minor_violations', 'info_violations',
      'new_blocker_violations', 'new_critical_violations', 'new_major_violations', 'new_minor_violations', 'new_info_violations',
      'open_issues', 'reopened_issues', 'confirmed_issues', 'false_positive_issues']
