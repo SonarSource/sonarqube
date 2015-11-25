@@ -56,7 +56,8 @@ class DefaultDebtRemediationFunctions implements RulesDefinition.DebtRemediation
     return create(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE, null, offset);
   }
 
-  private DebtRemediationFunction create(DefaultDebtRemediationFunction.Type type, @Nullable String coefficient, @Nullable String offset) {
+  @Override
+  public DebtRemediationFunction create(DebtRemediationFunction.Type type, @Nullable String coefficient, @Nullable String offset) {
     try {
       return new DefaultDebtRemediationFunction(type, coefficient, offset);
     } catch (Exception e) {
