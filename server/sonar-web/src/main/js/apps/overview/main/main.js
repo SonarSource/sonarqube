@@ -132,7 +132,8 @@ export default React.createClass({
           return { date, value };
         });
       });
-      this.setState({ history });
+      let historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
+      this.setState({ history, historyStartDate });
     });
   },
 

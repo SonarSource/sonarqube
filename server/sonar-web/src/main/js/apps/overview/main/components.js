@@ -2,7 +2,6 @@ import moment from 'moment';
 import React from 'react';
 
 import { Timeline } from './timeline';
-import { Legend } from '../components/legend';
 
 
 export const Domain = React.createClass({
@@ -21,7 +20,9 @@ export const DomainTitle = React.createClass({
         <div className="overview-title">
           {this.props.children}
           <a className="small big-spacer-left link-no-underline" href={url}>
-            More <i className="icon-chevron-right" style={{ position: 'relative', top: -1 }}/></a>
+            {window.t('more')}&nbsp;
+            <i className="icon-chevron-right" style={{ position: 'relative', top: -1 }}/>
+          </a>
         </div>
       </div>;
     } else {
@@ -32,14 +33,28 @@ export const DomainTitle = React.createClass({
 
 
 export const DomainLeakTitle = React.createClass({
+  renderInline (tooltip, fromNow) {
+    return <span title={tooltip} data-toggle="tooltip">
+      <span>{window.tp('overview.leak_period_x', this.props.label)}</span>
+      <span className="note spacer-left">{window.tp('overview.started_x', fromNow)}</span>
+    </span>;
+  },
+
   render() {
     if (!this.props.label || !this.props.date) {
       return null;
     }
     let momentDate = moment(this.props.date);
     let fromNow = momentDate.fromNow();
-    let tooltip = 'Started ' + fromNow + ', ' + momentDate.format('LL');
-    return <span title={tooltip} data-toggle="tooltip">Water Leak: {this.props.label}</span>;
+    let tooltip = 'Started on ' + momentDate.format('LL');
+    if (this.props.inline) {
+      return this.renderInline(tooltip, fromNow);
+    }
+    return <span title={tooltip} data-toggle="tooltip">
+      <span>{window.tp('overview.leak_period_x', this.props.label)}</span>
+      <br/>
+      <span className="note">{window.tp('overview.started_x', fromNow)}</span>
+    </span>;
   }
 });
 
@@ -48,7 +63,6 @@ export const DomainHeader = React.createClass({
   render () {
     return <div className="overview-card-header">
       <DomainTitle {...this.props}>{this.props.title}</DomainTitle>
-      <Legend leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
     </div>;
   }
 });
@@ -122,7 +136,13 @@ export const Measure = React.createClass({
 
 
 export const DomainMixin = {
-  renderTimeline(range) {
+  renderTimelineStartDate() {
+    let momentDate = moment(this.props.historyStartDate),
+        fromNow = momentDate.fromNow();
+    return <span className="overview-domain-timeline-date">{window.tp('overview.started_x', fromNow)}</span>;
+  },
+
+  renderTimeline(range, displayDate) {
     if (!this.props.history) {
       return null;
     }
@@ -130,6 +150,7 @@ export const DomainMixin = {
     props[range] = this.props.leakPeriodDate;
     return <div className="overview-domain-timeline">
       <Timeline {...props}/>
+      {displayDate ? this.renderTimelineStartDate(range) : null}
     </div>;
   },
 

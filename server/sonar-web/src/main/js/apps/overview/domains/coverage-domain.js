@@ -9,7 +9,7 @@ import { CoverageSelectionMixin } from '../components/coverage-selection-mixin';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
-import { Legend } from '../components/legend';
+import { DomainLeakTitle } from '../main/components';
 import { CHART_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
 import { CoverageMeasuresList } from '../components/coverage-measures-list';
 
@@ -74,7 +74,7 @@ export const CoverageMain = React.createClass({
   },
 
   renderLegend () {
-    return <Legend leakPeriodDate={this.state.leakPeriodDate} leakPeriodLabel={this.state.leakPeriodLabel}/>;
+    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>
   },
 
   render () {

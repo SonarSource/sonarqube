@@ -7,6 +7,7 @@ import { IssuesLink } from '../../../components/shared/issues-link';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import SeverityIcon from '../../../components/shared/severity-icon';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
+import { Legend } from '../components/legend';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -27,6 +28,8 @@ export const GeneralIssues = React.createClass({
     let createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
 
     return <DomainLeak>
+      <Legend leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
+
       <MeasuresList>
         <Measure label={getMetricName('new_debt')}>
           <IssuesLink component={this.props.component.key}
@@ -47,8 +50,7 @@ export const GeneralIssues = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader component={this.props.component} title={window.t('overview.domain.debt')} linkTo="/issues"
-                    leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
+      <DomainHeader component={this.props.component} title={window.t('overview.domain.debt')} linkTo="/issues"/>
 
       <DomainPanel domain="issues">
         <DomainNutshell>
@@ -69,7 +71,7 @@ export const GeneralIssues = React.createClass({
               </IssuesLink>
             </Measure>
           </MeasuresList>
-          {this.renderTimeline('before')}
+          {this.renderTimeline('before', true)}
         </DomainNutshell>
         {this.renderLeak()}
       </DomainPanel>

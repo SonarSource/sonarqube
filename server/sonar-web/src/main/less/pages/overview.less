@@ -120,7 +120,7 @@
 }
 
 .overview-card {
-  margin: 30px 20px;
+  margin: 15px 20px;
 }
 
 .overview-card-fixed-width {
@@ -144,7 +144,6 @@
   margin-top: 10px;
   border: 1px solid @barBorderColor;
   background-color: #fff;
-  overflow: hidden;
 
   .overview-bar-chart {
     padding: 0;
@@ -155,7 +154,7 @@
 .overview-domain-leak {
   position: relative;
   display: flex;
-  padding: 30px 10px;
+  padding: 15px 10px;
 }
 
 .overview-domain-nutshell {
@@ -224,6 +223,14 @@
     fill: none;
     stroke: none;
   }
+}
+
+.overview-domain-timeline-date {
+  position: absolute;
+  bottom: 2px;
+  left: 5px;
+  color: fade(@secondFontColor, 60%);
+  font-size: 11px;
 }
 
 /*
@@ -347,17 +354,16 @@
   padding: 0 10px;
 }
 
-.overview-legend-leak {
-  display: inline-block;
-  vertical-align: middle;
-  width: 16px;
-  height: 16px;
-  margin-top: -2px;
-  margin-left: 16px;
-  margin-right: 8px;
+.overview-legend {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: -1px;
+  padding: 5px 0 2px;
   border: 1px solid @barBorderColor;
-  box-sizing: border-box;
-  background-color: #fffae7;
+  border-bottom: none;
+  font-size: 14px;
+  text-align: center;
 }
 
 /*

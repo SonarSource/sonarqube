@@ -10,7 +10,6 @@ import { DomainBubbleChart } from '../components/domain-bubble-chart';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
-import { Legend } from '../components/legend';
 import { CHART_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
 import { AddedRemovedMeasure, AddedRemovedDebt, OnNewCodeMeasure, SeverityMeasure } from './../components/issue-measure';
 import { IssuesTags } from './../components/issues-tags';
@@ -19,6 +18,7 @@ import { getFacet, extractAssignees } from '../../../api/issues';
 import StatusHelper from '../../../components/shared/status-helper';
 import { Rating } from '../../../components/shared/rating';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import { DomainLeakTitle } from '../main/components';
 
 
 const KNOWN_METRICS = ['violations', 'sqale_index', 'sqale_rating', 'sqale_debt_ratio', 'blocker_violations',
@@ -102,7 +102,7 @@ export const IssuesMain = React.createClass({
   },
 
   renderLegend () {
-    return <Legend leakPeriodDate={this.state.leakPeriodDate} leakPeriodLabel={this.state.leakPeriodLabel}/>;
+    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>
   },
 
   renderOtherMeasures() {
