@@ -45,6 +45,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.db.Database;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
@@ -402,4 +403,12 @@ public final class JRubyFacade {
     Database database = container.getComponentByType(Database.class);
     return !database.getDialect().supportsMigration();
   }
+
+  /**
+   * Used by Developer Cockpit
+   */
+  public void indexResource(long resourceId) {
+    get(ResourceIndexDao.class).indexResource(resourceId);
+  }
+
 }

@@ -136,6 +136,15 @@ public class ResourceIndexDao extends AbstractDao {
     }
   }
 
+  public boolean indexResource(long id) {
+    DbSession session = myBatis().openSession(false);
+    try {
+      return indexResource(session, id);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public boolean indexResource(DbSession session, long id) {
     boolean indexed = false;
     ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
