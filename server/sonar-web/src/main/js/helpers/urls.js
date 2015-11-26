@@ -27,13 +27,17 @@ export function getComponentIssuesUrl (componentKey, query) {
  * @param {string} componentKey
  * @param {string} metric
  * @param {string|number} [period]
+ * @param {string} [highlightedMetric]
  * @returns {string}
  */
-export function getComponentDrilldownUrl (componentKey, metric, period) {
+export function getComponentDrilldownUrl (componentKey, metric, period, highlightedMetric) {
   let url = window.baseUrl + '/drilldown/measures?id=' + encodeURIComponent(componentKey) +
       '&metric=' + encodeURIComponent(metric);
   if (period) {
     url += '&period=' + period;
+  }
+  if (highlightedMetric) {
+    url += '&highlight=' + encodeURIComponent(highlightedMetric);
   }
   return url;
 }
