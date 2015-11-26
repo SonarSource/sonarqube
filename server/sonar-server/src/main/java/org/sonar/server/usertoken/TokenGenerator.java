@@ -27,6 +27,7 @@ public interface TokenGenerator {
    * subject to change in subsequent SonarQube versions.
    * <br/>
    * Length does not exceed 40 characters (arbitrary value).
+   * Token is composed of hexadecimal characters only (0-9, a-f)
    * <br/>
    * The token is sent through the userid field (login) of HTTP Basic authentication,
    *
@@ -43,6 +44,7 @@ public interface TokenGenerator {
    * subject to change in subsequent SonarQube versions.
    * <br />
    * Length must not exceed 255 characters.
+   * Hash is composed of hexadecimal characters only (0-9, a-f)
    */
   String hash(String token);
 }
