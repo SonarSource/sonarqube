@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.utils.MessageException;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -42,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.util.DefaultHttpDownloader;
 
@@ -81,7 +81,7 @@ public class ServerClient {
       InputStream is = load(pathStartingWithSlash, GET, false, connectTimeoutMillis, readTimeoutMillis);
       Files.copy(is, toFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (HttpDownloader.HttpException he) {
-      throw handleHttpException(he);
+      throw handleHttpException(he.getUri().toString(), he.getResponseCode(), he.getResponseContent(), he);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Unable to download '%s' to: %s", pathStartingWithSlash, toFile), e);
     }
@@ -114,26 +114,26 @@ public class ServerClient {
       } else {
         return downloader.newInputSupplier(uri, requestMethod, getLogin(), getPassword(), connectTimeoutMs, readTimeoutMs).getInput();
       }
-    } catch (HttpDownloader.HttpException e) {
+    } catch (HttpDownloader.HttpException he) {
       if (wrapHttpException) {
-        throw handleHttpException(e);
+        throw handleHttpException(he.getUri().toString(), he.getResponseCode(), he.getResponseContent(), he);
       } else {
-        throw e;
+        throw he;
       }
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Unable to request: %s", uri), e);
     }
   }
 
-  public RuntimeException handleHttpException(HttpDownloader.HttpException he) {
-    if (he.getResponseCode() == 401) {
+  public RuntimeException handleHttpException(String url, int responseCode, String responseContent, Exception he) {
+    if (responseCode == 401) {
       return MessageException.of(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD), he);
     }
-    if (he.getResponseCode() == 403) {
+    if (responseCode == 403) {
       // SONAR-4397 Details are in response content
-      return MessageException.of(tryParseAsJsonError(he.getResponseContent()), he);
+      return MessageException.of(tryParseAsJsonError(responseContent), he);
     }
-    return MessageException.of(String.format("Fail to execute request [code=%s, url=%s]: %s", he.getResponseCode(), he.getUri(), he.getResponseContent()), he);
+    return MessageException.of(String.format("Fail to execute request [code=%s, url=%s]: %s", responseCode, url, responseContent), he);
   }
 
   private static String tryParseAsJsonError(String responseContent) {

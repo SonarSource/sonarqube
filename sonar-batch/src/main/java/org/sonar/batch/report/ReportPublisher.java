@@ -19,12 +19,9 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.api.utils.text.JsonWriter;
-
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,10 +33,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -51,11 +46,13 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.batch.util.BatchUtils;
+
 import static java.lang.String.format;
 
 @BatchSide
@@ -181,15 +178,7 @@ public class ReportPublisher implements Startable {
     request.basic(serverClient.getLogin(), serverClient.getPassword());
     request.part("report", null, "application/octet-stream", report);
     if (!request.ok()) {
-      int responseCode = request.code();
-      if (responseCode == 401) {
-        throw new IllegalStateException(format(serverClient.getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
-      }
-      if (responseCode == 403) {
-        // SONAR-4397 Details are in response content
-        throw new IllegalStateException(request.body());
-      }
-      throw new IllegalStateException(format("Fail to execute request [code=%s, url=%s]: %s", responseCode, url, request.body()));
+      throw serverClient.handleHttpException(url.toString(), request.code(), request.body(), null);
     }
     long stopTime = System.currentTimeMillis();
     LOG.info("Analysis reports sent to server in " + (stopTime - startTime) + "ms");
