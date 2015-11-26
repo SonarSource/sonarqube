@@ -10,13 +10,6 @@ const LABEL = 'since 1.0';
 
 
 describe('Legend', function () {
-  it('should not render', function () {
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Legend/>);
-    let output = renderer.getRenderOutput();
-    expect(output).to.be.null;
-  });
-
   it('should render', function () {
     let renderer = TestUtils.createRenderer();
     renderer.render(<Legend leakPeriodDate={DATE} leakPeriodLabel={LABEL}/>);
