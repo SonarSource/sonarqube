@@ -40,6 +40,7 @@ import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.Rules.ShowResponse;
 
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Sets.newHashSet;
 
 /**
@@ -94,7 +95,7 @@ public class ActiveRuleCompleter {
     }
   }
 
-  private Collection<String> writeActiveRules(RuleKey ruleKey, Collection<ActiveRule> activeRules, Rules.Actives.Builder activesBuilder) {
+  private static Collection<String> writeActiveRules(RuleKey ruleKey, Collection<ActiveRule> activeRules, Rules.Actives.Builder activesBuilder) {
     Collection<String> qProfileKeys = newHashSet();
     Rules.ActiveList.Builder activeRulesListResponse = Rules.ActiveList.newBuilder();
     for (ActiveRule activeRule : activeRules) {
@@ -107,7 +108,7 @@ public class ActiveRuleCompleter {
     return qProfileKeys;
   }
 
-  private Rules.Active buildActiveRuleResponse(ActiveRule activeRule) {
+  private static Rules.Active buildActiveRuleResponse(ActiveRule activeRule) {
     Rules.Active.Builder activeRuleResponse = Rules.Active.newBuilder();
     activeRuleResponse.setQProfile(activeRule.key().qProfile());
     activeRuleResponse.setInherit(activeRule.inheritance().toString());
@@ -120,7 +121,7 @@ public class ActiveRuleCompleter {
     for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
       activeRuleResponse.addParams(paramBuilder.clear()
         .setKey(param.getKey())
-        .setValue(param.getValue()));
+        .setValue(nullToEmpty(param.getValue())));
     }
 
     return activeRuleResponse.build();
