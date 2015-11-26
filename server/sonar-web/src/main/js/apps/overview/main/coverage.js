@@ -83,10 +83,10 @@ export const GeneralCoverage = React.createClass({
       <DomainPanel domain="coverage">
         <DomainNutshell>
           <MeasuresList>
-            <Measure composite={true}>
-              <DonutChart width="48" height="48" thickness="6" data={donutData}/>
-            </Measure>
             <Measure label={getMetricName('coverage')}>
+              <span className="big-spacer-right">
+                <DonutChart width="40" height="40" thickness="3" data={donutData}/>
+              </span>
               <DrilldownLink component={this.props.component.key} metric={coverageMetric}>
                 <span className="js-overview-main-coverage">
                   {formatMeasure(this.props.measures[coverageMetric], 'PERCENT')}
