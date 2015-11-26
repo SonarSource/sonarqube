@@ -1,0 +1,38 @@
+@import (reference) '../variables';
+
+.pills {
+  display: flex;
+}
+
+.pills > li {
+
+}
+
+.pills > li + li {
+  margin-left: 2px;
+}
+
+.pills > li > a {
+  display: block;
+  height: @formControlHeight;
+  max-width: 135px;
+  line-height: @formControlHeight;
+  padding: 0 10px;
+  border: none;
+  border-radius: @formControlHeight;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: none;
+}
+
+.pills > li.active > a,
+.pills > li > a:hover,
+.pills > li > a:focus {
+  background-color: @darkBlue;
+  color: #fff;
+}
+
+.pill-right {
+  margin-left: auto !important;
+}

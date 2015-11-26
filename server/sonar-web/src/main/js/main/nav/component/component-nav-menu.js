@@ -17,9 +17,14 @@ export default React.createClass({
     return params.period ? `&period=${params.period}` : '';
   },
 
-  renderOverviewLink() {
+  renderDashboardLink() {
     let url = `/overview?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('overview.page'), '/overview');
+    return this.renderLink(url, window.t('layout.dashboards'), () => {
+      let cond =
+          window.location.pathname.indexOf(window.baseUrl + '/overview') === 0 ||
+          window.location.pathname.indexOf(window.baseUrl + '/dashboard') === 0;
+      return cond ? 'active' : null;
+    });
   },
 
   renderComponentsLink() {
@@ -55,7 +60,9 @@ export default React.createClass({
     return (
         <li className={className}>
           <a className="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">
-            {window.t('layout.settings')}&nbsp;<i className="icon-dropdown"/></a>
+            {window.t('layout.settings')}&nbsp;
+            <i className="icon-dropdown"/>
+          </a>
           <ul className="dropdown-menu">
             {this.renderSettingsLink()}
             {this.renderProfilesLink()}
@@ -169,69 +176,30 @@ export default React.createClass({
     });
   },
 
-  renderMore() {
-    return (
-        <li className="dropdown">
-          <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            {window.t('more')}&nbsp;<i className="icon-dropdown"></i>
-          </a>
-          <ul className="dropdown-menu">
-            {this.renderDashboards()}
-            {this.renderDashboardManagementLink()}
-            {this.renderTools()}
-          </ul>
-        </li>
-    );
-  },
-
-  renderDashboards() {
-    let dashboards = (this.props.component.dashboards || []).map(d => {
-      let url = `/dashboard?id=${encodeURIComponent(this.props.component.key)}&did=${d.key}${this.periodParameter()}`;
-      let name = this.getLocalizedDashboardName(d.name);
-      return this.renderLink(url, name);
-    });
-    return [<li key="0" className="dropdown-header">{window.t('layout.dashboards')}</li>].concat(dashboards);
-  },
-
-  renderDashboardManagementLink() {
-    if (!window.SS.user) {
-      return null;
-    }
-    let url = `/dashboards?resource=${encodeURIComponent(this.props.component.key)}`;
-    let name = window.t('dashboard.manage_dashboards');
-    return [
-      <li key="dashboard-divider" className="small-divider"></li>,
-      this.renderLink(url, name, '/dashboards')
-    ];
-  },
-
   renderTools() {
     let component = this.props.component;
     if (!component.isComparable && !_.size(component.extensions)) {
       return null;
     }
-    let tools = [
-      <li key="tools-divider" className="divider"></li>,
-      <li key="tools" className="dropdown-header">Tools</li>
-    ];
+    let tools = [];
+    (component.extensions || []).forEach(e => {
+      tools.push(this.renderLink(e.url, e.name));
+    });
     if (component.isComparable) {
       let compareUrl = `/comparison/index?resource=${component.key}`;
       tools.push(this.renderLink(compareUrl, window.t('comparison.page')));
     }
-    (component.extensions || []).forEach(e => {
-      tools.push(this.renderLink(e.url, e.name));
-    });
     return tools;
   },
 
   render() {
     return (
         <ul className="nav navbar-nav nav-tabs">
-          {this.renderOverviewLink()}
+          {this.renderDashboardLink()}
           {this.renderComponentsLink()}
           {this.renderComponentIssuesLink()}
           {this.renderAdministration()}
-          {this.renderMore()}
+          {this.renderTools()}
         </ul>
     );
   }

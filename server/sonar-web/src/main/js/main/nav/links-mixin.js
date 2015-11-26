@@ -11,7 +11,7 @@ export default {
     let fullUrl = window.baseUrl + url;
     let check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
     return (
-        <li key={highlightUrl} className={check(highlightUrl)}>
+        <li key={url} className={check(highlightUrl)}>
           <a href={fullUrl}>{title}</a>
         </li>
     );

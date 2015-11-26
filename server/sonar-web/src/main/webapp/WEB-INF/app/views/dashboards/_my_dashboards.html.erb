@@ -21,9 +21,6 @@
           <%= link_to h(dashboard.name(true)), {:controller => :dashboard, :action => :index, :did => dashboard.id, :id => (resource_id unless dashboard.global?)},
                       :id => "view-#{u dashboard.name}" %>
           <div class="description"><%= h dashboard.description -%></div>
-          <% if index == 0 %>
-            <div class="note spacer-top"><%= h message('dashboard.default_dashboard') -%></div>
-          <% end %>
         </td>
         <td class="shared">
           <% if (dashboard.shared) %><i class="icon-check" id='<%= "dashboard-#{index}-shared" -%>'></i><% end %>
