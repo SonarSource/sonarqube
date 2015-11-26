@@ -103,6 +103,12 @@ public class DateUtilsTest {
   }
 
   @Test
+  public void shouldFormatDateTime_with_long() {
+    assertThat(DateUtils.formatDateTime(System.currentTimeMillis())).startsWith("20");
+    assertThat(DateUtils.formatDateTime(System.currentTimeMillis()).length()).isGreaterThan(20);
+  }
+
+  @Test
   public void format_date_time_null_safe() {
     assertThat(DateUtils.formatDateTimeNullSafe(new Date())).startsWith("20");
     assertThat(DateUtils.formatDateTimeNullSafe(new Date()).length()).isGreaterThan(20);
