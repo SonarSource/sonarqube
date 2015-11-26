@@ -138,7 +138,7 @@ export default React.createClass({
 
   getInProgressDuration(tasks) {
     let taskInProgress = _.findWhere(tasks, { status: STATUSES.IN_PROGRESS });
-    return taskInProgress ? moment().diff(taskInProgress.startedAt) : null;
+    return taskInProgress ? taskInProgress.executionTimeMs : null;
   },
 
   onStatusChange(newStatus) {
