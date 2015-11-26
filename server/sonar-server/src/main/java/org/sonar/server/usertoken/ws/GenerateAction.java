@@ -63,7 +63,8 @@ public class GenerateAction implements UserTokensWsAction {
       .setSince("5.3")
       .setPost(true)
       .setDescription("Generate a user access token. <br />" +
-        "Please keep your tokens secret. They enable to authenticate and analyze projects.")
+        "Please keep your tokens secret. They enable to authenticate and analyze projects.<br />" +
+        "It requires administration permissions.")
       .setResponseExample(getClass().getResource("generate-example.json"))
       .setHandler(this);
 
