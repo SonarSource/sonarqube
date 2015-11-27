@@ -61,7 +61,12 @@ export const BarChart = React.createClass({
       let maxY = yScale.range()[0];
       let y = Math.round(yScale(d.y)) - /* minimum bar height */ 1;
       let height = maxY - y;
-      return <rect key={index} className="bar-chart-bar"
+      let tooltipAtts = {};
+      if (d.tooltip) {
+        tooltipAtts['title'] = d.tooltip;
+        tooltipAtts['data-toggle'] = 'tooltip';
+      }
+      return <rect key={index} className="bar-chart-bar" {...tooltipAtts}
                    x={x} y={y} width={this.props.barsWidth} height={height}/>;
     });
     return <g>{bars}</g>;

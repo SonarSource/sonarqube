@@ -116,10 +116,14 @@ export const SizeMain = React.createClass({
             <div className="overview-detailed-measures-list">
               <DetailedMeasure {...this.props} {...this.state} metric="complexity" type="INT"/>
               <DetailedMeasure {...this.props} {...this.state} metric="function_complexity" type="FLOAT">
-                <ComplexityDistribution distribution={this.state.measures['function_complexity_distribution']}/>
+                <ComplexityDistribution
+                    distribution={this.state.measures['function_complexity_distribution']}
+                    of="function"/>
               </DetailedMeasure>
               <DetailedMeasure {...this.props} {...this.state} metric="file_complexity" type="FLOAT">
-                <ComplexityDistribution distribution={this.state.measures['file_complexity_distribution']}/>
+                <ComplexityDistribution
+                    distribution={this.state.measures['file_complexity_distribution']}
+                    of="file"/>
               </DetailedMeasure>
               <DetailedMeasure {...this.props} {...this.state} metric="class_complexity" type="FLOAT"/>
               {this.renderOtherComplexityMeasures()}

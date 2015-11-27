@@ -9,13 +9,21 @@ const HEIGHT = 80;
 
 export const ComplexityDistribution = React.createClass({
   propTypes: {
-    distribution: React.PropTypes.string.isRequired
+    distribution: React.PropTypes.string.isRequired,
+    of: React.PropTypes.string.isRequired
   },
 
   renderBarChart () {
     let data = this.props.distribution.split(';').map((point, index) => {
-      let tokens = point.split('=');
-      return { x: index, y: parseInt(tokens[1], 10), value: parseInt(tokens[0], 10) };
+      let tokens = point.split('='),
+          y = parseInt(tokens[1], 10),
+          value = parseInt(tokens[0], 10);
+      return {
+        x: index,
+        y: y,
+        value: value,
+        tooltip: window.tp(`overview.complexity_tooltip.${this.props.of}`, y, value)
+      };
     });
 
     let xTicks = data.map(point => point.value);

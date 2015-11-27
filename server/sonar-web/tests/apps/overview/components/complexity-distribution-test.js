@@ -13,7 +13,7 @@ describe('ComplexityDistribution', function () {
 
   beforeEach(function () {
     let renderer = TestUtils.createRenderer();
-    renderer.render(<ComplexityDistribution distribution={DISTRIBUTION}/>);
+    renderer.render(<ComplexityDistribution distribution={DISTRIBUTION} of="function"/>);
     let output = renderer.getRenderOutput();
     let child = React.Children.only(output.props.children);
     props = child.props;
@@ -21,13 +21,13 @@ describe('ComplexityDistribution', function () {
 
   it('should pass right data', function () {
     expect(props.data).to.deep.equal([
-      { x: 0, y: 11950, value: 1 },
-      { x: 1, y: 86, value: 2 },
-      { x: 2, y: 77, value: 4 },
-      { x: 3, y: 43, value: 6 },
-      { x: 4, y: 17, value: 8 },
-      { x: 5, y: 12, value: 10 },
-      { x: 6, y: 3, value: 12 }
+      { x: 0, y: 11950, value: 1, tooltip: 'overview.complexity_tooltip.function.11950.1' },
+      { x: 1, y: 86, value: 2, tooltip: 'overview.complexity_tooltip.function.86.2' },
+      { x: 2, y: 77, value: 4, tooltip: 'overview.complexity_tooltip.function.77.4' },
+      { x: 3, y: 43, value: 6, tooltip: 'overview.complexity_tooltip.function.43.6' },
+      { x: 4, y: 17, value: 8, tooltip: 'overview.complexity_tooltip.function.17.8' },
+      { x: 5, y: 12, value: 10, tooltip: 'overview.complexity_tooltip.function.12.10' },
+      { x: 6, y: 3, value: 12, tooltip: 'overview.complexity_tooltip.function.3.12' }
     ]);
   });
 
