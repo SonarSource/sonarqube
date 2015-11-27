@@ -2,10 +2,10 @@ import React from 'react';
 
 import { LanguageDistribution } from './../components/language-distribution';
 import { ComplexityDistribution } from './../components/complexity-distribution';
+import { NclocDistribution } from '../components/ncloc-distribution';
 import { getMeasuresAndVariations } from '../../../api/measures';
 import { DetailedMeasure } from '../components/detailed-measure';
 import { DomainTimeline } from '../components/domain-timeline';
-import { DomainTreemap } from '../components/domain-treemap';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
@@ -146,7 +146,7 @@ export const SizeMain = React.createClass({
               allMetrics={this.getAllMetricsForTimeline()}/>
         </div>
         <div className="overview-card">
-          <DomainTreemap {...this.props} sizeMetric="ncloc"/>
+          <NclocDistribution {...this.props}/>
         </div>
       </div>
     </div>;
