@@ -27,9 +27,9 @@
             <div class="big-spacer-left">
               <form class="js-revoke-token-form" data-token="{{name}}">
                 {{#if deleting}}
-                  <button class="button-red">Sure?</button>
+                  <button class="button-red input-small">Sure?</button>
                 {{else}}
-                  <button class="button-red">Revoke</button>
+                  <button class="button-red input-small">Revoke</button>
                 {{/if}}
               </form>
             </div>
@@ -48,7 +48,7 @@
 
   <hr class="big-spacer-top big-spacer-bottom">
 
-  <p class="spacer-bottom">Generate tokens for bla bla bla</p>
+  <h3 class="spacer-bottom">Generate Tokens</h3>
 
   {{#each errors}}
     <div class="alert alert-danger">{{msg}}</div>

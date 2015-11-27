@@ -36,7 +36,7 @@ export default Modal.extend({
     e.preventDefault();
     this.errors = [];
     this.newToken = null;
-    let tokenName = this.$('#generate-token-form input').val();
+    let tokenName = this.$('.js-generate-token-form input').val();
     generateToken(this.model.id, tokenName)
         .then(response => {
           this.newToken = response.token;
