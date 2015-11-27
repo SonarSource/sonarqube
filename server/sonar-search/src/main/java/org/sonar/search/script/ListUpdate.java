@@ -19,6 +19,7 @@
  */
 package org.sonar.search.script;
 
+import java.util.Objects;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.xcontent.support.XContentMapValues;
 import org.elasticsearch.script.AbstractExecutableScript;
@@ -125,7 +126,8 @@ public class ListUpdate extends AbstractExecutableScript {
             break;
           }
         }
-        if (target != null) {
+        if (target != null && items != null) {
+
           items.remove(target);
         }
 
