@@ -19,30 +19,26 @@
  */
 package org.sonar.batch.sensor.coverage;
 
-import org.sonar.api.batch.fs.FileSystem;
-
-import javax.annotation.CheckForNull;
-
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.KeyValueFormat;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
+import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.WildcardPattern;
 
 public class CoverageExclusions {
@@ -104,10 +100,13 @@ public class CoverageExclusions {
     coverageMetrics.add(CoreMetrics.NEW_OVERALL_UNCOVERED_LINES);
     coverageMetrics.add(CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
 
+    byLineMetrics.add(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA);
     byLineMetrics.add(CoreMetrics.OVERALL_CONDITIONS_BY_LINE);
     byLineMetrics.add(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE);
+    byLineMetrics.add(CoreMetrics.COVERAGE_LINE_HITS_DATA);
     byLineMetrics.add(CoreMetrics.COVERED_CONDITIONS_BY_LINE);
     byLineMetrics.add(CoreMetrics.CONDITIONS_BY_LINE);
+    byLineMetrics.add(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA);
     byLineMetrics.add(CoreMetrics.IT_CONDITIONS_BY_LINE);
     byLineMetrics.add(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE);
 
@@ -141,7 +140,7 @@ public class CoverageExclusions {
     if (!isLineMetrics(metric)) {
       return;
     }
-    
+
     InputFile inputFile = getInputFile(filePath);
 
     if (inputFile == null) {
