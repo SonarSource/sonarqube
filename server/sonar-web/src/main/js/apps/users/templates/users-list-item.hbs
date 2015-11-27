@@ -1,55 +1,51 @@
-<div class="pull-right big-spacer-left nowrap">
-  <a class="js-user-update icon-edit little-spacer-right" title="Update Details" data-toggle="tooltip" href="#"></a>
-  <a class="js-user-change-password icon-lock little-spacer-right" title="Change Password" data-toggle="tooltip"
-     href="#"></a>
-  <a class="js-user-deactivate icon-delete" title="Deactivate" data-toggle="tooltip" href="#"></a>
-</div>
-
 {{#ifShowAvatars}}
-  <div class="display-inline-block text-top big-spacer-right">
-    {{avatarHelper email 36}}
-  </div>
+  <td class="thin nowrap">
+    <div>{{avatarHelper email 36}}</div>
+  </td>
 {{/ifShowAvatars}}
 
-<div class="display-inline-block text-top width-30">
+<td>
   <div>
     <strong class="js-user-name">{{name}}</strong>
     <span class="js-user-login note little-spacer-left">{{login}}</span>
   </div>
   <div class="js-user-email little-spacer-top">{{email}}</div>
-</div>
+</td>
 
-<div class="display-inline-block text-top big-spacer-left width-25">
-  {{#notEmpty scmAccounts}}
-    <div class="pull-left spacer-right">
-      <strong>SCM</strong>
-    </div>
-    <ul class="overflow-hidden bordered-left">
-      {{#each firstScmAccounts}}
-        <li class="spacer-left little-spacer-bottom">{{this}}</li>
-      {{/each}}
-      {{#gt moreScmAccountsCount 0}}
-        <li class="spacer-left little-spacer-bottom">
-          <a class="js-user-more-scm" href="#">{{moreScmAccountsCount}} more</a>
-        </li>
-      {{/gt}}
-    </ul>
-  {{/notEmpty}}
-</div>
-
-<div class="display-inline-block text-top big-spacer-left width-25">
-  <div class="pull-left spacer-right">
-    <strong>Groups</strong>
-  </div>
-  <ul class="overflow-hidden bordered-left">
-    {{#each firstGroups}}
-      <li class="spacer-left little-spacer-bottom">{{this}}</li>
+<td>
+  <ul>
+    {{#each firstScmAccounts}}
+      <li class="little-spacer-bottom">{{this}}</li>
     {{/each}}
-    <li class="spacer-left little-spacer-bottom">
+    {{#gt moreScmAccountsCount 0}}
+      <li class="little-spacer-bottom">
+        <a class="js-user-more-scm" href="#">{{moreScmAccountsCount}} more</a>
+      </li>
+    {{/gt}}
+  </ul>
+</td>
+
+<td>
+  <ul>
+    {{#each firstGroups}}
+      <li class="little-spacer-bottom">{{this}}</li>
+    {{/each}}
+    <li class="little-spacer-bottom">
       {{#gt moreGroupsCount 0}}
         <a class="js-user-more-groups spacer-right" href="#">{{moreGroupsCount}} more</a>
       {{/gt}}
       <a class="js-user-groups icon-bullet-list" title="Update Groups" data-toggle="tooltip" href="#"></a>
     </li>
   </ul>
-</div>
+</td>
+
+<td>
+  <a class="js-user-tokens icon-bullet-list" title="Update Tokens" data-toggle="tooltip" href="#"></a>
+</td>
+
+<td class="thin nowrap text-right">
+  <a class="js-user-update icon-edit little-spacer-right" title="Update Details" data-toggle="tooltip" href="#"></a>
+  <a class="js-user-change-password icon-lock little-spacer-right" title="Change Password" data-toggle="tooltip"
+     href="#"></a>
+  <a class="js-user-deactivate icon-delete" title="Deactivate" data-toggle="tooltip" href="#"></a>
+</td>

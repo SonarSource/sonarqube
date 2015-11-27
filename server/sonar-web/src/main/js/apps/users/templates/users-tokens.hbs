@@ -1,0 +1,85 @@
+<div class="modal-head">
+  <h2>Tokens</h2>
+</div>
+
+<div class="modal-body">
+  <div class="js-modal-messages"></div>
+
+  {{#notNull tokens}}
+    <table class="data zebra">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th class="text-right">Created</th>
+        <th>&nbsp;</th>
+      </tr>
+      </thead>
+      <tbody>
+      {{#each tokens}}
+        <tr>
+          <td>
+            {{name}}
+          </td>
+          <td class="thin nowrap text-right">
+            {{fromNow createdAt}}
+          </td>
+          <td class="thin nowrap text-right">
+            <div class="big-spacer-left">
+              <form id="revoke-token-form" data-token="{{name}}">
+                {{#if deleting}}
+                  <button class="button-red">Sure?</button>
+                {{else}}
+                  <button class="button-red">Revoke</button>
+                {{/if}}
+              </form>
+            </div>
+          </td>
+        </tr>
+      {{else}}
+        <tr>
+          <td colspan="3">
+            <span class="note">No tokens</span>
+          </td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  {{/notNull}}
+
+  <hr class="big-spacer-top big-spacer-bottom">
+
+  <p class="spacer-bottom">Generate tokens for bla bla bla</p>
+
+  {{#each errors}}
+    <div class="alert alert-danger">{{msg}}</div>
+  {{/each}}
+
+  <form id="generate-token-form">
+    <input type="text" required maxlength="30" placeholder="Enter Token Name">
+    <button>Generate</button>
+  </form>
+
+  {{#if newToken}}
+    <div class="panel panel-white big-spacer-top">
+      <div class="alert alert-warning">
+        Make sure you copy the token now. You won’t be able to see it again!
+      </div>
+
+      <table class="data">
+        <tr>
+
+          <td class="thin">
+            <button class="js-copy-to-clipboard" data-clipboard-text="{{newToken}}">Copy</button>
+          </td>
+          <td class="nowrap">
+            <code class="text-success">{{newToken}}</code>
+          </td>
+        </tr>
+      </table>
+    </div>
+  {{/if}}
+</div>
+
+<div class="modal-foot">
+  <a href="#" class="js-modal-close">Done</a>
+</div>
