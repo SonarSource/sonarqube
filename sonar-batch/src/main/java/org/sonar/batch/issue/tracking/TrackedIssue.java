@@ -19,19 +19,15 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import com.google.common.base.Preconditions;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import org.sonar.core.issue.tracking.Trackable;
-
 import java.io.Serializable;
 import java.util.Date;
-
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.tracking.Trackable;
 
 public class TrackedIssue implements Trackable, Serializable {
   private static final long serialVersionUID = -1755017079070964287L;
@@ -81,16 +77,18 @@ public class TrackedIssue implements Trackable, Serializable {
     return message;
   }
 
-  public void setMessage(String message) {
+  public TrackedIssue setMessage(String message) {
     this.message = message;
+    return this;
   }
 
   public String componentKey() {
     return componentKey;
   }
 
-  public void setComponentKey(String componentKey) {
+  public TrackedIssue setComponentKey(String componentKey) {
     this.componentKey = componentKey;
+    return this;
   }
 
   public String key() {
@@ -106,68 +104,77 @@ public class TrackedIssue implements Trackable, Serializable {
     return startLine;
   }
 
-  public void setStartLine(Integer startLine) {
+  public TrackedIssue setStartLine(Integer startLine) {
     this.startLine = startLine;
+    return this;
   }
 
   public Integer startLineOffset() {
     return startLineOffset;
   }
 
-  public void setStartLineOffset(Integer startLineOffset) {
+  public TrackedIssue setStartLineOffset(Integer startLineOffset) {
     this.startLineOffset = startLineOffset;
+    return this;
   }
 
   public Integer endLine() {
     return endLine;
   }
 
-  public void setEndLine(Integer endLine) {
+  public TrackedIssue setEndLine(Integer endLine) {
     this.endLine = endLine;
+    return this;
   }
 
   public Integer endLineOffset() {
     return endLineOffset;
   }
 
-  public void setEndLineOffset(Integer endLineOffset) {
+  public TrackedIssue setEndLineOffset(Integer endLineOffset) {
     this.endLineOffset = endLineOffset;
+    return this;
   }
 
-  public void setKey(String key) {
+  public TrackedIssue setKey(String key) {
     this.key = key;
+    return this;
   }
 
   public String assignee() {
     return assignee;
   }
 
-  public void setAssignee(String assignee) {
+  public TrackedIssue setAssignee(String assignee) {
     this.assignee = assignee;
+    return this;
   }
 
   public String reporter() {
     return reporter;
   }
 
-  public void setReporter(String reporter) {
+  public TrackedIssue setReporter(String reporter) {
     this.reporter = reporter;
+    return this;
   }
 
   public String resolution() {
     return resolution;
   }
 
-  public void setResolution(String resolution) {
+  public TrackedIssue setResolution(String resolution) {
     this.resolution = resolution;
+    return this;
   }
 
   public String status() {
     return status;
   }
 
-  public void setStatus(String status) {
+  public TrackedIssue setStatus(String status) {
     this.status = status;
+    return this;
   }
 
   @Override
@@ -191,28 +198,33 @@ public class TrackedIssue implements Trackable, Serializable {
     return isNew;
   }
 
-  public void setNew(boolean isNew) {
+  public TrackedIssue setNew(boolean isNew) {
     this.isNew = isNew;
+    return this;
   }
 
   public Date creationDate() {
     return creationDate;
   }
 
-  public void setCreationDate(Date creationDate) {
+  public TrackedIssue setCreationDate(Date creationDate) {
     this.creationDate = creationDate;
+    return this;
   }
 
-  public void setRuleKey(RuleKey ruleKey) {
+  public TrackedIssue setRuleKey(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
+    return this;
   }
 
-  public void setSeverity(String severity) {
+  public TrackedIssue setSeverity(String severity) {
     this.severity = severity;
+    return this;
   }
 
-  public void setEffortToFix(Double effortToFix) {
+  public TrackedIssue setEffortToFix(Double effortToFix) {
     this.effortToFix = effortToFix;
+    return this;
   }
 
   @Override

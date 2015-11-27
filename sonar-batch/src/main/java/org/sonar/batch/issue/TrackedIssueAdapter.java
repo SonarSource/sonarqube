@@ -19,19 +19,17 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Duration;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 
 public class TrackedIssueAdapter implements Issue {
   private TrackedIssue issue;
@@ -127,7 +125,7 @@ public class TrackedIssueAdapter implements Issue {
 
   @Override
   public String attribute(String key) {
-    return null;
+    return attributes().get(key);
   }
 
   @Override
