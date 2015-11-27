@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 import static org.sonarqube.ws.client.WsRequest.Method.GET;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
@@ -62,13 +62,13 @@ public class WsRequest {
   }
 
   public WsRequest setMediaType(MediaType type) {
-    checkNotNull(type);
+    requireNonNull(type);
     this.mimeType = type;
     return this;
   }
 
   public WsRequest setParam(String key, @Nullable Object value) {
-    checkNotNull(key, "a WS parameter key cannot be null");
+    requireNonNull(key, "a WS parameter key cannot be null");
     if (value != null) {
       this.params.put(key, value);
     } else {
