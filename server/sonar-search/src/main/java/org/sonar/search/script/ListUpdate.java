@@ -19,18 +19,16 @@
  */
 package org.sonar.search.script;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.xcontent.support.XContentMapValues;
 import org.elasticsearch.script.AbstractExecutableScript;
 import org.elasticsearch.script.ExecutableScript;
 import org.elasticsearch.script.NativeScriptFactory;
 import org.sonar.process.ProcessProperties;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 public class ListUpdate extends AbstractExecutableScript {
 
@@ -51,7 +49,7 @@ public class ListUpdate extends AbstractExecutableScript {
         throw new IllegalStateException(String.format("Missing '%s' parameter", ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD));
       }
 
-      //NULL case is deletion of nested item
+      // NULL case is deletion of nested item
       if (params.containsKey(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE)) {
         Object obj = params.get(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE);
         if (obj != null) {
@@ -62,7 +60,6 @@ public class ListUpdate extends AbstractExecutableScript {
       return new ListUpdate(idField, idValue, field, value);
     }
   }
-
 
   private final String idField;
   private final String idValue;
@@ -92,10 +89,10 @@ public class ListUpdate extends AbstractExecutableScript {
   @Override
   public Object run() {
     try {
-      //Get the Document's source from ctx
+      // Get the Document's source from ctx
       Map<String, Object> source = XContentMapValues.nodeMapValue(ctx.get("_source"), "source from context");
 
-      //Get the Object for list update
+      // Get the Object for list update
       Object fieldValue = source.get(field);
 
       if (fieldValue == null && value != null) {
@@ -126,12 +123,11 @@ public class ListUpdate extends AbstractExecutableScript {
             break;
           }
         }
-        if (target != null && items != null) {
-
+        if (target != null) {
           items.remove(target);
         }
 
-        //Supporting the update by NULL = deletion case
+        // Supporting the update by NULL = deletion case
         if (value != null) {
           items.add(value);
         }
