@@ -12,8 +12,8 @@ export default Modal.extend({
 
   events () {
     return _.extend(Modal.prototype.events.apply(this, arguments), {
-      'submit #generate-token-form': 'onGenerateTokenFormSubmit',
-      'submit #revoke-token-form': 'onRevokeTokenFormSubmit'
+      'submit .js-generate-token-form': 'onGenerateTokenFormSubmit',
+      'submit .js-revoke-token-form': 'onRevokeTokenFormSubmit'
     });
   },
 

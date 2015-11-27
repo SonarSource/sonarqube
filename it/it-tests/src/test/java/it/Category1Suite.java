@@ -41,6 +41,7 @@ package it;/*
 import com.sonar.orchestrator.Orchestrator;
 import it.actionPlan.ActionPlanTest;
 import it.actionPlan.ActionPlanUiTest;
+import it.administration.UsersUITest;
 import it.authorisation.AuthenticationTest;
 import it.authorisation.IssuePermissionTest;
 import it.authorisation.PermissionTest;
@@ -70,6 +71,8 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  // administration
+  UsersUITest.class,
   // project administration
   BulkDeletionTest.class,
   ProjectAdministrationTest.class,

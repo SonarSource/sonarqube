@@ -25,7 +25,7 @@
           </td>
           <td class="thin nowrap text-right">
             <div class="big-spacer-left">
-              <form id="revoke-token-form" data-token="{{name}}">
+              <form class="js-revoke-token-form" data-token="{{name}}">
                 {{#if deleting}}
                   <button class="button-red">Sure?</button>
                 {{else}}
@@ -54,7 +54,7 @@
     <div class="alert alert-danger">{{msg}}</div>
   {{/each}}
 
-  <form id="generate-token-form">
+  <form class="js-generate-token-form">
     <input type="text" required maxlength="30" placeholder="Enter Token Name">
     <button>Generate</button>
   </form>
