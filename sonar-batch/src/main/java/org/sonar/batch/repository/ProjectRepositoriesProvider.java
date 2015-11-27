@@ -25,8 +25,6 @@ import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import javax.annotation.Nullable;
-
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.picocontainer.injectors.ProviderAdapter;
@@ -36,7 +34,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final String LOG_MSG = "Load project repositories";
   private ProjectRepositories project = null;
 
-  public ProjectRepositories provide(@Nullable ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode) {
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode) {
     if (project == null) {
       MutableBoolean fromCache = new MutableBoolean(false);
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
