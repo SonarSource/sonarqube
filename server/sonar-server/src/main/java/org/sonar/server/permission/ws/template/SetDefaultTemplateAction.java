@@ -20,7 +20,6 @@
 
 package org.sonar.server.permission.ws.template;
 
-import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
@@ -36,13 +35,11 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.SetDefaultTemplateWsRequest;
 
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Ordering.natural;
-import static java.lang.String.format;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createQualifierParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
@@ -77,11 +74,8 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
       .setHandler(this);
 
     createTemplateParameters(action);
-
-    action.createParam(PARAM_QUALIFIER)
-      .setDescription("Project qualifier. Possible values are:" + buildRootQualifiersDescription())
-      .setDefaultValue(Qualifiers.PROJECT)
-      .setPossibleValues(getRootQualifiers());
+    createQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
+      .setDefaultValue(Qualifiers.PROJECT);
   }
 
   @Override
@@ -95,7 +89,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
 
     String qualifier = request.getQualifier();
     PermissionTemplateDto template = getTemplate(request);
-    validateQualifier(qualifier, getRootQualifiers());
+    validateQualifier(qualifier, resourceTypes);
     setDefaultTemplateUuid(template.getUuid(), qualifier);
   }
 
@@ -104,29 +98,6 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
       .setQualifier(request.param(PARAM_QUALIFIER))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
-  }
-
-  private Set<String> getRootQualifiers() {
-    return from(resourceTypes.getRoots())
-      .transform(RESOURCE_TYPE_TO_QUALIFIER)
-      .toSortedSet(natural());
-  }
-
-  private String buildRootQualifiersDescription() {
-    StringBuilder description = new StringBuilder();
-    description.append("<ul>");
-    String qualifierPattern = "<li>%s - %s</li>";
-    for (String qualifier : getRootQualifiers()) {
-      description.append(format(qualifierPattern, qualifier, i18n(qualifier)));
-    }
-    description.append("</ul>");
-
-    return description.toString();
-  }
-
-  private String i18n(String qualifier) {
-    String qualifiersPropertyPrefix = "qualifiers.";
-    return i18n.message(userSession.locale(), qualifiersPropertyPrefix + qualifier, "");
   }
 
   private PermissionTemplateDto getTemplate(SetDefaultTemplateWsRequest request) {

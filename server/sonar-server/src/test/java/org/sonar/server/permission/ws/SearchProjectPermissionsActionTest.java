@@ -20,15 +20,14 @@
 
 package org.sonar.server.permission.ws;
 
-import java.util.List;
+import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -36,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserDto;
@@ -46,12 +46,13 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.UserGroupFinder;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.DbTests;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -61,9 +62,11 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
+@Category(DbTests.class)
 public class SearchProjectPermissionsActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -76,21 +79,20 @@ public class SearchProjectPermissionsActionTest {
   I18nRule i18n = new I18nRule();
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
-  ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  ResourceTypesRule resourceTypes = new ResourceTypesRule();
   SearchProjectPermissionsDataLoader dataLoader;
 
   SearchProjectPermissionsAction underTest;
 
   @Before
   public void setUp() {
-    resourceTypes = mock(ResourceTypes.class);
-    when(resourceTypes.getRoots()).thenReturn(rootResourceTypes());
+    resourceTypes.setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes);
     i18n.setProjectPermissions();
 
     dataLoader = new SearchProjectPermissionsDataLoader(dbClient, finder, resourceTypes);
-    underTest = new SearchProjectPermissionsAction(dbClient, userSession, i18n, dataLoader);
+    underTest = new SearchProjectPermissionsAction(dbClient, userSession, i18n, resourceTypes, dataLoader);
 
     ws = new WsActionTester(underTest);
 
@@ -220,20 +222,40 @@ public class SearchProjectPermissionsActionTest {
 
   @Test
   public void result_depends_of_root_types() {
-    ResourceType projectResourceType = ResourceType.builder(Qualifiers.PROJECT).build();
-    when(resourceTypes.getRoots()).thenReturn(asList(projectResourceType));
+    resourceTypes.setRootQualifiers(Qualifiers.PROJECT);
     insertComponent(newView("view-uuid"));
     insertComponent(newDeveloper("developer-name"));
     insertComponent(newProjectDto("project-uuid"));
     commit();
-    dataLoader = new SearchProjectPermissionsDataLoader(dbClient, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes),
+    dataLoader = new SearchProjectPermissionsDataLoader(dbClient,
+      new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes),
       resourceTypes);
-    underTest = new SearchProjectPermissionsAction(dbClient, userSession, i18n, dataLoader);
+    underTest = new SearchProjectPermissionsAction(dbClient, userSession, i18n, resourceTypes, dataLoader);
     ws = new WsActionTester(underTest);
 
     String result = ws.newRequest().execute().getInput();
 
     assertThat(result).contains("project-uuid")
+      .doesNotContain("view-uuid")
+      .doesNotContain("developer-name");
+  }
+
+  @Test
+  public void filter_by_qualifier() throws IOException {
+    insertComponent(newView("view-uuid"));
+    insertComponent(newDeveloper("developer-name"));
+    insertComponent(newProjectDto("project-uuid"));
+    commit();
+
+    TestResponse wsResponse = ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam(PARAM_QUALIFIER, Qualifiers.PROJECT)
+      .execute();
+    SearchProjectPermissionsWsResponse result = SearchProjectPermissionsWsResponse.parseFrom(wsResponse.getInputStream());
+
+    assertThat(result.getProjectsList())
+      .extracting("id")
+      .contains("project-uuid")
       .doesNotContain("view-uuid")
       .doesNotContain("developer-name");
   }
@@ -311,13 +333,5 @@ public class SearchProjectPermissionsActionTest {
 
   private void commit() {
     dbSession.commit();
-  }
-
-  private static List<ResourceType> rootResourceTypes() {
-    ResourceType project = ResourceType.builder(Qualifiers.PROJECT).build();
-    ResourceType view = ResourceType.builder(Qualifiers.VIEW).build();
-    ResourceType dev = ResourceType.builder("DEV").build();
-
-    return asList(project, view, dev);
   }
 }

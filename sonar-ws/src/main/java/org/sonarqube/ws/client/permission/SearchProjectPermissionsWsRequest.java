@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 public class SearchProjectPermissionsWsRequest {
   private String projectId;
   private String projectKey;
+  private String qualifier;
   private Integer page;
   private Integer pageSize;
   private String query;
@@ -77,6 +78,16 @@ public class SearchProjectPermissionsWsRequest {
 
   public SearchProjectPermissionsWsRequest setQuery(@Nullable String query) {
     this.query = query;
+    return this;
+  }
+
+  @CheckForNull
+  public String getQualifier() {
+    return qualifier;
+  }
+
+  public SearchProjectPermissionsWsRequest setQualifier(@Nullable String qualifier) {
+    this.qualifier = qualifier;
     return this;
   }
 }

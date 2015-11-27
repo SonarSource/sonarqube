@@ -29,6 +29,7 @@ import com.google.common.collect.TreeBasedTable;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.ResourceTypes;
@@ -39,6 +40,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.CountByProjectAndPermissionDto;
 import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
@@ -60,7 +62,7 @@ public class SearchProjectPermissionsDataLoader {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchProjectPermissionsData.Builder data = newBuilder();
-      int countRootComponents = countRootComponents(dbSession, rootQualifiers, request);
+      int countRootComponents = countRootComponents(dbSession, qualifiers(request.getQualifier()), request);
       List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
       List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentToIdFunction.INSTANCE);
 
@@ -93,7 +95,13 @@ public class SearchProjectPermissionsDataLoader {
       return singletonList(finder.getRootComponentOrModule(dbSession, project.get()));
     }
 
-    return dbClient.componentDao().selectComponents(dbSession, rootQualifiers, paging.offset(), paging.pageSize(), query);
+    return dbClient.componentDao().selectComponents(dbSession, qualifiers(request.getQualifier()), paging.offset(), paging.pageSize(), query);
+  }
+
+  private Collection<String> qualifiers(@Nullable String requestQualifier) {
+    return requestQualifier == null
+      ? rootQualifiers
+      : singleton(requestQualifier);
   }
 
   private Table<Long, String, Integer> userCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {

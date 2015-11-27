@@ -166,6 +166,7 @@ public class PermissionsWsClient {
       newGetRequest(action("search_project_permissions"))
         .setParam(PARAM_PROJECT_ID, request.getProjectId())
         .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
+        .setParam(PARAM_QUALIFIER, request.getQualifier())
         .setParam("p", request.getPage())
         .setParam("ps", request.getPageSize())
         .setParam("q", request.getQuery()),

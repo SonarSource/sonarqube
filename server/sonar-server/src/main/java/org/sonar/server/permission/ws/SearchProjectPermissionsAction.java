@@ -22,6 +22,7 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -41,11 +42,15 @@ import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createQualifierParameter;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
 public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private static final String PROPERTY_PREFIX = "projects_role.";
@@ -54,12 +59,14 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final I18n i18n;
+  private final ResourceTypes resourceTypes;
   private final SearchProjectPermissionsDataLoader dataLoader;
 
-  public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, SearchProjectPermissionsDataLoader dataLoader) {
+  public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, ResourceTypes resourceTypes, SearchProjectPermissionsDataLoader dataLoader) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
+    this.resourceTypes = resourceTypes;
     this.dataLoader = dataLoader;
   }
 
@@ -75,6 +82,8 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .setHandler(this);
 
     createProjectParameter(action);
+    createQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
+      .setSince("5.3");
   }
 
   @Override
@@ -87,6 +96,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     checkRequestAndPermissions(request);
     DbSession dbSession = dbClient.openSession(false);
     try {
+      validateQualifier(request.getQualifier(), resourceTypes);
       SearchProjectPermissionsData data = dataLoader.load(request);
       return buildResponse(data);
     } finally {
@@ -98,6 +108,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     return new SearchProjectPermissionsWsRequest()
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
+      .setQualifier(request.param(PARAM_QUALIFIER))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));
