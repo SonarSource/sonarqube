@@ -27,14 +27,14 @@ import org.sonar.core.util.Uuids;
 import org.sonar.server.computation.queue.CeQueue;
 import org.sonar.server.user.UserSession;
 
-public class CancelWsAction implements CeWsAction {
+public class CancelAction implements CeWsAction {
 
   public static final String PARAM_TASK_ID = "id";
 
   private final UserSession userSession;
   private final CeQueue queue;
 
-  public CancelWsAction(UserSession userSession, CeQueue queue) {
+  public CancelAction(UserSession userSession, CeQueue queue) {
     this.userSession = userSession;
     this.queue = queue;
   }

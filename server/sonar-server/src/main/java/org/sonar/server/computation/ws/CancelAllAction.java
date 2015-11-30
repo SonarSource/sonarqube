@@ -26,12 +26,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.computation.queue.CeQueue;
 import org.sonar.server.user.UserSession;
 
-public class CancelAllWsAction implements CeWsAction {
+public class CancelAllAction implements CeWsAction {
 
   private final UserSession userSession;
   private final CeQueue queue;
 
-  public CancelAllWsAction(UserSession userSession, CeQueue queue) {
+  public CancelAllAction(UserSession userSession, CeQueue queue) {
     this.userSession = userSession;
     this.queue = queue;
   }

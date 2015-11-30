@@ -31,7 +31,7 @@ public class CeWsTest {
 
   @Test
   public void define() throws Exception {
-    CeWsAction wsAction = new SubmitWsAction(mock(ReportSubmitter.class));
+    CeWsAction wsAction = new SubmitAction(mock(ReportSubmitter.class));
 
     CeWs ws = new CeWs(wsAction);
     WebService.Context context = mock(WebService.Context.class, Mockito.RETURNS_DEEP_STUBS);

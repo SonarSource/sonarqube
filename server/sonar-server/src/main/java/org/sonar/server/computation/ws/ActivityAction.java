@@ -51,7 +51,7 @@ import org.sonarqube.ws.WsCe;
 import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
-public class ActivityWsAction implements CeWsAction {
+public class ActivityAction implements CeWsAction {
 
   private static final String PARAM_COMPONENT_UUID = "componentId";
   private static final String PARAM_COMPONENT_QUERY = "componentQuery";
@@ -65,7 +65,7 @@ public class ActivityWsAction implements CeWsAction {
   private final DbClient dbClient;
   private final TaskFormatter formatter;
 
-  public ActivityWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
+  public ActivityAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;

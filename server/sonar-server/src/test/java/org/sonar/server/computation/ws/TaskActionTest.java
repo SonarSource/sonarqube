@@ -48,7 +48,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TaskWsActionTest {
+public class TaskActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -58,7 +58,7 @@ public class TaskWsActionTest {
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
-  TaskWsAction underTest = new TaskWsAction(dbTester.getDbClient(), formatter, userSession);
+  TaskAction underTest = new TaskAction(dbTester.getDbClient(), formatter, userSession);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Before

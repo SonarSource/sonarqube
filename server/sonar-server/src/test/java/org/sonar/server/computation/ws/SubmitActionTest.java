@@ -39,10 +39,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SubmitWsActionTest {
+public class SubmitActionTest {
 
   ReportSubmitter reportSubmitter = mock(ReportSubmitter.class);
-  SubmitWsAction underTest = new SubmitWsAction(reportSubmitter);
+  SubmitAction underTest = new SubmitAction(reportSubmitter);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test

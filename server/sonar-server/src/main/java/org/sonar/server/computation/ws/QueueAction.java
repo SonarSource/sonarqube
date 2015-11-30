@@ -34,7 +34,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
-public class QueueWsAction implements CeWsAction {
+public class QueueAction implements CeWsAction {
 
   public static final String PARAM_COMPONENT_UUID = "componentId";
 
@@ -42,7 +42,7 @@ public class QueueWsAction implements CeWsAction {
   private final DbClient dbClient;
   private final TaskFormatter formatter;
 
-  public QueueWsAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
+  public QueueAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;

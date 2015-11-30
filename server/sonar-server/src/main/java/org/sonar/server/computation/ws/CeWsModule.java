@@ -25,16 +25,16 @@ public class CeWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      ActivityWsAction.class,
-      CancelWsAction.class,
-      CancelAllWsAction.class,
-      QueueWsAction.class,
+      ActivityAction.class,
+      CancelAction.class,
+      CancelAllAction.class,
+      QueueAction.class,
       CeWs.class,
       IsQueueEmptyWs.class,
-      LogsWsAction.class,
-      ComponentWsAction.class,
-      SubmitWsAction.class,
+      LogsAction.class,
+      ComponentAction.class,
+      SubmitAction.class,
       TaskFormatter.class,
-      TaskWsAction.class);
+      TaskAction.class);
   }
 }

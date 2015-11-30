@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-public class CancelAllWsActionTest {
+public class CancelActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -42,21 +42,34 @@ public class CancelAllWsActionTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   CeQueue queue = mock(CeQueue.class);
-  CancelAllWsAction underTest = new CancelAllWsAction(userSession, queue);
+  CancelAction underTest = new CancelAction(userSession, queue);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void cancel_all_pending_tasks() {
+  public void cancel_pending_task() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+
+    tester.newRequest()
+      .setParam("id", "T1")
+      .execute();
+
+    verify(queue).cancel("T1");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void missing_id() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
 
     tester.newRequest().execute();
 
-    verify(queue).cancelAll();
+    verifyZeroInteractions(queue);
   }
 
   @Test(expected = ForbiddenException.class)
   public void not_authorized() {
-    tester.newRequest().execute();
+    tester.newRequest()
+      .setParam("id", "T1")
+      .execute();
 
     verifyZeroInteractions(queue);
   }

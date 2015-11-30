@@ -54,7 +54,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
-public class ActivityWsActionTest {
+public class ActivityActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -69,7 +69,7 @@ public class ActivityWsActionTest {
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
-  ActivityWsAction underTest = new ActivityWsAction(userSession, dbTester.getDbClient(), formatter);
+  ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter);
   WsActionTester tester = new WsActionTester(underTest);
 
   @Before

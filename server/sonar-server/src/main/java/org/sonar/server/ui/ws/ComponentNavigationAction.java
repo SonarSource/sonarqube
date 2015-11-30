@@ -50,7 +50,7 @@ import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.computation.ws.ActivityWsAction;
+import org.sonar.server.computation.ws.ActivityAction;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
@@ -240,7 +240,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     json.prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
     json.prop("showUpdateKey", isAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
     json.prop("showDeletion", isAdmin && componentTypeHasProperty(component, PROPERTY_DELETABLE));
-    json.prop("showBackgroundTasks", ActivityWsAction.isAllowedOnComponentUuid(userSession, component.uuid()));
+    json.prop("showBackgroundTasks", ActivityAction.isAllowedOnComponentUuid(userSession, component.uuid()));
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {

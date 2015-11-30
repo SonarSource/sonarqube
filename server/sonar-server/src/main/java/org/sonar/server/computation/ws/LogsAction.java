@@ -40,7 +40,7 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 
-public class LogsWsAction implements CeWsAction {
+public class LogsAction implements CeWsAction {
 
   public static final String ACTION = "logs";
   public static final String PARAM_TASK_UUID = "taskId";
@@ -49,7 +49,7 @@ public class LogsWsAction implements CeWsAction {
   private final UserSession userSession;
   private final CeLogging ceLogging;
 
-  public LogsWsAction(DbClient dbClient, UserSession userSession, CeLogging ceLogging) {
+  public LogsAction(DbClient dbClient, UserSession userSession, CeLogging ceLogging) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.ceLogging = ceLogging;

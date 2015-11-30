@@ -21,99 +21,114 @@ package org.sonar.server.computation.ws;
 
 import com.google.common.base.Optional;
 import java.io.File;
-import org.junit.Before;
+import java.io.IOException;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class QueueWsActionTest {
+public class LogsActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   CeLogging ceLogging = mock(CeLogging.class);
-  TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
-  QueueWsAction underTest = new QueueWsAction(userSession, dbTester.getDbClient(), formatter);
+  LogsAction underTest = new LogsAction(dbTester.getDbClient(), userSession, ceLogging);
   WsActionTester tester = new WsActionTester(underTest);
 
-  @Before
-  public void setUp() {
-    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.<File>absent());
-  }
-
   @Test
-  public void get_all_queue() {
+  public void return_task_logs_if_available() throws IOException {
     userSession.setGlobalPermissions(UserRole.ADMIN);
-    insert("T1", "PROJECT_1", CeQueueDto.Status.PENDING);
-    insert("T2", "PROJECT_2", CeQueueDto.Status.IN_PROGRESS);
 
-    TestResponse wsResponse = tester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    // task must exist in database
+    insert("TASK_1", null);
+    File logFile = temp.newFile();
+    FileUtils.write(logFile, "{logs}");
+    when(ceLogging.getFile(new LogFileRef(CeTaskTypes.REPORT, "TASK_1", null))).thenReturn(Optional.of(logFile));
+
+    TestResponse response = tester.newRequest()
+      .setParam("taskId", "TASK_1")
       .execute();
 
-    // verify the protobuf response
-    WsCe.QueueResponse queueResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.QueueResponse.PARSER);
-    assertThat(queueResponse.getTasksCount()).isEqualTo(2);
-    assertThat(queueResponse.getTasks(0).getId()).isEqualTo("T1");
-    assertThat(queueResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
-    assertThat(queueResponse.getTasks(0).getComponentId()).isEqualTo("PROJECT_1");
-    assertThat(queueResponse.getTasks(1).getId()).isEqualTo("T2");
-    assertThat(queueResponse.getTasks(1).getStatus()).isEqualTo(WsCe.TaskStatus.IN_PROGRESS);
-    assertThat(queueResponse.getTasks(1).getComponentId()).isEqualTo("PROJECT_2");
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+    assertThat(response.getInput()).isEqualTo("{logs}");
   }
 
-  @Test
-  public void get_queue_of_project() {
-    userSession.addComponentUuidPermission(UserRole.ADMIN, "PROJECT_1", "PROJECT_1");
-    insert("T1", "PROJECT_1", CeQueueDto.Status.PENDING);
-    insert("T2", "PROJECT_2", CeQueueDto.Status.PENDING);
-    insert("T3", "PROJECT_2", CeQueueDto.Status.IN_PROGRESS);
-
-    TestResponse wsResponse = tester.newRequest()
-      .setParam("componentId", "PROJECT_1")
-      .setMediaType(MediaTypes.PROTOBUF)
+  /**
+   * The parameter taskId is present but empty. It's considered as
+   * a valid task which does not exist
+   */
+  @Test(expected = NotFoundException.class)
+  public void return_404_if_task_id_is_empty() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    tester.newRequest()
+      .setParam("taskId", "")
       .execute();
+  }
 
-    // verify the protobuf response
-    WsCe.QueueResponse queueResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.QueueResponse.PARSER);
-    assertThat(queueResponse.getTasksCount()).isEqualTo(1);
-    assertThat(queueResponse.getTasks(0).getId()).isEqualTo("T1");
+  @Test(expected = IllegalArgumentException.class)
+  public void bad_request_if_task_id_is_missing() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    tester.newRequest()
+      .execute();
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void return_404_if_task_logs_are_not_available() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    insert("TASK_1", null);
+    when(ceLogging.getFile(new LogFileRef(CeTaskTypes.REPORT, "TASK_1", null))).thenReturn(Optional.<File>absent());
+
+    tester.newRequest()
+      .setParam("taskId", "TASK_1")
+      .execute();
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void return_404_if_task_does_not_exist() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
+    tester.newRequest()
+      .setParam("taskId", "TASK_1")
+      .execute();
   }
 
   @Test(expected = ForbiddenException.class)
-  public void requires_admin_permission() {
+  public void require_admin_permission() {
     tester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("taskId", "TASK_1")
       .execute();
   }
 
-  private CeQueueDto insert(String taskUuid, String componentUuid, CeQueueDto.Status status) {
+  private CeQueueDto insert(String taskUuid, @Nullable String componentUuid) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(componentUuid);
     queueDto.setUuid(taskUuid);
-    queueDto.setStatus(status);
+    queueDto.setStatus(CeQueueDto.Status.IN_PROGRESS);
     dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
     dbTester.getSession().commit();
     return queueDto;

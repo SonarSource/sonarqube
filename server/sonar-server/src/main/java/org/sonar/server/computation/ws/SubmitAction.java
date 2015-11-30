@@ -29,7 +29,7 @@ import org.sonar.server.computation.queue.report.ReportSubmitter;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
-public class SubmitWsAction implements CeWsAction {
+public class SubmitAction implements CeWsAction {
 
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_PROJECT_BRANCH = "projectBranch";
@@ -38,7 +38,7 @@ public class SubmitWsAction implements CeWsAction {
 
   private final ReportSubmitter reportSubmitter;
 
-  public SubmitWsAction(ReportSubmitter reportSubmitter) {
+  public SubmitAction(ReportSubmitter reportSubmitter) {
     this.reportSubmitter = reportSubmitter;
   }
 
