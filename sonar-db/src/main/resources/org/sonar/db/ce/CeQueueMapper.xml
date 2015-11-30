@@ -14,6 +14,10 @@
     cq.updated_at as updatedAt
   </sql>
 
+  <sql id="orderByDateAndId">
+    order by cq.created_at asc, cq.id asc
+  </sql>
+
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
     select
     <include refid="columns"/>
@@ -34,14 +38,14 @@
     <include refid="columns"/>
     from ce_queue cq
     where cq.component_uuid=#{componentUuid}
-    order by cq.id asc
+    <include refid="orderByDateAndId"/>
   </select>
 
   <select id="selectAllInAscOrder" resultType="org.sonar.db.ce.CeQueueDto">
     select
     <include refid="columns"/>
     from ce_queue cq
-    order by cq.id asc
+    <include refid="orderByDateAndId"/>
   </select>
 
   <select id="selectEligibleForPeek" resultType="String">
@@ -53,7 +57,7 @@
     from ce_queue cq2
     where cq.component_uuid=cq2.component_uuid and cq2.status &lt;&gt; 'PENDING'
     )
-    order by cq.created_at asc, cq.id asc
+    <include refid="orderByDateAndId"/>
   </select>
 
   <insert id="insert" parameterType="org.sonar.db.ce.CeQueueDto" useGeneratedKeys="false">
