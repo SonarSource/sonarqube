@@ -82,7 +82,7 @@ export const DuplicationsMain = React.createClass({
       return this.renderLoading();
     }
     let treemapScale = d3.scale.linear()
-        .domain([0, 100])
+        .domain([0, 25, 50, 75, 100])
         .range(CHART_COLORS_RANGE_PERCENT);
     return <div className="overview-detailed-page">
       <div className="overview-cards-list">

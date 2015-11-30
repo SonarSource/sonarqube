@@ -4,6 +4,7 @@ import React from 'react';
 import { Treemap } from '../../../components/charts/treemap';
 import { getChildren } from '../../../api/components';
 import { formatMeasure } from '../../../helpers/measures';
+import { getComponentUrl } from '../../../helpers/urls';
 
 
 const HEIGHT = 302;
@@ -16,17 +17,18 @@ export class DomainTreemap extends React.Component {
       loading: true,
       files: [],
       sizeMetric: this.getMetricObject(props.metrics, props.sizeMetric),
-      colorMetric: props.colorMetric ? this.getMetricObject(props.metrics, props.colorMetric) : null
+      colorMetric: props.colorMetric ? this.getMetricObject(props.metrics, props.colorMetric) : null,
+      breadcrumbs: []
     };
   }
 
   componentDidMount () {
-    this.requestComponents();
+    this.requestComponents(this.props.component.key);
   }
 
-  requestComponents () {
+  requestComponents (componentKey) {
     let metrics = [this.props.sizeMetric, this.props.colorMetric];
-    return getChildren(this.props.component.key, metrics).then(r => {
+    return getChildren(componentKey, metrics).then(r => {
       let components = r.map(component => {
         let measures = {};
         (component.msr || []).forEach(measure => {
@@ -45,7 +47,8 @@ export class DomainTreemap extends React.Component {
   getTooltip (component) {
     let inner = [
       component.name,
-      `${this.state.sizeMetric.name}: ${formatMeasure(component.measures[this.props.sizeMetric], this.state.sizeMetric.type)}`
+      `${this.state.sizeMetric.name}:
+      ${formatMeasure(component.measures[this.props.sizeMetric], this.state.sizeMetric.type)}`
     ];
     if (this.state.colorMetric) {
       let measure = component.measures[this.props.colorMetric],
@@ -56,15 +59,31 @@ export class DomainTreemap extends React.Component {
     return `<div class="text-left">${inner}</div>`;
   }
 
+  handleRectangleClick (node) {
+    this.requestComponents(node.key).then(() => {
+      let nextBreadcrumbs = [...this.state.breadcrumbs];
+      let index = _.findIndex(this.state.breadcrumbs, b => b.key === node.key);
+      if (index !== -1) {
+        nextBreadcrumbs = nextBreadcrumbs.slice(0, index);
+      }
+      nextBreadcrumbs = [...nextBreadcrumbs, {
+        key: node.key,
+        name: node.name,
+        qualifier: node.qualifier
+      }];
+      this.setState({ breadcrumbs: nextBreadcrumbs });
+    });
+  }
+
+  handleReset() {
+    this.requestComponents(this.props.component.key).then(() => {
+      this.setState({ breadcrumbs: [] });
+    });
+  }
+
   renderLoading () {
     return <div className="overview-chart-placeholder" style={{ height: HEIGHT }}>
       <i className="spinner"/>
-    </div>;
-  }
-
-  renderWhenNoData () {
-    return <div className="overview-chart-placeholder" style={{ height: HEIGHT }}>
-      {window.t('no_data')}
     </div>;
   }
 
@@ -73,21 +92,30 @@ export class DomainTreemap extends React.Component {
       return this.renderLoading();
     }
 
-    if (!this.state.components.length) {
-      return this.renderWhenNoData();
-    }
-
     // TODO filter out zero sized components
     let items = this.state.components.map(component => {
       let colorMeasure = this.props.colorMetric ? component.measures[this.props.colorMetric] : null;
       return {
+        key: component.key,
+        name: component.name,
+        qualifier: component.qualifier,
         size: component.measures[this.props.sizeMetric],
         color: colorMeasure != null ? this.props.scale(colorMeasure) : '#777',
         tooltip: this.getTooltip(component),
-        label: component.name
+        label: component.name,
+        link: getComponentUrl(component.key)
       };
     });
-    return <Treemap items={items} height={HEIGHT}/>;
+
+    const canBeClicked = node => node.qualifier !== 'FIL' && node.qualifier !== 'UTS';
+
+    return <Treemap
+        items={items}
+        breadcrumbs={this.state.breadcrumbs}
+        height={HEIGHT}
+        canBeClicked={canBeClicked}
+        onRectangleClick={this.handleRectangleClick.bind(this)}
+        onReset={this.handleReset.bind(this)}/>;
   }
 
   render () {

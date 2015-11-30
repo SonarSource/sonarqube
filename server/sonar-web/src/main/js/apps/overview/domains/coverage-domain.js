@@ -10,7 +10,7 @@ import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
 import { DomainLeakTitle } from '../main/components';
-import { CHART_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
+import { CHART_REVERSED_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
 import { CoverageMeasuresList } from '../components/coverage-measures-list';
 
 
@@ -83,8 +83,8 @@ export const CoverageMain = React.createClass({
     }
 
     let treemapScale = d3.scale.linear()
-        .domain([0, 100])
-        .range(CHART_COLORS_RANGE_PERCENT);
+        .domain([0, 25, 50, 75, 100])
+        .range(CHART_REVERSED_COLORS_RANGE_PERCENT);
 
     let coverageMetric = this.state.coverageMetricPrefix + 'coverage',
         uncoveredLinesMetric = this.state.coverageMetricPrefix + 'uncovered_lines';
