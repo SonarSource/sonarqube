@@ -23,22 +23,28 @@ package org.sonar.server.batch;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsBatch.WsProjectResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ProjectActionTest {
 
   ProjectDataLoader projectDataLoader = mock(ProjectDataLoader.class);
 
-  WsTester tester;
+  WsActionTester ws;
 
   @Before
   public void setUp() {
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new ProjectAction(projectDataLoader)));
+    ws = new WsActionTester(new ProjectAction(projectDataLoader));
   }
 
   @Test
@@ -51,15 +57,35 @@ public class ProjectActionTest {
     ArgumentCaptor<ProjectDataQuery> queryArgumentCaptor = ArgumentCaptor.forClass(ProjectDataQuery.class);
     when(projectDataLoader.load(queryArgumentCaptor.capture())).thenReturn(projectReferentials);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "project")
+    TestResponse response = ws.newRequest()
       .setParam("key", projectKey)
       .setParam("profile", "Default")
-      .setParam("preview", "false");
-    request.execute().assertJson("{\"settingsByModule\": {}}");
+      .setParam("preview", "false")
+      .execute();
+    assertJson(response.getInput()).isSimilarTo("{\"settingsByModule\": {}}");
 
     assertThat(queryArgumentCaptor.getValue().getModuleKey()).isEqualTo(projectKey);
     assertThat(queryArgumentCaptor.getValue().getProfileName()).isEqualTo("Default");
     assertThat(queryArgumentCaptor.getValue().isIssuesMode()).isFalse();
   }
 
+  /**
+   * SONAR-7084
+   */
+  @Test
+  public void do_not_fail_when_a_path_is_null() throws Exception {
+    String projectKey = "org.codehaus.sonar:sonar";
+
+    ProjectRepositories projectRepositories = new ProjectRepositories().addFileData("module-1", null, new FileData(null, null));
+    when(projectDataLoader.load(any(ProjectDataQuery.class))).thenReturn(projectRepositories);
+
+    TestResponse result = ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("key", projectKey)
+      .setParam("profile", "Default")
+      .execute();
+
+    WsProjectResponse wsProjectResponse = WsProjectResponse.parseFrom(result.getInputStream());
+    assertThat(wsProjectResponse.getFileDataByModuleAndPath()).isEmpty();
+  }
 }

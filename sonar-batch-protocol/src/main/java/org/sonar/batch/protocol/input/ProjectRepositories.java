@@ -60,7 +60,7 @@ public class ProjectRepositories {
   public boolean exists() {
     return exists;
   }
-  
+
   public Map<String, Map<String, FileData>> fileDataByModuleAndPath() {
     return fileDataByModuleAndPath;
   }
@@ -69,7 +69,11 @@ public class ProjectRepositories {
     return fileDataByModuleAndPath.containsKey(moduleKey) ? fileDataByModuleAndPath.get(moduleKey) : Collections.<String, FileData>emptyMap();
   }
 
-  public ProjectRepositories addFileData(String moduleKey, String path, FileData fileData) {
+  public ProjectRepositories addFileData(String moduleKey, @Nullable String path, FileData fileData) {
+    if (path == null || (fileData.hash() == null && fileData.revision() == null)) {
+      return this;
+    }
+
     Map<String, FileData> existingFileDataByPath = fileDataByModuleAndPath.get(moduleKey);
     if (existingFileDataByPath == null) {
       existingFileDataByPath = new HashMap<>();

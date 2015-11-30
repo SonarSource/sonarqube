@@ -20,6 +20,8 @@
 
 package org.sonar.db.component;
 
+import javax.annotation.CheckForNull;
+
 public class FilePathWithHashDto {
 
   private String uuid;
@@ -44,6 +46,7 @@ public class FilePathWithHashDto {
     this.moduleUuid = moduleUuid;
   }
 
+  @CheckForNull
   public String getPath() {
     return path;
   }
