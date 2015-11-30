@@ -63,7 +63,7 @@ public class GlobalAction implements BatchWsAction {
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     if (!hasPreviewPerm && !hasScanPerm) {
-      throw new ForbiddenException("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
+      throw new ForbiddenException(Messages.NO_PERMISSION);
     }
 
     DbSession session = dbClient.openSession(false);

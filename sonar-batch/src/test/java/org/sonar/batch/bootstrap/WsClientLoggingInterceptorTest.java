@@ -28,12 +28,12 @@ import com.squareup.okhttp.ResponseBody;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +41,9 @@ public class WsClientLoggingInterceptorTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   WsClientLoggingInterceptor underTest = new WsClientLoggingInterceptor();
   Interceptor.Chain chain = mock(Interceptor.Chain.class);
@@ -69,22 +72,23 @@ public class WsClientLoggingInterceptorTest {
 
   @Test
   public void fail_if_requires_authentication() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException
+      .expectMessage("Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
+
     Request request = newRequest();
     Response response = newResponse(request, 401, "");
     when(chain.request()).thenReturn(request);
     when(chain.proceed(request)).thenReturn(response);
 
-    try {
-      underTest.intercept(chain);
-      fail();
-    } catch (MessageException e) {
-      assertThat(e.getMessage()).isEqualTo(
-        "Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
-    }
+    underTest.intercept(chain);
   }
 
   @Test
   public void fail_if_credentials_are_not_valid() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Not authorized. Please check the properties sonar.login and sonar.password.");
+
     Request request = new Request.Builder()
       .url("https://localhost:9000/api/issues/search")
       .header("Authorization", "Basic BAD_CREDENTIALS")
@@ -94,28 +98,20 @@ public class WsClientLoggingInterceptorTest {
     when(chain.request()).thenReturn(request);
     when(chain.proceed(request)).thenReturn(response);
 
-    try {
-      underTest.intercept(chain);
-      fail();
-    } catch (MessageException e) {
-      assertThat(e.getMessage()).isEqualTo(
-        "Not authorized. Please check the properties sonar.login and sonar.password.");
-    }
+    underTest.intercept(chain);
   }
 
   @Test
   public void fail_if_requires_permission() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("missing scan permission, missing another permission");
+
     Request request = newRequest();
     Response response = newResponse(request, 403, "{\"errors\":[{\"msg\":\"missing scan permission\"}, {\"msg\":\"missing another permission\"}]}");
     when(chain.request()).thenReturn(request);
     when(chain.proceed(request)).thenReturn(response);
 
-    try {
-      underTest.intercept(chain);
-      fail();
-    } catch (MessageException e) {
-      assertThat(e.getMessage()).isEqualTo("missing scan permission, missing another permission");
-    }
+    underTest.intercept(chain);
   }
 
   private Request newRequest() {

@@ -24,4 +24,6 @@ public class Messages {
     // constants
   }
 
+  public static final String NO_PERMISSION = "You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.";
+
 }

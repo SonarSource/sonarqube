@@ -1387,7 +1387,7 @@
             <artifactId>build-helper-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>protobuf-compile</id>
+                <id>add-protobuf-generated-sources</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>add-source</goal>
@@ -1417,7 +1417,7 @@
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
-                <id>protobuf-test-compile</id>
+                <id>compile-protobuf-tests</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>run</goal>
@@ -1454,7 +1454,7 @@
             <artifactId>build-helper-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>protobuf-test-compile</id>
+                <id>add-protobuf-generated-tests</id>
                 <phase>generate-test-sources</phase>
                 <goals>
                   <goal>add-test-source</goal>
