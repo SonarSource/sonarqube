@@ -31,7 +31,12 @@ describe('TimelineChart', function () {
       { x: new Date(2015, 0, 4), y: 'WARN' }
     ];
 
-    let timeline = <Timeline width={100} height={100} data={DATA} metricType="LEVEL" events={[]}
+    let timeline = <Timeline width={100}
+                             height={100}
+                             data={DATA}
+                             metricType="LEVEL"
+                             events={[]}
+                             formatValue={FORMAT}
                              formatYTick={FORMAT}/>;
     let output = TestUtils.renderIntoDocument(timeline);
     let ticks = TestUtils.scryRenderedDOMComponentsWithClass(output, 'line-chart-tick-x');
@@ -49,7 +54,12 @@ describe('TimelineChart', function () {
       { x: new Date(2015, 0, 4), y: 4 }
     ];
 
-    let timeline = <Timeline width={100} height={100} data={DATA} metricType="RATING" events={[]}
+    let timeline = <Timeline width={100}
+                             height={100}
+                             data={DATA}
+                             metricType="RATING"
+                             events={[]}
+                             formatValue={FORMAT}
                              formatYTick={FORMAT}/>;
     let output = TestUtils.renderIntoDocument(timeline);
     let ticks = TestUtils.scryRenderedDOMComponentsWithClass(output, 'line-chart-tick-x');
@@ -62,14 +72,24 @@ describe('TimelineChart', function () {
   });
 
   it('should display the zero Y tick if all values are zero', function () {
-    let timeline = <Timeline width={100} height={100} data={ZERO_DATA} events={[]} formatYTick={FORMAT}/>;
+    let timeline = <Timeline width={100}
+                             height={100}
+                             data={ZERO_DATA}
+                             events={[]}
+                             formatValue={FORMAT}
+                             formatYTick={FORMAT}/>;
     let output = TestUtils.renderIntoDocument(timeline);
     let tick = TestUtils.findRenderedDOMComponentWithClass(output, 'line-chart-tick-x');
     expect(tick.textContent).to.equal('0');
   });
 
   it('should display the zero Y tick if all values are undefined', function () {
-    let timeline = <Timeline width={100} height={100} data={NULL_DATA} events={[]} formatYTick={FORMAT}/>;
+    let timeline = <Timeline width={100}
+                             height={100}
+                             data={NULL_DATA}
+                             events={[]}
+                             formatValue={FORMAT}
+                             formatYTick={FORMAT}/>;
     let output = TestUtils.renderIntoDocument(timeline);
     let tick = TestUtils.findRenderedDOMComponentWithClass(output, 'line-chart-tick-x');
     expect(tick.textContent).to.equal('0');

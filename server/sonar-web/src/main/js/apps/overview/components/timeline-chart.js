@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import _ from 'underscore';
 import d3 from 'd3';
 import moment from 'moment';
@@ -25,7 +26,7 @@ export const Timeline = React.createClass({
   },
 
   getInitialState() {
-    return { width: this.props.width, height: this.props.height };
+    return { width: this.props.width, height: this.props.height, scanner: 0 };
   },
 
   getRatingScale(availableHeight) {
@@ -51,6 +52,16 @@ export const Timeline = React.createClass({
           .domain([0, d3.max(this.props.data, d => d.y || 0)])
           .nice();
     }
+  },
+
+  handleMouseMove(xScale, e) {
+    const x = e.pageX - this.refs.container.getBoundingClientRect().left;
+    const scanner = this.props.data
+        .reduce((previousValue, currentValue) => {
+          return Math.abs(xScale(currentValue.x) - x) < Math.abs(xScale(previousValue.x) - x) ?
+              currentValue : previousValue;
+        }, _.first(this.props.data));
+    this.props.onScan(scanner.x);
   },
 
   renderHorizontalGrid (xScale, yScale) {
@@ -89,6 +100,36 @@ export const Timeline = React.createClass({
     return <g>{ticks}</g>;
   },
 
+  renderBackdrop (xScale, yScale) {
+    let opts = {
+      x: _.first(xScale.range()),
+      y: _.last(yScale.range()),
+      width: _.last(xScale.range()) - _.first(xScale.range()),
+      height: _.first(yScale.range()) - _.last(yScale.range()),
+      style: {
+        opacity: 0
+      }
+    };
+    return <rect {...opts} ref="container" onMouseMove={this.handleMouseMove.bind(this, xScale)}/>;
+  },
+
+  renderScanner (xScale, yScale) {
+    if (this.props.scanner == null) {
+      return null;
+    }
+    let snapshotIndex = this.props.data.findIndex(snapshot => {
+      return snapshot.x.getTime() === this.props.scanner.getTime();
+    });
+    $(this.refs[`snapshot${snapshotIndex}`]).tooltip('show');
+    return <line
+        style={{ opacity: 0 }}
+        className="line-chart-grid"
+        x1={xScale(this.props.scanner)}
+        y1={_.first(yScale.range())}
+        x2={xScale(this.props.scanner)}
+        y2={_.last(yScale.range())}/>;
+  },
+
   renderLeak (xScale, yScale) {
     if (!this.props.leakPeriodDate) {
       return null;
@@ -109,6 +150,27 @@ export const Timeline = React.createClass({
         .y(d => yScale(d.y))
         .interpolate(this.props.interpolate);
     return <path className="line-chart-path" d={path(this.props.data)}/>;
+  },
+
+  renderTooltips(xScale, yScale) {
+    let points = this.props.data
+        .map(snapshot => {
+          let event = this.props.events.find(e => snapshot.x.getTime() === e.date.getTime());
+          return _.extend(snapshot, { event });
+        })
+        .map((snapshot, index) => {
+          let tooltipLines = [];
+          if (snapshot.event) {
+            tooltipLines.push(`<span class="nowrap">${snapshot.event.version}</span>`);
+          }
+          tooltipLines.push(`<span class="nowrap">${moment(snapshot.x).format('LL')}</span>`);
+          tooltipLines.push(`<span class="nowrap">${snapshot.y ? this.props.formatValue(snapshot.y) : '—'}</span>`);
+          let tooltip = tooltipLines.join('<br>');
+          return <circle key={index} ref={`snapshot${index}`} style={{ opacity: 0 }}
+                         r="4" cx={xScale(snapshot.x)} cy={yScale(snapshot.y)}
+                         data-toggle="tooltip" title={tooltip}/>;
+        });
+    return <g>{points}</g>;
   },
 
   renderEvents(xScale, yScale) {
@@ -152,7 +214,10 @@ export const Timeline = React.createClass({
         {this.renderHorizontalGrid(xScale, yScale)}
         {this.renderTicks(xScale, yScale)}
         {this.renderLine(xScale, yScale)}
+        {this.renderTooltips(xScale, yScale)}
         {this.renderEvents(xScale, yScale)}
+        {this.renderScanner(xScale, yScale)}
+        {this.renderBackdrop(xScale, yScale)}
       </g>
     </svg>;
   }

@@ -32,6 +32,10 @@ export const DomainTimeline = React.createClass({
     };
   },
 
+  componentWillMount () {
+    this.handleScan = _.debounce(this.handleScan, 10, true);
+  },
+
   componentDidMount () {
     Promise.all([
       this.requestTimeMachineData(this.state.currentMetric, this.state.comparisonMetric),
@@ -88,6 +92,10 @@ export const DomainTimeline = React.createClass({
     return groupByDomain(this.props.metrics);
   },
 
+  handleScan(scanner) {
+    this.setState({ scanner });
+  },
+
   renderLoading () {
     return <div className="overview-chart-placeholder" style={{ height: HEIGHT }}>
       <i className="spinner"/>
@@ -140,6 +148,8 @@ export const DomainTimeline = React.createClass({
                 formatValue={formatValue}
                 formatYTick={formatYTick}
                 leakPeriodDate={this.props.leakPeriodDate}
+                scanner={this.state.scanner}
+                onScan={this.handleScan}
                 padding={[25, 25, 25, 60]}/>
     </div>;
   },

@@ -8,17 +8,28 @@ export const TooltipsMixin = {
   },
 
   componentWillUpdate() {
-    this.destroyTooltips();
+    this.hideTooltips();
   },
 
   componentDidUpdate () {
     this.initTooltips();
   },
 
+  componentWillUnmount() {
+    this.destroyTooltips();
+  },
+
   initTooltips () {
     if ($.fn.tooltip) {
       $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this))
           .tooltip({ container: 'body', placement: 'bottom', html: true });
+    }
+  },
+
+  hideTooltips () {
+    if ($.fn.tooltip) {
+      $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this))
+          .tooltip('hide');
     }
   },
 
