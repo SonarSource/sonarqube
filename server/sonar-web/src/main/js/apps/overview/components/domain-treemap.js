@@ -62,9 +62,19 @@ export class DomainTreemap extends React.Component {
     </div>;
   }
 
+  renderWhenNoData () {
+    return <div className="overview-chart-placeholder" style={{ height: HEIGHT }}>
+      {window.t('no_data')}
+    </div>;
+  }
+
   renderTreemap () {
     if (this.state.loading) {
       return this.renderLoading();
+    }
+
+    if (!this.state.components.length) {
+      return this.renderWhenNoData();
     }
 
     // TODO filter out zero sized components

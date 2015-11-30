@@ -25,20 +25,17 @@
 <%
    if @snapshot
      m = @snapshot.measure(Metric::QUALITY_GATE_DETAILS)
+     alert_status = @snapshot.measure(Metric::ALERT_STATUS)
      if m && !m.data.blank?
        details = JSON.parse m.data
        m.alert_status = details['level']
        raw_conditions = details['conditions']
        conditions = []
-       missing_metric = false
        raw_conditions.each do |condition|
-         if metric(condition['metric']).nil?
-           missing_metric = true
-         else
+         if !metric(condition['metric']).nil?
            conditions << condition
          end
        end
-       alert_metric = metric(Metric::ALERT_STATUS)
      end
    end
 %>
@@ -116,7 +113,14 @@
         ]
       };
       <% else %>
-      var gate = null;
+        <% if alert_status && !alert_status.alert_status.blank? %>
+          var gate = {
+            level: '<%= alert_status.alert_status -%>',
+            text: '<%= alert_status.alert_text -%>'
+          };
+        <% else %>
+          var gate = null;
+         <% end %>
       <% end %>
 
       window.sonarqube.overview = {

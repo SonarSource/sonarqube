@@ -102,6 +102,10 @@ export class DomainBubbleChart extends React.Component {
   }
 
   render () {
+    if (this.props.component.qualifier === 'DEV' || this.props.component.qualifier === 'VW') {
+      return null;
+    }
+
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
         <h2 className="overview-title">{window.t('overview.chart.files')}</h2>

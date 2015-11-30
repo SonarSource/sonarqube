@@ -4,9 +4,16 @@ import { QualityProfileLink } from './../../components/shared/quality-profile-li
 import { QualityGateLink } from './../../components/shared/quality-gate-link';
 
 export default React.createClass({
+  isView() {
+    return this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
+  },
+
+  isDeveloper() {
+    return this.props.component.qualifier === 'DEV';
+  },
+
   render() {
-    let
-        profiles = (this.props.component.profiles || []).map(profile => {
+    let profiles = (this.props.component.profiles || []).map(profile => {
           return (
               <li key={profile.key}>
                 <span className="note spacer-right">({profile.language})</span>
@@ -36,21 +43,23 @@ export default React.createClass({
             </div>
         ) : null,
 
-        profilesCard = _.size(this.props.component.profiles) > 0 ? (
+        profilesCard = !this.isView() && !this.isDeveloper() && _.size(this.props.component.profiles) > 0 ? (
             <div className="overview-meta-card">
               <h4 className="overview-meta-header">{window.t('overview.quality_profiles')}</h4>
               <ul className="overview-meta-list">{profiles}</ul>
             </div>
         ) : null,
 
-        gateCard = this.props.component.gate ? (
+        gateCard = !this.isView() && !this.isDeveloper() && this.props.component.gate ? (
             <div className="overview-meta-card">
               <h4 className="overview-meta-header">{window.t('overview.quality_gate')}</h4>
               <ul className="overview-meta-list">
                 <li>
                   {this.props.component.gate.isDefault ?
                       <span className="note spacer-right">(Default)</span> : null}
-                  <QualityGateLink gate={this.props.component.gate.key}>{this.props.component.gate.name}</QualityGateLink>
+                  <QualityGateLink gate={this.props.component.gate.key}>
+                    {this.props.component.gate.name}
+                  </QualityGateLink>
                 </li>
               </ul>
             </div>

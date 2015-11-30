@@ -90,6 +90,43 @@ export const SizeMain = React.createClass({
     return this.renderOtherMeasures('Documentation', []);
   },
 
+  renderLanguageDistribution() {
+    let distribution = this.state.measures['ncloc_language_distribution'];
+    if (distribution == null) {
+      return null;
+    }
+    return <LanguageDistribution lines={this.state.measures['ncloc']} distribution={distribution}/>;
+  },
+
+  renderComplexityDistribution(distribution, props) {
+    if (distribution == null) {
+      return null;
+    }
+    return <ComplexityDistribution distribution={distribution} {...props}/>
+  },
+
+  renderComplexityCard() {
+    if (this.state.measures['complexity'] == null) {
+      return null;
+    }
+
+    return <div className="overview-detailed-layout-column">
+      <div className="overview-detailed-measures-list">
+        <DetailedMeasure {...this.props} {...this.state} metric="complexity" type="INT"/>
+        <DetailedMeasure {...this.props} {...this.state} metric="function_complexity" type="FLOAT">
+          {this.renderComplexityDistribution(this.state.measures['function_complexity_distribution'],
+              { of: 'function' })}
+        </DetailedMeasure>
+        <DetailedMeasure {...this.props} {...this.state} metric="file_complexity" type="FLOAT">
+          {this.renderComplexityDistribution(this.state.measures['file_complexity_distribution'],
+              { of: 'file' })}
+        </DetailedMeasure>
+        <DetailedMeasure {...this.props} {...this.state} metric="class_complexity" type="FLOAT"/>
+        {this.renderOtherComplexityMeasures()}
+      </div>
+    </div>;
+  },
+
   render () {
     if (!this.state.ready) {
       return this.renderLoading();
@@ -105,30 +142,13 @@ export const SizeMain = React.createClass({
           <div className="overview-detailed-layout-column">
             <div className="overview-detailed-measures-list">
               <DetailedMeasure {...this.props} {...this.state} metric="ncloc" type="INT">
-                <LanguageDistribution lines={this.state.measures['ncloc']}
-                                      distribution={this.state.measures['ncloc_language_distribution']}/>
+                {this.renderLanguageDistribution()}
               </DetailedMeasure>
               {this.renderOtherSizeMeasures()}
             </div>
           </div>
 
-          <div className="overview-detailed-layout-column">
-            <div className="overview-detailed-measures-list">
-              <DetailedMeasure {...this.props} {...this.state} metric="complexity" type="INT"/>
-              <DetailedMeasure {...this.props} {...this.state} metric="function_complexity" type="FLOAT">
-                <ComplexityDistribution
-                    distribution={this.state.measures['function_complexity_distribution']}
-                    of="function"/>
-              </DetailedMeasure>
-              <DetailedMeasure {...this.props} {...this.state} metric="file_complexity" type="FLOAT">
-                <ComplexityDistribution
-                    distribution={this.state.measures['file_complexity_distribution']}
-                    of="file"/>
-              </DetailedMeasure>
-              <DetailedMeasure {...this.props} {...this.state} metric="class_complexity" type="FLOAT"/>
-              {this.renderOtherComplexityMeasures()}
-            </div>
-          </div>
+          {this.renderComplexityCard()}
 
           <div className="overview-detailed-layout-column">
             <div className="overview-detailed-measures-list">
