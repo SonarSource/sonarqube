@@ -27,7 +27,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,13 +70,14 @@ public class BatchUtils {
     return o.getClass().getName();
   }
 
+  @CheckForNull
   public static String getServerVersion() {
-    InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("sq-version.txt");
+    InputStream is = BatchUtils.class.getResourceAsStream("/sq-version.txt");
     if (is == null) {
       LOG.warn("Failed to get SQ version");
       return null;
     }
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+    try (BufferedReader br = IOUtils.toBufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
       return br.readLine();
     } catch (IOException e) {
       LOG.warn("Failed to get SQ version", e);
