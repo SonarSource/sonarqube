@@ -24,7 +24,7 @@ CI)
 
     strongEcho 'Build and analyze pull request'
     # this pull request must be built and analyzed (without upload of report)
-    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify -Pcoverage-per-test,analysis -Dclirr=true -B -e -V
+    mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify -Panalysis -Dclirr=true -B -e -V
 
     # Switch to java 8 as the Dory HTTPS certificate is not supported by Java 7
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
