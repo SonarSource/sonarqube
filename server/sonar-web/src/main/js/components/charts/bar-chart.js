@@ -37,7 +37,13 @@ export const BarChart = React.createClass({
       let point = this.props.data[index];
       let x = Math.round(xScale(point.x) + xScale.rangeBand() / 2 + this.props.barsWidth / 2);
       let y = yScale.range()[0];
-      return <text key={index} className="bar-chart-tick" x={x} y={y} dy="1.5em">{tick}</text>;
+      let d = this.props.data[index];
+      let tooltipAtts = {};
+      if (d.tooltip) {
+        tooltipAtts['title'] = d.tooltip;
+        tooltipAtts['data-toggle'] = 'tooltip';
+      }
+      return <text key={index} className="bar-chart-tick" x={x} y={y} dy="1.5em" {...tooltipAtts}>{tick}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -50,7 +56,13 @@ export const BarChart = React.createClass({
       let point = this.props.data[index];
       let x = Math.round(xScale(point.x) + xScale.rangeBand() / 2 + this.props.barsWidth / 2);
       let y = yScale(point.y);
-      return <text key={index} className="bar-chart-tick" x={x} y={y} dy="-1em">{value}</text>;
+      let d = this.props.data[index];
+      let tooltipAtts = {};
+      if (d.tooltip) {
+        tooltipAtts['title'] = d.tooltip;
+        tooltipAtts['data-toggle'] = 'tooltip';
+      }
+      return <text key={index} className="bar-chart-tick" x={x} y={y} dy="-1em" {...tooltipAtts}>{value}</text>;
     });
     return <g>{ticks}</g>;
   },
