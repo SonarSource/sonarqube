@@ -20,11 +20,12 @@
 
 package org.sonar.server.computation.period;
 
-import com.google.common.base.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Objects.toStringHelper;
+import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
@@ -77,8 +78,29 @@ public class Period {
   }
 
   @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Period period = (Period) o;
+    return index == period.index
+      && snapshotDate == period.snapshotDate
+      && snapshotId == period.snapshotId
+      && mode.equals(period.mode)
+      && java.util.Objects.equals(modeParameter, period.modeParameter);
+  }
+
+  @Override
+  public int hashCode() {
+    return hash(index, mode, modeParameter, snapshotDate, snapshotId);
+  }
+
+  @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return toStringHelper(this)
       .add("index", index)
       .add("mode", mode)
       .add("modeParameter", modeParameter)
