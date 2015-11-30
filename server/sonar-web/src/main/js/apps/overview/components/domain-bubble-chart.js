@@ -8,6 +8,7 @@ import { formatMeasure } from '../../../helpers/measures';
 
 
 const HEIGHT = 360;
+const BUBBLES_LIMIT = 500;
 
 
 function getMeasure (component, metric) {
@@ -41,8 +42,13 @@ export class DomainBubbleChart extends React.Component {
         });
         return _.extend(file, { measures });
       });
-      this.setState({ loading: false, files });
+      this.setState({ loading: false, files: this.limitFiles(files) });
     });
+  }
+
+  limitFiles (files) {
+    const comparator = file => -1 * this.getSizeMetricsValue(file);
+    return _.sortBy(files, comparator).slice(0, BUBBLES_LIMIT);
   }
 
   getMetricObject (metrics, metricKey) {
