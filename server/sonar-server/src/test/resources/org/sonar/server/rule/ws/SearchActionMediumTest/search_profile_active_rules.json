@@ -1,7 +1,7 @@
 {
-  "total":1,
-  "p":1,
-  "ps":100,
+  "total": 1,
+  "p": 1,
+  "ps": 100,
   "rules": [
     {
       "key": "xoo:x1"
@@ -13,7 +13,20 @@
         "qProfile": "XOO_P2",
         "inherit": "NONE",
         "severity": "BLOCKER",
-        "params": []
+        "params": [
+          {
+            "key": "the_var",
+            "value": "The Other Value"
+          },
+          {
+            "key": "my_var",
+            "value": "The VALUE"
+          },
+          {
+            "key": "empty_var",
+            "value": ""
+          }
+        ]
       }
     ]
   },
