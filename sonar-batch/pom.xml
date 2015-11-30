@@ -118,11 +118,6 @@
       <scope>test</scope>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-java-api</artifactId>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
       <groupId>com.google.code.bean-matchers</groupId>

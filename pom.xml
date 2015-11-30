@@ -643,21 +643,6 @@
         <version>5.1</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-java-api</artifactId>
-        <version>5.1</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.sonar</groupId>
-            <artifactId>sonar-deprecated</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.sonar</groupId>
-            <artifactId>sonar-plugin-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-plugin-api</artifactId>
         <version>${project.version}</version>
