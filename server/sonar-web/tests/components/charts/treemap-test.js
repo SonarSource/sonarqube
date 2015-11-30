@@ -13,7 +13,8 @@ describe('Treemap', function () {
       { size: 30, color: '#777', label: 'SonarQube :: Web' },
       { size: 20, color: '#777', label: 'SonarQube :: Search' }
     ];
-    let chart = TestUtils.renderIntoDocument(<Treemap items={items} width={100} height={100}/>);
+    let chart = TestUtils.renderIntoDocument(
+        <Treemap items={items} width={100} height={100} breadcrumbs={[]} canBeClicked={() => true}/>);
     expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'treemap-cell')).to.have.length(3);
   });
 
