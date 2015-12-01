@@ -705,13 +705,6 @@ public class PlatformLevel4 extends PlatformLevel {
       CancelAllAction.class,
       PluginsWs.class,
 
-      // Compute engine
-      CeModule.class,
-      CeQueueModule.class,
-      CeTaskProcessorModule.class,
-      CeWsModule.class,
-      ReportProcessingModule.class,
-
       // Views plugin
       ViewsBootstrap.class,
       ViewsStopper.class,
@@ -719,6 +712,13 @@ public class PlatformLevel4 extends PlatformLevel {
       // Developer Cockpit plugin
       DevCockpitBootstrap.class,
       DevCockpitStopper.class,
+
+      // Compute engine (must be after Views and Developer Cockpit)
+      CeModule.class,
+      CeQueueModule.class,
+      CeTaskProcessorModule.class,
+      CeWsModule.class,
+      ReportProcessingModule.class,
 
       // UI
       GlobalNavigationAction.class,

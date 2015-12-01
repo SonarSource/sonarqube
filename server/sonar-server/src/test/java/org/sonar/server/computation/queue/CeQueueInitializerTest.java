@@ -26,19 +26,22 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.queue.report.ReportFiles;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
+import org.sonar.server.computation.queue.report.ReportFiles;
 import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class CeQueueInitializerTest {
@@ -49,6 +52,7 @@ public class CeQueueInitializerTest {
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
+  Server server = mock(Server.class);
   ReportFiles reportFiles = mock(ReportFiles.class, Mockito.RETURNS_DEEP_STUBS);
   CEQueueStatus queueStatus = new CEQueueStatusImpl();
   CeQueueCleaner cleaner = mock(CeQueueCleaner.class);
@@ -62,14 +66,14 @@ public class CeQueueInitializerTest {
     // this in-progress task is going to be moved to PENDING
     insertInQueue("TASK_3", CeQueueDto.Status.IN_PROGRESS);
 
-    underTest.start();
+    underTest.onServerStart(server);
 
     assertThat(queueStatus.getPendingCount()).isEqualTo(3);
   }
 
   @Test
   public void init_jmx_counters_when_queue_is_empty() {
-    underTest.start();
+    underTest.onServerStart(server);
 
     assertThat(queueStatus.getPendingCount()).isEqualTo(0);
   }
@@ -78,10 +82,23 @@ public class CeQueueInitializerTest {
   public void clean_queue_then_start_scheduler_of_workers() throws IOException {
     InOrder inOrder = Mockito.inOrder(cleaner, scheduler);
 
-    underTest.start();
+    underTest.onServerStart(server);
 
     inOrder.verify(cleaner).clean(any(DbSession.class));
     inOrder.verify(scheduler).startScheduling();
+  }
+
+  @Test
+  public void onServerStart_has_no_effect_if_called_twice_to_support_medium_test_doing_startup_tasks_multiple_times() {
+
+    underTest.onServerStart(server);
+
+    reset(cleaner, scheduler);
+
+    underTest.onServerStart(server);
+
+    verifyZeroInteractions(cleaner, scheduler);
+
   }
 
   private void insertInQueue(String taskUuid, CeQueueDto.Status status) throws IOException {
