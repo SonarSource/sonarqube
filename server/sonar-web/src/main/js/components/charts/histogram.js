@@ -14,7 +14,8 @@ export const Histogram = React.createClass({
     width: React.PropTypes.number,
     height: React.PropTypes.number,
     padding: React.PropTypes.arrayOf(React.PropTypes.number),
-    barsHeight: React.PropTypes.number
+    barsHeight: React.PropTypes.number,
+    onBarClick: React.PropTypes.func
   },
 
   getDefaultProps() {
@@ -30,6 +31,10 @@ export const Histogram = React.createClass({
     return { width: this.props.width, height: this.props.height };
   },
 
+  handleClick(point) {
+    this.props.onBarClick(point);
+  },
+
   renderTicks (xScale, yScale) {
     if (!this.props.yTicks.length) {
       return null;
@@ -38,7 +43,14 @@ export const Histogram = React.createClass({
       let point = this.props.data[index];
       let x = xScale.range()[0];
       let y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
-      return <text key={index} className="bar-chart-tick histogram-tick" x={x} y={y} dx="-1em" dy="0.3em">{tick}</text>;
+      return <text key={index}
+                   className="bar-chart-tick histogram-tick"
+                   onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+                   x={x}
+                   y={y}
+                   dx="-1em"
+                   dy="0.3em">{tick}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -51,7 +63,14 @@ export const Histogram = React.createClass({
       let point = this.props.data[index];
       let x = xScale(point.x);
       let y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
-      return <text key={index} className="bar-chart-tick histogram-value" x={x} y={y} dx="1em" dy="0.3em">{value}</text>;
+      return <text key={index}
+                   onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+                   className="bar-chart-tick histogram-value"
+                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+                   x={x}
+                   y={y}
+                   dx="1em"
+                   dy="0.3em">{value}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -60,8 +79,14 @@ export const Histogram = React.createClass({
     let bars = this.props.data.map((d, index) => {
       let x = Math.round(xScale(d.x)) + /* minimum bar width */ 1;
       let y = Math.round(yScale(d.y) + yScale.rangeBand() / 2);
-      return <rect key={index} className="bar-chart-bar"
-                   x={0} y={y} width={x} height={this.props.barsHeight}/>;
+      return <rect key={index}
+                   className="bar-chart-bar"
+                   onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
+                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+                   x={0}
+                   y={y}
+                   width={x}
+                   height={this.props.barsHeight}/>;
     });
     return <g>{bars}</g>;
   },

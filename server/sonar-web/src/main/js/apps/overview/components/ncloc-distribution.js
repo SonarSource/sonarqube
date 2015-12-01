@@ -4,6 +4,7 @@ import React from 'react';
 import { Histogram } from '../../../components/charts/histogram';
 import { formatMeasure } from '../../../helpers/measures';
 import { collapsePath } from '../../../helpers/path';
+import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { getChildren } from '../../../api/components';
 
 
@@ -38,6 +39,10 @@ export const NclocDistribution = React.createClass({
     });
   },
 
+  handleBarClick(d) {
+    window.location = getComponentDrilldownUrl(d.component.key, 'ncloc');
+  },
+
   renderLoading () {
     return <div className="overview-chart-placeholder" style={{ height: HEIGHT }}>
       <i className="spinner"/>
@@ -53,7 +58,8 @@ export const NclocDistribution = React.createClass({
       return {
         x: parseInt(component.measures[METRIC], 10),
         y: index,
-        value: component.name
+        value: component.name,
+        component: component
       };
     });
 
@@ -68,6 +74,7 @@ export const NclocDistribution = React.createClass({
                       yValues={yValues}
                       height={data.length * 25}
                       barsWidth={10}
+                      onBarClick={this.handleBarClick}
                       padding={[0, 50, 0, 240]}/>;
   },
 
