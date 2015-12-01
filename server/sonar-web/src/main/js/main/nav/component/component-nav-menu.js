@@ -53,9 +53,9 @@ export default React.createClass({
     return path.indexOf(`${window.baseUrl}/dashboard`) === 0 && params['did'] === `${customDashboard.key}`;
   },
 
-  isMoreCustomDashboardsActive () {
-    let dashboards = _.rest(this.props.component.dashboards, CUSTOM_DASHBOARDS_LIMIT);
-    return _.any(dashboards, this.isCustomDashboardActive);
+  isCustomDashboardsActive () {
+    let dashboards = this.props.component.dashboards;
+    return _.any(dashboards, this.isCustomDashboardActive) || this.isDashboardManagementActive();
   },
 
   isDashboardManagementActive () {
@@ -75,11 +75,6 @@ export default React.createClass({
     });
   },
 
-  renderCustomDashboards() {
-    let dashboards = _.first(this.props.component.dashboards, CUSTOM_DASHBOARDS_LIMIT);
-    return dashboards.map(this.renderCustomDashboard);
-  },
-
   renderCustomDashboard(customDashboard) {
     let key = 'custom-dashboard-' + customDashboard.key;
     let url = getComponentDashboardUrl(this.props.component.key, customDashboard.key, this.getPeriod());
@@ -90,19 +85,20 @@ export default React.createClass({
     </li>;
   },
 
-  renderMoreCustomDashboards() {
-    if (this.props.component.dashboards.length <= CUSTOM_DASHBOARDS_LIMIT) {
-      return null;
-    }
-    let dashboards = _.rest(this.props.component.dashboards, CUSTOM_DASHBOARDS_LIMIT)
-        .map(this.renderCustomDashboard);
-    let className = classNames('dropdown', { active: this.isMoreCustomDashboardsActive() });
+  renderCustomDashboards() {
+    let dashboards = this.props.component.dashboards.map(this.renderCustomDashboard);
+    let className = classNames('dropdown', { active: this.isCustomDashboardsActive() });
+    const managementLink = this.renderDashboardsManagementLink();
     return <li className={className}>
       <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-        More&nbsp;
+        {window.t('layout.dashboards')}&nbsp;
         <i className="icon-dropdown"/>
       </a>
-      <ul className="dropdown-menu">{dashboards}</ul>
+      <ul className="dropdown-menu">
+        {dashboards}
+        {managementLink && <li className="divider"/>}
+        {managementLink}
+      </ul>
     </li>;
   },
 
@@ -286,10 +282,9 @@ export default React.createClass({
           {this.renderFixedDashboards()}
           {this.renderComponentsLink()}
           {this.renderComponentIssuesLink()}
-          {this.renderAdministration()}
-          {this.renderTools()}
           {this.renderCustomDashboards()}
-          {this.renderMoreCustomDashboards()}
+          {this.renderTools()}
+          {this.renderAdministration()}
         </ul>
     );
   }
