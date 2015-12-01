@@ -136,18 +136,3 @@ window.autoResize = function (everyMs, callback) {
   var debounce = _.debounce(callback, everyMs);
   $(window).on('resize', debounce);
 };
-
-
-$(function () {
-  var $sidebar = $('#sidebar');
-  if ($sidebar.length > 0) {
-    var $window = $(window),
-        topOffset = $sidebar.offset().top;
-    $window.on('scroll', function () {
-      var scrollTop = $window.scrollTop(),
-          scrollLeft = $window.scrollLeft();
-      $sidebar.toggleClass('sticky', scrollTop > topOffset);
-      $sidebar.css('left', -scrollLeft + 10);
-    });
-  }
-});

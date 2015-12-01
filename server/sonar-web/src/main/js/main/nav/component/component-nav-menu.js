@@ -1,7 +1,26 @@
+import qs from 'querystring';
 import _ from 'underscore';
+import classNames from 'classnames';
 import React from 'react';
-import DashboardNameMixin from '../dashboard-name-mixin';
+
 import LinksMixin from '../links-mixin';
+import { getLocalizedDashboardName } from '../../../helpers/l10n';
+import {
+    getComponentDashboardUrl,
+    getComponentFixedDashboardUrl,
+    getComponentDashboardManagementUrl
+} from '../../../helpers/urls';
+
+
+const FIXED_DASHBOARDS = [
+  { link: '', name: 'overview.page' },
+  { link: '/issues', name: 'overview.domain.debt' },
+  { link: '/tests', name: 'overview.domain.coverage' },
+  { link: '/duplications', name: 'overview.domain.duplications' },
+  { link: '/size', name: 'overview.domain.size' }
+];
+
+const CUSTOM_DASHBOARDS_LIMIT = 1;
 
 const SETTINGS_URLS = [
   '/project/settings', '/project/profile', '/project/qualitygate', '/manual_measures/index',
@@ -9,22 +28,95 @@ const SETTINGS_URLS = [
   '/project/deletion'
 ];
 
+
 export default React.createClass({
-  mixins: [DashboardNameMixin, LinksMixin],
+  mixins: [LinksMixin],
 
   periodParameter() {
-    let params = window.getQueryParams();
+    let params = qs.parse(window.location.search.substr(1));
     return params.period ? `&period=${params.period}` : '';
   },
 
-  renderDashboardLink() {
-    let url = `/overview?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('layout.dashboards'), () => {
-      let cond =
-          window.location.pathname.indexOf(window.baseUrl + '/overview') === 0 ||
-          window.location.pathname.indexOf(window.baseUrl + '/dashboard') === 0;
-      return cond ? 'active' : null;
+  getPeriod() {
+    let params = qs.parse(window.location.search.substr(1));
+    return params.period;
+  },
+
+  isFixedDashboardActive(fixedDashboard) {
+    let path = window.location.pathname;
+    return path === `${window.baseUrl}/overview${fixedDashboard.link}`;
+  },
+
+  isCustomDashboardActive(customDashboard) {
+    let path = window.location.pathname,
+        params = qs.parse(window.location.search.substr(1));
+    return path.indexOf(`${window.baseUrl}/dashboard`) === 0 && params['did'] === `${customDashboard.key}`;
+  },
+
+  isMoreCustomDashboardsActive () {
+    let dashboards = _.rest(this.props.component.dashboards, CUSTOM_DASHBOARDS_LIMIT);
+    return _.any(dashboards, this.isCustomDashboardActive);
+  },
+
+  isDashboardManagementActive () {
+    let path = window.location.pathname;
+    return path.indexOf(`${window.baseUrl}/dashboards`) === 0;
+  },
+
+  renderFixedDashboards() {
+    return FIXED_DASHBOARDS.map(fixedDashboard => {
+      let key = 'fixed-dashboard-' + fixedDashboard.link.substr(1);
+      let url = getComponentFixedDashboardUrl(this.props.component.key, fixedDashboard.link);
+      let name = window.t(fixedDashboard.name);
+      let className = classNames({ active: this.isFixedDashboardActive(fixedDashboard) });
+      return <li key={key} className={className}>
+        <a href={url}>{name}</a>
+      </li>;
     });
+  },
+
+  renderCustomDashboards() {
+    let dashboards = _.first(this.props.component.dashboards, CUSTOM_DASHBOARDS_LIMIT);
+    return dashboards.map(this.renderCustomDashboard);
+  },
+
+  renderCustomDashboard(customDashboard) {
+    let key = 'custom-dashboard-' + customDashboard.key;
+    let url = getComponentDashboardUrl(this.props.component.key, customDashboard.key, this.getPeriod());
+    let name = getLocalizedDashboardName(customDashboard.name);
+    let className = classNames({ active: this.isCustomDashboardActive(customDashboard) });
+    return <li key={key} className={className}>
+      <a href={url}>{name}</a>
+    </li>;
+  },
+
+  renderMoreCustomDashboards() {
+    if (this.props.component.dashboards.length <= CUSTOM_DASHBOARDS_LIMIT) {
+      return null;
+    }
+    let dashboards = _.rest(this.props.component.dashboards, CUSTOM_DASHBOARDS_LIMIT)
+        .map(this.renderCustomDashboard);
+    let className = classNames('dropdown', { active: this.isMoreCustomDashboardsActive() });
+    return <li className={className}>
+      <a className="dropdown-toggle" data-toggle="dropdown" href="#">
+        More&nbsp;
+        <i className="icon-dropdown"/>
+      </a>
+      <ul className="dropdown-menu">{dashboards}</ul>
+    </li>;
+  },
+
+  renderDashboardsManagementLink() {
+    if (!window.SS.user) {
+      return null;
+    }
+    let key = 'dashboard-management';
+    let url = getComponentDashboardManagementUrl(this.props.component.key);
+    let name = window.t('dashboard.manage_dashboards');
+    let className = classNames('pill-right', { active: this.isDashboardManagementActive() });
+    return <li key={key} className={className}>
+      <a className="note" href={url}>{name}</a>
+    </li>;
   },
 
   renderComponentsLink() {
@@ -191,11 +283,13 @@ export default React.createClass({
   render() {
     return (
         <ul className="nav navbar-nav nav-tabs">
-          {this.renderDashboardLink()}
+          {this.renderFixedDashboards()}
           {this.renderComponentsLink()}
           {this.renderComponentIssuesLink()}
           {this.renderAdministration()}
           {this.renderTools()}
+          {this.renderCustomDashboards()}
+          {this.renderMoreCustomDashboards()}
         </ul>
     );
   }

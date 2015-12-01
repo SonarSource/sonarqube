@@ -5,7 +5,6 @@ import GlobalNav from './global/global-nav';
 import ComponentNav from './component/component-nav';
 import SettingsNav from './settings/settings-nav';
 import { getGlobalNavigation, getComponentNavigation, getSettingsNavigation } from '../../api/nav';
-import { DashboardSidebar } from '../../components/dashboards/dashboard-sidebar';
 import '../../components/workspace/main';
 import '../../helpers/handlebars-helpers';
 
@@ -51,19 +50,8 @@ export default class App {
       if (el) {
         ReactDOM.render(<ComponentNav component={component} conf={component.configuration || {}}/>, el);
       }
-      this.renderSidebarNav(component);
       return component;
     });
-  }
-
-  static renderSidebarNav (component) {
-    let shouldRender =
-        window.location.pathname.indexOf(window.baseUrl + '/overview') === 0 ||
-        window.location.pathname.indexOf(window.baseUrl + '/dashboard') === 0;
-    let el = document.getElementById('sidebar');
-    if (shouldRender && el) {
-      ReactDOM.render(<DashboardSidebar component={component} customDashboards={component.dashboards}/>, el);
-    }
   }
 
   static renderSettingsNav (options) {
