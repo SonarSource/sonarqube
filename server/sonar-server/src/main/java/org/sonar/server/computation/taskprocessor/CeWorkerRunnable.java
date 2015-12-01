@@ -19,11 +19,12 @@
  */
 package org.sonar.server.computation.taskprocessor;
 
+import java.util.concurrent.Callable;
 import org.sonar.server.computation.queue.CeQueue;
 import org.sonar.server.computation.queue.CeTask;
 
 /**
  * Marker interface of the runnable in charge of polling the {@link CeQueue} and executing {@link CeTask}.
  */
-public interface CeWorkerRunnable extends Runnable {
+public interface CeWorkerRunnable extends Callable<Boolean> {
 }

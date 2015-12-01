@@ -46,13 +46,14 @@ public class CeWorkerRunnableImpl implements CeWorkerRunnable {
   }
 
   @Override
-  public void run() {
+  public Boolean call() throws Exception {
     Optional<CeTask> ceTask = tryAndFindTaskToExecute();
     if (!ceTask.isPresent()) {
-      return;
+      return false;
     }
 
     executeTask(ceTask.get());
+    return true;
   }
 
   private Optional<CeTask> tryAndFindTaskToExecute() {

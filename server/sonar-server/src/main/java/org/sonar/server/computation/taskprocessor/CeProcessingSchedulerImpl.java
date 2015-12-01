@@ -19,14 +19,24 @@
  */
 package org.sonar.server.computation.taskprocessor;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.ListenableScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+import static com.google.common.util.concurrent.Futures.addCallback;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
+  private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
+
   private final CeProcessingSchedulerExecutorService executorService;
   private final CeWorkerRunnable workerRunnable;
 
   private final long delayBetweenTasks;
-  private final long delayForFirstStart;
   private final TimeUnit timeUnit;
 
   public CeProcessingSchedulerImpl(CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerRunnable workerRunnable) {
@@ -34,13 +44,43 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
     this.workerRunnable = workerRunnable;
 
     this.delayBetweenTasks = 2;
-    this.delayForFirstStart = 0;
-    this.timeUnit = TimeUnit.SECONDS;
+    this.timeUnit = SECONDS;
   }
 
   @Override
   public void startScheduling() {
-    executorService.scheduleAtFixedRate(workerRunnable, delayForFirstStart, delayBetweenTasks, timeUnit);
+    ListenableScheduledFuture<Boolean> future = executorService.schedule(workerRunnable, delayBetweenTasks, timeUnit);
+
+    FutureCallback<Boolean> chainingCallback = new ChainingCallback();
+    addCallback(future, chainingCallback, executorService);
   }
 
+  private class ChainingCallback implements FutureCallback<Boolean> {
+    @Override
+    public void onSuccess(@Nullable Boolean result) {
+      if (result != null && result) {
+        chainWithoutDelay();
+      } else {
+        chainTask(delayBetweenTasks, timeUnit);
+      }
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+      if (!(t instanceof Error)) {
+        chainWithoutDelay();
+      } else {
+        LOG.error("Compute Engine execution failed. Scheduled processing interrupted.", t);
+      }
+    }
+
+    private void chainWithoutDelay() {
+      chainTask(1, MILLISECONDS);
+    }
+
+    private void chainTask(long delay, TimeUnit unit) {
+      ListenableScheduledFuture<Boolean> future = executorService.schedule(workerRunnable, delay, unit);
+      addCallback(future, this, executorService);
+    }
+  }
 }

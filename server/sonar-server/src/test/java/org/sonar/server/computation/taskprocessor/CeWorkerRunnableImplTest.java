@@ -32,6 +32,7 @@ import org.sonar.server.computation.queue.CeQueueImpl;
 import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.taskprocessor.report.ReportTaskProcessor;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -52,18 +53,18 @@ public class CeWorkerRunnableImplTest {
   public void no_pending_tasks_in_queue() throws Exception {
     when(queue.peek()).thenReturn(Optional.<CeTask>absent());
 
-    underTest.run();
+    assertThat(underTest.call()).isFalse();
 
     verifyZeroInteractions(taskProcessor, ceLogging);
   }
 
   @Test
-  public void fail_when_no_CeTaskProcessor_is_found_in_repository() {
+  public void fail_when_no_CeTaskProcessor_is_found_in_repository() throws Exception {
     CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
     taskProcessorRepository.setNoProcessorForTask(CeTaskTypes.REPORT);
     when(queue.peek()).thenReturn(Optional.of(task));
 
-    underTest.run();
+    assertThat(underTest.call()).isTrue();
 
     inOrder.verify(ceLogging).initForTask(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED);
@@ -76,7 +77,7 @@ public class CeWorkerRunnableImplTest {
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     when(queue.peek()).thenReturn(Optional.of(task));
 
-    underTest.run();
+    assertThat(underTest.call()).isTrue();
 
     inOrder.verify(ceLogging).initForTask(task);
     inOrder.verify(taskProcessor).process(task);
@@ -91,7 +92,7 @@ public class CeWorkerRunnableImplTest {
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     doThrow(new IllegalStateException("simulate exception thrown by TaskProcessor#process")).when(taskProcessor).process(task);
 
-    underTest.run();
+    assertThat(underTest.call()).isTrue();
 
     inOrder.verify(ceLogging).initForTask(task);
     inOrder.verify(taskProcessor).process(task);
