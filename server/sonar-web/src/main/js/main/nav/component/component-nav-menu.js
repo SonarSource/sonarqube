@@ -185,10 +185,6 @@ export default React.createClass({
     (component.extensions || []).forEach(e => {
       tools.push(this.renderLink(e.url, e.name));
     });
-    if (component.isComparable) {
-      let compareUrl = `/comparison/index?resource=${component.key}`;
-      tools.push(this.renderLink(compareUrl, window.t('comparison.page')));
-    }
     return tools;
   },
 
