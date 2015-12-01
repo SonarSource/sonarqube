@@ -34,7 +34,7 @@ export const DomainTitle = React.createClass({
 
 export const DomainLeakTitle = React.createClass({
   renderInline (tooltip, fromNow) {
-    return <span title={tooltip} data-toggle="tooltip">
+    return <span className="overview-domain-leak-title" title={tooltip} data-toggle="tooltip">
       <span>{window.tp('overview.leak_period_x', this.props.label)}</span>
       <span className="note spacer-left">{window.tp('overview.started_x', fromNow)}</span>
     </span>;
@@ -50,7 +50,7 @@ export const DomainLeakTitle = React.createClass({
     if (this.props.inline) {
       return this.renderInline(tooltip, fromNow);
     }
-    return <span title={tooltip} data-toggle="tooltip">
+    return <span className="overview-domain-leak-title" title={tooltip} data-toggle="tooltip">
       <span>{window.tp('overview.leak_period_x', this.props.label)}</span>
       <br/>
       <span className="note">{window.tp('overview.started_x', fromNow)}</span>
