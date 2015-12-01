@@ -54,7 +54,7 @@ export const CoverageMeasures = React.createClass({
     const newCoverageMetricName = this.getNewCoverageMetricName();
     const newCoverage = this.getNewCoverageMeasure();
 
-    if (!this.props.leakPeriodDate) {
+    if (!this.props.leakPeriodDate || newCoverage == null) {
       return null;
     }
 
