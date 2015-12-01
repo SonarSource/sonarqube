@@ -1,15 +1,47 @@
 import _ from 'underscore';
+import moment from 'moment';
 import React from 'react';
+
 import { QualityProfileLink } from './../../components/shared/quality-profile-link';
 import { QualityGateLink } from './../../components/shared/quality-gate-link';
+import { getEvents } from '../../api/events';
+import { EventsList } from './components/events-list';
+
 
 export default React.createClass({
+  componentDidMount() {
+    this.requestEvents();
+  },
+
+  requestEvents () {
+    return getEvents(this.props.component.key).then(events => {
+      const nextEvents = events.map(event => {
+        return {
+          id: event.id,
+          date: moment(event.dt).toDate(),
+          type: event.c,
+          name: event.n,
+          text: event.ds
+        };
+      });
+      this.setState({ events: nextEvents });
+    });
+  },
+
   isView() {
     return this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
   },
 
   isDeveloper() {
     return this.props.component.qualifier === 'DEV';
+  },
+
+  renderEvents() {
+    if (this.state && this.state.events) {
+      return <EventsList component={this.props.component} events={this.state.events}/>;
+    } else {
+      return null;
+    }
   },
 
   render() {
@@ -71,6 +103,7 @@ export default React.createClass({
           {linksCard}
           {gateCard}
           {profilesCard}
+          {this.renderEvents()}
         </div>
     );
   }
