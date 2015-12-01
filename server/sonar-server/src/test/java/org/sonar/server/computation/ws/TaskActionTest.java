@@ -24,8 +24,9 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -35,41 +36,41 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class TaskActionTest {
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
   TaskAction underTest = new TaskAction(dbTester.getDbClient(), formatter, userSession);
-  WsActionTester tester = new WsActionTester(underTest);
+  WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
     when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.<File>absent());
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Test
   public void task_is_in_queue() throws Exception {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
-
     ComponentDto project = ComponentTesting.newProjectDto().setUuid("PROJECT_1").setName("Project One").setKey("P1");
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
 
@@ -82,7 +83,7 @@ public class TaskActionTest {
     dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
     dbTester.commit();
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
@@ -100,8 +101,6 @@ public class TaskActionTest {
 
   @Test
   public void task_is_archived() throws Exception {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
-
     ComponentDto project = ComponentTesting.newProjectDto().setUuid("PROJECT_1").setName("Project One").setKey("P1");
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project);
 
@@ -115,7 +114,7 @@ public class TaskActionTest {
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("id", "TASK_1")
       .execute();
@@ -130,17 +129,19 @@ public class TaskActionTest {
     assertThat(taskResponse.getTask().getLogs()).isFalse();
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test
   public void task_not_found() throws Exception {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    expectedException.expect(NotFoundException.class);
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("id", "DOES_NOT_EXIST")
       .execute();
   }
 
   @Test
-  public void support_json_response() {
+  public void fail_if_not_admin_nor_scan_permission() {
+    expectedException.expect(ForbiddenException.class);
+    userSession.setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType("fake");
     queueDto.setUuid("TASK_1");
@@ -148,12 +149,27 @@ public class TaskActionTest {
     dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
     dbTester.commit();
 
-    userSession.setGlobalPermissions(UserRole.ADMIN);
-    TestResponse wsResponse = tester.newRequest()
+    ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("id", "TASK_1")
+      .execute();
+  }
+
+  @Test
+  public void support_json_response_with_scan_permissions() {
+    userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setTaskType("fake");
+    queueDto.setUuid("TASK_1");
+    queueDto.setStatus(CeQueueDto.Status.PENDING);
+    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
+    dbTester.commit();
+
+    TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .setParam("id", "TASK_1")
       .execute();
 
-    JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"task\":{}}");
+    assertJson(wsResponse.getInput()).isSimilarTo("{\"task\":{}}");
   }
 }

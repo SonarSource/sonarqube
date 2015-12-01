@@ -23,7 +23,7 @@ import com.google.common.base.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -67,7 +67,11 @@ public class TaskAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkGlobalPermission(UserRole.ADMIN);
+    if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)
+      // WS can be used at the end of an analysis to implement a build breaker
+      && !userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION)) {
+      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    }
 
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
     DbSession dbSession = dbClient.openSession(false);
