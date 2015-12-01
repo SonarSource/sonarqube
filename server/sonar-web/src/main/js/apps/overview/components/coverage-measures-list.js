@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import React from 'react';
 
-import { DetailedMeasure } from '../components/detailed-measure';
+import { DetailedMeasure } from './detailed-measure';
+import { CoverageMeasures } from './coverage-measures';
 import { filterMetricsForDomains } from '../helpers/metrics';
-import { CoverageMeasure } from '../components/coverage-measure';
 
 
 const TEST_DOMAINS = ['Tests', 'Tests (Integration)', 'Tests (Overall)'];
@@ -12,64 +12,35 @@ const TEST_METRICS = ['tests', 'test_execution_time', 'test_errors', 'test_failu
 
 
 export const CoverageMeasuresList = React.createClass({
+  shouldRenderOverallCoverage() {
+    return this.props.measures['overall_coverage'] != null &&
+        this.shouldRenderUTCoverage() &&
+        this.shouldRenderITCoverage();
+  },
+
+  shouldRenderUTCoverage() {
+    return this.props.measures['coverage'] != null;
+  },
+
+  shouldRenderITCoverage() {
+    return this.props.measures['it_coverage'] != null;
+  },
+
   renderOtherMeasures() {
     let knownMetrics = [].concat(TEST_METRICS, [
-      this.props.coverageMetricPrefix + 'coverage',
-      this.props.coverageMetricPrefix + 'line_coverage',
-      this.props.coverageMetricPrefix + 'branch_coverage'
+      'coverage', 'line_coverage', 'branch_coverage',
+      'uncovered_lines', 'uncovered_conditions',
+
+      'it_coverage', 'it_line_coverage', 'it_branch_coverage',
+      'it_uncovered_lines', 'it_uncovered_conditions',
+
+      'overall_coverage', 'overall_line_coverage', 'overall_branch_coverage',
+      'overall_uncovered_lines', 'overall_uncovered_conditions'
     ]);
     let metrics = filterMetricsForDomains(this.props.metrics, TEST_DOMAINS)
         .filter(metric => knownMetrics.indexOf(metric.key) === -1)
         .map(metric => metric.key);
     return this.renderListOfMeasures(metrics);
-  },
-
-  renderCoverage () {
-    let metrics = [
-      this.props.coverageMetricPrefix + 'coverage',
-      this.props.coverageMetricPrefix + 'line_coverage',
-      this.props.coverageMetricPrefix + 'branch_coverage'
-    ];
-
-    if (_.every(metrics, metric => this.props.measures[metric] == null)) {
-      // if no measures exist
-      return null;
-    }
-
-    let measures = metrics.map(metric => {
-      return <CoverageMeasure key={metric}
-                              metric={metric}
-                              measure={this.props.measures[metric]}
-                              leak={this.props.leak[metric]}
-                              component={this.props.component}/>;
-    });
-    return <div className="overview-detailed-measures-list overview-detailed-measures-list-inline">
-      {measures}
-    </div>;
-  },
-
-  renderNewCoverage () {
-    let metrics = [
-      'new_' + this.props.coverageMetricPrefix + 'coverage',
-      'new_' + this.props.coverageMetricPrefix + 'line_coverage',
-      'new_' + this.props.coverageMetricPrefix + 'branch_coverage'
-    ];
-
-    if (_.every(metrics, metric => this.props.leak[metric] == null)) {
-      // if no measures exist
-      return null;
-    }
-
-    let measures = metrics.map(metric => {
-      return <CoverageMeasure key={metric}
-                              metric={metric}
-                              measure={this.props.leak[metric]}
-                              component={this.props.component}
-                              period={this.props.leakPeriodIndex}/>;
-    });
-    return <div className="overview-detailed-measures-list overview-detailed-measures-list-inline">
-      {measures}
-    </div>;
   },
 
   renderListOfMeasures(list) {
@@ -89,11 +60,10 @@ export const CoverageMeasuresList = React.createClass({
 
   render () {
     return <div>
-      {this.renderCoverage()}
-      {this.renderNewCoverage()}
-
+      {this.shouldRenderOverallCoverage() && <CoverageMeasures {...this.props} prefix="overall_"/>}
+      {this.shouldRenderUTCoverage() && <CoverageMeasures {...this.props} prefix=""/>}
+      {this.shouldRenderITCoverage() && <CoverageMeasures {...this.props} prefix="it_"/>}
       {this.renderListOfMeasures(TEST_METRICS)}
-
       {this.renderOtherMeasures()}
     </div>;
   }
