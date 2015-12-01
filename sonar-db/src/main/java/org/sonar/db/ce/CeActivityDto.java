@@ -35,6 +35,7 @@ public class CeActivityDto {
 
   private String uuid;
   private String componentUuid;
+  private Long snapshotId;
   private Status status;
   private String taskType;
   private boolean isLast;
@@ -163,6 +164,16 @@ public class CeActivityDto {
   public void setExecutionTimeMs(@Nullable Long l) {
     checkArgument(l == null || l >= 0, "Execution time must be positive: %s", l);
     this.executionTimeMs = l;
+  }
+
+  @CheckForNull
+  public Long getSnapshotId() {
+    return snapshotId;
+  }
+
+  public CeActivityDto setSnapshotId(@Nullable Long snapshotId) {
+    this.snapshotId = snapshotId;
+    return this;
   }
 
   @Override

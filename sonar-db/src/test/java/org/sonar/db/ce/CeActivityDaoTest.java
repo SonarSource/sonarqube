@@ -61,6 +61,7 @@ public class CeActivityDaoTest {
     assertThat(saved.get().getStartedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(saved.get().getExecutedAt()).isEqualTo(1_500_000_000_500L);
     assertThat(saved.get().getExecutionTimeMs()).isEqualTo(500L);
+    assertThat(saved.get().getSnapshotId()).isEqualTo(123_456);
     assertThat(saved.get().toString()).isNotEmpty();
   }
 
@@ -250,6 +251,7 @@ public class CeActivityDaoTest {
     dto.setStartedAt(1_500_000_000_000L);
     dto.setExecutedAt(1_500_000_000_500L);
     dto.setExecutionTimeMs(500L);
+    dto.setSnapshotId(123_456L);
     underTest.insert(db.getSession(), dto);
   }
 
