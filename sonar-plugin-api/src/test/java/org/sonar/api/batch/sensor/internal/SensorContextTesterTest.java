@@ -19,16 +19,12 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.batch.sensor.coverage.NewCoverage;
-
-import org.junit.rules.ExpectedException;
-
 import java.io.File;
 import java.io.StringReader;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -37,11 +33,13 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SensorContextTesterTest {
@@ -148,28 +146,17 @@ public class SensorContextTesterTest {
   }
 
   @Test
-  public void testDuplication() {
-    assertThat(tester.duplications()).isEmpty();
-    tester.newDuplication()
-      .originBlock(new DefaultInputFile("foo", "src/Foo.java").setLines(40), 1, 30)
-      .isDuplicatedBy(new DefaultInputFile("foo", "src/Foo2.java").setLines(40), 3, 33)
-      .isDuplicatedBy(new DefaultInputFile("foo", "src/Foo3.java").setLines(40), 4, 34)
-      .save();
-    assertThat(tester.duplications()).hasSize(1);
-  }
-
-  @Test
   public void testCoverageAtLineZero() {
     assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
     assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 4)).isNull();
-    
+
     exception.expect(IllegalStateException.class);
     NewCoverage coverage = tester.newCoverage()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
       .ofType(CoverageType.UNIT)
       .lineHits(0, 3);
   }
-  
+
   @Test
   public void testCoverageAtLineOutOfRange() {
     assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();

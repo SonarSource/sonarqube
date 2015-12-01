@@ -20,13 +20,13 @@
 
 package org.sonar.batch.cpd;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -34,7 +34,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +43,6 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.duplication.NewDuplication;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
 import org.sonar.batch.index.BatchComponentCache;
@@ -55,14 +52,13 @@ import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
-import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 
-public class JavaCpdEngine extends CpdEngine {
+public class JavaCpdEngine extends AbstractCpdEngine {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaCpdEngine.class);
 
@@ -73,15 +69,13 @@ public class JavaCpdEngine extends CpdEngine {
    */
   private static final int TIMEOUT = 5 * 60;
 
-  private static final int MAX_CLONE_GROUP_PER_FILE = 100;
-  private static final int MAX_CLONE_PART_PER_GROUP = 100;
-
   private final FileSystem fs;
   private final Settings settings;
   private final ReportPublisher publisher;
   private final BatchComponentCache batchComponentCache;
 
   public JavaCpdEngine(FileSystem fs, Settings settings, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
+    super(publisher, batchComponentCache);
     this.fs = fs;
     this.settings = settings;
     this.publisher = publisher;
@@ -152,13 +146,13 @@ public class JavaCpdEngine extends CpdEngine {
         try {
           clones = executorService.submit(new Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
-          clones = null;
+          clones = Collections.emptyList();
           LOG.warn("Timeout during detection of duplications for " + inputFile, e);
         } catch (InterruptedException | ExecutionException e) {
           throw new IllegalStateException("Fail during detection of duplication for " + inputFile, e);
         }
 
-        save(context, inputFile, clones);
+        saveDuplications(inputFile, clones);
       }
     } finally {
       executorService.shutdown();
@@ -177,41 +171,6 @@ public class JavaCpdEngine extends CpdEngine {
     @Override
     public List<CloneGroup> call() {
       return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
-    }
-  }
-
-  static void save(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, @Nullable Iterable<CloneGroup> duplications) {
-    if (duplications == null || Iterables.isEmpty(duplications)) {
-      return;
-    }
-
-    saveDuplications(context, inputFile, duplications);
-  }
-
-  private static void saveDuplications(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, Iterable<CloneGroup> duplications) {
-    int cloneGroupCount = 0;
-    for (CloneGroup duplication : duplications) {
-      cloneGroupCount++;
-      if (cloneGroupCount > MAX_CLONE_GROUP_PER_FILE) {
-        LOG.warn("Too many duplication groups on file " + inputFile.relativePath() + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE + " groups.");
-        break;
-      }
-      NewDuplication builder = context.newDuplication();
-      ClonePart originPart = duplication.getOriginPart();
-      builder.originBlock(inputFile, originPart.getStartLine(), originPart.getEndLine());
-      int clonePartCount = 0;
-      for (ClonePart part : duplication.getCloneParts()) {
-        if (!part.equals(originPart)) {
-          clonePartCount++;
-          if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
-            LOG.warn("Too many duplication references on file " + inputFile.relativePath() + " for block at line " + originPart.getStartLine() + ". Keep only the first "
-              + MAX_CLONE_PART_PER_GROUP + " references.");
-            break;
-          }
-          ((DefaultDuplication) builder).isDuplicatedBy(part.getResourceId(), part.getStartLine(), part.getEndLine());
-        }
-      }
-      builder.save();
     }
   }
 

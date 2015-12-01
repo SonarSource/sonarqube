@@ -37,8 +37,6 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.duplication.Duplication;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -53,7 +51,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.ModuleIssues;
@@ -94,18 +91,16 @@ public class DefaultSensorStorage implements SensorStorage {
   private final MetricFinder metricFinder;
   private final ModuleIssues moduleIssues;
   private final CoverageExclusions coverageExclusions;
-  private final DuplicationCache duplicationCache;
   private final BatchComponentCache componentCache;
   private final ReportPublisher reportPublisher;
   private final MeasureCache measureCache;
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
-    Settings settings, FileSystem fs, ActiveRules activeRules, DuplicationCache duplicationCache,
+    Settings settings, FileSystem fs, ActiveRules activeRules,
     CoverageExclusions coverageExclusions, BatchComponentCache componentCache, ReportPublisher reportPublisher, MeasureCache measureCache) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
     this.coverageExclusions = coverageExclusions;
-    this.duplicationCache = duplicationCache;
     this.componentCache = componentCache;
     this.reportPublisher = reportPublisher;
     this.measureCache = measureCache;
@@ -188,11 +183,6 @@ public class DefaultSensorStorage implements SensorStorage {
       throw new IllegalStateException("Provided input file is not indexed");
     }
     return (File) r.resource();
-  }
-
-  @Override
-  public void store(Duplication duplication) {
-    duplicationCache.put(duplication.originBlock().resourceKey(), (DefaultDuplication) duplication);
   }
 
   @Override

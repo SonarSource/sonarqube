@@ -42,9 +42,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.duplication.Duplication;
-import org.sonar.api.batch.sensor.duplication.NewDuplication;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -206,15 +203,6 @@ public class SensorContextTester implements SensorContext {
     return result;
   }
 
-  @Override
-  public NewDuplication newDuplication() {
-    return new DefaultDuplication(sensorStorage);
-  }
-
-  public Collection<Duplication> duplications() {
-    return sensorStorage.duplications;
-  }
-
   public static class MockAnalysisMode implements AnalysisMode {
     private boolean isPreview = false;
     private boolean isIssues = false;
@@ -252,8 +240,6 @@ public class SensorContextTester implements SensorContext {
     private Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
     private Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
 
-    private List<Duplication> duplications = new ArrayList<>();
-
     @Override
     public void store(Measure measure) {
       measuresByComponentAndMetric.row(measure.inputComponent().key()).put(measure.metric().key(), measure);
@@ -262,11 +248,6 @@ public class SensorContextTester implements SensorContext {
     @Override
     public void store(Issue issue) {
       allIssues.add(issue);
-    }
-
-    @Override
-    public void store(Duplication duplication) {
-      duplications.add(duplication);
     }
 
     @Override

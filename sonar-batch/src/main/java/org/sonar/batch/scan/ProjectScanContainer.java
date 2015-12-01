@@ -41,7 +41,6 @@ import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.cache.ProjectPersistentCacheProvider;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.Caches;
@@ -61,7 +60,6 @@ import org.sonar.batch.report.ActiveRulesPublisher;
 import org.sonar.batch.report.AnalysisContextReportPublisher;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.CoveragePublisher;
-import org.sonar.batch.report.DuplicationsPublisher;
 import org.sonar.batch.report.MeasuresPublisher;
 import org.sonar.batch.report.MetadataPublisher;
 import org.sonar.batch.report.ReportPublisher;
@@ -179,9 +177,6 @@ public class ProjectScanContainer extends ComponentContainer {
       // Measures
       MeasureCache.class,
 
-      // Duplications
-      DuplicationCache.class,
-
       ProjectSettings.class,
 
       // Report
@@ -191,7 +186,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ActiveRulesPublisher.class,
       ComponentsPublisher.class,
       MeasuresPublisher.class,
-      DuplicationsPublisher.class,
       CoveragePublisher.class,
       SourcePublisher.class,
       TestExecutionAndCoveragePublisher.class,

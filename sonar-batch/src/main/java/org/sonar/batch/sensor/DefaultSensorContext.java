@@ -27,8 +27,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.duplication.NewDuplication;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -112,11 +110,6 @@ public class DefaultSensorContext implements SensorContext {
       return NO_OP_NEW_HIGHLIGHTING;
     }
     return new DefaultHighlighting(sensorStorage);
-  }
-
-  @Override
-  public NewDuplication newDuplication() {
-    return new DefaultDuplication(sensorStorage);
   }
 
   @Override

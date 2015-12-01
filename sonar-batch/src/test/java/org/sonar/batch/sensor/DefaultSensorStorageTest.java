@@ -39,7 +39,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.report.ReportPublisher;
@@ -85,7 +84,7 @@ public class DefaultSensorStorageTest {
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
     resourceCache = new BatchComponentCache();
     sensorStorage = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings, fs, activeRules, mock(DuplicationCache.class), coverageExclusions, resourceCache, mock(ReportPublisher.class), measureCache);
+      moduleIssues, settings, fs, activeRules, coverageExclusions, resourceCache, mock(ReportPublisher.class), measureCache);
   }
 
   @Test

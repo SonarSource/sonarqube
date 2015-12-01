@@ -21,9 +21,9 @@ package org.sonar.batch.cpd;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -47,7 +47,9 @@ import org.sonar.duplications.block.Block;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;
 
-public class DefaultCpdEngine extends CpdEngine {
+import static com.google.common.collect.FluentIterable.from;
+
+public class DefaultCpdEngine extends AbstractCpdEngine {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultCpdEngine.class);
 
@@ -63,6 +65,7 @@ public class DefaultCpdEngine extends CpdEngine {
   private final BatchComponentCache batchComponentCache;
 
   public DefaultCpdEngine(CpdMappings mappings, FileSystem fs, Settings settings, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
+    super(publisher, batchComponentCache);
     this.mappings = mappings;
     this.fs = fs;
     this.settings = settings;
@@ -112,18 +115,20 @@ public class DefaultCpdEngine extends CpdEngine {
         String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
         Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
 
-        Iterable<CloneGroup> filtered;
+        List<CloneGroup> filtered;
         try {
           List<CloneGroup> duplications = executorService.submit(new JavaCpdEngine.Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
-          filtered = Iterables.filter(duplications, minimumTokensPredicate);
+          filtered = from(duplications)
+            .filter(minimumTokensPredicate)
+            .toList();
         } catch (TimeoutException e) {
-          filtered = null;
+          filtered = Collections.emptyList();
           LOG.warn("Timeout during detection of duplications for " + inputFile, e);
         } catch (InterruptedException | ExecutionException e) {
           throw new IllegalStateException("Fail during detection of duplication for " + inputFile, e);
         }
 
-        JavaCpdEngine.save(context, inputFile, filtered);
+        saveDuplications(inputFile, filtered);
       }
     } finally {
       executorService.shutdown();

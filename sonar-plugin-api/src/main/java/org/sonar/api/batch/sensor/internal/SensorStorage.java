@@ -21,7 +21,6 @@ package org.sonar.api.batch.sensor.internal;
 
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -36,8 +35,6 @@ public interface SensorStorage {
   void store(Measure measure);
 
   void store(Issue issue);
-
-  void store(Duplication duplication);
 
   void store(DefaultHighlighting highlighting);
 
