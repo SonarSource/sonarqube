@@ -5,8 +5,6 @@
  */
 package it.analysis;
 
-import org.apache.commons.io.FileUtils;
-import org.sonar.wsclient.issue.IssueClient;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
@@ -17,7 +15,6 @@ import com.sonar.orchestrator.config.FileSystem;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.version.Version;
 import it.Category3Suite;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +26,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -41,12 +39,14 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.issue.Issue;
+import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.user.UserParameters;
 import util.ItUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -71,7 +71,7 @@ public class IssuesModeTest {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", "sonar.verbose", "true");
+    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", null, "sonar.verbose", "true");
     BuildResult result = orchestrator.executeBuild(runner);
     assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
   }
@@ -122,7 +122,7 @@ public class IssuesModeTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "with-many-rules");
 
     // do it again, scanning nothing (all files should be unchanged)
-    runner = configureRunnerIssues("shared/xoo-sample",
+    runner = configureRunnerIssues("shared/xoo-sample", null,
       "sonar.verbose", "true");
     result = orchestrator.executeBuild(runner);
     assertThat(result.getLogs()).contains("Scanning only changed files");
@@ -151,7 +151,7 @@ public class IssuesModeTest {
     issueClient.doTransition(serverIssues.get(1).key(), "wontfix");
 
     // do it again, scanning nothing (all files should be unchanged)
-    runner = configureRunnerIssues("shared/xoo-sample",
+    runner = configureRunnerIssues("shared/xoo-sample", null,
       "sonar.verbose", "true");
     result = orchestrator.executeBuild(runner);
     assertThat(result.getLogs()).contains("Scanning only changed files");
@@ -197,7 +197,7 @@ public class IssuesModeTest {
   public void non_associated_mode() throws IOException {
     restoreProfile("one-issue-per-line.xml");
     setDefaultQualityProfile("xoo", "one-issue-per-line");
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample-non-associated");
+    SonarRunner runner = configureRunnerIssues("shared/xoo-sample-non-associated", null);
     BuildResult result = orchestrator.executeBuild(runner);
 
     assertThat(result.getLogs()).contains("Local analysis");
@@ -220,7 +220,7 @@ public class IssuesModeTest {
     BuildResult result = orchestrator.executeBuild(runner);
     assertThat(getResource("sample:my sources/main/xoo/sample/My Sample.xoo")).isNotNull();
 
-    runner = configureRunnerIssues("analysis/xoo-sample-with-spaces/v2");
+    runner = configureRunnerIssues("analysis/xoo-sample-with-spaces/v2", null);
     result = orchestrator.executeBuild(runner);
     // Analysis is not persisted in database
     Resource project = getResource("com.sonarsource.it.samples:simple-sample");
@@ -246,7 +246,7 @@ public class IssuesModeTest {
     assertThat(getResource("sample:src/main/xoo/sample/ClassAdded.xoo")).isNull();
 
     // Re-add ClassAdded.xoo in local workspace
-    runner = configureRunnerIssues("shared/xoo-history-v2");
+    runner = configureRunnerIssues("shared/xoo-history-v2", null);
     result = orchestrator.executeBuild(runner);
 
     assertThat(getResource("sample:src/main/xoo/sample/ClassAdded.xoo")).isNull();
@@ -257,7 +257,7 @@ public class IssuesModeTest {
   @Test
   public void should_fail_if_plugin_access_secured_properties() throws IOException {
     // Test access from task (ie BatchSettings)
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample",
+    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", null,
       "accessSecuredFromTask", "true");
     BuildResult result = orchestrator.executeBuildQuietly(runner);
 
@@ -265,7 +265,7 @@ public class IssuesModeTest {
       + "The SonarQube plugin which requires this property must be deactivated in issues mode.");
 
     // Test access from sensor (ie ModuleSettings)
-    runner = configureRunnerIssues("shared/xoo-sample",
+    runner = configureRunnerIssues("shared/xoo-sample", null,
       "accessSecuredFromSensor", "true");
     result = orchestrator.executeBuildQuietly(runner);
 
@@ -275,74 +275,31 @@ public class IssuesModeTest {
 
   // SONAR-4602
   @Test
-  public void no_issues_mode_cache_after_new_analysis() throws Exception {
-    restoreProfile("one-issue-per-line.xml");
-    restoreProfile("empty.xml");
-    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+  public void no_issues_mode_cache_by_default() throws Exception {
+    File homeDir = runFirstAnalysisAndFlagIssueAsWontFix();
 
-    // First run (publish mode)
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
-    SonarRunner runner = configureRunner("shared/xoo-sample");
-    orchestrator.executeBuild(runner);
-
-    // First run issues mode
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    runner = configureRunnerIssues("shared/xoo-sample",
-      "sonar.scanAllFiles", "true");
+    // Second issues mode using same cache dir but cache disabled by default
+    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", homeDir);
     BuildResult result = orchestrator.executeBuild(runner);
 
-    // As many new issue as lines
-    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
-
-    // Second run (publish mode) should invalidate cache
-    runner = configureRunner("shared/xoo-sample");
-    orchestrator.executeBuild(runner);
-
-    // Second run issues mode
-    runner = configureRunnerIssues("shared/xoo-sample",
-      "sonar.report.export.path", "sonar-report.json",
-      "sonar.scanAllFiles", "true");
-    result = orchestrator.executeBuild(runner);
-
-    // No new issue this time
-    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(0);
+    // False positive is not returned
+    assertThat(ItUtils.countIssuesInJsonReport(result, false)).isEqualTo(16);
   }
 
-  // SONAR-4602
+  // SONAR-7100
   @Test
-  public void no_issues_mode_cache_after_profile_change() throws Exception {
-    restoreProfile("one-issue-per-line-empty.xml");
-    orchestrator.getServer().provisionProject("sample", "xoo-sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+  public void enable_issues_cache() throws Exception {
+    File homeDir = runFirstAnalysisAndFlagIssueAsWontFix();
 
-    // First run (publish mode)
-    SonarRunner runner = configureRunner("shared/xoo-sample");
-    orchestrator.executeBuild(runner);
-
-    // First issues mode
-    runner = configureRunnerIssues("shared/xoo-sample",
-      "sonar.scanAllFiles", "true");
+    // Second issues mode using same cache dir and enable cache
+    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", homeDir, "sonar.useWsCache", "true");
     BuildResult result = orchestrator.executeBuild(runner);
 
-    // No new issues
-    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(0);
-
-    // Modification of QP should invalidate cache
-    restoreProfile("/one-issue-per-line.xml");
-
-    // Second issues mode
-    runner = configureRunnerIssues("shared/xoo-sample",
-      "sonar.report.export.path", "sonar-report.json",
-      "sonar.scanAllFiles", "true");
-    result = orchestrator.executeBuild(runner);
-
-    // As many new issue as lines
-    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
+    // False positive is still visible since we are using cached issues
+    assertThat(ItUtils.countIssuesInJsonReport(result, false)).isEqualTo(17);
   }
 
-  // SONAR-4602
-  @Test
-  public void no_issues_mode_cache_after_issue_change() throws Exception {
+  private File runFirstAnalysisAndFlagIssueAsWontFix() throws IOException {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
@@ -352,7 +309,8 @@ public class IssuesModeTest {
     orchestrator.executeBuild(runner);
 
     // First issues mode
-    runner = configureRunnerIssues("shared/xoo-sample");
+    File homeDir = temp.newFolder();
+    runner = configureRunnerIssues("shared/xoo-sample", homeDir);
     BuildResult result = orchestrator.executeBuild(runner);
 
     // 17 issues
@@ -362,13 +320,7 @@ public class IssuesModeTest {
     JSONObject obj = ItUtils.getJSONReport(result);
     String key = ((JSONObject) ((JSONArray) obj.get("issues")).get(0)).get("key").toString();
     orchestrator.getServer().adminWsClient().issueClient().doTransition(key, "falsepositive");
-
-    // Second issues mode
-    runner = configureRunnerIssues("shared/xoo-sample");
-    result = orchestrator.executeBuild(runner);
-
-    // False positive is not returned
-    assertThat(ItUtils.countIssuesInJsonReport(result, false)).isEqualTo(16);
+    return homeDir;
   }
 
   // SONAR-6522
@@ -395,7 +347,7 @@ public class IssuesModeTest {
     client.issueClient().assign(issue.key(), "julien");
 
     // Issues
-    runner = configureRunnerIssues("shared/xoo-sample");
+    runner = configureRunnerIssues("shared/xoo-sample", null);
     BuildResult result = orchestrator.executeBuild(runner);
 
     JSONObject obj = ItUtils.getJSONReport(result);
@@ -433,18 +385,19 @@ public class IssuesModeTest {
     runConcurrentIssues();
   }
 
-  private void runConcurrentIssues() throws InterruptedException, ExecutionException {
+  private void runConcurrentIssues() throws Exception {
     // Install sonar-runner in advance to avoid concurrent unzip issues
     FileSystem fileSystem = orchestrator.getConfiguration().fileSystem();
     new SonarRunnerInstaller(fileSystem).install(Version.create(SonarRunner.DEFAULT_RUNNER_VERSION), fileSystem.workspace());
     final int nThreads = 3;
     ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
     List<Callable<BuildResult>> tasks = new ArrayList<>();
+    final File homeDir = temp.newFolder();
     for (int i = 0; i < nThreads; i++) {
       tasks.add(new Callable<BuildResult>() {
 
         public BuildResult call() throws Exception {
-          SonarRunner runner = configureRunnerIssues("shared/xoo-sample");
+          SonarRunner runner = configureRunnerIssues("shared/xoo-sample", homeDir);
           return orchestrator.executeBuild(runner);
         }
       });
@@ -475,12 +428,16 @@ public class IssuesModeTest {
     return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(key, "lines"));
   }
 
-  private SonarRunner configureRunnerIssues(String projectDir, String... props) throws IOException {
+  private SonarRunner configureRunnerIssues(String projectDir, @Nullable File homeDir, String... props) throws IOException {
     SonarRunner runner = SonarRunner.create(ItUtils.projectDir(projectDir),
       "sonar.working.directory", temp.newFolder().getAbsolutePath(),
       "sonar.analysis.mode", "issues",
-      "sonar.report.export.path", "sonar-report.json",
-      "sonar.userHome", temp.newFolder().getAbsolutePath());
+      "sonar.report.export.path", "sonar-report.json");
+    if (homeDir != null) {
+      runner.setProperty("sonar.userHome", homeDir.getAbsolutePath());
+    } else {
+      runner.setProperty("sonar.userHome", temp.newFolder().getAbsolutePath());
+    }
     runner.setProperties(props);
     return runner;
   }
