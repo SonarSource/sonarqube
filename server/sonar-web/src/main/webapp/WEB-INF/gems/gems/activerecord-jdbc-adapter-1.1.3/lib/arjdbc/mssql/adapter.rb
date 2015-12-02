@@ -79,9 +79,11 @@ module ::ArJdbc
       #
       # See: http://msdn.microsoft.com/en-us/library/ms186939.aspx
       if type.to_s == 'string' and limit == 1073741823 and sqlserver_version != "2000"
-        'NVARCHAR(MAX)'
+        'NVARCHAR(MAX) COLLATE Latin1_General_CS_AS'
       elsif %w( boolean date datetime ).include?(type.to_s)
         super(type)   # cannot specify limit/precision/scale with these types
+      elsif type.to_s == 'string'
+        super + ' COLLATE Latin1_General_CS_AS'
       else
         super
       end

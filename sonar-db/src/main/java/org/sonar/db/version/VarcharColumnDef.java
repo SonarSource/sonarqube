@@ -50,7 +50,7 @@ public class VarcharColumnDef extends AbstractColumnDef {
   @Override
   public String generateSqlType(Dialect dialect) {
     if (MsSql.ID.equals(dialect.getId())) {
-      return format("NVARCHAR (%d)", columnSize);
+      return format("NVARCHAR (%d) COLLATE %s", columnSize, MsSql.COLLATION);
     }
     return format("VARCHAR (%d)", columnSize);
   }

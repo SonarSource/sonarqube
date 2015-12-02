@@ -71,7 +71,7 @@ public class VarcharColumnDefTest {
     assertThat(def.generateSqlType(new H2())).isEqualTo("VARCHAR (10)");
     assertThat(def.generateSqlType(new PostgreSql())).isEqualTo("VARCHAR (10)");
     assertThat(def.generateSqlType(new MySql())).isEqualTo("VARCHAR (10)");
-    assertThat(def.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (10)");
+    assertThat(def.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (10) COLLATE Latin1_General_CS_AS");
     assertThat(def.generateSqlType(new Oracle())).isEqualTo("VARCHAR (10)");
   }
 

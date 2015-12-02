@@ -64,7 +64,7 @@ public class AddColumnsBuilderTest {
   @Test
   public void add_columns_on_mssql() {
     assertThat(createSampleBuilder(new MsSql()).build())
-      .isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name NVARCHAR (10) NOT NULL");
+      .isEqualTo("ALTER TABLE issues ADD date_in_ms BIGINT NULL, name NVARCHAR (10) COLLATE Latin1_General_CS_AS NOT NULL");
   }
 
   @Test
