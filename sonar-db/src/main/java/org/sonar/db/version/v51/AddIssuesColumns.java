@@ -26,7 +26,7 @@ import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
 import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBuilder;
-import static org.sonar.db.version.StringColumnDef.newStringColumnDefBuilder;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 /**
  * Add the following columns to the issues table :
@@ -56,9 +56,9 @@ public class AddIssuesColumns extends DdlChange {
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_creation_date_ms").setIsNullable(true).build())
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_update_date_ms").setIsNullable(true).build())
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("issue_close_date_ms").setIsNullable(true).build())
-      .addColumn(newStringColumnDefBuilder().setColumnName("tags").setLimit(4000).setIsNullable(true).build())
-      .addColumn(newStringColumnDefBuilder().setColumnName("component_uuid").setLimit(50).setIsNullable(true).build())
-      .addColumn(newStringColumnDefBuilder().setColumnName("project_uuid").setLimit(50).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("tags").setLimit(4000).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(50).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("project_uuid").setLimit(50).setIsNullable(true).build())
       .build();
   }
 

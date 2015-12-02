@@ -25,7 +25,7 @@ import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
-import static org.sonar.db.version.StringColumnDef.newStringColumnDefBuilder;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 /**
  * Add the following column to the manual_measures table :
@@ -44,7 +44,7 @@ public class AddManualMeasuresComponentUuidColumn extends DdlChange {
 
   private String generateSql() {
     return new AddColumnsBuilder(getDatabase().getDialect(), "manual_measures")
-      .addColumn(newStringColumnDefBuilder().setColumnName("component_uuid").setLimit(50).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(50).setIsNullable(true).build())
       .build();
   }
 }

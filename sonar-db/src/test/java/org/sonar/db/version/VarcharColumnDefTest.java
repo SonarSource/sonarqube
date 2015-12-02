@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.db.version;
 
 import org.junit.Rule;
@@ -31,14 +30,14 @@ import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StringColumnDefTest {
+public class VarcharColumnDefTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void build_string_column_def() throws Exception {
-    StringColumnDef def = new StringColumnDef.Builder()
+    VarcharColumnDef def = new VarcharColumnDef.Builder()
       .setColumnName("issues")
       .setLimit(10)
       .setIsNullable(true)
@@ -51,7 +50,7 @@ public class StringColumnDefTest {
 
   @Test
   public void generate_sql_type() throws Exception {
-    StringColumnDef def = new StringColumnDef.Builder()
+    VarcharColumnDef def = new VarcharColumnDef.Builder()
       .setColumnName("issues")
       .setLimit(10)
       .setIsNullable(true)
@@ -69,7 +68,7 @@ public class StringColumnDefTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
-    new StringColumnDef.Builder()
+    new VarcharColumnDef.Builder()
       .setColumnName(null);
   }
 
@@ -78,7 +77,7 @@ public class StringColumnDefTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Column name cannot be null");
 
-    new StringColumnDef.Builder()
+    new VarcharColumnDef.Builder()
       .build();
   }
 
@@ -87,7 +86,7 @@ public class StringColumnDefTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("Limit cannot be null");
 
-    new StringColumnDef.Builder()
+    new VarcharColumnDef.Builder()
       .setColumnName("issues")
       .build();
   }

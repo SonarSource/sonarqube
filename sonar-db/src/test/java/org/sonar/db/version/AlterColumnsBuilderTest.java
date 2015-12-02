@@ -32,14 +32,13 @@ import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.version.DecimalColumnDef.newDecimalColumnDefBuilder;
-import static org.sonar.db.version.StringColumnDef.newStringColumnDefBuilder;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AlterColumnsBuilderTest {
 
+  static final String TABLE_NAME = "issues";
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  static final String TABLE_NAME = "issues";
 
   @Test
   public void update_columns_on_h2() {
@@ -88,7 +87,7 @@ public class AlterColumnsBuilderTest {
           .setScale(20)
           .build())
       .updateColumn(
-        newStringColumnDefBuilder()
+        newVarcharColumnDefBuilder()
           .setColumnName("name")
           .setLimit(10)
           .build());

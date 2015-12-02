@@ -28,15 +28,18 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
 
-public class StringColumnDef extends AbstractColumnDef {
+/**
+ * Used to define VARCHAR column
+ */
+public class VarcharColumnDef extends AbstractColumnDef {
   private final int columnSize;
 
-  private StringColumnDef(Builder builder) {
+  private VarcharColumnDef(Builder builder) {
     super(builder.columnName, builder.isNullable);
     this.columnSize = builder.columnSize;
   }
 
-  public static Builder newStringColumnDefBuilder() {
+  public static Builder newVarcharColumnDefBuilder() {
     return new Builder();
   }
 
@@ -76,10 +79,10 @@ public class StringColumnDef extends AbstractColumnDef {
       return this;
     }
 
-    public StringColumnDef build() {
+    public VarcharColumnDef build() {
       validateColumnName(columnName);
       requireNonNull(columnSize, "Limit cannot be null");
-      return new StringColumnDef(this);
+      return new VarcharColumnDef(this);
     }
   }
 

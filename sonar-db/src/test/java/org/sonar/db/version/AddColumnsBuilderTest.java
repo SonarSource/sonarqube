@@ -33,10 +33,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AddColumnsBuilderTest {
 
+  static final String TABLE_NAME = "issues";
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  static final String TABLE_NAME = "issues";
 
   @Test
   public void add_columns_on_h2() {
@@ -79,6 +78,6 @@ public class AddColumnsBuilderTest {
   private AddColumnsBuilder createSampleBuilder(Dialect dialect) {
     return new AddColumnsBuilder(dialect, TABLE_NAME)
       .addColumn(new BigDecimalColumnDef.Builder().setColumnName("date_in_ms").setIsNullable(true).build())
-      .addColumn(new StringColumnDef.Builder().setColumnName("name").setLimit(10).setIsNullable(false).build());
+      .addColumn(new VarcharColumnDef.Builder().setColumnName("name").setLimit(10).setIsNullable(false).build());
   }
 }
