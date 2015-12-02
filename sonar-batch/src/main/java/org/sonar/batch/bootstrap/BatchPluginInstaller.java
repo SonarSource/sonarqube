@@ -42,7 +42,6 @@ import org.sonar.core.platform.RemotePlugin;
 import org.sonar.core.platform.RemotePluginFile;
 import org.sonar.home.cache.FileCache;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 
 import static java.lang.String.format;
@@ -59,9 +58,9 @@ public class BatchPluginInstaller implements PluginInstaller {
   private final WSLoader wsLoader;
   private final FileCache fileCache;
   private final BatchPluginPredicate pluginPredicate;
-  private final WsClient wsClient;
+  private final BatchWsClient wsClient;
 
-  public BatchPluginInstaller(WSLoader wsLoader, WsClient wsClient, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
+  public BatchPluginInstaller(WSLoader wsLoader, BatchWsClient wsClient, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
     this.wsLoader = wsLoader;
     this.fileCache = fileCache;
     this.pluginPredicate = pluginPredicate;
@@ -151,8 +150,8 @@ public class BatchPluginInstaller implements PluginInstaller {
         LOG.info("Download {}", filename);
       }
 
-      WsResponse response = wsClient.wsConnector().call(new GetRequest(url));
-      try (InputStream stream = response.getContentStream()) {
+      WsResponse response = wsClient.call(new GetRequest(url));
+      try (InputStream stream = response.contentStream()) {
         FileUtils.copyInputStreamToFile(stream, toFile);
       }
     }

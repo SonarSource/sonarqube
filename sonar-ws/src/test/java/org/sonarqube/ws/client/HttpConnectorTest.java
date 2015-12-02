@@ -19,14 +19,10 @@
  */
 package org.sonarqube.ws.client;
 
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.Response;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -70,7 +66,7 @@ public class HttpConnectorTest {
 
     // verify response
     assertThat(response.hasContent()).isTrue();
-    assertThat(response.getContent()).isEqualTo("hello, world!");
+    assertThat(response.content()).isEqualTo("hello, world!");
 
     // verify the request received by server
     RecordedRequest recordedRequest = server.takeRequest();
@@ -196,7 +192,7 @@ public class HttpConnectorTest {
 
     // verify response
     assertThat(response.hasContent()).isTrue();
-    assertThat(response.getContent()).isEqualTo("hello, world!");
+    assertThat(response.content()).isEqualTo("hello, world!");
 
     // verify the request received by server
     RecordedRequest recordedRequest = server.takeRequest();
@@ -234,34 +230,8 @@ public class HttpConnectorTest {
     PostRequest request = new PostRequest("api/issues/search");
     HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build();
 
-    try {
-      underTest.call(request);
-      fail();
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(404);
-
-    }
-  }
-
-  @Test
-  public void intercept_request_and_response() {
-    final AtomicBoolean called = new AtomicBoolean(false);
-    Interceptor interceptor = new Interceptor() {
-      @Override
-      public Response intercept(Chain chain) throws IOException {
-        called.set(true);
-        return chain.proceed(chain.request());
-      }
-    };
-
-    answerHelloWorld();
-    HttpConnector underTest = new HttpConnector.Builder()
-      .url(serverUrl)
-      .interceptor(interceptor)
-      .build();
-    underTest.call(new GetRequest(""));
-
-    assertThat(called.get()).isTrue();
+    WsResponse wsResponse = underTest.call(request);
+    assertThat(wsResponse.code()).isEqualTo(404);
   }
 
   @Test
@@ -284,11 +254,11 @@ public class HttpConnectorTest {
 
     GetRequest request = new GetRequest("api/issues/search");
     answerHelloWorld();
-    assertThat(underTest.call(request).getRequestUrl()).isEqualTo(serverUrl + "sonar/api/issues/search");
+    assertThat(underTest.call(request).requestUrl()).isEqualTo(serverUrl + "sonar/api/issues/search");
 
     request = new GetRequest("/api/issues/search");
     answerHelloWorld();
-    assertThat(underTest.call(request).getRequestUrl()).isEqualTo(serverUrl + "sonar/api/issues/search");
+    assertThat(underTest.call(request).requestUrl()).isEqualTo(serverUrl + "sonar/api/issues/search");
   }
 
   private void answerHelloWorld() {

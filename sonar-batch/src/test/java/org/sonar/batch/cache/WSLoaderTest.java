@@ -28,11 +28,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.MockWsResponse;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsRequest;
 
@@ -55,7 +55,7 @@ public class WSLoaderTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  WsClient ws = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  BatchWsClient ws = mock(BatchWsClient.class, Mockito.RETURNS_DEEP_STUBS);
   PersistentCache cache = mock(PersistentCache.class);
 
   @Test
@@ -88,7 +88,7 @@ public class WSLoaderTest {
   public void put_stream_in_cache() throws IOException {
     InputStream input = IOUtils.toInputStream("is");
 
-    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(input));
+    when(ws.call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(input));
     when(cache.getStream(ID)).thenReturn(input);
 
     // SERVER_FIRST -> load from server then put to cache
@@ -96,25 +96,24 @@ public class WSLoaderTest {
     WSLoaderResult<InputStream> result = underTest.loadStream(ID);
     assertThat(result.get()).isEqualTo(input);
 
-    WsConnector wsConnector = ws.wsConnector();
-    InOrder inOrder = inOrder(wsConnector, cache);
-    inOrder.verify(wsConnector).call(any(WsRequest.class));
+    InOrder inOrder = inOrder(ws, cache);
+    inOrder.verify(ws).call(any(WsRequest.class));
     inOrder.verify(cache).put(eq(ID), any(InputStream.class));
     inOrder.verify(cache).getStream(ID);
-    verifyNoMoreInteractions(cache, wsConnector);
+    verifyNoMoreInteractions(cache, ws);
   }
 
   @Test
   public void test_cache_strategy_fallback() throws IOException {
     turnCacheEmpty();
-    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
+    when(ws.call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
     WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, ws);
 
     assertResult(loader.loadString(ID), serverValue, false);
 
-    InOrder inOrder = inOrder(ws.wsConnector(), cache);
+    InOrder inOrder = inOrder(ws, cache);
     inOrder.verify(cache).getString(ID);
-    inOrder.verify(ws.wsConnector()).call(any(WsRequest.class));
+    inOrder.verify(ws).call(any(WsRequest.class));
   }
 
   @Test
@@ -125,14 +124,14 @@ public class WSLoaderTest {
 
     assertResult(loader.loadString(ID), cacheValue, true);
 
-    InOrder inOrder = inOrder(ws.wsConnector(), cache);
-    inOrder.verify(ws.wsConnector()).call(any(WsRequest.class));
+    InOrder inOrder = inOrder(ws, cache);
+    inOrder.verify(ws).call(any(WsRequest.class));
     inOrder.verify(cache).getString(ID);
   }
 
   @Test
   public void test_put_cache() throws IOException {
-    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
+    when(ws.call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
     WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
     loader.loadString(ID);
     verify(cache).put(ID, serverValue.getBytes());
@@ -171,17 +170,14 @@ public class WSLoaderTest {
 
   @Test
   public void test_throw_http_exceptions() {
-    HttpException httpException = new HttpException("url", 500, "Internal Error");
-    IllegalStateException wrapperException = new IllegalStateException(httpException);
-
-    when(ws.wsConnector().call(any(WsRequest.class))).thenThrow(wrapperException);
+    when(ws.call(any(WsRequest.class))).thenThrow(new HttpException("url", 500));
 
     WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
 
     try {
       loader.loadString(ID);
       fail("IllegalStateException expected");
-    } catch (IllegalStateException e) {
+    } catch (HttpException e) {
       // cache should not be used
       verifyNoMoreInteractions(cache);
     }
@@ -223,7 +219,7 @@ public class WSLoaderTest {
 
   @Test
   public void test_server_strategy() throws IOException {
-    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
+    when(ws.call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
     WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
     assertResult(loader.loadString(ID), serverValue, false);
 
@@ -241,7 +237,7 @@ public class WSLoaderTest {
 
   @Test
   public void test_string() {
-    when(ws.wsConnector().call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
+    when(ws.call(any(WsRequest.class))).thenReturn(new MockWsResponse().setContent(serverValue));
     WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
     assertResult(loader.loadString(ID), serverValue, false);
   }
@@ -251,7 +247,7 @@ public class WSLoaderTest {
   }
 
   private void assertUsedServer(int times) {
-    verify(ws.wsConnector(), times(times)).call(any(WsRequest.class));
+    verify(ws, times(times)).call(any(WsRequest.class));
   }
 
   private void assertResult(WSLoaderResult<String> result, String expected, boolean fromCache) {
@@ -261,7 +257,7 @@ public class WSLoaderTest {
   }
 
   private void turnServerOffline() {
-    when(ws.wsConnector().call(any(WsRequest.class))).thenThrow(new IllegalStateException());
+    when(ws.call(any(WsRequest.class))).thenThrow(new IllegalStateException());
   }
 
   private void turnCacheEmpty() throws IOException {

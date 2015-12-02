@@ -21,15 +21,15 @@ package org.sonar.batch.analysis;
 
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
-import org.sonarqube.ws.client.WsClient;
 
 public class AnalysisWSLoaderProvider extends ProviderAdapter {
   private WSLoader wsLoader;
 
-  public WSLoader provide(AnalysisMode mode, PersistentCache cache, WsClient client) {
+  public WSLoader provide(AnalysisMode mode, PersistentCache cache, BatchWsClient client) {
     if (wsLoader == null) {
       // recreate cache directory if needed for this analysis
       cache.reconfigure();

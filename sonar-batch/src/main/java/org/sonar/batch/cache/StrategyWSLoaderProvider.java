@@ -20,9 +20,9 @@
 package org.sonar.batch.cache;
 
 import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
-import org.sonarqube.ws.client.WsClient;
 
 public class StrategyWSLoaderProvider extends ProviderAdapter {
   private final LoadStrategy strategy;
@@ -32,7 +32,7 @@ public class StrategyWSLoaderProvider extends ProviderAdapter {
     this.strategy = strategy;
   }
 
-  public WSLoader provide(PersistentCache cache, WsClient client) {
+  public WSLoader provide(PersistentCache cache, BatchWsClient client) {
     if (wsLoader == null) {
       wsLoader = new WSLoader(strategy, cache, client);
     }

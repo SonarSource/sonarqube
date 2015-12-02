@@ -35,9 +35,9 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.test.JsonAssert;
-import org.sonarqube.ws.client.WsClient;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +54,7 @@ public class ReportPublisherTest {
 
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
   Settings settings = new Settings();
-  WsClient wsClient = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  BatchWsClient wsClient = mock(BatchWsClient.class, Mockito.RETURNS_DEEP_STUBS);
   ImmutableProjectReactor reactor = mock(ImmutableProjectReactor.class);
   ProjectDefinition root;
   AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
@@ -63,7 +63,8 @@ public class ReportPublisherTest {
   public void setUp() {
     root = ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot());
     when(reactor.getRoot()).thenReturn(root);
-    when(wsClient.wsConnector().baseUrl()).thenReturn("https://localhost");
+    when(wsClient.baseUrl()).thenReturn("https://localhost/");
+    when(wsClient.publicBaseUrl()).thenReturn("https://public/");
   }
 
   @Test
@@ -73,39 +74,18 @@ public class ReportPublisherTest {
     underTest.logSuccess("TASK-123");
 
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://localhost/dashboard/index/struts")
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://public/dashboard/index/struts")
       .contains("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report")
-      .contains("More about the report processing at https://localhost/api/ce/task?id=TASK-123");
+      .contains("More about the report processing at https://public/api/ce/task?id=TASK-123");
 
     File detailsFile = new File(temp.getRoot(), "analysis-details.json");
     JsonAssert.assertJson(readFileToString(detailsFile)).isSimilarTo("{" +
       "\"projectKey\": \"struts\"," +
-      "\"dashboardUrl\": \"https://localhost/dashboard/index/struts\"," +
+      "\"dashboardUrl\": \"https://public/dashboard/index/struts\"," +
       "\"ceTaskId\": \"TASK-123\"," +
-      "\"ceTaskUrl\": \"https://localhost/api/ce/task?id=TASK-123\"" +
+      "\"ceTaskUrl\": \"https://public/api/ce/task?id=TASK-123\"" +
       "}"
       );
-  }
-
-  @Test
-  public void log_public_url_if_defined() throws IOException {
-    settings.setProperty(CoreProperties.SERVER_BASE_URL, "https://publicserver/sonarqube");
-    ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
-
-    underTest.logSuccess("TASK-123");
-
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard/index/struts")
-      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
-
-    File detailsFile = new File(temp.getRoot(), "analysis-details.json");
-    JsonAssert.assertJson(readFileToString(detailsFile)).isSimilarTo("{" +
-      "\"projectKey\": \"struts\"," +
-      "\"dashboardUrl\": \"https://publicserver/sonarqube/dashboard/index/struts\"," +
-      "\"ceTaskId\": \"TASK-123\"," +
-      "\"ceTaskUrl\": \"https://publicserver/sonarqube/api/ce/task?id=TASK-123\"" +
-      "}"
-    );
   }
 
   @Test

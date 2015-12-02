@@ -20,10 +20,12 @@
 package org.sonar.batch.report;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 import com.squareup.okhttp.HttpUrl;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -42,11 +44,13 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.ce.SubmitWsRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsResponse;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
@@ -60,7 +64,7 @@ public class ReportPublisher implements Startable {
   public static final String METADATA_DUMP_FILENAME = "analysis-details.json";
 
   private final Settings settings;
-  private final WsClient wsClient;
+  private final BatchWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;
   private final ImmutableProjectReactor projectReactor;
   private final DefaultAnalysisMode analysisMode;
@@ -70,7 +74,7 @@ public class ReportPublisher implements Startable {
   private File reportDir;
   private BatchReportWriter writer;
 
-  public ReportPublisher(Settings settings, WsClient wsClient, AnalysisContextReportPublisher contextPublisher,
+  public ReportPublisher(Settings settings, BatchWsClient wsClient, AnalysisContextReportPublisher contextPublisher,
     ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.settings = settings;
     this.wsClient = wsClient;
@@ -145,15 +149,22 @@ public class ReportPublisher implements Startable {
     LOG.debug("Upload report");
     long startTime = System.currentTimeMillis();
     ProjectDefinition projectDefinition = projectReactor.getRoot();
-    SubmitWsRequest submitRequest = new SubmitWsRequest();
-    submitRequest.setProjectKey(projectDefinition.getKey());
-    submitRequest.setProjectName(projectDefinition.getName());
-    submitRequest.setProjectBranch(projectDefinition.getBranch());
-    submitRequest.setReport(report);
-    WsCe.SubmitResponse submitResponse = wsClient.computeEngine().submit(submitRequest);
-    long stopTime = System.currentTimeMillis();
-    LOG.info("Analysis report uploaded in " + (stopTime - startTime) + "ms");
-    return submitResponse.getTaskId();
+    PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
+    PostRequest post = new PostRequest("api/ce/submit")
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam("projectKey", projectDefinition.getKey())
+      .setParam("projectName", projectDefinition.getName())
+      .setParam("projectBranch", projectDefinition.getBranch())
+      .setPart("report", filePart);
+    WsResponse response = wsClient.call(post).failIfNotSuccessful();
+    try (InputStream protobuf = response.contentStream()) {
+      return WsCe.SubmitResponse.parser().parseFrom(protobuf).getTaskId();
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
+    } finally {
+      long stopTime = System.currentTimeMillis();
+      LOG.info("Analysis report uploaded in " + (stopTime - startTime) + "ms");
+    }
   }
 
   @VisibleForTesting
@@ -165,13 +176,13 @@ public class ReportPublisher implements Startable {
       String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
       metadata.put("projectKey", effectiveKey);
 
-      URL dashboardUrl = HttpUrl.parse(publicUrl()).newBuilder()
+      URL dashboardUrl = HttpUrl.parse(wsClient.publicBaseUrl()).newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
         .build()
         .url();
       metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
 
-      URL taskUrl = HttpUrl.parse(publicUrl()).newBuilder()
+      URL taskUrl = HttpUrl.parse(wsClient.publicBaseUrl()).newBuilder()
         .addPathSegment("api").addPathSegment("ce").addPathSegment("task")
         .addQueryParameter("id", taskId)
         .build()
@@ -201,13 +212,5 @@ public class ReportPublisher implements Startable {
     } catch (IOException e) {
       throw new IllegalStateException("Unable to dump " + file, e);
     }
-  }
-
-  /**
-   * The public URL is optionally configured on server. If not, then the regular URL is returned.
-   * See https://jira.sonarsource.com/browse/SONAR-4239
-   */
-  private String publicUrl() {
-    return defaultIfBlank(settings.getString(CoreProperties.SERVER_BASE_URL), wsClient.wsConnector().baseUrl());
   }
 }

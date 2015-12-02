@@ -25,20 +25,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Objects.requireNonNull;
 
-public class MockWsResponse implements WsResponse {
+public class MockWsResponse extends BaseResponse {
 
+  private int code = HttpURLConnection.HTTP_OK;
   private String requestUrl;
   private byte[] content;
   private String contentType;
 
   @Override
-  public String getContentType() {
+  public int code() {
+    return code;
+  }
+
+  public MockWsResponse setCode(int code) {
+    this.code = code;
+    return this;
+  }
+
+  @Override
+  public String contentType() {
     requireNonNull(contentType);
     return contentType;
   }
@@ -77,25 +89,25 @@ public class MockWsResponse implements WsResponse {
   }
 
   @Override
-  public String getRequestUrl() {
+  public String requestUrl() {
     requireNonNull(requestUrl);
     return requestUrl;
   }
 
   @Override
-  public InputStream getContentStream() {
+  public InputStream contentStream() {
     requireNonNull(content);
     return new ByteArrayInputStream(content);
   }
 
   @Override
-  public Reader getContentReader() {
+  public Reader contentReader() {
     requireNonNull(content);
     return new StringReader(new String(content, StandardCharsets.UTF_8));
   }
 
   @Override
-  public String getContent() {
+  public String content() {
     requireNonNull(content);
     return new String(content, StandardCharsets.UTF_8);
   }

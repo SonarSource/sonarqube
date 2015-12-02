@@ -27,8 +27,8 @@ public class HttpException extends RuntimeException {
   private final String url;
   private final int code;
 
-  public HttpException(String url, int code, String message) {
-    super(String.format("Error %d on %s : %s", code, url, message));
+  public HttpException(String url, int code) {
+    super(String.format("Error %d on %s", code, url));
     this.url = url;
     this.code = code;
   }

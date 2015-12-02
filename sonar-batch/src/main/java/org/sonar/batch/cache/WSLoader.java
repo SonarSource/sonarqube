@@ -26,12 +26,13 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.home.cache.PersistentCache;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
-import org.sonarqube.ws.client.WsClient;
 
 import static org.sonar.batch.cache.WSLoader.ServerStatus.ACCESSIBLE;
 import static org.sonar.batch.cache.WSLoader.ServerStatus.NOT_ACCESSIBLE;
@@ -50,7 +51,7 @@ public class WSLoader {
   }
 
   private final LoadStrategy defautLoadStrategy;
-  private final WsClient client;
+  private final BatchWsClient wsClient;
   private final PersistentCache cache;
   private ServerStatus serverStatus;
 
@@ -58,7 +59,7 @@ public class WSLoader {
     @Override
     public String load(String id) throws IOException {
       GetRequest getRequest = new GetRequest(id);
-      try (Reader reader = client.wsConnector().call(getRequest).getContentReader()) {
+      try (Reader reader = wsClient.call(getRequest).contentReader()) {
         String str = IOUtils.toString(reader);
         try {
           cache.put(id, str.getBytes(StandardCharsets.UTF_8));
@@ -81,7 +82,7 @@ public class WSLoader {
     @Override
     public InputStream load(String id) throws IOException {
       GetRequest getRequest = new GetRequest(id);
-      try (InputStream is = client.wsConnector().call(getRequest).getContentStream()) {
+      try (InputStream is = wsClient.call(getRequest).contentStream()) {
         try {
           cache.put(id, is);
         } catch (IOException e) {
@@ -111,11 +112,11 @@ public class WSLoader {
     }
   }
 
-  public WSLoader(LoadStrategy strategy, PersistentCache cache, WsClient client) {
+  public WSLoader(LoadStrategy strategy, PersistentCache cache, BatchWsClient wsClient) {
     this.defautLoadStrategy = strategy;
     this.serverStatus = UNKNOWN;
     this.cache = cache;
-    this.client = client;
+    this.wsClient = wsClient;
   }
 
   @Nonnull
@@ -193,7 +194,7 @@ public class WSLoader {
           throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
         }
       }
-      throw new IllegalStateException("Server is not available: " + client.wsConnector().baseUrl(), serverNotAvailable.getCause());
+      throw new IllegalStateException("Server is not available: " + wsClient.baseUrl(), serverNotAvailable.getCause());
     }
   }
 
@@ -201,7 +202,6 @@ public class WSLoader {
     T load(String id) throws IOException;
   }
 
-  @Nonnull
   private <T> WSLoaderResult<T> loadFromCache(String id, DataLoader<T> loader) throws NotAvailableException {
     T result;
 
@@ -217,7 +217,6 @@ public class WSLoader {
     return new WSLoaderResult<>(result, true);
   }
 
-  @Nonnull
   private <T> WSLoaderResult<T> loadFromServer(String id, DataLoader<T> loader) throws NotAvailableException {
     if (isOffline()) {
       throw new NotAvailableException("Server not available");
@@ -226,11 +225,10 @@ public class WSLoader {
       T t = loader.load(id);
       switchToOnline();
       return new WSLoaderResult<>(t, false);
+    } catch (HttpException | MessageException e) {
+      // fail fast if it could connect but there was a application-level error
+      throw e;
     } catch (IllegalStateException e) {
-      if (e.getCause() instanceof HttpException) {
-        // fail fast if it could connect but there was a application-level error
-        throw e;
-      }
       switchToOffline();
       throw new NotAvailableException(e);
     } catch (Exception e) {

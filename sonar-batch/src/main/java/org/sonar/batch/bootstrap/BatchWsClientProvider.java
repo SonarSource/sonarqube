@@ -25,22 +25,21 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.HttpWsClient;
-import org.sonarqube.ws.client.WsClient;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 @BatchSide
-public class WsClientProvider extends ProviderAdapter {
+public class BatchWsClientProvider extends ProviderAdapter {
 
   static final int CONNECT_TIMEOUT_MS = 5_000;
   static final String READ_TIMEOUT_SEC_PROPERTY = "sonar.ws.timeout";
   static final int DEFAULT_READ_TIMEOUT_SEC = 60;
 
-  private HttpWsClient wsClient;
+  private BatchWsClient wsClient;
 
-  public synchronized WsClient provide(final GlobalProperties settings, final EnvironmentInformation env) {
+  public synchronized BatchWsClient provide(final GlobalProperties settings, final EnvironmentInformation env) {
     if (wsClient == null) {
       String url = defaultIfBlank(settings.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
       HttpConnector.Builder builder = new HttpConnector.Builder();
@@ -48,15 +47,15 @@ public class WsClientProvider extends ProviderAdapter {
       // TODO proxy
 
       String timeoutSec = defaultIfBlank(settings.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
+      String login = defaultIfBlank(settings.property(CoreProperties.LOGIN), null);
       builder
         .readTimeoutMilliseconds(parseInt(timeoutSec) * 1_000)
         .connectTimeoutMilliseconds(CONNECT_TIMEOUT_MS)
         .userAgent(env.toString())
         .url(url)
-        .credentials(settings.property(CoreProperties.LOGIN), settings.property(CoreProperties.PASSWORD))
-        .interceptor(new WsClientLoggingInterceptor());
+        .credentials(login, settings.property(CoreProperties.PASSWORD));
 
-      wsClient = new HttpWsClient(builder.build());
+      wsClient = new BatchWsClient(new HttpWsClient(builder.build()), login != null, settings.property(CoreProperties.SERVER_BASE_URL));
     }
     return wsClient;
   }

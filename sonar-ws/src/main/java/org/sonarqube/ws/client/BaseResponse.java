@@ -17,28 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonarqube.ws.client;
 
-package org.sonarqube.ws.client.ce;
+abstract class BaseResponse implements WsResponse {
 
-import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsCe;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
-
-public class ComputeEngineService extends BaseService {
-
-  public ComputeEngineService(WsConnector wsConnector) {
-    super(wsConnector, "api/ce");
+  @Override
+  public boolean isSuccessful() {
+    return code() >= 200 && code() < 300;
   }
 
-  public WsCe.SubmitResponse submit(SubmitWsRequest request) {
-    PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, request.getReport());
-    PostRequest post = new PostRequest(path("submit"))
-      .setParam("projectKey", request.getProjectKey())
-      .setParam("projectName", request.getProjectName())
-      .setParam("projectBranch", request.getProjectBranch())
-      .setPart("report", filePart);
-    return call(post, WsCe.SubmitResponse.parser());
+  @Override
+  public WsResponse failIfNotSuccessful() {
+    if (!isSuccessful()) {
+      throw new HttpException(requestUrl(), code());
+    }
+    return this;
   }
+
 }

@@ -24,33 +24,29 @@ import java.util.Map;
 import org.junit.Test;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.WsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.batch.bootstrap.WsClientProvider.CONNECT_TIMEOUT_MS;
-import static org.sonar.batch.bootstrap.WsClientProvider.DEFAULT_READ_TIMEOUT_SEC;
 
-public class WsClientProviderTest {
+public class BatchWsClientProviderTest {
 
-  WsClientProvider underTest = new WsClientProvider();
+  BatchWsClientProvider underTest = new BatchWsClientProvider();
   EnvironmentInformation env = new EnvironmentInformation("Maven Plugin", "2.3");
 
   @Test
   public void provide_client_with_default_settings() {
     GlobalProperties settings = new GlobalProperties(new HashMap<String, String>());
 
-    WsClient client = underTest.provide(settings, env);
+    BatchWsClient client = underTest.provide(settings, env);
 
     assertThat(client).isNotNull();
+    assertThat(client.baseUrl()).isEqualTo("http://localhost:9000/");
+    assertThat(client.publicBaseUrl()).isEqualTo("http://localhost:9000/");
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
     assertThat(httpConnector.baseUrl()).isEqualTo("http://localhost:9000/");
     assertThat(httpConnector.okHttpClient().getProxy()).isNull();
     assertThat(httpConnector.okHttpClient().getConnectTimeout()).isEqualTo(5_000);
     assertThat(httpConnector.okHttpClient().getReadTimeout()).isEqualTo(60_000);
     assertThat(httpConnector.userAgent()).isEqualTo("Maven Plugin/2.3");
-    assertThat(httpConnector.okHttpClient().interceptors())
-      .hasSize(1)
-      .hasOnlyElementsOfType(WsClientLoggingInterceptor.class);
   }
 
   @Test
@@ -62,7 +58,7 @@ public class WsClientProviderTest {
     props.put("sonar.ws.timeout", "42");
     GlobalProperties settings = new GlobalProperties(props);
 
-    WsClient client = underTest.provide(settings, env);
+    BatchWsClient client = underTest.provide(settings, env);
 
     assertThat(client).isNotNull();
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
@@ -74,8 +70,8 @@ public class WsClientProviderTest {
   @Test
   public void build_singleton() {
     GlobalProperties settings = new GlobalProperties(new HashMap<String, String>());
-    WsClient first = underTest.provide(settings, env);
-    WsClient second = underTest.provide(settings, env);
+    BatchWsClient first = underTest.provide(settings, env);
+    BatchWsClient second = underTest.provide(settings, env);
     assertThat(first).isSameAs(second);
   }
 }

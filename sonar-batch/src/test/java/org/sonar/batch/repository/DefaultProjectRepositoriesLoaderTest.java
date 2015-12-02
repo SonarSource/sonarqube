@@ -75,7 +75,7 @@ public class DefaultProjectRepositoriesLoaderTest {
 
   @Test(expected = IllegalStateException.class)
   public void failFastHttpError() {
-    HttpException http = new HttpException("url", 403, "Forbidden");
+    HttpException http = new HttpException("url", 403);
     IllegalStateException e = new IllegalStateException("http error", http);
     when(wsLoader.loadStream(anyString())).thenThrow(e);
     loader.load(PROJECT_KEY, false, null);
@@ -86,7 +86,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("http error");
     
-    HttpException http = new HttpException("uri", 403, "Forbidden");
+    HttpException http = new HttpException("uri", 403);
     MessageException e = MessageException.of("http error", http);
     when(wsLoader.loadStream(anyString())).thenThrow(e);
     loader.load(PROJECT_KEY, false, null);

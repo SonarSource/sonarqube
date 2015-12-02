@@ -43,7 +43,7 @@ public class BaseServiceTest {
 
         WsResponse response = call(get);
 
-        assertThat(response.getContent()).isEqualTo("ok");
+        assertThat(response.content()).isEqualTo("ok");
       }
 
     }.test();
@@ -63,6 +63,25 @@ public class BaseServiceTest {
         assertThat(get.getPath()).isEqualTo("api/issues/issue");
         // media type automatically set to protobuf
         assertThat(get.getMediaType()).isEqualTo(MediaTypes.PROTOBUF);
+      }
+
+    }.test();
+  }
+
+  @Test
+  public void fail_if_http_error() {
+    new BaseService(wsConnector, "api/issues") {
+
+      public void test() {
+        GetRequest get = new GetRequest(path("issue")).setParam("key", "ABC");
+        when(wsConnector.call(get)).thenReturn(new MockWsResponse().setCode(403).setRequestUrl("https://local/foo"));
+
+        try {
+          call(get, Testing.Fake.parser());
+          fail();
+        } catch (HttpException e) {
+          assertThat(e.code()).isEqualTo(403);
+        }
       }
 
     }.test();

@@ -36,6 +36,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.batch.util.BatchUtils;
@@ -87,6 +88,9 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       if (t instanceof HttpException) {
         HttpException http = (HttpException) t;
         return http.code() != HttpURLConnection.HTTP_NOT_FOUND;
+      }
+      if (t instanceof MessageException) {
+        return true;
       }
     }
 

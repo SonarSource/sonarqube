@@ -26,7 +26,7 @@ import java.io.Reader;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 
-class HttpResponse implements WsResponse {
+class HttpResponse extends BaseResponse {
 
   private final Response okResponse;
 
@@ -35,7 +35,12 @@ class HttpResponse implements WsResponse {
   }
 
   @Override
-  public String getRequestUrl() {
+  public int code() {
+    return okResponse.code();
+  }
+
+  @Override
+  public String requestUrl() {
     return okResponse.request().urlString();
   }
 
@@ -45,7 +50,7 @@ class HttpResponse implements WsResponse {
   }
 
   @Override
-  public String getContentType() {
+  public String contentType() {
     return okResponse.header("Content-Type");
   }
 
@@ -53,7 +58,7 @@ class HttpResponse implements WsResponse {
    * Get stream of bytes
    */
   @Override
-  public InputStream getContentStream() {
+  public InputStream contentStream() {
     try {
       return okResponse.body().byteStream();
     } catch (IOException e) {
@@ -67,7 +72,7 @@ class HttpResponse implements WsResponse {
    * charset, this will attempt to decode the response body as UTF-8.
    */
   @Override
-  public Reader getContentReader() {
+  public Reader contentReader() {
     try {
       return okResponse.body().charStream();
     } catch (IOException e) {
@@ -76,7 +81,7 @@ class HttpResponse implements WsResponse {
   }
 
   @Override
-  public String getContent() {
+  public String content() {
     try {
       return okResponse.body().string();
     } catch (IOException e) {
@@ -85,6 +90,6 @@ class HttpResponse implements WsResponse {
   }
 
   private RuntimeException fail(Exception e) {
-    throw new IllegalStateException("Fail to read response of " + getRequestUrl(), e);
+    throw new IllegalStateException("Fail to read response of " + requestUrl(), e);
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client;
 
-import org.sonarqube.ws.client.ce.ComputeEngineService;
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.permission.PermissionsService;
@@ -31,8 +30,6 @@ import org.sonarqube.ws.client.usertoken.UserTokensService;
  */
 public interface WsClient {
   ComponentsService components();
-
-  ComputeEngineService computeEngine();
 
   IssuesService issues();
 

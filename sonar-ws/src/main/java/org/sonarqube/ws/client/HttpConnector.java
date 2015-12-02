@@ -23,7 +23,6 @@ import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -32,8 +31,6 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.net.Proxy;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
@@ -84,7 +81,6 @@ public class HttpConnector implements WsConnector {
 
     this.okHttpClient.setConnectTimeout(builder.connectTimeoutMs, TimeUnit.MILLISECONDS);
     this.okHttpClient.setReadTimeout(builder.readTimeoutMs, TimeUnit.MILLISECONDS);
-    this.okHttpClient.interceptors().addAll(builder.interceptors);
   }
 
   @Override
@@ -92,18 +88,13 @@ public class HttpConnector implements WsConnector {
     return baseUrl.url().toExternalForm();
   }
 
-  public OkHttpClient okHttpClient() {
-    return okHttpClient;
-  }
-
   @CheckForNull
   public String userAgent() {
     return userAgent;
   }
 
-  @CheckForNull
-  public String credentials() {
-    return credentials;
+  public OkHttpClient okHttpClient() {
+    return okHttpClient;
   }
 
   @Override
@@ -176,9 +167,6 @@ public class HttpConnector implements WsConnector {
     Call call = okHttpClient.newCall(okRequest);
     try {
       Response okResponse = call.execute();
-      if (!okResponse.isSuccessful()) {
-        throw new HttpException(okRequest.urlString(), okResponse.code(), okResponse.message());
-      }
       return new HttpResponse(okResponse);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to request " + okRequest.urlString(), e);
@@ -195,7 +183,6 @@ public class HttpConnector implements WsConnector {
     private String proxyPassword;
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS;
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
-    private final List<Interceptor> interceptors = new ArrayList<>();
 
     /**
      * Optional User  Agent
@@ -257,15 +244,6 @@ public class HttpConnector implements WsConnector {
     public Builder proxyCredentials(@Nullable String proxyLogin, @Nullable String proxyPassword) {
       this.proxyLogin = proxyLogin;
       this.proxyPassword = proxyPassword;
-      return this;
-    }
-
-    /**
-     * Adds a OkHttp interceptor, for example to log request URLs or response errors.
-     * See https://github.com/square/okhttp/wiki/Interceptors
-     */
-    public Builder interceptor(Interceptor interceptor) {
-      this.interceptors.add(interceptor);
       return this;
     }
 

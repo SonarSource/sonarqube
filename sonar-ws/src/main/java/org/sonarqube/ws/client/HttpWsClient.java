@@ -20,7 +20,6 @@
 
 package org.sonarqube.ws.client;
 
-import org.sonarqube.ws.client.ce.ComputeEngineService;
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.permission.PermissionsService;
@@ -34,7 +33,6 @@ import org.sonarqube.ws.client.usertoken.UserTokensService;
  */
 public class HttpWsClient implements WsClient {
 
-  private final ComputeEngineService ceWsClient;
   private final PermissionsService permissionsService;
   private final ComponentsService componentsService;
   private final QualityProfilesService qualityProfilesService;
@@ -44,7 +42,6 @@ public class HttpWsClient implements WsClient {
 
   public HttpWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
-    this.ceWsClient = new ComputeEngineService(wsConnector);
     this.permissionsService = new PermissionsService(wsConnector);
     this.componentsService = new ComponentsService(wsConnector);
     this.qualityProfilesService = new QualityProfilesService(wsConnector);
@@ -60,11 +57,6 @@ public class HttpWsClient implements WsClient {
   @Override
   public PermissionsService permissions() {
     return this.permissionsService;
-  }
-
-  @Override
-  public ComputeEngineService computeEngine() {
-    return ceWsClient;
   }
 
   @Override

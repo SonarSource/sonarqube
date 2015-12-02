@@ -29,7 +29,6 @@ import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.core.platform.RemotePlugin;
 import org.sonar.home.cache.FileCache;
-import org.sonarqube.ws.client.WsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -47,7 +46,7 @@ public class BatchPluginInstallerTest {
   public ExpectedException thrown = ExpectedException.none();
 
   FileCache fileCache = mock(FileCache.class);
-  WsClient wsClient = mock(WsClient.class);
+  BatchWsClient wsClient = mock(BatchWsClient.class);
   BatchPluginPredicate pluginPredicate = mock(BatchPluginPredicate.class);
 
   @Test
@@ -55,9 +54,9 @@ public class BatchPluginInstallerTest {
 
     WSLoader wsLoader = mock(WSLoader.class);
     when(wsLoader.loadString("/deploy/plugins/index.txt")).thenReturn(new WSLoaderResult<>("checkstyle\nsqale", true));
-    BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, wsClient, fileCache, pluginPredicate);
+    BatchPluginInstaller underTest = new BatchPluginInstaller(wsLoader, wsClient, fileCache, pluginPredicate);
 
-    List<RemotePlugin> remotePlugins = installer.listRemotePlugins();
+    List<RemotePlugin> remotePlugins = underTest.listRemotePlugins();
     assertThat(remotePlugins).extracting("key").containsOnly("checkstyle", "sqale");
   }
 
@@ -67,10 +66,10 @@ public class BatchPluginInstallerTest {
     when(fileCache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
 
     WSLoader wsLoader = mock(WSLoader.class);
-    BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, wsClient, fileCache, pluginPredicate);
+    BatchPluginInstaller underTest = new BatchPluginInstaller(wsLoader, wsClient, fileCache, pluginPredicate);
 
     RemotePlugin remote = new RemotePlugin("checkstyle").setFile("checkstyle-plugin.jar", "fakemd5_1");
-    File file = installer.download(remote);
+    File file = underTest.download(remote);
 
     assertThat(file).isEqualTo(pluginJar);
   }

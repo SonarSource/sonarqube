@@ -23,9 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
-import org.sonarqube.ws.client.WsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +34,7 @@ public class StrategyWSLoaderProviderTest {
   private PersistentCache cache;
 
   @Mock
-  private WsClient client;
+  private BatchWsClient client;
 
   @Before
   public void setUp() {

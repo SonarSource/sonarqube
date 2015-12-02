@@ -19,39 +19,27 @@
  */
 package org.sonar.batch.analysis;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
-import org.sonarqube.ws.client.WsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class AnalysisWSLoaderProviderTest {
-  @Mock
-  private PersistentCache cache;
 
-  @Mock
-  private WsClient client;
+  PersistentCache cache = mock(PersistentCache.class);
+  BatchWsClient wsClient = mock(BatchWsClient.class);
+  AnalysisMode mode = mock(AnalysisMode.class);
 
-  @Mock
-  private AnalysisMode mode;
-
-  private AnalysisWSLoaderProvider loaderProvider;
-
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-    loaderProvider = new AnalysisWSLoaderProvider();
-  }
+  AnalysisWSLoaderProvider underTest = new AnalysisWSLoaderProvider();
 
   @Test
   public void testDefault() {
-    WSLoader loader = loaderProvider.provide(mode, cache, client);
+    WSLoader loader = underTest.provide(mode, cache, wsClient);
     assertThat(loader.getDefaultStrategy()).isEqualTo(LoadStrategy.SERVER_ONLY);
   }
 }

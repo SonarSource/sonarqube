@@ -93,7 +93,7 @@ public class AuthenticationTest {
     // authenticate
     WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
     WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
-    assertThat(response.getContent()).isEqualTo("{\"valid\":true}");
+    assertThat(response.content()).isEqualTo("{\"valid\":true}");
   }
 
   @Test
@@ -107,7 +107,7 @@ public class AuthenticationTest {
 
     WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
 
-    assertThat(response.getContent()).isEqualTo("{\"valid\":true}");
+    assertThat(response.content()).isEqualTo("{\"valid\":true}");
   }
 
   /**
@@ -126,7 +126,7 @@ public class AuthenticationTest {
     // authenticate
     WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
     WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
-    assertThat(response.getContent()).isEqualTo("{\"valid\":false}");
+    assertThat(response.content()).isEqualTo("{\"valid\":false}");
   }
 
   @Test

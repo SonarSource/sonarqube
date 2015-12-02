@@ -40,20 +40,20 @@ public abstract class BaseService {
 
   protected <T extends Message> T call(BaseRequest request, Parser<T> parser) {
     request.setMediaType(MediaTypes.PROTOBUF);
-    WsResponse response = wsConnector.call(request);
+    WsResponse response = call(request);
     return convert(response, parser);
   }
 
   protected WsResponse call(WsRequest request) {
-    return wsConnector.call(request);
+    return wsConnector.call(request).failIfNotSuccessful();
   }
 
   public <T extends Message> T convert(WsResponse response, Parser<T> parser) {
-    try (InputStream byteStream = response.getContentStream()) {
+    try (InputStream byteStream = response.contentStream()) {
       // HTTP header "Content-Type" is not verified. It may be different than protobuf.
       return parser.parseFrom(byteStream);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to parse protobuf response of " + response.getRequestUrl(), e);
+      throw new IllegalStateException("Fail to parse protobuf response of " + response.requestUrl(), e);
     }
   }
 
