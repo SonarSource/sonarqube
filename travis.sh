@@ -75,7 +75,7 @@ WEB)
   ;;
 
 IT)
-  if [ "$IT_CATEGORY" == "Plugins" ] && [ -n "$GITHUB_TOKEN" ]; then
+  if [ "$IT_CATEGORY" == "Plugins" ] && [ ! -n "$GITHUB_TOKEN" ]; then
     echo "This job is ignored as it needs to access a private GitHub repository"
   else
     installTravisTools
