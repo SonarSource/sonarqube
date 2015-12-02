@@ -49,7 +49,9 @@ const HIGHLIGHT_MAPPING = {
 
   'new_overall_coverage': 'new_overall_uncovered_lines',
   'new_overall_line_coverage': 'new_overall_uncovered_lines',
-  'new_overall_branch_coverage': 'new_overall_uncovered_conditions'
+  'new_overall_branch_coverage': 'new_overall_uncovered_conditions',
+
+  'new_sqale_debt_ratio': 'new_technical_debt'
 };
 
 
