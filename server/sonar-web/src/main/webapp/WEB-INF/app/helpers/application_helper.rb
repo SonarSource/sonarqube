@@ -208,7 +208,7 @@ module ApplicationHelper
       if options[:period] && @snapshot
         snapshot_datetime = @snapshot.period_datetime(options[:period])
         if snapshot_datetime
-          date = snapshot_datetime.to_date
+          date = snapshot_datetime.strftime('%FT%T%z')
           url += "createdAfter=#{date}|"
         end
       end
