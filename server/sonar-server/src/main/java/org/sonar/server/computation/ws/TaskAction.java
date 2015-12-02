@@ -31,8 +31,9 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class TaskAction implements CeWsAction {
 
@@ -52,7 +53,8 @@ public class TaskAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .setDescription("Task information")
+      .setDescription("Give Compute Engine task details such as type, status, duration and associated component.<br />" +
+        "Requires 'Administer System' or 'Execute Analysis' permission.")
       .setInternal(true)
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
@@ -88,7 +90,7 @@ public class TaskAction implements CeWsAction {
           throw new NotFoundException();
         }
       }
-      WsUtils.writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
+      writeProtobuf(wsTaskResponse.build(), wsRequest, wsResponse);
 
     } finally {
       dbClient.closeSession(dbSession);
