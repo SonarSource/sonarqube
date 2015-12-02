@@ -37,7 +37,7 @@ class DashboardController < ApplicationController
         end
 
         # redirect to the project overview
-        if params[:id] && !params[:did] && !params[:name]
+        if params[:id] && !params[:did] && !params[:name] && @resource.qualifier != 'DEV'
           return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
         end
 

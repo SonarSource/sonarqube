@@ -20,8 +20,6 @@ const FIXED_DASHBOARDS = [
   { link: '/size', name: 'overview.domain.size' }
 ];
 
-const CUSTOM_DASHBOARDS_LIMIT = 1;
-
 const SETTINGS_URLS = [
   '/project/settings', '/project/profile', '/project/qualitygate', '/manual_measures/index',
   '/action_plans/index', '/project/links', '/project_roles/index', '/project/history', '/project/key',
@@ -31,6 +29,11 @@ const SETTINGS_URLS = [
 
 export default React.createClass({
   mixins: [LinksMixin],
+
+  isDeveloper() {
+    const qualifier = _.last(this.props.component.breadcrumbs).qualifier;
+    return qualifier === 'DEV';
+  },
 
   periodParameter() {
     let params = qs.parse(window.location.search.substr(1));
@@ -55,7 +58,14 @@ export default React.createClass({
 
   isCustomDashboardsActive () {
     let dashboards = this.props.component.dashboards;
-    return _.any(dashboards, this.isCustomDashboardActive) || this.isDashboardManagementActive();
+    return _.any(dashboards, this.isCustomDashboardActive) ||
+        this.isDashboardManagementActive() ||
+        this.isDefaultDeveloperDashboardActive();
+  },
+
+  isDefaultDeveloperDashboardActive() {
+    let path = window.location.pathname;
+    return this.isDeveloper() && path.indexOf(`${window.baseUrl}/dashboard`) === 0;
   },
 
   isDashboardManagementActive () {
@@ -279,10 +289,10 @@ export default React.createClass({
   render() {
     return (
         <ul className="nav navbar-nav nav-tabs">
-          {this.renderFixedDashboards()}
+          {!this.isDeveloper() && this.renderFixedDashboards()}
+          {this.renderCustomDashboards()}
           {this.renderComponentsLink()}
           {this.renderComponentIssuesLink()}
-          {this.renderCustomDashboards()}
           {this.renderTools()}
           {this.renderAdministration()}
         </ul>
