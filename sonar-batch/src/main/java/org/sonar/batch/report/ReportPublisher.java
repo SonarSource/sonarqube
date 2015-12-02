@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
@@ -176,13 +177,13 @@ public class ReportPublisher implements Startable {
       String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
       metadata.put("projectKey", effectiveKey);
 
-      URL dashboardUrl = HttpUrl.parse(wsClient.publicBaseUrl()).newBuilder()
+      URL dashboardUrl = HttpUrl.parse(publicUrl()).newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
         .build()
         .url();
       metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
 
-      URL taskUrl = HttpUrl.parse(wsClient.publicBaseUrl()).newBuilder()
+      URL taskUrl = HttpUrl.parse(publicUrl()).newBuilder()
         .addPathSegment("api").addPathSegment("ce").addPathSegment("task")
         .addQueryParameter("id", taskId)
         .build()
@@ -212,5 +213,17 @@ public class ReportPublisher implements Startable {
     } catch (IOException e) {
       throw new IllegalStateException("Unable to dump " + file, e);
     }
+  }
+
+  /**
+   * The public URL is optionally configured on server. If not, then the regular URL is returned.
+   * See https://jira.sonarsource.com/browse/SONAR-4239
+   */
+  private String publicUrl() {
+    String publicUrl = settings.getString(CoreProperties.SERVER_BASE_URL);
+    if (StringUtils.isBlank(publicUrl)) {
+      return wsClient.baseUrl();
+    }
+    return publicUrl.replaceAll("(/)+$", "") + "/";
   }
 }

@@ -48,39 +48,13 @@ public class BatchWsClientTest {
   WsClient wsClient = mock(WsClient.class, Mockito.RETURNS_DEEP_STUBS);
 
   @Test
-  public void define_public_url() {
-    when(wsClient.wsConnector().baseUrl()).thenReturn("https://local/");
-    BatchWsClient underTest = new BatchWsClient(wsClient, true, "https://public/");
-    assertThat(underTest.baseUrl()).isEqualTo("https://local/");
-    assertThat(underTest.publicBaseUrl()).isEqualTo("https://public/");
-  }
-
-  /**
-   * Returned URL has trailing slash, even if configured URL doesn't have.
-   * That's useful for {@link com.squareup.okhttp.HttpUrl}
-   */
-  @Test
-  public void public_url_has_trailing_slash() {
-    BatchWsClient underTest = new BatchWsClient(wsClient, true, "https://public");
-    assertThat(underTest.publicBaseUrl()).isEqualTo("https://public/");
-  }
-
-
-  @Test
-  public void public_url_is_the_base_url_by_default() {
-    when(wsClient.wsConnector().baseUrl()).thenReturn("https://local/");
-    BatchWsClient underTest = new BatchWsClient(wsClient, true, null);
-    assertThat(underTest.publicBaseUrl()).isEqualTo("https://local/");
-  }
-
-  @Test
   public void log_and_profile_request_if_debug_level() throws Exception {
     WsRequest request = newRequest();
     WsResponse response = newResponse().setRequestUrl("https://local/api/issues/search");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
     logTester.setLevel(LoggerLevel.DEBUG);
-    BatchWsClient underTest = new BatchWsClient(wsClient, false, null);
+    BatchWsClient underTest = new BatchWsClient(wsClient, false);
 
     WsResponse result = underTest.call(request);
 
@@ -103,7 +77,7 @@ public class BatchWsClientTest {
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new BatchWsClient(wsClient, false, null).call(request);
+    new BatchWsClient(wsClient, false).call(request);
   }
 
   @Test
@@ -115,7 +89,7 @@ public class BatchWsClientTest {
     WsResponse response = newResponse().setCode(401);
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new BatchWsClient(wsClient, /* credentials are configured */true, null).call(request);
+    new BatchWsClient(wsClient, /* credentials are configured */true).call(request);
   }
 
   @Test
@@ -129,7 +103,7 @@ public class BatchWsClientTest {
       .setContent("{\"errors\":[{\"msg\":\"missing scan permission\"}, {\"msg\":\"missing another permission\"}]}");
     when(wsClient.wsConnector().call(request)).thenReturn(response);
 
-    new BatchWsClient(wsClient, true, null).call(request);
+    new BatchWsClient(wsClient, true).call(request);
   }
 
   private MockWsResponse newResponse() {

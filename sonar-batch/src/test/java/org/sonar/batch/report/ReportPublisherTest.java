@@ -64,7 +64,6 @@ public class ReportPublisherTest {
     root = ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot());
     when(reactor.getRoot()).thenReturn(root);
     when(wsClient.baseUrl()).thenReturn("https://localhost/");
-    when(wsClient.publicBaseUrl()).thenReturn("https://public/");
   }
 
   @Test
@@ -74,18 +73,39 @@ public class ReportPublisherTest {
     underTest.logSuccess("TASK-123");
 
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("ANALYSIS SUCCESSFUL, you can browse https://public/dashboard/index/struts")
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://localhost/dashboard/index/struts")
       .contains("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report")
-      .contains("More about the report processing at https://public/api/ce/task?id=TASK-123");
+      .contains("More about the report processing at https://localhost/api/ce/task?id=TASK-123");
 
     File detailsFile = new File(temp.getRoot(), "analysis-details.json");
     JsonAssert.assertJson(readFileToString(detailsFile)).isSimilarTo("{" +
       "\"projectKey\": \"struts\"," +
-      "\"dashboardUrl\": \"https://public/dashboard/index/struts\"," +
+      "\"dashboardUrl\": \"https://localhost/dashboard/index/struts\"," +
       "\"ceTaskId\": \"TASK-123\"," +
-      "\"ceTaskUrl\": \"https://public/api/ce/task?id=TASK-123\"" +
+      "\"ceTaskUrl\": \"https://localhost/api/ce/task?id=TASK-123\"" +
       "}"
       );
+  }
+
+  @Test
+  public void log_public_url_if_defined() throws IOException {
+    settings.setProperty(CoreProperties.SERVER_BASE_URL, "https://publicserver/sonarqube");
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+
+    underTest.logSuccess("TASK-123");
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard/index/struts")
+      .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
+
+    File detailsFile = new File(temp.getRoot(), "analysis-details.json");
+    JsonAssert.assertJson(readFileToString(detailsFile)).isSimilarTo("{" +
+      "\"projectKey\": \"struts\"," +
+      "\"dashboardUrl\": \"https://publicserver/sonarqube/dashboard/index/struts\"," +
+      "\"ceTaskId\": \"TASK-123\"," +
+      "\"ceTaskUrl\": \"https://publicserver/sonarqube/api/ce/task?id=TASK-123\"" +
+      "}"
+    );
   }
 
   @Test

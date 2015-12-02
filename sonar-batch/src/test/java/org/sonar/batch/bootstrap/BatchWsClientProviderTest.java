@@ -40,7 +40,6 @@ public class BatchWsClientProviderTest {
 
     assertThat(client).isNotNull();
     assertThat(client.baseUrl()).isEqualTo("http://localhost:9000/");
-    assertThat(client.publicBaseUrl()).isEqualTo("http://localhost:9000/");
     HttpConnector httpConnector = (HttpConnector) client.wsConnector();
     assertThat(httpConnector.baseUrl()).isEqualTo("http://localhost:9000/");
     assertThat(httpConnector.okHttpClient().getProxy()).isNull();

@@ -28,8 +28,6 @@ import com.google.gson.JsonParser;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
@@ -49,16 +47,10 @@ public class BatchWsClient {
 
   private final WsClient target;
   private final boolean hasCredentials;
-  private final String publicBaseUrl;
 
-  public BatchWsClient(WsClient target, boolean hasCredentials, @Nullable String publicBaseUrl) {
+  public BatchWsClient(WsClient target, boolean hasCredentials) {
     this.target = target;
     this.hasCredentials = hasCredentials;
-    if (StringUtils.isBlank(publicBaseUrl)) {
-      this.publicBaseUrl = target.wsConnector().baseUrl();
-    } else {
-      this.publicBaseUrl = publicBaseUrl.replaceAll("(/)+$", "") + "/";
-    }
   }
 
   /**
@@ -78,15 +70,6 @@ public class BatchWsClient {
 
   public String baseUrl() {
     return target.wsConnector().baseUrl();
-  }
-
-  /**
-   * The public URL is optionally configured on server. If not, then the regular {@link #baseUrl()} is returned.
-   * URL has a trailing slash.
-   * See https://jira.sonarsource.com/browse/SONAR-4239
-   */
-  public String publicBaseUrl() {
-    return publicBaseUrl;
   }
 
   @VisibleForTesting

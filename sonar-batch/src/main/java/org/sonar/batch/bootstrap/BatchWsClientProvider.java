@@ -55,7 +55,7 @@ public class BatchWsClientProvider extends ProviderAdapter {
         .url(url)
         .credentials(login, settings.property(CoreProperties.PASSWORD));
 
-      wsClient = new BatchWsClient(new HttpWsClient(builder.build()), login != null, settings.property(CoreProperties.SERVER_BASE_URL));
+      wsClient = new BatchWsClient(new HttpWsClient(builder.build()), login != null);
     }
     return wsClient;
   }
