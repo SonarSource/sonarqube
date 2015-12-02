@@ -35,6 +35,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbDeveloper;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
@@ -48,6 +49,7 @@ import org.sonar.test.DbTests;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.SnapshotTesting.createForComponent;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 @Category(DbTests.class)
 public class ReportComputeMeasureVariationsStepTest {
@@ -59,27 +61,23 @@ public class ReportComputeMeasureVariationsStepTest {
 
   static final ComponentDto PROJECT_DTO = ComponentTesting.newProjectDto();
 
-  static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).build();
+  static final int PROJECT_REF = 1;
+  static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, PROJECT_REF).setUuid(PROJECT_DTO.uuid()).build();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(ISSUES_METRIC)
     .add(DEBT_METRIC)
     .add(FILE_COMPLEXITY_METRIC)
     .add(BUILD_BREAKER_METRIC);
-
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -146,8 +144,8 @@ public class ReportComputeMeasureVariationsStepTest {
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).addChildren(directory).build();
     treeRootHolder.setRoot(project);
 
-    addRawMeasure(project, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
-    addRawMeasure(directory, ISSUES_METRIC, Measure.newMeasureBuilder().create(20, null));
+    addRawMeasure(project, ISSUES_METRIC, newMeasureBuilder().create(80, null));
+    addRawMeasure(directory, ISSUES_METRIC, newMeasureBuilder().create(20, null));
 
     underTest.execute();
 
@@ -180,7 +178,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
     treeRootHolder.setRoot(PROJECT);
 
-    addRawMeasure(PROJECT, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
+    addRawMeasure(PROJECT, ISSUES_METRIC, newMeasureBuilder().create(80, null));
 
     underTest.execute();
 
@@ -204,17 +202,17 @@ public class ReportComputeMeasureVariationsStepTest {
       newMeasureDto(DEBT_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 10d),
       newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 2d),
       newMeasureDto(BUILD_BREAKER_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 1d)
-    );
+      );
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
 
     treeRootHolder.setRoot(PROJECT);
 
-    addRawMeasure(PROJECT, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
-    addRawMeasure(PROJECT, DEBT_METRIC, Measure.newMeasureBuilder().create(5L, null));
-    addRawMeasure(PROJECT, FILE_COMPLEXITY_METRIC, Measure.newMeasureBuilder().create(3d, null));
-    addRawMeasure(PROJECT, BUILD_BREAKER_METRIC, Measure.newMeasureBuilder().create(false, null));
+    addRawMeasure(PROJECT, ISSUES_METRIC, newMeasureBuilder().create(80, null));
+    addRawMeasure(PROJECT, DEBT_METRIC, newMeasureBuilder().create(5L, null));
+    addRawMeasure(PROJECT, FILE_COMPLEXITY_METRIC, newMeasureBuilder().create(3d, null));
+    addRawMeasure(PROJECT, BUILD_BREAKER_METRIC, newMeasureBuilder().create(false, null));
 
     underTest.execute();
 
@@ -224,6 +222,29 @@ public class ReportComputeMeasureVariationsStepTest {
     assertThat(measureRepository.getRawMeasure(PROJECT, DEBT_METRIC).get().getVariations().getVariation1()).isEqualTo(-5d);
     assertThat(measureRepository.getRawMeasure(PROJECT, FILE_COMPLEXITY_METRIC).get().getVariations().getVariation1()).isEqualTo(1d);
     assertThat(measureRepository.getRawMeasure(PROJECT, BUILD_BREAKER_METRIC).get().getVariations().getVariation1()).isEqualTo(-1d);
+  }
+
+  @Test
+  public void do_not_set_variations_on_numeric_metric_for_developer() {
+    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
+    dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
+    dbClient.measureDao().insert(session,
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d)
+      );
+    session.commit();
+
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
+
+    treeRootHolder.setRoot(PROJECT);
+
+    DumbDeveloper developer = new DumbDeveloper("a");
+    measureRepository.addRawMeasure(PROJECT_REF, ISSUES_METRIC.getKey(), newMeasureBuilder().forDeveloper(developer).create(80, null));
+
+    underTest.execute();
+
+    assertThat(measureRepository.getRawMeasures(PROJECT).keys()).hasSize(1);
+
+    assertThat(measureRepository.getRawMeasure(PROJECT, ISSUES_METRIC, developer).get().hasVariations()).isFalse();
   }
 
   private static MeasureDto newMeasureDto(int metricId, long projectId, long snapshotId, double value) {

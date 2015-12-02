@@ -47,6 +47,7 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
@@ -143,7 +144,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
 
     private void setVariationMeasures(Component component, List<PastMeasureDto> pastMeasures, int period, MeasuresWithVariationRepository measuresWithVariationRepository) {
       Map<MeasureKey, PastMeasureDto> pastMeasuresByMeasureKey = from(pastMeasures).uniqueIndex(pastMeasureToMeasureKey);
-      for (Map.Entry<String, Measure> entry : measureRepository.getRawMeasures(component).entries()) {
+      for (Map.Entry<String, Measure> entry : from(measureRepository.getRawMeasures(component).entries()).filter(NotDeveloperMeasure.INSTANCE)) {
         String metricKey = entry.getKey();
         Measure measure = entry.getValue();
         PastMeasureDto pastMeasure = pastMeasuresByMeasureKey.get(new MeasureKey(metricKey, measure.getCharacteristicId(), measure.getRuleId(), null));
@@ -175,6 +176,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     private final Map<MeasureKey, MeasureWithVariations> measuresWithVariations = new HashMap<>();
 
     public void add(Metric metric, final Measure measure, int variationIndex, double variationValue) {
+      checkArgument(measure.getDeveloper() == null, "%s does not support computing variations of Measures for Developer", getClass().getSimpleName());
       MeasureKey measureKey = new MeasureKey(metric.getKey(), measure.getCharacteristicId(), measure.getRuleId(), null);
       MeasureWithVariations measureWithVariations = measuresWithVariations.get(measureKey);
       if (measureWithVariations == null) {
@@ -247,6 +249,15 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
         || Measure.ValueType.LONG.equals(valueType)
         || Measure.ValueType.DOUBLE.equals(valueType)
         || Measure.ValueType.BOOLEAN.equals(valueType);
+    }
+  }
+
+  private enum NotDeveloperMeasure implements Predicate<Map.Entry<String, Measure>> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull Map.Entry<String, Measure> input) {
+      return input.getValue().getDeveloper() == null;
     }
   }
 
