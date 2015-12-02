@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -12,7 +13,7 @@
 
   <name>SonarQube :: Plugin API Dependencies</name>
   <description>Deprecated transitive dependencies of sonar-plugin-api</description>
-  
+
   <dependencies>
 
     <!--
@@ -132,6 +133,16 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-java-api</artifactId>
       <version>5.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.codehaus.sonar</groupId>
+          <artifactId>sonar-deprecated</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.sonar</groupId>
+          <artifactId>sonar-plugin-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
