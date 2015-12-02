@@ -179,8 +179,8 @@
   z-index: 2;
   display: flex;
   flex: 1;
-  justify-content: space-around;
   align-items: center;
+  padding: 0 10%;
 }
 
 .overview-domain-measures + .overview-domain-measures {
@@ -197,18 +197,25 @@
 }
 
 .overview-domain-measure {
+  flex: 1;
+}
+
+.overview-domain-measure + .overview-domain-measure {
+  padding-left: 15%;
 }
 
 .overview-domain-measure-value {
   line-height: 1;
   font-size: 36px;
   font-weight: 300;
-  text-align: center;
+
+  .overview-domain-leak & { text-align: center; }
 }
 
 .overview-domain-measure-label {
   margin-top: 10px;
-  text-align: center;
+
+  .overview-domain-leak & { text-align: center; }
 }
 
 .overview-domain-timeline {

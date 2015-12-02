@@ -55,16 +55,26 @@ export const GeneralIssues = React.createClass({
       <DomainPanel domain="issues">
         <DomainNutshell>
           <MeasuresList>
-            <Measure>
-              <DrilldownLink component={this.props.component.key} metric="sqale_rating">
-                <Rating value={this.props.measures['sqale_rating']}/>
-              </DrilldownLink>
+
+            <Measure composite={true}>
+              <div className="display-inline-block text-middle big-spacer-right">
+                <div className="overview-domain-measure-value">
+                  <DrilldownLink component={this.props.component.key} metric="sqale_rating">
+                    <Rating value={this.props.measures['sqale_rating']}/>
+                  </DrilldownLink>
+                </div>
+              </div>
+              <div className="display-inline-block text-middle">
+                <div className="overview-domain-measure-value">
+                  <IssuesLink component={this.props.component.key}
+                              params={{ resolved: 'false', facetMode: 'debt' }}>
+                    {formatMeasure(this.props.measures.debt, 'SHORT_WORK_DUR')}
+                  </IssuesLink>
+                </div>
+                <div className="overview-domain-measure-label">{getMetricName('debt')}</div>
+              </div>
             </Measure>
-            <Measure label={getMetricName('debt')}>
-              <IssuesLink component={this.props.component.key} params={{ resolved: 'false', facetMode: 'debt' }}>
-                {formatMeasure(this.props.measures.debt, 'SHORT_WORK_DUR')}
-              </IssuesLink>
-            </Measure>
+
             <Measure label={getMetricName('issues')}>
               <IssuesLink component={this.props.component.key} params={{ resolved: 'false' }}>
                 {formatMeasure(this.props.measures.issues, 'SHORT_INT')}

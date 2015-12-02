@@ -56,14 +56,21 @@ export const GeneralDuplications = React.createClass({
       <DomainPanel domain="duplications">
         <DomainNutshell>
           <MeasuresList>
-            <Measure label={getMetricName('duplications')}>
-              <span className="big-spacer-right">
+
+            <Measure composite={true}>
+              <div className="display-inline-block text-middle big-spacer-right">
                 <DonutChart width="40" height="40" thickness="3" data={donutData}/>
-              </span>
-              <DrilldownLink component={this.props.component.key} metric="duplicated_lines_density">
-                {formatMeasure(this.props.measures['duplicated_lines_density'], 'PERCENT')}
-              </DrilldownLink>
+              </div>
+              <div className="display-inline-block text-middle">
+                <div className="overview-domain-measure-value">
+                  <DrilldownLink component={this.props.component.key} metric="duplicated_lines_density">
+                    {formatMeasure(this.props.measures['duplicated_lines_density'], 'PERCENT')}
+                  </DrilldownLink>
+                </div>
+                <div className="overview-domain-measure-label">{getMetricName('duplications')}</div>
+              </div>
             </Measure>
+
             {this.renderDuplicatedBlocks()}
           </MeasuresList>
           {this.renderTimeline('before')}

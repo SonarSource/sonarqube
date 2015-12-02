@@ -83,16 +83,23 @@ export const GeneralCoverage = React.createClass({
       <DomainPanel domain="coverage">
         <DomainNutshell>
           <MeasuresList>
-            <Measure label={getMetricName('coverage')}>
-              <span className="big-spacer-right">
+
+            <Measure composite={true}>
+              <div className="display-inline-block text-middle big-spacer-right">
                 <DonutChart width="40" height="40" thickness="3" data={donutData}/>
-              </span>
-              <DrilldownLink component={this.props.component.key} metric={coverageMetric}>
-                <span className="js-overview-main-coverage">
-                  {formatMeasure(this.props.measures[coverageMetric], 'PERCENT')}
-                </span>
-              </DrilldownLink>
+              </div>
+              <div className="display-inline-block text-middle">
+                <div className="overview-domain-measure-value">
+                  <DrilldownLink component={this.props.component.key} metric={coverageMetric}>
+                    <span className="js-overview-main-coverage">
+                      {formatMeasure(this.props.measures[coverageMetric], 'PERCENT')}
+                    </span>
+                  </DrilldownLink>
+                </div>
+                <div className="overview-domain-measure-label">{getMetricName('coverage')}</div>
+              </div>
             </Measure>
+
             {this.renderTests()}
           </MeasuresList>
           {this.renderTimeline('before')}
