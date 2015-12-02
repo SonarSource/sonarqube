@@ -64,6 +64,14 @@ export const DuplicationsMain = React.createClass({
     </div>;
   },
 
+  renderEmpty() {
+    return <div className="overview-detailed-page">
+      <div className="page">
+        <p>{window.t('overview.no_duplications')}</p>
+      </div>
+    </div>;
+  },
+
   renderLegend () {
     return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>
   },
@@ -81,9 +89,15 @@ export const DuplicationsMain = React.createClass({
     if (!this.state.ready) {
       return this.renderLoading();
     }
+
+    if (this.state.measures['duplicated_lines_density'] == null) {
+      return this.renderEmpty();
+    }
+
     let treemapScale = d3.scale.linear()
         .domain([0, 25, 50, 75, 100])
         .range(CHART_COLORS_RANGE_PERCENT);
+
     return <div className="overview-detailed-page">
       <div className="overview-cards-list">
         <div className="overview-card overview-card-fixed-width">

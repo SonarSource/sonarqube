@@ -36,7 +36,7 @@ export const CoverageMain = React.createClass({
         ready: true,
         measures,
         leak,
-        coverageMetricPrefix: this.getCoverageMetricPrefix(measures),
+        coverageMetricPrefix: this.getCoverageMetricPrefix(measures)
       });
     });
   },
@@ -73,6 +73,14 @@ export const CoverageMain = React.createClass({
     </div>;
   },
 
+  renderEmpty() {
+    return <div className="overview-detailed-page">
+      <div className="page">
+        <p>{window.t('overview.no_coverage')}</p>
+      </div>
+    </div>;
+  },
+
   renderLegend () {
     return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>
   },
@@ -88,6 +96,10 @@ export const CoverageMain = React.createClass({
 
     let coverageMetric = this.state.coverageMetricPrefix + 'coverage',
         uncoveredLinesMetric = this.state.coverageMetricPrefix + 'uncovered_lines';
+
+    if (this.state.measures[coverageMetric] == null) {
+      return this.renderEmpty();
+    }
 
     return <div className="overview-detailed-page">
       <div className="overview-cards-list">
