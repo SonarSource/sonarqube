@@ -35,6 +35,7 @@ import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentProvider;
 import org.sonar.server.computation.component.Developer;
+import org.sonar.server.computation.component.DumbDeveloper;
 import org.sonar.server.computation.component.NoComponentProvider;
 import org.sonar.server.computation.component.TreeComponentProvider;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -232,7 +233,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     checkAndInitProvidersState();
 
     InternalKey internalKey = new InternalKey(componentProvider.getByRef(componentRef), metricRepositoryRule.getByKey(metricKey), measure.getRuleId(),
-      measure.getCharacteristicId());
+      measure.getCharacteristicId(), measure.getDeveloper());
     checkState(!rawMeasures.containsKey(internalKey), format(
       "A measure can only be set once for Component (ref=%s), Metric (key=%s), ruleId=%s, characteristicId=%s",
       componentRef, metricKey, measure.getRuleId(), measure.getCharacteristicId()));
@@ -251,6 +252,10 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   @Override
   public Optional<Measure> getRawMeasure(Component component, Metric metric) {
     return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric)));
+  }
+
+  public Optional<Measure> getRawMeasure(Component component, Metric metric, DumbDeveloper developer) {
+    return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, null, null, developer)));
   }
 
   public Optional<Measure> getRawRuleMeasure(Component component, Metric metric, int ruleId) {
@@ -330,7 +335,11 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
       this(getRef(component), metric.getKey(), ruleId, characteristicId, null);
     }
 
-    public InternalKey(String componentRef, String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer) {
+    public InternalKey(Component component, Metric metric, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer) {
+      this(getRef(component), metric.getKey(), ruleId, characteristicId, null);
+    }
+
+    private InternalKey(String componentRef, String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer) {
       this.componentRef = componentRef;
       this.metricKey = metricKey;
       this.ruleId = ruleId == null ? DEFAULT_VALUE : ruleId;
