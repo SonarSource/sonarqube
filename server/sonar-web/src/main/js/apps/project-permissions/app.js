@@ -11,6 +11,8 @@ function requestPermissionTemplates () {
 window.sonarqube.appStarted.then(options => {
   requestPermissionTemplates().done(r => {
     var el = document.querySelector(options.el);
-    ReactDOM.render(<Main permissionTemplates={r.permissionTemplates} componentId={window.sonarqube.componentId}/>, el);
+    ReactDOM.render(<Main permissionTemplates={r.permissionTemplates}
+                          componentId={window.sonarqube.componentId}
+                          rootQualifiers={options.rootQualifiers}/>, el);
   });
 });

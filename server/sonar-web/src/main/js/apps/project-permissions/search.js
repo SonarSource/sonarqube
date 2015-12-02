@@ -1,6 +1,9 @@
 import _ from 'underscore';
 import React from 'react';
 
+import { QualifierFilter } from './qualifier-filter';
+
+
 export default React.createClass({
   propTypes: {
     search: React.PropTypes.func.isRequired
@@ -26,7 +29,12 @@ export default React.createClass({
     }
     return (
         <div className="panel panel-vertical bordered-bottom spacer-bottom">
-          <form onSubmit={this.onSubmit} className="search-box">
+
+          {this.props.rootQualifiers.length > 1 && <QualifierFilter filter={this.props.filter}
+                                                                    rootQualifiers={this.props.rootQualifiers}
+                                                                    onFilter={this.props.onFilter}/>}
+
+          <form onSubmit={this.onSubmit} className="search-box display-inline-block text-top">
             <button className="search-box-submit button-clean">
               <i className="icon-search"></i>
             </button>

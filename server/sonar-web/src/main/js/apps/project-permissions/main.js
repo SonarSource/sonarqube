@@ -1,12 +1,15 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
+
 import Permissions from './permissions';
 import PermissionsFooter from './permissions-footer';
 import Search from './search';
 import ApplyTemplateView from './apply-template-view';
 
+
 const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin'];
+
 
 export default React.createClass({
   propTypes: {
@@ -14,7 +17,7 @@ export default React.createClass({
   },
 
   getInitialState() {
-    return { ready: false, permissions: [], projects: [], total: 0 };
+    return { ready: false, permissions: [], projects: [], total: 0, filter: '__ALL__' };
   },
 
   componentDidMount() {
@@ -36,9 +39,12 @@ export default React.createClass({
     });
   },
 
-  requestPermissions(page = 1, query = '') {
+  requestPermissions(page = 1, query = '', filter = this.state.filter) {
     let url = `${window.baseUrl}/api/permissions/search_project_permissions`;
     let data = { p: page, q: query };
+    if (filter !== '__ALL__') {
+      data.qualifier = filter;
+    }
     if (this.props.componentId) {
       data = { projectId: this.props.componentId };
     }
@@ -55,7 +61,8 @@ export default React.createClass({
           permissions: permissions,
           total: r.paging.total,
           page: r.paging.pageIndex,
-          query: query
+          query: query,
+          filter: filter
         });
       });
     });
@@ -67,6 +74,10 @@ export default React.createClass({
 
   search(query) {
     this.requestPermissions(1, query);
+  },
+
+  handleFilter(filter) {
+    this.requestPermissions(1, this.state.query, filter);
   },
 
   refresh() {
@@ -111,7 +122,9 @@ export default React.createClass({
           </header>
 
           <Search {...this.props}
-              search={this.search}/>
+              filter={this.state.filter}
+              search={this.search}
+              onFilter={this.handleFilter}/>
 
           <Permissions
               ready={this.state.ready}
