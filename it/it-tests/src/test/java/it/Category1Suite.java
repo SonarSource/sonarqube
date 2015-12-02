@@ -51,7 +51,6 @@ import it.measureHistory.HistoryUiTest;
 import it.measureHistory.SincePreviousVersionHistoryTest;
 import it.measureHistory.SinceXDaysHistoryTest;
 import it.measureHistory.TimeMachineTest;
-import it.measureHistory.TimeMachineUiTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
 import it.projectOverview.ProjectOverviewTest;
@@ -99,7 +98,6 @@ import static util.ItUtils.xooPlugin;
   SincePreviousVersionHistoryTest.class,
   SinceXDaysHistoryTest.class,
   TimeMachineTest.class,
-  TimeMachineUiTest.class,
   // action plan
   ActionPlanTest.class,
   ActionPlanUiTest.class
