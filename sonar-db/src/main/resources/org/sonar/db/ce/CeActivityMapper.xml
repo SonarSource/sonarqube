@@ -38,6 +38,7 @@
     select uuid
     from ce_activity
     where is_last_key=#{isLastKey}
+      and status &lt;&gt; 'CANCELED'
     order by id desc
   </select>
 
