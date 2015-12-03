@@ -44,7 +44,8 @@ public interface CeTaskProcessor {
   Set<String> getHandledCeTaskTypes();
 
   /**
-   * Call the processing code for a specific {@link CeTask}.
+   * Calls the processing code for a specific {@link CeTask} which will optionally return a {@link CeTaskResult}
+   * holding information to be persisted in the processing history of the Compute Engine (currently the {@code CE_ACTIVITY} table).
    * <p>
    * The specified is guaranteed to be non {@code null} and its {@link CeTask#getType()} to be one of the values
    * of {@link #getHandledCeTaskTypes()}.

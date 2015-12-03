@@ -103,7 +103,9 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     IndexTestsStep.class,
 
     // notifications are sent at the end, so that webapp displays up-to-date information
-    SendIssueNotificationsStep.class
+    SendIssueNotificationsStep.class,
+
+    PublishTaskResultStep.class
     );
 
   private final ComputeEngineContainer computeEngineContainer;

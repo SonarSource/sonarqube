@@ -89,6 +89,7 @@ import org.sonar.server.computation.sqale.SqaleRatingSettings;
 import org.sonar.server.computation.step.ComputationStepExecutor;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.computation.step.ReportComputationSteps;
+import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.server.devcockpit.DevCockpitBridge;
 import org.sonar.server.view.index.ViewIndex;
 
@@ -135,6 +136,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       SqaleRatingSettings.class,
       ActiveRulesHolderImpl.class,
       MeasureComputersHolderImpl.class,
+      MutableTaskResultHolderImpl.class,
 
       BatchReportReaderImpl.class,
 
