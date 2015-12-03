@@ -27,6 +27,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.VisitException;
 import org.sonar.server.computation.duplication.Duplicate;
 import org.sonar.server.computation.duplication.Duplication;
 import org.sonar.server.computation.duplication.DuplicationRepositoryRule;
@@ -38,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ReportComponent.builder;
+import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class LoadDuplicationsFromReportStepTest {
   private static final int LINE = 2;
@@ -135,8 +137,8 @@ public class LoadDuplicationsFromReportStepTest {
     int line = 2;
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(666, line + 1)));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Component with ref '666' can't be found");
+    expectedException.expect(VisitException.class);
+    expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("Component with ref '666' can't be found"));
 
     underTest.execute();
   }
@@ -146,8 +148,8 @@ public class LoadDuplicationsFromReportStepTest {
     int line = 2;
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(FILE_1_REF, line + 1)));
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("file and otherFile Components can not be the same");
+    expectedException.expect(VisitException.class);
+    expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("file and otherFile Components can not be the same"));
 
     underTest.execute();
   }
@@ -196,4 +198,5 @@ public class LoadDuplicationsFromReportStepTest {
   private void assertNoDuplication(int fileRef) {
     assertThat(duplicationRepository.getDuplications(fileRef)).isEmpty();
   }
+
 }

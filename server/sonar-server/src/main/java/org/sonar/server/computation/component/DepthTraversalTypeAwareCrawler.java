@@ -36,6 +36,14 @@ public final class DepthTraversalTypeAwareCrawler implements ComponentCrawler {
 
   @Override
   public void visit(Component component) {
+    try {
+      visitImpl(component);
+    } catch (RuntimeException e) {
+      VisitException.rethrowOrWrap(e, "Visit of Component %s:%s failed", component.getType(), component.getKey());
+    }
+  }
+
+  private void visitImpl(Component component) {
     if (!verifyDepth(component)) {
       return;
     }

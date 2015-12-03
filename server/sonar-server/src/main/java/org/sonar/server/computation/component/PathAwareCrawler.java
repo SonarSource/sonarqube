@@ -19,6 +19,12 @@
  */
 package org.sonar.server.computation.component;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
+import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
@@ -31,7 +37,6 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_
  * As for {@link DepthTraversalTypeAwareCrawler}, this crawler supports max depth visit and ordering.
  */
 public final class PathAwareCrawler<T> implements ComponentCrawler {
-
   private final PathAwareVisitor<T> visitor;
   private final DequeBasedPath<T> stack = new DequeBasedPath<>();
 
@@ -41,6 +46,17 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
 
   @Override
   public void visit(Component component) {
+    try {
+      visitImpl(component);
+    } catch (RuntimeException e) {
+      VisitException.rethrowOrWrap(
+        e,
+        "Visit failed for Component %s:%s%s",
+        component.getType(), component.getKey(), new ComponentPathPrinter<>(stack));
+    }
+  }
+
+  private void visitImpl(Component component) {
     if (!verifyDepth(component)) {
       return;
     }
@@ -120,6 +136,46 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
         return this.visitor.getFactory().createForProjectView(component);
       default:
         throw new IllegalArgumentException(format("Unsupported component type %s, can not create stack object", component.getType()));
+    }
+  }
+
+  /**
+   * A simple object wrapping the currentPath allowing to compute the string representing the path only if
+   * the VisitException is actually built (ie. method {@link ComponentPathPrinter#toString()} is called
+   * by the internal {@link String#format(String, Object...)} of
+   * {@link VisitException#rethrowOrWrap(RuntimeException, String, Object...)}.
+   */
+  @Immutable
+  private static final class ComponentPathPrinter<T> {
+
+    private static final Joiner PATH_ELEMENTS_JOINER = Joiner.on("->");
+
+    private final DequeBasedPath<T> currentPath;
+
+    private ComponentPathPrinter(DequeBasedPath<T> currentPath) {
+      this.currentPath = currentPath;
+    }
+
+    @Override
+    public String toString() {
+      if (currentPath.isRoot()) {
+        return "";
+      }
+      return " located " + toKeyPath(currentPath);
+    }
+
+    private static <T> String toKeyPath(Iterable<PathAwareVisitor.PathElement<T>> currentPath) {
+      return PATH_ELEMENTS_JOINER.join(from(currentPath).transform(PathElementToComponentAsString.INSTANCE).skip(1));
+    }
+
+    private enum PathElementToComponentAsString implements Function<PathAwareVisitor.PathElement<?>, String> {
+      INSTANCE;
+
+      @Override
+      @Nonnull
+      public String apply(@Nonnull PathAwareVisitor.PathElement<?> input) {
+        return format("%s:%s", input.getComponent().getType(), input.getComponent().getKey());
+      }
     }
   }
 

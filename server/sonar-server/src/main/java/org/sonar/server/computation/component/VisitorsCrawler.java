@@ -59,6 +59,18 @@ public class VisitorsCrawler implements ComponentCrawler {
 
   @Override
   public void visit(final Component component) {
+    try {
+      visitImpl(component);
+    } catch (RuntimeException e) {
+      VisitException.rethrowOrWrap(
+        e,
+        "Visit of Component %s:" +
+            "%s failed",
+        component.getType(), component.getKey());
+    }
+  }
+
+  private void visitImpl(Component component) {
     MatchVisitorMaxDepth visitorMaxDepth = MatchVisitorMaxDepth.forComponent(component);
     List<VisitorWrapper> preOrderVisitorWrappersToExecute = from(preOrderVisitorWrappers).filter(visitorMaxDepth).toList();
     List<VisitorWrapper> postOrderVisitorWrappersToExecute = from(postOrderVisitorWrappers).filter(visitorMaxDepth).toList();

@@ -29,17 +29,20 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.SettingsRepository;
+import org.sonar.server.computation.component.VisitException;
 import org.sonar.server.computation.qualitygate.Condition;
 import org.sonar.server.computation.qualitygate.MutableQualityGateHolderRule;
 import org.sonar.server.computation.qualitygate.QualityGate;
 import org.sonar.server.computation.qualitygate.QualityGateService;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class QualityGateLoadingStepTest {
   private static final String PROJECT_KEY = "project key";
@@ -74,8 +77,10 @@ public class QualityGateLoadingStepTest {
 
   @Test
   public void execute_sets_default_QualityGate_when_property_value_is_not_a_long() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Unsupported value (%s) in property sonar.qualitygate", "10 sds"));
+    expectedException.expect(VisitException.class);
+    expectedException.expectCause(
+      hasType(IllegalStateException.class)
+        .andMessage(format("Unsupported value (%s) in property sonar.qualitygate", "10 sds")));
 
     treeRootHolder.setRoot(PROJECT_ALONE);
     when(settingsRepository.getSettings(PROJECT_ALONE)).thenReturn(new Settings().setProperty("sonar.qualitygate", "10 sds"));

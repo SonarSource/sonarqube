@@ -34,6 +34,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.component.VisitException;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -207,9 +208,10 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     try {
       step.execute();
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Link of type 'homepage' has already been declared on component 'ABCD'");
+      failBecauseExceptionWasNotThrown(VisitException.class);
+    } catch (VisitException e) {
+      assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+      assertThat(e.getCause()).hasMessage("Link of type 'homepage' has already been declared on component 'ABCD'");
     }
   }
 }
