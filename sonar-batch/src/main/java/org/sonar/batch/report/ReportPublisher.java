@@ -23,15 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 import com.squareup.okhttp.HttpUrl;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
@@ -53,7 +44,15 @@ import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Writer;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @BatchSide
 public class ReportPublisher implements Startable {
@@ -62,7 +61,7 @@ public class ReportPublisher implements Startable {
 
   public static final String KEEP_REPORT_PROP_KEY = "sonar.batch.keepReport";
   public static final String VERBOSE_KEY = "sonar.verbose";
-  public static final String METADATA_DUMP_FILENAME = "analysis-details.json";
+  public static final String METADATA_DUMP_FILENAME = "report-task.txt";
 
   private final Settings settings;
   private final BatchWsClient wsClient;
@@ -76,7 +75,7 @@ public class ReportPublisher implements Startable {
   private BatchReportWriter writer;
 
   public ReportPublisher(Settings settings, BatchWsClient wsClient, AnalysisContextReportPublisher contextPublisher,
-    ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
+                         ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.settings = settings;
     this.wsClient = wsClient;
     this.contextPublisher = contextPublisher;
@@ -129,13 +128,13 @@ public class ReportPublisher implements Startable {
         publisher.publish(writer);
       }
       long stopTime = System.currentTimeMillis();
-      LOG.info("Analysis report generated in " + (stopTime - startTime) + "ms, dir size=" + FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(reportDir)));
+      LOG.info("Analysis report generated in {}ms, dir size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(reportDir)));
 
       startTime = System.currentTimeMillis();
       File reportZip = temp.newFile("batch-report", ".zip");
       ZipUtils.zipDir(reportDir, reportZip);
       stopTime = System.currentTimeMillis();
-      LOG.info("Analysis reports compressed in " + (stopTime - startTime) + "ms, zip size=" + FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
+      LOG.info("Analysis reports compressed in {}ms, zip size={}", stopTime - startTime, FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
       return reportZip;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to prepare analysis report", e);
@@ -202,12 +201,12 @@ public class ReportPublisher implements Startable {
   private void dumpMetadata(Map<String, String> metadata) {
     File file = new File(projectReactor.getRoot().getWorkDir(), METADATA_DUMP_FILENAME);
     try (Writer output = Files.newWriter(file, StandardCharsets.UTF_8)) {
-      JsonWriter json = JsonWriter.of(output);
-      json.beginObject();
       for (Map.Entry<String, String> entry : metadata.entrySet()) {
-        json.prop(entry.getKey(), entry.getValue());
+        output.write(entry.getKey());
+        output.write("=");
+        output.write(entry.getValue());
+        output.write("\n");
       }
-      json.endObject();
 
       LOG.debug("Report metadata written to {}", file);
     } catch (IOException e) {
