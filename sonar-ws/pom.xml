@@ -30,7 +30,6 @@
     <dependency>
       <groupId>com.squareup.okhttp</groupId>
       <artifactId>okhttp</artifactId>
-      <version>${okhttp.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -52,7 +51,6 @@
     <dependency>
       <groupId>com.squareup.okhttp</groupId>
       <artifactId>mockwebserver</artifactId>
-      <version>${okhttp.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

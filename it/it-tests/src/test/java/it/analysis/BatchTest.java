@@ -11,16 +11,8 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.wsclient.Sonar;
@@ -29,6 +21,10 @@ import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,7 +45,7 @@ public class BatchTest {
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/analysis/BatchTest/one-issue-per-line.xml"));
   }
 
-  /** 
+  /**
    * SONAR-3718
    */
   @Test
@@ -313,7 +309,7 @@ public class BatchTest {
 
     File cache = new File(userHome, "cache");
     assertThat(cache).exists().isDirectory();
-    int cachedFiles = FileUtils.listFiles(cache, new String[] {"jar"}, true).size();
+    int cachedFiles = FileUtils.listFiles(cache, new String[]{"jar"}, true).size();
     assertThat(cachedFiles).isGreaterThan(5);
     assertThat(result.getLogs()).contains("User cache: " + cache.getAbsolutePath());
     assertThat(result.getLogs()).contains("Download sonar-xoo-plugin-");
@@ -354,11 +350,13 @@ public class BatchTest {
 
     assertThat(result.getLogs()).contains("/dashboard/index/com.sonarsource.it.samples:multi-modules-sample:mybranch");
 
-    orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.core.serverBaseURL", "http://foo:123/sonar"));
-
-    result = scan("shared/xoo-multi-modules-sample");
-
-    assertThat(result.getLogs()).contains("http://foo:123/sonar/dashboard/index/com.sonarsource.it.samples:multi-modules-sample");
+    try {
+      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.core.serverBaseURL", "http://foo:123/sonar"));
+      result = scan("shared/xoo-multi-modules-sample");
+      assertThat(result.getLogs()).contains("http://foo:123/sonar/dashboard/index/com.sonarsource.it.samples:multi-modules-sample");
+    } finally {
+      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.core.serverBaseURL", null));
+    }
   }
 
   /**

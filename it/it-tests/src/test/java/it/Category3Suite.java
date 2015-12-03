@@ -6,18 +6,7 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.analysis.BatchTest;
-import it.analysis.ExtensionLifecycleTest;
-import it.analysis.IssueJsonReportTest;
-import it.analysis.IssuesModeTest;
-import it.analysis.LinksTest;
-import it.analysis.MavenTest;
-import it.analysis.MultiLanguageTest;
-import it.analysis.ProjectBuilderTest;
-import it.analysis.ProjectExclusionsTest;
-import it.analysis.ProjectProvisioningTest;
-import it.analysis.SettingsEncryptionTest;
-import it.analysis.TempFolderTest;
+import it.analysis.*;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -39,7 +28,8 @@ import static util.ItUtils.xooPlugin;
   ProjectProvisioningTest.class,
   BatchTest.class,
   IssuesModeTest.class,
-  SettingsEncryptionTest.class
+  SettingsEncryptionTest.class,
+  ReportDumpTest.class
 })
 public class Category3Suite {
 

@@ -30,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -37,7 +38,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.scan.ImmutableProjectReactor;
-import org.sonar.test.JsonAssert;
+import org.sonar.core.config.CorePropertyDefinitions;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +54,7 @@ public class ReportPublisherTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
-  Settings settings = new Settings();
+  Settings settings = new Settings(new PropertyDefinitions(CorePropertyDefinitions.all()));
   BatchWsClient wsClient = mock(BatchWsClient.class, Mockito.RETURNS_DEEP_STUBS);
   ImmutableProjectReactor reactor = mock(ImmutableProjectReactor.class);
   ProjectDefinition root;
@@ -77,13 +78,12 @@ public class ReportPublisherTest {
       .contains("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report")
       .contains("More about the report processing at https://localhost/api/ce/task?id=TASK-123");
 
-    File detailsFile = new File(temp.getRoot(), "analysis-details.json");
-    JsonAssert.assertJson(readFileToString(detailsFile)).isSimilarTo("{" +
-      "\"projectKey\": \"struts\"," +
-      "\"dashboardUrl\": \"https://localhost/dashboard/index/struts\"," +
-      "\"ceTaskId\": \"TASK-123\"," +
-      "\"ceTaskUrl\": \"https://localhost/api/ce/task?id=TASK-123\"" +
-      "}"
+    File detailsFile = new File(temp.getRoot(), "report-task.txt");
+    assertThat(readFileToString(detailsFile)).isEqualTo(
+      "projectKey=struts\n" +
+      "dashboardUrl=https://localhost/dashboard/index/struts\n" +
+      "ceTaskId=TASK-123\n" +
+      "ceTaskUrl=https://localhost/api/ce/task?id=TASK-123\n"
       );
   }
 
@@ -98,13 +98,12 @@ public class ReportPublisherTest {
       .contains("ANALYSIS SUCCESSFUL, you can browse https://publicserver/sonarqube/dashboard/index/struts")
       .contains("More about the report processing at https://publicserver/sonarqube/api/ce/task?id=TASK-123");
 
-    File detailsFile = new File(temp.getRoot(), "analysis-details.json");
-    JsonAssert.assertJson(readFileToString(detailsFile)).isSimilarTo("{" +
-      "\"projectKey\": \"struts\"," +
-      "\"dashboardUrl\": \"https://publicserver/sonarqube/dashboard/index/struts\"," +
-      "\"ceTaskId\": \"TASK-123\"," +
-      "\"ceTaskUrl\": \"https://publicserver/sonarqube/api/ce/task?id=TASK-123\"" +
-      "}"
+    File detailsFile = new File(temp.getRoot(), "report-task.txt");
+    assertThat(readFileToString(detailsFile)).isEqualTo(
+      "projectKey=struts\n" +
+      "dashboardUrl=https://publicserver/sonarqube/dashboard/index/struts\n" +
+      "ceTaskId=TASK-123\n" +
+      "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n"
     );
   }
 
@@ -118,7 +117,7 @@ public class ReportPublisherTest {
       .contains("ANALYSIS SUCCESSFUL")
       .doesNotContain("dashboard/index");
 
-    File detailsFile = new File(temp.getRoot(), "analysis-details.json");
+    File detailsFile = new File(temp.getRoot(), ReportPublisher.METADATA_DUMP_FILENAME);
     assertThat(detailsFile).doesNotExist();
   }
 

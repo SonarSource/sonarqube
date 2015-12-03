@@ -1126,6 +1126,16 @@
         <artifactId>tomcat-embed-logging-juli</artifactId>
         <version>${tomcat.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${okhttp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.squareup.okhttp</groupId>
+        <artifactId>mockwebserver</artifactId>
+        <version>${okhttp.version}</version>
+      </dependency>
 
       <!-- Using scope=provided to exclude from all transitive dependencies -->
       <dependency>
