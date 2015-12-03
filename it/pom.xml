@@ -10,7 +10,6 @@
   </parent>
 
   <artifactId>it</artifactId>
-  <version>5.3-SNAPSHOT</version>
   <name>SonarQube Integration Tests</name>
   <packaging>pom</packaging>
 

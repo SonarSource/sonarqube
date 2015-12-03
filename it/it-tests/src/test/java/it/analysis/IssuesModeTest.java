@@ -397,7 +397,7 @@ public class IssuesModeTest {
       tasks.add(new Callable<BuildResult>() {
 
         public BuildResult call() throws Exception {
-          SonarRunner runner = configureRunnerIssues("shared/xoo-sample", homeDir);
+          SonarRunner runner = configureRunnerIssues("shared/xoo-sample", homeDir, "sonar.it.enableWaitingSensor", "true");
           return orchestrator.executeBuild(runner);
         }
       });
@@ -412,6 +412,8 @@ public class IssuesModeTest {
           BuildFailureException bfe = (BuildFailureException) e.getCause();
           assertThat(bfe.getResult().getLogs()).contains("Another SonarQube analysis is already in progress for this project");
           expectedError = true;
+        } else {
+          throw e;
         }
       }
     }

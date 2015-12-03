@@ -10,8 +10,8 @@ public class BatchPlugin extends SonarPlugin {
     return Arrays.asList(
       DumpSettingsInitializer.class,
       RaiseMessageException.class,
-      TempFolderExtension.class
-      );
+      TempFolderExtension.class,
+      WaitingSensor.class);
   }
 
 }
