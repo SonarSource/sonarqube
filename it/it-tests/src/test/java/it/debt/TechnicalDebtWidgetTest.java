@@ -36,9 +36,15 @@ public class TechnicalDebtWidgetTest {
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 
+  @ClassRule
+  public static DebtConfigurationRule debtConfiguration = DebtConfigurationRule.create(orchestrator);
+
   @BeforeClass
   public static void init() {
     orchestrator.resetData();
+
+    // Set rating grid values to not depend from default value
+    debtConfiguration.updateRatingGrid(0.1d, 0.2d, 0.5d, 1d);
 
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/with-many-rules.xml"));
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");

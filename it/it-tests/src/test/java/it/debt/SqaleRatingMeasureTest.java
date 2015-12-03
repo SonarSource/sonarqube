@@ -19,14 +19,13 @@
  */
 package it.debt;
 
-import com.google.common.collect.ImmutableSet;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
@@ -34,7 +33,6 @@ import org.sonar.wsclient.services.ResourceQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.setServerProperty;
 
 /**
  * SONAR-4715
@@ -46,26 +44,19 @@ public class SqaleRatingMeasureTest {
   private static final String SUB_MODULE = "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1";
   private static final String DIRECTORY = "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1";
   private static final String FILE = "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo";
+
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 
-  private static void resetDevelopmentCost() {
-    for (String property : ImmutableSet.of("sonar.technicalDebt.developmentCost", "sonar.technicalDebt.sizeMetric",
-      "languageSpecificParameters", "languageSpecificParameters.0.language", "languageSpecificParameters.0.man_days", "languageSpecificParameters.0.size_metric",
-      "ratingGrid")) {
-      setServerProperty(orchestrator, property, null);
-    }
-  }
-
-  @AfterClass
-  public static void reset() {
-    resetDevelopmentCost();
-  }
+  @Rule
+  public DebtConfigurationRule debtConfiguration = DebtConfigurationRule.create(orchestrator);
 
   @Before
   public void init() {
-    resetDevelopmentCost();
     orchestrator.resetData();
+
+    // Set rating grid values to not depend from default value
+    debtConfiguration.updateRatingGrid(0.1d, 0.2d, 0.5d, 1d);
   }
 
   @Test
@@ -119,7 +110,7 @@ public class SqaleRatingMeasureTest {
     assertThat(rating.getIntValue()).isEqualTo(1);
     assertThat(rating.getData()).isEqualTo("A");
 
-    setServerProperty(orchestrator, "sonar.technicalDebt.developmentCost", "2");
+    debtConfiguration.updateDevelopmentCost(2);
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
     rating = getMeasure("sample", "sqale_rating");
@@ -139,10 +130,7 @@ public class SqaleRatingMeasureTest {
     assertThat(rating.getIntValue()).isEqualTo(1);
     assertThat(rating.getData()).isEqualTo("A");
 
-    setServerProperty(orchestrator, "languageSpecificParameters", "0");
-    setServerProperty(orchestrator, "languageSpecificParameters.0.language", "xoo");
-    setServerProperty(orchestrator, "languageSpecificParameters.0.man_days", "1");
-    setServerProperty(orchestrator, "languageSpecificParameters.0.size_metric", "ncloc");
+    debtConfiguration.updateLanguageDevelopmentCost("xoo", 1);
     orchestrator.executeBuild(
       SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
         .setProfile("one-issue-per-line"));
@@ -164,7 +152,7 @@ public class SqaleRatingMeasureTest {
     assertThat(rating.getIntValue()).isEqualTo(1);
     assertThat(rating.getData()).isEqualTo("A");
 
-    setServerProperty(orchestrator, "ratingGrid", "0.001,0.005,0.010,0.015");
+    debtConfiguration.updateRatingGrid(0.001d, 0.005d, 0.01d, 0.015d);
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
     rating = getMeasure("sample", "sqale_rating");

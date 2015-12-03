@@ -24,9 +24,9 @@ import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
 import java.util.List;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
@@ -34,23 +34,21 @@ import org.sonar.wsclient.issue.IssueQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.setServerProperty;
 
 public class TechnicalDebtTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 
-  @AfterClass
-  public static void resetHoursInDay() throws Exception {
-    setServerProperty(orchestrator, "sonar.technicalDebt.hoursInDay", null);
-  }
+  @Rule
+  public DebtConfigurationRule debtConfiguration = DebtConfigurationRule.create(orchestrator);
 
   @Before
   public void deleteAnalysisData() {
     orchestrator.resetData();
+
     // Set hours in day property to 8
-    setServerProperty(orchestrator, "sonar.technicalDebt.hoursInDay", "8");
+    debtConfiguration.updateHoursInDay(8);
   }
 
   /**
@@ -80,7 +78,7 @@ public class TechnicalDebtTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-file");
 
     // One day -> 10 hours
-    setServerProperty(orchestrator, "sonar.technicalDebt.hoursInDay", "10");
+    debtConfiguration.updateHoursInDay(10);
 
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
       // As OneIssuePerFile has a debt of 10 minutes, we multiply it by 72 to have 1 day and 2 hours of technical debt
@@ -100,13 +98,13 @@ public class TechnicalDebtTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-day-debt-per-file");
 
     // One day -> 10 hours : debt will be stored as 360.000 seconds (1 day * 10 hours per day * 60 * 60)
-    setServerProperty(orchestrator, "sonar.technicalDebt.hoursInDay", "10");
+    debtConfiguration.updateHoursInDay(10);
 
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
     // Issue debt was 1 day during analysis but will be displayed as 1 day and 2 hours (hours in day property was set
     // to 10 during analysis but is now 8)
-    setServerProperty(orchestrator, "sonar.technicalDebt.hoursInDay", "8");
+    debtConfiguration.updateHoursInDay(8);
 
     IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();
     Issue issue = issueClient.find(IssueQuery.create()).list().get(0);

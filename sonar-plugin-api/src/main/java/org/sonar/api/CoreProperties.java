@@ -499,7 +499,7 @@ public interface CoreProperties {
   /**
    * @since 4.5
    */
-  String RATING_GRID_DEF_VALUES = "0.1,0.2,0.5,1";
+  String RATING_GRID_DEF_VALUES = "0.05,0.1,0.2,0.5";
 
   /**
    * @since 4.5
