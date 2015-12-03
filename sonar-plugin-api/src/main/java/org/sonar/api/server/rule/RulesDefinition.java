@@ -426,6 +426,9 @@ public interface RulesDefinition {
   }
 
   interface NewExtendedRepository {
+    /**
+     * Create a rule with specified key. Max length of key is 200 characters.
+     */
     NewRule createRule(String ruleKey);
 
     @CheckForNull
@@ -692,6 +695,10 @@ public interface RulesDefinition {
       return this;
     }
 
+    /**
+     * The optional description, in HTML format, has no max length. It's exclusive with markdown description
+     * (see {@link #setMarkdownDescription(String)})
+     */
     public NewRule setHtmlDescription(@Nullable String s) {
       if (markdownDescription != null) {
         throw new IllegalStateException(String.format("Rule '%s' already has a Markdown description", this));
@@ -716,6 +723,10 @@ public interface RulesDefinition {
       return this;
     }
 
+    /**
+     * The optional description, in a restricted Markdown format, has no max length. It's exclusive with HTML description
+     * (see {@link #setHtmlDescription(String)})
+     */
     public NewRule setMarkdownDescription(@Nullable String s) {
       if (htmlDescription != null) {
         throw new IllegalStateException(String.format("Rule '%s' already has an HTML description", this));
@@ -792,6 +803,9 @@ public interface RulesDefinition {
       return this;
     }
 
+    /**
+     * Create a parameter with given unique key. Max length of key is 128 characters.
+     */
     public NewParam createParam(String paramKey) {
       if (paramsByKey.containsKey(paramKey)) {
         throw new IllegalArgumentException(String.format("The parameter '%s' is declared several times on the rule %s", paramKey, this));
@@ -1020,7 +1034,7 @@ public interface RulesDefinition {
     }
 
     /**
-     * Plain-text description. Can be null.
+     * Plain-text description. Can be null. Max length is 4000 characters.
      */
     public NewParam setDescription(@Nullable String s) {
       this.description = StringUtils.defaultIfBlank(s, null);
@@ -1028,7 +1042,7 @@ public interface RulesDefinition {
     }
 
     /**
-     * Empty default value will be converted to null.
+     * Empty default value will be converted to null. Max length is 4000 characters.
      */
     public NewParam setDefaultValue(@Nullable String s) {
       this.defaultValue = Strings.emptyToNull(s);

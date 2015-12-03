@@ -19,8 +19,14 @@
  */
 package org.sonar.db.rule;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
+import java.util.Set;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleDto.DISABLED_CHARACTERISTIC_ID;
 
@@ -28,6 +34,9 @@ public class RuleDtoTest {
 
   public static final int FAKE_SUB_CHAR_1 = 27;
   public static final int FAKE_SUB_CHAR_2 = 42;
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void effective_sub_characteristic_id() {
@@ -56,5 +65,36 @@ public class RuleDtoTest {
     // characteristic is set to "none"
     dto.setSubCharacteristicId(DISABLED_CHARACTERISTIC_ID).setDefaultSubCharacteristicId(FAKE_SUB_CHAR_2);
     assertThat(dto.getEffectiveSubCharacteristicId()).isNull();
+  }
+
+  @Test
+  public void fail_if_key_is_too_long() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Rule key is too long: ");
+
+    new RuleDto().setRuleKey(repeat("x", 250));
+  }
+
+  @Test
+  public void fail_if_name_is_too_long() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Rule name is too long: ");
+
+    new RuleDto().setName(repeat("x", 300));
+  }
+
+  @Test
+  public void fail_if_tags_are_too_long() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Rule tags are too long: ");
+
+    Set<String> tags = ImmutableSet.of(repeat("a", 2000), repeat("b", 1000), repeat("c", 2000));
+    new RuleDto().setTags(tags);
+  }
+
+  @Test
+  public void tags_are_optional() {
+    RuleDto dto = new RuleDto().setTags(Collections.<String>emptySet());
+    assertThat(dto.getTags()).isEmpty();
   }
 }

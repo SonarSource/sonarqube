@@ -74,10 +74,10 @@ import static org.apache.commons.lang.StringUtils.trim;
  * <pre>
  * &lt;rules&gt;
  *   &lt;rule&gt;
- *     &lt;!-- required key --&gt;
+ *     &lt;!-- required key. Max length is 200. --&gt;
  *     &lt;key&gt;the-rule-key&lt;/key&gt;
  *
- *     &lt;!-- required name --&gt;
+ *     &lt;!-- required name. Max length is 200. --&gt;
  *     &lt;name&gt;The purpose of the rule&lt;/name&gt;
  *
  *     &lt;!-- required description, in HTML format --&gt;
@@ -98,11 +98,12 @@ import static org.apache.commons.lang.StringUtils.trim;
  *     &lt;!-- Status displayed in rules console. Possible values are BETA, READY (default), DEPRECATED. --&gt;
  *     &lt;status&gt;BETA&lt;/status&gt;
  *
- *     &lt;!-- Optional tags. See org.sonar.api.server.rule.RuleTagFormat. --&gt;
+ *     &lt;!-- Optional tags. See org.sonar.api.server.rule.RuleTagFormat. The maximal length of all tags is 4000. --&gt;
  *     &lt;tag&gt;style&lt;/tag&gt;
  *     &lt;tag&gt;security&lt;/tag&gt;
  *
  *     &lt;param&gt;
+ *       &lt;!-- Status displayed in rules console. Possible values are BETA, READY (default), DEPRECATED. --&gt;
  *       &lt;key&gt;the-param-key&lt;/key&gt;
  *       &lt;description&gt;
  *         &lt;![CDATA[the optional description, in HTML format]]&gt;
