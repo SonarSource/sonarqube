@@ -22,6 +22,7 @@ package org.sonar.server.issue.index;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +40,15 @@ public class IssueResultSetIteratorTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
+  private static Map<String, IssueDoc> issuesByKey(IssueResultSetIterator it) {
+    return Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
+      @Override
+      public String apply(@Nonnull IssueDoc issue) {
+        return issue.key();
+      }
+    });
+  }
+
   @Before
   public void setUp() {
     dbTester.truncateTables();
@@ -47,7 +57,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void iterator_over_one_issue() {
     dbTester.prepareDbUnit(getClass(), "one_issue.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -81,7 +91,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void iterator_over_issues() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -137,9 +147,29 @@ public class IssueResultSetIteratorTest {
   }
 
   @Test
+  public void iterator_over_issue_from_project() {
+    dbTester.prepareDbUnit(getClass(), "many_projects.xml");
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, "THE_PROJECT_1");
+    Map<String, IssueDoc> issuesByKey = issuesByKey(it);
+    it.close();
+
+    assertThat(issuesByKey).hasSize(2);
+  }
+
+  @Test
+  public void iterator_over_issue_from_project_and_date() {
+    dbTester.prepareDbUnit(getClass(), "many_projects.xml");
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_600_000_000_000L, "THE_PROJECT_1");
+    Map<String, IssueDoc> issuesByKey = issuesByKey(it);
+    it.close();
+
+    assertThat(issuesByKey).hasSize(1);
+  }
+
+  @Test
   public void extract_directory_path() {
     dbTester.prepareDbUnit(getClass(), "extract_directory_path.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -161,7 +191,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void extract_file_path() {
     dbTester.prepareDbUnit(getClass(), "extract_file_path.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -183,7 +213,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void select_after_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_420_000_000_000L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_420_000_000_000L, null);
 
     assertThat(it.hasNext()).isTrue();
     IssueDoc issue = it.next();
@@ -191,14 +221,5 @@ public class IssueResultSetIteratorTest {
 
     assertThat(it.hasNext()).isFalse();
     it.close();
-  }
-
-  private static Map<String, IssueDoc> issuesByKey(IssueResultSetIterator it) {
-    return Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
-      @Override
-      public String apply(IssueDoc issue) {
-        return issue.key();
-      }
-    });
   }
 }

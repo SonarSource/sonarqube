@@ -39,11 +39,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class IssueIndexerTest {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
   public void setUp() {
@@ -77,6 +76,7 @@ public class IssueIndexerTest {
     List<IssueDoc> docs = esTester.getDocuments("issues", "issue", IssueDoc.class);
     assertThat(docs).hasSize(1);
     IssueDoc doc = docs.get(0);
+    assertThat(doc.key()).isEqualTo("ABCDE");
     assertThat(doc.projectUuid()).isEqualTo("THE_PROJECT");
     assertThat(doc.componentUuid()).isEqualTo("THE_FILE");
     assertThat(doc.moduleUuid()).isEqualTo("THE_PROJECT");
@@ -90,11 +90,32 @@ public class IssueIndexerTest {
 
     // technical date
     assertThat(doc.getTechnicalUpdateDate().getTime()).isEqualTo(1550000000000L);
+  }
 
-    // delete project
+  @Test
+  public void delete_project_remove_issue() {
+    dbTester.prepareDbUnit(getClass(), "index.xml");
+
+    IssueIndexer indexer = createIndexer();
+    indexer.index();
+
+    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(1);
+
     indexer.deleteProject("THE_PROJECT", true);
 
     assertThat(esTester.countDocuments("issues", "issue")).isZero();
+  }
+
+  @Test
+  public void index_issues_from_project() {
+    dbTester.prepareDbUnit(getClass(), "index_project.xml");
+
+    IssueIndexer indexer = createIndexer();
+    indexer.index("THE_PROJECT_1");
+
+    List<IssueDoc> docs = esTester.getDocuments("issues", "issue", IssueDoc.class);
+    assertThat(docs).hasSize(1);
+    assertThat(docs.get(0).key()).isEqualTo("ABCDE");
   }
 
   private IssueIndexer createIndexer() {

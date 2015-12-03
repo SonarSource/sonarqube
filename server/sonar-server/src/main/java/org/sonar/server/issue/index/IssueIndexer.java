@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -41,11 +42,20 @@ public class IssueIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(false), lastUpdatedAt);
+    return doIndex(createBulkIndexer(false), lastUpdatedAt, null);
   }
 
   public void indexAll() {
-    doIndex(createBulkIndexer(true), 0L);
+    doIndex(createBulkIndexer(true), 0L, null);
+  }
+
+  public void index(final String projectUuid) {
+    super.index(new IndexerTask() {
+      @Override
+      public long index(long lastUpdatedAt) {
+        return doIndex(createBulkIndexer(false), lastUpdatedAt, projectUuid);
+      }
+    });
   }
 
   /**
@@ -55,11 +65,11 @@ public class IssueIndexer extends BaseIndexer {
     doIndex(createBulkIndexer(false), issues);
   }
 
-  private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
+  private long doIndex(BulkIndexer bulk, long lastUpdatedAt, @Nullable String projectUuid) {
     DbSession dbSession = dbClient.openSession(false);
     long maxDate;
     try {
-      IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
+      IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbSession, lastUpdatedAt, projectUuid);
       maxDate = doIndex(bulk, rowIt);
       rowIt.close();
       return maxDate;

@@ -20,21 +20,33 @@
 
 package org.sonar.server.computation.step;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.sonar.server.computation.component.Component.Type.*;
+import static org.sonar.server.computation.component.ReportComponent.*;
 
 public class IndexIssuesStepTest {
+
+  static String PROJECT_UUID = "PROJECT_UUID";
+
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
+    .setRoot(builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey("PROJECT_KEY").build());
 
   @Test
   public void call_indexers() {
     IssueIndexer issueIndexer = mock(IssueIndexer.class);
-    IndexIssuesStep underTest = new IndexIssuesStep(issueIndexer);
+    IndexIssuesStep underTest = new IndexIssuesStep(issueIndexer, treeRootHolder);
 
     underTest.execute();
 
-    verify(issueIndexer).index();
+    verify(issueIndexer).index(PROJECT_UUID);
   }
 }

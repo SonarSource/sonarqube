@@ -20,19 +20,22 @@
 
 package org.sonar.server.computation.step;
 
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.issue.index.IssueIndexer;
 
 public class IndexIssuesStep implements ComputationStep {
 
   private final IssueIndexer indexer;
+  private final TreeRootHolder treeRootHolder;
 
-  public IndexIssuesStep(IssueIndexer indexer) {
+  public IndexIssuesStep(IssueIndexer indexer, TreeRootHolder treeRootHolder) {
     this.indexer = indexer;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
   public void execute() {
-    indexer.index();
+    indexer.index(treeRootHolder.getRoot().getUuid());
   }
 
   @Override

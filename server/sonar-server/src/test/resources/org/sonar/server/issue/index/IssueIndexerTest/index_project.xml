@@ -1,0 +1,72 @@
+<dataset>
+  <rules id="1" tags="[null]" system_tags="[null]" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
+         plugin_config_key="[null]" plugin_name="squid"/>
+
+  <!-- Project 1 -->
+  <projects id="10" scope="PRJ" qualifier="TRK" kee="the_project_1" name="TheProject1"
+            uuid="THE_PROJECT_1" module_uuid="[null]" module_uuid_path="." path="[null]"/>
+  <projects id="11" scope="FIL" qualifier="FIL" kee="the_file_1" name="TheFile1"
+            uuid="THE_FILE_1" module_uuid="THE_PROJECT_1" module_uuid_path=".THE_PROJECT_1."
+            path="src/main/java/TheFile.java"/>
+
+  <issues id="1"
+          kee="ABCDE"
+          resolution="FIXED"
+          status="RESOLVED"
+          severity="BLOCKER"
+          manual_severity="[false]"
+          assignee="winner"
+          author_login="[null]"
+          checksum="FFFFF"
+          effort_to_fix="[null]"
+          technical_debt="[null]"
+          message="[null]"
+          line="444"
+          component_uuid="THE_FILE_1"
+          project_uuid="THE_PROJECT_1"
+          rule_id="1"
+          reporter="[null]"
+          issue_attributes="JIRA=http://jira.com"
+          action_plan_key="[null]"
+          created_at="1500000000000"
+          updated_at="1550000000000"
+          issue_creation_date="1115848800000"
+          issue_update_date="1368828000000"
+          issue_close_date="[null]"
+          locations="[null]"
+  />
+
+  <!-- Project 2 -->
+  <projects id="100" scope="PRJ" qualifier="TRK" kee="the_project_2" name="TheProject2"
+            uuid="THE_PROJECT_2" module_uuid="[null]" module_uuid_path="." path="[null]"/>
+  <projects id="111" scope="FIL" qualifier="FIL" kee="the_file_2" name="TheFile2"
+            uuid="THE_FILE_2" module_uuid="THE_PROJECT_2" module_uuid_path=".THE_PROJECT_2."
+            path="src/main/java/TheFile.java"/>
+
+  <issues id="10"
+          kee="EDCBA"
+          resolution="FIXED"
+          status="RESOLVED"
+          severity="BLOCKER"
+          manual_severity="[false]"
+          assignee="winner"
+          author_login="[null]"
+          checksum="FFFFF"
+          effort_to_fix="[null]"
+          technical_debt="[null]"
+          message="[null]"
+          line="444"
+          component_uuid="THE_FILE_2"
+          project_uuid="THE_PROJECT_2"
+          rule_id="1"
+          reporter="[null]"
+          issue_attributes="JIRA=http://jira.com"
+          action_plan_key="[null]"
+          created_at="1500000000000"
+          updated_at="1550000000000"
+          issue_creation_date="1115848800000"
+          issue_update_date="1368828000000"
+          issue_close_date="[null]"
+          locations="[null]"
+  />
+</dataset>
