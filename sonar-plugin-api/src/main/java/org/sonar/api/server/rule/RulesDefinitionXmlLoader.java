@@ -335,7 +335,7 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  private void fillDescription(RulesDefinition.NewRule rule, @Nullable String descriptionFormat, @Nullable String description) {
+  private static void fillDescription(RulesDefinition.NewRule rule, @Nullable String descriptionFormat, @Nullable String description) {
     if (isNotBlank(description)) {
       switch (defaultIfBlank(descriptionFormat, "HTML")) {
         case "HTML":
@@ -350,7 +350,7 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  private void fillRemediationFunction(RulesDefinition.NewRule rule, @Nullable String debtRemediationFunction,
+  private static void fillRemediationFunction(RulesDefinition.NewRule rule, @Nullable String debtRemediationFunction,
                                               @Nullable String functionOffset, @Nullable String functionCoeff) {
     if (isNotBlank(debtRemediationFunction)) {
       DebtRemediationFunction.Type functionType = DebtRemediationFunction.Type.valueOf(debtRemediationFunction);
@@ -358,7 +358,7 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  private void fillParams(RulesDefinition.NewRule rule, List<ParamStruct> params) {
+  private static void fillParams(RulesDefinition.NewRule rule, List<ParamStruct> params) {
     for (ParamStruct param : params) {
       rule.createParam(param.key)
           .setDefaultValue(param.defaultValue)
