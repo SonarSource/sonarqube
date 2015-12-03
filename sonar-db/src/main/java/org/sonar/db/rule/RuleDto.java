@@ -36,6 +36,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.rule.SeverityUtil;
 import org.sonar.db.Dto;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class RuleDto extends Dto<RuleKey> {
 
   public static final int DISABLED_CHARACTERISTIC_ID = -1;
@@ -95,8 +97,9 @@ public class RuleDto extends Dto<RuleKey> {
     return repositoryKey;
   }
 
-  public RuleDto setRepositoryKey(String repositoryKey) {
-    this.repositoryKey = repositoryKey;
+  public RuleDto setRepositoryKey(String s) {
+    checkArgument(s.length() <= 255, "Rule repository is too long: %s", s);
+    this.repositoryKey = s;
     return this;
   }
 
@@ -104,8 +107,9 @@ public class RuleDto extends Dto<RuleKey> {
     return ruleKey;
   }
 
-  public RuleDto setRuleKey(String ruleKey) {
-    this.ruleKey = ruleKey;
+  public RuleDto setRuleKey(String s) {
+    checkArgument(s.length() <= 200, "Rule key is too long: %s", s);
+    this.ruleKey = s;
     return this;
   }
 
@@ -140,8 +144,9 @@ public class RuleDto extends Dto<RuleKey> {
     return name;
   }
 
-  public RuleDto setName(@Nullable String name) {
-    this.name = name;
+  public RuleDto setName(@Nullable String s) {
+    checkArgument(s== null || s.length() <= 255, "Rule name is too long: %s", s);
+    this.name = s;
     return this;
   }
 
@@ -362,7 +367,9 @@ public class RuleDto extends Dto<RuleKey> {
   }
 
   public RuleDto setTags(Set<String> tags) {
-    this.tags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
+    String raw = tags.isEmpty() ? null : StringUtils.join(tags, ',');
+    checkArgument(raw == null || raw.length() <= 4000, "Rule tags are too long: %s", raw);
+    this.tags = raw;
     return this;
   }
 
