@@ -39,6 +39,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.StringUtils.trim;
@@ -74,16 +75,18 @@ import static org.apache.commons.lang.StringUtils.trim;
  * <pre>
  * &lt;rules&gt;
  *   &lt;rule&gt;
- *     &lt;!-- required key. Max length is 200. --&gt;
+ *     &lt;!-- required key. Max length is 200 characters. --&gt;
  *     &lt;key&gt;the-rule-key&lt;/key&gt;
  *
- *     &lt;!-- required name. Max length is 200. --&gt;
+ *     &lt;!-- required name. Max length is 200 characters. --&gt;
  *     &lt;name&gt;The purpose of the rule&lt;/name&gt;
  *
- *     &lt;!-- required description, in HTML format --&gt;
+ *     &lt;!-- required description. No max length. --&gt;
  *     &lt;description&gt;
- *       &lt;![CDATA[The HTML description]]&gt;
+ *       &lt;![CDATA[The description]]&gt;
  *     &lt;/description&gt;
+ *     &lt;!-- Format of description. Supported values are HTML (default) and MARKDOWN. --&gt;
+ *     &lt;descriptionFormat&gt;HTML&lt;/descriptionFormat&gt;
  *
  *     &lt;!-- Optional key for configuration of some rule engines --&gt;
  *     &lt;internalKey&gt;Checker/TreeWalker/LocalVariableName&lt;/internalKey&gt;
@@ -98,17 +101,18 @@ import static org.apache.commons.lang.StringUtils.trim;
  *     &lt;!-- Status displayed in rules console. Possible values are BETA, READY (default), DEPRECATED. --&gt;
  *     &lt;status&gt;BETA&lt;/status&gt;
  *
- *     &lt;!-- Optional tags. See org.sonar.api.server.rule.RuleTagFormat. The maximal length of all tags is 4000. --&gt;
+ *     &lt;!-- Optional tags. See org.sonar.api.server.rule.RuleTagFormat. The maximal length of all tags is 4000 characters. --&gt;
  *     &lt;tag&gt;style&lt;/tag&gt;
  *     &lt;tag&gt;security&lt;/tag&gt;
  *
+ *     &lt;!-- Optional parameters --&gt;
  *     &lt;param&gt;
- *       &lt;!-- Status displayed in rules console. Possible values are BETA, READY (default), DEPRECATED. --&gt;
+ *       &lt;!-- Required key. Max length is 128 characters. --&gt;
  *       &lt;key&gt;the-param-key&lt;/key&gt;
  *       &lt;description&gt;
- *         &lt;![CDATA[the optional description, in HTML format]]&gt;
+ *         &lt;![CDATA[the optional description, in HTML format. Max length is 4000 characters.]]&gt;
  *       &lt;/description&gt;
- *       &lt;!-- Optional default value, used when enabling the rule in a Quality profile --&gt;
+ *       &lt;!-- Optional default value, used when enabling the rule in a Quality profile. Max length is 4000 characters. --&gt;
  *       &lt;defaultValue&gt;42&lt;/defaultValue&gt;
  *     &lt;/param&gt;
  *     &lt;param&gt;
@@ -228,6 +232,7 @@ public class RulesDefinitionXmlLoader {
     String key = null;
     String name = null;
     String description = null;
+    String descriptionFormat = "HTML";
     String internalKey = null;
     String severity = Severity.defaultSeverity();
     RuleStatus status = RuleStatus.defaultStatus();
@@ -259,6 +264,9 @@ public class RulesDefinitionXmlLoader {
 
       } else if (equalsIgnoreCase("description", nodeName)) {
         description = trim(cursor.collectDescendantText(false));
+
+      } else if (equalsIgnoreCase("descriptionFormat", nodeName)) {
+        descriptionFormat = trim(cursor.collectDescendantText(false));
 
       } else if (equalsIgnoreCase("key", nodeName)) {
         key = trim(cursor.collectDescendantText(false));
@@ -311,7 +319,6 @@ public class RulesDefinitionXmlLoader {
 
     try {
       RulesDefinition.NewRule rule = repo.createRule(key)
-          .setHtmlDescription(description)
           .setSeverity(severity)
           .setName(name)
           .setInternalKey(internalKey)
@@ -320,10 +327,26 @@ public class RulesDefinitionXmlLoader {
           .setStatus(status)
           .setEffortToFixDescription(effortToFixDescription)
           .setDebtSubCharacteristic(debtSubCharacteristic);
+      fillDescription(rule, descriptionFormat, description);
       fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionOffset, debtRemediationFunctionCoeff);
       fillParams(rule, params);
     } catch (Exception e) {
       throw new IllegalArgumentException(format("Fail to load the rule with key [%s:%s]", repo.key(), key), e);
+    }
+  }
+
+  private void fillDescription(RulesDefinition.NewRule rule, @Nullable String descriptionFormat, @Nullable String description) {
+    if (isNotBlank(description)) {
+      switch (defaultIfBlank(descriptionFormat, "HTML")) {
+        case "HTML":
+          rule.setHtmlDescription(description);
+          break;
+        case "MARKDOWN":
+          rule.setMarkdownDescription(description);
+          break;
+        default:
+          throw new IllegalArgumentException("Value of descriptionFormat is not supported: " + descriptionFormat);
+      }
     }
   }
 
