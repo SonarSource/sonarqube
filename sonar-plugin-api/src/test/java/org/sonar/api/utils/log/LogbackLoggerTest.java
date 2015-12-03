@@ -56,6 +56,7 @@ public class LogbackLoggerTest {
     underTest.warn("message {}", "foo");
     underTest.warn("message {} {}", "foo", "bar");
     underTest.warn("message {} {} {}", "foo", "bar", "baz");
+    underTest.warn("message", new NullPointerException("boom!"));
 
     underTest.error("message");
     underTest.error("message {}", "foo");

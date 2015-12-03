@@ -135,6 +135,12 @@ class ConsoleLogger extends BaseLogger {
   }
 
   @Override
+  void doWarn(String msg, Throwable thrown) {
+    doWarn(msg);
+    thrown.printStackTrace();
+  }
+
+  @Override
   protected void doWarn(String pattern, @Nullable Object arg) {
     warn(format(pattern, arg));
   }

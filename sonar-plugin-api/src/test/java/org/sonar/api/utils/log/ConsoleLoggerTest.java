@@ -22,6 +22,7 @@ package org.sonar.api.utils.log;
 import java.io.PrintStream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.anyString;
@@ -87,20 +88,33 @@ public class ConsoleLoggerTest {
   }
 
   @Test
-  public void log() {
+  public void log_info() {
     underTest.info("message");
     underTest.info("message {}", "foo");
     underTest.info("message {} {}", "foo", "bar");
     underTest.info("message {} {} {}", "foo", "bar", "baz");
     verify(stream, times(4)).println(startsWith("INFO "));
+  }
+
+  @Test
+  public void log_warn() {
+    Throwable throwable = mock(Throwable.class);
 
     underTest.warn("message");
     underTest.warn("message {}", "foo");
     underTest.warn("message {} {}", "foo", "bar");
     underTest.warn("message {} {} {}", "foo", "bar", "baz");
-    underTest.warn("message", new IllegalArgumentException());
-    verify(stream, times(5)).println(startsWith("WARN "));
+    underTest.warn("message", throwable);
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+    verify(stream, times(5)).println(captor.capture());
+    for (String msg : captor.getAllValues()) {
+      assertThat(msg).startsWith("WARN ");
+    }
+    verify(throwable).printStackTrace();
+  }
 
+  @Test
+  public void log_error() {
     underTest.error("message");
     underTest.error("message {}", "foo");
     underTest.error("message {} {}", "foo", "bar");

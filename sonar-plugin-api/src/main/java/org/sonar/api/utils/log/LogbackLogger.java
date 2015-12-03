@@ -111,6 +111,11 @@ class LogbackLogger extends BaseLogger {
   }
 
   @Override
+  void doWarn(String msg, Throwable thrown) {
+    logback.warn(msg, thrown);
+  }
+
+  @Override
   protected void doWarn(String msg, @Nullable Object arg) {
     logback.warn(msg, arg);
   }
