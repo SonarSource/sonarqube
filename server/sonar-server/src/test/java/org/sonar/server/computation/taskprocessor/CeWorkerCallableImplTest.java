@@ -67,7 +67,7 @@ public class CeWorkerCallableImplTest {
     assertThat(underTest.call()).isTrue();
 
     inOrder.verify(ceLogging).initForTask(task);
-    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null);
     inOrder.verify(ceLogging).clearForTask();
   }
 
@@ -81,7 +81,7 @@ public class CeWorkerCallableImplTest {
 
     inOrder.verify(ceLogging).initForTask(task);
     inOrder.verify(taskProcessor).process(task);
-    inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS, null);
     inOrder.verify(ceLogging).clearForTask();
   }
 
@@ -96,7 +96,7 @@ public class CeWorkerCallableImplTest {
 
     inOrder.verify(ceLogging).initForTask(task);
     inOrder.verify(taskProcessor).process(task);
-    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null);
     inOrder.verify(ceLogging).clearForTask();
   }
 }

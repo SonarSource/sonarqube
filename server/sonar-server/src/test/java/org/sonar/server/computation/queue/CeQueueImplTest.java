@@ -43,6 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class CeQueueImplTest {
 
@@ -98,7 +99,7 @@ public class CeQueueImplTest {
   public void test_remove() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     Optional<CeTask> peek = underTest.peek();
-    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS);
+    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, null);
 
     // queue is empty
     assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), task.getUuid()).isPresent()).isFalse();
@@ -109,18 +110,45 @@ public class CeQueueImplTest {
     assertThat(history.isPresent()).isTrue();
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
     assertThat(history.get().getIsLast()).isTrue();
+    assertThat(history.get().getSnapshotId()).isNull();
 
     verify(listener).onRemoved(task, CeActivityDto.Status.SUCCESS);
+  }
+
+  @Test
+  public void remove_does_not_set_snapshotId_in_CeActivity_when_CeTaskResult_has_no_snapshot_id() {
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    Optional<CeTask> peek = underTest.peek();
+    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(null));
+
+    // available in history
+    Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
+    assertThat(history.isPresent()).isTrue();
+    assertThat(history.get().getSnapshotId()).isNull();
+  }
+
+  @Test
+  public void remove_sets_snapshotId_in_CeActivity_when_CeTaskResult_has_no_snapshot_id() {
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    long snapshotId = 663L;
+
+    Optional<CeTask> peek = underTest.peek();
+    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(snapshotId));
+
+    // available in history
+    Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
+    assertThat(history.isPresent()).isTrue();
+    assertThat(history.get().getSnapshotId()).isEqualTo(snapshotId);
   }
 
   @Test
   public void fail_to_remove_if_not_in_queue() throws Exception {
     expectedException.expect(IllegalStateException.class);
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-    underTest.remove(task, CeActivityDto.Status.SUCCESS);
+    underTest.remove(task, CeActivityDto.Status.SUCCESS, null);
 
     // fail
-    underTest.remove(task, CeActivityDto.Status.SUCCESS);
+    underTest.remove(task, CeActivityDto.Status.SUCCESS, null);
   }
 
   @Test
@@ -221,5 +249,11 @@ public class CeQueueImplTest {
     submission.setType(reportType);
     submission.setComponentUuid(componentUuid);
     return underTest.submit(submission.build());
+  }
+
+  private CeTaskResult newTaskResult(Long snapshotId) {
+    CeTaskResult taskResult = mock(CeTaskResult.class);
+    when(taskResult.getSnapshotId()).thenReturn(snapshotId);
+    return taskResult;
   }
 }

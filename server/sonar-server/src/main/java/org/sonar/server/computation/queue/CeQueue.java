@@ -20,6 +20,7 @@
 package org.sonar.server.computation.queue;
 
 import com.google.common.base.Optional;
+import javax.annotation.Nullable;
 import org.sonar.db.ce.CeActivityDto;
 
 /**
@@ -85,11 +86,11 @@ public interface CeQueue {
 
   /**
    * Removes a task from the queue and registers it to past activities. This method
-   * is called by Compute Engine workers when task is processed.
+   * is called by Compute Engine workers when task is processed and can include an option {@link CeTaskResult} object.
    *
-   * <p>An unchecked exception is thrown if the task does not exist in the queue.</p>
+   * @throws IllegalStateException if the task does not exist in the queue
    */
-  void remove(CeTask task, CeActivityDto.Status status);
+  void remove(CeTask task, CeActivityDto.Status status, @Nullable CeTaskResult taskResult);
 
   void pauseSubmit();
 

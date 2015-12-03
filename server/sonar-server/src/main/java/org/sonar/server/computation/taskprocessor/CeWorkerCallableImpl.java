@@ -28,6 +28,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.queue.CeQueue;
 import org.sonar.server.computation.queue.CeTask;
+import org.sonar.server.computation.queue.CeTaskResult;
 
 import static java.lang.String.format;
 
@@ -72,21 +73,21 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
     Profiler ceProfiler = startProfiler(task);
 
     CeActivityDto.Status status = CeActivityDto.Status.FAILED;
+    CeTaskResult process = null;
     try {
       // TODO delegate the message to the related task processor, according to task type
       Optional<CeTaskProcessor> taskProcessor = taskProcessorRepository.getForCeTask(task);
       if (taskProcessor.isPresent()) {
-        taskProcessor.get().process(task);
+        process = taskProcessor.get().process(task);
         status = CeActivityDto.Status.SUCCESS;
       } else {
         LOG.error("No CeTaskProcessor is defined for task of type {}. Plugin configuration may have changed", task.getType());
         status = CeActivityDto.Status.FAILED;
       }
-      queue.remove(task, status);
     } catch (Throwable e) {
       LOG.error(format("Failed to execute task %s", task.getUuid()), e);
-      queue.remove(task, status);
     } finally {
+      queue.remove(task, status, process);
       // logging twice: once in sonar.log and once in CE appender
       stopProfiler(ceProfiler, task, status);
       ceLogging.clearForTask();

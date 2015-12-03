@@ -21,6 +21,7 @@ package org.sonar.server.computation.queue;
 
 import com.google.common.base.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -172,7 +173,7 @@ public class CeQueueImpl implements CeQueue {
   }
 
   @Override
-  public void remove(CeTask task, CeActivityDto.Status status) {
+  public void remove(CeTask task, CeActivityDto.Status status, CeTaskResult taskResult) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, task.getUuid());
@@ -182,10 +183,20 @@ public class CeQueueImpl implements CeQueue {
       CeActivityDto activityDto = new CeActivityDto(queueDto.get());
       activityDto.setStatus(status);
       updateQueueStatus(status, activityDto);
+      updateTaskResult(activityDto, taskResult);
       remove(dbSession, task, queueDto.get(), activityDto);
 
     } finally {
       dbClient.closeSession(dbSession);
+    }
+  }
+
+  private void updateTaskResult(CeActivityDto activityDto, @Nullable CeTaskResult taskResult) {
+    if (taskResult != null) {
+      Long snapshotId = taskResult.getSnapshotId();
+      if (snapshotId != null) {
+        activityDto.setSnapshotId(snapshotId);
+      }
     }
   }
 
