@@ -116,13 +116,17 @@ export class DomainBubbleChart extends React.Component {
       <div className="overview-card-header">
         <h2 className="overview-title">{window.t('overview.chart.files')}</h2>
         <ul className="list-inline small">
-          <li>X: {this.state.xMetric.name}</li>
-          <li>Y: {this.state.yMetric.name}</li>
           <li>Size: {this.getSizeMetricsTitle()}</li>
         </ul>
       </div>
       <div className="overview-bubble-chart">
+        <div className="note" style={{ position: 'relative', top: '10px', left: '10px' }}>
+          Y: {this.state.yMetric.name}
+        </div>
         {this.renderBubbleChart()}
+        <div className="note text-right" style={{ position: 'relative', top: '-10px', left: '-10px' }}>
+          X: {this.state.xMetric.name}
+        </div>
       </div>
     </div>;
   }
