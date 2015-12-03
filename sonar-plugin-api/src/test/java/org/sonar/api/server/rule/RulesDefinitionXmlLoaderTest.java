@@ -40,22 +40,6 @@ public class RulesDefinitionXmlLoaderTest {
 
   RulesDefinitionXmlLoader underTest = new RulesDefinitionXmlLoader();
 
-  private RulesDefinition.Repository load(InputStream input, String encoding) {
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
-    underTest.load(newRepository, input, encoding);
-    newRepository.done();
-    return context.repository("squid");
-  }
-
-  private RulesDefinition.Repository load(String xml) {
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
-    underTest.load(newRepository, new StringReader(xml));
-    newRepository.done();
-    return context.repository("squid");
-  }
-
   @Test
   public void parse_xml() {
     InputStream input = getClass().getResourceAsStream("RulesDefinitionXmlLoaderTest/rules.xml");
@@ -251,5 +235,58 @@ public class RulesDefinitionXmlLoaderTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessageContaining("Both debt sub-characteristic and debt remediation function should be defined on rule '[repository=squid, key=1]");
     }
+  }
+
+  @Test
+  public void markdown_description() {
+    String xml = "" +
+      "<rules>" +
+      "  <rule>" +
+      "    <key>1</key>" +
+      "    <name>One</name>" +
+      "    <description>Desc</description>" +
+      "    <descriptionFormat>MARKDOWN</descriptionFormat>" +
+      "  </rule>" +
+      "</rules>";
+    RulesDefinition.Rule rule = load(xml).rule("1");
+    assertThat(rule.markdownDescription()).isEqualTo("Desc");
+    assertThat(rule.htmlDescription()).isNull();
+  }
+
+  @Test
+  public void fail_if_unsupported_description_format() {
+    try {
+      String xml = "" +
+        "<rules>" +
+        "  <rule>" +
+        "    <key>1</key>" +
+        "    <name>One</name>" +
+        "    <description>Desc</description>" +
+        "    <descriptionFormat>UNKNOWN</descriptionFormat>" +
+        "  </rule>" +
+        "</rules>";
+      RulesDefinition.Rule rule = load(xml).rule("1");
+      assertThat(rule.markdownDescription()).isEqualTo("Desc");
+      assertThat(rule.htmlDescription()).isNull();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessageContaining("Fail to load the rule with key [squid:1]");
+      assertThat(e.getCause()).hasMessageContaining("No enum constant org.sonar.api.server.rule.RulesDefinitionXmlLoader.DescriptionFormat.UNKNOWN");
+    }
+  }
+
+  private RulesDefinition.Repository load(InputStream input, String encoding) {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
+    underTest.load(newRepository, input, encoding);
+    newRepository.done();
+    return context.repository("squid");
+  }
+
+  private RulesDefinition.Repository load(String xml) {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
+    underTest.load(newRepository, new StringReader(xml));
+    newRepository.done();
+    return context.repository("squid");
   }
 }
