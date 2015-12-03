@@ -11,15 +11,14 @@
     </div>
     <div class="modal-body">
       <% @dashboard.errors.full_messages.each do |msg| %>
-        <p class="error"><%= h msg -%></p>
+        <p class="alert alert-danger"><%= h msg -%></p>
       <% end %>
-      <div class="info">
-        <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
+      <p>
         <%= message 'dashboard.do_you_want_to_delete_dashboard' -%>
-      </div>
+      </p>
     </div>
     <div class="modal-foot">
-      <input type="submit" value="<%= message 'dashboard.delete_dashboard' -%>" id="confirm-submit"/>
+      <button class="button-red" id="confirm-submit"><%= message 'dashboard.delete_dashboard' -%></button>
       <a href="#" onclick="return closeModalWindow()" id="confirm-cancel"><%= h message('cancel') -%></a>
     </div>
   </fieldset>

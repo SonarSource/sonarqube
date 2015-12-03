@@ -35,7 +35,9 @@ export const CoverageMeasuresList = React.createClass({
       'it_uncovered_lines', 'it_uncovered_conditions',
 
       'overall_coverage', 'overall_line_coverage', 'overall_branch_coverage',
-      'overall_uncovered_lines', 'overall_uncovered_conditions'
+      'overall_uncovered_lines', 'overall_uncovered_conditions',
+
+      'lines_to_cover', 'conditions_to_cover'
     ]);
     let metrics = filterMetricsForDomains(this.props.metrics, TEST_DOMAINS)
         .filter(metric => knownMetrics.indexOf(metric.key) === -1)

@@ -4,15 +4,15 @@
     <%= link_to message('dashboard.configure_widgets'), {:controller => :dashboard, :action => :configure, :did => dashboard.id, :id => (resource_id unless dashboard.global?)},
                 :id => "configure-#{u dashboard.name}", :class => 'link-action' %>
     <%= link_to message('edit'), {:action => :edit_form, :id => dashboard.id, :resource => resource_id},
-                :id => "edit-#{u dashboard.name}", :class => 'open-modal link-action' %>
+                :id => "edit-#{u dashboard.name}", :class => 'open-modal' %>
 
     <% if can_be_disabled %>
       <%= link_to message('delete'), {:action => :delete_form, :id => dashboard.id, :resource => resource_id},
-                  :id => "delete-#{u dashboard.name}", :class => 'open-modal link-action' %>
+                  :id => "delete-#{u dashboard.name}", :class => 'open-modal text-danger' %>
     <% end %>
   <% end %>
   <% if can_be_disabled %>
     <%= link_to message(subscription_action), {:action => subscription_action.to_sym, :id => dashboard.id, :resource => resource_id}, :method => :post,
-                :id => "#{subscription_action}-#{u dashboard.name}", :class => 'link-action' %>
+                :id => "#{subscription_action}-#{u dashboard.name}" %>
   <% end %>
 </td>

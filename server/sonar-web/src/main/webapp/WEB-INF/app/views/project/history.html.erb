@@ -21,7 +21,7 @@
         <th class="nowrap" style="padding-left: 20px; min-width: 100px;"><%= message('project_history.col.events') -%></th>
         <th class="thin nowrap"></th>
         <th class="thin nowrap"></th>
-        <th class="thin nowrap" style="padding-left: 20px;"><%= message('project_history.col.action') -%></th>
+        <th class="thin nowrap text-right" style="padding-left: 20px;"><%= message('project_history.col.action') -%></th>
       </tr>
     </thead>
     <tbody>
@@ -139,7 +139,7 @@
           <%= image_tag "event_profile.png", :alt => message('project_history.col.profile') + ": " + profile_event.description_text if profile_event -%>
         </td>
 
-        <td class="thin nowrap text-center" style="padding-left:10px; padding-right:10px">
+        <td class="thin nowrap text-right" style="padding-left:10px; padding-right:10px">
           <%
             cell_content = nil;
             if snapshot.islast?
@@ -147,7 +147,7 @@
             else
               cell_content = button_to( message('project_history.delete_snapshot'),
                                           { :action => "delete_snapshot_history", :id => @project.id, :snapshot_id => snapshot.id },
-                                          :class => 'action red-button',
+                                          :class => 'button-red',
                                           :confirm => message('project_history.are_you_sure_delete_snapshot_x', :params => l(time, :format => :long)) )
             end
           %>

@@ -232,7 +232,7 @@ export const SeverityMeasure = React.createClass({
     return <div className="overview-detailed-measure-leak">
       <ul>
         <li style={{ display: 'flex', alignItems: 'baseline' }}>
-          <small className="flex-1 text-left">Added</small>
+          <small className="flex-1 text-left text-ellipsis">Added</small>
           <IssuesLink className="text-danger"
                       component={this.props.component.key}
                       params={{ resolved: 'false', severities: this.props.severity, createdAfter: createdAfter }}>
@@ -242,7 +242,7 @@ export const SeverityMeasure = React.createClass({
           </IssuesLink>
         </li>
         <li className="little-spacer-top" style={{ display: 'flex', alignItems: 'baseline' }}>
-          <small className="flex-1 text-left">Removed</small>
+          <small className="flex-1 text-left text-ellipsis">Removed</small>
           <span className="text-success">
             {formatMeasure(removed, 'SHORT_INT')}
           </span>

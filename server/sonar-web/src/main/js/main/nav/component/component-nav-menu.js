@@ -21,8 +21,16 @@ const FIXED_DASHBOARDS = [
 ];
 
 const SETTINGS_URLS = [
-  '/project/settings', '/project/profile', '/project/qualitygate', '/manual_measures/index',
-  '/action_plans/index', '/project/links', '/project_roles/index', '/project/history', '/project/key',
+  '/project/settings',
+  '/project/profile',
+  '/project/qualitygate',
+  '/custom_measures',
+  '/action_plans',
+  '/project/links',
+  '/project_roles',
+  '/project/history',
+  'background_tasks',
+  '/project/key',
   '/project/deletion'
 ];
 
@@ -77,7 +85,8 @@ export default React.createClass({
     return FIXED_DASHBOARDS.map(fixedDashboard => {
       let key = 'fixed-dashboard-' + fixedDashboard.link.substr(1);
       let url = getComponentFixedDashboardUrl(this.props.component.key, fixedDashboard.link);
-      let name = window.t(fixedDashboard.name);
+      let name = fixedDashboard.link !== '' ?
+          window.t(fixedDashboard.name) : <i className="icon-home"/>;
       let className = classNames({ active: this.isFixedDashboardActive(fixedDashboard) });
       return <li key={key} className={className}>
         <a href={url}>{name}</a>

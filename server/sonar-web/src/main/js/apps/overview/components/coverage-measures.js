@@ -124,11 +124,19 @@ export const CoverageMeasures = React.createClass({
               type="INT"/>
 
           <DetailedMeasure {...this.props} {...this.props}
+              metric="lines_to_cover"
+              type="INT"/>
+
+          <DetailedMeasure {...this.props} {...this.props}
               metric={this.getMetricName('branch_coverage')}
               type="PERCENT"/>
 
           <DetailedMeasure {...this.props} {...this.props}
               metric={this.getMetricName('uncovered_conditions')}
+              type="INT"/>
+
+          <DetailedMeasure {...this.props} {...this.props}
+              metric="conditions_to_cover"
               type="INT"/>
 
           {this.renderCoverageOnNewCode()}

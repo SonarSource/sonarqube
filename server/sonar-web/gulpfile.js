@@ -64,7 +64,6 @@ gulp.task('scripts', ['scripts-sonar', 'scripts-main', 'scripts-apps', 'scripts-
 gulp.task('build', ['clean', 'scripts', 'styles']);
 
 gulp.task('watch', ['scripts-main-watch', 'scripts-apps-watch', 'scripts-widgets-watch'], function () {
-  gulp.watch('src/main/less/**/*.less', ['styles']);
   gutil.log(gutil.colors.bgGreen('Watching for changes...'));
 });
 

@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
+import Select from 'react-select';
 
 import { getTimeMachineData } from '../../../api/time-machine';
 import { getEvents } from '../../../api/events';
@@ -70,8 +71,8 @@ export const DomainTimeline = React.createClass({
     });
   },
 
-  handleMetricChange (e) {
-    let newMetric = e.target.value,
+  handleMetricChange (selected) {
+    let newMetric = selected.value,
         comparisonMetric = this.state.comparisonMetric;
     if (newMetric === comparisonMetric) {
       comparisonMetric = '';
@@ -81,8 +82,8 @@ export const DomainTimeline = React.createClass({
     });
   },
 
-  handleComparisonMetricChange (e) {
-    let newMetric = e.target.value;
+  handleComparisonMetricChange (selected) {
+    let newMetric = selected && selected.value;
     this.requestTimeMachineData(this.state.currentMetric, newMetric).then(snapshots => {
       this.setState({ comparisonMetric: newMetric, snapshots });
     });
@@ -154,28 +155,40 @@ export const DomainTimeline = React.createClass({
     </div>;
   },
 
-  renderMetricOption (metric) {
-    return <option key={metric.key} value={metric.key}>{metric.name}</option>;
-  },
-
-  renderMetricOptions (metrics) {
-    let groupedMetrics = groupByDomain(metrics);
-    return groupedMetrics.map(metricGroup => {
-      let options = metricGroup.metrics.map(this.renderMetricOption);
-      return <optgroup key={metricGroup.domain} label={metricGroup.domain}>{options}</optgroup>;
-    });
-  },
-
   renderTimelineMetricSelect () {
     if (this.state.loading) {
       return null;
     }
+
+    const options = this.props.metrics.map(metric => {
+      return {
+        value: metric.key,
+        label: metric.name,
+        domain: metric.domain
+      };
+    });
+
+    // use "disabled" property to emulate optgroups
+    const optionsWithDomains = [];
+    options.forEach((option, index, options) => {
+      const previous = index > 0 ? options[index - 1] : null;
+      if (!previous || previous.domain !== option.domain) {
+        optionsWithDomains.push({
+          value: option.domain,
+          label: option.domain,
+          disabled: true
+        });
+      }
+      optionsWithDomains.push(option);
+    });
+
     return <span>
       <span className="overview-timeline-sample overview-timeline-sample-0"/>
-      <select ref="metricSelect"
-              className="overview-timeline-select"
-              onChange={this.handleMetricChange}
-              value={this.state.currentMetric}>{this.renderMetricOptions(this.props.metrics)}</select>
+      <Select value={this.state.currentMetric}
+              options={optionsWithDomains}
+              clearable={false}
+              className="input-large"
+              onChange={this.handleMetricChange}/>
     </span>;
   },
 
@@ -183,16 +196,38 @@ export const DomainTimeline = React.createClass({
     if (this.state.loading) {
       return null;
     }
-    let metrics = this.props.allMetrics.filter(metric => metric.key !== this.state.currentMetric);
+
+    const options = _.sortBy(this.props.allMetrics, 'domain')
+        .filter(metric => metric.key !== this.state.currentMetric)
+        .map(metric => {
+          return {
+            value: metric.key,
+            label: metric.name,
+            domain: metric.domain
+          };
+        });
+
+    // use "disabled" property to emulate optgroups
+    const optionsWithDomains = [];
+    options.forEach((option, index, options) => {
+      const previous = index > 0 ? options[index - 1] : null;
+      if (!previous || previous.domain !== option.domain) {
+        optionsWithDomains.push({
+          value: option.domain,
+          label: option.domain,
+          disabled: true
+        });
+      }
+      optionsWithDomains.push(option);
+    });
+
     return <span>
       {this.state.comparisonMetric ? <span className="overview-timeline-sample overview-timeline-sample-1"/> : null}
-      <select ref="comparisonMetricSelect"
-              className="overview-timeline-select"
-              onChange={this.handleComparisonMetricChange}
-              value={this.state.comparisonMetric}>
-        <option value="">Compare with...</option>
-        {this.renderMetricOptions(metrics)}
-      </select>
+      <Select value={this.state.comparisonMetric}
+              options={optionsWithDomains}
+              placeholder="Compare with..."
+              className="input-large"
+              onChange={this.handleComparisonMetricChange}/>
     </span>;
   },
 

@@ -10,7 +10,12 @@ table {
   background-color: #fff;
 }
 
-.odd.selected, .even.selected, .odd.selected a, .even.selected a, .even.selected span, .odd.selected span {
+.odd.selected,
+.even.selected,
+.odd.selected a,
+.even.selected a,
+.even.selected span:not(.rating),
+.odd.selected span:not(.rating) {
   background-color: @lightBlue;
   color: @baseFontColor;
 }
