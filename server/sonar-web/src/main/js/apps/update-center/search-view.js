@@ -9,9 +9,9 @@ export default Marionette.ItemView.extend({
     'change [name="update-center-filter"]': 'onFilterChange',
 
     'submit #update-center-search-form': 'onFormSubmit',
-    'search #update-center-search-query': 'debouncedOnKeyUp',
-    'keyup #update-center-search-query': 'debouncedOnKeyUp',
-    'change #update-center-search-query': 'debouncedOnKeyUp'
+    'search #update-center-search-query': 'onKeyUp',
+    'keyup #update-center-search-query': 'onKeyUp',
+    'change #update-center-search-query': 'onKeyUp'
   },
 
   collectionEvents: {
@@ -20,7 +20,7 @@ export default Marionette.ItemView.extend({
 
   initialize: function () {
     this._bufferedValue = null;
-    this.debouncedOnKeyUp = _.debounce(this.onKeyUp, 50);
+    this.search = _.debounce(this.search, 50);
     this.listenTo(this.options.state, 'change', this.render);
   },
 
