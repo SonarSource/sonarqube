@@ -21,8 +21,12 @@ package org.sonar.db.version;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.Database;
+
+import static java.lang.String.*;
+import static java.util.Arrays.asList;
 
 public abstract class DdlChange implements MigrationStep {
 
@@ -46,6 +50,12 @@ public abstract class DdlChange implements MigrationStep {
     }
   }
 
+  public abstract void execute(Context context) throws SQLException;
+
+  protected Database getDatabase() {
+    return db;
+  }
+
   public static class Context {
     private final Connection writeConnection;
 
@@ -57,14 +67,18 @@ public abstract class DdlChange implements MigrationStep {
       try {
         UpsertImpl.create(writeConnection, sql).execute().commit();
       } catch (Exception e) {
-        throw new IllegalStateException(String.format("Fail to execute %s", sql), e);
+        throw new IllegalStateException(format("Fail to execute %s", sql), e);
       }
     }
-  }
 
-  public abstract void execute(Context context) throws SQLException;
+    public void execute(String... sqls) throws SQLException {
+      execute(asList(sqls));
+    }
 
-  protected Database getDatabase() {
-    return db;
+    public void execute(List<String> sqls) throws SQLException {
+      for (String sql : sqls) {
+        execute(sql);
+      }
+    }
   }
 }

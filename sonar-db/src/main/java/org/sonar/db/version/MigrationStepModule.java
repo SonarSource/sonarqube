@@ -59,6 +59,7 @@ import org.sonar.db.version.v52.RemoveComponentLibraries;
 import org.sonar.db.version.v52.RemoveDuplicatedComponentKeys;
 import org.sonar.db.version.v52.RemoveRuleMeasuresOnIssues;
 import org.sonar.db.version.v52.RemoveSnapshotLibraries;
+import org.sonar.db.version.v53.FixMsSqlCollation;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -109,7 +110,9 @@ public class MigrationStepModule extends Module {
       RemoveDuplicatedComponentKeys.class,
       IncreasePrecisionOfNumerics.class,
       RemoveAnalysisReportsFromActivities.class,
-      RemoveRuleMeasuresOnIssues.class
-    );
+      RemoveRuleMeasuresOnIssues.class,
+
+      // 5.3
+      FixMsSqlCollation.class);
   }
 }
