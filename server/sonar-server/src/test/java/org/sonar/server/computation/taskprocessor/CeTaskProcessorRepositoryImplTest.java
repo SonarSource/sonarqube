@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.computation.queue.CeTask;
+import org.sonar.server.computation.queue.CeTaskResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -126,7 +127,7 @@ public class CeTaskProcessorRepositoryImplTest {
     }
 
     @Override
-    public void process(CeTask task) {
+    public CeTaskResult process(CeTask task) {
       throw new UnsupportedOperationException("Process is not implemented");
     }
   }

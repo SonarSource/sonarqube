@@ -20,7 +20,9 @@
 package org.sonar.server.computation.taskprocessor;
 
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.server.computation.queue.CeTask;
+import org.sonar.server.computation.queue.CeTaskResult;
 
 /**
  * This interface is used to provide the processing code for {@link CeTask}s of one or more type to be called by the
@@ -51,5 +53,6 @@ public interface CeTaskProcessor {
    * @throws RuntimeException when thrown, it will be caught and logged by the Compute Engine and the processing of the
    *         specified {@link CeTask} will be flagged as failed.
    */
-  void process(CeTask task);
+  @CheckForNull
+  CeTaskResult process(CeTask task);
 }

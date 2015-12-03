@@ -27,6 +27,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
 import org.sonar.server.computation.queue.CeTask;
+import org.sonar.server.computation.queue.CeTaskResult;
 import org.sonar.server.computation.step.ComputationStepExecutor;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessor;
 import org.sonar.server.devcockpit.DevCockpitBridge;
@@ -64,10 +65,11 @@ public class ReportTaskProcessor implements CeTaskProcessor {
   }
 
   @Override
-  public void process(CeTask task) {
+  public CeTaskResult process(CeTask task) {
     ComputeEngineContainer ceContainer = containerFactory.create(serverContainer, task, devCockpitBridge);
     try {
       ceContainer.getComponentByType(ComputationStepExecutor.class).execute();
+      return null;
     } finally {
       ceContainer.cleanup();
     }

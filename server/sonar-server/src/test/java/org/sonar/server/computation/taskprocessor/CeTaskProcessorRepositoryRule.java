@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.queue.CeTask;
+import org.sonar.server.computation.queue.CeTaskResult;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -70,7 +71,7 @@ public class CeTaskProcessorRepositoryRule extends ExternalResource implements C
     }
 
     @Override
-    public void process(CeTask task) {
+    public CeTaskResult process(CeTask task) {
       throw new UnsupportedOperationException(UOE_MESSAGE);
     }
   }
