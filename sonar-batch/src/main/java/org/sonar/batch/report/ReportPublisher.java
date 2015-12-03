@@ -24,7 +24,6 @@ import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 import com.squareup.okhttp.HttpUrl;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
@@ -34,7 +33,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
@@ -219,10 +217,12 @@ public class ReportPublisher implements Startable {
    * See https://jira.sonarsource.com/browse/SONAR-4239
    */
   private String publicUrl() {
-    String publicUrl = settings.getString(CoreProperties.SERVER_BASE_URL);
-    if (StringUtils.isBlank(publicUrl)) {
-      return wsClient.baseUrl();
+    String baseUrl = settings.getString(CoreProperties.SERVER_BASE_URL);
+    if (baseUrl.equals(settings.getDefaultValue(CoreProperties.SERVER_BASE_URL))) {
+      // crap workaround for https://jira.sonarsource.com/browse/SONAR-7109
+      // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
+      baseUrl = wsClient.baseUrl();
     }
-    return publicUrl.replaceAll("(/)+$", "") + "/";
+    return baseUrl.replaceAll("(/)+$", "") + "/";
   }
 }

@@ -30,6 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -37,6 +38,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.scan.ImmutableProjectReactor;
+import org.sonar.core.config.CorePropertyDefinitions;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +54,7 @@ public class ReportPublisherTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
-  Settings settings = new Settings();
+  Settings settings = new Settings(new PropertyDefinitions(CorePropertyDefinitions.all()));
   BatchWsClient wsClient = mock(BatchWsClient.class, Mockito.RETURNS_DEEP_STUBS);
   ImmutableProjectReactor reactor = mock(ImmutableProjectReactor.class);
   ProjectDefinition root;
