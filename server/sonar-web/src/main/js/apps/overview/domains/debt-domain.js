@@ -164,12 +164,12 @@ export const IssuesMain = React.createClass({
 
           <div className="overview-detailed-measures-list overview-detailed-measures-list-inline">
             {this.renderRating()}
-            <AddedRemovedMeasure {...this.props} {...this.state}
-                metric="violations" leakMetric="new_violations" type="INT"/>
             <AddedRemovedDebt {...this.props} {...this.state}
                 metric="sqale_index" leakMetric="new_technical_debt" type="WORK_DUR"/>
             <OnNewCodeMeasure {...this.props} {...this.state}
                 metric="sqale_debt_ratio" leakMetric="new_sqale_debt_ratio" type="PERCENT"/>
+            <AddedRemovedMeasure {...this.props} {...this.state}
+                metric="violations" leakMetric="new_violations" type="INT"/>
           </div>
 
           <div className="overview-detailed-measures-list overview-detailed-measures-list-inline">
