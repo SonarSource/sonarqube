@@ -73,11 +73,18 @@ public class CeActivityDaoTest {
     insert("TASK_2", REPORT, "PROJECT_2", CeActivityDto.Status.SUCCESS);
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").get().getIsLast()).isTrue();
 
-    // two tasks on PROJECT_1, the more recent one is TASK_3
+    // two tasks on PROJECT_1, the most recent one is TASK_3
     insert("TASK_3", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED);
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").get().getIsLast()).isFalse();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").get().getIsLast()).isTrue();
     assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").get().getIsLast()).isTrue();
+
+    // inserting a cancelled task does not change the last task
+    insert("TASK_4", REPORT, "PROJECT_1", CeActivityDto.Status.CANCELED);
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_1").get().getIsLast()).isFalse();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_2").get().getIsLast()).isTrue();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_3").get().getIsLast()).isTrue();
+    assertThat(underTest.selectByUuid(db.getSession(), "TASK_4").get().getIsLast()).isFalse();
   }
 
   @Test
