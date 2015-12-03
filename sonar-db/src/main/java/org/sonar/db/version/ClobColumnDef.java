@@ -53,7 +53,7 @@ public class ClobColumnDef extends AbstractColumnDef {
     @CheckForNull
     private String columnName;
 
-    private boolean isNullable;
+    private boolean isNullable = true;
 
     public Builder setColumnName(String columnName) {
       this.columnName = validateColumnName(columnName);

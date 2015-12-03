@@ -49,6 +49,18 @@ public class VarcharColumnDefTest {
   }
 
   @Test
+  public void build_string_column_def_with_default_values() throws Exception {
+    VarcharColumnDef def = new VarcharColumnDef.Builder()
+      .setColumnName("issues")
+      .setLimit(10)
+      .build();
+
+    assertThat(def.getName()).isEqualTo("issues");
+    assertThat(def.getColumnSize()).isEqualTo(10);
+    assertThat(def.isNullable()).isTrue();
+  }
+
+  @Test
   public void generate_sql_type() throws Exception {
     VarcharColumnDef def = new VarcharColumnDef.Builder()
       .setColumnName("issues")

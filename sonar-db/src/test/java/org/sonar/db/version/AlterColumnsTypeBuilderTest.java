@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.version.DecimalColumnDef.newDecimalColumnDefBuilder;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class AlterColumnsBuilderTest {
+public class AlterColumnsTypeBuilderTest {
 
   static final String TABLE_NAME = "issues";
   @Rule
@@ -47,9 +47,21 @@ public class AlterColumnsBuilderTest {
   }
 
   @Test
+  public void update_not_nullable_column_on_h2() {
+    assertThat(createNotNullableBuilder(new H2()).build())
+      .containsOnly("ALTER TABLE issues ALTER COLUMN name VARCHAR (10) NOT NULL");
+  }
+
+  @Test
   public void update_columns_on_mssql() {
     assertThat(createSampleBuilder(new MsSql()).build())
       .containsOnly("ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20)", "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10)");
+  }
+
+  @Test
+  public void update_not_nullable_column_on_mssql() {
+    assertThat(createNotNullableBuilder(new MsSql()).build())
+      .containsOnly("ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) NOT NULL");
   }
 
   @Test
@@ -59,9 +71,21 @@ public class AlterColumnsBuilderTest {
   }
 
   @Test
+  public void update_not_nullable_column_on_postgres() {
+    assertThat(createNotNullableBuilder(new PostgreSql()).build())
+      .containsOnly("ALTER TABLE issues ALTER COLUMN name TYPE VARCHAR (10) NOT NULL");
+  }
+
+  @Test
   public void update_columns_on_mysql() {
     assertThat(createSampleBuilder(new MySql()).build())
       .containsOnly("ALTER TABLE issues MODIFY COLUMN value DECIMAL (30,20), MODIFY COLUMN name VARCHAR (10)");
+  }
+
+  @Test
+  public void update_not_nullable_column_on_mysql() {
+    assertThat(createNotNullableBuilder(new MySql()).build())
+      .containsOnly("ALTER TABLE issues MODIFY COLUMN name VARCHAR (10) NOT NULL");
   }
 
   @Test
@@ -71,26 +95,44 @@ public class AlterColumnsBuilderTest {
   }
 
   @Test
+  public void not_nullable_column_are_ignored_on_oracle() {
+    assertThat(createNotNullableBuilder(new Oracle()).build())
+      .containsOnly("ALTER TABLE issues MODIFY (name VARCHAR (10))");
+  }
+
+  @Test
   public void fail_with_ISE_if_no_column() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("No column has been defined");
 
-    new AlterColumnsBuilder(new H2(), TABLE_NAME).build();
+    new AlterColumnsTypeBuilder(new H2(), TABLE_NAME).build();
   }
 
-  private AlterColumnsBuilder createSampleBuilder(Dialect dialect) {
-    return new AlterColumnsBuilder(dialect, TABLE_NAME)
+  private AlterColumnsTypeBuilder createSampleBuilder(Dialect dialect) {
+    return new AlterColumnsTypeBuilder(dialect, TABLE_NAME)
       .updateColumn(
         newDecimalColumnDefBuilder()
           .setColumnName("value")
           .setPrecision(30)
           .setScale(20)
+          .setIsNullable(true)
           .build())
       .updateColumn(
         newVarcharColumnDefBuilder()
           .setColumnName("name")
           .setLimit(10)
+          .setIsNullable(true)
           .build());
+  }
+
+  private AlterColumnsTypeBuilder createNotNullableBuilder(Dialect dialect) {
+    return new AlterColumnsTypeBuilder(dialect, TABLE_NAME)
+      .updateColumn(
+      newVarcharColumnDefBuilder()
+        .setColumnName("name")
+        .setLimit(10)
+        .setIsNullable(false)
+        .build());
   }
 
 }

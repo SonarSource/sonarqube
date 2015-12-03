@@ -77,7 +77,7 @@ public class DecimalColumnDef extends AbstractColumnDef {
     private String columnName;
     private int precision = DEFAULT_PRECISION;
     private int scale = DEFAULT_SCALE;
-    private boolean isNullable = false;
+    private boolean isNullable = true;
 
     public Builder setColumnName(String columnName) {
       this.columnName = validateColumnName(columnName);

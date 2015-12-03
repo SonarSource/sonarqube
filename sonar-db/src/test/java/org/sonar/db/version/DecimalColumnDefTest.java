@@ -102,7 +102,7 @@ public class DecimalColumnDefTest {
 
     assertThat(def.getPrecision()).isEqualTo(38);
     assertThat(def.getScale()).isEqualTo(20);
-    assertThat(def.isNullable()).isFalse();
+    assertThat(def.isNullable()).isTrue();
   }
 
   @Test

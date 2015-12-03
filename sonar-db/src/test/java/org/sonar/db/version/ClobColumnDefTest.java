@@ -47,6 +47,16 @@ public class ClobColumnDefTest {
   }
 
   @Test
+  public void build_string_column_def_with_default_values() throws Exception {
+    ClobColumnDef def = new ClobColumnDef.Builder()
+      .setColumnName("issues")
+      .build();
+
+    assertThat(def.getName()).isEqualTo("issues");
+    assertThat(def.isNullable()).isTrue();
+  }
+
+  @Test
   public void generate_sql_type() throws Exception {
     ClobColumnDef def = new ClobColumnDef.Builder()
       .setColumnName("issues")
