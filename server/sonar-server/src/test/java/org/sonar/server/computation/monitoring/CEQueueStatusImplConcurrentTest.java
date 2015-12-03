@@ -49,6 +49,9 @@ public class CEQueueStatusImplConcurrentTest {
 
   @Test
   public void test_concurrent_modifications_in_any_order() throws InterruptedException {
+    long initialPendingCount = 9963L;
+    underTest.initPendingCount(initialPendingCount);
+
     for (Runnable runnable : buildShuffleCallsToUnderTest()) {
       executorService.submit(runnable);
     }
@@ -56,7 +59,7 @@ public class CEQueueStatusImplConcurrentTest {
     executorService.awaitTermination(1, TimeUnit.SECONDS);
 
     assertThat(underTest.getReceivedCount()).isEqualTo(100);
-    assertThat(underTest.getPendingCount()).isEqualTo(2);
+    assertThat(underTest.getPendingCount()).isEqualTo(initialPendingCount + 2);
     assertThat(underTest.getInProgressCount()).isEqualTo(1);
     assertThat(underTest.getErrorCount()).isEqualTo(17);
     assertThat(underTest.getSuccessCount()).isEqualTo(80);

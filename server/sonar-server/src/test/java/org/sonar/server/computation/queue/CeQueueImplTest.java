@@ -20,6 +20,7 @@
 package org.sonar.server.computation.queue;
 
 import com.google.common.base.Optional;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -57,6 +58,11 @@ public class CeQueueImplTest {
   CEQueueStatus queueStatus = new CEQueueStatusImpl();
   CeQueueListener listener = mock(CeQueueListener.class);
   CeQueue underTest = new CeQueueImpl(system2, dbTester.getDbClient(), uuidFactory, queueStatus, new CeQueueListener[] {listener});
+
+  @Before
+  public void setUp() throws Exception {
+    queueStatus.initPendingCount(0);
+  }
 
   @Test
   public void test_submit() {

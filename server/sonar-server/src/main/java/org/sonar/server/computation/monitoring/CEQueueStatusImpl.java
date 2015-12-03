@@ -22,6 +22,7 @@ package org.sonar.server.computation.monitoring;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 public class CEQueueStatusImpl implements CEQueueStatus {
   private static final long PENDING_INITIAL_VALUE = Long.MIN_VALUE;
@@ -34,50 +35,32 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   private final AtomicLong processingTime = new AtomicLong(0);
 
   @Override
-  public long addReceived() {
-    // initPendingCount might not have been called yet
-    if (!pending.compareAndSet(PENDING_INITIAL_VALUE, 1)) {
-      pending.incrementAndGet();
-    }
-    return received.incrementAndGet();
-  }
-
-  @Override
-  public long getReceivedCount() {
-    return received.get();
-  }
-
-  @Override
   public long initPendingCount(long initialPendingCount) {
     checkArgument(initialPendingCount >= 0, "Initial pending count must be >= 0");
-    if (!pending.compareAndSet(PENDING_INITIAL_VALUE, initialPendingCount)) {
-      throw new IllegalStateException("Method initPendingCount must be used before any other method and can not be called twice");
-    }
+    checkState(
+      pending.compareAndSet(PENDING_INITIAL_VALUE, initialPendingCount),
+      "Method initPendingCount must be used before any other method and can not be called twice");
     return initialPendingCount;
   }
 
   @Override
-  public long getPendingCount() {
-    ensurePendingIsInitialized();
+  public long addReceived() {
+    ensurePendingInitialized("addReceived");
 
-    return pending.get();
+    pending.incrementAndGet();
+    return received.incrementAndGet();
   }
 
   @Override
   public long addInProgress() {
-    ensurePendingIsInitialized();
+    ensurePendingInitialized("addInProgress");
 
     pending.decrementAndGet();
     return inProgress.incrementAndGet();
   }
 
-  private void ensurePendingIsInitialized() {
-    pending.compareAndSet(PENDING_INITIAL_VALUE, 0);
-  }
-
-  @Override
-  public long getInProgressCount() {
-    return inProgress.get();
+  private void ensurePendingInitialized(String methodName) {
+    checkState(pending.get() != PENDING_INITIAL_VALUE, "Method initPendingCount must be used before %s can be called", methodName);
   }
 
   @Override
@@ -85,11 +68,6 @@ public class CEQueueStatusImpl implements CEQueueStatus {
     addProcessingTime(processingTime);
     inProgress.decrementAndGet();
     return error.incrementAndGet();
-  }
-
-  @Override
-  public long getErrorCount() {
-    return error.get();
   }
 
   @Override
@@ -102,6 +80,27 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   private void addProcessingTime(long time) {
     checkArgument(time >= 0, "Processing time can not be < 0");
     processingTime.addAndGet(time);
+  }
+
+  @Override
+  public long getReceivedCount() {
+    return received.get();
+  }
+
+  @Override
+  public long getPendingCount() {
+    long currentValue = pending.get();
+    return currentValue == PENDING_INITIAL_VALUE ? 0 : currentValue;
+  }
+
+  @Override
+  public long getInProgressCount() {
+    return inProgress.get();
+  }
+
+  @Override
+  public long getErrorCount() {
+    return error.get();
   }
 
   @Override

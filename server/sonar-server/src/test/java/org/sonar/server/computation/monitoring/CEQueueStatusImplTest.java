@@ -27,9 +27,9 @@ import org.junit.rules.ExpectedException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CEQueueStatusImplTest {
-  private static final String ISE_initPendingCount_CALL_MSG = "Method initPendingCount must be used before any other method and can not be called twice";
   private static final int SOME_RANDOM_MAX = 96535;
   private static final int SOME_PROCESSING_TIME = 8723;
+  private static final long INITIAL_PENDING_COUNT = 996L;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -55,66 +55,60 @@ public class CEQueueStatusImplTest {
 
   @Test
   public void initPendingCount_throws_ISE_if_called_twice() {
-    expectISEForIllegalCallToInitPendingCount();
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Method initPendingCount must be used before any other method and can not be called twice");
 
     underTest.initPendingCount(10);
     underTest.initPendingCount(10);
   }
 
   @Test
-  public void initPendingCount_throws_ISE_if_called_after_getPendingCount() {
-    expectISEForIllegalCallToInitPendingCount();
-
-    underTest.getPendingCount();
-    underTest.initPendingCount(10);
-  }
-
-  @Test
-  public void initPendingCount_throws_ISE_if_called_after_addReceived() {
-    expectISEForIllegalCallToInitPendingCount();
+  public void addReceived_throws_ISE_if_called_before_initPendingCount() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Method initPendingCount must be used before addReceived can be called");
 
     underTest.addReceived();
-    underTest.initPendingCount(10);
-  }
-
-  @Test
-  public void initPendingCount_throws_ISE_if_called_after_addInProgress() {
-    expectISEForIllegalCallToInitPendingCount();
-
-    underTest.addInProgress();
-    underTest.initPendingCount(10);
-  }
-
-  private void expectISEForIllegalCallToInitPendingCount() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(ISE_initPendingCount_CALL_MSG);
   }
 
   @Test
   public void addReceived_sets_received_and_pending_counts_to_1_when_initPendingCount_has_not_been_called() {
+    underTest.initPendingCount(INITIAL_PENDING_COUNT);
+
     underTest.addReceived();
 
     assertThat(underTest.getReceivedCount()).isEqualTo(1);
-    assertThat(underTest.getPendingCount()).isEqualTo(1);
+    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + 1);
   }
 
   @Test
   public void addReceived_any_number_of_call_adds_1_per_call() {
+    underTest.initPendingCount(INITIAL_PENDING_COUNT);
+
     int calls = new Random().nextInt(SOME_RANDOM_MAX);
     for (int i = 0; i < calls; i++) {
       underTest.addReceived();
     }
 
     assertThat(underTest.getReceivedCount()).isEqualTo(calls);
-    assertThat(underTest.getPendingCount()).isEqualTo(calls);
+    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + calls);
+  }
+
+  @Test
+  public void addInProgress_throws_ISE_if_called_before_initPendingCount() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Method initPendingCount must be used before addInProgress can be called");
+
+    underTest.addInProgress();
   }
 
   @Test
   public void addInProgress_increases_InProgress_and_decreases_Pending_by_1_without_check_on_Pending() {
+    underTest.initPendingCount(INITIAL_PENDING_COUNT);
+
     underTest.addInProgress();
 
     assertThat(underTest.getReceivedCount()).isEqualTo(0);
-    assertThat(underTest.getPendingCount()).isEqualTo(-1);
+    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT - 1);
     assertThat(underTest.getInProgressCount()).isEqualTo(1);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
@@ -123,13 +117,15 @@ public class CEQueueStatusImplTest {
 
   @Test
   public void addInProgress_any_number_of_call_change_by_1_per_call() {
+    underTest.initPendingCount(INITIAL_PENDING_COUNT);
+
     int calls = new Random().nextInt(SOME_RANDOM_MAX);
     for (int i = 0; i < calls; i++) {
       underTest.addInProgress();
     }
 
     assertThat(underTest.getInProgressCount()).isEqualTo(calls);
-    assertThat(underTest.getPendingCount()).isEqualTo(-calls);
+    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT - calls);
     assertThat(underTest.getProcessingTime()).isEqualTo(0);
   }
 

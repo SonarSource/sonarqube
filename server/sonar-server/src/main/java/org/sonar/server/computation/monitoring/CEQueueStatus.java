@@ -22,21 +22,6 @@ package org.sonar.server.computation.monitoring;
 public interface CEQueueStatus {
 
   /**
-   * Adds 1 to the count of received batch reports and 1 to the count of batch reports waiting for processing.
-   *
-   * @return the new count of received batch reports
-   *
-   * @see #getReceivedCount()
-   * @see #getPendingCount()
-   */
-  long addReceived();
-
-  /**
-   * Count of received batch reports since instance startup
-   */
-  long getReceivedCount();
-
-  /**
    * Sets the count of reports waiting for processing at startup. This method can be called only once.
    *
    * @param initialPendingCount the count of reports, must be {@literal >=} 0
@@ -49,9 +34,16 @@ public interface CEQueueStatus {
   long initPendingCount(long initialPendingCount);
 
   /**
-   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
+   * Adds 1 to the count of received batch reports and 1 to the count of batch reports waiting for processing.
+   *
+   * @return the new count of received batch reports
+   *
+   * @see #getReceivedCount()
+   * @see #getPendingCount()
+   *
+   * @throws IllegalStateException if {@link #initPendingCount(long)} has not been called yet
    */
-  long getPendingCount();
+  long addReceived();
 
   /**
    * Adds 1 to the count of batch reports under processing and removes 1 from the count of batch reports waiting for
@@ -61,13 +53,25 @@ public interface CEQueueStatus {
    *
    * @see #getInProgressCount()
    * @see #getPendingCount()
+   *
+   * @throws IllegalStateException if {@link #initPendingCount(long)} has not been called yet
    */
   long addInProgress();
 
   /**
-   * Count of batch reports under processing.
+   * Adds 1 to the count of batch reports which processing ended successfully and removes 1 from the count of batch
+   * reports under processing. Adds the specified time to the processing time counter.
+   *
+   * @param processingTime duration of processing in ms
+   *
+   * @return the new count of batch reports which processing ended successfully
+   *
+   * @see #getSuccessCount()
+   * @see #getInProgressCount()
+   *
+   * @throws IllegalArgumentException if processingTime is < 0
    */
-  long getInProgressCount();
+  long addSuccess(long processingTime);
 
   /**
    * Adds 1 to the count of batch reports which processing ended with an error and removes 1 from the count of batch
@@ -85,24 +89,24 @@ public interface CEQueueStatus {
   long addError(long processingTime);
 
   /**
+   * Count of received batch reports since instance startup
+   */
+  long getReceivedCount();
+
+  /**
+   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
+   */
+  long getPendingCount();
+
+  /**
+   * Count of batch reports under processing.
+   */
+  long getInProgressCount();
+
+  /**
    * Count of batch reports which processing ended with an error since instance startup.
    */
   long getErrorCount();
-
-  /**
-   * Adds 1 to the count of batch reports which processing ended successfully and removes 1 from the count of batch
-   * reports under processing. Adds the specified time to the processing time counter.
-   *
-   * @param processingTime duration of processing in ms
-   *
-   * @return the new count of batch reports which processing ended successfully
-   *
-   * @see #getSuccessCount()
-   * @see #getInProgressCount()
-   *
-   * @throws IllegalArgumentException if processingTime is < 0
-   */
-  long addSuccess(long processingTime);
 
   /**
    * Count of batch reports which processing ended successfully since instance startup.
