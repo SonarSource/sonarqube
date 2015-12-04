@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class RuleParamDto {
 
   private Integer id;
@@ -56,8 +58,9 @@ public class RuleParamDto {
     return name;
   }
 
-  public RuleParamDto setName(String name) {
-    this.name = name;
+  public RuleParamDto setName(String s) {
+    checkArgument(s.length() <= 128, "Rule parameter name is too long: %s", s);
+    this.name = s;
     return this;
   }
 
@@ -75,8 +78,9 @@ public class RuleParamDto {
     return defaultValue;
   }
 
-  public RuleParamDto setDefaultValue(@Nullable String defaultValue) {
-    this.defaultValue = defaultValue;
+  public RuleParamDto setDefaultValue(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 4000, "Rule parameter default value is too long: %s", s);
+    this.defaultValue = s;
     return this;
   }
 
@@ -84,8 +88,9 @@ public class RuleParamDto {
     return description;
   }
 
-  public RuleParamDto setDescription(String description) {
-    this.description = description;
+  public RuleParamDto setDescription(@Nullable String s) {
+    checkArgument(s == null || s.length() <= 4000, "Rule parameter description is too long: %s", s);
+    this.description = s;
     return this;
   }
 
