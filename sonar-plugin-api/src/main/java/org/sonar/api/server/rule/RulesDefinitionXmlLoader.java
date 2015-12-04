@@ -75,17 +75,17 @@ import static org.apache.commons.lang.StringUtils.trim;
  * <pre>
  * &lt;rules&gt;
  *   &lt;rule&gt;
- *     &lt;!-- required key. Max length is 200 characters. --&gt;
+ *     &lt;!-- Required key. Max length is 200 characters. --&gt;
  *     &lt;key&gt;the-rule-key&lt;/key&gt;
  *
- *     &lt;!-- required name. Max length is 200 characters. --&gt;
+ *     &lt;!-- Required name. Max length is 200 characters. --&gt;
  *     &lt;name&gt;The purpose of the rule&lt;/name&gt;
  *
- *     &lt;!-- required description. No max length. --&gt;
+ *     &lt;!-- Required description. No max length. --&gt;
  *     &lt;description&gt;
  *       &lt;![CDATA[The description]]&gt;
  *     &lt;/description&gt;
- *     &lt;!-- Format of description. Supported values are HTML (default) and MARKDOWN. --&gt;
+ *     &lt;!-- Optional format of description. Supported values are HTML (default) and MARKDOWN. --&gt;
  *     &lt;descriptionFormat&gt;HTML&lt;/descriptionFormat&gt;
  *
  *     &lt;!-- Optional key for configuration of some rule engines --&gt;
@@ -146,10 +146,10 @@ import static org.apache.commons.lang.StringUtils.trim;
  *     &lt;!-- Since 5.3 --&gt;
  *     &lt;debtRemediationFunctionOffset&gt;2min&lt;/debtRemediationFunctionOffset&gt;
  *
- *     &lt;!-- deprecated field, replaced by "internalKey" --&gt;
+ *     &lt;!-- Deprecated field, replaced by "internalKey" --&gt;
  *     &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
  *
- *     &lt;!-- deprecated field, replaced by "severity" --&gt;
+ *     &lt;!-- Deprecated field, replaced by "severity" --&gt;
  *     &lt;priority&gt;BLOCKER&lt;/priority&gt;
  *   &lt;/rule&gt;
  * &lt;/rules&gt;
