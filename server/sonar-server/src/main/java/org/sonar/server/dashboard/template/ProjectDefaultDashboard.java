@@ -19,9 +19,13 @@
  */
 package org.sonar.server.dashboard.template;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
+import org.sonar.db.issue.IssueFilterDao;
+import org.sonar.db.issue.IssueFilterDto;
+import org.sonar.server.dashboard.widget.ProjectIssueFilterWidget;
 
 /**
  * Default dashboard
@@ -29,6 +33,12 @@ import org.sonar.api.web.DashboardTemplate;
  * @since 2.13
  */
 public final class ProjectDefaultDashboard extends DashboardTemplate {
+
+  private final IssueFilterDao issueFilterDao;
+
+  public ProjectDefaultDashboard(IssueFilterDao issueFilterDao) {
+    this.issueFilterDao = issueFilterDao;
+  }
 
   @Override
   public String getName() {
@@ -45,18 +55,22 @@ public final class ProjectDefaultDashboard extends DashboardTemplate {
   }
 
   private void addFirstColumn(Dashboard dashboard) {
-    dashboard.addWidget("size", 1);
-    dashboard.addWidget("duplications", 1);
-    dashboard.addWidget("complexity", 1);
-    dashboard.addWidget("events", 1);
-    dashboard.addWidget("description", 1);
+    dashboard.addWidget("technical_debt_pyramid", 1);
   }
 
   private void addSecondColumn(Dashboard dashboard) {
-    dashboard.addWidget("debt_overview", 2);
-    dashboard.addWidget("rules", 2);
-    dashboard.addWidget("alerts", 2);
-    dashboard.addWidget("code_coverage", 2);
+    IssueFilterDto unresolvedIssues = getIssueFilterByName("Unresolved Issues");
+
+    dashboard.addWidget(ProjectIssueFilterWidget.ID, 2)
+      .setProperty(ProjectIssueFilterWidget.FILTER_PROPERTY, Long.toString(unresolvedIssues.getId()))
+      .setProperty(ProjectIssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, "severities")
+      .setProperty(ProjectIssueFilterWidget.DISPLAY_MODE, "debt");
+  }
+
+  private IssueFilterDto getIssueFilterByName(String name) {
+    IssueFilterDto filter = issueFilterDao.selectProvidedFilterByName(name);
+    Preconditions.checkState(filter != null, String.format("Could not find a provided issue filter with name '%s'", name));
+    return filter;
   }
 
 }

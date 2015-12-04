@@ -26,6 +26,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import util.selenium.SeleneseTest;
 
@@ -43,8 +44,11 @@ public class I18nTest {
 
   /**
    * TODO This test should use a fake widget that display a fake metric with decimals instead of using provided metric
+   * Ignored because there is not a good idea to force a display language by GET parameter
+   * The displayed language is based on browser/system locale
    */
   @Test
+  @Ignore
   public void test_localization() {
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
