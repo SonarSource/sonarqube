@@ -82,6 +82,7 @@ public class MetricDaoTest {
     assertThat(result.isDeleteHistoricalData()).isFalse();
     assertThat(result.isHidden()).isFalse();
     assertThat(result.isEnabled()).isTrue();
+    assertThat(result.getDecimalScale()).isEqualTo(3);
 
     // Disabled metrics are returned
     result = underTest.selectByKey(session, "disabled");

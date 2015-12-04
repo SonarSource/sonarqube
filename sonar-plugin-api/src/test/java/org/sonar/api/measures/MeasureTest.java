@@ -46,12 +46,6 @@ public class MeasureTest {
   }
 
   @Test
-  public void scaleValue() {
-    assertThat(new Measure(CoreMetrics.COVERAGE, 80.666666).getValue()).isEqualTo(80.7);
-    assertThat(new Measure(CoreMetrics.COVERAGE, 80.666666, 2).getValue()).isEqualTo(80.67);
-  }
-
-  @Test
   public void defaultPersistenceModeIsFull() {
     assertThat(new Measure(CoreMetrics.LINES, 32.0).getPersistenceMode()).isEqualTo(PersistenceMode.FULL);
   }
@@ -79,15 +73,6 @@ public class MeasureTest {
     assertThat(new Measure(CoreMetrics.LINES).setIntValue(null).getIntValue()).isNull();
 
     assertThat(new Measure(CoreMetrics.LINES).setValue(3.6).getIntValue()).isEqualTo(3);
-  }
-
-  @Test
-  public void valuesAreRoundUp() {
-    assertThat(new Measure(CoreMetrics.COVERAGE, 5.22222222).getValue()).isEqualTo(5.2);
-    assertThat(new Measure(CoreMetrics.COVERAGE, 5.7777777).getValue()).isEqualTo(5.8);
-
-    assertThat(new Measure(CoreMetrics.COVERAGE, 5.22222222, 3).getValue()).isEqualTo(5.222);
-    assertThat(new Measure(CoreMetrics.COVERAGE, 5.7777777, 3).getValue()).isEqualTo(5.778);
   }
 
   /**

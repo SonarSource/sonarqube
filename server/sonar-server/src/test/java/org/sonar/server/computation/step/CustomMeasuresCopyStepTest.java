@@ -220,7 +220,7 @@ public class CustomMeasuresCopyStepTest {
   }
 
   private void assertRawMeasureValue(int componentRef, String metricKey, double value) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(value)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(entryOf(metricKey, newMeasureBuilder().create(value, 1)));
   }
 
   private void assertRawMeasureValue(int componentRef, String metricKey, String value) {

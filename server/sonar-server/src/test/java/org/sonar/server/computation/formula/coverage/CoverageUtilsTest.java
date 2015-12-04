@@ -87,7 +87,7 @@ public class CoverageUtilsTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("value can not be converted to long because current value type is a DOUBLE");
 
-    fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().create(152d));
+    fileAggregateContext.put(SOME_METRIC_KEY, newMeasureBuilder().create(152d, 1));
 
     getLongMeasureValue(fileAggregateContext, SOME_METRIC_KEY);
   }

@@ -22,15 +22,27 @@ package org.sonar.server.computation.metric;
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.computation.measure.Measure;
+
+import static com.google.common.base.Objects.firstNonNull;
 
 enum MetricDtoToMetric implements Function<MetricDto, Metric> {
   INSTANCE;
 
+  private static final int DEFAULT_DECIMAL_SCALE = 1;
+
   @Override
   @Nonnull
   public Metric apply(@Nonnull MetricDto metricDto) {
+    Metric.MetricType metricType = Metric.MetricType.valueOf(metricDto.getValueType());
+    Integer decimalScale = null;
+    if (metricType.getValueType() == Measure.ValueType.DOUBLE) {
+      decimalScale = firstNonNull(metricDto.getDecimalScale(), DEFAULT_DECIMAL_SCALE);
+    }
+
     return new MetricImpl(
-      metricDto.getId(), metricDto.getKey(), metricDto.getShortName(), Metric.MetricType.valueOf(metricDto.getValueType()),
+      metricDto.getId(), metricDto.getKey(), metricDto.getShortName(), metricType,
+      decimalScale,
       metricDto.getBestValue(), metricDto.isOptimizedBestValue());
   }
 }

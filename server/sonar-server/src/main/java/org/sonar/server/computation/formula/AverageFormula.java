@@ -56,7 +56,7 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
       double mainValue = mainValueOptional.get();
       double byValue = byValueOptional.get();
       if (byValue > 0d) {
-        return Optional.of(Measure.newMeasureBuilder().create(mainValue / byValue));
+        return Optional.of(Measure.newMeasureBuilder().create(mainValue / byValue, context.getMetric().getDecimalScale()));
       }
     }
     return Optional.absent();
@@ -78,7 +78,7 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
       // prevents instantiation outside static method
     }
 
-    public static Builder newBuilder(){
+    public static Builder newBuilder() {
       return new Builder();
     }
 

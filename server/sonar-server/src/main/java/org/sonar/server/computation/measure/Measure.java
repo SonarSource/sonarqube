@@ -34,11 +34,6 @@ import static java.util.Objects.requireNonNull;
 
 public final class Measure {
 
-  /**
-   * Default precision when saving a double value type
-   */
-  private static final int DEFAULT_PRECISION = 1;
-
   public enum ValueType {
     NO_VALUE, BOOLEAN, INT, LONG, DOUBLE, STRING, LEVEL
   }
@@ -94,26 +89,16 @@ public final class Measure {
   private Measure(ValueType valueType, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer,
     @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
     @Nullable String description, @Nullable QualityGateStatus qualityGateStatus, @Nullable MeasureVariations variations) {
-    checkArgument(value == null || !Double.isNaN(value), "Nan is not allowed as a Measure value");
     this.valueType = valueType;
     this.ruleId = ruleId;
     this.characteristicId = characteristicId;
     this.developer = developer;
-    this.value = scale(value);
+    this.value = value;
     this.data = data;
     this.dataLevel = dataLevel;
     this.description = description;
     this.qualityGateStatus = qualityGateStatus;
     this.variations = variations;
-  }
-
-  @CheckForNull
-  private static Double scale(@Nullable Double value) {
-    if (value == null) {
-      return null;
-    }
-    BigDecimal bd = BigDecimal.valueOf(value);
-    return bd.setScale(DEFAULT_PRECISION, RoundingMode.HALF_UP).doubleValue();
   }
 
   public static NewMeasureBuilder newMeasureBuilder() {
@@ -217,12 +202,14 @@ public final class Measure {
       return create(value, null);
     }
 
-    public Measure create(double value, @Nullable String data) {
-      return new Measure(ValueType.DOUBLE, ruleId, characteristicId, developer, value, data, null, description, qualityGateStatus, variations);
+    public Measure create(double value, int decimalScale, @Nullable String data) {
+      checkArgument(!Double.isNaN(value), "Nan is not allowed as a Measure value");
+      double scaledValue = scale(value, decimalScale);
+      return new Measure(ValueType.DOUBLE, ruleId, characteristicId, developer, scaledValue, data, null, description, qualityGateStatus, variations);
     }
 
-    public Measure create(double value) {
-      return create(value, null);
+    public Measure create(double value, int decimalScale) {
+      return create(value, decimalScale, null);
     }
 
     public Measure create(String value) {
@@ -467,5 +454,10 @@ public final class Measure {
       .add("variations", variations)
       .add("description", description)
       .toString();
+  }
+
+  private static double scale(double value, int decimalScale) {
+    BigDecimal bd = BigDecimal.valueOf(value);
+    return bd.setScale(decimalScale, RoundingMode.HALF_UP).doubleValue();
   }
 }

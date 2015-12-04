@@ -18,7 +18,8 @@
     m.best_value as bestValue,
     m.optimized_best_value as optimizedBestValue,
     m.hidden,
-    m.delete_historical_data as deleteHistoricalData
+    m.delete_historical_data as deleteHistoricalData,
+    m.decimal_scale as decimalScale
   </sql>
 
   <select id="selectByKey" parameterType="map" resultType="org.sonar.db.metric.MetricDto">
@@ -86,13 +87,14 @@
           keyProperty="id">
     INSERT INTO metrics (
     name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, worst_value,
-    best_value, optimized_best_value, hidden, delete_historical_data)
+    best_value, optimized_best_value, hidden, delete_historical_data, decimal_scale)
     VALUES (
     #{kee, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
     #{domain, jdbcType=VARCHAR}, #{shortName, jdbcType=VARCHAR}, #{qualitative, jdbcType=BOOLEAN},
     #{valueType, jdbcType=VARCHAR}, #{userManaged, jdbcType=BOOLEAN}, #{enabled, jdbcType=BOOLEAN},
     #{worstValue, jdbcType=DOUBLE}, #{bestValue, jdbcType=DOUBLE},
-    #{optimizedBestValue, jdbcType=BOOLEAN}, #{hidden, jdbcType=BOOLEAN}, #{deleteHistoricalData, jdbcType=BOOLEAN}
+    #{optimizedBestValue, jdbcType=BOOLEAN}, #{hidden, jdbcType=BOOLEAN}, #{deleteHistoricalData, jdbcType=BOOLEAN},
+    #{decimalScale, jdbcType=INTEGER}
     )
   </insert>
 
@@ -107,7 +109,8 @@
     description=#{description, jdbcType=VARCHAR},
     direction=#{direction, jdbcType=INTEGER},
     hidden=#{hidden, jdbcType=BOOLEAN},
-    qualitative=#{qualitative, jdbcType=BOOLEAN}
+    qualitative=#{qualitative, jdbcType=BOOLEAN},
+    decimal_scale=#{decimalScale, jdbcType=INTEGER}
     where id=#{id}
   </update>
 

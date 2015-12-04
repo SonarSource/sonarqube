@@ -54,7 +54,7 @@ public class ConditionEvaluatorTest {
   public void testInputNumbers() {
     try {
       Metric metric = createMetric(MetricType.FLOAT);
-      Measure measure = newMeasureBuilder().create(10.2d, null);
+      Measure measure = newMeasureBuilder().create(10.2d, 1, null);
       underTest.evaluate(createErrorCondition(metric, LESS_THAN, "20"), measure);
     } catch (NumberFormatException ex) {
       fail();
@@ -70,7 +70,7 @@ public class ConditionEvaluatorTest {
 
     try {
       Metric metric = createMetric(MetricType.PERCENT);
-      Measure measure = newMeasureBuilder().create(10.2d, null);
+      Measure measure = newMeasureBuilder().create(10.2d, 1, null);
       underTest.evaluate(createErrorCondition(metric, LESS_THAN, "20.1"), measure);
     } catch (NumberFormatException ex) {
       fail();
@@ -88,7 +88,7 @@ public class ConditionEvaluatorTest {
   @Test
   public void testEquals_for_double() {
     Metric metric = createMetric(MetricType.FLOAT);
-    Measure measure = newMeasureBuilder().create(10.2d, null);
+    Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR).hasValue(10.2d);
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.1"), measure)).hasLevel(OK).hasValue(10.2d);
@@ -106,7 +106,7 @@ public class ConditionEvaluatorTest {
   @Test
   public void testNotEquals_for_double() {
     Metric metric = createMetric(MetricType.FLOAT);
-    Measure measure = newMeasureBuilder().create(10.2d, null);
+    Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, NOT_EQUALS, "10.2"), measure)).hasLevel(OK).hasValue(10.2d);
     assertThat(underTest.evaluate(createErrorCondition(metric, NOT_EQUALS, "10.1"), measure)).hasLevel(ERROR).hasValue(10.2d);
@@ -124,7 +124,7 @@ public class ConditionEvaluatorTest {
   @Test
   public void testGreater() {
     Metric metric = createMetric(MetricType.FLOAT);
-    Measure measure = newMeasureBuilder().create(10.2d, null);
+    Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, GREATER_THAN, "10.1"), measure)).hasLevel(ERROR).hasValue(10.2d);
     assertThat(underTest.evaluate(createErrorCondition(metric, GREATER_THAN, "10.2"), measure)).hasLevel(OK).hasValue(10.2d);
@@ -134,7 +134,7 @@ public class ConditionEvaluatorTest {
   @Test
   public void testSmaller() {
     Metric metric = createMetric(MetricType.FLOAT);
-    Measure measure = newMeasureBuilder().create(10.2d, null);
+    Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, LESS_THAN, "10.1"), measure)).hasLevel(OK).hasValue(10.2d);
     assertThat(underTest.evaluate(createErrorCondition(metric, LESS_THAN, "10.2"), measure)).hasLevel(OK).hasValue(10.2d);
@@ -144,7 +144,7 @@ public class ConditionEvaluatorTest {
   @Test
   public void testEquals_Percent() {
     Metric metric = createMetric(MetricType.PERCENT);
-    Measure measure = newMeasureBuilder().create(10.2d, null);
+    Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR).hasValue(10.2d);
   }
@@ -152,7 +152,7 @@ public class ConditionEvaluatorTest {
   @Test
   public void testEquals_Float() {
     Metric metric = createMetric(MetricType.PERCENT);
-    Measure measure = newMeasureBuilder().create(10.2d, null);
+    Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR).hasValue(10.2d);
   }
@@ -235,7 +235,7 @@ public class ConditionEvaluatorTest {
   @Test
   public void testErrorAndWarningLevel() {
     Metric metric = createMetric(MetricType.FLOAT);
-    Measure measure = newMeasureBuilder().create(10.2d, null);
+    Measure measure = newMeasureBuilder().create(10.2d, 1, null);
 
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.2"), measure)).hasLevel(ERROR);
     assertThat(underTest.evaluate(createErrorCondition(metric, EQUALS, "10.1"), measure)).hasLevel(OK);

@@ -4,6 +4,6 @@
            short_name="New name" qualitative="[true]" user_managed="[false]"
            enabled="[true]"
            worst_value="[null]"
-           optimized_best_value="[false]" best_value="[null]" direction="-1" hidden="[true]"/>
+           optimized_best_value="[false]" best_value="[null]" direction="-1" hidden="[true]" decimal_scale="1"/>
 
 </dataset>

@@ -151,7 +151,7 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
   public void addMeasure(String metricKey, double value) {
     Metric metric = metricRepository.getByKey(metricKey);
     validateAddMeasure(metric);
-    measureRepository.add(internalComponent, metric, newMeasureBuilder().create(value));
+    measureRepository.add(internalComponent, metric, newMeasureBuilder().create(value, metric.getDecimalScale()));
   }
 
   @Override

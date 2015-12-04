@@ -209,7 +209,7 @@ public class DuplicationMeasuresStep implements ComputationStep {
       Optional<Integer> nbLines = getNbLinesFromLocOrNcloc(context);
       if (nbLines.isPresent() && nbLines.get() > 0) {
         double density = Math.min(100d, 100d * duplicatedLines / nbLines.get());
-        return Optional.of(Measure.newMeasureBuilder().create(density));
+        return Optional.of(Measure.newMeasureBuilder().create(density, context.getMetric().getDecimalScale()));
       }
       return Optional.absent();
     }

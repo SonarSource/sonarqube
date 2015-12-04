@@ -239,7 +239,7 @@ public class MeasureDtoToMeasureTest {
 
     assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.DOUBLE);
-    assertThat(measure.get().getDoubleValue()).isEqualTo(10.6d);
+    assertThat(measure.get().getDoubleValue()).isEqualTo(10.6395d);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
     assertThat(measure.get().getQualityGateStatus().getStatus()).isEqualTo(Level.OK);
     assertThat(measure.get().getQualityGateStatus().getText()).isEqualTo(SOME_ALERT_TEXT);

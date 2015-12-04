@@ -204,14 +204,14 @@ public class ReportComplexityMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(2.5)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(1d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(2.5, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(1d, 1)));
 
     double expectedNonFileValue = 2d;
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(entryOf(metricKey, newMeasureBuilder().create(expectedNonFileValue, 1)));
   }
 
 }

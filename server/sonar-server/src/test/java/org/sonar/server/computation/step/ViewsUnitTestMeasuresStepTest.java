@@ -276,7 +276,7 @@ public class ViewsUnitTestMeasuresStepTest {
 
   private void assertAddedRawMeasureValue(int componentRef, String metricKey, double value) {
     assertThat(entryOf(metricKey, measureRepository.getAddedRawMeasure(componentRef, metricKey).get()))
-      .isEqualTo(entryOf(metricKey, newMeasureBuilder().create(value)));
+      .isEqualTo(entryOf(metricKey, newMeasureBuilder().create(value, 1)));
   }
 
   private void assertAddedRawMeasureValue(int componentRef, String metricKey, long value) {

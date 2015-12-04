@@ -21,8 +21,6 @@ package org.sonar.api.measures;
 
 import com.google.common.annotations.Beta;
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -43,7 +41,9 @@ public class Measure<G extends Serializable> implements Serializable {
 
   /**
    * Default precision when saving a float type metric
+   * @deprecated in 5.3. Decimal scale is provided by metric, not by measure.
    */
+  @Deprecated
   public static final int DEFAULT_PRECISION = 1;
 
   protected String metricKey;
@@ -322,25 +322,20 @@ public class Measure<G extends Serializable> implements Serializable {
   /**
    * Sets the measure value with a given precision
    *
-   * @param v         the measure value
-   * @param precision the measure value precision
-   * @return the measure object instance
+   * @return {@code this}
+   * @deprecated in 5.3. The decimal scale is given by the metric, not by the measure. Anyway this parameter was enforced to 1 before version 5.3.
    */
-  public Measure<G> setValue(@Nullable Double v, int precision) {
+  @Deprecated
+  public Measure<G> setValue(@Nullable Double v, int decimalScale) {
     if (v != null) {
       if (Double.isNaN(v)) {
         throw new IllegalArgumentException("Measure value can not be NaN");
       }
-      this.value = scaleValue(v, precision);
+      this.value = v;
     } else {
       this.value = null;
     }
     return this;
-  }
-
-  private static double scaleValue(double value, int scale) {
-    BigDecimal bd = BigDecimal.valueOf(value);
-    return bd.setScale(scale, RoundingMode.HALF_UP).doubleValue();
   }
 
   /**

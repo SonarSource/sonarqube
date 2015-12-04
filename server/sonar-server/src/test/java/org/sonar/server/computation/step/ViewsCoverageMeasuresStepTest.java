@@ -215,17 +215,17 @@ public class ViewsCoverageMeasuresStepTest {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(PROJECTVIEW_3_REF))).isEmpty();
 
     MeasureRepoEntry[] subViewRepoEntries = {
-      entryOf(codeCoverageKey, newMeasureBuilder().create(95.5d)),
-      entryOf(lineCoverageKey, newMeasureBuilder().create(95.4d)),
-      entryOf(branchCoverageKey, newMeasureBuilder().create(96.4d))
+      entryOf(codeCoverageKey, newMeasureBuilder().create(95.5d, 1)),
+      entryOf(lineCoverageKey, newMeasureBuilder().create(95.4d, 1)),
+      entryOf(branchCoverageKey, newMeasureBuilder().create(96.4d, 1))
     };
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_SUBVIEW_REF))).contains(subViewRepoEntries);
     assertThat(toEntries(measureRepository.getAddedRawMeasures(SUBVIEW_REF))).contains(subViewRepoEntries);
     assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(
-      entryOf(codeCoverageKey, newMeasureBuilder().create(92d)),
-      entryOf(lineCoverageKey, newMeasureBuilder().create(91.2d)),
-      entryOf(branchCoverageKey, newMeasureBuilder().create(96.3d)));
+      entryOf(codeCoverageKey, newMeasureBuilder().create(92d, 1)),
+      entryOf(lineCoverageKey, newMeasureBuilder().create(91.2d, 1)),
+      entryOf(branchCoverageKey, newMeasureBuilder().create(96.3d, 1)));
   }
 
 }

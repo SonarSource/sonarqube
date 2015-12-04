@@ -190,7 +190,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(ROOT_REF, STRING_METRIC_KEY, newMeasureBuilder().create("measure-data"));
     measureRepository.addRawMeasure(INTERMEDIATE_1_REF, INT_METRIC_KEY, newMeasureBuilder().create(12));
     measureRepository.addRawMeasure(INTERMEDIATE_2_REF, LONG_METRIC_KEY, newMeasureBuilder().create(9635L));
-    measureRepository.addRawMeasure(LEAF_REF, DOUBLE_METRIC_KEY, newMeasureBuilder().create(123.123d));
+    measureRepository.addRawMeasure(LEAF_REF, DOUBLE_METRIC_KEY, newMeasureBuilder().create(123.123d, 1));
 
     underTest.execute();
 
@@ -271,7 +271,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
             .setVariation(createPeriod(4), 4.4d)
             .setVariation(createPeriod(5), 5.5d)
             .build())
-        .create(10d));
+        .create(10d, 1));
 
     underTest.execute();
 

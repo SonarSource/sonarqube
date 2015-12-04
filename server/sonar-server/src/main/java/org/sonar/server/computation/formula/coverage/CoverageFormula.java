@@ -39,7 +39,7 @@ public abstract class CoverageFormula<T extends ElementsAndCoveredElementsCounte
     long elements = counter.elements;
     long coveredElements = counter.coveredElements;
     if (elements > 0L) {
-      return Optional.of(newMeasureBuilder().create(calculateCoverage(coveredElements, elements)));
+      return Optional.of(newMeasureBuilder().create(calculateCoverage(coveredElements, elements), context.getMetric().getDecimalScale()));
     }
     return Optional.absent();
   }

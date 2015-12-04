@@ -92,7 +92,7 @@ public class UnitTestMeasuresStep implements ComputationStep {
         case TEST_FAILURES_KEY:
           return createMeasure(context.getComponent().getType(), counter.testsFailuresCounter.getValue());
         case TEST_SUCCESS_DENSITY_KEY:
-          return createDensityMeasure(counter);
+          return createDensityMeasure(counter, context.getMetric().getDecimalScale());
         default:
           throw new IllegalStateException(String.format("Metric '%s' is not supported", metricKey));
       }
@@ -105,7 +105,7 @@ public class UnitTestMeasuresStep implements ComputationStep {
       return Optional.absent();
     }
 
-    private static Optional<Measure> createDensityMeasure(UnitTestsCounter counter) {
+    private static Optional<Measure> createDensityMeasure(UnitTestsCounter counter, int decimalScale) {
       if (isPositive(counter.testsCounter.getValue(), true)
         && isPositive(counter.testsErrorsCounter.getValue(), false)
         && isPositive(counter.testsFailuresCounter.getValue(), false)) {
@@ -113,7 +113,7 @@ public class UnitTestMeasuresStep implements ComputationStep {
         int errors = counter.testsErrorsCounter.getValue().get();
         int failures = counter.testsFailuresCounter.getValue().get();
         double density = (errors + failures) * 100d / tests;
-        return Optional.of(Measure.newMeasureBuilder().create(100d - density));
+        return Optional.of(Measure.newMeasureBuilder().create(100d - density, decimalScale));
       }
       return Optional.absent();
     }

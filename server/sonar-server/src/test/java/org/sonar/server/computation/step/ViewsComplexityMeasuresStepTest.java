@@ -232,7 +232,7 @@ public class ViewsComplexityMeasuresStepTest {
   }
 
   private void assertAddedRawMeasures(int componentRef, String metricKey, double expected) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(entryOf(metricKey, newMeasureBuilder().create(expected)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(entryOf(metricKey, newMeasureBuilder().create(expected, 1)));
   }
 
   private void addRawMeasureValue(int componentRef, String metricKey, int value) {

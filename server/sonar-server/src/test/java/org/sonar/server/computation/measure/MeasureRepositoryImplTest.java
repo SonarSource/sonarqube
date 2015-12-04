@@ -233,7 +233,7 @@ public class MeasureRepositoryImplTest {
   private static final List<Measure> MEASURES = ImmutableList.of(
     Measure.newMeasureBuilder().create(1),
     Measure.newMeasureBuilder().create(1l),
-    Measure.newMeasureBuilder().create(1d),
+    Measure.newMeasureBuilder().create(1d, 1),
     Measure.newMeasureBuilder().create(true),
     Measure.newMeasureBuilder().create(false),
     Measure.newMeasureBuilder().create("sds"),

@@ -55,6 +55,8 @@ public class MetricDto {
 
   private boolean enabled;
 
+  private Integer decimalScale;
+
   public Integer getId() {
     return id;
   }
@@ -196,4 +198,13 @@ public class MetricDto {
     return this;
   }
 
+  @CheckForNull
+  public Integer getDecimalScale() {
+    return decimalScale;
+  }
+
+  public MetricDto setDecimalScale(@Nullable Integer i) {
+    this.decimalScale = i;
+    return this;
+  }
 }

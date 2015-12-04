@@ -107,14 +107,14 @@ public class AverageFormulaExecutionTest {
 
     new PathAwareCrawler<>(underTest).visit(project);
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(3d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2.5d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1112))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(1d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1211))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(3d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2.5d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1112))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(1d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1211))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d, 1)));
   }
 
   @Test
