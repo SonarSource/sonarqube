@@ -89,6 +89,7 @@ describe('Measures', function () {
       expect(formatMeasure(0, 'WORK_DUR')).to.equal('0');
       expect(formatMeasure(5 * ONE_DAY, 'WORK_DUR')).to.equal('5d');
       expect(formatMeasure(2 * ONE_HOUR, 'WORK_DUR')).to.equal('2h');
+      expect(formatMeasure(40 * ONE_MINUTE, 'WORK_DUR')).to.equal('40min');
       expect(formatMeasure(ONE_MINUTE, 'WORK_DUR')).to.equal('1min');
       expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR, 'WORK_DUR')).to.equal('5d 2h');
       expect(formatMeasure(2 * ONE_HOUR + ONE_MINUTE, 'WORK_DUR')).to.equal('2h 1min');
@@ -103,6 +104,7 @@ describe('Measures', function () {
       expect(formatMeasure(0, 'SHORT_WORK_DUR')).to.equal('0');
       expect(formatMeasure(5 * ONE_DAY, 'SHORT_WORK_DUR')).to.equal('5d');
       expect(formatMeasure(2 * ONE_HOUR, 'SHORT_WORK_DUR')).to.equal('2h');
+      expect(formatMeasure(40 * ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('40min');
       expect(formatMeasure(ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('1min');
       expect(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).to.equal('5d');
       expect(formatMeasure(2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR')).to.equal('2h');

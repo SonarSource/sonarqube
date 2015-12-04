@@ -243,9 +243,9 @@ function durationFormatter (value) {
   var hoursInDay = window.SS.hoursInDay,
       isNegative = value < 0,
       absValue = Math.abs(value);
-  var days = Math.round(absValue / hoursInDay / 60);
+  var days = Math.floor(absValue / hoursInDay / 60);
   var remainingValue = absValue - days * hoursInDay * 60;
-  var hours = Math.round(remainingValue / 60);
+  var hours = Math.floor(remainingValue / 60);
   remainingValue -= hours * 60;
   return formatDuration(isNegative, days, hours, remainingValue);
 }
