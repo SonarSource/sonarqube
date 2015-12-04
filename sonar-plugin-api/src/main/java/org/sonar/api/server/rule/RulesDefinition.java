@@ -46,6 +46,11 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.Loggers;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 /**
  * Defines some coding rules of the same repository. For example the Java Findbugs plugin provides an implementation of
  * this extension point in order to define the rules that it supports.
@@ -417,7 +422,7 @@ public interface RulesDefinition {
       Repository existing = repositoriesByKey.get(newRepository.key());
       if (existing != null) {
         if (!existing.language().equals(newRepository.language)) {
-          throw new IllegalStateException(String.format("The rule repository '%s' must not be defined for two different languages: %s and %s", newRepository.key,
+          throw new IllegalStateException(format("The rule repository '%s' must not be defined for two different languages: %s and %s", newRepository.key,
             existing.language(), newRepository.language));
         }
       }
@@ -477,7 +482,7 @@ public interface RulesDefinition {
         // Should fail in a perfect world, but at the time being the Findbugs plugin
         // defines several times the rule EC_INCOMPATIBLE_ARRAY_COMPARE
         // See http://jira.sonarsource.com/browse/SONARJAVA-428
-        Loggers.get(getClass()).warn(String.format("The rule '%s' of repository '%s' is declared several times", ruleKey, key));
+        Loggers.get(getClass()).warn(format("The rule '%s' of repository '%s' is declared several times", ruleKey, key));
       }
       NewRule newRule = new NewRule(key, ruleKey);
       newRules.put(ruleKey, newRule);
@@ -541,7 +546,7 @@ public interface RulesDefinition {
       Map<String, Rule> ruleBuilder = new HashMap<>();
       if (mergeInto != null) {
         if (!StringUtils.equals(newRepository.language, mergeInto.language()) || !StringUtils.equals(newRepository.key, mergeInto.key())) {
-          throw new IllegalArgumentException(String.format("Bug - language and key of the repositories to be merged should be the sames: %s and %s", newRepository, mergeInto));
+          throw new IllegalArgumentException(format("Bug - language and key of the repositories to be merged should be the sames: %s and %s", newRepository, mergeInto));
         }
         this.name = StringUtils.defaultIfBlank(mergeInto.name(), newRepository.name);
         for (Rule rule : mergeInto.rules()) {
@@ -678,7 +683,7 @@ public interface RulesDefinition {
      * Required rule name
      */
     public NewRule setName(String s) {
-      this.name = StringUtils.trimToNull(s);
+      this.name = trimToNull(s);
       return this;
     }
 
@@ -688,9 +693,7 @@ public interface RulesDefinition {
     }
 
     public NewRule setSeverity(String s) {
-      if (!Severity.ALL.contains(s)) {
-        throw new IllegalArgumentException(String.format("Severity of rule %s is not correct: %s", this, s));
-      }
+      checkArgument(Severity.ALL.contains(s), "Severity of rule %s is not correct: %s", this, s);
       this.severity = s;
       return this;
     }
@@ -700,10 +703,8 @@ public interface RulesDefinition {
      * (see {@link #setMarkdownDescription(String)})
      */
     public NewRule setHtmlDescription(@Nullable String s) {
-      if (markdownDescription != null) {
-        throw new IllegalStateException(String.format("Rule '%s' already has a Markdown description", this));
-      }
-      this.htmlDescription = StringUtils.trimToNull(s);
+      checkState(markdownDescription == null, "Rule '%s' already has a Markdown description", this);
+      this.htmlDescription = trimToNull(s);
       return this;
     }
 
@@ -728,10 +729,8 @@ public interface RulesDefinition {
      * (see {@link #setHtmlDescription(String)})
      */
     public NewRule setMarkdownDescription(@Nullable String s) {
-      if (htmlDescription != null) {
-        throw new IllegalStateException(String.format("Rule '%s' already has an HTML description", this));
-      }
-      this.markdownDescription = StringUtils.trimToNull(s);
+      checkState(htmlDescription == null, "Rule '%s' already has an HTML description", this);
+      this.markdownDescription = trimToNull(s);
       return this;
     }
 
@@ -757,9 +756,7 @@ public interface RulesDefinition {
      * {@link java.lang.IllegalArgumentException}.
      */
     public NewRule setStatus(RuleStatus status) {
-      if (status.equals(RuleStatus.REMOVED)) {
-        throw new IllegalArgumentException(String.format("Status 'REMOVED' is not accepted on rule '%s'", this));
-      }
+      checkArgument(RuleStatus.REMOVED != status, "Status 'REMOVED' is not accepted on rule '%s'", this);
       this.status = status;
       return this;
     }
@@ -807,9 +804,7 @@ public interface RulesDefinition {
      * Create a parameter with given unique key. Max length of key is 128 characters.
      */
     public NewParam createParam(String paramKey) {
-      if (paramsByKey.containsKey(paramKey)) {
-        throw new IllegalArgumentException(String.format("The parameter '%s' is declared several times on the rule %s", paramKey, this));
-      }
+      checkArgument(!paramsByKey.containsKey(paramKey), "The parameter '%s' is declared several times on the rule %s", paramKey, this);
       NewParam param = new NewParam(paramKey);
       paramsByKey.put(paramKey, param);
       return param;
@@ -856,19 +851,19 @@ public interface RulesDefinition {
 
     private void validate() {
       if (Strings.isNullOrEmpty(name)) {
-        throw new IllegalStateException(String.format("Name of rule %s is empty", this));
+        throw new IllegalStateException(format("Name of rule %s is empty", this));
       }
       if (Strings.isNullOrEmpty(htmlDescription) && Strings.isNullOrEmpty(markdownDescription)) {
-        throw new IllegalStateException(String.format("One of HTML description or Markdown description must be defined for rule %s", this));
+        throw new IllegalStateException(format("One of HTML description or Markdown description must be defined for rule %s", this));
       }
       if ((Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction == null)) {
-        throw new IllegalStateException(String.format("Both debt sub-characteristic and debt remediation function should be defined on rule '%s'", this));
+        throw new IllegalStateException(format("Both debt sub-characteristic and debt remediation function should be defined on rule '%s'", this));
       }
     }
 
     @Override
     public String toString() {
-      return String.format("[repository=%s, key=%s]", repoKey, key);
+      return format("[repository=%s, key=%s]", repoKey, key);
     }
   }
 
@@ -1003,7 +998,7 @@ public interface RulesDefinition {
 
     @Override
     public String toString() {
-      return String.format("[repository=%s, key=%s]", repoKey, key);
+      return format("[repository=%s, key=%s]", repoKey, key);
     }
   }
 
