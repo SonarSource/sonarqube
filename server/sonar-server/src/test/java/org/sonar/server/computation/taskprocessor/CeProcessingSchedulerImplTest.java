@@ -52,85 +52,124 @@ public class CeProcessingSchedulerImplTest {
 
   @Rule
   // due to risks of infinite chaining of tasks/futures, a timeout is required for safety
-  public Timeout timeout = Timeout.seconds(1);
+  public Timeout timeout = Timeout.seconds(60);
 
   private CeWorkerRunnable ceWorkerRunnable = mock(CeWorkerRunnable.class);
   private StubCeProcessingSchedulerExecutorService processingExecutorService = new StubCeProcessingSchedulerExecutorService();
-  private ScheduleCall regularDelayedPoll = new ScheduleCall(ceWorkerRunnable, 2L, TimeUnit.SECONDS);
-  private ScheduleCall notDelayedPoll = new ScheduleCall(ceWorkerRunnable, 1L, TimeUnit.MILLISECONDS);
+  private SchedulerCall regularDelayedPoll = new SchedulerCall(ceWorkerRunnable, 2L, TimeUnit.SECONDS);
+  private SchedulerCall notDelayedPoll = new SchedulerCall(ceWorkerRunnable);
 
   private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(processingExecutorService, ceWorkerRunnable);
 
   @Test
   public void polls_without_delay_when_CeWorkerRunnable_returns_true() throws Exception {
     when(ceWorkerRunnable.call())
-      .thenReturn(true)
-      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+        .thenReturn(true)
+        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
-    assertThat(processingExecutorService.getScheduleCalls()).containsOnly(
-      regularDelayedPoll,
-      notDelayedPoll
-      );
+    assertThat(processingExecutorService.getSchedulerCalls()).containsOnly(
+        regularDelayedPoll,
+        notDelayedPoll
+    );
   }
 
   @Test
   public void polls_without_delay_when_CeWorkerRunnable_throws_Exception_but_not_Error() throws Exception {
     when(ceWorkerRunnable.call())
-      .thenThrow(new Exception("Exception is followed by a poll without delay"))
-      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+        .thenThrow(new Exception("Exception is followed by a poll without delay"))
+        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
-    assertThat(processingExecutorService.getScheduleCalls()).containsExactly(
-      regularDelayedPoll,
-      notDelayedPoll
-      );
+    assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
+        regularDelayedPoll,
+        notDelayedPoll
+    );
   }
 
   @Test
   public void polls_with_regular_delay_when_CeWorkerRunnable_returns_false() throws Exception {
     when(ceWorkerRunnable.call())
-      .thenReturn(false)
-      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+        .thenReturn(false)
+        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
-    assertThat(processingExecutorService.getScheduleCalls()).containsExactly(
-      regularDelayedPoll,
-      regularDelayedPoll
-      );
+    assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
+        regularDelayedPoll,
+        regularDelayedPoll
+    );
   }
 
   @Test
   public void startScheduling_schedules_CeWorkerRunnable_at_fixed_rate_run_head_of_queue() throws Exception {
     when(ceWorkerRunnable.call())
-      .thenReturn(true)
-      .thenReturn(true)
-      .thenReturn(false)
-      .thenReturn(true)
-      .thenReturn(false)
-      .thenThrow(new Exception("IAE should not cause scheduling to stop"))
-      .thenReturn(false)
-      .thenReturn(false)
-      .thenReturn(false)
-      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+        .thenReturn(true)
+        .thenReturn(true)
+        .thenReturn(false)
+        .thenReturn(true)
+        .thenReturn(false)
+        .thenThrow(new Exception("IAE should not cause scheduling to stop"))
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
-    assertThat(processingExecutorService.getScheduleCalls()).containsExactly(
-      regularDelayedPoll,
-      notDelayedPoll,
-      notDelayedPoll,
-      regularDelayedPoll,
-      notDelayedPoll,
-      regularDelayedPoll,
-      notDelayedPoll,
-      regularDelayedPoll,
-      regularDelayedPoll,
-      regularDelayedPoll
-      );
+    assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
+        regularDelayedPoll,
+        notDelayedPoll,
+        notDelayedPoll,
+        regularDelayedPoll,
+        notDelayedPoll,
+        regularDelayedPoll,
+        notDelayedPoll,
+        regularDelayedPoll,
+        regularDelayedPoll,
+        regularDelayedPoll
+    );
+  }
+
+  @Test
+  public void stop_cancels_next_polling_and_does_not_add_any_new_one() throws Exception {
+    when(ceWorkerRunnable.call())
+        .thenReturn(false)
+        .thenReturn(true)
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+
+    underTest.startScheduling();
+
+    int cancelledTaskFutureCount = 0;
+    int i = 0;
+    while (processingExecutorService.futures.peek() != null) {
+      Future<?> future = processingExecutorService.futures.poll();
+      if (future.isCancelled()) {
+        cancelledTaskFutureCount++;
+      } else {
+        future.get();
+      }
+      // call stop after second delayed polling
+      if (i == 1) {
+        underTest.stop();
+      }
+      i++;
+    }
+
+    assertThat(cancelledTaskFutureCount).isEqualTo(1);
+    assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
+        regularDelayedPoll,
+        regularDelayedPoll,
+        notDelayedPoll,
+        regularDelayedPoll
+    );
   }
 
   private void startSchedulingAndRun() throws ExecutionException, InterruptedException {
@@ -148,25 +187,34 @@ public class CeProcessingSchedulerImplTest {
    */
   private static class StubCeProcessingSchedulerExecutorService implements CeProcessingSchedulerExecutorService {
 
-    private final Queue<ScheduledFuture<?>> futures = new ConcurrentLinkedQueue<>();
+    private final Queue<Future<?>> futures = new ConcurrentLinkedQueue<>();
     private final ListeningScheduledExecutorService delegate = MoreExecutors.listeningDecorator(new SynchronousStubExecutorService());
 
-    private final List<ScheduleCall> scheduleCalls = new ArrayList<>();
+    private final List<SchedulerCall> schedulerCalls = new ArrayList<>();
 
-    public List<ScheduleCall> getScheduleCalls() {
-      return scheduleCalls;
+    public List<SchedulerCall> getSchedulerCalls() {
+      return schedulerCalls;
     }
 
     public void runFutures() throws ExecutionException, InterruptedException {
       while (futures.peek() != null) {
-        futures.poll().get();
+        Future<?> future = futures.poll();
+        if (!future.isCancelled()) {
+          future.get();
+        }
       }
     }
 
     @Override
     public <V> ListenableScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
-      this.scheduleCalls.add(new ScheduleCall(callable, delay, unit));
+      this.schedulerCalls.add(new SchedulerCall(callable, delay, unit));
       return delegate.schedule(callable, delay, unit);
+    }
+
+    @Override
+    public <T> ListenableFuture<T> submit(Callable<T> task) {
+      this.schedulerCalls.add(new SchedulerCall(task));
+      return delegate.submit(task);
     }
 
     @Override
@@ -214,11 +262,6 @@ public class CeProcessingSchedulerImplTest {
     @Override
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
       return delegate.awaitTermination(timeout, unit);
-    }
-
-    @Override
-    public <T> ListenableFuture<T> submit(Callable<T> task) {
-      return delegate.submit(task);
     }
 
     @Override
@@ -292,6 +335,24 @@ public class CeProcessingSchedulerImplTest {
       }
 
       @Override
+      public <T> Future<T> submit(final Callable<T> task) {
+        Future<T> res = new AbstractPartiallyImplementedFuture<T>() {
+
+          @Override
+          public T get() throws InterruptedException, ExecutionException {
+            try {
+              return task.call();
+            } catch (Exception e) {
+              throw new ExecutionException(e);
+            }
+          }
+
+        };
+        futures.add(res);
+        return res;
+      }
+
+      @Override
       public void execute(Runnable command) {
         command.run();
       }
@@ -334,11 +395,6 @@ public class CeProcessingSchedulerImplTest {
       }
 
       @Override
-      public <T> Future<T> submit(Callable<T> task) {
-        throw new UnsupportedOperationException("submit(Callable<T> task) not implemented");
-      }
-
-      @Override
       public <T> Future<T> submit(Runnable task, T result) {
         throw new UnsupportedOperationException("submit(Runnable task, T result) not implemented");
       }
@@ -370,35 +426,41 @@ public class CeProcessingSchedulerImplTest {
     }
   }
 
-  private static abstract class AbstractPartiallyImplementedScheduledFuture<V> implements ScheduledFuture<V> {
+  private static abstract class AbstractPartiallyImplementedScheduledFuture<V> extends AbstractPartiallyImplementedFuture<V> implements ScheduledFuture<V> {
     @Override
     public long getDelay(TimeUnit unit) {
-      throw new UnsupportedOperationException("XXX not implemented");
+      throw new UnsupportedOperationException("getDelay(TimeUnit unit) not implemented");
     }
 
     @Override
     public int compareTo(Delayed o) {
-      throw new UnsupportedOperationException("XXX not implemented");
+      throw new UnsupportedOperationException("compareTo(Delayed o) not implemented");
     }
+
+  }
+
+  private static abstract class AbstractPartiallyImplementedFuture<T> implements Future<T> {
+    private boolean cancelled = false;
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-      throw new UnsupportedOperationException("XXX not implemented");
+      this.cancelled = true;
+      return true;
     }
 
     @Override
     public boolean isCancelled() {
-      throw new UnsupportedOperationException("XXX not implemented");
+      return this.cancelled;
     }
 
     @Override
     public boolean isDone() {
-      throw new UnsupportedOperationException("XXX not implemented");
+      throw new UnsupportedOperationException("isDone() not implemented");
     }
 
     @Override
-    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-      throw new UnsupportedOperationException("XXX not implemented");
+    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+      throw new UnsupportedOperationException("get(long timeout, TimeUnit unit) not implemented");
     }
   }
 
@@ -406,15 +468,21 @@ public class CeProcessingSchedulerImplTest {
    * Used to log parameters of calls to {@link CeProcessingSchedulerExecutorService#schedule(Callable, long, TimeUnit)}
    */
   @Immutable
-  private static final class ScheduleCall {
+  private static final class SchedulerCall {
     private final Callable<?> callable;
     private final long delay;
     private final TimeUnit unit;
 
-    private ScheduleCall(Callable<?> callable, long delay, TimeUnit unit) {
+    private SchedulerCall(Callable<?> callable, long delay, TimeUnit unit) {
       this.callable = callable;
       this.delay = delay;
       this.unit = unit;
+    }
+
+    private SchedulerCall(Callable<?> callable) {
+      this.callable = callable;
+      this.delay = -63366;
+      this.unit = TimeUnit.NANOSECONDS;
     }
 
     @Override
@@ -425,7 +493,7 @@ public class CeProcessingSchedulerImplTest {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      ScheduleCall that = (ScheduleCall) o;
+      SchedulerCall that = (SchedulerCall) o;
       return delay == that.delay && callable == that.callable && unit.equals(that.unit);
     }
 
@@ -436,11 +504,11 @@ public class CeProcessingSchedulerImplTest {
 
     @Override
     public String toString() {
-      return "ScheduleCall{" +
-        "callable=" + callable +
-        ", delay=" + delay +
-        ", unit=" + unit +
-        '}';
+      return "SchedulerCall{" +
+          "callable=" + callable +
+          ", delay=" + delay +
+          ", unit=" + unit +
+          '}';
     }
   }
 

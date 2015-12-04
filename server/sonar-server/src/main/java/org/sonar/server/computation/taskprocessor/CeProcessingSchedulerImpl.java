@@ -20,17 +20,21 @@
 package org.sonar.server.computation.taskprocessor;
 
 import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
+public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startable {
   private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
 
   private final CeProcessingSchedulerExecutorService executorService;
@@ -38,6 +42,8 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
 
   private final long delayBetweenTasks;
   private final TimeUnit timeUnit;
+  // warning: using a single ChainingCallback object for chaining works and is thread safe only because we use a single Thread in CeProcessingSchedulerExecutorService
+  private final ChainingCallback chainingCallback = new ChainingCallback();
 
   public CeProcessingSchedulerImpl(CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerRunnable workerRunnable) {
     this.executorService = processingExecutorService;
@@ -48,39 +54,74 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   }
 
   @Override
+  public void start() {
+    // nothing to do at component startup, startScheduling will be called by CeQueueInitializer
+  }
+
+  @Override
   public void startScheduling() {
     ListenableScheduledFuture<Boolean> future = executorService.schedule(workerRunnable, delayBetweenTasks, timeUnit);
 
-    FutureCallback<Boolean> chainingCallback = new ChainingCallback();
     addCallback(future, chainingCallback, executorService);
   }
 
+  @Override
+  public void stop() {
+    this.chainingCallback.stop();
+  }
+
   private class ChainingCallback implements FutureCallback<Boolean> {
+    private final AtomicBoolean keepRunning = new AtomicBoolean(true);
+    @CheckForNull
+    private ListenableFuture<Boolean> workerFuture;
+
     @Override
     public void onSuccess(@Nullable Boolean result) {
       if (result != null && result) {
         chainWithoutDelay();
       } else {
-        chainTask(delayBetweenTasks, timeUnit);
+        chainWithDelay();
       }
     }
 
     @Override
     public void onFailure(Throwable t) {
-      if (!(t instanceof Error)) {
-        chainWithoutDelay();
-      } else {
+      if (t instanceof Error) {
         LOG.error("Compute Engine execution failed. Scheduled processing interrupted.", t);
+      } else {
+        chainWithoutDelay();
       }
     }
 
     private void chainWithoutDelay() {
-      chainTask(1, MILLISECONDS);
+      if (keepRunning()) {
+        workerFuture = executorService.submit(workerRunnable);
+      }
+      addCallback();
     }
 
-    private void chainTask(long delay, TimeUnit unit) {
-      ListenableScheduledFuture<Boolean> future = executorService.schedule(workerRunnable, delay, unit);
-      addCallback(future, this, executorService);
+    private void chainWithDelay() {
+      if (keepRunning()) {
+        workerFuture = executorService.schedule(workerRunnable, delayBetweenTasks, timeUnit);
+      }
+      addCallback();
+    }
+
+    private void addCallback() {
+      if (workerFuture != null && keepRunning()) {
+        Futures.addCallback(workerFuture, this, executorService);
+      }
+    }
+
+    private boolean keepRunning() {
+      return keepRunning.get();
+    }
+
+    public void stop() {
+      this.keepRunning.set(false);
+      if (workerFuture != null) {
+        workerFuture.cancel(false);
+      }
     }
   }
 }
