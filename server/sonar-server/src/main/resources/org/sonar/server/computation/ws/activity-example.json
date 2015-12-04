@@ -12,6 +12,7 @@
       "componentKey": "project_1",
       "componentName": "Project One",
       "componentQualifier": "TRK",
+      "analysisId": "123456",
       "status": "SUCCESS",
       "submittedAt": "2015-08-13T23:34:59+0200",
       "submitterLogin": "john",

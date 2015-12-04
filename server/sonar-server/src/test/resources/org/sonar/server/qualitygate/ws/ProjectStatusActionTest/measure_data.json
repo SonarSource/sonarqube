@@ -1,0 +1,66 @@
+{
+  "level": "ERROR",
+  "conditions": [
+    {
+      "metric": "new_coverage",
+      "op": "LT",
+      "period": 1,
+      "error": "85",
+      "actual": "82.50562381034781",
+      "level": "ERROR"
+    },
+    {
+      "metric": "new_blocker_violations",
+      "op": "GT",
+      "period": 1,
+      "warning": "",
+      "error": "0",
+      "actual": "14",
+      "level": "ERROR"
+    },
+    {
+      "metric": "new_critical_violations",
+      "op": "GT",
+      "period": 1,
+      "warning": "",
+      "error": "0",
+      "actual": "1",
+      "level": "ERROR"
+    },
+    {
+      "metric": "new_sqale_debt_ratio",
+      "op": "GT",
+      "period": 2,
+      "warning": "",
+      "error": "5",
+      "actual": "0.6562109862671661",
+      "level": "OK"
+    },
+    {
+      "metric": "reopened_issues",
+      "op": "GT",
+      "period": 3,
+      "warning": "0",
+      "actual": "0",
+      "level": "OK"
+    },
+    {
+      "metric": "open_issues",
+      "op": "GT",
+      "period": 3,
+      "warning": "0",
+      "error": "",
+      "actual": "17",
+      "level": "WARN"
+    },
+    {
+      "metric": "skipped_tests",
+      "op": "GT",
+      "period": 5,
+      "warning": "0",
+      "error": "",
+      "actual": "0",
+      "level": "OK"
+    }
+  ]
+}

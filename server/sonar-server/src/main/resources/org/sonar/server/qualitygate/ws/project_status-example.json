@@ -1,0 +1,85 @@
+{
+  "projectStatus": {
+    "status": "ERROR",
+    "conditions": [
+      {
+        "status": "ERROR",
+        "metricKey": "new_coverage",
+        "comparator": "LT",
+        "periodIndex": 1,
+        "errorThreshold": "85",
+        "actualValue": "82.50562381034781"
+      },
+      {
+        "status": "ERROR",
+        "metricKey": "new_blocker_violations",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "0",
+        "actualValue": "14"
+      },
+      {
+        "status": "ERROR",
+        "metricKey": "new_critical_violations",
+        "comparator": "GT",
+        "periodIndex": 1,
+        "errorThreshold": "0",
+        "actualValue": "1"
+      },
+      {
+        "status": "OK",
+        "metricKey": "new_sqale_debt_ratio",
+        "comparator": "GT",
+        "periodIndex": 2,
+        "errorThreshold": "5",
+        "actualValue": "0.6562109862671661"
+      },
+      {
+        "status": "OK",
+        "metricKey": "reopened_issues",
+        "comparator": "GT",
+        "periodIndex": 3,
+        "warningThreshold": "0",
+        "actualValue": "0"
+      },
+      {
+        "status": "WARN",
+        "metricKey": "open_issues",
+        "comparator": "GT",
+        "periodIndex": 3,
+        "warningThreshold": "0",
+        "actualValue": "17"
+      },
+      {
+        "status": "OK",
+        "metricKey": "skipped_tests",
+        "comparator": "GT",
+        "periodIndex": 5,
+        "warningThreshold": "0",
+        "actualValue": "0"
+      }
+    ],
+    "periods": [
+      {
+        "index": 1,
+        "mode": "last_period",
+        "date": "2000-04-27T00:45:23+0200"
+      },
+      {
+        "index": 2,
+        "mode": "last_version",
+        "date": "2000-04-27T00:45:23+0200",
+        "parameter": "2015-12-07"
+      },
+      {
+        "index": 3,
+        "mode": "last_analysis"
+      },
+      {
+        "index": 5,
+        "mode": "last_30_days",
+        "parameter": "2015-11-07"
+      }
+    ]
+  }
+}

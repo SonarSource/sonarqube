@@ -95,7 +95,7 @@
     values (
     #{uuid,jdbcType=VARCHAR},
     #{componentUuid,jdbcType=VARCHAR},
-    #{snapshotId,jdbcType=INTEGER},
+    #{snapshotId,jdbcType=BIGINT},
     #{status,jdbcType=VARCHAR},
     #{taskType,jdbcType=VARCHAR},
     #{isLast,jdbcType=BOOLEAN},

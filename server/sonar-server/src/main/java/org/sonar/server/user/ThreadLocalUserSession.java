@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import com.google.common.base.Objects;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -95,6 +96,11 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public UserSession checkGlobalPermission(String globalPermission, @Nullable String errorMessage) {
     return get().checkGlobalPermission(globalPermission, errorMessage);
+  }
+
+  @Override
+  public UserSession checkAnyGlobalPermissions(Collection<String> globalPermissions) {
+    return get().checkAnyGlobalPermissions(globalPermissions);
   }
 
   @Override

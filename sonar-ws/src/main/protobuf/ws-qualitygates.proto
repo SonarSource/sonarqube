@@ -1,0 +1,69 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2015 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.qualitygate;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "WsQualityGates";
+option optimize_for = SPEED;
+
+// GET api/qualitygates/project_status
+message ProjectStatusWsResponse {
+  optional ProjectStatus projectStatus = 1;
+
+  message ProjectStatus {
+    optional Status status = 1;
+    repeated Condition conditions = 2;
+    repeated Period periods = 3;
+  }
+
+  message Condition {
+    optional Status status = 1;
+    optional string metricKey = 2;
+    optional Comparator comparator = 3;
+    optional int32 periodIndex = 4;
+    optional string warningThreshold = 5;
+    optional string errorThreshold = 6;
+    optional string actualValue = 7;
+  }
+
+  message Period {
+    optional int32 index = 1;
+    optional string mode = 2;
+    optional string date = 3;
+    optional string parameter = 4;
+  }
+
+  enum Status {
+    OK = 1;
+    WARN = 2;
+    ERROR = 3;
+    NONE = 4;
+  }
+
+  enum Comparator {
+    GT = 1;
+    LT = 2;
+    EQ = 3;
+    NE = 4;
+  }
+}

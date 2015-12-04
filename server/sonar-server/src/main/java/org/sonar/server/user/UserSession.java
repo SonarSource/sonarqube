@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -56,6 +57,12 @@ public interface UserSession {
    * the specified error message.
    */
   UserSession checkGlobalPermission(String globalPermission, @Nullable String errorMessage);
+
+  /**
+   * Ensures that user implies any of the specified global permissions, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException} with
+   * the specified error message.
+   */
+  UserSession checkAnyGlobalPermissions(Collection<String> globalPermissions);
 
   /**
    * Does the user have the given permission ?

@@ -20,6 +20,8 @@
 package org.sonar.server.computation.ws;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -39,6 +41,7 @@ public class TaskAction implements CeWsAction {
 
   public static final String ACTION = "task";
   public static final String PARAM_TASK_UUID = "id";
+  private static final Set<String> AUTHORIZED_PERMISSIONS = ImmutableSet.of(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.SYSTEM_ADMIN);
 
   private final DbClient dbClient;
   private final TaskFormatter wsTaskFormatter;
@@ -55,7 +58,6 @@ public class TaskAction implements CeWsAction {
     WebService.NewAction action = controller.createAction(ACTION)
       .setDescription("Give Compute Engine task details such as type, status, duration and associated component.<br />" +
         "Requires 'Administer System' or 'Execute Analysis' permission.")
-      .setInternal(true)
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
       .setHandler(this);
@@ -69,11 +71,7 @@ public class TaskAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)
-      // WS can be used at the end of an analysis to implement a build breaker
-      && !userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION)) {
-      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-    }
+    userSession.checkAnyGlobalPermissions(AUTHORIZED_PERMISSIONS);
 
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
     DbSession dbSession = dbClient.openSession(false);

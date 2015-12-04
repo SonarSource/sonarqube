@@ -111,6 +111,7 @@ public class TaskActionTest {
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(CeActivityDto.Status.FAILED);
     activityDto.setExecutionTimeMs(500L);
+    activityDto.setSnapshotId(123_456L);
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();
 
@@ -120,13 +121,15 @@ public class TaskActionTest {
       .execute();
 
     WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
-    assertThat(taskResponse.getTask().getId()).isEqualTo("TASK_1");
-    assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
-    assertThat(taskResponse.getTask().getComponentId()).isEqualTo(project.uuid());
-    assertThat(taskResponse.getTask().getComponentKey()).isEqualTo(project.key());
-    assertThat(taskResponse.getTask().getComponentName()).isEqualTo(project.name());
-    assertThat(taskResponse.getTask().getExecutionTimeMs()).isEqualTo(500L);
-    assertThat(taskResponse.getTask().getLogs()).isFalse();
+    WsCe.Task task = taskResponse.getTask();
+    assertThat(task.getId()).isEqualTo("TASK_1");
+    assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
+    assertThat(task.getComponentId()).isEqualTo(project.uuid());
+    assertThat(task.getComponentKey()).isEqualTo(project.key());
+    assertThat(task.getComponentName()).isEqualTo(project.name());
+    assertThat(task.getAnalysisId()).isEqualTo("123456");
+    assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
+    assertThat(task.getLogs()).isFalse();
   }
 
   @Test

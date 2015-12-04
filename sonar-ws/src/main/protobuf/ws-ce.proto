@@ -61,14 +61,15 @@ message Task {
   optional string componentKey = 4;
   optional string componentName = 5;
   optional string componentQualifier = 6;
-  optional TaskStatus status = 7;
-  optional string submittedAt = 8;
-  optional string submitterLogin = 9;
-  optional string startedAt = 10;
-  optional string executedAt = 11;
-  optional bool isLastExecuted = 12;
-  optional int64 executionTimeMs = 13;
-  optional bool logs = 14;
+  optional string analysisId = 7;
+  optional TaskStatus status = 8;
+  optional string submittedAt = 9;
+  optional string submitterLogin = 10;
+  optional string startedAt = 11;
+  optional string executedAt = 12;
+  optional bool isLastExecuted = 13;
+  optional int64 executionTimeMs = 14;
+  optional bool logs = 15;
 }
 
 enum TaskStatus {

@@ -25,7 +25,7 @@
 class AddCeActivitySnapshotId < ActiveRecord::Migration
 
   def self.up
-    add_column 'ce_activity', :snapshot_id, :integer, :null => true
+    add_column 'ce_activity', :snapshot_id, :big_integer, :null => true
   end
 
 end

@@ -26,9 +26,6 @@ import org.sonar.api.server.ws.WebService;
 
 public class ResourcesWs implements WebService {
 
-  private static final String FALSE = "false";
-  private static final String TRUE = "true";
-
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/resources")
@@ -92,8 +89,8 @@ public class ResourcesWs implements WebService {
 
     action.createParam("verbose")
       .setDescription("Add some data to response")
-      .setDefaultValue(FALSE)
-      .setPossibleValues(TRUE, FALSE);
+      .setBooleanPossibleValues()
+      .setDefaultValue(String.valueOf(false));
 
     action.createParam("limit")
       .setDescription("Limit the number of results. Only used if one metric, and only one, is set")
@@ -101,19 +98,19 @@ public class ResourcesWs implements WebService {
 
     action.createParam("includetrends")
       .setDescription("Include period variations in response: add nodes &ltp*&gt for period variations")
-      .setDefaultValue(FALSE)
-      .setPossibleValues(TRUE, FALSE);
+      .setDefaultValue(String.valueOf(false))
+      .setBooleanPossibleValues();
 
     action.createParam("includealerts")
       .setDescription("Include alerts data: add nodes &ltalert&gt (ERROR, WARN, OK) and &ltalert_text&gt")
-      .setDefaultValue(FALSE)
-      .setPossibleValues(TRUE, FALSE);
+      .setBooleanPossibleValues()
+      .setDefaultValue(String.valueOf(false));
 
     action.createParam("rules")
       .setDescription("Filter on rules: setting it to true will return rules id and rule name for measure having such info " +
         "(such as 'blocker_violations', 'critical_violations', ..., 'new_blocker_violations', ...). Possible values: true | false | list of rule ids")
-      .setDefaultValue(FALSE)
-      .setExampleValue(TRUE);
+      .setBooleanPossibleValues()
+      .setDefaultValue(String.valueOf(true));
 
     RailsHandler.addFormatParam(action);
   }
@@ -133,8 +130,8 @@ public class ResourcesWs implements WebService {
 
     action.createParam("display_key")
       .setDescription("Return the resource key instead of the resource id")
-      .setDefaultValue(FALSE)
-      .setPossibleValues(TRUE, FALSE);
+      .setBooleanPossibleValues()
+      .setDefaultValue(String.valueOf(false));
 
     action.createParam("q")
       .setDescription("Comma-separated list of qualifiers")

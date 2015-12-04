@@ -20,6 +20,7 @@
 package org.sonar.server.tester;
 
 import com.google.common.base.Preconditions;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -286,6 +287,11 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public UserSession checkGlobalPermission(String globalPermission, @Nullable String errorMessage) {
     return currentUserSession.checkGlobalPermission(globalPermission, errorMessage);
+  }
+
+  @Override
+  public UserSession checkAnyGlobalPermissions(Collection<String> globalPermissions) {
+    return currentUserSession.checkAnyGlobalPermissions(globalPermissions);
   }
 
   @Override

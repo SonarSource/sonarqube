@@ -74,7 +74,6 @@ public class ActivityAction implements CeWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("activity")
-      .setInternal(true)
       .setDescription(format("Search for past task executions. Requires the system administration permission, " +
         "or project administration permission if %s is set.", PARAM_COMPONENT_UUID))
       .setResponseExample(getClass().getResource("activity-example.json"))

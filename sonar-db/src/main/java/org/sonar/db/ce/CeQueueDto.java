@@ -44,9 +44,10 @@ public class CeQueueDto {
     return uuid;
   }
 
-  public void setUuid(String s) {
+  public CeQueueDto setUuid(String s) {
     checkArgument(s.length() <= 40, "Value of UUID is too long: %s", s);
     this.uuid = s;
+    return this;
   }
 
   @CheckForNull
@@ -54,26 +55,29 @@ public class CeQueueDto {
     return componentUuid;
   }
 
-  public void setComponentUuid(@Nullable String s) {
+  public CeQueueDto setComponentUuid(@Nullable String s) {
     checkArgument(s == null || s.length() <= 40, "Value of component UUID is too long: %s", s);
     this.componentUuid = s;
+    return this;
   }
 
   public Status getStatus() {
     return status;
   }
 
-  public void setStatus(Status s) {
+  public CeQueueDto setStatus(Status s) {
     this.status = s;
+    return this;
   }
 
   public String getTaskType() {
     return taskType;
   }
 
-  public void setTaskType(String s) {
+  public CeQueueDto setTaskType(String s) {
     checkArgument(s.length() <= 15, "Value of task type is too long: %s", s);
     this.taskType = s;
+    return this;
   }
 
   @CheckForNull
@@ -81,9 +85,10 @@ public class CeQueueDto {
     return submitterLogin;
   }
 
-  public void setSubmitterLogin(@Nullable String s) {
+  public CeQueueDto setSubmitterLogin(@Nullable String s) {
     checkArgument(s == null || s.length() <= 255, "Value of submitter login is too long: %s", s);
     this.submitterLogin = s;
+    return this;
   }
 
   @CheckForNull
@@ -91,24 +96,27 @@ public class CeQueueDto {
     return startedAt;
   }
 
-  public void setStartedAt(@Nullable Long l) {
+  public CeQueueDto setStartedAt(@Nullable Long l) {
     this.startedAt = l;
+    return this;
   }
 
   public long getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(long l) {
+  public CeQueueDto setCreatedAt(long l) {
     this.createdAt = l;
+    return this;
   }
 
   public long getUpdatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(long l) {
+  public CeQueueDto setUpdatedAt(long l) {
     this.updatedAt = l;
+    return this;
   }
 
   @Override

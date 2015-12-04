@@ -19,6 +19,7 @@
     "componentKey": "com.github.kevinsawicki:http-request-parent",
     "componentName": "HttpRequest",
     "componentQualifier": "TRK",
+    "analysisId": "123456",
     "status": "SUCCESS",
     "submittedAt": "2015-09-21T19:25:49+0200",
     "startedAt": "2015-09-21T19:25:57+0200",

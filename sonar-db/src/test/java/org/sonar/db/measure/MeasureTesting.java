@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.ws;
 
-import org.sonar.core.platform.Module;
+package org.sonar.db.measure;
 
-public class CeWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeWs.class,
-      ActivityAction.class,
-      CancelAction.class,
-      CancelAllAction.class,
-      QueueAction.class,
-      IsQueueEmptyWs.class,
-      LogsAction.class,
-      ComponentAction.class,
-      SubmitAction.class,
-      TaskFormatter.class,
-      TaskAction.class);
+import org.sonar.db.metric.MetricDto;
+
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
+
+public class MeasureTesting {
+  private MeasureTesting() {
+    // static methods only
+  }
+
+  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
+    return new MeasureDto()
+      .setMetricId(metricDto.getId())
+      .setMetricKey(metricDto.getKey())
+      .setSnapshotId((long) nextInt())
+      .setComponentId((long) nextInt())
+      .setSnapshotId(snapshotId);
   }
 }

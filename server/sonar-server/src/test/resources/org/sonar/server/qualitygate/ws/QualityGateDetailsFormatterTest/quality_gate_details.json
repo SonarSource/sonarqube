@@ -1,0 +1,50 @@
+{
+  "level": "ERROR",
+  "conditions": [
+    {
+      "metric": "new_coverage",
+      "op": "LT",
+      "period": 1,
+      "warning": "80",
+      "error": "85",
+      "actual": "82.2985024398452",
+      "level": "ERROR"
+    },
+    {
+      "metric": "new_blocker_violations",
+      "op": "GT",
+      "period": 2,
+      "warning": "",
+      "error": "0",
+      "actual": "1",
+      "level": "ERROR"
+    },
+    {
+      "metric": "new_critical_violations",
+      "op": "NE",
+      "period": 3,
+      "warning": "",
+      "error": "0",
+      "actual": "0",
+      "level": "OK"
+    },
+    {
+      "metric": "new_sqale_debt_ratio",
+      "op": "EQ",
+      "period": 4,
+      "warning": "",
+      "error": "5",
+      "actual": "0.5670339761248853",
+      "level": "OK"
+    },
+    {
+      "metric": "new_sqale_debt_ratio",
+      "op": "LT",
+      "period": 5,
+      "warning": "",
+      "error": "5",
+      "actual": "0.5670339761248853",
+      "level": "WARN"
+    }
+  ]
+}

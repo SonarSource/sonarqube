@@ -30,7 +30,6 @@ import org.mockito.Mockito;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -177,6 +176,7 @@ public class TaskFormatterTest {
     assertThat(wsTask.getLogs()).isFalse();
     assertThat(wsTask.getSubmittedAt()).isEqualTo(DateUtils.formatDateTime(new Date(1_450_000_000_000L)));
     assertThat(wsTask.getExecutionTimeMs()).isEqualTo(500L);
+    assertThat(wsTask.getAnalysisId()).isEqualTo("123456");
     assertThat(wsTask.getLogs()).isFalse();
   }
 
@@ -209,6 +209,7 @@ public class TaskFormatterTest {
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
     activityDto.setExecutionTimeMs(500L);
+    activityDto.setSnapshotId(123_456L);
     return activityDto;
   }
 }

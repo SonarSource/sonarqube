@@ -95,6 +95,7 @@ public class ActivityActionTest {
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
     assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo("PROJECT_2");
+    assertThat(activityResponse.getTasks(0).getAnalysisId()).isEqualTo("123456");
     assertThat(activityResponse.getTasks(0).getExecutionTimeMs()).isEqualTo(500L);
     assertThat(activityResponse.getTasks(0).getLogs()).isFalse();
     assertThat(activityResponse.getTasks(1).getId()).isEqualTo("T1");
@@ -237,6 +238,7 @@ public class ActivityActionTest {
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
     activityDto.setExecutionTimeMs(500L);
+    activityDto.setSnapshotId(123_456L);
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();
     return activityDto;

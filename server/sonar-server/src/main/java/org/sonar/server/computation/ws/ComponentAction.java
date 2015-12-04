@@ -55,7 +55,6 @@ public class ComponentAction implements CeWsAction {
     WebService.NewAction action = controller.createAction("component")
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component " +
         "(usually a project). Requires the administration permission on the component.")
-      .setInternal(true)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setHandler(this);

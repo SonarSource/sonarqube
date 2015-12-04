@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -138,6 +139,18 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
       throw new ForbiddenException(errorMessage != null ? errorMessage : INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
+  }
+
+  @Override
+  public UserSession checkAnyGlobalPermissions(Collection<String> globalPermissionsToTest) {
+    List<String> userGlobalPermissions = globalPermissions();
+    for (String userGlobalPermission : userGlobalPermissions) {
+      if (globalPermissionsToTest.contains(userGlobalPermission)) {
+        return this;
+      }
+    }
+
+    throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
   }
 
   @Override
