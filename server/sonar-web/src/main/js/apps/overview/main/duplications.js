@@ -46,7 +46,7 @@ export const GeneralDuplications = React.createClass({
   render () {
     let donutData = [
       { value: this.props.measures['duplicated_lines_density'], fill: '#f3ca8e' },
-      { value: 100 - this.props.measures['duplicated_lines_density'], fill: '#e6e6e6' }
+      { value: Math.max(0, 20 - this.props.measures['duplicated_lines_density']), fill: '#e6e6e6' }
     ];
 
     return <Domain>

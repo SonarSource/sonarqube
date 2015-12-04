@@ -95,7 +95,7 @@ export const DuplicationsMain = React.createClass({
     const duplications = this.state.measures[duplicationsMetric];
     const donutData = [
       { value: duplications, fill: '#f3ca8e' },
-      { value: 100 - duplications, fill: '#e6e6e6' }
+      { value: Math.max(0, 20 - duplications), fill: '#e6e6e6' }
     ];
     return <DonutChart width="30" height="30" thickness="3" data={donutData}/>;
   },
