@@ -42,7 +42,11 @@ export class DomainBubbleChart extends React.Component {
         });
         return _.extend(file, { measures });
       });
-      this.setState({ loading: false, files: this.limitFiles(files) });
+      this.setState({
+        loading: false,
+        files: this.limitFiles(files),
+        total: files.length
+      });
     });
   }
 
@@ -127,6 +131,8 @@ export class DomainBubbleChart extends React.Component {
         <div className="note text-right" style={{ position: 'relative', top: '-10px', left: '-10px' }}>
           X: {this.state.xMetric.name}
         </div>
+        {this.state.total > BUBBLES_LIMIT &&
+        <div className="note text-center">{window.tp('overview.chart.files.limit_message', BUBBLES_LIMIT)}</div>}
       </div>
     </div>;
   }
