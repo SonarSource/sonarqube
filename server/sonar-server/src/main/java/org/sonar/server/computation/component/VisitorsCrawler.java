@@ -64,9 +64,8 @@ public class VisitorsCrawler implements ComponentCrawler {
     } catch (RuntimeException e) {
       VisitException.rethrowOrWrap(
         e,
-        "Visit of Component %s:" +
-            "%s failed",
-        component.getType(), component.getKey());
+        "Visit of Component {key=%s,type=%s} failed",
+        component.getKey(), component.getType());
     }
   }
 

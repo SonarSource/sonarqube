@@ -51,8 +51,8 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
     } catch (RuntimeException e) {
       VisitException.rethrowOrWrap(
         e,
-        "Visit failed for Component %s:%s%s",
-        component.getType(), component.getKey(), new ComponentPathPrinter<>(stack));
+        "Visit failed for Component {key=%s,type=%s} %s",
+        component.getKey(), component.getType(), new ComponentPathPrinter<>(stack));
     }
   }
 
@@ -174,7 +174,7 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
       @Override
       @Nonnull
       public String apply(@Nonnull PathAwareVisitor.PathElement<?> input) {
-        return format("%s:%s", input.getComponent().getType(), input.getComponent().getKey());
+        return format("%s(type=%s)", input.getComponent().getKey(), input.getComponent().getType());
       }
     }
   }
