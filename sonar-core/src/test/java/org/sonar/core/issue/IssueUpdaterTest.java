@@ -21,7 +21,9 @@ package org.sonar.core.issue;
 
 import java.util.Date;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.Duration;
@@ -37,6 +39,9 @@ import static org.sonar.core.issue.IssueUpdater.TECHNICAL_DEBT;
 import static org.sonar.core.issue.IssueUpdater.UNUSED;
 
 public class IssueUpdaterTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   DefaultIssue issue = new DefaultIssue();
   IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
@@ -96,6 +101,34 @@ public class IssueUpdaterTest {
     assertThat(updated).isFalse();
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void set_new_assignee() throws Exception {
+    boolean updated = updater.setNewAssignee(issue, "simon", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.assignee()).isEqualTo("simon");
+    assertThat(issue.mustSendNotifications()).isTrue();
+    FieldDiffs.Diff diff = issue.currentChange().get(ASSIGNEE);
+    assertThat(diff.oldValue()).isEqualTo(UNUSED);
+    assertThat(diff.newValue()).isEqualTo("simon");
+  }
+
+  @Test
+  public void not_set_new_assignee_if_new_assignee_is_null() throws Exception {
+    boolean updated = updater.setNewAssignee(issue, null, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void fail_with_ISE_when_setting_new_assignee_on_already_assigned_issue() throws Exception {
+    issue.setAssignee("simon");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("It's not possible to update the assignee with this method, please use assign()");
+    updater.setNewAssignee(issue, "julien", context);
   }
 
   @Test
@@ -477,6 +510,34 @@ public class IssueUpdaterTest {
     assertThat(diff.oldValue()).isNull();
     assertThat(diff.newValue()).isEqualTo("eric");
     assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void set_new_author() throws Exception {
+    boolean updated = updater.setNewAuthor(issue, "simon", context);
+    assertThat(updated).isTrue();
+
+    FieldDiffs.Diff diff = issue.currentChange().get("author");
+    assertThat(diff.oldValue()).isNull();
+    assertThat(diff.newValue()).isEqualTo("simon");
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void not_set_new_author_if_new_author_is_null() throws Exception {
+    boolean updated = updater.setNewAuthor(issue, null, context);
+    assertThat(updated).isFalse();
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void fail_with_ISE_when_setting_new_author_on_issue() throws Exception {
+    issue.setAuthorLogin("simon");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("It's not possible to update the author with this method, please use setAuthorLogin()");
+    updater.setNewAuthor(issue, "julien", context);
   }
 
   @Test

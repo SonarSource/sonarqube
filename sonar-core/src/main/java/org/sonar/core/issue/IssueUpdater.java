@@ -22,7 +22,9 @@ package org.sonar.core.issue;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import java.util.Calendar;
@@ -37,6 +39,9 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.Duration;
+
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * Updates issue fields and chooses if changes must be kept in history.
@@ -95,8 +100,8 @@ public class IssueUpdater {
       sanitizedAssignee = StringUtils.defaultIfBlank(user.login(), null);
     }
     if (!Objects.equal(sanitizedAssignee, issue.assignee())) {
-      String newAssignee = user != null ? user.name() : null;
-      issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssignee);
+      String newAssigneeName = user != null ? user.name() : null;
+      issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssigneeName);
       issue.setAssignee(sanitizedAssignee);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -104,6 +109,22 @@ public class IssueUpdater {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Used to set the assignee when it was null
+   */
+  public boolean setNewAssignee(DefaultIssue issue, @Nullable String newAssignee, IssueChangeContext context) {
+    if (newAssignee == null) {
+      return false;
+    }
+    checkState(issue.assignee() == null, "It's not possible to update the assignee with this method, please use assign()");
+    issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssignee);
+    issue.setAssignee(newAssignee);
+    issue.setUpdateDate(context.date());
+    issue.setChanged(true);
+    issue.setSendNotifications(true);
+    return true;
   }
 
   public boolean setLine(DefaultIssue issue, @Nullable Integer line) {
@@ -171,6 +192,22 @@ public class IssueUpdater {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Used to set the author when it was null
+   */
+  public boolean setNewAuthor(DefaultIssue issue, @Nullable String newAuthorLogin, IssueChangeContext context) {
+    if (isNullOrEmpty(newAuthorLogin)) {
+      return false;
+    }
+    checkState(issue.authorLogin() == null, "It's not possible to update the author with this method, please use setAuthorLogin()");
+    issue.setFieldChange(context, AUTHOR, null, newAuthorLogin);
+    issue.setAuthorLogin(newAuthorLogin);
+    issue.setUpdateDate(context.date());
+    issue.setChanged(true);
+    // do not send notifications to prevent spam when installing the developer cockpit plugin
+    return true;
   }
 
   public boolean setMessage(DefaultIssue issue, @Nullable String s, IssueChangeContext context) {
@@ -315,6 +352,5 @@ public class IssueUpdater {
     }
     return false;
   }
-
 
 }

@@ -21,15 +21,22 @@
 package org.sonar.server.computation.issue;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import java.util.Date;
 import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.scm.ScmInfo;
 import org.sonar.server.computation.scm.ScmInfoRepository;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.sonar.core.issue.IssueChangeContext.createScan;
 
 /**
  * Detect the SCM author and SQ assignee.
@@ -46,37 +53,40 @@ public class IssueAssigner extends IssueVisitor {
 
   private final ScmInfoRepository scmInfoRepository;
   private final DefaultAssignee defaultAssigne;
+  private final IssueUpdater issueUpdater;
   private final ScmAccountToUser scmAccountToUser;
+  private final IssueChangeContext changeContext;
 
   private String lastCommitAuthor = null;
   private ScmInfo scmChangesets = null;
 
-  public IssueAssigner(ScmInfoRepository scmInfoRepository, ScmAccountToUser scmAccountToUser, DefaultAssignee defaultAssigne) {
+  public IssueAssigner(AnalysisMetadataHolder analysisMetadataHolder, ScmInfoRepository scmInfoRepository, ScmAccountToUser scmAccountToUser, DefaultAssignee defaultAssigne,
+    IssueUpdater issueUpdater) {
     this.scmInfoRepository = scmInfoRepository;
     this.scmAccountToUser = scmAccountToUser;
     this.defaultAssigne = defaultAssigne;
+    this.issueUpdater = issueUpdater;
+    this.changeContext = createScan(new Date(analysisMetadataHolder.getAnalysisDate()));
   }
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.isNew()) {
-      // optimization - do not load SCM data of this component if there are no new issues
-      loadScmChangesetsIfNeeded(component);
-
+    boolean authorWasSet = false;
+    if (issue.authorLogin() == null) {
+      loadScmChangesets(component);
       String scmAuthor = guessScmAuthor(issue);
-      issue.setAuthorLogin(scmAuthor);
-      if (scmAuthor != null) {
-        String assigneeLogin = scmAccountToUser.getNullable(scmAuthor);
-        if (assigneeLogin == null) {
-          issue.setAssignee(defaultAssigne.getLogin());
-        } else {
-          issue.setAssignee(assigneeLogin);
-        }
+      if (!Strings.isNullOrEmpty(scmAuthor)) {
+        issueUpdater.setNewAuthor(issue, scmAuthor, changeContext);
+        authorWasSet = true;
       }
+    }
+    if (authorWasSet && issue.assignee() == null) {
+      String assigneeLogin = StringUtils.defaultIfEmpty(scmAccountToUser.getNullable(issue.authorLogin()), defaultAssigne.getLogin());
+      issueUpdater.setNewAssignee(issue, assigneeLogin, changeContext);
     }
   }
 
-  private void loadScmChangesetsIfNeeded(Component component) {
+  private void loadScmChangesets(Component component) {
     if (scmChangesets == null) {
       Optional<ScmInfo> scmInfoOptional = scmInfoRepository.getScmInfo(component);
       if (scmInfoOptional.isPresent()) {

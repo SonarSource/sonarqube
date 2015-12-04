@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.scm.Changeset;
 import org.sonar.server.computation.scm.ScmInfoRepositoryRule;
@@ -44,15 +46,27 @@ public class IssueAssignerTest {
   @org.junit.Rule
   public ScmInfoRepositoryRule scmInfoRepository = new ScmInfoRepositoryRule();
 
+  @org.junit.Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setAnalysisDate(123456789L);
+
   ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
   DefaultAssignee defaultAssignee = mock(DefaultAssignee.class);
 
-  IssueAssigner underTest = new IssueAssigner(scmInfoRepository, scmAccountToUser, defaultAssignee);
+  IssueAssigner underTest = new IssueAssigner(analysisMetadataHolder, scmInfoRepository, scmAccountToUser, defaultAssignee, new IssueUpdater());
+
+  @Test
+  public void nothing_to_do_if_no_changeset() throws Exception {
+    DefaultIssue issue = new DefaultIssue().setLine(1);
+
+    underTest.onIssue(FILE, issue);
+
+    assertThat(issue.authorLogin()).isNull();
+  }
 
   @Test
   public void set_author_to_issue() throws Exception {
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setNew(true).setLine(1);
+    DefaultIssue issue = new DefaultIssue().setLine(1);
 
     underTest.onIssue(FILE, issue);
 
@@ -60,29 +74,22 @@ public class IssueAssignerTest {
   }
 
   @Test
-  public void nothing_to_do_if_issue_is_not_new() throws Exception {
+  public void does_not_set_author_to_issue_if_already_set() throws Exception {
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setNew(false).setLine(1);
+    DefaultIssue issue = new DefaultIssue()
+      .setLine(1)
+      .setAuthorLogin("j1234");
 
     underTest.onIssue(FILE, issue);
 
-    assertThat(issue.authorLogin()).isNull();
-  }
-
-  @Test
-  public void nothing_to_do_if_no_changeset() throws Exception {
-    DefaultIssue issue = new DefaultIssue().setNew(true).setLine(1);
-
-    underTest.onIssue(FILE, issue);
-
-    assertThat(issue.authorLogin()).isNull();
+    assertThat(issue.authorLogin()).isEqualTo("j1234");
   }
 
   @Test
   public void set_assignee_to_issue() throws Exception {
     addScmUser("john", "John C");
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setNew(true).setLine(1);
+    DefaultIssue issue = new DefaultIssue().setLine(1);
 
     underTest.onIssue(FILE, issue);
 
@@ -94,11 +101,37 @@ public class IssueAssignerTest {
     addScmUser("john", null);
     setSingleChangeset("john", 123456789L, "rev-1");
     when(defaultAssignee.getLogin()).thenReturn("John C");
-    DefaultIssue issue = new DefaultIssue().setNew(true).setLine(1);
+    DefaultIssue issue = new DefaultIssue().setLine(1);
 
     underTest.onIssue(FILE, issue);
 
     assertThat(issue.assignee()).isEqualTo("John C");
+  }
+
+  @Test
+  public void doest_not_set_assignee_if_no_author() throws Exception {
+    addScmUser("john", "John C");
+    setSingleChangeset(null, 123456789L, "rev-1");
+    DefaultIssue issue = new DefaultIssue().setLine(1);
+
+    underTest.onIssue(FILE, issue);
+
+    assertThat(issue.authorLogin()).isNull();
+    assertThat(issue.assignee()).isNull();
+  }
+
+  @Test
+  public void doest_not_set_assignee_if_author_already_set_and_assignee_null() throws Exception {
+    addScmUser("john", "John C");
+    setSingleChangeset("john", 123456789L, "rev-1");
+    DefaultIssue issue = new DefaultIssue().setLine(1)
+      .setAuthorLogin("john")
+      .setAssignee(null);
+
+    underTest.onIssue(FILE, issue);
+
+    assertThat(issue.authorLogin()).isEqualTo("john");
+    assertThat(issue.assignee()).isNull();
   }
 
   @Test
@@ -117,9 +150,7 @@ public class IssueAssignerTest {
       .build();
     scmInfoRepository.setScmInfo(FILE_REF, changeset1, changeset2, changeset1);
 
-    DefaultIssue issue = new DefaultIssue()
-      .setNew(true)
-      .setLine(null);
+    DefaultIssue issue = new DefaultIssue().setLine(null);
 
     underTest.onIssue(FILE, issue);
 
@@ -135,7 +166,7 @@ public class IssueAssignerTest {
       .setRevision("rev-1")
       .build();
     scmInfoRepository.setScmInfo(FILE_REF, changeset, changeset);
-    DefaultIssue issue = new DefaultIssue().setNew(true).setLine(3);
+    DefaultIssue issue = new DefaultIssue().setLine(3);
 
     underTest.onIssue(FILE, issue);
 
@@ -145,15 +176,16 @@ public class IssueAssignerTest {
   @Test
   public void display_warning_when_line_is_above_max_size() throws Exception {
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setNew(true).setLine(2);
+    DefaultIssue issue = new DefaultIssue().setLine(2);
 
     underTest.onIssue(FILE, issue);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("No SCM info has been found for issue DefaultIssue[key=<null>,componentUuid=<null>,componentKey=<null>,moduleUuid=<null>,moduleUuidPath=<null>," +
-      "projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>,manualSeverity=false,message=<null>,line=2,effortToFix=<null>,debt=<null>," +
-      "status=<null>,resolution=<null>,reporter=<null>,assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,actionPlanKey=<null>,comments=<null>,tags=<null>,l" +
-      "ocations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,beingClosed=false,onDisabledRule=false," +
-      "isChanged=false,sendNotifications=false,selectedAt=<null>]");
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
+      "No SCM info has been found for issue DefaultIssue[key=<null>,componentUuid=<null>,componentKey=<null>,moduleUuid=<null>,moduleUuidPath=<null>," +
+        "projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>,manualSeverity=false,message=<null>,line=2,effortToFix=<null>,debt=<null>," +
+        "status=<null>,resolution=<null>,reporter=<null>,assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,actionPlanKey=<null>,comments=<null>,tags=<null>,l" +
+        "ocations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,beingClosed=false,onDisabledRule=false," +
+        "isChanged=false,sendNotifications=false,selectedAt=<null>]");
   }
 
   private void setSingleChangeset(String author, Long date, String revision) {
