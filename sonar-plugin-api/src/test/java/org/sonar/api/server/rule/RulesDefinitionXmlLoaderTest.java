@@ -270,7 +270,7 @@ public class RulesDefinitionXmlLoaderTest {
       assertThat(rule.htmlDescription()).isNull();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessageContaining("Fail to load the rule with key [squid:1]");
-      assertThat(e.getCause()).hasMessageContaining("Value of descriptionFormat is not supported: UNKNOWN");
+      assertThat(e.getCause()).hasMessageContaining("No enum constant org.sonar.api.server.rule.RulesDefinitionXmlLoader.DescriptionFormat.UNKNOWN");
     }
   }
 

@@ -39,7 +39,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.StringUtils.trim;
@@ -180,6 +179,10 @@ import static org.apache.commons.lang.StringUtils.trim;
 @ServerSide
 public class RulesDefinitionXmlLoader {
 
+  private enum DescriptionFormat {
+    HTML, MARKDOWN
+  }
+
   /**
    * Loads rules by reading the XML input stream. The input stream is not always closed by the method, so it
    * should be handled by the caller.
@@ -232,7 +235,8 @@ public class RulesDefinitionXmlLoader {
     String key = null;
     String name = null;
     String description = null;
-    String descriptionFormat = "HTML";
+    // enum is not used as variable type as we want to raise an exception with the rule key when format is not supported
+    String descriptionFormat = DescriptionFormat.HTML.name();
     String internalKey = null;
     String severity = Severity.defaultSeverity();
     RuleStatus status = RuleStatus.defaultStatus();
@@ -319,14 +323,14 @@ public class RulesDefinitionXmlLoader {
 
     try {
       RulesDefinition.NewRule rule = repo.createRule(key)
-          .setSeverity(severity)
-          .setName(name)
-          .setInternalKey(internalKey)
-          .setTags(tags.toArray(new String[tags.size()]))
-          .setTemplate(template)
-          .setStatus(status)
-          .setEffortToFixDescription(effortToFixDescription)
-          .setDebtSubCharacteristic(debtSubCharacteristic);
+        .setSeverity(severity)
+        .setName(name)
+        .setInternalKey(internalKey)
+        .setTags(tags.toArray(new String[tags.size()]))
+        .setTemplate(template)
+        .setStatus(status)
+        .setEffortToFixDescription(effortToFixDescription)
+        .setDebtSubCharacteristic(debtSubCharacteristic);
       fillDescription(rule, descriptionFormat, description);
       fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionOffset, debtRemediationFunctionCoeff);
       fillParams(rule, params);
@@ -335,13 +339,13 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  private static void fillDescription(RulesDefinition.NewRule rule, @Nullable String descriptionFormat, @Nullable String description) {
+  private static void fillDescription(RulesDefinition.NewRule rule, String descriptionFormat, @Nullable String description) {
     if (isNotBlank(description)) {
-      switch (defaultIfBlank(descriptionFormat, "HTML")) {
-        case "HTML":
+      switch (DescriptionFormat.valueOf(descriptionFormat)) {
+        case HTML:
           rule.setHtmlDescription(description);
           break;
-        case "MARKDOWN":
+        case MARKDOWN:
           rule.setMarkdownDescription(description);
           break;
         default:
@@ -351,7 +355,7 @@ public class RulesDefinitionXmlLoader {
   }
 
   private static void fillRemediationFunction(RulesDefinition.NewRule rule, @Nullable String debtRemediationFunction,
-                                              @Nullable String functionOffset, @Nullable String functionCoeff) {
+    @Nullable String functionOffset, @Nullable String functionCoeff) {
     if (isNotBlank(debtRemediationFunction)) {
       DebtRemediationFunction.Type functionType = DebtRemediationFunction.Type.valueOf(debtRemediationFunction);
       rule.setDebtRemediationFunction(rule.debtRemediationFunctions().create(functionType, functionCoeff, functionOffset));
@@ -361,9 +365,9 @@ public class RulesDefinitionXmlLoader {
   private static void fillParams(RulesDefinition.NewRule rule, List<ParamStruct> params) {
     for (ParamStruct param : params) {
       rule.createParam(param.key)
-          .setDefaultValue(param.defaultValue)
-          .setType(param.type)
-          .setDescription(param.description);
+        .setDefaultValue(param.defaultValue)
+        .setType(param.type)
+        .setDescription(param.description);
     }
   }
 
