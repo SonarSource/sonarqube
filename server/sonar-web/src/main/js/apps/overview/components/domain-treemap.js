@@ -34,7 +34,10 @@ export class DomainTreemap extends React.Component {
         (component.msr || []).forEach(measure => {
           measures[measure.key] = measure.val;
         });
-        return _.extend(component, { measures });
+        return _.extend(component, {
+          measures,
+          key: component.copy ? `${component.copy}` : component.key
+        });
       });
       this.setState({ loading: false, components });
     });
