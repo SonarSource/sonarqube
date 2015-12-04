@@ -92,7 +92,7 @@ public class CustomMeasuresCopyStep implements ComputationStep {
         return Measure.newMeasureBuilder().create((long) dto.getValue());
       case FLOAT:
       case PERCENT:
-        return Measure.newMeasureBuilder().create(dto.getValue());
+        return Measure.newMeasureBuilder().create(dto.getValue(), metric.getDecimalScale());
       case BOOL:
         return Measure.newMeasureBuilder().create(NumberUtils.compare(dto.getValue(), 1.0) == 0);
       case LEVEL:

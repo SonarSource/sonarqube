@@ -40,7 +40,9 @@ public class MetricJsonWriter {
   public static final String FIELD_QUALITATIVE = "qualitative";
   public static final String FIELD_HIDDEN = "hidden";
   public static final String FIELD_CUSTOM = "custom";
-  public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_DIRECTION, FIELD_QUALITATIVE, FIELD_HIDDEN, FIELD_CUSTOM);
+  public static final String FIELD_DECIMAL_SCALE = "decimalScale";
+  public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN,
+    FIELD_DIRECTION, FIELD_QUALITATIVE, FIELD_HIDDEN, FIELD_CUSTOM, FIELD_DECIMAL_SCALE);
   public static final Set<String> MANDATORY_FIELDS = ImmutableSet.of(FIELD_ID, FIELD_KEY, FIELD_NAME, FIELD_DOMAIN, FIELD_TYPE);
   public static final Set<String> ALL_FIELDS = ImmutableSet.copyOf(Sets.union(MANDATORY_FIELDS, OPTIONAL_FIELDS));
 
@@ -69,6 +71,7 @@ public class MetricJsonWriter {
     writeIfNeeded(json, metric.isQualitative(), FIELD_QUALITATIVE, fieldsToReturn);
     writeIfNeeded(json, metric.isHidden(), FIELD_HIDDEN, fieldsToReturn);
     writeIfNeeded(json, metric.isUserManaged(), FIELD_CUSTOM, fieldsToReturn);
+    writeIfNeeded(json, metric.getDecimalScale(), FIELD_DECIMAL_SCALE, fieldsToReturn);
     json.endObject();
   }
 }

@@ -19,50 +19,38 @@
  */
 package org.sonar.api.measures;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import org.sonar.api.resources.Scopes;
 
 /**
  * @since 2.0
  *
  * Used to consolidate a distribution measure throughout the resource tree
- * @deprecated since 5.2 decorators are no more executed on batch side
+ * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
+ * and {@link Formula} are no more supported.
  */
 @Deprecated
 public class SumChildDistributionFormula implements Formula {
 
-  private String minimumScopeToPersist= Scopes.FILE;
-
   @Override
   public List<Metric> dependsUponMetrics() {
-    return Collections.emptyList();
+    throw fail();
   }
 
   public String getMinimumScopeToPersist() {
-    return minimumScopeToPersist;
+    throw fail();
   }
 
   public SumChildDistributionFormula setMinimumScopeToPersist(String s) {
-    this.minimumScopeToPersist = s;
-    return this;
+    throw fail();
   }
 
   @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
-    Collection<Measure> measures = data.getChildrenMeasures(context.getTargetMetric());
-    if (measures == null || measures.isEmpty()) {
-      return null;
-    }
-    RangeDistributionBuilder distribution = new RangeDistributionBuilder(context.getTargetMetric());
-    for (Measure measure : measures) {
-      distribution.add(measure);
-    }
-    Measure measure = distribution.build();
-    if (!Scopes.isHigherThanOrEquals(context.getResource().getScope(), minimumScopeToPersist)) {
-      measure.setPersistenceMode(PersistenceMode.MEMORY);
-    }
-    return measure;
+    throw fail();
+  }
+
+  private static RuntimeException fail() {
+    throw new UnsupportedOperationException(
+      "Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
   }
 }

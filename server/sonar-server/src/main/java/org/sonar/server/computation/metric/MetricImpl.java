@@ -19,13 +19,15 @@
  */
 package org.sonar.server.computation.metric;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.server.computation.measure.Measure;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 @Immutable
 public final class MetricImpl implements Metric {
@@ -34,20 +36,26 @@ public final class MetricImpl implements Metric {
   private final String key;
   private final String name;
   private final MetricType type;
+  private final Integer decimalScale;
   private final Double bestValue;
   private final boolean bestValueOptimized;
 
   public MetricImpl(int id, String key, String name, MetricType type) {
-    this(id, key, name, type, null, false);
+    this(id, key, name, type, null, null, false);
   }
 
-  public MetricImpl(int id, String key, String name, MetricType type,
+  public MetricImpl(int id, String key, String name, MetricType type, @Nullable Integer decimalScale,
     @Nullable Double bestValue, boolean bestValueOptimized) {
     checkArgument(!bestValueOptimized || bestValue != null, "A BestValue must be specified if Metric is bestValueOptimized");
     this.id = id;
-    this.key = requireNonNull(key);
-    this.name = requireNonNull(name);
-    this.type = requireNonNull(type);
+    this.key = checkNotNull(key);
+    this.name = checkNotNull(name);
+    this.type = checkNotNull(type);
+    if (type.getValueType() == Measure.ValueType.DOUBLE) {
+      this.decimalScale = Objects.firstNonNull(decimalScale, org.sonar.api.measures.Metric.DEFAULT_DECIMAL_SCALE);
+    } else {
+      this.decimalScale = decimalScale;
+    }
     this.bestValueOptimized = bestValueOptimized;
     this.bestValue = bestValue;
   }
@@ -73,6 +81,12 @@ public final class MetricImpl implements Metric {
   }
 
   @Override
+  public int getDecimalScale() {
+    checkState(decimalScale != null, "Decimal scale is not defined on metric %s", key);
+    return decimalScale;
+  }
+
+  @Override
   @CheckForNull
   public Double getBestValue() {
     return bestValue;
@@ -92,7 +106,7 @@ public final class MetricImpl implements Metric {
       return false;
     }
     MetricImpl metric = (MetricImpl) o;
-    return Objects.equals(key, metric.key);
+    return Objects.equal(key, metric.key);
   }
 
   @Override

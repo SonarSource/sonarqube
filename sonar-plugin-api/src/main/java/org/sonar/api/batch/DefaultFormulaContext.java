@@ -19,37 +19,42 @@
  */
 package org.sonar.api.batch;
 
+import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.FormulaContext;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.11
+ * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
+ * and {@link Formula} are no more supported.
  */
+@Deprecated
 public class DefaultFormulaContext implements FormulaContext {
 
-  private Metric metric;
-  private DecoratorContext decoratorContext;
-
   public DefaultFormulaContext(Metric metric) {
-    this.metric = metric;
   }
 
   @Override
   public Metric getTargetMetric() {
-    return metric;
+    throw fail();
   }
 
   @Override
   public Resource getResource() {
-    return decoratorContext.getResource();
+    throw fail();
   }
 
   public void setMetric(Metric metric) {
-    this.metric = metric;
+    throw fail();
   }
 
   public void setDecoratorContext(DecoratorContext decoratorContext) {
-    this.decoratorContext = decoratorContext;
+    throw fail();
+  }
+
+  private static RuntimeException fail() {
+    throw new UnsupportedOperationException(
+      "Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
   }
 }

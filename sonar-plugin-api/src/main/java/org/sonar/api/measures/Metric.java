@@ -27,17 +27,31 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.server.ServerSide;
 
+import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
 @BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide
 public class Metric<G extends Serializable> implements Serializable, org.sonar.api.batch.measure.Metric<G> {
+
+  /**
+   * @since 5.3
+   */
+  public static final int DEFAULT_DECIMAL_SCALE = 1;
+
+  /**
+   * The maximum supported value of scale for decimal metrics
+   * @since 5.3
+   */
+  public static final int MAX_DECIMAL_SCALE = 20;
 
   /**
    * A metric bigger value means a degradation
@@ -126,6 +140,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   private Boolean optimizedBestValue;
   private Boolean hidden = Boolean.FALSE;
   private Boolean deleteHistoricalData;
+  private Integer decimalScale;
 
   private Metric(Builder builder) {
     this.key = builder.key;
@@ -143,6 +158,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     this.formula = builder.formula;
     this.userManaged = builder.userManaged;
     this.deleteHistoricalData = builder.deleteHistoricalData;
+    this.decimalScale = builder.decimalScale;
   }
 
   /**
@@ -208,9 +224,12 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     this.name = name;
     this.qualitative = qualitative;
     this.userManaged = userManaged;
-    if (ValueType.PERCENT.equals(this.type)) {
+    if (ValueType.PERCENT == this.type) {
       this.bestValue = (direction == DIRECTION_BETTER) ? 100.0 : 0.0;
       this.worstValue = (direction == DIRECTION_BETTER) ? 0.0 : 100.0;
+      this.decimalScale = DEFAULT_DECIMAL_SCALE;
+    } else if (ValueType.FLOAT == this.type) {
+      this.decimalScale = DEFAULT_DECIMAL_SCALE;
     }
   }
 
@@ -492,6 +511,15 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     return deleteHistoricalData;
   }
 
+  /**
+   * Return the number scale if metric type is {@link ValueType#FLOAT}, else {@code null}
+   * @since 5.3
+   */
+  @CheckForNull
+  public Integer getDecimalScale() {
+    return decimalScale;
+  }
+
   @Override
   public int hashCode() {
     return key.hashCode();
@@ -557,6 +585,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     private boolean hidden = false;
     private boolean userManaged = false;
     private boolean deleteHistoricalData = false;
+    private Integer decimalScale = null;
 
     /**
      * Creates a new {@link Builder} object.
@@ -566,15 +595,9 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      * @param type the metric type
      */
     public Builder(String key, String name, ValueType type) {
-      if (StringUtils.isBlank(key)) {
-        throw new IllegalArgumentException("Metric key can not be blank");
-      }
-      if (StringUtils.isBlank(name)) {
-        throw new IllegalArgumentException("Metric name can not be blank");
-      }
-      if (type == null) {
-        throw new IllegalArgumentException("Metric type can not be null");
-      }
+      checkArgument(isNotBlank(key), "Metric key can not be blank");
+      checkArgument(isNotBlank(name), "Name of metric %s must be set", key);
+      checkArgument(type != null, "Type of metric %s must be set", key);
       this.key = key;
       this.name = name;
       this.type = type;
@@ -646,11 +669,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      * <br/>
      * When a formula is set, sensors/decorators just need to store measures at a specific level and let Sonar run the formula to store
      * measures on the remaining levels.
-     *
-     * @see SumChildDistributionFormula
-     * @see SumChildValuesFormula
-     * @see MeanAggregationFormula
-     * @see WeightedMeanAggregationFormula
      *
      * @param f the formula
      * @return the builder
@@ -741,14 +759,30 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     }
 
     /**
+     * Scale to be used if the metric has decimal type ({@link ValueType#FLOAT} or {@link ValueType#PERCENT}).
+     * Default is 1. It is not set (({@code null}) on non-decimal metrics.
+     * @since 5.3
+     */
+    public Builder setDecimalScale(int scale) {
+      checkArgument(scale >= 0, "Scale of decimal metric %s must be positive: %d", key, scale);
+      checkArgument(scale <= MAX_DECIMAL_SCALE, "Scale of decimal metric [%s] must be less than or equal %s: %s", key, MAX_DECIMAL_SCALE, scale);
+      this.decimalScale = scale;
+      return this;
+    }
+
+    /**
      * Creates a new metric definition based on the properties set on this metric builder.
      *
      * @return a new {@link Metric} object
      */
     public <G extends Serializable> Metric<G> create() {
-      if (ValueType.PERCENT.equals(this.type)) {
+      if (ValueType.PERCENT == this.type) {
         this.bestValue = (direction == DIRECTION_BETTER) ? 100.0 : 0.0;
         this.worstValue = (direction == DIRECTION_BETTER) ? 0.0 : 100.0;
+        this.decimalScale = firstNonNull(decimalScale, DEFAULT_DECIMAL_SCALE);
+
+      } else if (ValueType.FLOAT == this.type) {
+        this.decimalScale = firstNonNull(decimalScale, DEFAULT_DECIMAL_SCALE);
       }
       return new Metric<>(this);
     }

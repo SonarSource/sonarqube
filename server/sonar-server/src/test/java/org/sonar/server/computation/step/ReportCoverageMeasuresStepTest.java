@@ -204,19 +204,19 @@ public class ReportCoverageMeasuresStepTest {
     underTest.execute();
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(
-      entryOf(codeCoverageKey, newMeasureBuilder().create(98.8d)),
-      entryOf(lineCoverageKey, newMeasureBuilder().create(99d)),
-      entryOf(branchCoverageKey, newMeasureBuilder().create(97d)));
+      entryOf(codeCoverageKey, newMeasureBuilder().create(98.8d, 1)),
+      entryOf(lineCoverageKey, newMeasureBuilder().create(99d, 1)),
+      entryOf(branchCoverageKey, newMeasureBuilder().create(97d, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).contains(
-      entryOf(codeCoverageKey, newMeasureBuilder().create(91d)),
-      entryOf(lineCoverageKey, newMeasureBuilder().create(90d)),
-      entryOf(branchCoverageKey, newMeasureBuilder().create(96d)));
+      entryOf(codeCoverageKey, newMeasureBuilder().create(91d, 1)),
+      entryOf(lineCoverageKey, newMeasureBuilder().create(90d, 1)),
+      entryOf(branchCoverageKey, newMeasureBuilder().create(96d, 1)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(UNIT_TEST_FILE_REF))).isEmpty();
 
     MeasureRepoEntry[] nonFileRepoEntries = {
-      entryOf(codeCoverageKey, newMeasureBuilder().create(95.5d)),
-      entryOf(lineCoverageKey, newMeasureBuilder().create(95.4d)),
-      entryOf(branchCoverageKey, newMeasureBuilder().create(96.4d))
+      entryOf(codeCoverageKey, newMeasureBuilder().create(95.5d, 1)),
+      entryOf(lineCoverageKey, newMeasureBuilder().create(95.4d, 1)),
+      entryOf(branchCoverageKey, newMeasureBuilder().create(96.4d, 1))
     };
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(nonFileRepoEntries);

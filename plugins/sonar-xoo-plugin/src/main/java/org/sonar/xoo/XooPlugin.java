@@ -32,8 +32,6 @@ import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
 import org.sonar.xoo.lang.XooCpdMapping;
 import org.sonar.xoo.lang.XooTokenizer;
-import org.sonar.xoo.measures.ConstantFloatMeasureSensor;
-import org.sonar.xoo.measures.XooMetrics;
 import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
@@ -114,10 +112,6 @@ public class XooPlugin extends SonarPlugin {
       // Tests
       TestExecutionSensor.class,
       CoveragePerTestSensor.class,
-
-      // Measures
-      XooMetrics.class,
-      ConstantFloatMeasureSensor.class,
 
       // Other
       XooProjectBuilder.class,

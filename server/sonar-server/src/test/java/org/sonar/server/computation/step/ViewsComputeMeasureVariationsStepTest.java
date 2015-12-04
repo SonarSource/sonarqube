@@ -214,7 +214,7 @@ public class ViewsComputeMeasureVariationsStepTest {
 
     addRawMeasure(VIEW, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
     addRawMeasure(VIEW, DEBT_METRIC, Measure.newMeasureBuilder().create(5L, null));
-    addRawMeasure(VIEW, FILE_COMPLEXITY_METRIC, Measure.newMeasureBuilder().create(3d, null));
+    addRawMeasure(VIEW, FILE_COMPLEXITY_METRIC, Measure.newMeasureBuilder().create(3d, 1));
     addRawMeasure(VIEW, BUILD_BREAKER_METRIC, Measure.newMeasureBuilder().create(false, null));
 
     underTest.execute();

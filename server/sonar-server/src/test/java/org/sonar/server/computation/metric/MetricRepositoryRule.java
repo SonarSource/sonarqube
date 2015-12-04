@@ -62,6 +62,7 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
     return new MetricImpl(
       id, coreMetric.getKey(), coreMetric.getName(),
       convert(coreMetric.getType()),
+      coreMetric.getDecimalScale(),
       coreMetric.getBestValue(), coreMetric.isOptimizedBestValue());
   }
 

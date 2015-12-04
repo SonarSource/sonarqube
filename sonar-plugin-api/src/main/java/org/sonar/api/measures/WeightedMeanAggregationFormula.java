@@ -19,54 +19,31 @@
  */
 package org.sonar.api.measures;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @since 2.0
- * @deprecated since 5.2 decorators are no more executed on batch side
+ * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
+ * and {@link Formula} are no more supported.
  */
 @Deprecated
 public class WeightedMeanAggregationFormula implements Formula {
 
-  private Metric weightingMetric;
-  private boolean zeroIfNoValues=false;
-
   public WeightedMeanAggregationFormula(Metric weightingMetric, boolean zeroIfNoValues) {
-    this.weightingMetric = weightingMetric;
-    if (weightingMetric==null) {
-      throw new IllegalArgumentException("Metric can not be null");
-    }
-    this.zeroIfNoValues = zeroIfNoValues;
   }
 
   @Override
   public List<Metric> dependsUponMetrics() {
-    return Collections.emptyList();
+    throw fail();
   }
 
   @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
-    double sum=0.0;
-    double count=0.0;
-    boolean hasValue=false;
+    throw fail();
+  }
 
-    for (FormulaData child : data.getChildren()) {
-      Measure measure = child.getMeasure(context.getTargetMetric());
-      Measure weightingMeasure = child.getMeasure(weightingMetric);
-      if (MeasureUtils.haveValues(measure, weightingMeasure)) {
-        sum += measure.getValue() * weightingMeasure.getValue();
-        count += weightingMeasure.getValue();
-        hasValue=true;
-      }
-    }
-
-    if (!hasValue && !zeroIfNoValues) {
-      return null;
-    }
-
-    double result = (Double.doubleToRawLongBits(count)==0L) ? 0.0 : (sum/count);
-    return new Measure(context.getTargetMetric(), result);
+  private static RuntimeException fail() {
+    throw new UnsupportedOperationException(
+      "Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
   }
 }
-

@@ -156,6 +156,7 @@ public class RegisterMetrics {
       dto.setUserManaged(metric.getUserManaged());
       dto.setWorstValue(metric.getWorstValue());
       dto.setDeleteHistoricalData(metric.getDeleteHistoricalData());
+      dto.setDecimalScale(metric.getDecimalScale());
       return dto;
     }
   }

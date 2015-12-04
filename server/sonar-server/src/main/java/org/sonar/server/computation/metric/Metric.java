@@ -49,6 +49,12 @@ public interface Metric {
   @CheckForNull
   Double getBestValue();
 
+  /**
+   * The decimal scale of float measures. Returned value is greater than or equal zero.
+   * @throws IllegalStateException if the value type is not decimal (see {@link org.sonar.server.computation.measure.Measure.ValueType}
+   */
+  int getDecimalScale();
+
   enum MetricType {
     INT(Measure.ValueType.INT),
     MILLISEC(Measure.ValueType.LONG),

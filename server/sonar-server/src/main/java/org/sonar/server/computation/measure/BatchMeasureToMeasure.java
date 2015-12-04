@@ -75,7 +75,10 @@ public class BatchMeasureToMeasure {
     if (!batchMeasure.hasDoubleValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(builder.create(batchMeasure.getDoubleValue(), data));
+    return of(builder.create(batchMeasure.getDoubleValue(),
+      // Decimals are not truncated in scanner report, so an arbitrary decimal scale is applied when reading values from report
+      org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE,
+      data));
   }
 
   private static Optional<Measure> toBooleanMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {

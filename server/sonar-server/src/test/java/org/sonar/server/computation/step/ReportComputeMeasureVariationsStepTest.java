@@ -211,7 +211,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
     addRawMeasure(PROJECT, ISSUES_METRIC, newMeasureBuilder().create(80, null));
     addRawMeasure(PROJECT, DEBT_METRIC, newMeasureBuilder().create(5L, null));
-    addRawMeasure(PROJECT, FILE_COMPLEXITY_METRIC, newMeasureBuilder().create(3d, null));
+    addRawMeasure(PROJECT, FILE_COMPLEXITY_METRIC, newMeasureBuilder().create(3d, 1, null));
     addRawMeasure(PROJECT, BUILD_BREAKER_METRIC, newMeasureBuilder().create(false, null));
 
     underTest.execute();

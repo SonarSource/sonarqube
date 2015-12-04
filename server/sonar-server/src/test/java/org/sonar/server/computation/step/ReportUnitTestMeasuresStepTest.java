@@ -130,12 +130,12 @@ public class ReportUnitTestMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(40d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(70d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(60d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(60d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(60d)));
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(60d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(40d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(70d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(60d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(60d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(60d, 1)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(entryOf(TEST_SUCCESS_DENSITY_KEY, newMeasureBuilder().create(60d, 1)));
   }
 
   @Test

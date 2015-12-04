@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.api.measures;
 
-package org.sonar.xoo.measures;
+import org.junit.Test;
 
-import com.google.common.collect.Lists;
-import java.util.List;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metrics;
+public class WeightedMeanAggregationFormulaTest {
+  WeightedMeanAggregationFormula underTest = new WeightedMeanAggregationFormula(null, false);
 
-public final class XooMetrics implements Metrics {
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_1() {
+    underTest.calculate(null, null);
+  }
 
-  public static final String CONSTANT_FLOAT_MEASURE_KEY = "xoo_constant_float_measure";
-
-  public static final Metric<Float> CONSTANT_FLOAT_MEASURE = new Metric.Builder(CONSTANT_FLOAT_MEASURE_KEY, "Constant float measure", Metric.ValueType.FLOAT)
-    .setDescription("Return always the same float measure for every components")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(CoreMetrics.DOMAIN_GENERAL)
-    .create();
-
-  @Override
-  public List<Metric> getMetrics() {
-    return Lists.<Metric>newArrayList(CONSTANT_FLOAT_MEASURE);
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_2() {
+    underTest.dependsUponMetrics();
   }
 }

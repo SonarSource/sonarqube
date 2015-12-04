@@ -129,7 +129,7 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   }
 
   private void saveDebtRatioMeasure(Component component, double density) {
-    measureRepository.add(component, debtRatioMetric, newMeasureBuilder().create(100.0 * density));
+    measureRepository.add(component, debtRatioMetric, newMeasureBuilder().create(100.0 * density, debtRatioMetric.getDecimalScale()));
   }
 
   private void saveSqaleRatingMeasure(Component component, double density) {

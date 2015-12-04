@@ -35,8 +35,6 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.output.BatchReport.Measure;
 import org.sonar.xoo.XooPlugin;
-import org.sonar.xoo.measures.ConstantFloatMeasureSensor;
-import org.sonar.xoo.measures.XooMetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -52,7 +50,6 @@ public class MeasuresMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .registerMetric(XooMetrics.CONSTANT_FLOAT_MEASURE)
     .build();
 
   @Before
@@ -100,71 +97,6 @@ public class MeasuresMediumTest {
 
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue").containsOnly(
       Tuple.tuple(CoreMetrics.LINES_KEY, 2));
-  }
-
-  @Test
-  public void floatMeasuresTruncatedTo1ByDefault() throws IOException {
-    File xooFile = new File(srcDir, "sample.xoo");
-    File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-    FileUtils.write(xooMeasureFile, "lines:20");
-
-    TaskResult result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
-        .put("sonar.sources", "src")
-        .put("sonar.cpd.xoo.skip", "true")
-        .put(ConstantFloatMeasureSensor.SONAR_XOO_ENABLE_FLOAT_SENSOR, "true")
-        .build())
-      .start();
-
-    Map<String, List<Measure>> allMeasures = result.allMeasures();
-
-    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "intValue", "doubleValue", "stringValue").containsOnly(
-      Tuple.tuple(CoreMetrics.QUALITY_PROFILES_KEY, 0, 0.0,
-        "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
-
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue", "doubleValue").containsOnly(
-      Tuple.tuple(CoreMetrics.LINES_KEY, 2, 0.0),
-      Tuple.tuple(XooMetrics.CONSTANT_FLOAT_MEASURE_KEY, 0, 1.2));
-  }
-
-  @Test
-  public void floatMeasuresCustomPrecision() throws IOException {
-    File xooFile = new File(srcDir, "sample.xoo");
-    File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-    FileUtils.write(xooMeasureFile, "lines:20");
-
-    TaskResult result = tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "com.foo.project")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
-        .put("sonar.sources", "src")
-        .put("sonar.cpd.xoo.skip", "true")
-        .put(ConstantFloatMeasureSensor.SONAR_XOO_ENABLE_FLOAT_SENSOR, "true")
-        .put(ConstantFloatMeasureSensor.SONAR_XOO_FLOAT_PRECISION, "5")
-        .build())
-      .start();
-
-    Map<String, List<Measure>> allMeasures = result.allMeasures();
-
-    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "intValue", "doubleValue", "stringValue").containsOnly(
-      Tuple.tuple(CoreMetrics.QUALITY_PROFILES_KEY, 0, 0.0,
-        "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
-
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue", "doubleValue").containsOnly(
-      Tuple.tuple(CoreMetrics.LINES_KEY, 2, 0.0),
-      Tuple.tuple(XooMetrics.CONSTANT_FLOAT_MEASURE_KEY, 0, 1.23457));
   }
 
   @Test

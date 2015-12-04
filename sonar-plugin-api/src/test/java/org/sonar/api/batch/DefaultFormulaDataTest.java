@@ -23,42 +23,22 @@ import org.junit.Test;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 
-import java.util.Arrays;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class DefaultFormulaDataTest {
 
-  @Test
-  public void isDecoratorContextProxy() {
-    DecoratorContext context = mock(DecoratorContext.class);
-    DefaultFormulaData data = new DefaultFormulaData(context);
+  DefaultFormulaData underTest = new DefaultFormulaData(null);
 
-    data.getChildrenMeasures(any(MeasuresFilter.class));
-    verify(context).getChildrenMeasures(any(MeasuresFilter.class));
-
-    data.getChildrenMeasures(any(Metric.class));
-    verify(context).getChildrenMeasures(any(Metric.class));
-
-    data.getMeasures(any(MeasuresFilter.class));
-    verify(context).getMeasures(any(MeasuresFilter.class));
-
-    data.getMeasure(any(Metric.class));
-    verify(context).getMeasure(any(Metric.class));
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_1() {
+    underTest.getChildren();
   }
 
-  @Test
-  public void getChildren() {
-    DecoratorContext context = mock(DecoratorContext.class);
-    DecoratorContext child1 = mock(DecoratorContext.class);
-    DecoratorContext child2 = mock(DecoratorContext.class);
-    when(context.getChildren()).thenReturn(Arrays.asList(child1, child2));
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_2() {
+    underTest.getChildrenMeasures((MeasuresFilter) null);
+  }
 
-    DefaultFormulaData data = new DefaultFormulaData(context);
-    assertThat(data.getChildren()).hasSize(2);
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_3() {
+    underTest.getChildrenMeasures((Metric) null);
   }
 }

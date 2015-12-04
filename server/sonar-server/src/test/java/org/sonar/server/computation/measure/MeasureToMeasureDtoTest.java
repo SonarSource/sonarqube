@@ -81,7 +81,7 @@ public class MeasureToMeasureDtoTest {
         { Measure.newMeasureBuilder().create(true, SOME_DATA), SOME_BOOLEAN_METRIC},
         { Measure.newMeasureBuilder().create(1, SOME_DATA), SOME_INT_METRIC},
         { Measure.newMeasureBuilder().create((long) 1, SOME_DATA), SOME_LONG_METRIC},
-        { Measure.newMeasureBuilder().create((double) 2, SOME_DATA), SOME_DOUBLE_METRIC},
+        { Measure.newMeasureBuilder().create((double) 2, 1, SOME_DATA), SOME_DOUBLE_METRIC},
         { Measure.newMeasureBuilder().create(SOME_STRING), SOME_STRING_METRIC},
         { Measure.newMeasureBuilder().create(Measure.Level.OK), SOME_LEVEL_METRIC}
     };
@@ -210,7 +210,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_maps_value_and_data_from_data_field_for_DOUBLE_metric() {
-    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create((double) 789, SOME_DATA), SOME_DOUBLE_METRIC, SOME_COMPONENT);
+    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create((double) 789, 1, SOME_DATA), SOME_DOUBLE_METRIC, SOME_COMPONENT);
 
     assertThat(trueMeasureDto.getValue()).isEqualTo(789);
     assertThat(trueMeasureDto.getData()).isEqualTo(SOME_DATA);

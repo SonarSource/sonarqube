@@ -7,6 +7,7 @@ package it;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.analysis.*;
+import it.measure.DecimalScaleMetricTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -29,7 +30,9 @@ import static util.ItUtils.xooPlugin;
   BatchTest.class,
   IssuesModeTest.class,
   SettingsEncryptionTest.class,
-  ReportDumpTest.class
+  ReportDumpTest.class,
+  // measures
+  DecimalScaleMetricTest.class
 })
 public class Category3Suite {
 
@@ -45,7 +48,7 @@ public class Category3Suite {
     // Used by IssuesModeTest
     .addPlugin(pluginArtifact("access-secured-props-plugin"))
 
-    // used by TempFolderTest
+    // used by TempFolderTest and DecimalScaleMetricTest
     .addPlugin(pluginArtifact("batch-plugin"))
 
     // used by ExtensionLifecycleTest

@@ -23,7 +23,10 @@ import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.11
+ * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
+ * and {@link Formula} are no more supported.
  */
+@Deprecated
 public interface FormulaContext {
 
   Metric getTargetMetric();

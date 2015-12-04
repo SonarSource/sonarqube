@@ -19,122 +19,29 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.collect.Lists;
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Scopes;
-
-import java.util.Collections;
-import java.util.List;
-
-import static junit.framework.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SumChildDistributionFormulaTest {
-  SumChildDistributionFormula formula;
-  FormulaContext context;
-  FormulaData data;
 
-  @Before
-  public void init() {
-    formula = new SumChildDistributionFormula();
-    context = mock(FormulaContext.class);
-    when(context.getResource()).thenReturn(File.create("foo"));
-    data = mock(FormulaData.class);
+  SumChildDistributionFormula underTest = new SumChildDistributionFormula();
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_1() {
+    underTest.calculate(null, null);
   }
 
-  @Test
-  public void testWhenGetChildrenReturnsNull() {
-    when(context.getTargetMetric()).thenReturn(new Metric("foo"));
-    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(null);
-    assertNull(formula.calculate(data, context));
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_2() {
+    underTest.dependsUponMetrics();
   }
 
-  @Test
-  public void testWhenGetChildrenReturnsEmpty() {
-    when(context.getTargetMetric()).thenReturn(new Metric("foo"));
-    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(Collections.<Measure>emptyList());
-    assertNull(formula.calculate(data, context));
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_3() {
+    underTest.getMinimumScopeToPersist();
   }
 
-  @Test
-  public void shouldNotSumDifferentRanges() {
-    Metric m = new Metric("foo", Metric.ValueType.DATA);
-    when(context.getTargetMetric()).thenReturn(m);
-
-    List<Measure> list = Lists.newArrayList(
-      new Measure(m, "1=0;2=2;5=0;10=10;20=2"),
-      new Measure(m, "1=0;2=2;5=0;10=10;30=3")
-      );
-    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(list);
-    assertThat(formula.calculate(data, context), nullValue());
-  }
-
-  @Test
-  public void shouldSumSameIntRanges() {
-    Metric m = new Metric("foo", Metric.ValueType.DATA);
-    when(context.getTargetMetric()).thenReturn(m);
-
-    List<Measure> list = Lists.newArrayList(
-      new Measure(m, "1=0;2=2;5=0;10=10;20=2"),
-      new Measure(m, "1=3;2=2;5=3;10=12;20=0")
-      );
-    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(list);
-    assertThat(formula.calculate(data, context).getData(), is("1=3;2=4;5=3;10=22;20=2"));
-  }
-
-  @Test
-  public void shouldSumSameDoubleRanges() {
-    initContextWithChildren();
-    assertThat(formula.calculate(data, context).getData(), is("0.5=3;2.5=6"));
-  }
-
-  @Test
-  public void shouldNotPersistWhenScopeLowerThanMinimun() {
-    when(context.getResource()).thenReturn(File.create("org/Foo.java"));
-
-    initContextWithChildren();
-    formula.setMinimumScopeToPersist(Scopes.DIRECTORY);
-
-    Measure distribution = formula.calculate(data, context);
-    assertThat(distribution.getPersistenceMode().useDatabase(), is(false));
-  }
-
-  @Test
-  public void shouldPersistWhenScopeEqualsMinimun() {
-    when(context.getResource()).thenReturn(File.create("org/Foo.java"));
-
-    initContextWithChildren();
-    formula.setMinimumScopeToPersist(Scopes.FILE);
-
-    Measure distribution = formula.calculate(data, context);
-    assertThat(distribution.getPersistenceMode().useDatabase(), is(true));
-  }
-
-  @Test
-  public void shouldPersistWhenScopeHigherThanMinimun() {
-    when(context.getResource()).thenReturn(Directory.create("org/foo"));
-
-    initContextWithChildren();
-    formula.setMinimumScopeToPersist(Scopes.FILE);
-
-    Measure distribution = formula.calculate(data, context);
-    assertThat(distribution.getPersistenceMode().useDatabase(), is(true));
-  }
-
-  private void initContextWithChildren() {
-    Metric m = new Metric("foo", Metric.ValueType.DATA);
-    when(context.getTargetMetric()).thenReturn(m);
-    List<Measure> list = Lists.newArrayList(
-      new Measure(m, "0.5=0;2.5=2"),
-      new Measure(m, "0.5=3;2.5=4")
-      );
-    when(data.getChildrenMeasures(new Metric("foo"))).thenReturn(list);
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_4() {
+    underTest.setMinimumScopeToPersist(null);
   }
 }

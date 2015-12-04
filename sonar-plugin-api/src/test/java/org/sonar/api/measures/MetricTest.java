@@ -19,55 +19,97 @@
  */
 package org.sonar.api.measures;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void shouldCreateMetric() {
     Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.INT)
-        .setDomain("my domain")
-        .create();
+      .setDomain("my domain")
+      .create();
 
-    assertThat(metric.getKey(), is("foo"));
-    assertThat(metric.getName(), is("Foo"));
-    assertThat(metric.getDomain(), is("my domain"));
+    assertThat(metric.getKey()).isEqualTo("foo");
+    assertThat(metric.getName()).isEqualTo("Foo");
+    assertThat(metric.getDomain()).isEqualTo("my domain");
   }
 
   @Test
   public void shouldCreateMetricWithDefaultValues() {
     Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.INT)
-        .create();
+      .create();
 
-    assertThat(metric.getBestValue(), nullValue());
-    assertThat(metric.getDescription(), nullValue());
-    assertThat(metric.getWorstValue(), nullValue());
-    assertThat(metric.getDirection(), is(Metric.DIRECTION_NONE));
-    assertThat(metric.getEnabled(), is(true));
-    assertThat(metric.getFormula(), nullValue());
-    assertThat(metric.getId(), nullValue());
-    assertThat(metric.getUserManaged(), is(false));
-    assertThat(metric.isHidden(), is(false));
-    assertThat(metric.isOptimizedBestValue(), is(false));
+    assertThat(metric.getBestValue()).isNull();
+    assertThat(metric.getDescription()).isNull();
+    assertThat(metric.getWorstValue()).isNull();
+    assertThat(metric.getDirection()).isEqualTo(Metric.DIRECTION_NONE);
+    assertThat(metric.getEnabled()).isTrue();
+    assertThat(metric.getFormula()).isNull();
+    assertThat(metric.getId()).isNull();
+    assertThat(metric.getUserManaged()).isFalse();
+    assertThat(metric.isHidden()).isFalse();
+    assertThat(metric.isOptimizedBestValue()).isFalse();
   }
 
   @Test
   public void shouldCreatePercentMetricWithDefaultValues() {
     Metric better = new Metric.Builder("foo", "Foo", Metric.ValueType.PERCENT)
-        .setDirection(Metric.DIRECTION_BETTER)
-        .create();
+      .setDirection(Metric.DIRECTION_BETTER)
+      .create();
     Metric worst = new Metric.Builder("foo", "Foo", Metric.ValueType.PERCENT)
-        .setDirection(Metric.DIRECTION_WORST)
-        .create();
+      .setDirection(Metric.DIRECTION_WORST)
+      .create();
 
-    assertThat(better.getBestValue(), is(100.0));
-    assertThat(better.getWorstValue(), is(0.0));
-    assertThat(worst.getBestValue(), is(0.0));
-    assertThat(worst.getWorstValue(), is(100.0));
+    assertThat(better.getBestValue()).isEqualTo(100.0);
+    assertThat(better.getWorstValue()).isEqualTo(0.0);
+    assertThat(worst.getBestValue()).isEqualTo(0.0);
+    assertThat(worst.getWorstValue()).isEqualTo(100.0);
   }
 
+  @Test
+  public void override_decimal_scale_of_float_metric() {
+    Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
+      .setDecimalScale(3)
+      .create();
+    assertThat(metric.getDecimalScale()).isEqualTo(3);
+  }
+
+  @Test
+  public void fail_if_decimal_scale_is_greater_than_max_supported_value() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Scale of decimal metric [foo] must be less than or equal 20: 21");
+
+    new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
+      .setDecimalScale(Metric.MAX_DECIMAL_SCALE + 1)
+      .create();
+  }
+
+  @Test
+  public void override_decimal_scale_of_percent_metric() {
+    Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.PERCENT)
+      .setDecimalScale(3)
+      .create();
+    assertThat(metric.getDecimalScale()).isEqualTo(3);
+  }
+
+  @Test
+  public void default_decimal_scale_is_1() {
+    Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
+      .create();
+    assertThat(metric.getDecimalScale()).isEqualTo(1);
+  }
+
+  @Test
+  public void non_decimal_metric_has_no_scale() {
+    Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.INT)
+      .create();
+    assertThat(metric.getDecimalScale()).isNull();
+  }
 }

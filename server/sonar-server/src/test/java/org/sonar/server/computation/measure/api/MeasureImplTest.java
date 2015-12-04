@@ -43,13 +43,13 @@ public class MeasureImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Value can not be converted to int because current value type is a DOUBLE");
 
-    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d));
+    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d, 1));
     measure.getIntValue();
   }
 
   @Test
   public void get_double_value() throws Exception {
-    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d));
+    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d, 1));
     assertThat(measure.getDoubleValue()).isEqualTo(1d);
   }
 
@@ -103,7 +103,7 @@ public class MeasureImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Value can not be converted to boolean because current value type is a DOUBLE");
 
-    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d));
+    MeasureImpl measure = new MeasureImpl(Measure.newMeasureBuilder().create(1d, 1));
     measure.getBooleanValue();
   }
 

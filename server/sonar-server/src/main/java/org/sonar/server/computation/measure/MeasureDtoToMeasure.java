@@ -75,7 +75,9 @@ public class MeasureDtoToMeasure {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.doubleValue(), data));
+
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto)
+      .create(value.doubleValue(), org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE, data));
   }
 
   private static Optional<Measure> toBooleanMeasure(MeasureDto measureDto, @Nullable Double value, String data) {

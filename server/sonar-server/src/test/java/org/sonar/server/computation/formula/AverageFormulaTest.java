@@ -245,7 +245,7 @@ public class AverageFormulaTest {
   }
 
   private void addMeasure(String metricKey, double value) {
-    when(counterInitializationContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
+    when(counterInitializationContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value, 1)));
   }
 
   private void addMeasure(String metricKey, int value) {

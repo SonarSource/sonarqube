@@ -19,33 +19,31 @@
  */
 package org.sonar.api.measures;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @since 1.11
- * @deprecated since 5.2 decorators are no more executed on batch side
+ * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
+ * and {@link Formula} are no more supported.
  */
 @Deprecated
 public class SumChildValuesFormula implements Formula {
 
-  private boolean saveZeroIfNoChildValues;
-
-  public SumChildValuesFormula(boolean saveZeroIfNoChildValues) {
-    this.saveZeroIfNoChildValues = saveZeroIfNoChildValues;
+  public SumChildValuesFormula(boolean unused) {
   }
 
   @Override
   public List<Metric> dependsUponMetrics() {
-    return Collections.emptyList();
+    throw fail();
   }
 
   @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
-    Double sum = MeasureUtils.sum(saveZeroIfNoChildValues, data.getChildrenMeasures(context.getTargetMetric()));
-    if (sum != null) {
-      return new Measure(context.getTargetMetric(), sum);
-    }
-    return null;
+    throw fail();
+  }
+
+  private static RuntimeException fail() {
+    throw new UnsupportedOperationException(
+      "Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
   }
 }

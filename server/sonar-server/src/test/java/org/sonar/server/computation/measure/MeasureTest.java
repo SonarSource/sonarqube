@@ -44,7 +44,7 @@ public class MeasureTest {
 
   private static final Measure INT_MEASURE = newMeasureBuilder().create((int) 1);
   private static final Measure LONG_MEASURE = newMeasureBuilder().create(1l);
-  private static final Measure DOUBLE_MEASURE = newMeasureBuilder().create(1d);
+  private static final Measure DOUBLE_MEASURE = newMeasureBuilder().create(1d, 1);
   private static final Measure STRING_MEASURE = newMeasureBuilder().create("some_sT ring");
   private static final Measure TRUE_MEASURE = newMeasureBuilder().create(true);
   private static final Measure FALSE_MEASURE = newMeasureBuilder().create(false);
@@ -296,7 +296,7 @@ public class MeasureTest {
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create(false, null).getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create((int) 1, null).getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create((long) 1, null).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create((double) 1, null).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create((double) 1, 1, null).getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create("str").getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(newMeasureBuilder().setQualityGateStatus(someStatus).create(Measure.Level.OK).getQualityGateStatus()).isEqualTo(someStatus);
   }
@@ -361,7 +361,7 @@ public class MeasureTest {
     assertThat(newMeasureBuilder().create(false, someData).getData()).isEqualTo(someData);
     assertThat(newMeasureBuilder().create((int) 1, someData).getData()).isEqualTo(someData);
     assertThat(newMeasureBuilder().create((long) 1, someData).getData()).isEqualTo(someData);
-    assertThat(newMeasureBuilder().create((double) 1, someData).getData()).isEqualTo(someData);
+    assertThat(newMeasureBuilder().create((double) 1, 1, someData).getData()).isEqualTo(someData);
   }
 
   @Test
@@ -371,26 +371,26 @@ public class MeasureTest {
 
   @Test
   public void double_values_are_scaled_to_1_digit_and_round() {
-    assertThat(newMeasureBuilder().create(30.27777d).getDoubleValue()).isEqualTo(30.3d);
-    assertThat(newMeasureBuilder().create(30d).getDoubleValue()).isEqualTo(30d);
-    assertThat(newMeasureBuilder().create(30.01d).getDoubleValue()).isEqualTo(30d);
-    assertThat(newMeasureBuilder().create(30.1d).getDoubleValue()).isEqualTo(30.1d);
+    assertThat(newMeasureBuilder().create(30.27777d, 1).getDoubleValue()).isEqualTo(30.3d);
+    assertThat(newMeasureBuilder().create(30d, 1).getDoubleValue()).isEqualTo(30d);
+    assertThat(newMeasureBuilder().create(30.01d, 1).getDoubleValue()).isEqualTo(30d);
+    assertThat(newMeasureBuilder().create(30.1d, 1).getDoubleValue()).isEqualTo(30.1d);
   }
 
   @Test
   public void create_with_double_value_throws_IAE_if_value_is_NaN() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Nan is not allowed as a Measure value");
+    expectedException.expectMessage("NaN is not allowed as a Measure value");
 
-    newMeasureBuilder().create(Double.NaN);
+    newMeasureBuilder().create(Double.NaN, 1);
   }
 
   @Test
   public void create_with_double_value_data_throws_IAE_if_value_is_NaN() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Nan is not allowed as a Measure value");
+    expectedException.expectMessage("NaN is not allowed as a Measure value");
 
-    newMeasureBuilder().create(Double.NaN, "some data");
+    newMeasureBuilder().create(Double.NaN, 1, "some data");
   }
 
 }

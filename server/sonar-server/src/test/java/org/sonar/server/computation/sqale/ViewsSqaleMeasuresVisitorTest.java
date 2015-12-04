@@ -111,7 +111,7 @@ public class ViewsSqaleMeasuresVisitorTest {
     assertThat(toEntries(measureRepository.getRawMeasures(root)))
       .containsOnly(
         entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
-        entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d)),
+        entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d, 1)),
         entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A)));
   }
 
@@ -152,7 +152,7 @@ public class ViewsSqaleMeasuresVisitorTest {
   private void assertNewRawMeasures(int componentRef, long debt, long devCost, SqaleRatingGrid.SqaleRating sqaleRating) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
       entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(String.valueOf(devCost))),
-      entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(debt / (double) devCost * 100.0)),
+      entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(debt / (double) devCost * 100.0, 1)),
       entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(sqaleRating)));
   }
 

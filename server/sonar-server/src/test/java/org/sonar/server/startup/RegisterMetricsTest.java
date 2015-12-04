@@ -81,6 +81,7 @@ public class RegisterMetricsTest {
       .setQualitative(true)
       .setDomain("new domain")
       .setUserManaged(false)
+      .setDecimalScale(3)
       .setHidden(true)
       .create();
     Metric custom = new Metric.Builder("custom", "New custom", Metric.ValueType.FLOAT)

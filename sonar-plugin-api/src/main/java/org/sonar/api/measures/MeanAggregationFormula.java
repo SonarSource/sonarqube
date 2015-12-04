@@ -19,21 +19,17 @@
  */
 package org.sonar.api.measures;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @since 2.0
- * @deprecated since 5.2 decorators are no more executed on batch side
+ * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
+ * and {@link Formula} are no more supported.
  */
 @Deprecated
 public class MeanAggregationFormula implements Formula {
 
-  private boolean forceZeroIfMissingData=false;
-
-  public MeanAggregationFormula(boolean forceZeroIfMissingData) {
-    this.forceZeroIfMissingData = forceZeroIfMissingData;
+  public MeanAggregationFormula(boolean unused) {
   }
 
   public MeanAggregationFormula() {
@@ -42,26 +38,16 @@ public class MeanAggregationFormula implements Formula {
 
   @Override
   public List<Metric> dependsUponMetrics() {
-    return Collections.emptyList();
+    throw fail();
   }
 
   @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
-    double sum=0.0;
-    int count=0;
-    boolean hasValue=false;
-    Collection<Measure> measures = data.getChildrenMeasures(context.getTargetMetric());
-    for (Measure measure : measures) {
-      if (MeasureUtils.hasValue(measure)) {
-        sum+=measure.getValue();
-        count++;
-        hasValue=true;
-      }
-    }
+    throw fail();
+  }
 
-    if (!hasValue && !forceZeroIfMissingData) {
-      return null;
-    }
-    return new Measure(context.getTargetMetric(), (count==0) ? 0.0 : (sum/count));
+  private static RuntimeException fail() {
+    throw new UnsupportedOperationException(
+      "Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
   }
 }

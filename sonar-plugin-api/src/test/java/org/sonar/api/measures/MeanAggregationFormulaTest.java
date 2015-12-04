@@ -19,57 +19,19 @@
  */
 package org.sonar.api.measures;
 
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class MeanAggregationFormulaTest {
 
-  private FormulaContext context;
-  private FormulaData data;
+  MeanAggregationFormula underTest = new MeanAggregationFormula();
 
-  @Before
-  public void before() {
-    context = mock(FormulaContext.class);
-    data = mock(FormulaData.class);
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_1() {
+    underTest.calculate(null, null);
   }
 
-  @Test
-  public void calculateChildrenMean() {
-    when(context.getTargetMetric()).thenReturn(CoreMetrics.COVERAGE);
-    when(data.getChildrenMeasures(CoreMetrics.COVERAGE)).thenReturn(Arrays.<Measure>asList(newCoverage(100.0), newCoverage(50.0), newCoverage(30.0)));
-
-    Measure measure = new MeanAggregationFormula().calculate(data, context);
-    assertThat(measure.getValue(), is(60.0));
-  }
-
-  @Test
-  public void doNotForceZero() {
-    when(context.getTargetMetric()).thenReturn(CoreMetrics.COVERAGE);
-    when(data.getChildrenMeasures(CoreMetrics.COVERAGE)).thenReturn(Collections.<Measure>emptyList());
-
-    Measure measure = new MeanAggregationFormula(false).calculate(data, context);
-    assertNull(measure);
-  }
-
-  @Test
-  public void forceZero() {
-    when(context.getTargetMetric()).thenReturn(CoreMetrics.COVERAGE);
-    when(data.getChildrenMeasures(CoreMetrics.COVERAGE)).thenReturn(Collections.<Measure>emptyList());
-
-    Measure measure = new MeanAggregationFormula(true).calculate(data, context);
-    assertThat(measure.getValue(), is(0.0));
-  }
-
-  private Measure newCoverage(double val) {
-    return new Measure(CoreMetrics.COVERAGE, val);
+  @Test(expected = UnsupportedOperationException.class)
+  public void fail_if_used_2() {
+    underTest.dependsUponMetrics();
   }
 }
