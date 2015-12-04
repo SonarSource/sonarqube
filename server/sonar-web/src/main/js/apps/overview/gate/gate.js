@@ -12,11 +12,11 @@ export default React.createClass({
   renderGateText () {
     let text = '';
     if (this.props.gate.level === 'ERROR') {
-      text = window.t('widget.alerts.errors') + this.props.gate.text + '.';
+      text = window.tp('overview.gate.view.errors', this.props.gate.text);
     } else if (this.props.gate.level === 'WARN') {
-      text = window.t('widget.alerts.warnings') + this.props.gate.text + '.';
+      text = window.tp('overview.gate.view.warnings', this.props.gate.text);
     } else {
-      text = window.t('widget.alerts.no_alert');
+      text = window.t('overview.gate.view.no_alert');
     }
     return <div className="overview-card">{text}</div>;
   },
