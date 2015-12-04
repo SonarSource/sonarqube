@@ -264,51 +264,51 @@ public class RulesDefinitionXmlLoader {
       String nodeName = cursor.getLocalName();
 
       if (equalsIgnoreCase("name", nodeName)) {
-        name = trim(cursor.collectDescendantText(false));
+        name = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("description", nodeName)) {
-        description = trim(cursor.collectDescendantText(false));
+        description = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("descriptionFormat", nodeName)) {
-        descriptionFormat = trim(cursor.collectDescendantText(false));
+        descriptionFormat = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("key", nodeName)) {
-        key = trim(cursor.collectDescendantText(false));
+        key = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("configKey", nodeName)) {
         // deprecated field, replaced by internalKey
-        internalKey = trim(cursor.collectDescendantText(false));
+        internalKey = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("internalKey", nodeName)) {
-        internalKey = trim(cursor.collectDescendantText(false));
+        internalKey = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("priority", nodeName)) {
         // deprecated field, replaced by severity
-        severity = trim(cursor.collectDescendantText(false));
+        severity = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("severity", nodeName)) {
-        severity = trim(cursor.collectDescendantText(false));
+        severity = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("cardinality", nodeName)) {
-        template = Cardinality.MULTIPLE == Cardinality.valueOf(trim(cursor.collectDescendantText(false)));
+        template = Cardinality.MULTIPLE == Cardinality.valueOf(nodeValue(cursor));
 
       } else if (equalsIgnoreCase("effortToFixDescription", nodeName)) {
-        effortToFixDescription = trim(cursor.collectDescendantText(false));
+        effortToFixDescription = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("debtRemediationFunction", nodeName)) {
-        debtRemediationFunction = trim(cursor.collectDescendantText(false));
+        debtRemediationFunction = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
-        debtRemediationFunctionOffset = trim(cursor.collectDescendantText(false));
+        debtRemediationFunctionOffset = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
-        debtRemediationFunctionCoeff = trim(cursor.collectDescendantText(false));
+        debtRemediationFunctionCoeff = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("debtSubCharacteristic", nodeName)) {
-        debtSubCharacteristic = trim(cursor.collectDescendantText(false));
+        debtSubCharacteristic = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("status", nodeName)) {
-        String s = trim(cursor.collectDescendantText(false));
+        String s = nodeValue(cursor);
         if (s != null) {
           status = RuleStatus.valueOf(s);
         }
@@ -317,7 +317,7 @@ public class RulesDefinitionXmlLoader {
         params.add(processParameter(cursor));
 
       } else if (equalsIgnoreCase("tag", nodeName)) {
-        tags.add(trim(cursor.collectDescendantText(false)));
+        tags.add(nodeValue(cursor));
       }
     }
 
@@ -371,7 +371,12 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
+  private static String nodeValue(SMInputCursor cursor) throws XMLStreamException {
+    return trim(cursor.collectDescendantText(false));
+  }
+
   private static class ParamStruct {
+
     String key;
     String description;
     String defaultValue;
@@ -396,7 +401,7 @@ public class RulesDefinitionXmlLoader {
     SMInputCursor paramC = ruleC.childElementCursor();
     while (paramC.getNext() != null) {
       String propNodeName = paramC.getLocalName();
-      String propText = trim(paramC.collectDescendantText(false));
+      String propText = nodeValue(paramC);
       if (equalsIgnoreCase("key", propNodeName)) {
         param.key = propText;
 

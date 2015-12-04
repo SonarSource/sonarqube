@@ -178,7 +178,7 @@ public class BarChart extends BaseChartWeb implements DeprecatedChart {
 
       // Series
       String seriesParam = params.get(BaseChartWeb.CHART_PARAM_SERIES);
-      String[] seriesSplit = null;
+      String[] seriesSplit;
       if (seriesParam != null && seriesParam.length() > 0) {
         seriesSplit = seriesParam.split(",");
       } else {

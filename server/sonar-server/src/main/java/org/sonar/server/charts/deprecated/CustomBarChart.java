@@ -109,7 +109,7 @@ public class CustomBarChart extends BarChart {
 
       // Categories
       String categoriesParam = params.get(CHART_PARAM_CATEGORIES);
-      String[] categoriesSplit = null;
+      String[] categoriesSplit;
       if (categoriesParam != null && categoriesParam.length() > 0) {
         categoriesSplit = categoriesParam.split(",");
       } else {

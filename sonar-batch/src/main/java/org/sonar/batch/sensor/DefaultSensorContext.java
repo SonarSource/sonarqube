@@ -96,7 +96,7 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public <G extends Serializable> NewMeasure<G> newMeasure() {
-    return new DefaultMeasure<G>(sensorStorage);
+    return new DefaultMeasure<>(sensorStorage);
   }
 
   @Override

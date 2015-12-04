@@ -31,7 +31,7 @@ public interface WidgetPropertyMapper {
   String COLUMNS = "wp.id, wp.widget_id as \"widgetId\", wp.kee as \"propertyKey\", wp.text_value as \"textValue\"";
 
   @Insert("insert into widget_properties (widget_id, kee, text_value) values (#{widgetId}, #{propertyKey}, #{textValue})")
-  @Options(keyColumn = "id", useGeneratedKeys = true, keyProperty = "id")
+  @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   void insert(WidgetPropertyDto dto);
 
   @CheckForNull

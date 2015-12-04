@@ -61,6 +61,7 @@ public class CeActivityDaoTest {
     assertThat(saved.get().getStartedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(saved.get().getExecutedAt()).isEqualTo(1_500_000_000_500L);
     assertThat(saved.get().getExecutionTimeMs()).isEqualTo(500L);
+    assertThat(saved.get().toString()).isNotEmpty();
   }
 
   @Test

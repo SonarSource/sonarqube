@@ -66,7 +66,7 @@ public abstract class ProfileExporter {
   }
 
   protected final ProfileExporter setSupportedLanguages(String... languages) {
-    supportedLanguages = (languages != null ? languages : new String[0]);
+    supportedLanguages = (languages != null) ? languages : new String[0];
     return this;
   }
 

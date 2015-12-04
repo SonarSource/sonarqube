@@ -64,7 +64,7 @@ public abstract class ProfileImporter {
   }
 
   protected final ProfileImporter setSupportedLanguages(String... languages) {
-    supportedLanguages = (languages != null ? languages : new String[0]);
+    supportedLanguages = (languages != null) ? languages : new String[0];
     return this;
   }
 

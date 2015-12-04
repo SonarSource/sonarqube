@@ -45,6 +45,6 @@ public interface DashboardMapper {
   @Insert("INSERT INTO dashboards (user_id, name, description, column_layout, shared, is_global, created_at, " +
     "updated_at) VALUES (#{userId}, #{name}, #{description}, #{columnLayout}, #{shared}, " +
     "#{global}, #{createdAt}, #{updatedAt})")
-  @Options(keyColumn = "id", useGeneratedKeys = true, keyProperty = "id")
+  @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   void insert(DashboardDto dashboardDto);
 }

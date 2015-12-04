@@ -31,7 +31,7 @@ public interface WidgetMapper {
     " values (#{dashboardId,jdbcType=INTEGER}, #{widgetKey,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, " +
     " #{description,jdbcType=VARCHAR}, #{columnIndex,jdbcType=INTEGER}, " +
     " #{rowIndex,jdbcType=INTEGER}, #{configured,jdbcType=BOOLEAN}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{resourceId,jdbcType=INTEGER})")
-  @Options(keyColumn = "id", useGeneratedKeys = true, keyProperty = "id")
+  @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
   void insert(WidgetDto widgetDto);
 
   WidgetDto selectById(long widgetId);
