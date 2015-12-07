@@ -28,21 +28,21 @@ import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.dashboard.widget.ProjectIssueFilterWidget;
 
 /**
- * Default dashboard
+ * Custom dashboard
  *
  * @since 2.13
  */
-public final class ProjectDefaultDashboard extends DashboardTemplate {
+public final class ProjectCustomDashboard extends DashboardTemplate {
 
   private final IssueFilterDao issueFilterDao;
 
-  public ProjectDefaultDashboard(IssueFilterDao issueFilterDao) {
+  public ProjectCustomDashboard(IssueFilterDao issueFilterDao) {
     this.issueFilterDao = issueFilterDao;
   }
 
   @Override
   public String getName() {
-    return "Dashboard";
+    return "Custom";
   }
 
   @Override
@@ -55,16 +55,19 @@ public final class ProjectDefaultDashboard extends DashboardTemplate {
   }
 
   private void addFirstColumn(Dashboard dashboard) {
-    dashboard.addWidget("technical_debt_pyramid", 1);
+    dashboard.addWidget("size", 1);
+    dashboard.addWidget("code_coverage", 1);
+    dashboard.addWidget("duplications", 1);
+    dashboard.addWidget("documentation_comments", 1);
   }
 
   private void addSecondColumn(Dashboard dashboard) {
+    dashboard.addWidget("rules", 2);
+    dashboard.addWidget("timeline", 2);
     IssueFilterDto unresolvedIssues = getIssueFilterByName("Unresolved Issues");
-
     dashboard.addWidget(ProjectIssueFilterWidget.ID, 2)
       .setProperty(ProjectIssueFilterWidget.FILTER_PROPERTY, Long.toString(unresolvedIssues.getId()))
-      .setProperty(ProjectIssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, "severities")
-      .setProperty(ProjectIssueFilterWidget.DISPLAY_MODE, "debt");
+      .setProperty(ProjectIssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, "createdAt");
   }
 
   private IssueFilterDto getIssueFilterByName(String name) {
