@@ -40,6 +40,8 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.es.SearchOptions;
 
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+
 public class SearchAction implements UserGroupsWsAction {
 
   private static final String FIELD_ID = "id";
@@ -62,7 +64,7 @@ public class SearchAction implements UserGroupsWsAction {
       .setResponseExample(getClass().getResource("example-search.json"))
       .setSince("5.2")
       .addFieldsParam(ALL_FIELDS)
-      .addPagingParams(100)
+      .addPagingParams(100, MAX_LIMIT)
       .addSearchQuery("sonar-users", "names");
   }
 

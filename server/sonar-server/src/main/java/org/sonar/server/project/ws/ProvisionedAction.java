@@ -38,6 +38,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class ProvisionedAction implements ProjectsWsAction {
   private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
@@ -60,7 +61,7 @@ public class ProvisionedAction implements ProjectsWsAction {
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "projects-example-provisioned.json"))
       .setHandler(this)
-      .addPagingParams(100)
+      .addPagingParams(100, MAX_LIMIT)
       .addSearchQuery("sonar", "names", "keys")
       .addFieldsParam(POSSIBLE_FIELDS);
   }
