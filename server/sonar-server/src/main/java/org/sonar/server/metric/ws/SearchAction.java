@@ -52,8 +52,6 @@ public class SearchAction implements MetricsWsAction {
 
   public static final String PARAM_IS_CUSTOM = "isCustom";
 
-  private static final Set<String> OPTIONAL_FIELDS = newHashSet(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_TYPE, FIELD_DIRECTION, FIELD_QUALITATIVE, FIELD_HIDDEN,
-    FIELD_CUSTOM);
   private final Set<String> allPossibleFields;
 
   private final DbClient dbClient;
@@ -61,7 +59,7 @@ public class SearchAction implements MetricsWsAction {
   public SearchAction(DbClient dbClient) {
     this.dbClient = dbClient;
     Set<String> possibleFields = newHashSet(FIELD_ID, FIELD_KEY);
-    possibleFields.addAll(OPTIONAL_FIELDS);
+    possibleFields.addAll(MetricJsonWriter.OPTIONAL_FIELDS);
     allPossibleFields = possibleFields;
   }
 
@@ -72,7 +70,7 @@ public class SearchAction implements MetricsWsAction {
       .setDescription("Search for metrics")
       .setResponseExample(getClass().getResource("example-search.json"))
       .addPagingParams(100)
-      .addFieldsParam(OPTIONAL_FIELDS)
+      .addFieldsParam(MetricJsonWriter.OPTIONAL_FIELDS)
       .setHandler(this);
 
     action.createParam(PARAM_IS_CUSTOM)
