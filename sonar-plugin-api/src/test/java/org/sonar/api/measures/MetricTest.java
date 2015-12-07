@@ -19,11 +19,16 @@
  */
 package org.sonar.api.measures;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void shouldCreateMetric() {
@@ -74,6 +79,16 @@ public class MetricTest {
       .setDecimalScale(3)
       .create();
     assertThat(metric.getDecimalScale()).isEqualTo(3);
+  }
+
+  @Test
+  public void fail_if_decimal_scale_is_greater_than_max_supported_value() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Scale of decimal metric [foo] must be less than or equal 20: 21");
+
+    new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
+      .setDecimalScale(Metric.MAX_DECIMAL_SCALE + 1)
+      .create();
   }
 
   @Test

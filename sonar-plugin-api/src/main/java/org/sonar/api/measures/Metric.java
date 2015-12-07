@@ -48,6 +48,12 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   public static final int DEFAULT_DECIMAL_SCALE = 1;
 
   /**
+   * The maximum supported value of scale for decimal metrics
+   * @since 5.3
+   */
+  public static final int MAX_DECIMAL_SCALE = 20;
+
+  /**
    * A metric bigger value means a degradation
    */
   public static final int DIRECTION_WORST = -1;
@@ -759,6 +765,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      */
     public Builder setDecimalScale(int scale) {
       checkArgument(scale >= 0, "Scale of decimal metric %s must be positive: %d", key, scale);
+      checkArgument(scale <= MAX_DECIMAL_SCALE, "Scale of decimal metric [%s] must be less than or equal %s: %s", key, MAX_DECIMAL_SCALE, scale);
       this.decimalScale = scale;
       return this;
     }

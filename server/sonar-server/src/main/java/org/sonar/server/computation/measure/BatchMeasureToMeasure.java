@@ -29,11 +29,6 @@ import static com.google.common.base.Optional.of;
 
 public class BatchMeasureToMeasure {
 
-  /**
-   * Arbitrary decimal scale to be applied when reading decimal measures of report
-   */
-  private static final int DECIMAL_SCALE = 20;
-
   public Optional<Measure> toMeasure(@Nullable BatchReport.Measure batchMeasure, Metric metric) {
     Objects.requireNonNull(metric);
     if (batchMeasure == null) {
@@ -80,7 +75,10 @@ public class BatchMeasureToMeasure {
     if (!batchMeasure.hasDoubleValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(builder.create(batchMeasure.getDoubleValue(), DECIMAL_SCALE, data));
+    return of(builder.create(batchMeasure.getDoubleValue(),
+      // Decimals are not truncated in scanner report, so an arbitrary decimal scale is applied when reading values from report
+      org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE,
+      data));
   }
 
   private static Optional<Measure> toBooleanMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {

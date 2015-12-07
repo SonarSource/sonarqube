@@ -30,12 +30,6 @@ import static org.sonar.server.computation.measure.Measure.Level.toLevel;
 
 public class MeasureDtoToMeasure {
 
-  /**
-   * Arbitrary decimal scale to be applied when reading decimal measures from database.
-   * A big value must be used in order to not loose data.
-   */
-  private static final int DECIMAL_SCALE = 20;
-
   public Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric) {
     requireNonNull(metric);
     if (measureDto == null) {
@@ -81,7 +75,9 @@ public class MeasureDtoToMeasure {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.doubleValue(), DECIMAL_SCALE, data));
+
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto)
+      .create(value.doubleValue(), org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE, data));
   }
 
   private static Optional<Measure> toBooleanMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
