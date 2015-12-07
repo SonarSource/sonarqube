@@ -69,8 +69,16 @@ public class MetricTest {
   }
 
   @Test
-  public void override_decimal_scale() {
+  public void override_decimal_scale_of_float_metric() {
     Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
+      .setDecimalScale(3)
+      .create();
+    assertThat(metric.getDecimalScale()).isEqualTo(3);
+  }
+
+  @Test
+  public void override_decimal_scale_of_percent_metric() {
+    Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.PERCENT)
       .setDecimalScale(3)
       .create();
     assertThat(metric.getDecimalScale()).isEqualTo(3);
@@ -81,5 +89,12 @@ public class MetricTest {
     Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
       .create();
     assertThat(metric.getDecimalScale()).isEqualTo(1);
+  }
+
+  @Test
+  public void non_decimal_metric_has_no_scale() {
+    Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.INT)
+      .create();
+    assertThat(metric.getDecimalScale()).isNull();
   }
 }

@@ -108,12 +108,12 @@ class ProjectMeasure < ActiveRecord::Base
       when Metric::VALUE_TYPE_INT
         number_with_precision(val, :precision => 0)
       when Metric::VALUE_TYPE_FLOAT
-        number_with_precision(val, :precision => 1)
+        number_with_precision(val, :precision => (metric().decimal_scale||1))
       when Metric::VALUE_TYPE_PERCENT
         if (options[:variation]==true)
-          number_with_precision(val, :precision => 1)
+          number_with_precision(val, :precision => (metric().decimal_scale||1))
         else
-          number_to_percentage(val, {:precision => 1})
+          number_to_percentage(val, {:precision => (metric().decimal_scale||1)})
         end
       when Metric::VALUE_TYPE_MILLISEC
         millisecs_formatted_value(val)

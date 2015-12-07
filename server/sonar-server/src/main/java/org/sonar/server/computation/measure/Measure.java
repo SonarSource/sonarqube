@@ -203,7 +203,7 @@ public final class Measure {
     }
 
     public Measure create(double value, int decimalScale, @Nullable String data) {
-      checkArgument(!Double.isNaN(value), "Nan is not allowed as a Measure value");
+      checkArgument(!Double.isNaN(value), "NaN is not allowed as a Measure value");
       double scaledValue = scale(value, decimalScale);
       return new Measure(ValueType.DOUBLE, ruleId, characteristicId, developer, scaledValue, data, null, description, qualityGateStatus, variations);
     }

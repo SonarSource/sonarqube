@@ -754,7 +754,8 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     }
 
     /**
-     * Scale to be used if the metric has decimal values. Default is 1 for decimal metrics, else it's not set ({@code null}).
+     * Scale to be used if the metric has decimal type ({@link ValueType#FLOAT} or {@link ValueType#PERCENT}).
+     * Default is 1. It is not set (({@code null}) on non-decimal metrics.
      * @since 5.3
      */
     public Builder setDecimalScale(int scale) {

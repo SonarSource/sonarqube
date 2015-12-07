@@ -380,7 +380,7 @@ public class MeasureTest {
   @Test
   public void create_with_double_value_throws_IAE_if_value_is_NaN() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Nan is not allowed as a Measure value");
+    expectedException.expectMessage("NaN is not allowed as a Measure value");
 
     newMeasureBuilder().create(Double.NaN, 1);
   }
@@ -388,7 +388,7 @@ public class MeasureTest {
   @Test
   public void create_with_double_value_data_throws_IAE_if_value_is_NaN() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Nan is not allowed as a Measure value");
+    expectedException.expectMessage("NaN is not allowed as a Measure value");
 
     newMeasureBuilder().create(Double.NaN, 1, "some data");
   }

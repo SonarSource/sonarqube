@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.assertj.core.data.Offset;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -339,5 +340,16 @@ public class MeasureDtoToMeasureTest {
     assertThat(measure.get().getVariations().getVariation3()).isEqualTo(3);
     assertThat(measure.get().getVariations().hasVariation4()).isFalse();
     assertThat(measure.get().getVariations().getVariation5()).isEqualTo(5);
+  }
+
+  @Test
+  public void toMeasure_should_not_loose_decimals_of_float_values() {
+    MetricImpl metric = new MetricImpl(42, "double", "name", Metric.MetricType.FLOAT, 5, null, false);
+    MeasureDto measureDto = new MeasureDto()
+      .setValue(0.12345);
+
+    Optional<Measure> measure = underTest.toMeasure(measureDto, metric);
+
+    assertThat(measure.get().getDoubleValue()).isEqualTo(0.12345, Offset.offset(0.000001));
   }
 }

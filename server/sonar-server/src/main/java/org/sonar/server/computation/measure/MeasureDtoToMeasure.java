@@ -31,7 +31,8 @@ import static org.sonar.server.computation.measure.Measure.Level.toLevel;
 public class MeasureDtoToMeasure {
 
   /**
-   * Arbitrary decimal scale to be applied when reading decimal measures of report
+   * Arbitrary decimal scale to be applied when reading decimal measures from database.
+   * A big value must be used in order to not loose data.
    */
   private static final int DECIMAL_SCALE = 20;
 
