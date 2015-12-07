@@ -33,6 +33,7 @@ import org.sonar.duplications.block.ByteArray;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.FileAttributes;
 
+import static com.google.common.base.Strings.padStart;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -342,7 +343,7 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     // Generate more than 100 duplication on different files
     for (int i = 0; i < 110; i++) {
-      String hash = randomAlphanumeric(16);
+      String hash = padStart("hash" + i, 16, 'a');
       originBlocks.add(
         blockBuilder
           .setResourceId(ORIGIN_FILE_KEY)
@@ -350,7 +351,7 @@ public class IntegrateCrossProjectDuplicationsTest {
           .build());
       duplicatedBlocks.add(
         blockBuilder
-          .setResourceId(randomAlphanumeric(16))
+          .setResourceId("resource" + i)
           .setBlockHash(new ByteArray(hash))
           .build()
         );
