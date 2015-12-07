@@ -35,8 +35,6 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.output.BatchReport.Measure;
 import org.sonar.xoo.XooPlugin;
-import org.sonar.xoo.measures.ConstantFloatMeasureSensor;
-import org.sonar.xoo.measures.XooMetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -52,7 +50,6 @@ public class MeasuresMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .registerMetric(XooMetrics.CONSTANT_FLOAT_MEASURE)
     .build();
 
   @Before
