@@ -41,8 +41,6 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
-
 public class SearchAction implements UsersWsAction {
 
   private final UserIndex userIndex;
@@ -64,7 +62,7 @@ public class SearchAction implements UsersWsAction {
       .setResponseExample(getClass().getResource("example-search.json"));
 
     action.addFieldsParam(UserJsonWriter.FIELDS);
-    action.addPagingParams(50, MAX_LIMIT);
+    action.addPagingParams(50);
 
     action.createParam(Param.TEXT_QUERY)
       .setDescription("Filter on login or name.");

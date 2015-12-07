@@ -19,9 +19,7 @@
  */
 package org.sonar.server.es;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.QueryContext;
 import org.sonar.test.JsonAssert;
@@ -32,9 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class SearchOptionsTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void defaults() {
@@ -91,14 +86,9 @@ public class SearchOptionsTest {
   public void max_limit() {
     SearchOptions options = new SearchOptions().setLimit(42);
     assertThat(options.getLimit()).isEqualTo(42);
-  }
 
-  @Test
-  public void fail_when_limit_is_greater_than_max_limit() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be less than " + SearchOptions.MAX_LIMIT);
-
-    new SearchOptions().setLimit(SearchOptions.MAX_LIMIT + 10);
+    options.setLimit(SearchOptions.MAX_LIMIT + 10);
+    assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
 
   @Test
@@ -109,7 +99,7 @@ public class SearchOptionsTest {
 
   @Test
   public void max_page_size() {
-    SearchOptions options = new SearchOptions().setPage(3, QueryContext.MAX_LIMIT);
+    SearchOptions options = new SearchOptions().setPage(3, QueryContext.MAX_LIMIT + 10);
     assertThat(options.getOffset()).isEqualTo(QueryContext.MAX_LIMIT * 2);
     assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
