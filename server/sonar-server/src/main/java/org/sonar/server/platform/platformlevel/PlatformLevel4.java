@@ -66,7 +66,7 @@ import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.computation.ws.CeWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
-import org.sonar.server.dashboard.template.ProjectDefaultDashboard;
+import org.sonar.server.dashboard.template.ProjectCustomDashboard;
 import org.sonar.server.dashboard.widget.ActionPlansWidget;
 import org.sonar.server.dashboard.widget.AlertsWidget;
 import org.sonar.server.dashboard.widget.BubbleChartWidget;
@@ -352,7 +352,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // Dashboard
       DashboardsWs.class,
       org.sonar.server.dashboard.ws.ShowAction.class,
-      ProjectDefaultDashboard.class,
+      ProjectCustomDashboard.class,
       GlobalDefaultDashboard.class,
       AlertsWidget.class,
       CoverageWidget.class,
