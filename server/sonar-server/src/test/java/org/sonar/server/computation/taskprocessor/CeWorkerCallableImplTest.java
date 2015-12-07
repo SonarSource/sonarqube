@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class CeWorkerRunnableImplTest {
+public class CeWorkerCallableImplTest {
 
   @Rule
   public CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
@@ -46,7 +46,7 @@ public class CeWorkerRunnableImplTest {
   CeQueue queue = mock(CeQueueImpl.class);
   ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
   CeLogging ceLogging = mock(CeLogging.class);
-  CeWorkerRunnable underTest = new CeWorkerRunnableImpl(queue, ceLogging, taskProcessorRepository);
+  CeWorkerCallable underTest = new CeWorkerCallableImpl(queue, ceLogging, taskProcessorRepository);
   InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
 
   @Test

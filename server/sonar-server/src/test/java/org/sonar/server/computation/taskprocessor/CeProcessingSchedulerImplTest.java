@@ -54,7 +54,7 @@ public class CeProcessingSchedulerImplTest {
   // due to risks of infinite chaining of tasks/futures, a timeout is required for safety
   public Timeout timeout = Timeout.seconds(60);
 
-  private CeWorkerRunnable ceWorkerRunnable = mock(CeWorkerRunnable.class);
+  private CeWorkerCallable ceWorkerRunnable = mock(CeWorkerCallable.class);
   private StubCeProcessingSchedulerExecutorService processingExecutorService = new StubCeProcessingSchedulerExecutorService();
   private SchedulerCall regularDelayedPoll = new SchedulerCall(ceWorkerRunnable, 2L, TimeUnit.SECONDS);
   private SchedulerCall notDelayedPoll = new SchedulerCall(ceWorkerRunnable);
@@ -62,7 +62,7 @@ public class CeProcessingSchedulerImplTest {
   private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(processingExecutorService, ceWorkerRunnable);
 
   @Test
-  public void polls_without_delay_when_CeWorkerRunnable_returns_true() throws Exception {
+  public void polls_without_delay_when_CeWorkerCallable_returns_true() throws Exception {
     when(ceWorkerRunnable.call())
         .thenReturn(true)
         .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
@@ -76,7 +76,7 @@ public class CeProcessingSchedulerImplTest {
   }
 
   @Test
-  public void polls_without_delay_when_CeWorkerRunnable_throws_Exception_but_not_Error() throws Exception {
+  public void polls_without_delay_when_CeWorkerCallable_throws_Exception_but_not_Error() throws Exception {
     when(ceWorkerRunnable.call())
         .thenThrow(new Exception("Exception is followed by a poll without delay"))
         .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
@@ -90,7 +90,7 @@ public class CeProcessingSchedulerImplTest {
   }
 
   @Test
-  public void polls_with_regular_delay_when_CeWorkerRunnable_returns_false() throws Exception {
+  public void polls_with_regular_delay_when_CeWorkerCallable_returns_false() throws Exception {
     when(ceWorkerRunnable.call())
         .thenReturn(false)
         .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
@@ -104,7 +104,7 @@ public class CeProcessingSchedulerImplTest {
   }
 
   @Test
-  public void startScheduling_schedules_CeWorkerRunnable_at_fixed_rate_run_head_of_queue() throws Exception {
+  public void startScheduling_schedules_CeWorkerCallable_at_fixed_rate_run_head_of_queue() throws Exception {
     when(ceWorkerRunnable.call())
         .thenReturn(true)
         .thenReturn(true)

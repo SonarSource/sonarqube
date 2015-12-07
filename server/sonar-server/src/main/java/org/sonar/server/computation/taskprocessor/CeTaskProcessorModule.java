@@ -26,7 +26,7 @@ public class CeTaskProcessorModule extends Module {
   protected void configureModule() {
     add(
       CeTaskProcessorRepositoryImpl.class,
-      CeWorkerRunnableImpl.class,
+      CeWorkerCallableImpl.class,
       CeProcessingSchedulerExecutorServiceImpl.class,
       CeProcessingSchedulerImpl.class);
   }

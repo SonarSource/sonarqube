@@ -23,7 +23,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.sonar.server.util.StoppableExecutorService;
 
 /**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorkerRunnableImpl}.
+ * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorkerCallableImpl}.
  */
 public interface CeProcessingSchedulerExecutorService extends StoppableExecutorService, ListeningScheduledExecutorService {
 }

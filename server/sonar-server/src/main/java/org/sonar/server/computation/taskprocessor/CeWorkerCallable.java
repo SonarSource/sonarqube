@@ -26,5 +26,5 @@ import org.sonar.server.computation.queue.CeTask;
 /**
  * Marker interface of the runnable in charge of polling the {@link CeQueue} and executing {@link CeTask}.
  */
-public interface CeWorkerRunnable extends Callable<Boolean> {
+public interface CeWorkerCallable extends Callable<Boolean> {
 }
