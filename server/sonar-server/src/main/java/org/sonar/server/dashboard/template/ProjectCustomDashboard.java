@@ -54,7 +54,7 @@ public final class ProjectCustomDashboard extends DashboardTemplate {
     return dashboard;
   }
 
-  private void addFirstColumn(Dashboard dashboard) {
+  private static void addFirstColumn(Dashboard dashboard) {
     dashboard.addWidget("size", 1);
     dashboard.addWidget("code_coverage", 1);
     dashboard.addWidget("duplications", 1);
