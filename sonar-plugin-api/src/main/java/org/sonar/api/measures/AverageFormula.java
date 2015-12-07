@@ -67,6 +67,7 @@ public class AverageFormula implements Formula {
   }
 
   private static RuntimeException fail() {
-    throw new UnsupportedOperationException("Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
+    throw new UnsupportedOperationException("Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. " +
+      "Please use org.sonar.api.ce.measure.MeasureComputer.");
   }
 }

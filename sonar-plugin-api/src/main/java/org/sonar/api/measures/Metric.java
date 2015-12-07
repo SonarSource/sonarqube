@@ -20,7 +20,6 @@
 package org.sonar.api.measures;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Arrays;

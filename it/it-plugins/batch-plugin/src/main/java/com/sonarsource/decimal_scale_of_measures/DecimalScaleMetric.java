@@ -10,7 +10,7 @@ public class DecimalScaleMetric implements Metrics {
 
   public static final String KEY = "decimal_scale";
 
-  private static final Metric<Serializable> METRIC = new Metric.Builder(KEY, "Decimal Scale", Metric.ValueType.FLOAT)
+  private static final Metric<> METRIC = new Metric.Builder(KEY, "Decimal Scale", Metric.ValueType.FLOAT)
     .setDescription("Numeric metric with overridden decimal scale")
     .setDecimalScale(4)
     .create();
