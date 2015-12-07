@@ -138,6 +138,7 @@ public class FixMsSqlCollation extends DdlChange {
       .addVarcharColumn("name", 200)
       .addVarcharColumn("status", 40)
       .addVarcharColumn("language", 20)
+      .addClobColumn("note_data")
       .addVarcharColumn("note_user_login", 255)
       .addVarcharColumn("remediation_function", 20)
       .addVarcharColumn("default_remediation_function", 20)
@@ -183,6 +184,7 @@ public class FixMsSqlCollation extends DdlChange {
     new UpdateTableCollation(context, db, "properties")
       .addIndex("properties_key", "prop_key")
       .addVarcharColumn("prop_key", 512)
+      .addClobColumn("text_value")
       .execute();
 
     // project_links
@@ -317,6 +319,7 @@ public class FixMsSqlCollation extends DdlChange {
       .addIndex("measure_filters_name", "name")
       .addNotNullableVarcharColumn("name", 100)
       .addVarcharColumn("description", 4000)
+      .addClobColumn("data")
       .execute();
 
     // issues
@@ -362,6 +365,7 @@ public class FixMsSqlCollation extends DdlChange {
       .addNotNullableVarcharColumn("name", 100)
       .addVarcharColumn("user_login", 255)
       .addVarcharColumn("description", 4000)
+      .addClobColumn("data")
       .execute();
 
     // issue_filter_favourites
@@ -396,6 +400,7 @@ public class FixMsSqlCollation extends DdlChange {
       .addVarcharColumn("log_type", 250)
       .addVarcharColumn("log_action", 250)
       .addVarcharColumn("log_message", 250)
+      .addClobColumn("data_field")
       .execute();
 
     // file_sources
@@ -404,6 +409,7 @@ public class FixMsSqlCollation extends DdlChange {
       .addUniqueIndex("file_sources_uuid_type", "file_uuid", "data_type")
       .addNotNullableVarcharColumn("project_uuid", 50)
       .addNotNullableVarcharColumn("file_uuid", 50)
+      .addClobColumn("line_hashes")
       .addVarcharColumn("data_type", 20)
       .addVarcharColumn("data_hash", 50)
       .addVarcharColumn("src_hash", 50)
