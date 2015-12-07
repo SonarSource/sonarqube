@@ -20,11 +20,15 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -42,6 +46,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
@@ -49,10 +54,6 @@ import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,6 +63,8 @@ public class SearchActionMediumTest {
   public static ServerTester tester = new ServerTester().addXoo();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private static final String API_ENDPOINT = "api/rules";
   private static final String API_SEARCH_METHOD = "search";
@@ -185,16 +188,16 @@ public class SearchActionMediumTest {
     insertDebtCharacteristics(dbSession);
 
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+        .setDefaultSubCharacteristicId(hardReliabilityId)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("15min")
 
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null)
-      );
+        .setSubCharacteristicId(null)
+        .setRemediationFunction(null)
+        .setRemediationCoefficient(null)
+        .setRemediationOffset(null)
+    );
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -209,16 +212,16 @@ public class SearchActionMediumTest {
     insertDebtCharacteristics(dbSession);
 
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+        .setDefaultSubCharacteristicId(hardReliabilityId)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("15min")
 
-      .setSubCharacteristicId(softReliabilityId)
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setRemediationCoefficient("2h")
-      .setRemediationOffset("25min")
-      );
+        .setSubCharacteristicId(softReliabilityId)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setRemediationCoefficient("2h")
+        .setRemediationOffset("25min")
+    );
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -232,16 +235,16 @@ public class SearchActionMediumTest {
     insertDebtCharacteristics(dbSession);
 
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+        .setDefaultSubCharacteristicId(hardReliabilityId)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("15min")
 
-      .setSubCharacteristicId(softReliabilityId)
-      .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
-      .setRemediationCoefficient(null)
-      .setRemediationOffset("5min")
-      );
+        .setSubCharacteristicId(softReliabilityId)
+        .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
+        .setRemediationCoefficient(null)
+        .setRemediationOffset("5min")
+    );
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -255,16 +258,16 @@ public class SearchActionMediumTest {
     insertDebtCharacteristics(dbSession);
 
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+        .setDefaultSubCharacteristicId(hardReliabilityId)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("15min")
 
-      .setSubCharacteristicId(softReliabilityId)
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
-      .setRemediationCoefficient("1h")
-      .setRemediationOffset(null)
-      );
+        .setSubCharacteristicId(softReliabilityId)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
+        .setRemediationCoefficient("1h")
+        .setRemediationOffset(null)
+    );
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -278,49 +281,49 @@ public class SearchActionMediumTest {
     insertDebtCharacteristics(dbSession);
 
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+        .setDefaultSubCharacteristicId(hardReliabilityId)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("15min")
 
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null)
-      );
+        .setSubCharacteristicId(null)
+        .setRemediationFunction(null)
+        .setRemediationCoefficient(null)
+        .setRemediationOffset(null)
+    );
     ruleDao.insert(dbSession, RuleTesting.newXooX2()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+        .setDefaultSubCharacteristicId(hardReliabilityId)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("15min")
 
-      .setSubCharacteristicId(softReliabilityId)
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setRemediationCoefficient("30min")
-      .setRemediationOffset("5min")
-      );
+        .setSubCharacteristicId(softReliabilityId)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setRemediationCoefficient("30min")
+        .setRemediationOffset("5min")
+    );
     ruleDao.insert(dbSession, RuleTesting.newXooX3()
-      .setDefaultSubCharacteristicId(null)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("2min")
-      .setDefaultRemediationOffset("1min")
+        .setDefaultSubCharacteristicId(null)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("2min")
+        .setDefaultRemediationOffset("1min")
 
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null)
-      );
+        .setSubCharacteristicId(null)
+        .setRemediationFunction(null)
+        .setRemediationCoefficient(null)
+        .setRemediationOffset(null)
+    );
     ruleDao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "x4")).setLanguage("xoo")
-      .setDefaultSubCharacteristicId(softReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("2min")
-      .setDefaultRemediationOffset("1min")
+        .setDefaultSubCharacteristicId(softReliabilityId)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+        .setDefaultRemediationCoefficient("2min")
+        .setDefaultRemediationOffset("1min")
 
-      .setSubCharacteristicId(-1)
-      .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null)
-      );
+        .setSubCharacteristicId(-1)
+        .setRemediationFunction(null)
+        .setRemediationCoefficient(null)
+        .setRemediationOffset(null)
+    );
     dbSession.commit();
 
     WsTester.Result result = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
@@ -635,6 +638,18 @@ public class SearchActionMediumTest {
     request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(c.getTime()));
     result = request.execute();
     result.assertJson("{\"total\":0,\"p\":1,\"ps\":100,\"rules\":[]}");
+  }
+
+  @Test
+  public void fail_when_page_size_greater_than_500() throws Exception {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Page size must be less than 500");
+
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
+      .setParam(WebService.Param.PAGE_SIZE, String.valueOf(501));
+    request.setParam(WebService.Param.FIELDS, "actives");
+
+    request.execute();
   }
 
   private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDto rule) {
