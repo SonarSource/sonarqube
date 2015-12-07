@@ -64,7 +64,7 @@ public class RepositoriesAction implements RulesWsAction {
     action.createParam(LANGUAGE)
       .setDescription("A language key; if provided, only repositories for the given language will be returned")
       .setExampleValue("java");
-    action.createParam("ps")
+    action.createParam(Param.PAGE_SIZE)
       .setDescription("The size of the list to return, 0 for all repositories")
       .setExampleValue("25")
       .setDefaultValue("0");
@@ -74,7 +74,7 @@ public class RepositoriesAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     String query = request.param(Param.TEXT_QUERY);
     String languageKey = request.param(LANGUAGE);
-    int pageSize = request.mandatoryParamAsInt("ps");
+    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
 
     JsonWriter json = response.newJsonWriter().beginObject().name("repositories").beginArray();
     for (Repo repo : listMatchingRepositories(query, languageKey, pageSize)) {
