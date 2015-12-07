@@ -64,8 +64,13 @@ public class ExceptionCauseMatcher extends TypeSafeMatcher<Throwable> {
 
   @Override
   protected boolean matchesSafely(Throwable item) {
-    return item.getClass().isAssignableFrom(type)
-      && (expectedMessage == null || EXPECT_NO_MESSAGE_CONSTANT.equals(expectedMessage) ? item.getMessage() == null : item.getMessage().contains(expectedMessage));
+    if (!item.getClass().isAssignableFrom(type)) {
+      return false;
+    }
+    if (expectedMessage == null) {
+      return true;
+    }
+    return EXPECT_NO_MESSAGE_CONSTANT.equals(expectedMessage) ? item.getMessage() == null : item.getMessage().contains(expectedMessage);
   }
 
   @Override

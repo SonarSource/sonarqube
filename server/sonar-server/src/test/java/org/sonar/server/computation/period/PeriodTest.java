@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DAYS;
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_VERSION;
 
 public class PeriodTest {
@@ -76,5 +77,21 @@ public class PeriodTest {
   public void verify_to_string() {
     assertThat(new Period(1, TIMEMACHINE_MODE_VERSION, "2.3", 1420034400000L, 10L).toString())
       .isEqualTo("Period{index=1, mode=version, modeParameter=2.3, snapshotDate=1420034400000, snapshotId=10}");
+  }
+
+  @Test
+  public void equals_is_done_on_all_fields() {
+    Period period = new Period(1, TIMEMACHINE_MODE_VERSION, "2.3", 1420034400000L, 10L);
+
+    assertThat(period).isEqualTo(new Period(1, TIMEMACHINE_MODE_VERSION, "2.3", 1420034400000L, 10L));
+
+    assertThat(period).isNotEqualTo(null);
+    assertThat(period).isNotEqualTo("sdsd");
+    assertThat(period).isNotEqualTo(new Period(2, TIMEMACHINE_MODE_VERSION, "2.3", 1420034400000L, 10L));
+    assertThat(period).isNotEqualTo(new Period(1, TIMEMACHINE_MODE_DAYS, "2.3", 1420034400000L, 10L));
+    assertThat(period).isNotEqualTo(new Period(1, TIMEMACHINE_MODE_VERSION, "2.4", 1420034400000L, 10L));
+    assertThat(period).isNotEqualTo(new Period(1, TIMEMACHINE_MODE_VERSION, "2.3", 555L, 10L));
+    assertThat(period).isNotEqualTo(new Period(1, TIMEMACHINE_MODE_VERSION, "2.3", 1420034400000L, 9632554L));
+
   }
 }
