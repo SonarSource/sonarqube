@@ -30,7 +30,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public abstract class BaseService {
 
   private final WsConnector wsConnector;
-  private final String controller;
+  protected final String controller;
 
   public BaseService(WsConnector wsConnector, String controllerPath) {
     checkArgument(!isNullOrEmpty(controllerPath));
