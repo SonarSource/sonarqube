@@ -56,6 +56,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
 
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -81,6 +82,8 @@ public class SearchAction implements RulesWsAction {
   public static final String PARAM_TEMPLATE_KEY = "template_key";
 
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
+  private static final int MAX_PAGE_SIZE = 500;
+  private static final String MSG_MAX_PAGE_SIZE_ERROR = "Page size must be less than " + MAX_PAGE_SIZE;
 
   private final RuleService ruleService;
   private final ActiveRuleCompleter activeRuleCompleter;
@@ -97,7 +100,7 @@ public class SearchAction implements RulesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .addPagingParams(100)
+      .addPagingParams(100, MAX_PAGE_SIZE)
       .setHandler(this);
 
     Collection<String> possibleFacets = possibleFacets();
@@ -167,8 +170,7 @@ public class SearchAction implements RulesWsAction {
       RuleIndex.FACET_SEVERITIES,
       RuleIndex.FACET_ACTIVE_SEVERITIES,
       RuleIndex.FACET_STATUSES,
-      RuleIndex.FACET_OLD_DEFAULT
-      );
+      RuleIndex.FACET_OLD_DEFAULT);
   }
 
   /**
@@ -330,6 +332,7 @@ public class SearchAction implements RulesWsAction {
 
   private QueryContext loadCommonContext(Request request) {
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
+    checkRequest(pageSize <= MAX_PAGE_SIZE, MSG_MAX_PAGE_SIZE_ERROR);
     QueryContext context = new QueryContext(userSession).addFieldsToReturn(request.paramAsStrings(Param.FIELDS));
     List<String> facets = request.paramAsStrings(Param.FACETS);
     if (facets != null) {
