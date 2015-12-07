@@ -33,22 +33,22 @@ import org.sonar.test.DbTests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
-public class ProjectDefaultDashboardTest {
+public class ProjectCustomDashboardTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  ProjectDefaultDashboard template;
+  ProjectCustomDashboard template;
 
   @Before
   public void setUp() {
     IssueFilterDao issueFilterDao = new IssueFilterDao(dbTester.myBatis());
-    template = new ProjectDefaultDashboard(issueFilterDao);
+    template = new ProjectCustomDashboard(issueFilterDao);
   }
 
   @Test
   public void should_have_a_name() {
-    assertThat(template.getName()).isEqualTo("Dashboard");
+    assertThat(template.getName()).isEqualTo("Custom");
   }
 
   @Test
