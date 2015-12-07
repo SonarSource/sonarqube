@@ -17,28 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch;
+package org.sonar.api.measures;
 
 import org.junit.Test;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.Metric;
 
-public class DefaultFormulaDataTest {
+public class MeanAggregationFormulaTest {
 
-  DefaultFormulaData underTest = new DefaultFormulaData(null);
+  MeanAggregationFormula underTest = new MeanAggregationFormula();
 
   @Test(expected = UnsupportedOperationException.class)
   public void fail_if_used_1() {
-    underTest.getChildren();
+    underTest.calculate(null, null);
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void fail_if_used_2() {
-    underTest.getChildrenMeasures((MeasuresFilter) null);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void fail_if_used_3() {
-    underTest.getChildrenMeasures((Metric) null);
+    underTest.dependsUponMetrics();
   }
 }

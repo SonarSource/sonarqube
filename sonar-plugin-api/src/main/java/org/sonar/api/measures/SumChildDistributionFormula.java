@@ -19,18 +19,38 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.resources.Resource;
+import java.util.List;
 
 /**
- * @since 1.11
+ * @since 2.0
+ *
+ * Used to consolidate a distribution measure throughout the resource tree
  * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
  * and {@link Formula} are no more supported.
  */
 @Deprecated
-public interface FormulaContext {
+public class SumChildDistributionFormula implements Formula {
 
-  Metric getTargetMetric();
+  @Override
+  public List<Metric> dependsUponMetrics() {
+    throw fail();
+  }
 
-  Resource getResource();
+  public String getMinimumScopeToPersist() {
+    throw fail();
+  }
 
+  public SumChildDistributionFormula setMinimumScopeToPersist(String s) {
+    throw fail();
+  }
+
+  @Override
+  public Measure calculate(FormulaData data, FormulaContext context) {
+    throw fail();
+  }
+
+  private static RuntimeException fail() {
+    throw new UnsupportedOperationException(
+      "Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
+  }
 }

@@ -17,28 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch;
+package org.sonar.api.measures;
 
-import org.junit.Test;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.Metric;
+import java.util.List;
 
-public class DefaultFormulaDataTest {
+/**
+ * @since 2.0
+ * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
+ * and {@link Formula} are no more supported.
+ */
+@Deprecated
+public class MeanAggregationFormula implements Formula {
 
-  DefaultFormulaData underTest = new DefaultFormulaData(null);
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void fail_if_used_1() {
-    underTest.getChildren();
+  public MeanAggregationFormula(boolean unused) {
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void fail_if_used_2() {
-    underTest.getChildrenMeasures((MeasuresFilter) null);
+  public MeanAggregationFormula() {
+    this(false);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void fail_if_used_3() {
-    underTest.getChildrenMeasures((Metric) null);
+  @Override
+  public List<Metric> dependsUponMetrics() {
+    throw fail();
+  }
+
+  @Override
+  public Measure calculate(FormulaData data, FormulaContext context) {
+    throw fail();
+  }
+
+  private static RuntimeException fail() {
+    throw new UnsupportedOperationException(
+      "Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
   }
 }

@@ -19,52 +19,51 @@
  */
 package org.sonar.api.batch;
 
+import java.util.Collection;
+import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.FormulaData;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 /**
  * @since 1.11
+ * @deprecated since 5.2. Aggregation of measures is provided by {@link org.sonar.api.ce.measure.MeasureComputer}. {@link org.sonar.api.batch.Decorator}
+ * and {@link Formula} are no more supported.
  */
+@Deprecated
 public class DefaultFormulaData implements FormulaData {
 
-  private DecoratorContext decoratorContext;
-
-  public DefaultFormulaData(DecoratorContext decoratorContext) {
-    this.decoratorContext = decoratorContext;
+  public DefaultFormulaData(DecoratorContext unused) {
   }
 
   @Override
   public Measure getMeasure(Metric metric) {
-    return decoratorContext.getMeasure(metric);
+    throw fail();
   }
 
   @Override
   public <M> M getMeasures(MeasuresFilter<M> filter) {
-    return decoratorContext.getMeasures(filter);
+    throw fail();
   }
 
   @Override
   public Collection<Measure> getChildrenMeasures(MeasuresFilter filter) {
-    return decoratorContext.getChildrenMeasures(filter);
+    throw fail();
   }
 
   @Override
   public Collection<Measure> getChildrenMeasures(Metric metric) {
-    return decoratorContext.getChildrenMeasures(metric);
+    throw fail();
   }
 
   @Override
   public Collection<FormulaData> getChildren() {
-    List<FormulaData> result = new ArrayList<>();
-    for (DecoratorContext childContext : decoratorContext.getChildren()) {
-      result.add(new DefaultFormulaData(childContext));
-    }
-    return result;
+    throw fail();
+  }
+
+  private static RuntimeException fail() {
+    throw new UnsupportedOperationException(
+      "Unsupported since version 5.2. Decorators and formulas are not used anymore for aggregation measures. Please use org.sonar.api.ce.measure.MeasureComputer.");
   }
 }
