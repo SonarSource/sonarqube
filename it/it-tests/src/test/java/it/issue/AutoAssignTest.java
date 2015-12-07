@@ -1,9 +1,11 @@
 package it.issue;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -66,6 +68,41 @@ public class AutoAssignTest extends AbstractIssueTest {
     assertThat(search(IssueQuery.create().assignees(SIMON_USER)).list()).hasSize(13);
     // No unassigned issues
     assertThat(search(IssueQuery.create().assigned(false)).list()).isEmpty();
+  }
+
+  /**
+   * SONAR-7098
+   *
+   * Given two versions of same project:
+   * v1: issue, but no SCM data
+   * v2: old issue and SCM data
+   * Expected: all issues should be associated with authors
+   */
+  @Test
+  public void update_author_and_assignee_when_scm_is_activated() {
+    createUser(SIMON_USER, SIMON_USER);
+
+    // Run a first analysis without SCM
+    projectAnalysis.withProperties("sonar.scm.disabled", "true").run();
+    List<Issue> issues = searchIssues();
+    assertThat(issues).isNotEmpty();
+
+    // No author and assignee are set
+    for (Issue issue : issues) {
+      assertThat(issue.author()).isEmpty();
+    }
+    assertThat(search(IssueQuery.create().assigned(true)).list()).isEmpty();
+
+    // Run a second analysis with SCM
+    projectAnalysis.run();
+    issues = searchIssues();
+    assertThat(issues).isNotEmpty();
+
+    // Authors and assignees are set
+    for (Issue issue : issues) {
+      assertThat(issue.author()).isNotEmpty();
+    }
+    assertThat(search(IssueQuery.create().assignees(SIMON_USER)).list()).hasSize(3);
   }
 
   private void createUser(String login, String password) {
