@@ -36,6 +36,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.mockito.Mockito.mock;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 @Category(DbTests.class)
 public class SearchViewComponentsActionTest {
@@ -125,6 +126,19 @@ public class SearchViewComponentsActionTest {
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = newRequest().setParam("componentId", "UNKNOWN").setParam("q", "st");
+    request.execute();
+  }
+
+  @Test
+  public void fail_when_above_max_page_size() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    db.prepareDbUnit(getClass(), "shared.xml");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    WsTester.TestRequest request = newRequest()
+      .setParam(Param.PAGE_SIZE, String.valueOf(MAX_LIMIT + 10))
+      .setParam("componentId", "EFGH")
+      .setParam("q", "st");
+
     request.execute();
   }
 

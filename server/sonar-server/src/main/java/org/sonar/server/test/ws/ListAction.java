@@ -50,6 +50,8 @@ import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsTests;
 
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+
 public class ListAction implements TestsWsAction {
   public static final String TEST_ID = "testId";
   public static final String TEST_FILE_ID = "testFileId";
@@ -85,7 +87,7 @@ public class ListAction implements TestsWsAction {
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
       .setHandler(this)
-      .addPagingParams(100);
+      .addPagingParams(100, MAX_LIMIT);
 
     action
       .createParam(TEST_FILE_ID)

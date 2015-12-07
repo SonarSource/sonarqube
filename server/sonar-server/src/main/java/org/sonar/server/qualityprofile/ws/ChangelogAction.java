@@ -45,6 +45,7 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.search.Result;
 
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class ChangelogAction implements QProfileWsAction {
 
@@ -74,7 +75,7 @@ public class ChangelogAction implements QProfileWsAction {
 
     QProfileIdentificationParamUtils.defineProfileParams(changelog, languages);
 
-    changelog.addPagingParams(50);
+    changelog.addPagingParams(50, MAX_LIMIT);
 
     changelog.createParam(PARAM_SINCE)
       .setDescription("Start date for the changelog.")
