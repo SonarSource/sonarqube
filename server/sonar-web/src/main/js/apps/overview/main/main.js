@@ -9,9 +9,8 @@ import { GeneralSize } from './size';
 import { CoverageSelectionMixin } from '../components/coverage-selection-mixin';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { getMeasuresAndVariations } from '../../../api/measures';
-import { getFacet, getIssuesCount } from '../../../api/issues';
+import { getIssuesCount } from '../../../api/issues';
 import { getTimeMachineData } from '../../../api/time-machine';
-import { SEVERITIES } from '../../../helpers/constants';
 
 
 const METRICS_LIST = [
@@ -34,11 +33,6 @@ const HISTORY_METRICS_LIST = [
   'duplicated_lines_density',
   'ncloc'
 ];
-
-
-function getFacetValue (facet, key) {
-  return _.findWhere(facet, { val: key }).count;
-}
 
 
 export default React.createClass({

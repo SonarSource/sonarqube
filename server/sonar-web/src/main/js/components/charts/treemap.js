@@ -98,7 +98,7 @@ export const Treemap = React.createClass({
         {window.t('no_data')}
       </div>
       <TreemapBreadcrumbs {...this.props}/>
-    </div>
+    </div>;
   },
 
   render () {

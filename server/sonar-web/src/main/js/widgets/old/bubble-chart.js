@@ -122,7 +122,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.sizeMetric = this.metricsPriority()[2];
     this.getSizeMetric = function(d) {
-      return !!d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].val : 0;
+      return d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].val : 0;
     };
   };
 

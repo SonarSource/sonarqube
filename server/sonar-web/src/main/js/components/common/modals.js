@@ -26,7 +26,7 @@ export default Marionette.ItemView.extend({
       return false;
     });
     this.show();
-    if (!!this.options.large) {
+    if (this.options.large) {
       this.$el.addClass('modal-large');
     }
   },
@@ -70,5 +70,3 @@ export default Marionette.ItemView.extend({
     });
   }
 });
-
-

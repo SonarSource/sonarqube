@@ -15,7 +15,6 @@ import { AddedRemovedMeasure, AddedRemovedDebt, OnNewCodeMeasure, SeverityMeasur
 import { IssuesTags } from './../components/issues-tags';
 import Assignees from './../components/issues-assignees';
 import { getFacet, extractAssignees } from '../../../api/issues';
-import StatusHelper from '../../../components/shared/status-helper';
 import { Rating } from '../../../components/shared/rating';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { DomainLeakTitle } from '../main/components';
@@ -102,7 +101,7 @@ export const IssuesMain = React.createClass({
   },
 
   renderLegend () {
-    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>
+    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>;
   },
 
   renderOtherMeasures() {

@@ -3,7 +3,7 @@ import React from 'react';
 import { DetailedMeasure } from './detailed-measure';
 import { DonutChart } from '../../../components/charts/donut-chart';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import { formatMeasure, formatMeasureVariation, localizeMetric } from '../../../helpers/measures';
+import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 
 
 export const CoverageMeasures = React.createClass({

@@ -29,6 +29,6 @@ export default React.createClass({
               onChange={this.onChange}
               value={this.state.level}>{options}</select>
       {warning}
-    </div>
+    </div>;
   }
 });

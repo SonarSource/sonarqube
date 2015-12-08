@@ -29,7 +29,7 @@ export default Modal.extend({
     return getTokens(this.model.id).then(tokens => {
       this.tokens = tokens;
       this.render();
-    })
+    });
   },
 
   onGenerateTokenFormSubmit (e) {
@@ -86,5 +86,3 @@ export default Modal.extend({
   }
 
 });
-
-

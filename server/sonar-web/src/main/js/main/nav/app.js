@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -7,6 +8,7 @@ import SettingsNav from './settings/settings-nav';
 import { getGlobalNavigation, getComponentNavigation, getSettingsNavigation } from '../../api/nav';
 import '../../components/workspace/main';
 import '../../helpers/handlebars-helpers';
+
 
 export default class App {
   start () {

@@ -64,7 +64,7 @@ export const SizeMain = React.createClass({
   },
 
   renderLegend () {
-    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>
+    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>;
   },
 
   renderOtherMeasures(domain, hiddenMetrics) {
@@ -102,7 +102,7 @@ export const SizeMain = React.createClass({
     if (distribution == null) {
       return null;
     }
-    return <ComplexityDistribution distribution={distribution} {...props}/>
+    return <ComplexityDistribution distribution={distribution} {...props}/>;
   },
 
   renderComplexityCard() {

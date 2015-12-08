@@ -82,7 +82,7 @@ export const CoverageMain = React.createClass({
   },
 
   renderLegend () {
-    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>
+    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>;
   },
 
   render () {

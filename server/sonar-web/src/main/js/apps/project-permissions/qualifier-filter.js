@@ -8,7 +8,7 @@ const rootQualifiersToOptions = (qualifiers) => {
     return {
       value: q,
       label: window.t('qualifiers', q)
-    }
+    };
   });
 };
 

@@ -11,7 +11,7 @@ import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
 import { DomainLeakTitle } from '../main/components';
 import { CHART_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
-import { formatMeasure, formatMeasureVariation, localizeMetric } from '../../../helpers/measures';
+import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 import { DonutChart } from '../../../components/charts/donut-chart';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { getMetricName } from '../helpers/metrics';
@@ -77,7 +77,7 @@ export const DuplicationsMain = React.createClass({
   },
 
   renderLegend () {
-    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>
+    return <DomainLeakTitle inline={true} label={this.state.leakPeriodLabel} date={this.state.leakPeriodDate}/>;
   },
 
   renderMeasures() {

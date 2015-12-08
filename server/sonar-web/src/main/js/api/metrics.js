@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import { getJSON } from '../helpers/request.js';
 
 export function getMetrics () {

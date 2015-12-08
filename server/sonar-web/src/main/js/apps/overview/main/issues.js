@@ -5,7 +5,6 @@ import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, Measures
 import { Rating } from './../../../components/shared/rating';
 import { IssuesLink } from '../../../components/shared/issues-link';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import SeverityIcon from '../../../components/shared/severity-icon';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { Legend } from '../components/legend';
 import { getMetricName } from '../helpers/metrics';

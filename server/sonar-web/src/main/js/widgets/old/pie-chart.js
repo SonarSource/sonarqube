@@ -231,7 +231,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             var metrics = widget.metricsPriority().map(function(m) {
               return {
                 name: widget.metrics()[m].name,
-                value: (!!d.measures[m] ? d.measures[m].fval : '–')
+                value: (d.measures[m] ? d.measures[m].fval : '–')
               };
             });
             metrics.unshift({

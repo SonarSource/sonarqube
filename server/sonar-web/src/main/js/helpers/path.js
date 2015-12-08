@@ -1,3 +1,6 @@
+import _ from 'underscore';
+
+
 export function collapsePath (path, limit = 30) {
   if (typeof path !== 'string') {
     return '';

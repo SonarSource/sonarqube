@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import React from 'react';
 import ReactDOM from 'react-dom';
 
 export const TooltipsMixin = {

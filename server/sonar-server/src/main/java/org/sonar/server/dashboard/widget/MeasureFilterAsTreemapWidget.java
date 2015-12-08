@@ -40,7 +40,7 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
     defaultValue = CoreMetrics.COVERAGE_KEY,
     options = {WidgetConstants.FILTER_OUT_NEW_METRICS, "type:PERCENT,RATING,LEVEL"}),
   @WidgetProperty(key = MeasureFilterAsTreemapWidget.HEIGHT_PERCENTS_PROPERTY, type = WidgetPropertyType.INTEGER,
-    optional = true, defaultValue = "55", description = "Height in percents of width"),
+    defaultValue = "55", description = "Height in percents of width", optional = true),
   @WidgetProperty(key = MeasureFilterAsTreemapWidget.MAX_ITEMS_PROPERTY, type = WidgetPropertyType.INTEGER,
     defaultValue = "30")
 })
