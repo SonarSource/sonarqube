@@ -250,7 +250,7 @@ var ChoiceFilterView = BaseFilters.BaseFilterView.extend({
         }),
         defaultValue = this.model.has('defaultValue') ?
             this.model.get('defaultValue') :
-            this.model.get('multiple') ? t('all') : t('any');
+            this.model.get('multiple') ? window.t('all') : window.t('any');
 
     return this.isDefaultValue() ? defaultValue : value.join(', ');
   },
@@ -387,5 +387,3 @@ export default {
   DetailsChoiceFilterView: DetailsChoiceFilterView,
   ChoiceFilterView: ChoiceFilterView
 };
-
-

@@ -8,13 +8,12 @@ import { DomainTreemap } from '../components/domain-treemap';
 import { DomainBubbleChart } from '../components/domain-bubble-chart';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
-import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
+import { filterMetrics, filterMetricsForDomains, getMetricName } from '../helpers/metrics';
 import { DomainLeakTitle } from '../main/components';
 import { CHART_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 import { DonutChart } from '../../../components/charts/donut-chart';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import { getMetricName } from '../helpers/metrics';
 
 
 export const DuplicationsMain = React.createClass({

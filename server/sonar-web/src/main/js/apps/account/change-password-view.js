@@ -10,7 +10,7 @@ export default ModalForm.extend({
     if (this.checkPasswords()) {
       this.sendRequest();
     } else {
-      this.showErrors([{ msg: t('user.password_doesnt_match_confirmation') }]);
+      this.showErrors([{ msg: window.t('user.password_doesnt_match_confirmation') }]);
     }
   },
 

@@ -1,5 +1,4 @@
-import ModalForm from 'components/common/modal-form';
-import './templates';
+import ModalForm from '../../components/common/modal-form';
 
 export default ModalForm.extend({
 
@@ -19,5 +18,3 @@ export default ModalForm.extend({
   }
 
 });
-
-

@@ -15,15 +15,19 @@ Handlebars.registerHelper('exporterUrl', function (profile, exporterKey) {
 });
 
 Handlebars.registerHelper('severityChangelog', function (severity) {
-  var label = '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + t('severity', severity),
-      message = tp('quality_profiles.severity_set_to_x', label);
+  var label = '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + window.t('severity', severity),
+      message = window.tp('quality_profiles.severity_set_to_x', label);
   return new Handlebars.SafeString(message);
 });
 
 Handlebars.registerHelper('parameterChangelog', function (value, parameter) {
   if (parameter) {
-    return new Handlebars.SafeString(tp('quality_profiles.parameter_set_to_x', value, parameter));
+    return new Handlebars.SafeString(
+      window.tp('quality_profiles.parameter_set_to_x', value, parameter)
+    );
   } else {
-    return new Handlebars.SafeString(tp('quality_profiles.changelog.parameter_reset_to_default_value_x', parameter));
+    return new Handlebars.SafeString(
+      window.tp('quality_profiles.changelog.parameter_reset_to_default_value_x', parameter)
+    );
   }
 });

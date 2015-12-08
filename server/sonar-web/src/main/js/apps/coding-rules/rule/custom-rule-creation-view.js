@@ -153,7 +153,7 @@ export default ModalFormView.extend({
     }).fail(function (jqXHR) {
       if (jqXHR.status === 409) {
         that.existingRule = jqXHR.responseJSON.rule;
-        that.showErrors([], [{ msg: t('coding_rules.reactivate.help') }]);
+        that.showErrors([], [{ msg: window.t('coding_rules.reactivate.help') }]);
         that.ui.customRuleCreationCreate.addClass('hidden');
         that.ui.customRuleCreationReactivate.removeClass('hidden');
       } else {
@@ -175,7 +175,7 @@ export default ModalFormView.extend({
     var statuses = ['READY', 'BETA', 'DEPRECATED'].map(function (status) {
       return {
         id: status,
-        text: t('rules.status', status.toLowerCase())
+        text: window.t('rules.status', status.toLowerCase())
       };
     });
 

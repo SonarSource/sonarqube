@@ -30,7 +30,7 @@ export default BaseFacet.extend({
 
   forbid: function () {
     BaseFacet.prototype.forbid.apply(this, arguments);
-    this.$el.prop('title', t('coding_rules.filters.inheritance.inactive'));
+    this.$el.prop('title', window.t('coding_rules.filters.inheritance.inactive'));
   },
 
   allow: function () {
@@ -42,7 +42,7 @@ export default BaseFacet.extend({
     var values = ['NONE', 'INHERITED', 'OVERRIDES'];
     return values.map(function (key) {
       return {
-        label: t('coding_rules.filters.inheritance', key.toLowerCase()),
+        label: window.t('coding_rules.filters.inheritance', key.toLowerCase()),
         val: key
       };
     });

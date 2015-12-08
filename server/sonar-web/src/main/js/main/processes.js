@@ -30,7 +30,7 @@ var Process = Backbone.Model.extend({
 
       fail: function (message) {
         var that = this,
-            msg = message || t('process.fail');
+            msg = message || window.t('process.fail');
         if (msg === 'process.fail') {
           // no translation
           msg = 'An error happened, some parts of the page might not render correctly. ' +

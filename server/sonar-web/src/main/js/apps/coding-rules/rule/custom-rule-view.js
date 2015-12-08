@@ -19,8 +19,8 @@ export default Marionette.ItemView.extend({
   deleteRule: function () {
     var that = this;
     confirmDialog({
-      title: t('delete'),
-      html: t('are_you_sure'),
+      title: window.t('delete'),
+      html: window.t('are_you_sure'),
       yesHandler: function () {
         var url = baseUrl + '/api/rules/delete',
             options = { key: that.model.id };

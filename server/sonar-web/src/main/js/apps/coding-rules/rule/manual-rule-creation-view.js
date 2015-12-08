@@ -99,7 +99,7 @@ export default ModalFormView.extend({
     }).fail(function (jqXHR) {
       if (jqXHR.status === 409) {
         that.existingRule = jqXHR.responseJSON.rule;
-        that.showErrors([], [{ msg: t('coding_rules.reactivate.help') }]);
+        that.showErrors([], [{ msg: window.t('coding_rules.reactivate.help') }]);
         that.ui.manualRuleCreationCreate.addClass('hidden');
         that.ui.manualRuleCreationReactivate.removeClass('hidden');
       } else {

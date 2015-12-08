@@ -64,7 +64,7 @@
 
   TagCloud.prototype.tooltip = function (d) {
     var suffixKey = d.value === 1 ? 'issue' : 'issues',
-        suffix = t(suffixKey);
+        suffix = window.t(suffixKey);
     return (d.value + '\u00a0') + suffix;
   };
 

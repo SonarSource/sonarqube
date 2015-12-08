@@ -130,8 +130,8 @@ export default Marionette.LayoutView.extend({
     var that = this,
         ruleType = this.model.has('templateKey') ? 'custom' : 'manual';
     confirmDialog({
-      title: t('delete'),
-      html: tp('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
+      title: window.t('delete'),
+      html: window.tp('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
       yesHandler: function () {
         var url = baseUrl + '/api/rules/delete',
             options = { key: that.model.id };

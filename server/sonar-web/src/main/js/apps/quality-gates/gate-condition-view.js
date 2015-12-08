@@ -90,11 +90,9 @@ export default Marionette.ItemView.extend({
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canEdit: this.options.canEdit,
       periods: this.options.periods,
-      periodText: period ? period.text : t('value'),
+      periodText: period ? period.text : window.t('value'),
       metric: this.getMetric(),
       isDiffMetric: this.isDiffMetric()
     });
   }
 });
-
-

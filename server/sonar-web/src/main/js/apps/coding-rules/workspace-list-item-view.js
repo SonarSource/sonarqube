@@ -62,8 +62,8 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
         ruleKey = this.model.get('key'),
         activation = this.model.get('activation');
     confirmDialog({
-      title: t('coding_rules.deactivate'),
-      html: tp('coding_rules.deactivate.confirm'),
+      title: window.t('coding_rules.deactivate'),
+      html: window.tp('coding_rules.deactivate.confirm'),
       yesHandler: function () {
         return $.ajax({
           type: 'POST',
