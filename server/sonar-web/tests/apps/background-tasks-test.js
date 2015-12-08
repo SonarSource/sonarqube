@@ -49,7 +49,7 @@ describe('Background Tasks', function () {
 
     it('should not render search form', () => {
       let spy = sinon.spy();
-      let component = TestUtils.renderIntoDocument(<Search options={{ componentId: 'ABCD' }}
+      let component = TestUtils.renderIntoDocument(<Search options={{ component: { id: 'ABCD' } }}
                                                            onStatusChange={spy}
                                                            onCurrentsChange={spy}
                                                            onDateChange={spy}/>),

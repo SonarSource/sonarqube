@@ -93,7 +93,7 @@ export default React.createClass({
   },
 
   renderFilter(task) {
-    if (this.props.options.component) {
+    if (this.props.options && this.props.options.component) {
       return null;
     }
     return <td className="thin nowrap">

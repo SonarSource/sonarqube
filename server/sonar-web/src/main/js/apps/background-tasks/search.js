@@ -94,7 +94,7 @@ export default React.createClass({
   },
 
   renderSearchBox() {
-    if (this.props.options.component) {
+    if (this.props.options && this.props.options.component) {
       // do not render search form on the project-level page
       return null;
     }
