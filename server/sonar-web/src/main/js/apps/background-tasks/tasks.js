@@ -93,6 +93,9 @@ export default React.createClass({
   },
 
   renderFilter(task) {
+    if (this.props.options.component) {
+      return null;
+    }
     return <td className="thin nowrap">
       <a onClick={this.handleFilter.bind(this, task)} className="icon-filter icon-half-transparent spacer-left" href="#"
          title={`Show only "${task.componentName}" tasks`} data-toggle="tooltip"/>

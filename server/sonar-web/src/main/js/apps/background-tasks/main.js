@@ -201,9 +201,10 @@ export default React.createClass({
               onDateChange={this.onDateChange}
               onSearch={this.onSearch}/>
 
-          <Tasks tasks={[].concat(this.state.queue, this.state.activity)}
-                 onTaskCanceled={this.onTaskCanceled}
-                 onFilter={this.handleFilter}/>
+          <Tasks {...this.props}
+              tasks={[].concat(this.state.queue, this.state.activity)}
+              onTaskCanceled={this.onTaskCanceled}
+              onFilter={this.handleFilter}/>
 
           <ListFooter count={this.state.queue.length + this.state.activity.length}
                       total={this.state.queue.length + this.state.activityTotal}
