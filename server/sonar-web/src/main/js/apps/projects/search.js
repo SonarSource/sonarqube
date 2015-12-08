@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React from 'react';
-import {TYPE, QUALIFIERS_ORDER} from './constants';
+import { TYPE, QUALIFIERS_ORDER } from './constants';
 import DeleteView from './delete-view';
 import RadioToggle from '../../components/shared/radio-toggle';
 import Checkbox from '../../components/shared/checkbox';
@@ -39,11 +39,11 @@ export default React.createClass({
 
   renderCheckbox() {
     let isAllChecked = this.props.projects.length > 0 &&
-            this.props.selection.length === this.props.projects.length,
-        thirdState = this.props.projects.length > 0 &&
+            this.props.selection.length === this.props.projects.length;
+    let thirdState = this.props.projects.length > 0 &&
             this.props.selection.length > 0 &&
-            this.props.selection.length < this.props.projects.length,
-        isChecked = isAllChecked || thirdState;
+            this.props.selection.length < this.props.projects.length;
+    let isChecked = isAllChecked || thirdState;
     return <Checkbox onCheck={this.onCheck} initiallyChecked={isChecked} thirdState={thirdState}/>;
   },
 

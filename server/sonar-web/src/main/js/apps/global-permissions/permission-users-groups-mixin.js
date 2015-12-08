@@ -11,7 +11,8 @@ export default {
 
   renderNotDisplayed() {
     const notDisplayedCount = this.props.total - this.props.max;
-    return notDisplayedCount > 0 ? <span className="note spacer-right" href="#">and {notDisplayedCount} more</span> : null;
+    return notDisplayedCount > 0 ?
+        <span className="note spacer-right" href="#">and {notDisplayedCount} more</span> : null;
   },
 
   renderItems() {

@@ -26,5 +26,3 @@ export default BaseFacet.extend({
   }
 
 });
-
-

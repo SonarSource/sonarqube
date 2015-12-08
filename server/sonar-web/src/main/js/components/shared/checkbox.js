@@ -4,7 +4,7 @@ export default React.createClass({
   propTypes: {
     onCheck: React.PropTypes.func.isRequired,
     initiallyChecked: React.PropTypes.bool,
-    thirdState:  React.PropTypes.bool
+    thirdState: React.PropTypes.bool
   },
 
   getInitialState() {

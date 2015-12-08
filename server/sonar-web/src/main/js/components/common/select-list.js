@@ -139,6 +139,7 @@ var SelectListItemView = Backbone.View.extend({
 
 var SelectListView = Backbone.View.extend({
   template: function (l) {
+    /* eslint max-len: 0 */
     return '<div class="select-list-container">' +
         '<div class="select-list-control">' +
         '<div class="select-list-check-control">' +
@@ -449,5 +450,3 @@ window.SelectList.defaults = {
 
   errorMessage: 'Something gone wrong, try to reload the page and try again.'
 };
-
-

@@ -114,5 +114,3 @@ export default ModalFormView.extend({
     });
   }
 });
-
-

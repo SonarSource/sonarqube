@@ -15,8 +15,8 @@ export default class App {
     let options = window.sonarqube;
 
     return new Promise((resolve) => {
-      let response = {},
-          requests = [];
+      let response = {};
+      let requests = [];
 
       requests.push(
           App.renderGlobalNav(options).then(r => response.global = r)

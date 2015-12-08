@@ -8,5 +8,3 @@ export default Marionette.ItemView.extend({
     'change': 'render'
   }
 });
-
-

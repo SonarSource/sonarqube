@@ -2,7 +2,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-custom-rule-creation.hbs';
-import {csvEscape} from '../../../helpers/csv';
+import { csvEscape } from '../../../helpers/csv';
 import latinize from '../../../helpers/latinize';
 
 export default ModalFormView.extend({
@@ -187,5 +187,3 @@ export default ModalFormView.extend({
     });
   }
 });
-
-

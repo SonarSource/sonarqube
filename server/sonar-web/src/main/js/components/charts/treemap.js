@@ -123,8 +123,8 @@ export const Treemap = React.createClass({
         .filter(d => !d.children)
         .filter(d => !!d.dx && !!d.dy);
 
-    let prefix = mostCommitPrefix(this.props.items.map(item => item.label)),
-        prefixLength = prefix.length;
+    let prefix = mostCommitPrefix(this.props.items.map(item => item.label));
+    let prefixLength = prefix.length;
 
     let rectangles = nodes.map((node, index) => {
       let label = prefixLength ? `${prefix}<br>${node.label.substr(prefixLength)}` : node.label;

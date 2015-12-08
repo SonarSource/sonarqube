@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import ModalForm from '../../components/common/modal-form';
-import {applyTemplateToProject} from '../../api/permissions';
+import { applyTemplateToProject } from '../../api/permissions';
 import Template from './templates/project-permissions-apply-template.hbs';
 
 export default ModalForm.extend({

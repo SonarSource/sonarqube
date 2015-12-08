@@ -18,5 +18,3 @@ export default Marionette.CollectionView.extend({
     this.render();
   }
 });
-
-

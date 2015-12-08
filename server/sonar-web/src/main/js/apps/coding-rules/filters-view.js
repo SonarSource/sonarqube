@@ -20,5 +20,3 @@ export default Marionette.ItemView.extend({
     return _.extend(this._super(), { canWrite: this.options.app.canWrite });
   }
 });
-
-

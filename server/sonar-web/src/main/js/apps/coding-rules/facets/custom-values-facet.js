@@ -65,5 +65,3 @@ export default BaseFacet.extend({
     this.options.app.state.updateFilter(obj);
   }
 });
-
-

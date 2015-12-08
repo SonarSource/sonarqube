@@ -6,7 +6,7 @@ import PermissionTemplate from './permission-template';
 
 
 export default React.createClass({
-  propTypes:{
+  propTypes: {
     permissionTemplates: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     topQualifiers: React.PropTypes.array.isRequired,

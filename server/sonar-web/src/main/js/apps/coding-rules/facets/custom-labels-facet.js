@@ -23,5 +23,3 @@ export default BaseFacet.extend({
     });
   }
 });
-
-

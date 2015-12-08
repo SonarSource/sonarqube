@@ -50,7 +50,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           that.widget.options(that.options());
           that.widget.metrics(response.metrics);
           that.widget.components(response.components);
-          if(typeof that.widget.parseSource === 'function') {
+          if (typeof that.widget.parseSource === 'function') {
             that.widget.parseSource(response);
           }
           if (typeof that.widget.maxResultsReached === 'function') {

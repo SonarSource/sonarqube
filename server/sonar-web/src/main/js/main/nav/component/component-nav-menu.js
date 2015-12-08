@@ -59,8 +59,8 @@ export default React.createClass({
   },
 
   isCustomDashboardActive(customDashboard) {
-    let path = window.location.pathname,
-        params = qs.parse(window.location.search.substr(1));
+    let path = window.location.pathname;
+    let params = qs.parse(window.location.search.substr(1));
     return path.indexOf(`${window.baseUrl}/dashboard`) === 0 && params['did'] === `${customDashboard.key}`;
   },
 
@@ -161,9 +161,9 @@ export default React.createClass({
       return null;
     }
     let isSettingsActive = SETTINGS_URLS.some(url => {
-          return window.location.href.indexOf(url) !== -1;
-        }),
-        className = 'dropdown' + (isSettingsActive ? ' active' : '');
+      return window.location.href.indexOf(url) !== -1;
+    });
+    let className = 'dropdown' + (isSettingsActive ? ' active' : '');
     return (
         <li className={className}>
           <a className="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">

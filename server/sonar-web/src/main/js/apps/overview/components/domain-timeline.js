@@ -68,8 +68,8 @@ export const DomainTimeline = React.createClass({
   },
 
   handleMetricChange (selected) {
-    let newMetric = selected.value,
-        comparisonMetric = this.state.comparisonMetric;
+    let newMetric = selected.value;
+    let comparisonMetric = this.state.comparisonMetric;
     if (newMetric === comparisonMetric) {
       comparisonMetric = '';
     }

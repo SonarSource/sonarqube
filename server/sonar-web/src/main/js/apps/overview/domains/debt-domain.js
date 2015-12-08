@@ -11,7 +11,10 @@ import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
 import { CHART_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
-import { AddedRemovedMeasure, AddedRemovedDebt, OnNewCodeMeasure, SeverityMeasure } from './../components/issue-measure';
+import { AddedRemovedMeasure,
+         AddedRemovedDebt,
+         OnNewCodeMeasure,
+         SeverityMeasure } from './../components/issue-measure';
 import { IssuesTags } from './../components/issues-tags';
 import Assignees from './../components/issues-assignees';
 import { getFacet, extractAssignees } from '../../../api/issues';

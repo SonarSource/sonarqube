@@ -1,5 +1,5 @@
 import FormView from './form-view';
-import {updatePermissionTemplate} from '../../api/permissions';
+import { updatePermissionTemplate } from '../../api/permissions';
 
 export default FormView.extend({
   sendRequest: function () {

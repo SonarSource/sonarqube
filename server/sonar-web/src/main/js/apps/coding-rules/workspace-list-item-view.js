@@ -87,5 +87,3 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     });
   }
 });
-
-

@@ -39,10 +39,10 @@ export default React.createClass({
 
   onDateChange(newDate) {
     if (newDate === DATE.CUSTOM) {
-      let minDateRaw = this.refs.minDate.value,
-          maxDateRaw = this.refs.maxDate.value,
-          minDate = moment(minDateRaw, DATE_FORMAT, true),
-          maxDate = moment(maxDateRaw, DATE_FORMAT, true);
+      let minDateRaw = this.refs.minDate.value;
+      let maxDateRaw = this.refs.maxDate.value;
+      let minDate = moment(minDateRaw, DATE_FORMAT, true);
+      let maxDate = moment(maxDateRaw, DATE_FORMAT, true);
       this.props.onDateChange(newDate,
           minDate.isValid() ? minDate : null,
           maxDate.isValid() ? maxDate : null);
@@ -69,8 +69,8 @@ export default React.createClass({
   },
 
   renderCustomDateInput() {
-    let shouldBeVisible = this.props.dateFilter === DATE.CUSTOM,
-        className = shouldBeVisible ? 'spacer-top' : 'spacer-top hidden';
+    let shouldBeVisible = this.props.dateFilter === DATE.CUSTOM;
+    let className = shouldBeVisible ? 'spacer-top' : 'spacer-top hidden';
     return (
         <div className={className}>
           from&nbsp;
@@ -87,8 +87,8 @@ export default React.createClass({
   },
 
   onSearch() {
-    let searchInput = this.refs.searchInput,
-        query = searchInput.value;
+    let searchInput = this.refs.searchInput;
+    let query = searchInput.value;
     this.props.onSearch(query);
   },
 

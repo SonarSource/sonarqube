@@ -38,8 +38,8 @@ export const DonutChart = React.createClass({
     let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    let size = Math.min(availableWidth, availableHeight),
-        radius = Math.floor(size / 2);
+    let size = Math.min(availableWidth, availableHeight);
+    let radius = Math.floor(size / 2);
 
     let pie = d3.layout.pie()
         .sort(null)

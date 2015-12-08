@@ -26,9 +26,9 @@ export default React.createClass({
       return this.props.component.qualifier === 'TRK' ? <GateEmpty/> : null;
     }
 
-    let level = this.props.gate.level.toLowerCase(),
-        badgeClassName = 'badge badge-' + level,
-        badgeText = window.t('overview.gate', this.props.gate.level);
+    let level = this.props.gate.level.toLowerCase();
+    let badgeClassName = 'badge badge-' + level;
+    let badgeText = window.t('overview.gate', this.props.gate.level);
 
     return (
         <div className="overview-gate">

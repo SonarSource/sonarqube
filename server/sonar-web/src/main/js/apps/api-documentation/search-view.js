@@ -32,5 +32,3 @@ export default Marionette.ItemView.extend({
     this.options.state.set({ query: query });
   }
 });
-
-

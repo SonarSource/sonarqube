@@ -3,8 +3,8 @@ import React from 'react';
 import Header from './header';
 import Search from './search';
 import Projects from './projects';
-import {PAGE_SIZE, TYPE} from './constants';
-import {getComponents, getProvisioned, getGhosts, deleteComponents} from '../../api/components';
+import { PAGE_SIZE, TYPE } from './constants';
+import { getComponents, getProvisioned, getGhosts, deleteComponents } from '../../api/components';
 import ListFooter from '../../components/shared/list-footer';
 
 export default React.createClass({

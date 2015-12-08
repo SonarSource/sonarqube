@@ -49,5 +49,3 @@ export default Marionette.ItemView.extend({
     this.$el.toggleClass('hidden', this.shouldBeHidden());
   }
 });
-
-

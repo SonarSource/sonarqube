@@ -54,8 +54,8 @@ export class DomainTreemap extends React.Component {
       ${formatMeasure(component.measures[this.props.sizeMetric], this.state.sizeMetric.type)}`
     ];
     if (this.state.colorMetric) {
-      let measure = component.measures[this.props.colorMetric],
-          formatted = measure != null ? formatMeasure(measure, this.state.colorMetric.type) : '—';
+      let measure = component.measures[this.props.colorMetric];
+      let formatted = measure != null ? formatMeasure(measure, this.state.colorMetric.type) : '—';
       inner.push(`${this.state.colorMetric.name}: ${formatted}`);
     }
     inner = inner.join('<br>');

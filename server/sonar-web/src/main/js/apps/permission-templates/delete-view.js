@@ -1,5 +1,5 @@
 import ModalForm from '../../components/common/modal-form';
-import {deletePermissionTemplate} from '../../api/permissions';
+import { deletePermissionTemplate } from '../../api/permissions';
 import Template from './templates/permission-templates-delete.hbs';
 
 export default ModalForm.extend({

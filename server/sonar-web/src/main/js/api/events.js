@@ -8,8 +8,8 @@ import { getJSON } from '../helpers/request.js';
  * @returns {Promise}
  */
 export function getEvents (componentKey, categories) {
-  let url = baseUrl + '/api/events';
-  let data = { resource: componentKey };
+  const url = baseUrl + '/api/events';
+  const data = { resource: componentKey };
   if (categories) {
     data.categories = categories;
   }

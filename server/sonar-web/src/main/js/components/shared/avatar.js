@@ -18,7 +18,7 @@ export default React.createClass({
             .replace('{SIZE}', this.props.size * 2);
     return <img className="rounded"
                 src={url}
-                width={this.props.size} 
+                width={this.props.size}
                 height={this.props.size}
                 alt={this.props.email}/>;
   }

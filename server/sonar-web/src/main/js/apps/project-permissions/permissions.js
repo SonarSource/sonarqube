@@ -6,7 +6,7 @@ import Project from './project';
 
 
 export default React.createClass({
-  propTypes:{
+  propTypes: {
     projects: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     permissionTemplates: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,

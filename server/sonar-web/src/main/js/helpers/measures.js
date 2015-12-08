@@ -169,8 +169,8 @@ function millisecondsFormatter (value) {
 }
 
 function millisecondsVariationFormatter (value) {
-  let absValue = Math.abs(value),
-      formattedValue = millisecondsFormatter(absValue);
+  let absValue = Math.abs(value);
+  let formattedValue = millisecondsFormatter(absValue);
   return value < 0 ? `-${formattedValue}` : `+${formattedValue}`;
 }
 

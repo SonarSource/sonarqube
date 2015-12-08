@@ -94,8 +94,8 @@ export const CoverageMain = React.createClass({
         .domain([0, 25, 50, 75, 100])
         .range(CHART_REVERSED_COLORS_RANGE_PERCENT);
 
-    let coverageMetric = this.state.coverageMetricPrefix + 'coverage',
-        uncoveredLinesMetric = this.state.coverageMetricPrefix + 'uncovered_lines';
+    let coverageMetric = this.state.coverageMetricPrefix + 'coverage';
+    let uncoveredLinesMetric = this.state.coverageMetricPrefix + 'uncovered_lines';
 
     if (this.state.measures[coverageMetric] == null) {
       return this.renderEmpty();

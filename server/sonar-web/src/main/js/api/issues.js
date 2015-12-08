@@ -4,8 +4,8 @@ import { getJSON } from '../helpers/request.js';
 
 
 export function getFacets (query, facets) {
-  let url = baseUrl + '/api/issues/search';
-  let data = _.extend({}, query, { facets: facets.join(), ps: 1, additionalFields: '_all' });
+  const url = baseUrl + '/api/issues/search';
+  const data = _.extend({}, query, { facets: facets.join(), ps: 1, additionalFields: '_all' });
   return getJSON(url, data).then(r => {
     return { facets: r.facets, response: r };
   });
@@ -31,7 +31,7 @@ export function getTags (query) {
 
 export function extractAssignees (facet, response) {
   return facet.map(item => {
-    let user = _.findWhere(response.users, { login: item.val });
+    const user = _.findWhere(response.users, { login: item.val });
     return _.extend(item, { user });
   });
 }
@@ -43,8 +43,8 @@ export function getAssignees (query) {
 
 
 export function getIssuesCount (query) {
-  let url = baseUrl + '/api/issues/search';
-  let data = _.extend({}, query, { ps: 1, facetMode: 'debt' });
+  const url = baseUrl + '/api/issues/search';
+  const data = _.extend({}, query, { ps: 1, facetMode: 'debt' });
   return getJSON(url, data).then(r => {
     return { issues: r.total, debt: r.debtTotal };
   });

@@ -19,6 +19,3 @@ export default State.extend({
     }
   }
 });
-
-
-

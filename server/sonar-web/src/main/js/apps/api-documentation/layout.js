@@ -20,5 +20,3 @@ export default Marionette.LayoutView.extend({
     this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
   }
 });
-
-

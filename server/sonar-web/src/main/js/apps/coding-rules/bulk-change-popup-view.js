@@ -35,5 +35,3 @@ export default PopupView.extend({
     };
   }
 });
-
-

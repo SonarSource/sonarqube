@@ -4,9 +4,9 @@ import PendingIcon from '../../../components/shared/pending-icon';
 
 export default React.createClass({
   render() {
-    let metaList = [],
-        canSeeBackgroundTasks = this.props.conf.showBackgroundTasks,
-        backgroundTasksUrl = `${baseUrl}/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
+    let metaList = [];
+    let canSeeBackgroundTasks = this.props.conf.showBackgroundTasks;
+    let backgroundTasksUrl = `${baseUrl}/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
 
     if (this.props.isInProgress) {
       let tooltip = canSeeBackgroundTasks ?
@@ -14,7 +14,9 @@ export default React.createClass({
           window.t('component_navigation.status.in_progress');
       metaList.push(
           <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
-            <i className="spinner" style={{ marginTop: '-1px' }}/> <span className="text-info">{window.t('background_task.status.IN_PROGRESS')}</span>
+            <i className="spinner" style={{ marginTop: '-1px' }}/>
+            {' '}
+            <span className="text-info">{window.t('background_task.status.IN_PROGRESS')}</span>
           </li>
       );
     } else if (this.props.isPending) {

@@ -17,8 +17,8 @@ export default Backbone.Model.extend({
         this.fetchProfileRules(),
         this.fetchInheritance()
     ).done(function () {
-          that.set(that.fetchChanged);
-        });
+      that.set(that.fetchChanged);
+    });
   },
 
   fetchProfileRules: function () {
@@ -114,5 +114,3 @@ export default Backbone.Model.extend({
     this.unset('comparison');
   }
 });
-
-

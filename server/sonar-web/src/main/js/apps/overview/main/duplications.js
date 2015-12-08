@@ -1,6 +1,13 @@
 import React from 'react';
 
-import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, MeasuresList, Measure, DomainMixin } from './components';
+import { Domain,
+         DomainHeader,
+         DomainPanel,
+         DomainNutshell,
+         DomainLeak,
+         MeasuresList,
+         Measure,
+         DomainMixin } from './components';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { DonutChart } from '../../../components/charts/donut-chart';
@@ -20,8 +27,8 @@ export const GeneralDuplications = React.createClass({
     if (!this.hasLeakPeriod()) {
       return null;
     }
-    let measure = this.props.leak['duplicated_lines_density'],
-        formatted = measure != null ? formatMeasureVariation(measure, 'PERCENT') : '—';
+    let measure = this.props.leak['duplicated_lines_density'];
+    let formatted = measure != null ? formatMeasureVariation(measure, 'PERCENT') : '—';
     return <DomainLeak>
       <MeasuresList>
         <Measure label={getMetricName('duplications')}>

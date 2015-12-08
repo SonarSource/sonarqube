@@ -1,6 +1,13 @@
 import React from 'react';
 
-import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, MeasuresList, Measure, DomainMixin } from './components';
+import { Domain,
+         DomainHeader,
+         DomainPanel,
+         DomainNutshell,
+         DomainLeak,
+         MeasuresList,
+         Measure,
+         DomainMixin } from './components';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { DonutChart } from '../../../components/charts/donut-chart';

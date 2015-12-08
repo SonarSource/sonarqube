@@ -52,8 +52,8 @@ export default Modal.extend({
 
   onRevokeTokenFormSubmit(e) {
     e.preventDefault();
-    let tokenName = $(e.currentTarget).data('token'),
-        token = _.findWhere(this.tokens, { name: `${tokenName}` });
+    let tokenName = $(e.currentTarget).data('token');
+    let token = _.findWhere(this.tokens, { name: `${tokenName}` });
     if (token) {
       if (token.deleting) {
         revokeToken(this.model.id, tokenName).then(this.requestTokens.bind(this));

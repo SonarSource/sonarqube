@@ -73,6 +73,7 @@ export class DomainBubbleChart extends React.Component {
     let sizeMetricsTitle = this.getSizeMetricsTitle();
     let sizeMetricsType = this.state.sizeMetrics[0].type;
 
+    /* eslint max-len: 0 */
     let inner = [
       component.name,
       `${this.state.xMetric.name}: ${formatMeasure(getMeasure(component, this.props.xMetric), this.state.xMetric.type)}`,

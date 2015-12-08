@@ -9,8 +9,8 @@ export default React.createClass({
       return <ItemLogLevel value={this.props.value}/>;
     }
 
-    let rawValue = this.props.value,
-        formattedValue;
+    let rawValue = this.props.value;
+    let formattedValue;
     switch (typeof this.props.value) {
       case 'boolean':
         formattedValue = <ItemBoolean value={rawValue}/>;

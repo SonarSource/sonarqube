@@ -5,5 +5,3 @@ export default BaseFacet.extend({
   className: 'search-navigator-facet-box',
   template: Template
 });
-
-

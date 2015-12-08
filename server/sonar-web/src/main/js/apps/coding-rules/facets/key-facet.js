@@ -19,5 +19,3 @@ export default BaseFacet.extend({
     });
   }
 });
-
-

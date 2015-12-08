@@ -3,7 +3,7 @@ import React from 'react';
 
 
 export default React.createClass({
-  propTypes:{
+  propTypes: {
     count: React.PropTypes.number.isRequired,
     total: React.PropTypes.number.isRequired,
     loadMore: React.PropTypes.func.isRequired

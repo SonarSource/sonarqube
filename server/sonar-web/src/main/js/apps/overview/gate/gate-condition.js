@@ -18,12 +18,12 @@ const Measure = React.createClass({
 
 export default React.createClass({
   render() {
-    let metricName = window.t('metric', this.props.condition.metric.name, 'name'),
-        threshold = this.props.condition.level === 'ERROR' ?
-                    this.props.condition.error : this.props.condition.warning,
-        period = this.props.condition.period ?
-                 getPeriodLabel(this.props.component.periods, this.props.condition.period) : null,
-        periodDate = getPeriodDate(this.props.component.periods, this.props.condition.period);
+    let metricName = window.t('metric', this.props.condition.metric.name, 'name');
+    let threshold = this.props.condition.level === 'ERROR' ?
+                    this.props.condition.error : this.props.condition.warning;
+    let period = this.props.condition.period ?
+                 getPeriodLabel(this.props.component.periods, this.props.condition.period) : null;
+    let periodDate = getPeriodDate(this.props.component.periods, this.props.condition.period);
 
     let classes = 'alert_' + this.props.condition.level.toUpperCase();
 
@@ -43,7 +43,11 @@ export default React.createClass({
 
             <div className="overview-gate-condition-metric">
               <div>{metricName}</div>
-              <div>{window.t('quality_gates.operator', this.props.condition.op, 'short')} <Measure value={threshold} type={this.props.condition.metric.type}/></div>
+              <div>
+                {window.t('quality_gates.operator', this.props.condition.op, 'short')}
+                {' '}
+                <Measure value={threshold} type={this.props.condition.metric.type}/>
+              </div>
             </div>
           </div>
         </li>

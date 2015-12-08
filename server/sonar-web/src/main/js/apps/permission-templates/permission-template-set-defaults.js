@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React from 'react';
-import {setDefaultPermissionTemplate} from '../../api/permissions';
+import { setDefaultPermissionTemplate } from '../../api/permissions';
 import QualifierIcon from '../../components/shared/qualifier-icon';
 
 export default React.createClass({

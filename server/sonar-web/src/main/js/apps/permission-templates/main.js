@@ -2,7 +2,7 @@ import _ from 'underscore';
 import React from 'react';
 import Header from './header';
 import PermissionTemplates from './permission-templates';
-import {getPermissionTemplates} from '../../api/permissions';
+import { getPermissionTemplates } from '../../api/permissions';
 
 const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin'];
 

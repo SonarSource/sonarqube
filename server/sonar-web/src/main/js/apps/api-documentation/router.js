@@ -13,5 +13,3 @@ export default Backbone.Router.extend({
     this.app.controller.show(path);
   }
 });
-
-

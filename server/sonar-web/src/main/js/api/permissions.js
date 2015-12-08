@@ -15,7 +15,7 @@ function typeError (method, message) {
 
 
 export function getUsers (data) {
-  let url = buildUrl('/api/permissions/users');
+  const url = buildUrl('/api/permissions/users');
   return request({ type: 'GET', url: url, data: data });
 }
 
@@ -28,8 +28,8 @@ export function grantToUser (permission, user, project) {
     return typeError('grantToUser', 'please provide user login');
   }
 
-  let url = buildUrl('/api/permissions/add_user');
-  let data = { permission: permission, login: user };
+  const url = buildUrl('/api/permissions/add_user');
+  const data = { permission: permission, login: user };
   if (project) {
     data.projectId = project;
   }
@@ -45,8 +45,8 @@ export function revokeFromUser (permission, user, project) {
     return typeError('revokeFromUser', 'please provide user login');
   }
 
-  let url = buildUrl('/api/permissions/remove_user');
-  let data = { permission: permission, login: user };
+  const url = buildUrl('/api/permissions/remove_user');
+  const data = { permission: permission, login: user };
   if (project) {
     data.projectId = project;
   }
@@ -55,7 +55,7 @@ export function revokeFromUser (permission, user, project) {
 
 
 export function getGroups (data) {
-  let url = buildUrl('/api/permissions/groups');
+  const url = buildUrl('/api/permissions/groups');
   return request({ type: 'GET', url: url, data: data });
 }
 
@@ -68,8 +68,8 @@ export function grantToGroup (permission, group, project) {
     return typeError('grantToGroup', 'please provide group name');
   }
 
-  let url = buildUrl('/api/permissions/add_group');
-  let data = { permission: permission, groupName: group };
+  const url = buildUrl('/api/permissions/add_group');
+  const data = { permission: permission, groupName: group };
   if (project) {
     data.projectId = project;
   }
@@ -85,8 +85,8 @@ export function revokeFromGroup (permission, group, project) {
     return typeError('revokeFromGroup', 'please provide group name');
   }
 
-  let url = buildUrl('/api/permissions/remove_group');
-  let data = { permission: permission, groupName: group };
+  const url = buildUrl('/api/permissions/remove_group');
+  const data = { permission: permission, groupName: group };
   if (project) {
     data.projectId = project;
   }
@@ -95,8 +95,8 @@ export function revokeFromGroup (permission, group, project) {
 
 
 export function getPermissionTemplates (query) {
-  let url = buildUrl('/api/permissions/search_templates');
-  let data = { };
+  const url = buildUrl('/api/permissions/search_templates');
+  const data = { };
   if (query) {
     data.q = query;
   }
@@ -105,18 +105,18 @@ export function getPermissionTemplates (query) {
 
 
 export function createPermissionTemplate (options) {
-  let url = buildUrl('/api/permissions/create_template');
+  const url = buildUrl('/api/permissions/create_template');
   return request(_.extend({ type: 'POST', url: url }, options));
 }
 
 export function updatePermissionTemplate (options) {
-  let url = buildUrl('/api/permissions/update_template');
+  const url = buildUrl('/api/permissions/update_template');
   return request(_.extend({ type: 'POST', url: url }, options));
 }
 
 
 export function deletePermissionTemplate (options) {
-  let url = buildUrl('/api/permissions/delete_template');
+  const url = buildUrl('/api/permissions/delete_template');
   return request(_.extend({ type: 'POST', url: url }, options));
 }
 
@@ -126,13 +126,13 @@ export function setDefaultPermissionTemplate (template, qualifier) {
     return typeError('setDefaultPermissionTemplate', 'please provide permission template ID');
   }
 
-  let url = buildUrl('/api/permissions/set_default_template');
-  let data = { templateId: template, qualifier };
+  const url = buildUrl('/api/permissions/set_default_template');
+  const data = { templateId: template, qualifier };
   return request({ type: 'POST', url, data });
 }
 
 
 export function applyTemplateToProject(options) {
-  let url = buildUrl('/api/permissions/apply_template');
+  const url = buildUrl('/api/permissions/apply_template');
   return request(_.extend({ type: 'POST', url: url }, options));
 }

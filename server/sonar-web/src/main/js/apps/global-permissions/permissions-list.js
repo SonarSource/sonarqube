@@ -5,7 +5,7 @@ import Permission from './permission';
 
 
 export default React.createClass({
-  propTypes:{
+  propTypes: {
     permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
   },
 

@@ -6,14 +6,14 @@ import CheckboxTemplate from './templates/issues-issue-checkbox.hbs';
 import FilterTemplate from './templates/issues-issue-filter.hbs';
 
 var SHOULD_NULL = {
-      any: ['issues'],
-      resolutions: ['resolved'],
-      resolved: ['resolutions'],
-      assignees: ['assigned'],
-      assigned: ['assignees'],
-      actionPlans: ['planned'],
-      planned: ['actionPlans']
-    };
+  any: ['issues'],
+  resolutions: ['resolved'],
+  resolved: ['resolutions'],
+  assignees: ['assigned'],
+  assigned: ['assignees'],
+  actionPlans: ['planned'],
+  planned: ['actionPlans']
+};
 
 export default IssueView.extend({
   checkboxTemplate: CheckboxTemplate,
@@ -131,5 +131,3 @@ export default IssueView.extend({
     });
   }
 });
-
-

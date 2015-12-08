@@ -137,8 +137,8 @@ export const Measure = React.createClass({
 
 export const DomainMixin = {
   renderTimelineStartDate() {
-    let momentDate = moment(this.props.historyStartDate),
-        fromNow = momentDate.fromNow();
+    let momentDate = moment(this.props.historyStartDate);
+    let fromNow = momentDate.fromNow();
     return <span className="overview-domain-timeline-date">{window.tp('overview.started_x', fromNow)}</span>;
   },
 

@@ -1,6 +1,13 @@
 import React from 'react';
 
-import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, MeasuresList, Measure, DomainMixin } from './components';
+import { Domain,
+         DomainHeader,
+         DomainPanel,
+         DomainNutshell,
+         DomainLeak,
+         MeasuresList,
+         Measure,
+         DomainMixin } from './components';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { getMetricName } from '../helpers/metrics';
@@ -20,8 +27,8 @@ export const GeneralSize = React.createClass({
     if (!this.hasLeakPeriod()) {
       return null;
     }
-    let measure = this.props.leak['ncloc'],
-        formatted = measure != null ? formatMeasureVariation(measure, 'SHORT_INT') : '—';
+    let measure = this.props.leak['ncloc'];
+    let formatted = measure != null ? formatMeasureVariation(measure, 'SHORT_INT') : '—';
     return <DomainLeak>
       <MeasuresList>
         <Measure label={getMetricName('ncloc')}>{formatted}</Measure>

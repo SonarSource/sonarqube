@@ -1,7 +1,14 @@
 import moment from 'moment';
 import React from 'react';
 
-import { Domain, DomainHeader, DomainPanel, DomainNutshell, DomainLeak, MeasuresList, Measure, DomainMixin } from './components';
+import { Domain,
+         DomainHeader,
+         DomainPanel,
+         DomainNutshell,
+         DomainLeak,
+         MeasuresList,
+         Measure,
+         DomainMixin } from './components';
 import { Rating } from './../../../components/shared/rating';
 import { IssuesLink } from '../../../components/shared/issues-link';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';

@@ -168,11 +168,11 @@ export default React.createClass({
 
   showFailures() {
     this.setState({
-          statusFilter: STATUSES.FAILED,
-          currentsFilter: CURRENTS.ONLY_CURRENTS,
-          activityPage: 1
-        },
-        this.requestActivity);
+      statusFilter: STATUSES.FAILED,
+      currentsFilter: CURRENTS.ONLY_CURRENTS,
+      activityPage: 1
+    },
+    this.requestActivity);
   },
 
   onTaskCanceled(task) {

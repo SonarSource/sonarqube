@@ -25,5 +25,3 @@ export default CustomValuesFacet.extend({
   }
 
 });
-
-

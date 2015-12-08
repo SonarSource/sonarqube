@@ -3,7 +3,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-profile-activation.hbs';
-import {csvEscape} from '../../../helpers/csv';
+import { csvEscape } from '../../../helpers/csv';
 
 export default ModalForm.extend({
   template: Template,
@@ -139,5 +139,3 @@ export default ModalForm.extend({
     });
   }
 });
-
-
