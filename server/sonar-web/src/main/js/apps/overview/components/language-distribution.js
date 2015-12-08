@@ -46,7 +46,7 @@ export const LanguageDistribution = React.createClass({
                       yValues={yValues}
                       height={data.length * 25}
                       barsWidth={10}
-                      padding={[0, 50, 0, 80]}/>;
+                      padding={[0, 60, 0, 80]}/>;
   },
 
   render () {
