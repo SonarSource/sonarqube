@@ -120,16 +120,18 @@ export class DomainBubbleChart extends React.Component {
       <div className="overview-card-header">
         <h2 className="overview-title">{window.t('overview.chart.files')}</h2>
         <ul className="list-inline small">
-          <li>Size: {this.getSizeMetricsTitle()}</li>
+          <li>
+            {window.tp('overview.chart.legend.size_x', this.getSizeMetricsTitle())}
+          </li>
         </ul>
       </div>
       <div className="overview-bubble-chart">
         <div className="note" style={{ position: 'relative', top: '10px', left: '10px' }}>
-          Y: {this.state.yMetric.name}
+          {this.state.yMetric.name}
         </div>
         {this.renderBubbleChart()}
         <div className="note text-right" style={{ position: 'relative', top: '-10px', left: '-10px' }}>
-          X: {this.state.xMetric.name}
+          {this.state.xMetric.name}
         </div>
         {this.state.total > BUBBLES_LIMIT &&
         <div className="note text-center">{window.tp('overview.chart.files.limit_message', BUBBLES_LIMIT)}</div>}

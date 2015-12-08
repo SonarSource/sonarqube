@@ -122,12 +122,15 @@ export class DomainTreemap extends React.Component {
   }
 
   render () {
-    let color = this.props.colorMetric ? <li>Color: {this.state.colorMetric.name}</li> : null;
+    let color = this.props.colorMetric ?
+        <li>{window.tp('overview.chart.legend.color_x', this.state.colorMetric.name)}</li> : null;
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
         <h2 className="overview-title">{window.t('overview.chart.components')}</h2>
         <ul className="list-inline small">
-          <li>Size: {this.state.sizeMetric.name}</li>
+          <li>
+            {window.tp('overview.chart.legend.size_x', this.state.sizeMetric.name)}
+          </li>
           {color}
         </ul>
       </div>
