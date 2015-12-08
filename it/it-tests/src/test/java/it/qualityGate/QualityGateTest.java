@@ -8,7 +8,14 @@ package it.qualityGate;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import it.Category1Suite;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Properties;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.project.NewProject;
@@ -18,23 +25,37 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
 public class QualityGateTest {
 
   private static final String PROJECT_KEY = "sample";
 
-  private long provisionnedProjectId = -1L;
+  private long provisionedProjectId = -1L;
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  static WsClient wsClient;
+
+  @BeforeClass
+  public static void startOrchestrator() {
+    wsClient = newAdminWsClient(orchestrator);
+  }
 
   @Before
   public void cleanUp() {
     orchestrator.resetData();
-    provisionnedProjectId = Long.parseLong(orchestrator.getServer().adminWsClient().projectClient().create(NewProject.create().key(PROJECT_KEY).name("Sample")).id());
+    provisionedProjectId = Long.parseLong(orchestrator.getServer().adminWsClient().projectClient().create(NewProject.create().key(PROJECT_KEY).name("Sample")).id());
   }
 
   @Test
@@ -121,7 +142,7 @@ public class QualityGateTest {
     qgClient().createCondition(NewCondition.create(error.id()).metricKey("ncloc").operator("GT").errorThreshold("10"));
 
     qgClient().setDefault(alert.id());
-    qgClient().selectProject(error.id(), provisionnedProjectId);
+    qgClient().selectProject(error.id(), provisionedProjectId);
 
     try {
       SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
@@ -157,6 +178,54 @@ public class QualityGateTest {
       qgClient().unsetDefault();
       qgClient().destroy(allTypes.id());
     }
+  }
+
+  @Test
+  public void ad_hoc_build_break_strategy() throws IOException {
+    QualityGate simple = qgClient().create("SimpleWithLowThresholdForBuildBreakStrategy");
+    qgClient().setDefault(simple.id());
+    qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").errorThreshold("7"));
+
+    try {
+      File projectDir = projectDir("qualitygate/xoo-sample");
+      SonarRunner build = SonarRunner.create(projectDir);
+      orchestrator.executeBuild(build);
+
+      String taskId = getTaskIdInLocalReport(projectDir);
+      String analysisId = getAnalysisId(taskId);
+
+      ProjectStatusWsResponse projectStatusWsResponse = wsClient.qualityGates().projectStatus(new ProjectStatusWsRequest().setAnalysisId(analysisId));
+      ProjectStatusWsResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
+      assertThat(projectStatus.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.ERROR);
+      assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
+      ProjectStatusWsResponse.Condition condition = projectStatus.getConditionsList().get(0);
+      assertThat(condition.getMetricKey()).isEqualTo("ncloc");
+      assertThat(condition.getErrorThreshold()).isEqualTo("7");
+    } finally {
+      qgClient().unsetDefault();
+      qgClient().destroy(simple.id());
+    }
+  }
+
+  private String getAnalysisId(String taskId) throws IOException {
+    WsResponse activity = wsClient
+      .wsConnector()
+      .call(new GetRequest("api/ce/task")
+        .setParam("id", taskId)
+        .setMediaType(MediaTypes.PROTOBUF));
+    WsCe.TaskResponse activityWsResponse = WsCe.TaskResponse.parseFrom(activity.contentStream());
+    return activityWsResponse.getTask().getAnalysisId();
+  }
+
+  private String getTaskIdInLocalReport(File projectDirectory) throws IOException {
+    File metadata = new File(projectDirectory, ".sonar/report-task.txt");
+    assertThat(metadata).exists().isFile();
+    // verify properties
+    Properties props = new Properties();
+    props.load(new StringReader(FileUtils.readFileToString(metadata, StandardCharsets.UTF_8)));
+    assertThat(props.getProperty("ceTaskId")).isNotEmpty();
+
+    return props.getProperty("ceTaskId");
   }
 
   private Measure fetchGateStatus() {
