@@ -6,7 +6,12 @@ export default React.createClass({
   propTypes: {
     count: React.PropTypes.number.isRequired,
     total: React.PropTypes.number.isRequired,
-    loadMore: React.PropTypes.func
+    loadMore: React.PropTypes.func,
+    ready: React.PropTypes.bool
+  },
+
+  getDefaultProps() {
+    return { ready: true };
   },
 
   canLoadMore() {
