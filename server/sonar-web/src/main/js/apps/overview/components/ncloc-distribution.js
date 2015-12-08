@@ -82,6 +82,7 @@ export const NclocDistribution = React.createClass({
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
         <h2 className="overview-title">{window.t('overview.chart.components')}</h2>
+        <span className="small">Size: Lines of Code</span>
       </div>
       <div className="overview-bar-chart">
         {this.renderBarChart()}
