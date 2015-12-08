@@ -23,7 +23,7 @@ export default Marionette.LayoutView.extend({
   template: Template,
   issueLocationTemplate: IssueLocationTemplate,
 
-  ISSUES_LIMIT: 500,
+  ISSUES_LIMIT: 3000,
   LINES_LIMIT: 1000,
   TOTAL_LINES_LIMIT: 3000,
   LINES_AROUND: 500,
