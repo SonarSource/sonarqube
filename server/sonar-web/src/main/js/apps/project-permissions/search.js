@@ -38,7 +38,11 @@ export default React.createClass({
             <button className="search-box-submit button-clean">
               <i className="icon-search"></i>
             </button>
-            <input onChange={this.search} ref="input" className="search-box-input" type="search" placeholder="Search"/>
+            <input onChange={this.search}
+                   ref="input"
+                   className="search-box-input"
+                   type="search"
+                   placeholder="Search"/>
           </form>
         </div>
     );

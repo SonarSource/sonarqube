@@ -10,11 +10,11 @@ import { TooltipsMixin } from '../../components/mixins/tooltips-mixin';
 
 
 export default React.createClass({
-  mixins: [TooltipsMixin],
-
   propTypes: {
     tasks: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
   },
+
+  mixins: [TooltipsMixin],
 
   onTaskCanceled (task, e) {
     e.preventDefault();

@@ -12,12 +12,12 @@ import { formatMeasure } from '../../../helpers/measures';
 
 
 export const GeneralIssues = React.createClass({
-  mixins: [TooltipsMixin, DomainMixin],
-
   propTypes: {
     leakPeriodLabel: React.PropTypes.string,
     leakPeriodDate: React.PropTypes.object
   },
+
+  mixins: [TooltipsMixin, DomainMixin],
 
   renderLeak () {
     if (!this.hasLeakPeriod()) {

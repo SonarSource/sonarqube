@@ -64,7 +64,10 @@ export default React.createClass({
     if (this.props.failuresCount > 0) {
       return (
           <span>
-            <a ref="failureCount" onClick={this.onFailuresClick} className="emphasised-measure" data-toggle="tooltip"
+            <a ref="failureCount"
+               onClick={this.onFailuresClick}
+               className="emphasised-measure"
+               data-toggle="tooltip"
                title="Count of projects where processing of most recent analysis report failed"
                href="#">{this.props.failuresCount}</a>
             &nbsp;

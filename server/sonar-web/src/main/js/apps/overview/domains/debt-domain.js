@@ -109,7 +109,10 @@ export const IssuesMain = React.createClass({
         .filter(metric => KNOWN_METRICS.indexOf(metric.key) === -1)
         .filter(metric => this.state.measures[metric.key] != null)
         .map(metric => {
-          return <DetailedMeasure key={metric.key} {...this.props} {...this.state} metric={metric.key}
+          return <DetailedMeasure key={metric.key}
+                                  {...this.props}
+                                  {...this.state}
+                                  metric={metric.key}
                                   type={metric.type}/>;
         });
     if (!metrics.length) {

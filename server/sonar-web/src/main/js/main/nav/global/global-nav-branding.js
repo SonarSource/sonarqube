@@ -6,7 +6,11 @@ export default React.createClass({
         width = this.props.logoWidth || 100,
         height = 30,
         title = window.t('layout.sonar.slogan');
-    return <img src={url} width={width} height={height} alt={title} title={title}/>;
+    return <img src={url}
+                width={width}
+                height={height}
+                alt={title} 
+                title={title}/>;
   },
 
   render() {

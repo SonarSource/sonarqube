@@ -48,7 +48,7 @@ export const TreemapRect = React.createClass({
     return <a onClick={e => e.stopPropagation()}
               className="treemap-link"
               href={this.props.link}
-              style={{ fontSize: 12 }}><i className="icon-link"/></a>;
+              style={{ fontSize: 12 }}><span className="icon-link"/></a>;
   },
 
   render () {
@@ -70,7 +70,10 @@ export const TreemapRect = React.createClass({
       cursor: typeof this.props.onClick === 'function' ? 'pointer' : 'default'
     };
     let isTextVisible = this.props.width >= 40 && this.props.height >= 40;
-    return <div className="treemap-cell" {...tooltipAttrs} style={cellStyles} onClick={this.props.onClick}>
+    return <div className="treemap-cell"
+                {...tooltipAttrs}
+                style={cellStyles}
+                onClick={this.props.onClick}>
       <div className="treemap-inner" dangerouslySetInnerHTML={{ __html: this.props.label }}
            style={{ maxWidth: this.props.width, visibility: isTextVisible ? 'visible': 'hidden' }}/>
       {this.renderLink()}
@@ -80,13 +83,13 @@ export const TreemapRect = React.createClass({
 
 
 export const Treemap = React.createClass({
-  mixins: [ResizeMixin, TooltipsMixin],
-
   propTypes: {
     items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     height: React.PropTypes.number,
     onRectangleClick: React.PropTypes.func
   },
+
+  mixins: [ResizeMixin, TooltipsMixin],
 
   getInitialState() {
     return { width: this.props.width, height: this.props.height };

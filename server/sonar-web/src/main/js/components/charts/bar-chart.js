@@ -5,8 +5,6 @@ import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 export const BarChart = React.createClass({
-  mixins: [ResizeMixin, TooltipsMixin],
-
   propTypes: {
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     xTicks: React.PropTypes.arrayOf(React.PropTypes.any),
@@ -15,6 +13,8 @@ export const BarChart = React.createClass({
     padding: React.PropTypes.arrayOf(React.PropTypes.number),
     barsWidth: React.PropTypes.number
   },
+
+  mixins: [ResizeMixin, TooltipsMixin],
 
   getDefaultProps() {
     return {
@@ -43,7 +43,12 @@ export const BarChart = React.createClass({
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
       }
-      return <text key={index} className="bar-chart-tick" x={x} y={y} dy="1.5em" {...tooltipAtts}>{tick}</text>;
+      return <text key={index}
+                   className="bar-chart-tick"
+                   x={x}
+                   y={y}
+                   dy="1.5em"
+                   {...tooltipAtts}>{tick}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -62,7 +67,12 @@ export const BarChart = React.createClass({
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
       }
-      return <text key={index} className="bar-chart-tick" x={x} y={y} dy="-1em" {...tooltipAtts}>{value}</text>;
+      return <text key={index}
+                   className="bar-chart-tick"
+                   x={x}
+                   y={y}
+                   dy="-1em"
+                   {...tooltipAtts}>{value}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -78,8 +88,13 @@ export const BarChart = React.createClass({
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
       }
-      return <rect key={index} className="bar-chart-bar" {...tooltipAtts}
-                   x={x} y={y} width={this.props.barsWidth} height={height}/>;
+      return <rect key={index}
+                   className="bar-chart-bar"
+                   {...tooltipAtts}
+                   x={x}
+                   y={y}
+                   width={this.props.barsWidth}
+                   height={height}/>;
     });
     return <g>{bars}</g>;
   },

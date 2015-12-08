@@ -105,8 +105,12 @@ export default React.createClass({
                   <button className="search-box-submit button-clean">
                     <i className="icon-search"></i>
                   </button>
-                  <input onChange={this.search} value={this.props.query} ref="input" className="search-box-input"
-                         type="search" placeholder="Search"/>
+                  <input onChange={this.search}
+                         value={this.props.query}
+                         ref="input"
+                         className="search-box-input"
+                         type="search"
+                         placeholder="Search"/>
                 </form>
               </td>
               <td className="thin text-middle">

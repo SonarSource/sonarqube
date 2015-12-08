@@ -84,7 +84,10 @@ export const DuplicationsMain = React.createClass({
     let metrics = filterMetricsForDomains(this.props.metrics, ['Duplication'])
         .filter(metric => metric.key !== 'duplicated_lines_density')
         .map(metric => {
-          return <DetailedMeasure key={metric.key} {...this.props} {...this.state} metric={metric.key}
+          return <DetailedMeasure key={metric.key}
+                                  {...this.props}
+                                  {...this.state}
+                                  metric={metric.key}
                                   type={metric.type}/>;
         });
     return <div>{metrics}</div>;
@@ -97,7 +100,10 @@ export const DuplicationsMain = React.createClass({
       { value: duplications, fill: '#f3ca8e' },
       { value: Math.max(0, 20 - duplications), fill: '#e6e6e6' }
     ];
-    return <DonutChart width="30" height="30" thickness="4" data={donutData}/>;
+    return <DonutChart width="30"
+                       height="30"
+                       thickness="4"
+                       data={donutData}/>;
   },
 
   renderDuplicationsLeak() {

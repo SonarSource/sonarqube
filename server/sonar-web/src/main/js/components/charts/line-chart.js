@@ -6,8 +6,6 @@ import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 
 export const LineChart = React.createClass({
-  mixins: [ResizeMixin, TooltipsMixin],
-
   propTypes: {
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     xTicks: React.PropTypes.arrayOf(React.PropTypes.any),
@@ -20,6 +18,8 @@ export const LineChart = React.createClass({
     height: React.PropTypes.number,
     interpolate: React.PropTypes.string
   },
+
+  mixins: [ResizeMixin, TooltipsMixin],
 
   getDefaultProps() {
     return {
@@ -63,7 +63,11 @@ export const LineChart = React.createClass({
     let points = this.props.data.map((point, index) => {
       let x = xScale(point.x);
       let y = yScale(point.y);
-      return <circle key={index} className="line-chart-point" r="3" cx={x} cy={y}/>;
+      return <circle key={index}
+                     className="line-chart-point"
+                     r="3"
+                     cx={x}
+                     cy={y}/>;
     });
     return <g>{points}</g>;
   },
@@ -76,7 +80,12 @@ export const LineChart = React.createClass({
       let x = xScale(point.x);
       let y1 = yScale.range()[0];
       let y2 = yScale(point.y);
-      return <line key={index} className="line-chart-grid" x1={x} x2={x} y1={y1} y2={y2}/>;
+      return <line key={index}
+                   className="line-chart-grid"
+                   x1={x}
+                   x2={x}
+                   y1={y1}
+                   y2={y2}/>;
     });
     return <g>{lines}</g>;
   },
@@ -89,7 +98,11 @@ export const LineChart = React.createClass({
       let point = this.props.data[index];
       let x = xScale(point.x);
       let y = yScale.range()[0];
-      return <text key={index} className="line-chart-tick" x={x} y={y} dy="1.5em">{tick}</text>;
+      return <text key={index}
+                   className="line-chart-tick"
+                   x={x}
+                   y={y}
+                   dy="1.5em">{tick}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -102,18 +115,22 @@ export const LineChart = React.createClass({
       let point = this.props.data[index];
       let x = xScale(point.x);
       let y = yScale(point.y);
-      return <text key={index} className="line-chart-tick" x={x} y={y} dy="-1em">{value}</text>;
+      return <text key={index}
+                   className="line-chart-tick"
+                   x={x}
+                   y={y}
+                   dy="-1em">{value}</text>;
     });
     return <g>{ticks}</g>;
   },
 
   renderLine (xScale, yScale) {
-    let path = d3.svg.line()
+    let p = d3.svg.line()
                  .x(d => xScale(d.x))
                  .y(d => yScale(d.y))
                  .interpolate(this.props.interpolate);
 
-    return <path className="line-chart-path" d={path(this.props.data)}/>;
+    return <path className="line-chart-path" d={p(this.props.data)}/>;
   },
 
   render () {

@@ -5,11 +5,11 @@ import RadioToggle from '../../components/shared/radio-toggle';
 import { STATUSES, CURRENTS, DATE, DATE_FORMAT } from './constants';
 
 export default React.createClass({
-  componentDidUpdate() {
+  componentDidMount() {
     this.attachDatePicker();
   },
 
-  componentDidMount() {
+  componentDidUpdate() {
     this.attachDatePicker();
   },
 
@@ -102,8 +102,12 @@ export default React.createClass({
           <button className="search-box-submit button-clean">
             <i className="icon-search"></i>
           </button>
-          <input onChange={this.onSearch} value={this.props.searchQuery} ref="searchInput" className="search-box-input"
-                 type="search" placeholder="Search"/>
+          <input onChange={this.onSearch}
+                 value={this.props.searchQuery}
+                 ref="searchInput"
+                 className="search-box-input"
+                 type="search"
+                 placeholder="Search"/>
         </form>
     );
   },

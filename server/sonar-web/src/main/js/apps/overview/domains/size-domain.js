@@ -71,7 +71,10 @@ export const SizeMain = React.createClass({
     let metrics = filterMetricsForDomains(this.props.metrics, [domain])
         .filter(metric => hiddenMetrics.indexOf(metric.key) === -1)
         .map(metric => {
-          return <DetailedMeasure key={metric.key} {...this.props} {...this.state} metric={metric.key}
+          return <DetailedMeasure key={metric.key}
+                                  {...this.props}
+                                  {...this.state}
+                                  metric={metric.key}
                                   type={metric.type}/>;
         });
     return <div>{metrics}</div>;
@@ -112,16 +115,28 @@ export const SizeMain = React.createClass({
 
     return <div className="overview-detailed-layout-column">
       <div className="overview-detailed-measures-list">
-        <DetailedMeasure {...this.props} {...this.state} metric="complexity" type="INT"/>
-        <DetailedMeasure {...this.props} {...this.state} metric="function_complexity" type="FLOAT">
+        <DetailedMeasure {...this.props}
+                         {...this.state}
+                         metric="complexity"
+                         type="INT"/>
+        <DetailedMeasure {...this.props}
+                         {...this.state}
+                         metric="function_complexity"
+                         type="FLOAT">
           {this.renderComplexityDistribution(this.state.measures['function_complexity_distribution'],
               { of: 'function' })}
         </DetailedMeasure>
-        <DetailedMeasure {...this.props} {...this.state} metric="file_complexity" type="FLOAT">
+        <DetailedMeasure {...this.props}
+                         {...this.state}
+                         metric="file_complexity"
+                         type="FLOAT">
           {this.renderComplexityDistribution(this.state.measures['file_complexity_distribution'],
               { of: 'file' })}
         </DetailedMeasure>
-        <DetailedMeasure {...this.props} {...this.state} metric="class_complexity" type="FLOAT"/>
+        <DetailedMeasure {...this.props}
+                         {...this.state}
+                         metric="class_complexity"
+                         type="FLOAT"/>
         {this.renderOtherComplexityMeasures()}
       </div>
     </div>;
@@ -141,7 +156,10 @@ export const SizeMain = React.createClass({
         <div className="overview-detailed-layout-size">
           <div className="overview-detailed-layout-column">
             <div className="overview-detailed-measures-list">
-              <DetailedMeasure {...this.props} {...this.state} metric="ncloc" type="INT">
+              <DetailedMeasure {...this.props}
+                               {...this.state}
+                               metric="ncloc"
+                               type="INT">
                 {this.renderLanguageDistribution()}
               </DetailedMeasure>
               {this.renderOtherSizeMeasures()}

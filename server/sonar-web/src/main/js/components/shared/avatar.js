@@ -16,6 +16,10 @@ export default React.createClass({
     const url = ('' + window.SS.lf.gravatarServerUrl)
             .replace('{EMAIL_MD5}', emailHash)
             .replace('{SIZE}', this.props.size * 2);
-    return <img className="rounded" src={url} width={this.props.size} height={this.props.size} alt={this.props.email}/>;
+    return <img className="rounded"
+                src={url}
+                width={this.props.size} 
+                height={this.props.size}
+                alt={this.props.email}/>;
   }
 });

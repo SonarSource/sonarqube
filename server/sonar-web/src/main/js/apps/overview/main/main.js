@@ -36,11 +36,11 @@ const HISTORY_METRICS_LIST = [
 
 
 export default React.createClass({
-  mixins: [CoverageSelectionMixin],
-
   propTypes: {
     leakPeriodIndex: React.PropTypes.string.isRequired
   },
+
+  mixins: [CoverageSelectionMixin],
 
   getInitialState() {
     return {

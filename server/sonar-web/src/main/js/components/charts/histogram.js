@@ -5,8 +5,6 @@ import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
 export const Histogram = React.createClass({
-  mixins: [ResizeMixin, TooltipsMixin],
-
   propTypes: {
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     yTicks: React.PropTypes.arrayOf(React.PropTypes.any),
@@ -17,6 +15,8 @@ export const Histogram = React.createClass({
     barsHeight: React.PropTypes.number,
     onBarClick: React.PropTypes.func
   },
+
+  mixins: [ResizeMixin, TooltipsMixin],
 
   getDefaultProps() {
     return {

@@ -9,12 +9,12 @@ import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures
 
 
 export const GeneralDuplications = React.createClass({
-  mixins: [TooltipsMixin, DomainMixin],
-
   propTypes: {
     leakPeriodLabel: React.PropTypes.string,
     leakPeriodDate: React.PropTypes.object
   },
+
+  mixins: [TooltipsMixin, DomainMixin],
 
   renderLeak () {
     if (!this.hasLeakPeriod()) {
@@ -59,7 +59,10 @@ export const GeneralDuplications = React.createClass({
 
             <Measure composite={true}>
               <div className="display-inline-block text-middle big-spacer-right">
-                <DonutChart width="40" height="40" thickness="4" data={donutData}/>
+                <DonutChart width="40"
+                            height="40"
+                            thickness="4"
+                            data={donutData}/>
               </div>
               <div className="display-inline-block text-middle">
                 <div className="overview-domain-measure-value">

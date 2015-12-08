@@ -54,7 +54,10 @@ export const CoverageMeasuresList = React.createClass({
     }
 
     metrics = metrics.map(metric => {
-      return <DetailedMeasure key={metric.key} {...this.props} {...this.props} metric={metric.key}
+      return <DetailedMeasure key={metric.key}
+                              {...this.props} 
+                              {...this.props}
+                              metric={metric.key}
                               type={metric.type}/>;
     });
     return <div className="overview-detailed-measures-list">{metrics}</div>;

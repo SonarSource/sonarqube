@@ -26,12 +26,12 @@ export const Word = React.createClass({
 
 
 export const WordCloud = React.createClass({
-  mixins: [TooltipsMixin],
-
   propTypes: {
     items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     sizeRange: React.PropTypes.arrayOf(React.PropTypes.number)
   },
+
+  mixins: [TooltipsMixin],
 
   getDefaultProps() {
     return {

@@ -22,8 +22,13 @@ export default React.createClass({
     let htmlId = this.props.name + '__' + option.value;
     return (
         <li key={option.value}>
-          <input onChange={this.onChange} type="radio" name={this.props.name} value={option.value} id={htmlId}
-                 checked={checked} disabled={this.props.disabled}/>
+          <input onChange={this.onChange}
+                 type="radio"
+                 name={this.props.name}
+                 value={option.value}
+                 id={htmlId}
+                 checked={checked}
+                 disabled={this.props.disabled}/>
           <label htmlFor={htmlId}>{option.label}</label>
         </li>
     );

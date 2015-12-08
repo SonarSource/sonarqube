@@ -16,11 +16,11 @@ const Sector = React.createClass({
 
 
 export const DonutChart = React.createClass({
-  mixins: [ResizeMixin, TooltipsMixin],
-
   propTypes: {
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
   },
+
+  mixins: [ResizeMixin, TooltipsMixin],
 
   getDefaultProps() {
     return { thickness: 6, padding: [0, 0, 0, 0] };
@@ -45,7 +45,11 @@ export const DonutChart = React.createClass({
         .sort(null)
         .value(d => d.value);
     let sectors = pie(this.props.data).map((d, i) => {
-      return <Sector key={i} data={d} radius={radius} fill={this.props.data[i].fill} thickness={this.props.thickness}/>;
+      return <Sector key={i}
+                     data={d}
+                     radius={radius}
+                     fill={this.props.data[i].fill}
+                     thickness={this.props.thickness}/>;
     });
 
     return <svg className="donut-chart" width={this.state.width} height={this.state.height}>

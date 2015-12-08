@@ -9,14 +9,14 @@ import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 
 
 export const Timeline = React.createClass({
-  mixins: [ResizeMixin, TooltipsMixin],
-
   propTypes: {
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     padding: React.PropTypes.arrayOf(React.PropTypes.number),
     height: React.PropTypes.number,
     interpolate: React.PropTypes.string
   },
+
+  mixins: [ResizeMixin, TooltipsMixin],
 
   getDefaultProps() {
     return {
@@ -93,7 +93,11 @@ export const Timeline = React.createClass({
       let nextTick = index + 1 < ticks.length ? ticks[index + 1] : xScale.domain()[1];
       let x = (xScale(tick) + xScale(nextTick)) / 2;
       let y = yScale.range()[0];
-      return <text key={index} className="line-chart-tick" x={x} y={y} dy="1.5em">{format(tick)}</text>;
+      return <text key={index}
+                   className="line-chart-tick"
+                   x={x}
+                   y={y}
+                   dy="1.5em">{format(tick)}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -113,11 +117,11 @@ export const Timeline = React.createClass({
   },
 
   renderLine (xScale, yScale) {
-    let path = d3.svg.line()
+    let p = d3.svg.line()
         .x(d => xScale(d.x))
         .y(d => yScale(d.y))
         .interpolate(this.props.interpolate);
-    return <path className="line-chart-path" d={path(this.props.data)}/>;
+    return <path className="line-chart-path" d={p(this.props.data)}/>;
   },
 
   renderEvents(xScale, yScale) {

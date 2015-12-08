@@ -5,8 +5,6 @@ import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 
 
 export const Event = React.createClass({
-  mixins: [TooltipsMixin],
-
   propTypes: {
     event: React.PropTypes.shape({
       id: React.PropTypes.string.isRequired,
@@ -16,6 +14,8 @@ export const Event = React.createClass({
       text: React.PropTypes.string
     })
   },
+
+  mixins: [TooltipsMixin],
 
   render () {
     const { event } = this.props;
