@@ -69,7 +69,7 @@ public class SearchAction implements MetricsWsAction {
       .setSince("5.2")
       .setDescription("Search for metrics")
       .setResponseExample(getClass().getResource("example-search.json"))
-      .addPagingParams(100,500)
+      .addPagingParams(100)
       .addFieldsParam(MetricJsonWriter.OPTIONAL_FIELDS)
       .setHandler(this);
 

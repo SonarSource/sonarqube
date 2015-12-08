@@ -40,18 +40,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDao;
-import org.sonar.db.component.SnapshotTesting;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDto;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.db.measure.custom.CustomMeasureDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -62,7 +62,6 @@ import org.sonar.server.ws.WsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class SearchActionTest {
 
@@ -281,16 +280,6 @@ public class SearchActionTest {
     assertThat(response).contains("text-value-1");
   }
 
-  @Test
-  public void fail_when_above_page_size_limit() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-
-    newRequest()
-      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
-      .setParam(WebService.Param.PAGE_SIZE, String.valueOf(MAX_LIMIT + 10))
-      .execute();
-  }
-
   private ComponentDto insertDefaultProject() {
     return insertProject(DEFAULT_PROJECT_UUID, DEFAULT_PROJECT_KEY);
   }
@@ -313,8 +302,7 @@ public class SearchActionTest {
   }
 
   private static MetricDto newCustomMetric(String metricKey) {
-    return newMetricDto().setEnabled(true).setUserManaged(true).setKey(metricKey).setDomain(metricKey + "-domain").setShortName(metricKey + "-name")
-      .setValueType(ValueType.STRING.name());
+    return newMetricDto().setEnabled(true).setUserManaged(true).setKey(metricKey).setDomain(metricKey + "-domain").setShortName(metricKey + "-name").setValueType(ValueType.STRING.name());
   }
 
   private CustomMeasureDto insertCustomMeasure(int id, MetricDto metric) {

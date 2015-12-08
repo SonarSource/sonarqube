@@ -916,6 +916,22 @@ public class IssueIndexTest {
   }
 
   @Test
+  public void search_with_max_limit() {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    List<IssueDoc> issues = newArrayList();
+    for (int i = 0; i < 500; i++) {
+      String key = "ISSUE" + i;
+      issues.add(IssueTesting.newDoc(key, file));
+    }
+    indexIssues(issues.toArray(new IssueDoc[] {}));
+
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule);
+    SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions().setLimit(Integer.MAX_VALUE));
+    assertThat(result.getDocs()).hasSize(SearchOptions.MAX_LIMIT);
+  }
+
+  @Test
   public void sort_by_status() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);

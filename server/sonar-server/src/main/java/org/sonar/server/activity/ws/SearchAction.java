@@ -33,8 +33,6 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
-
 public class SearchAction implements RequestHandler {
 
   public static final String PARAM_TYPE = "type";
@@ -63,7 +61,7 @@ public class SearchAction implements RequestHandler {
       .setDescription("Activity type")
       .setPossibleValues(Activity.Type.values());
 
-    action.addPagingParams(10, MAX_LIMIT);
+    action.addPagingParams(10);
     action.addFieldsParam(docToJsonMapping.supportedFields());
   }
 

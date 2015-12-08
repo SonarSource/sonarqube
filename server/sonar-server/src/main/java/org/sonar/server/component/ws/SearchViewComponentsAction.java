@@ -43,7 +43,6 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class SearchViewComponentsAction implements RequestHandler {
 
@@ -81,7 +80,7 @@ public class SearchViewComponentsAction implements RequestHandler {
       .setDescription("UTF-8 search query")
       .setExampleValue("sonar");
 
-    action.addPagingParams(10, MAX_LIMIT);
+    action.addPagingParams(10);
   }
 
   @Override

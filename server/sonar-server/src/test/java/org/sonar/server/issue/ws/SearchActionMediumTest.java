@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.security.DefaultGroups;
@@ -60,14 +59,12 @@ import org.sonar.server.ws.WsTester;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class SearchActionMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -630,17 +627,6 @@ public class SearchActionMediumTest {
 
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "default_page_size_is_100.json");
-  }
-
-  @Test
-  public void fail_when_page_size_above_limit() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-
-    WsTester.TestRequest request = wsTester
-      .newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(WebService.Param.PAGE_SIZE, String.valueOf(MAX_LIMIT + 10));
-
-    request.execute();
   }
 
   private RuleDto newRule() {
