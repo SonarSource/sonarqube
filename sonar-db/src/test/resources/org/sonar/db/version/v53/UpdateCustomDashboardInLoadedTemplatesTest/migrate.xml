@@ -1,0 +1,9 @@
+<dataset>
+
+  <!-- The kee should be updated to 'Custom' -->
+  <loaded_templates id="1" kee="Dashboard" template_type="DASHBOARD"/>
+
+  <!-- Nothing should be done as it's not a dashboard -->
+  <loaded_templates id="2" kee="Dashboard" template_type="QUALITY_PROFILE"/>
+
+</dataset>
