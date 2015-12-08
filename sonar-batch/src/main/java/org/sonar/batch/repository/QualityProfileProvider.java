@@ -19,21 +19,18 @@
  */
 package org.sonar.batch.repository;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
-
-import org.sonar.api.utils.log.Profiler;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.api.batch.bootstrap.ProjectKey;
-
-import java.util.List;
-
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.rule.ModuleQProfiles;
-import org.picocontainer.injectors.ProviderAdapter;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 public class QualityProfileProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(QualityProfileProvider.class);
@@ -44,7 +41,7 @@ public class QualityProfileProvider extends ProviderAdapter {
     if (this.profiles == null) {
       List<QualityProfile> profileList;
       MutableBoolean fromCache = new MutableBoolean();
-      
+
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       if (mode.isNotAssociated() || !projectRepositories.exists()) {
         profileList = loader.loadDefault(getSonarProfile(props, mode), fromCache);
@@ -61,8 +58,10 @@ public class QualityProfileProvider extends ProviderAdapter {
   @CheckForNull
   private static String getSonarProfile(AnalysisProperties props, DefaultAnalysisMode mode) {
     String profile = null;
-    if (!mode.isIssues()) {
+    if (!mode.isIssues() && props.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
       profile = props.property(ModuleQProfiles.SONAR_PROFILE_PROP);
+      LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
+        + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
     }
     return profile;
   }

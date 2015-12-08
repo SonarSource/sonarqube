@@ -19,31 +19,37 @@
  */
 package org.sonar.batch.repository;
 
-import static org.mockito.Mockito.when;
-
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.api.batch.bootstrap.ProjectKey;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verify;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.sonar.batch.rule.ModuleQProfiles;
-import org.junit.Test;
-import org.sonar.batch.analysis.AnalysisProperties;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Mock;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.bootstrap.ProjectKey;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.rule.ModuleQProfiles;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class QualityProfileProviderTest {
+
+  @Rule
+  public LogTester logTester = new LogTester();
+
   private QualityProfileProvider qualityProfileProvider;
 
   @Mock
@@ -110,12 +116,15 @@ public class QualityProfileProviderTest {
     when(mode.isNotAssociated()).thenReturn(false);
     when(loader.load(eq("project"), eq("custom"), any(MutableBoolean.class))).thenReturn(response);
     when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
+    when(props.properties()).thenReturn(ImmutableMap.of(ModuleQProfiles.SONAR_PROFILE_PROP, "custom"));
 
     ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
     assertResponse(qps);
 
     verify(loader).load(eq("project"), eq("custom"), any(MutableBoolean.class));
     verifyNoMoreInteractions(loader);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
+      + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
   }
 
   @Test
@@ -137,12 +146,15 @@ public class QualityProfileProviderTest {
     when(mode.isNotAssociated()).thenReturn(true);
     when(loader.loadDefault(eq("custom"), any(MutableBoolean.class))).thenReturn(response);
     when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("custom");
+    when(props.properties()).thenReturn(ImmutableMap.of(ModuleQProfiles.SONAR_PROFILE_PROP, "custom"));
 
     ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props, mode);
     assertResponse(qps);
 
     verify(loader).loadDefault(eq("custom"), any(MutableBoolean.class));
     verifyNoMoreInteractions(loader);
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
+      + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
   }
 
   private void assertResponse(ModuleQProfiles qps) {
