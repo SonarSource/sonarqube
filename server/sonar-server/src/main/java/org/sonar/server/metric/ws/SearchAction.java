@@ -35,16 +35,9 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_CUSTOM;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_DESCRIPTION;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_DIRECTION;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_DOMAIN;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_HIDDEN;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_ID;
 import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_KEY;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_NAME;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_QUALITATIVE;
-import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_TYPE;
 
 public class SearchAction implements MetricsWsAction {
 
@@ -69,7 +62,7 @@ public class SearchAction implements MetricsWsAction {
       .setSince("5.2")
       .setDescription("Search for metrics")
       .setResponseExample(getClass().getResource("example-search.json"))
-      .addPagingParams(100)
+      .addPagingParams(100, MAX_LIMIT)
       .addFieldsParam(MetricJsonWriter.OPTIONAL_FIELDS)
       .setHandler(this);
 

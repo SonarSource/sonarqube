@@ -39,6 +39,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class GhostsAction implements ProjectsWsAction {
   public static final String ACTION = "ghosts";
@@ -59,7 +60,7 @@ public class GhostsAction implements ProjectsWsAction {
       .setDescription("List ghost projects.<br /> Requires 'Administer System' permission.")
       .setResponseExample(Resources.getResource(getClass(), "projects-example-ghosts.json"))
       .setSince("5.2")
-      .addPagingParams(100)
+      .addPagingParams(100, MAX_LIMIT)
       .addFieldsParam(POSSIBLE_FIELDS)
       .addSearchQuery("sonar", "names", "keys")
       .setHandler(this);

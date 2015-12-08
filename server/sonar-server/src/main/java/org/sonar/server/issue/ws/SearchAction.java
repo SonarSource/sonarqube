@@ -54,6 +54,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ADDITIONAL_FIELDS;
@@ -119,7 +120,7 @@ public class SearchAction implements IssuesWsAction {
       .setSince("3.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
 
-    action.addPagingParams(100);
+    action.addPagingParams(100, MAX_LIMIT);
     action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(IssueIndex.SUPPORTED_FACETS);

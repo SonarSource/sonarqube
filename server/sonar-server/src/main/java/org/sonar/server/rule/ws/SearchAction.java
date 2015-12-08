@@ -56,6 +56,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
 
+import static org.sonar.server.search.QueryContext.MAX_LIMIT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -97,7 +98,7 @@ public class SearchAction implements RulesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .addPagingParams(100)
+      .addPagingParams(100, MAX_LIMIT)
       .setHandler(this);
 
     Collection<String> possibleFacets = possibleFacets();
