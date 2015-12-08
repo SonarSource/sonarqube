@@ -97,7 +97,7 @@ export const DuplicationsMain = React.createClass({
       { value: duplications, fill: '#f3ca8e' },
       { value: Math.max(0, 20 - duplications), fill: '#e6e6e6' }
     ];
-    return <DonutChart width="30" height="30" thickness="3" data={donutData}/>;
+    return <DonutChart width="30" height="30" thickness="4" data={donutData}/>;
   },
 
   renderDuplicationsLeak() {

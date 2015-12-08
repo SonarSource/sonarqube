@@ -86,7 +86,7 @@ export const GeneralCoverage = React.createClass({
 
             <Measure composite={true}>
               <div className="display-inline-block text-middle big-spacer-right">
-                <DonutChart width="40" height="40" thickness="3" data={donutData}/>
+                <DonutChart width="40" height="40" thickness="4" data={donutData}/>
               </div>
               <div className="display-inline-block text-middle">
                 <div className="overview-domain-measure-value">

@@ -72,7 +72,7 @@ export const CoverageMeasures = React.createClass({
       <div className="overview-detailed-measure-leak">
         <span className="overview-detailed-measure-value">
           <span className="spacer-right">
-            <DonutChart width="30" height="30" thickness="3" data={donutData}/>
+            <DonutChart width="30" height="30" thickness="4" data={donutData}/>
           </span>
           <DrilldownLink component={this.props.component.key}
                          metric={newCoverageMetricName}
@@ -90,7 +90,7 @@ export const CoverageMeasures = React.createClass({
       { value: coverage, fill: '#85bb43' },
       { value: 100 - coverage, fill: '#d4333f' }
     ];
-    return <DonutChart width="30" height="30" thickness="3" data={donutData}/>;
+    return <DonutChart width="30" height="30" thickness="4" data={donutData}/>;
   },
 
   render() {
