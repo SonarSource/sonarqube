@@ -70,10 +70,10 @@ class DefaultBlameOutput implements BlameOutput {
   public synchronized void blameResult(InputFile file, List<BlameLine> lines) {
     Preconditions.checkNotNull(file);
     Preconditions.checkNotNull(lines);
-    Preconditions.checkArgument(allFilesToBlame.contains(file), "It was not expected to blame file " + file.relativePath());
+    Preconditions.checkArgument(allFilesToBlame.contains(file), "It was not expected to blame file %s", file.relativePath());
 
     if (lines.size() != file.lines()) {
-      LOG.debug("Ignoring blame result since provider returned " + lines.size() + " blame lines but file " + file.relativePath() + " has " + file.lines() + " lines");
+      LOG.debug("Ignoring blame result since provider returned {} blame lines but file {} has {} lines", lines.size(), file.relativePath(), file.lines());
       return;
     }
 
@@ -82,8 +82,9 @@ class DefaultBlameOutput implements BlameOutput {
     scmBuilder.setComponentRef(batchComponent.batchId());
     Map<String, Integer> changesetsIdByRevision = new HashMap<>();
 
+    int lineId = 1;
     for (BlameLine line : lines) {
-      validateLine(line);
+      validateLine(line, lineId, file);
       Integer changesetId = changesetsIdByRevision.get(line.revision());
       if (changesetId == null) {
         addChangeset(scmBuilder, line);
@@ -91,6 +92,7 @@ class DefaultBlameOutput implements BlameOutput {
         changesetsIdByRevision.put(line.revision(), changesetId);
       }
       scmBuilder.addChangesetIndexByLine(changesetId);
+      lineId++;
     }
     writer.writeComponentChangesets(scmBuilder.build());
     allFilesToBlame.remove(file);
@@ -98,9 +100,9 @@ class DefaultBlameOutput implements BlameOutput {
     progressReport.message(count + "/" + total + " files analyzed");
   }
 
-  private static void validateLine(BlameLine line) {
-    Preconditions.checkNotNull(line.revision(), "Blame revision cannot be null");
-    Preconditions.checkNotNull(line.date(), "Blame date cannot be null");
+  private static void validateLine(BlameLine line, int lineId, InputFile file) {
+    Preconditions.checkArgument(StringUtils.isNotBlank(line.revision()), "Blame revision is blank for file %s at line %s", file.relativePath(), lineId);
+    Preconditions.checkArgument(line.date() != null, "Blame date is null for file %s at line %s", file.relativePath(), lineId);
   }
 
   private static void addChangeset(Builder scmBuilder, BlameLine line) {
@@ -131,7 +133,7 @@ class DefaultBlameOutput implements BlameOutput {
   private static String removeNonAsciiCharacters(String inputString) {
     return NON_ASCII_CHARS.matcher(inputString).replaceAll("_");
   }
-  
+
   public void finish() {
     progressReport.stop(count + "/" + total + " files analyzed");
     if (!allFilesToBlame.isEmpty()) {

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scm;
 
+import java.util.Arrays;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,11 +32,7 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 
-import java.util.Arrays;
-import java.util.Date;
-
 import static org.mockito.Matchers.any;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,8 +73,8 @@ public class DefaultBlameOutputTest {
   public void shouldFailIfNullDate() {
     InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(1);
 
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Blame date cannot be null");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Blame date is null for file src/main/java/Foo.java at line 1");
 
     new DefaultBlameOutput(null, componentCache, Arrays.<InputFile>asList(file))
       .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
@@ -86,8 +84,8 @@ public class DefaultBlameOutputTest {
   public void shouldFailIfNullRevision() {
     InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(1);
 
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Blame revision cannot be null");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Blame revision is blank for file src/main/java/Foo.java at line 1");
 
     new DefaultBlameOutput(null, componentCache, Arrays.<InputFile>asList(file))
       .blameResult(file, Arrays.asList(new BlameLine().date(new Date()).author("guy")));
