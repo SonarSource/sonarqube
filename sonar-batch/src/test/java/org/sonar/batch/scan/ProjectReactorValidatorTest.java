@@ -21,6 +21,8 @@ package org.sonar.batch.scan;
 
 import static org.mockito.Mockito.when;
 
+import org.sonar.api.utils.MessageException;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,7 +69,7 @@ public class ProjectReactorValidatorTest {
     validator.validate(createProjectReactor("project/key"));
     
     when(mode.isIssues()).thenReturn(false);
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("is not a valid project or module key");
     validator.validate(createProjectReactor("project/key"));
   }
@@ -106,7 +108,7 @@ public class ProjectReactorValidatorTest {
   public void fail_with_invalid_key() {
     ProjectReactor reactor = createProjectReactor("foo$bar");
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("\"foo$bar\" is not a valid project or module key");
     validator.validate(reactor);
   }
@@ -115,7 +117,7 @@ public class ProjectReactorValidatorTest {
   public void fail_with_backslash_in_key() {
     ProjectReactor reactor = createProjectReactor("foo\\bar");
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("\"foo\\bar\" is not a valid project or module key");
     validator.validate(reactor);
   }
@@ -133,7 +135,7 @@ public class ProjectReactorValidatorTest {
   @Test
   public void fail_with_invalid_branch() {
     ProjectReactor reactor = createProjectReactor("foo", "bran#ch");
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("\"bran#ch\" is not a valid branch name");
     validator.validate(reactor);
   }
@@ -141,7 +143,7 @@ public class ProjectReactorValidatorTest {
   @Test
   public void fail_with_colon_in_branch() {
     ProjectReactor reactor = createProjectReactor("foo", "bran:ch");
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("\"bran:ch\" is not a valid branch name");
     validator.validate(reactor);
   }
@@ -150,7 +152,7 @@ public class ProjectReactorValidatorTest {
   public void fail_with_only_digits() {
     ProjectReactor reactor = createProjectReactor("12345");
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("\"12345\" is not a valid project or module key");
     validator.validate(reactor);
   }
@@ -160,7 +162,7 @@ public class ProjectReactorValidatorTest {
     ProjectReactor reactor = createProjectReactor("foo");
     settings.setProperty("sonar.phase", "phase");
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("\"sonar.phase\" is deprecated");
     validator.validate(reactor);
   }

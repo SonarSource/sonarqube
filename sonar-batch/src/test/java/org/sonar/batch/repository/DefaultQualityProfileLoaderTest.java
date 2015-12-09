@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonarqube.ws.QualityProfiles;
+import org.sonar.api.utils.MessageException;
 
+import org.sonarqube.ws.QualityProfiles;
 import com.google.common.io.Resources;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonar.batch.cache.WSLoaderResult;
@@ -77,7 +78,7 @@ public class DefaultQualityProfileLoaderTest {
     InputStream is = createEncodedQP();
     when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, false));
 
-    exception.expect(IllegalStateException.class);
+    exception.expect(MessageException.class);
     exception.expectMessage("No quality profiles");
 
     qpLoader.load("project", null, null);
