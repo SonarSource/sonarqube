@@ -62,7 +62,7 @@ export default React.createClass({
       return null;
     }
 
-    if (this.props.options.component) {
+    if (this.props.options && this.props.options.component) {
       return null;
     }
 
