@@ -52,6 +52,7 @@ import it.measureHistory.HistoryUiTest;
 import it.measureHistory.SincePreviousVersionHistoryTest;
 import it.measureHistory.SinceXDaysHistoryTest;
 import it.measureHistory.TimeMachineTest;
+import it.projectAdministration.BackgroundTasksTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
 import it.projectOverview.ProjectOverviewTest;
@@ -76,6 +77,7 @@ import static util.ItUtils.xooPlugin;
   // project administration
   BulkDeletionTest.class,
   ProjectAdministrationTest.class,
+  BackgroundTasksTest.class,
   // project pages
   ProjectOverviewTest.class,
   // settings

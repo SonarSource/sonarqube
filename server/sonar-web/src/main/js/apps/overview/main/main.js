@@ -2,10 +2,10 @@ import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
 
-import { GeneralIssues } from './issues';
+import { GeneralDebt } from './debt';
 import { GeneralCoverage } from './coverage';
 import { GeneralDuplications } from './duplications';
-import { GeneralSize } from './size';
+import { GeneralStructure } from './structure';
 import { CoverageSelectionMixin } from '../components/coverage-selection-mixin';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { getMeasuresAndVariations } from '../../../api/measures';
@@ -146,11 +146,11 @@ export default React.createClass({
     let props = _.extend({}, this.props, this.state);
 
     return <div className="overview-domains-list">
-      <GeneralIssues {...props} history={this.state.history['sqale_index']}/>
+      <GeneralDebt {...props} history={this.state.history['sqale_index']}/>
       <GeneralCoverage {...props} coverageMetricPrefix={this.state.coverageMetricPrefix}
                                   history={this.state.history[coverageMetric]}/>
       <GeneralDuplications {...props} history={this.state.history['duplicated_lines_density']}/>
-      <GeneralSize {...props} history={this.state.history['ncloc']}/>
+      <GeneralStructure {...props} history={this.state.history['ncloc']}/>
     </div>;
   }
 });

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel="selenium.base" href="http://localhost:49506"/>
+  <title>should_not_display_failing_and_search_and_filter_elements_on_project_level_page</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+  <thead>
+  <tr>
+    <td rowspan="1" colspan="3">should_not_display_failing_and_search_and_filter_elements_on_project_level_page</td>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+	<td>open</td>
+	<td>/sonar/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/sessions/login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/project/background_tasks?id=test-project</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=.background-tasks .badge</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>css=.background-tasks</td>
+	<td>*Another Test Project*</td>
+</tr>
+<tr>
+	<td>assertElementNotPresent</td>
+	<td>css=.search-box</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>css=#content</td>
+	<td>*still failing*</td>
+</tr>
+<tr>
+	<td>assertElementNotPresent</td>
+	<td>css=.icon-filter</td>
+	<td></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

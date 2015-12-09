@@ -15,14 +15,14 @@ export default ModalFormView.extend({
   showSuccessMessage: function (profile, succeeded) {
     var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
         profileName = profileBase != null ? profileBase.name : profile,
-        message = tp('coding_rules.bulk_change.success', profileName, profileBase.language, succeeded);
+        message = window.tp('coding_rules.bulk_change.success', profileName, profileBase.language, succeeded);
     this.ui.messagesContainer.append('<div class="alert alert-success">' + message + '</div>');
   },
 
   showWarnMessage: function (profile, succeeded, failed) {
     var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
         profileName = profileBase != null ? profileBase.name : profile,
-        message = tp('coding_rules.bulk_change.warning', profileName, profileBase.language, succeeded, failed);
+        message = window.tp('coding_rules.bulk_change.warning', profileName, profileBase.language, succeeded, failed);
     this.ui.messagesContainer.append('<div class="alert alert-warning">' + message + '</div>');
   },
 

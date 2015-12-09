@@ -13,10 +13,10 @@ export default CustomValuesFacet.extend({
       minimumInputLength: 0,
       allowClear: false,
       formatNoMatches: function () {
-        return t('select2.noMatches');
+        return window.t('select2.noMatches');
       },
       formatSearching: function () {
-        return t('select2.searching');
+        return window.t('select2.searching');
       },
       width: '100%',
       ajax: {
@@ -50,5 +50,3 @@ export default CustomValuesFacet.extend({
     });
   }
 });
-
-

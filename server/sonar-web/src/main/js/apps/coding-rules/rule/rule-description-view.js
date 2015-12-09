@@ -64,7 +64,7 @@ export default Marionette.ItemView.extend({
   removeExtendedDescription: function () {
     var that = this;
     confirmDialog({
-      html: t('coding_rules.remove_extended_description.confirm'),
+      html: window.t('coding_rules.remove_extended_description.confirm'),
       yesHandler: function () {
         that.ui.extendDescriptionText.val('');
         that.submitExtendDescription();

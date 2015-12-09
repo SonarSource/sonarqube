@@ -61,6 +61,11 @@ export default React.createClass({
     if (this.props.failuresCount == null) {
       return null;
     }
+
+    if (this.props.options.component) {
+      return null;
+    }
+
     if (this.props.failuresCount > 0) {
       return (
           <span>

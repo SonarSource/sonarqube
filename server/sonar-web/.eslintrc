@@ -14,21 +14,17 @@
   },
 
   "globals": {
-    "define": true,
-    "require": true,
-    "numeral": true,
     "key": true,
     "d3": true,
-    "baseUrl": true,
-    "t": true,
-    "tp": true
+    "baseUrl": true
   },
 
   "parser": "babel-eslint",
 
   "plugins": [
     "react",
-    "mocha"
+    "mocha",
+    "import"
   ],
 
   "rules": {
@@ -74,6 +70,12 @@
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 2,
     "react/self-closing-comp": 2,
-    "react/sort-comp": 1
+    "react/sort-comp": 1,
+
+    "import/no-unresolved": 2,
+    "import/named": 2,
+    "import/export": 2,
+    "import/no-duplicates": 2,
+    "import/imports-first": 2
   }
 }

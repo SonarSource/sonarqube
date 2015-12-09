@@ -65,7 +65,12 @@ export const NclocDistribution = React.createClass({
 
     data = _.sortBy(data, d => -d.x);
 
-    let yTicks = data.map(d => collapsePath(d.value, 20));
+    let yTicks = data.map(d => {
+      return {
+        label: collapsePath(d.value, 20),
+        tooltip: d.value
+      };
+    });
 
     let yValues = data.map(d => formatMeasure(d.x, 'SHORT_INT'));
 

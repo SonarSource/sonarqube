@@ -50,8 +50,8 @@ export default Marionette.ItemView.extend({
     var that = this,
         ruleKey = this.options.rule.get('key');
     confirmDialog({
-      title: t('coding_rules.revert_to_parent_definition'),
-      html: tp('coding_rules.revert_to_parent_definition.confirm', this.getParent().name),
+      title: window.t('coding_rules.revert_to_parent_definition'),
+      html: window.tp('coding_rules.revert_to_parent_definition.confirm', this.getParent().name),
       yesHandler: function () {
         return $.ajax({
           type: 'POST',
@@ -72,8 +72,8 @@ export default Marionette.ItemView.extend({
     var that = this,
         ruleKey = this.options.rule.get('key');
     confirmDialog({
-      title: t('coding_rules.deactivate'),
-      html: tp('coding_rules.deactivate.confirm'),
+      title: window.t('coding_rules.deactivate'),
+      html: window.tp('coding_rules.deactivate.confirm'),
       yesHandler: function () {
         return $.ajax({
           type: 'POST',
@@ -137,5 +137,3 @@ export default Marionette.ItemView.extend({
     });
   }
 });
-
-

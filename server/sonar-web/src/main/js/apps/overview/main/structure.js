@@ -15,7 +15,7 @@ import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures
 import { LanguageDistribution } from '../components/language-distribution';
 
 
-export const GeneralSize = React.createClass({
+export const GeneralStructure = React.createClass({
   propTypes: {
     leakPeriodLabel: React.PropTypes.string,
     leakPeriodDate: React.PropTypes.object
@@ -51,9 +51,11 @@ export const GeneralSize = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader component={this.props.component} title={window.t('overview.domain.size')} linkTo="/size"/>
+      <DomainHeader component={this.props.component}
+                    title={window.t('overview.domain.structure')}
+                    linkTo="/structure"/>
 
-      <DomainPanel domain="size">
+      <DomainPanel>
         <DomainNutshell>
           <MeasuresList>
             {this.renderLanguageDistribution()}

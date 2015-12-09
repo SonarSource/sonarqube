@@ -712,7 +712,7 @@ export default Marionette.LayoutView.extend({
     $(e.currentTarget).tooltip({
       container: 'body',
       placement: 'right',
-      title: tp('source_viewer.tooltip.new_code', this.sinceLabel),
+      title: window.tp('source_viewer.tooltip.new_code', this.sinceLabel),
       trigger: 'manual'
     }).tooltip('show');
   },

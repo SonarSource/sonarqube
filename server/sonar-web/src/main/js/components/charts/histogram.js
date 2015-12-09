@@ -40,17 +40,24 @@ export const Histogram = React.createClass({
       return null;
     }
     let ticks = this.props.yTicks.map((tick, index) => {
-      let point = this.props.data[index];
-      let x = xScale.range()[0];
-      let y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
-      return <text key={index}
-                   className="bar-chart-tick histogram-tick"
-                   onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
-                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-                   x={x}
-                   y={y}
-                   dx="-1em"
-                   dy="0.3em">{tick}</text>;
+      const point = this.props.data[index];
+      const x = xScale.range()[0];
+      const y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
+      const label = tick.label ? tick.label : tick;
+      const tooltip = tick.tooltip ? tick.tooltip : null;
+      return <text
+          key={index}
+          className="bar-chart-tick histogram-tick"
+          onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+          style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
+          data-title={tooltip}
+          data-toggle={tooltip ? 'tooltip' : null}
+          x={x}
+          y={y}
+          dx="-1em"
+          dy="0.3em">
+        {label}
+      </text>;
     });
     return <g>{ticks}</g>;
   },

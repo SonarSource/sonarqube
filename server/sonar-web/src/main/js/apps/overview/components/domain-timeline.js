@@ -177,7 +177,7 @@ export const DomainTimeline = React.createClass({
       <Select value={this.state.currentMetric}
               options={optionsWithDomains}
               clearable={false}
-              className="input-large"
+              style={{ width: 170 }}
               onChange={this.handleMetricChange}/>
     </span>;
   },
@@ -216,7 +216,7 @@ export const DomainTimeline = React.createClass({
       <Select value={this.state.comparisonMetric}
               options={optionsWithDomains}
               placeholder="Compare with..."
-              className="input-large"
+              style={{ width: 170 }}
               onChange={this.handleComparisonMetricChange}/>
     </span>;
   },

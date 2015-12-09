@@ -7,7 +7,7 @@ export default BaseFacet.extend({
   getValues: function () {
     var values = this.model.getValues();
     var x = values.map(function (value) {
-      return _.extend(value, { label: t('rules.status', value.val.toLowerCase()) });
+      return _.extend(value, { label: window.t('rules.status', value.val.toLowerCase()) });
     });
     return x;
   },

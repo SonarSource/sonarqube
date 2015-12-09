@@ -155,16 +155,16 @@ export default Marionette.LayoutView.extend({
             url: url,
             name: historyItem.name,
             q: historyItem.icon,
-            extra: index === 0 ? t('browsed_recently') : null
+            extra: index === 0 ? window.t('browsed_recently') : null
           };
         }),
         favorite = _.first(this.favorite, 6).map(function (f, index) {
-          return _.extend(f, { extra: index === 0 ? t('favorite') : null });
+          return _.extend(f, { extra: index === 0 ? window.t('favorite') : null });
         }),
         qualifiers = this.model.get('qualifiers').map(function (q, index) {
           return {
             url: baseUrl + '/all_projects?qualifier=' + encodeURIComponent(q),
-            name: t('qualifiers.all', q),
+            name: window.t('qualifiers.all', q),
             extra: index === 0 ? '' : null
           };
         });
@@ -201,22 +201,22 @@ export default Marionette.LayoutView.extend({
 
   getNavigationFindings: function (q) {
     var DEFAULT_ITEMS = [
-          { name: t('issues.page'), url: baseUrl + '/issues/search' },
-          { name: t('layout.measures'), url: baseUrl + '/measures/search?qualifiers[]=TRK' },
-          { name: t('coding_rules.page'), url: baseUrl + '/coding_rules' },
-          { name: t('quality_profiles.page'), url: baseUrl + '/profiles' },
-          { name: t('quality_gates.page'), url: baseUrl + '/quality_gates' },
-          { name: t('comparison_global.page'), url: baseUrl + '/comparison' }
+          { name: window.t('issues.page'), url: baseUrl + '/issues/search' },
+          { name: window.t('layout.measures'), url: baseUrl + '/measures/search?qualifiers[]=TRK' },
+          { name: window.t('coding_rules.page'), url: baseUrl + '/coding_rules' },
+          { name: window.t('quality_profiles.page'), url: baseUrl + '/profiles' },
+          { name: window.t('quality_gates.page'), url: baseUrl + '/quality_gates' },
+          { name: window.t('comparison_global.page'), url: baseUrl + '/comparison' }
         ],
         customItems = [];
     if (window.SS.isUserAdmin) {
-      customItems.push({ name: t('layout.settings'), url: baseUrl + '/settings' });
+      customItems.push({ name: window.t('layout.settings'), url: baseUrl + '/settings' });
     }
     var findings = [].concat(DEFAULT_ITEMS, customItems).filter(function (f) {
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {
-      findings[0].extra = t('navigation');
+      findings[0].extra = window.t('navigation');
     }
     return _.first(findings, 6);
   },
@@ -230,7 +230,7 @@ export default Marionette.LayoutView.extend({
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {
-      findings[0].extra = t('dashboard.global_dashboards');
+      findings[0].extra = window.t('dashboard.global_dashboards');
     }
     return _.first(findings, 6);
   },
@@ -240,10 +240,8 @@ export default Marionette.LayoutView.extend({
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {
-      findings[0].extra = t('favorite');
+      findings[0].extra = window.t('favorite');
     }
     return _.first(findings, 6);
   }
 });
-
-

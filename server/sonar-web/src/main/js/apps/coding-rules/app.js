@@ -63,7 +63,7 @@ var App = new Marionette.Application(),
 App.manualRepository = function () {
   return {
     key: 'manual',
-    name: t('coding_rules.manual_rule'),
+    name: window.t('coding_rules.manual_rule'),
     language: 'none'
   };
 };

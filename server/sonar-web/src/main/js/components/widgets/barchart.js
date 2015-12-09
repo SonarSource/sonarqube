@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import moment from 'moment';
+import d3 from 'd3';
 
 function trans (left, top) {
   return 'translate(' + left + ', ' + top + ')';

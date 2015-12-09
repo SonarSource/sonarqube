@@ -34,7 +34,7 @@ export default Marionette.CompositeView.extend({
     this.ui.metricSelect.select2({
       allowClear: false,
       width: '250px',
-      placeholder: t('alerts.select_metric')
+      placeholder: window.t('alerts.select_metric')
     });
   },
 
@@ -71,5 +71,3 @@ export default Marionette.CompositeView.extend({
     });
   }
 });
-
-

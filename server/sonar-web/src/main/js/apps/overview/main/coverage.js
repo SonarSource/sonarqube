@@ -85,9 +85,11 @@ export const GeneralCoverage = React.createClass({
     ];
 
     return <Domain>
-      <DomainHeader component={this.props.component} title={window.t('overview.domain.coverage')} linkTo="/tests"/>
+      <DomainHeader component={this.props.component}
+                    title={window.t('overview.domain.coverage')}
+                    linkTo="/coverage"/>
 
-      <DomainPanel domain="coverage">
+      <DomainPanel>
         <DomainNutshell>
           <MeasuresList>
 

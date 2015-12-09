@@ -74,14 +74,14 @@ export default Marionette.LayoutView.extend({
       selectParameter: 'projectUuid',
       selectParameterValue: 'uuid',
       labels: {
-        selected: t('quality_gates.projects.with'),
-        deselected: t('quality_gates.projects.without'),
-        all: t('quality_gates.projects.all'),
-        noResults: t('quality_gates.projects.noResults')
+        selected: window.t('quality_gates.projects.with'),
+        deselected: window.t('quality_gates.projects.without'),
+        all: window.t('quality_gates.projects.all'),
+        noResults: window.t('quality_gates.projects.noResults')
       },
       tooltips: {
-        select: t('quality_profiles.projects.select_hint'),
-        deselect: t('quality_profiles.projects.deselect_hint')
+        select: window.t('quality_profiles.projects.select_hint'),
+        deselect: window.t('quality_profiles.projects.deselect_hint')
       }
     });
     this.listenTo(this.projectsSelectList.collection, 'change:selected', this.onProjectsChange);
@@ -158,5 +158,3 @@ export default Marionette.LayoutView.extend({
     });
   }
 });
-
-

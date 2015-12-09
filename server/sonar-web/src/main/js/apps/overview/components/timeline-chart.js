@@ -111,7 +111,7 @@ export const Timeline = React.createClass({
       y: _.last(yScale.range()),
       width: xScale.range()[1] - xScale(this.props.leakPeriodDate),
       height: _.first(yScale.range()) - _.last(yScale.range()),
-      fill: '#fffae7'
+      fill: '#fbf3d5'
     };
     return <rect {...opts}/>;
   },

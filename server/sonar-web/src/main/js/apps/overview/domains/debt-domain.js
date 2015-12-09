@@ -27,7 +27,7 @@ const KNOWN_METRICS = ['violations', 'sqale_index', 'sqale_rating', 'sqale_debt_
   'critical_violations', 'major_violations', 'minor_violations', 'info_violations', 'confirmed_issues'];
 
 
-export const IssuesMain = React.createClass({
+export const DebtMain = React.createClass({
   mixins: [TooltipsMixin],
 
   getInitialState() {

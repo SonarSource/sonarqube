@@ -57,10 +57,11 @@ export const GeneralDuplications = React.createClass({
     ];
 
     return <Domain>
-      <DomainHeader component={this.props.component} title={window.t('overview.domain.duplications')}
+      <DomainHeader component={this.props.component}
+                    title={window.t('overview.domain.duplications')}
                     linkTo="/duplications"/>
 
-      <DomainPanel domain="duplications">
+      <DomainPanel>
         <DomainNutshell>
           <MeasuresList>
 

@@ -18,7 +18,7 @@ import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
 
 
-export const GeneralIssues = React.createClass({
+export const GeneralDebt = React.createClass({
   propTypes: {
     leakPeriodLabel: React.PropTypes.string,
     leakPeriodDate: React.PropTypes.object
@@ -56,9 +56,11 @@ export const GeneralIssues = React.createClass({
 
   render () {
     return <Domain>
-      <DomainHeader component={this.props.component} title={window.t('overview.domain.debt')} linkTo="/issues"/>
+      <DomainHeader component={this.props.component}
+                    title={window.t('overview.domain.debt')}
+                    linkTo="/debt"/>
 
-      <DomainPanel domain="issues">
+      <DomainPanel>
         <DomainNutshell>
           <MeasuresList>
 

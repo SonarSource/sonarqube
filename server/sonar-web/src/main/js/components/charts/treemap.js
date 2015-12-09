@@ -56,7 +56,7 @@ export const TreemapRect = React.createClass({
     if (this.props.tooltip) {
       tooltipAttrs = {
         'data-toggle': 'tooltip',
-        'title': this.props.tooltip
+        'data-title': this.props.tooltip
       };
     }
     let cellStyles = {
@@ -126,10 +126,11 @@ export const Treemap = React.createClass({
     let prefix = mostCommitPrefix(this.props.items.map(item => item.label));
     let prefixLength = prefix.length;
 
-    let rectangles = nodes.map((node, index) => {
+    let rectangles = nodes.map(node => {
+      const key = node.label;
       let label = prefixLength ? `${prefix}<br>${node.label.substr(prefixLength)}` : node.label;
       const onClick = this.props.canBeClicked(node) ? () => this.props.onRectangleClick(node) : null;
-      return <TreemapRect key={index}
+      return <TreemapRect key={key}
                           x={node.x}
                           y={node.y}
                           width={node.dx}

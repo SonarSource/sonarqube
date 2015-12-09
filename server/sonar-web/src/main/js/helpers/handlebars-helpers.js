@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import moment from 'moment';
+import numeral from 'numeral';
 import Handlebars from 'hbsfy/runtime';
 import md5 from 'blueimp-md5';
 import { formatMeasure, formatMeasureVariation } from './measures';
@@ -77,7 +78,7 @@ Handlebars.registerHelper('severityIcon', function (severity) {
 
 Handlebars.registerHelper('severityHelper', function (severity) {
   return new Handlebars.SafeString(
-      '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + t('severity', severity)
+      '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + window.t('severity', severity)
   );
 });
 
@@ -88,9 +89,9 @@ Handlebars.registerHelper('statusIcon', function (status) {
 });
 
 Handlebars.registerHelper('statusHelper', function (status, resolution) {
-  var s = '<i class="icon-status-' + status.toLowerCase() + '"></i>&nbsp;' + t('issue.status', status);
+  var s = '<i class="icon-status-' + status.toLowerCase() + '"></i>&nbsp;' + window.t('issue.status', status);
   if (resolution != null) {
-    s = s + '&nbsp;(' + t('issue.resolution', resolution) + ')';
+    s = s + '&nbsp;(' + window.t('issue.resolution', resolution) + ')';
   }
   return new Handlebars.SafeString(s);
 });
@@ -450,13 +451,13 @@ Handlebars.registerHelper('operators', function (options) {
 Handlebars.registerHelper('changelog', function (diff) {
   var message = '';
   if (diff.newValue != null) {
-    message = tp('issue.changelog.changed_to', t('issue.changelog.field', diff.key), diff.newValue);
+    message = window.tp('issue.changelog.changed_to', window.t('issue.changelog.field', diff.key), diff.newValue);
   } else {
-    message = tp('issue.changelog.removed', t('issue.changelog.field', diff.key));
+    message = window.tp('issue.changelog.removed', window.t('issue.changelog.field', diff.key));
   }
   if (diff.oldValue != null) {
     message += ' (';
-    message += tp('issue.changelog.was', diff.oldValue);
+    message += window.tp('issue.changelog.was', diff.oldValue);
     message += ')';
   }
   return message;

@@ -26,7 +26,7 @@ export default BaseFacet.extend({
 
   forbid: function () {
     BaseFacet.prototype.forbid.apply(this, arguments);
-    this.$el.prop('title', t('coding_rules.filters.active_severity.inactive'));
+    this.$el.prop('title', window.t('coding_rules.filters.active_severity.inactive'));
   },
 
   allow: function () {
