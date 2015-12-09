@@ -20,9 +20,14 @@
 
 package org.sonar.server.qualitygate.ws;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -41,6 +46,15 @@ import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProjectStatusAction implements QGateWsAction {
+  private static final String QG_STATUSES_ONE_LINE = Joiner.on(", ")
+    .join(Lists.transform(Arrays.asList(ProjectStatusWsResponse.Status.values()), new Function<ProjectStatusWsResponse.Status, String>() {
+      @Nonnull
+      @Override
+      public String apply(ProjectStatusWsResponse.Status input) {
+        return input.toString();
+      }
+    }));
+
   private final DbClient dbClient;
   private final UserSession userSession;
 
@@ -52,9 +66,10 @@ public class ProjectStatusAction implements QGateWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("project_status")
-      .setDescription("Quality gate status for a given Compute Engine task. <br />" +
+      .setDescription(String.format("Quality gate status for a given Compute Engine task. <br />" +
+        "The different statuses returned are: %s. The %s status is returned when there is no Quality Gate associated with the analysis.<br />" +
         "Returns a http code 404 if the analysis associated with the task is not found or does not exist.<br />" +
-        "Requires 'Administer System' or 'Execute Analysis' permission.")
+        "Requires 'Administer System' or 'Execute Analysis' permission.", QG_STATUSES_ONE_LINE, ProjectStatusWsResponse.Status.NONE))
       .setResponseExample(getClass().getResource("project_status-example.json"))
       .setSince("5.3")
       .setHandler(this);
