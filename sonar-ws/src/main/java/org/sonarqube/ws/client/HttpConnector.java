@@ -19,7 +19,9 @@
  */
 package org.sonarqube.ws.client;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.squareup.okhttp.Call;
+import com.squareup.okhttp.ConnectionSpec;
 import com.squareup.okhttp.Credentials;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.HttpUrl;
@@ -35,16 +37,24 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLSocketFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
+/**
+ * Connect to any SonarQube server available through HTTP or HTTPS.
+ * <p>TLS 1.0, 1.1 and 1.2 are supported on both Java 7 and 8. SSLv3 is not supported.</p>
+ * <p>The JVM system proxies are used.</p>
+ */
 public class HttpConnector implements WsConnector {
 
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30_000;
   public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
+  public static final String[] TLS_PROTOCOLS = new String[] {"TLSv1", "TLSv1.1", "TLSv1.2"};
 
   /**
    * Base URL with trailing slash, for instance "https://localhost/sonarqube/".
@@ -56,7 +66,7 @@ public class HttpConnector implements WsConnector {
   private final String proxyCredentials;
   private final OkHttpClient okHttpClient = new OkHttpClient();
 
-  private HttpConnector(Builder builder) {
+  private HttpConnector(Builder builder, JavaVersion javaVersion) {
     this.baseUrl = HttpUrl.parse(builder.url.endsWith("/") ? builder.url : format("%s/", builder.url));
     this.userAgent = builder.userAgent;
 
@@ -81,6 +91,26 @@ public class HttpConnector implements WsConnector {
 
     this.okHttpClient.setConnectTimeout(builder.connectTimeoutMs, TimeUnit.MILLISECONDS);
     this.okHttpClient.setReadTimeout(builder.readTimeoutMs, TimeUnit.MILLISECONDS);
+
+    ConnectionSpec tls = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+      .allEnabledTlsVersions()
+      .allEnabledCipherSuites()
+      .supportsTlsExtensions(true)
+      .build();
+    this.okHttpClient.setConnectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
+    if (javaVersion.isJava7()) {
+      // OkHttp executes SSLContext.getInstance("TLS") by default (see
+      // https://github.com/square/okhttp/blob/c358656/okhttp/src/main/java/com/squareup/okhttp/OkHttpClient.java#L616)
+      // As only TLS 1.0 is enabled by default in Java 7, the SSLContextFactory must be changed
+      // in order to support all versions from 1.0 to 1.2.
+      // Note that this is not overridden for Java 8 as TLS 1.2 is enabled by default.
+      // Keeping getInstance("TLS") allows to support potential future versions of TLS on Java 8.
+      try {
+        this.okHttpClient.setSslSocketFactory(new Tls12Java7SocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault()));
+      } catch (Exception e) {
+        throw new IllegalStateException("Fail to init TLS context", e);
+      }
+    }
   }
 
   @Override
@@ -248,9 +278,19 @@ public class HttpConnector implements WsConnector {
     }
 
     public HttpConnector build() {
-      checkArgument(!isNullOrEmpty(url), "Server URL is not defined");
-      return new HttpConnector(this);
+      return build(new JavaVersion());
     }
 
+    @VisibleForTesting
+    HttpConnector build(JavaVersion javaVersion) {
+      checkArgument(!isNullOrEmpty(url), "Server URL is not defined");
+      return new HttpConnector(this, javaVersion);
+    }
+  }
+
+  static class JavaVersion {
+    boolean isJava7() {
+      return System.getProperty("java.version").startsWith("1.7.");
+    }
   }
 }
