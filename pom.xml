@@ -5,7 +5,7 @@
   <groupId>org.sonarsource.sonarqube</groupId>
   <artifactId>sonarqube</artifactId>
   <packaging>pom</packaging>
-  <version>5.3-SNAPSHOT</version>
+  <version>5.3-RC1</version>
   <name>SonarQube</name>
   <url>http://www.sonarqube.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
@@ -1162,7 +1162,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonarqube.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonarqube.git</developerConnection>
     <url>https://github.com/SonarSource/sonarqube</url>
-    <tag>HEAD</tag>
+    <tag>5.3-RC1</tag>
   </scm>
 
   <ciManagement>
@@ -1368,15 +1368,15 @@
                 <configuration>
                   <target>
                     <fileset id="fileset" dir="${project.basedir}/src/main/protobuf">
-                      <include name="*.proto"/>
+                      <include name="*.proto" />
                     </fileset>
-                    <pathconvert refid="fileset" property="protos" pathsep=" "/>
-                    <mkdir dir="${project.build.directory}/generated-sources/protobuf"/>
-                    <chmod file="${protobuf.compiler}" perm="u+x"/>
+                    <pathconvert refid="fileset" property="protos" pathsep=" " />
+                    <mkdir dir="${project.build.directory}/generated-sources/protobuf" />
+                    <chmod file="${protobuf.compiler}" perm="u+x" />
                     <exec failonerror="true" executable="${protobuf.compiler}">
-                      <arg value="--proto_path=${project.basedir}/src/main/protobuf"/>
-                      <arg value="--java_out=${project.build.directory}/generated-sources/protobuf"/>
-                      <arg line="${protos}"/>
+                      <arg value="--proto_path=${project.basedir}/src/main/protobuf" />
+                      <arg value="--java_out=${project.build.directory}/generated-sources/protobuf" />
+                      <arg line="${protos}" />
                     </exec>
                   </target>
                 </configuration>
@@ -1435,15 +1435,15 @@
                 <configuration>
                   <target>
                     <fileset id="fileset" dir="${project.basedir}/src/test/protobuf">
-                      <include name="*.proto"/>
+                      <include name="*.proto" />
                     </fileset>
-                    <pathconvert refid="fileset" property="protos" pathsep=" "/>
-                    <mkdir dir="${project.build.directory}/generated-test-sources/protobuf"/>
-                    <chmod file="${protobuf.compiler}" perm="u+x"/>
+                    <pathconvert refid="fileset" property="protos" pathsep=" " />
+                    <mkdir dir="${project.build.directory}/generated-test-sources/protobuf" />
+                    <chmod file="${protobuf.compiler}" perm="u+x" />
                     <exec failonerror="true" executable="${protobuf.compiler}">
-                      <arg value="--proto_path=${project.basedir}/src/test/protobuf"/>
-                      <arg value="--java_out=${project.build.directory}/generated-test-sources/protobuf"/>
-                      <arg line="${protos}"/>
+                      <arg value="--proto_path=${project.basedir}/src/test/protobuf" />
+                      <arg value="--java_out=${project.build.directory}/generated-test-sources/protobuf" />
+                      <arg line="${protos}" />
                     </exec>
                   </target>
                 </configuration>
