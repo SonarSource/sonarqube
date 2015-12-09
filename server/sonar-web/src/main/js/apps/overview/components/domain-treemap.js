@@ -95,20 +95,21 @@ export class DomainTreemap extends React.Component {
       return this.renderLoading();
     }
 
-    // TODO filter out zero sized components
-    let items = this.state.components.map(component => {
-      let colorMeasure = this.props.colorMetric ? component.measures[this.props.colorMetric] : null;
-      return {
-        key: component.key,
-        name: component.name,
-        qualifier: component.qualifier,
-        size: component.measures[this.props.sizeMetric],
-        color: colorMeasure != null ? this.props.scale(colorMeasure) : '#777',
-        tooltip: this.getTooltip(component),
-        label: component.name,
-        link: getComponentUrl(component.key)
-      };
-    });
+    let items = this.state.components
+        .filter(component => component.measures[this.props.sizeMetric])
+        .map(component => {
+          let colorMeasure = this.props.colorMetric ? component.measures[this.props.colorMetric] : null;
+          return {
+            key: component.key,
+            name: component.name,
+            qualifier: component.qualifier,
+            size: component.measures[this.props.sizeMetric],
+            color: colorMeasure != null ? this.props.scale(colorMeasure) : '#777',
+            tooltip: this.getTooltip(component),
+            label: component.name,
+            link: getComponentUrl(component.key)
+          };
+        });
 
     const canBeClicked = node => node.qualifier !== 'FIL' && node.qualifier !== 'UTS';
 
