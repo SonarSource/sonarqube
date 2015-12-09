@@ -12,7 +12,7 @@ import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
 import { DomainLeakTitle } from '../main/components';
 
 
-export const SizeMain = React.createClass({
+export const StructureMain = React.createClass({
   mixins: [TooltipsMixin],
 
   getInitialState() {
@@ -149,7 +149,7 @@ export const SizeMain = React.createClass({
     return <div className="overview-detailed-page">
       <div className="overview-card">
         <div className="overview-card-header">
-          <div className="overview-title">{window.t('overview.domain.size')}</div>
+          <div className="overview-title">{window.t('overview.domain.structure')}</div>
           {this.renderLegend()}
         </div>
 

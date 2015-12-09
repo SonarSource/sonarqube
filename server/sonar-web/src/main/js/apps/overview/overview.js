@@ -3,10 +3,10 @@ import React from 'react';
 import Gate from './gate/gate';
 import GeneralMain from './main/main';
 import Meta from './meta';
-import { SizeMain } from './domains/size-domain';
+import { StructureMain } from './domains/structure-domain';
 import { DuplicationsMain } from './domains/duplications-domain';
 import { CoverageMain } from './domains/coverage-domain';
-import { IssuesMain } from './domains/debt-domain';
+import { DebtMain } from './domains/debt-domain';
 
 import { getMetrics } from '../../api/metrics';
 import { RouterMixin } from '../../components/router/router';
@@ -45,7 +45,7 @@ export const Overview = React.createClass({
 
   renderSize () {
     return <div className="overview">
-      <SizeMain {...this.props} {...this.state}/>
+      <StructureMain {...this.props} {...this.state}/>
     </div>;
   },
 
@@ -63,7 +63,7 @@ export const Overview = React.createClass({
 
   renderIssues () {
     return <div className="overview">
-      <IssuesMain {...this.props} {...this.state}/>
+      <DebtMain {...this.props} {...this.state}/>
     </div>;
   },
 
@@ -74,13 +74,13 @@ export const Overview = React.createClass({
     switch (this.state.route) {
       case '':
         return this.renderMain();
-      case '/size':
+      case '/structure':
         return this.renderSize();
       case '/duplications':
         return this.renderDuplications();
-      case '/tests':
+      case '/coverage':
         return this.renderTests();
-      case '/issues':
+      case '/debt':
         return this.renderIssues();
       default:
         throw new Error('Unknown route: ' + this.state.route);

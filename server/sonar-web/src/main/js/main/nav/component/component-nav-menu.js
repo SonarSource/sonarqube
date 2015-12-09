@@ -14,10 +14,10 @@ import {
 
 const FIXED_DASHBOARDS = [
   { link: '', name: 'overview.page' },
-  { link: '/issues', name: 'overview.domain.debt' },
-  { link: '/tests', name: 'overview.domain.coverage' },
+  { link: '/debt', name: 'overview.domain.debt' },
+  { link: '/coverage', name: 'overview.domain.coverage' },
   { link: '/duplications', name: 'overview.domain.duplications' },
-  { link: '/size', name: 'overview.domain.size' }
+  { link: '/structure', name: 'overview.domain.structure' }
 ];
 
 const SETTINGS_URLS = [
