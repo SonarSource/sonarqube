@@ -45,6 +45,10 @@ export const TreemapRect = React.createClass({
       return null;
     }
 
+    if (this.props.width < 24 || this.props.height < 24) {
+      return null;
+    }
+
     return <a onClick={e => e.stopPropagation()}
               className="treemap-link"
               href={this.props.link}
