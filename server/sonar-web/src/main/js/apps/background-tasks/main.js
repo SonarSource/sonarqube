@@ -171,8 +171,7 @@ export default React.createClass({
       statusFilter: STATUSES.FAILED,
       currentsFilter: CURRENTS.ONLY_CURRENTS,
       activityPage: 1
-    },
-    this.requestActivity);
+    }, this.requestActivity);
   },
 
   onTaskCanceled(task) {
@@ -192,23 +191,31 @@ export default React.createClass({
         <div className="page">
           <Header/>
 
-          <Stats {...this.state} cancelPending={this.cancelPending} showFailures={this.showFailures}/>
+          <Stats
+              {...this.props}
+              {...this.state}
+              cancelPending={this.cancelPending}
+              showFailures={this.showFailures}/>
 
-          <Search {...this.props} {...this.state}
+          <Search
+              {...this.props}
+              {...this.state}
               refresh={this.requestData}
               onStatusChange={this.onStatusChange}
               onCurrentsChange={this.onCurrentsChange}
               onDateChange={this.onDateChange}
               onSearch={this.onSearch}/>
 
-          <Tasks {...this.props}
+          <Tasks
+              {...this.props}
               tasks={[].concat(this.state.queue, this.state.activity)}
               onTaskCanceled={this.onTaskCanceled}
               onFilter={this.handleFilter}/>
 
-          <ListFooter count={this.state.queue.length + this.state.activity.length}
-                      total={this.state.queue.length + this.state.activityTotal}
-                      loadMore={this.loadMore}/>
+          <ListFooter
+              count={this.state.queue.length + this.state.activity.length}
+              total={this.state.queue.length + this.state.activityTotal}
+              loadMore={this.loadMore}/>
         </div>
     );
   }
