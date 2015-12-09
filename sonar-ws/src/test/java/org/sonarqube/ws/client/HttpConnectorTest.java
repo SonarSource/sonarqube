@@ -19,10 +19,12 @@
  */
 package org.sonarqube.ws.client;
 
+import com.squareup.okhttp.ConnectionSpec;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 import java.io.File;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,12 +38,14 @@ import static com.squareup.okhttp.Credentials.basic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HttpConnectorTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  HttpConnector.JavaVersion javaVersion = mock(HttpConnector.JavaVersion.class);
   MockWebServer server;
   String serverUrl;
 
@@ -259,6 +263,39 @@ public class HttpConnectorTest {
     request = new GetRequest("/api/issues/search");
     answerHelloWorld();
     assertThat(underTest.call(request).requestUrl()).isEqualTo(serverUrl + "sonar/api/issues/search");
+  }
+
+  @Test
+  public void support_tls_1_2_on_java7() {
+    when(javaVersion.isJava7()).thenReturn(true);
+    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build(javaVersion);
+
+    assertTlsAndClearTextSpecifications(underTest);
+    // enable TLS 1.0, 1.1 and 1.2
+    assertThat(underTest.okHttpClient().getSslSocketFactory()).isNotNull().isInstanceOf(Tls12Java7SocketFactory.class);
+  }
+
+  @Test
+  public void support_tls_versions_of_java8() {
+    when(javaVersion.isJava7()).thenReturn(false);
+    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build(javaVersion);
+
+    assertTlsAndClearTextSpecifications(underTest);
+    // do not override the default TLS context provided by java 8
+    assertThat(underTest.okHttpClient().getSslSocketFactory()).isNull();
+  }
+
+  private void assertTlsAndClearTextSpecifications(HttpConnector underTest) {
+    List<ConnectionSpec> connectionSpecs = underTest.okHttpClient().getConnectionSpecs();
+    assertThat(connectionSpecs).hasSize(2);
+
+    // TLS. tlsVersions()==null means all TLS versions
+    assertThat(connectionSpecs.get(0).tlsVersions()).isNull();
+    assertThat(connectionSpecs.get(0).isTls()).isTrue();
+
+    // HTTP
+    assertThat(connectionSpecs.get(1).tlsVersions()).isNull();
+    assertThat(connectionSpecs.get(1).isTls()).isFalse();
   }
 
   private void answerHelloWorld() {
