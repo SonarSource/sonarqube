@@ -29,6 +29,10 @@ export const LanguageDistribution = React.createClass({
     }
   },
 
+  cutLanguageName (name) {
+    return name.length > 10 ? `${name.substr(0, 7)}...` : name;
+  },
+
   renderBarChart () {
     let data = this.props.distribution.split(';').map((point, index) => {
       let tokens = point.split('=');
@@ -37,7 +41,7 @@ export const LanguageDistribution = React.createClass({
 
     data = _.sortBy(data, d => -d.x);
 
-    let yTicks = data.map(point => this.getLanguageName(point.value));
+    let yTicks = data.map(point => this.getLanguageName(point.value)).map(this.cutLanguageName);
 
     let yValues = data.map(point => formatMeasure(point.x / this.props.lines * 100, 'PERCENT'));
 
