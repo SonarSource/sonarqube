@@ -173,7 +173,8 @@ public class ReportPublisher implements Startable {
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
       metadata.put("projectKey", effectiveKey);
-
+      metadata.put("serverUrl", publicUrl());
+      
       URL dashboardUrl = HttpUrl.parse(publicUrl()).newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
         .build()

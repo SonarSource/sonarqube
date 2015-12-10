@@ -44,9 +44,10 @@ public class ReportDumpTest {
     // verify properties
     Properties props = new Properties();
     props.load(new StringReader(FileUtils.readFileToString(metadata, StandardCharsets.UTF_8)));
-    assertThat(props).hasSize(4);
+    assertThat(props).hasSize(5);
     assertThat(props.getProperty("projectKey")).isEqualTo("dump_metadata_of_uploaded_report");
     assertThat(props.getProperty("ceTaskId")).isNotEmpty();
+    verifyUrl(props.getProperty("serverUrl"));
     verifyUrl(props.getProperty("dashboardUrl"));
     verifyUrl(props.getProperty("ceTaskUrl"));
   }
