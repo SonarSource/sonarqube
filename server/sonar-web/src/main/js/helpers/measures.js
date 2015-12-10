@@ -125,11 +125,11 @@ function shortIntVariationFormatter (value) {
 }
 
 function floatFormatter (value) {
-  return numeral(value).format('0,0.0');
+  return numeral(value).format('0,0.0[0000]');
 }
 
 function floatVariationFormatter (value) {
-  return value === 0 ? '+0.0' : numeral(value).format('+0,0.0');
+  return value === 0 ? '+0.0' : numeral(value).format('+0,0.0[0000]');
 }
 
 function percentFormatter (value) {
