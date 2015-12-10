@@ -67,12 +67,14 @@ export const AddedRemovedMeasure = React.createClass({
     let added = this.props.leak[this.props.leakMetric] || 0;
     let removed = added - leak;
 
+    let createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+
     return <div className="overview-detailed-measure-leak">
       <ul>
         <li style={{ display: 'flex', alignItems: 'baseline' }}>
           <small className="flex-1 text-left">{window.t('overview.added')}</small>
           <IssuesLink className="text-danger"
-                      component={this.props.component.key} params={{ resolved: 'false' }}>
+                      component={this.props.component.key} params={{ resolved: 'false', createdAfter }}>
             <span className="overview-detailed-measure-value">
               {formatMeasure(added, getShortType(this.props.type))}
             </span>
