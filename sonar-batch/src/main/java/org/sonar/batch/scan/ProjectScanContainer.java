@@ -117,6 +117,20 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
+  @Override
+  public ComponentContainer startComponents() {
+    try {
+      return super.startComponents();
+    } catch (Exception e) {
+      // ensure that lock is released
+      ProjectLock lock = getComponentByType(ProjectLock.class);
+      if (lock != null) {
+        lock.stop();
+      }
+      throw e;
+    }
+  }
+
   private void addBatchComponents() {
     add(
       props,

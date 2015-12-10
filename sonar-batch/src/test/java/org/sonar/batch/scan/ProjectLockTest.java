@@ -76,6 +76,16 @@ public class ProjectLockTest {
     lock.tryLock();
     lock.tryLock();
   }
+  
+  @Test
+  /**
+   * If there is an error starting up the scan, we'll still try to unlock even if the lock
+   * was never done
+   */
+  public void stopWithoutStarting() {
+    lock.stop();
+    lock.stop();
+  }
 
   @Test
   public void tryLockTwice() {
