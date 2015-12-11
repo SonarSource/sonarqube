@@ -85,9 +85,9 @@ export default WorkspaceListView.extend({
     var $container = this.getChildViewContainer(compositeView),
         model = this.collection.at(index);
     if (model != null) {
-      var prev = this.collection.at(index - 1),
-          putComponent = prev == null;
-      if (prev != null) {
+      var prev = index > 0 && this.collection.at(index - 1),
+          putComponent = !prev;
+      if (prev) {
         var fullComponent = [model.get('project'), model.get('component')].join(' '),
             fullPrevComponent = [prev.get('project'), prev.get('component')].join(' ');
         if (fullComponent !== fullPrevComponent) {
