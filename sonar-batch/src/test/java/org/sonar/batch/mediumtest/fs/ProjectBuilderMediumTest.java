@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
+import org.sonar.api.utils.MessageException;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -102,7 +104,7 @@ public class ProjectBuilderMediumTest {
   public void testProjectBuilderWithNewLine() throws IOException {
     File baseDir = prepareProject();
     
-    exception.expect(IllegalStateException.class);
+    exception.expect(MessageException.class);
     exception.expectMessage("is not a valid branch name");
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()

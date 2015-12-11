@@ -59,7 +59,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
       try {
         return super.getComponent(componentKeyOrType, annotation);
       } catch (Throwable t) {
-        throw new IllegalStateException("Unable to load component " + componentKeyOrType + ": " + t.getMessage(), t);
+        throw new IllegalStateException("Unable to load component " + componentKeyOrType, t);
       }
     }
 

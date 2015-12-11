@@ -68,12 +68,19 @@ describe('Measures', function () {
       expect(formatMeasure(0.0, 'FLOAT')).to.equal('0.0');
       expect(formatMeasure(1.0, 'FLOAT')).to.equal('1.0');
       expect(formatMeasure(1.3, 'FLOAT')).to.equal('1.3');
-      expect(formatMeasure(1.34, 'FLOAT')).to.equal('1.3');
-      expect(formatMeasure(50.89, 'FLOAT')).to.equal('50.9');
+      expect(formatMeasure(1.34, 'FLOAT')).to.equal('1.34');
+      expect(formatMeasure(50.89, 'FLOAT')).to.equal('50.89');
       expect(formatMeasure(100.0, 'FLOAT')).to.equal('100.0');
-      expect(formatMeasure(123.456, 'FLOAT')).to.equal('123.5');
+      expect(formatMeasure(123.456, 'FLOAT')).to.equal('123.456');
       expect(formatMeasure(123456.7, 'FLOAT')).to.equal('123,456.7');
       expect(formatMeasure(1234567890.0, 'FLOAT')).to.equal('1,234,567,890.0');
+    });
+
+    it('should respect FLOAT precision', function () {
+      expect(formatMeasure(0.1, 'FLOAT')).to.equal('0.1');
+      expect(formatMeasure(0.12, 'FLOAT')).to.equal('0.12');
+      expect(formatMeasure(0.12345, 'FLOAT')).to.equal('0.12345');
+      expect(formatMeasure(0.123456, 'FLOAT')).to.equal('0.12346');
     });
 
     it('should format PERCENT', function () {
@@ -180,8 +187,15 @@ describe('Measures', function () {
       expect(formatMeasureVariation(0.0, 'FLOAT')).to.equal('+0.0');
       expect(formatMeasureVariation(1.0, 'FLOAT')).to.equal('+1.0');
       expect(formatMeasureVariation(-1.0, 'FLOAT')).to.equal('-1.0');
-      expect(formatMeasureVariation(50.89, 'FLOAT')).to.equal('+50.9');
-      expect(formatMeasureVariation(-50.89, 'FLOAT')).to.equal('-50.9');
+      expect(formatMeasureVariation(50.89, 'FLOAT')).to.equal('+50.89');
+      expect(formatMeasureVariation(-50.89, 'FLOAT')).to.equal('-50.89');
+    });
+
+    it('should respect FLOAT precision', function () {
+      expect(formatMeasureVariation(0.1, 'FLOAT')).to.equal('+0.1');
+      expect(formatMeasureVariation(0.12, 'FLOAT')).to.equal('+0.12');
+      expect(formatMeasureVariation(0.12345, 'FLOAT')).to.equal('+0.12345');
+      expect(formatMeasureVariation(0.123456, 'FLOAT')).to.equal('+0.12346');
     });
 
     it('should format PERCENT', function () {

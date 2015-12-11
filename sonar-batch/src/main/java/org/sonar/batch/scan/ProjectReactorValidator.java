@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.api.utils.MessageException;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.base.Joiner;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class ProjectReactorValidator {
     validateBranch(validationMessages, branch);
 
     if (!validationMessages.isEmpty()) {
-      throw new IllegalStateException("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
+      throw MessageException.of("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
     }
   }
 

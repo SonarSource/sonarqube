@@ -87,7 +87,7 @@ public class TasksMediumTest {
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage(
-      "Unable to load component class org.sonar.batch.mediumtest.tasks.TasksMediumTest$BrokenTask: org.sonar.batch.mediumtest.tasks.TasksMediumTest$BrokenTask has unsatisfied dependency 'class org.sonar.api.issue.action.Actions'");
+      "Unable to load component class org.sonar.batch.mediumtest.tasks.TasksMediumTest$BrokenTask");
 
     tester.newTask()
       .properties(ImmutableMap.<String, String>builder()

@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonar.api.utils.MessageException;
 
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonar.batch.util.BatchUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -34,8 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkState;
-
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
@@ -48,7 +47,7 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   @Override
   public List<QualityProfile> loadDefault(@Nullable String profileName, @Nullable MutableBoolean fromCache) {
     String url = WS_URL + "?defaults=true";
-    if(profileName != null) {
+    if (profileName != null) {
       url += "&profileName=" + BatchUtils.encodeForUrl(profileName);
     }
     return loadResource(url, fromCache);
@@ -80,8 +79,9 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     }
 
     List<QualityProfile> profilesList = profiles.getProfilesList();
-    checkState(profilesList != null && !profilesList.isEmpty(),
-      "No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
+    if (profilesList == null || profilesList.isEmpty()) {
+      throw MessageException.of("No quality profiles have been found, you probably don't have any language plugin installed.");
+    }
     return profilesList;
   }
 
