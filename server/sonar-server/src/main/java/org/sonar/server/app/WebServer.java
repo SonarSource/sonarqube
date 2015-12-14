@@ -19,6 +19,7 @@
  */
 package org.sonar.server.app;
 
+import com.google.common.collect.ImmutableMap;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
@@ -30,8 +31,9 @@ public class WebServer implements Monitored {
 
   WebServer(Props props) throws Exception {
     new MinimumViableSystem()
-      .setRequiredJavaOption("file.encoding", "UTF-8")
-      .check();
+      .checkJavaVersion()
+      .checkWritableTempDir()
+      .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
     this.tomcat = new EmbeddedTomcat(props);
   }
 
