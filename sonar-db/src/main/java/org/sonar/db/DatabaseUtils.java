@@ -33,8 +33,8 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -47,7 +47,7 @@ public class DatabaseUtils {
       try {
         connection.close();
       } catch (SQLException e) {
-        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close connection", e);
+        Loggers.get(DatabaseUtils.class).warn("Fail to close connection", e);
         // ignore
       }
     }
@@ -58,7 +58,7 @@ public class DatabaseUtils {
       try {
         stmt.close();
       } catch (SQLException e) {
-        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close statement", e);
+        Loggers.get(DatabaseUtils.class).warn("Fail to close statement", e);
         // ignore
       }
     }
@@ -69,7 +69,7 @@ public class DatabaseUtils {
       try {
         rs.close();
       } catch (SQLException e) {
-        LoggerFactory.getLogger(DatabaseUtils.class).warn("Fail to close result set", e);
+        Loggers.get(DatabaseUtils.class).warn("Fail to close result set", e);
         // ignore
       }
     }

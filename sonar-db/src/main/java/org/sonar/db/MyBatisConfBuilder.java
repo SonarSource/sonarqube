@@ -19,7 +19,6 @@
  */
 package org.sonar.db;
 
-import ch.qos.logback.classic.Level;
 import com.google.common.io.Closeables;
 import java.io.InputStream;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -27,7 +26,8 @@ import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Dialect;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -93,7 +93,7 @@ public final class MyBatisConfBuilder {
 
   private void loadAndConfigureLogger(String mapperName) {
     conf.addLoadedResource(mapperName);
-    ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(mapperName)).setLevel(Level.INFO);
+    Loggers.get(mapperName).setLevel(LoggerLevel.INFO);
   }
 
   public void loadMappers(Class<?>... mapperClasses) {
