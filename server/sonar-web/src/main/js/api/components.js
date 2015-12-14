@@ -43,3 +43,9 @@ export function getFiles (componentKey, metrics = []) {
     return r.filter(component => component.qualifier === 'FIL');
   });
 }
+
+export function getComponent (componentKey, metrics = []) {
+  const url = baseUrl + '/api/resources/index';
+  const data = { resource: componentKey, metrics: metrics.join(',') };
+  return getJSON(url, data).then(r => r[0]);
+}

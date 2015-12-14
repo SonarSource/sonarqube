@@ -366,6 +366,7 @@ class Api::ResourcesController < Api::ApiController
 
     json = {
       'id' => resource.id,
+      'uuid' => resource.uuid,
       'key' => resource.key,
       'name' => resource.name,
       'scope' => resource.scope,

@@ -1,0 +1,40 @@
+@import (reference) "../mixins";
+@import (reference) "../variables";
+@import (reference) "../init/type";
+
+
+.code-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  float: left;
+  margin-left: 10px;
+  padding-top: 5px;
+}
+
+.code-breadcrumbs > li {
+  padding: 0 5px;
+}
+
+.code-breadcrumbs > li::after {
+  position: relative;
+  top: -1px;
+  padding-left: 10px;
+  color: @secondFontColor;
+  font-size: 11px;
+  content: ">";
+}
+
+.code-breadcrumbs > li:last-child::after {
+  display: none;
+}
+
+.code-components-cell {
+  width: 100px;
+}
+
+.code-truncated {
+  display: inline-block;
+  vertical-align: text-top;
+  max-width: 300px;
+  .text-ellipsis;
+}

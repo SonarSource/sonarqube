@@ -43,6 +43,11 @@ export default React.createClass({
     return qualifier === 'DEV';
   },
 
+  isView() {
+    const qualifier = _.last(this.props.component.breadcrumbs).qualifier;
+    return qualifier === 'VW' || qualifier === 'SVW';
+  },
+
   periodParameter() {
     let params = qs.parse(window.location.search.substr(1));
     return params.period ? `&period=${params.period}` : '';
@@ -132,6 +137,15 @@ export default React.createClass({
     return <li key={key} className={className}>
       <a className="note" href={url}>{name}</a>
     </li>;
+  },
+
+  renderCodeLink() {
+    if (this.isView() || this.isDeveloper()) {
+      return null;
+    }
+
+    const url = `/code/index?id=${encodeURIComponent(this.props.component.key)}`;
+    return this.renderLink(url, window.t('code.page'), '/code');
   },
 
   renderComponentsLink() {
@@ -300,6 +314,7 @@ export default React.createClass({
         <ul className="nav navbar-nav nav-tabs">
           {!this.isDeveloper() && this.renderFixedDashboards()}
           {this.renderCustomDashboards()}
+          {this.renderCodeLink()}
           {this.renderComponentsLink()}
           {this.renderComponentIssuesLink()}
           {this.renderTools()}
