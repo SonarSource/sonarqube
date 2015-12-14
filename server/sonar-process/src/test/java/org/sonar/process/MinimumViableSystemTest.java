@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -33,67 +34,48 @@ public class MinimumViableSystemTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  /**
-   * Verifies that all checks can be verified without error.
-   * Test environment does not necessarily follows all checks.
-   */
-  @Test
-  public void check() {
-    MinimumViableSystem mve = new MinimumViableSystem();
-
-    try {
-      mve.check();
-      // ok
-    } catch (MessageException e) {
-      // also ok. All other exceptions are errors.
-    }
-  }
+  MinimumViableSystem underTest = new MinimumViableSystem();
 
   @Test
   public void checkJavaVersion() {
-    MinimumViableSystem mve = new MinimumViableSystem();
-
     // yes, sources are compiled with a supported Java version!
-    mve.checkJavaVersion();
-    mve.checkJavaVersion("1.6");
+    underTest.checkJavaVersion();
+    underTest.checkJavaVersion("1.7");
 
     try {
-      mve.checkJavaVersion("1.9");
+      underTest.checkJavaVersion("1.6");
       fail();
     } catch (MessageException e) {
-      assertThat(e).hasMessage("Supported versions of Java are 1.6, 1.7 and 1.8. Got 1.9.");
+      assertThat(e).hasMessage("Supported versions of Java are 1.7 and 1.8. Got 1.6.");
     }
   }
 
   @Test
-  public void checkJavaOption() {
+  public void checkRequiredJavaOptions() {
     String key = "MinimumViableEnvironmentTest.test.prop";
-    MinimumViableSystem mve = new MinimumViableSystem()
-      .setRequiredJavaOption(key, "true");
 
     try {
       System.setProperty(key, "false");
-      mve.checkJavaOptions();
+      underTest.checkRequiredJavaOptions(ImmutableMap.of(key, "true"));
       fail();
     } catch (MessageException e) {
       assertThat(e).hasMessage("JVM option '" + key + "' must be set to 'true'. Got 'false'");
     }
 
     System.setProperty(key, "true");
-    mve.checkJavaOptions();
     // do not fail
+    underTest.checkRequiredJavaOptions(ImmutableMap.of(key, "true"));
   }
 
   @Test
   public void checkWritableTempDir() throws Exception {
     File dir = temp.newFolder();
-    MinimumViableSystem mve = new MinimumViableSystem();
 
-    mve.checkWritableDir(dir.getAbsolutePath());
+    underTest.checkWritableDir(dir.getAbsolutePath());
 
     dir.delete();
     try {
-      mve.checkWritableDir(dir.getAbsolutePath());
+      underTest.checkWritableDir(dir.getAbsolutePath());
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Temp directory is not writable: " + dir.getAbsolutePath());

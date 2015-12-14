@@ -27,59 +27,50 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.String.format;
+
 public class MinimumViableSystem {
-
-  private final Map<String, String> requiredJavaOptions = new HashMap<>();
-
-  public MinimumViableSystem setRequiredJavaOption(String propertyKey, String expectedValue) {
-    requiredJavaOptions.put(propertyKey, expectedValue);
-    return this;
-  }
-
-  /**
-   * Entry point for all checks
-   */
-  public void check() {
-    checkJavaVersion();
-    checkJavaOptions();
-    checkWritableTempDir();
-  }
 
   /**
    * Verify that temp directory is writable
    */
-  private void checkWritableTempDir() {
+  public MinimumViableSystem checkWritableTempDir() {
     checkWritableDir(System.getProperty("java.io.tmpdir"));
+    return this;
   }
 
+  // Visible for testing
   void checkWritableDir(String tempPath) {
     try {
       File tempFile = File.createTempFile("check", "tmp", new File(tempPath));
       FileUtils.deleteQuietly(tempFile);
     } catch (IOException e) {
-      throw new IllegalStateException(String.format("Temp directory is not writable: %s", tempPath), e);
+      throw new IllegalStateException(format("Temp directory is not writable: %s", tempPath), e);
     }
   }
 
-  void checkJavaOptions() {
+  public MinimumViableSystem checkRequiredJavaOptions(Map<String, String> requiredJavaOptions) {
     for (Map.Entry<String, String> entry : requiredJavaOptions.entrySet()) {
       String value = System.getProperty(entry.getKey());
       if (!StringUtils.equals(value, entry.getValue())) {
-        throw new MessageException(String.format(
+        throw new MessageException(format(
           "JVM option '%s' must be set to '%s'. Got '%s'", entry.getKey(), entry.getValue(), StringUtils.defaultString(value)));
       }
     }
+    return this;
   }
 
-  void checkJavaVersion() {
+  public MinimumViableSystem checkJavaVersion() {
     String javaVersion = System.getProperty("java.specification.version");
     checkJavaVersion(javaVersion);
+    return this;
   }
 
+  // Visible for testing
   void checkJavaVersion(String javaVersion) {
-    if (!javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7") && !javaVersion.startsWith("1.8")) {
+    if (!javaVersion.startsWith("1.7") && !javaVersion.startsWith("1.8")) {
       // still better than "java.lang.UnsupportedClassVersionError: Unsupported major.minor version 49.0
-      throw new MessageException(String.format("Supported versions of Java are 1.6, 1.7 and 1.8. Got %s.", javaVersion));
+      throw new MessageException(format("Supported versions of Java are 1.7 and 1.8. Got %s.", javaVersion));
     }
   }
 

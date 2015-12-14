@@ -81,7 +81,7 @@ public class ReportPublisherTest {
     File detailsFile = new File(temp.getRoot(), "report-task.txt");
     assertThat(readFileToString(detailsFile)).isEqualTo(
       "projectKey=struts\n" +
-      "serverUrl=https://localhost/\n" +
+      "serverUrl=https://localhost\n" +
       "dashboardUrl=https://localhost/dashboard/index/struts\n" +
       "ceTaskId=TASK-123\n" +
       "ceTaskUrl=https://localhost/api/ce/task?id=TASK-123\n"
@@ -102,7 +102,7 @@ public class ReportPublisherTest {
     File detailsFile = new File(temp.getRoot(), "report-task.txt");
     assertThat(readFileToString(detailsFile)).isEqualTo(
       "projectKey=struts\n" +
-      "serverUrl=https://publicserver/sonarqube/\n" +
+      "serverUrl=https://publicserver/sonarqube\n" +
       "dashboardUrl=https://publicserver/sonarqube/dashboard/index/struts\n" +
       "ceTaskId=TASK-123\n" +
       "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n"

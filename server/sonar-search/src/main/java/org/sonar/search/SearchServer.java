@@ -34,7 +34,9 @@ public class SearchServer implements Monitored {
 
   public SearchServer(Props props) {
     this.settings = new SearchSettings(props);
-    new MinimumViableSystem().check();
+    new MinimumViableSystem()
+      .checkJavaVersion()
+      .checkWritableTempDir();
   }
 
   @Override
