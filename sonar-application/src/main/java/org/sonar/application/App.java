@@ -109,7 +109,7 @@ public class App implements Stoppable {
   }
 
   public static void main(String[] args) throws Exception {
-    new MinimumViableSystem().check();
+    new MinimumViableSystem().checkJavaVersion();
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
     Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
