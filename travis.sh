@@ -13,7 +13,7 @@ function strongEcho {
   echo "================ $1 ================="
 }
 
-if [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ "${TRAVIS_BRANCH}" != "master" ]; then
+if [[ "$TRAVIS_PULL_REQUEST" != "false" ]] && [[ "${TRAVIS_BRANCH}" = feature* ]]; then
   strongEcho 'Build of branch disabled for this PR'
   exit 0
 fi
@@ -21,7 +21,7 @@ fi
 case "$TARGET" in
 
 CI)
-  if [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ "${TRAVIS_BRANCH}" == "master" ] && [ -n "$GITHUB_TOKEN" ]; then
+  if [[ "$TRAVIS_PULL_REQUEST" != "false" ]] && [[ "${TRAVIS_BRANCH}" = "master" ]] && [[ -n "$GITHUB_TOKEN" ]]; then
     # For security reasons environment variables are not available on the pull requests
     # coming from outside repositories
     # http://docs.travis-ci.com/user/pull-requests/#Security-Restrictions-when-testing-Pull-Requests
