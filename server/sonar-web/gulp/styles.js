@@ -7,6 +7,7 @@ var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
 var sourcemaps = require('gulp-sourcemaps');
 var autoprefixer = require('gulp-autoprefixer');
+var plumber = require('gulp-plumber');
 
 
 module.exports.styles = function (output, production, dev) {
@@ -23,6 +24,7 @@ module.exports.styles = function (output, production, dev) {
 
         'src/main/less/*.less'
       ])
+      .pipe(plumber())
       .pipe(gulpif(dev, sourcemaps.init()))
       .pipe(less())
       .pipe(autoprefixer({
