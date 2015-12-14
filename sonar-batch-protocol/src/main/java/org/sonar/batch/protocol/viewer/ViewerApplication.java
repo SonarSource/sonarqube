@@ -31,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
-
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -48,7 +47,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
-
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
@@ -75,6 +73,8 @@ public class ViewerApplication {
   private JScrollPane coverageTab;
   private JEditorPane coverageEditor;
   private TextLineNumber textLineNumber;
+  private JScrollPane duplicationTab;
+  private JEditorPane duplicationEditor;
 
   /**
    * Create the application.
@@ -185,19 +185,32 @@ public class ViewerApplication {
     updateHighlighting(component);
     updateSource(component);
     updateCoverage(component);
+    updateDuplications(component);
+  }
+
+  private void updateDuplications(Component component) {
+    duplicationEditor.setText("");
+    if (reader.hasCoverage(component.getRef())) {
+      try (CloseableIterator<BatchReport.Duplication> it = reader.readComponentDuplications(component.getRef())) {
+        while (it.hasNext()) {
+          BatchReport.Duplication dup = it.next();
+          duplicationEditor.getDocument().insertString(duplicationEditor.getDocument().getEndPosition().getOffset(), dup.toString() + "\n", null);
+        }
+      } catch (Exception e) {
+        throw new IllegalStateException("Can't read duplications for " + getNodeName(component), e);
+      }
+    }
   }
 
   private void updateCoverage(Component component) {
     coverageEditor.setText("");
-    if (reader.hasCoverage(component.getRef())) {
-      try (CloseableIterator<BatchReport.Coverage> it = reader.readComponentCoverage(component.getRef())) {
-        while (it.hasNext()) {
-          BatchReport.Coverage coverage = it.next();
-          coverageEditor.getDocument().insertString(coverageEditor.getDocument().getEndPosition().getOffset(), coverage.toString() + "\n", null);
-        }
-      } catch (Exception e) {
-        throw new IllegalStateException("Can't read code coverage for " + getNodeName(component), e);
+    try (CloseableIterator<BatchReport.Coverage> it = reader.readComponentCoverage(component.getRef())) {
+      while (it.hasNext()) {
+        BatchReport.Coverage coverage = it.next();
+        coverageEditor.getDocument().insertString(coverageEditor.getDocument().getEndPosition().getOffset(), coverage.toString() + "\n", null);
       }
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read code coverage for " + getNodeName(component), e);
     }
   }
 
@@ -220,15 +233,13 @@ public class ViewerApplication {
 
   private void updateHighlighting(Component component) {
     highlightingEditor.setText("");
-    if (reader.hasSyntaxHighlighting(component.getRef())) {
-      try (CloseableIterator<BatchReport.SyntaxHighlighting> it = reader.readComponentSyntaxHighlighting(component.getRef())) {
-        while (it.hasNext()) {
-          BatchReport.SyntaxHighlighting rule = it.next();
-          highlightingEditor.getDocument().insertString(highlightingEditor.getDocument().getEndPosition().getOffset(), rule.toString() + "\n", null);
-        }
-      } catch (Exception e) {
-        throw new IllegalStateException("Can't read syntax highlighting for " + getNodeName(component), e);
+    try (CloseableIterator<BatchReport.SyntaxHighlighting> it = reader.readComponentSyntaxHighlighting(component.getRef())) {
+      while (it.hasNext()) {
+        BatchReport.SyntaxHighlighting rule = it.next();
+        highlightingEditor.getDocument().insertString(highlightingEditor.getDocument().getEndPosition().getOffset(), rule.toString() + "\n", null);
       }
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read syntax highlighting for " + getNodeName(component), e);
     }
   }
 
@@ -283,6 +294,12 @@ public class ViewerApplication {
 
     coverageEditor = new JEditorPane();
     coverageTab.setViewportView(coverageEditor);
+
+    duplicationTab = new JScrollPane();
+    tabbedPane.addTab("Duplications", null, duplicationTab, null);
+
+    duplicationEditor = new JEditorPane();
+    duplicationTab.setViewportView(duplicationEditor);
 
     treeScrollPane = new JScrollPane();
     treeScrollPane.setPreferredSize(new Dimension(200, 400));

@@ -204,9 +204,9 @@ export const DebtMain = React.createClass({
 
         <div className="overview-card">
           <DomainBubbleChart {...this.props}
-              xMetric="violations"
-              yMetric="sqale_index"
-              sizeMetrics={['blocker_violations', 'critical_violations']}/>
+              xMetric="ncloc"
+              yMetric="violations"
+              sizeMetrics={['sqale_index']}/>
         </div>
       </div>
 
