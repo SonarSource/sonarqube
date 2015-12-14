@@ -13,6 +13,11 @@ function strongEcho {
   echo "================ $1 ================="
 }
 
+if [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ "${TRAVIS_BRANCH}" != "master" ]; then
+  strongEcho 'Build of branch disabled for this PR'
+  exit 0
+fi
+
 case "$TARGET" in
 
 CI)
