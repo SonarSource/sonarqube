@@ -224,6 +224,6 @@ public class ReportPublisher implements Startable {
       // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
       baseUrl = wsClient.baseUrl();
     }
-    return baseUrl.replaceAll("(/)+$", "") + "/";
+    return baseUrl.replaceAll("(/)+$", "");
   }
 }
