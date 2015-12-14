@@ -68,9 +68,9 @@ public class MinimumViableSystem {
 
   // Visible for testing
   void checkJavaVersion(String javaVersion) {
-    if (!javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7") && !javaVersion.startsWith("1.8")) {
+    if (!javaVersion.startsWith("1.7") && !javaVersion.startsWith("1.8")) {
       // still better than "java.lang.UnsupportedClassVersionError: Unsupported major.minor version 49.0
-      throw new MessageException(format("Supported versions of Java are 1.6, 1.7 and 1.8. Got %s.", javaVersion));
+      throw new MessageException(format("Supported versions of Java are 1.7 and 1.8. Got %s.", javaVersion));
     }
   }
 
