@@ -13,8 +13,8 @@ function strongEcho {
   echo "================ $1 ================="
 }
 
-if [[ "$TRAVIS_PULL_REQUEST" != "false" ]] && [[ "${TRAVIS_BRANCH}" = feature* ]]; then
-  strongEcho 'Build of branch disabled for this PR'
+if [[ "$TRAVIS_PULL_REQUEST" != "false" ]] then
+  strongEcho 'Build of pull request disabled'
   exit 0
 fi
 
