@@ -51,7 +51,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * The maximum supported value of scale for decimal metrics
    * @since 5.3
    */
-  public static final int MAX_DECIMAL_SCALE = 20;
+  public static final int MAX_DECIMAL_SCALE = 5;
 
   /**
    * A metric bigger value means a degradation

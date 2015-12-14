@@ -19,24 +19,25 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.io.FilenameUtils;
-
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * @since 4.0
  */
 public class PathUtils {
 
-  PathUtils() {
+  private PathUtils() {
     // only static methods
   }
 
   /**
    * Normalize path and replace file separators by forward slash
    */
+  @CheckForNull
   public static String sanitize(@Nullable String path) {
     return FilenameUtils.normalize(path, true);
   }
@@ -45,9 +46,13 @@ public class PathUtils {
    * Get canonical path and replace file separators by forward slash. This
    * method does not throw boring checked exception.
    */
+  @CheckForNull
   public static String canonicalPath(@Nullable File file) {
+    if (file == null) {
+      return null;
+    }
     try {
-      return file != null ? FilenameUtils.separatorsToUnix(file.getCanonicalPath()) : null;
+      return FilenameUtils.separatorsToUnix(file.getCanonicalPath());
     } catch (IOException e) {
       throw new IllegalStateException("Fail to get the canonical path of " + file.getAbsolutePath(), e);
     }

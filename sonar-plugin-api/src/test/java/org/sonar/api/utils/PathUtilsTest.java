@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -44,10 +45,23 @@ public class PathUtilsTest {
   public void testSanitize() throws Exception {
     assertThat(PathUtils.sanitize("foo/bar/..")).isEqualTo("foo/");
     assertThat(PathUtils.sanitize("C:\\foo\\..\\bar")).isEqualTo("C:/bar");
+    assertThat(PathUtils.sanitize(null)).isNull();
   }
 
   @Test
-  public void testCanonicalPath_unchecked_exception() throws Exception {
+  public void test_canonicalPath() throws Exception {
+    File file = temp.newFile();
+    String path = PathUtils.canonicalPath(file);
+    assertThat(path).isEqualTo(FilenameUtils.separatorsToUnix(file.getCanonicalPath()));
+  }
+
+  @Test
+  public void canonicalPath_returns_null_if_null_input() {
+    assertThat(PathUtils.canonicalPath(null)).isNull();
+  }
+
+  @Test
+  public void canonicalPath_fails_to_get_canonical_path() throws Exception {
     File file = mock(File.class);
     when(file.getCanonicalPath()).thenThrow(new IOException());
 
@@ -60,16 +74,7 @@ public class PathUtilsTest {
   }
 
   @Test
-  public void testCanonicalPath() throws Exception {
-    File file = temp.newFile();
-    String path = PathUtils.canonicalPath(file);
-    assertThat(path).isEqualTo(FilenameUtils.separatorsToUnix(file.getCanonicalPath()));
-    assertThat(PathUtils.canonicalPath(null)).isNull();
-  }
-
-  @Test
-  public void haveFunGetCoverage() {
-    // does not fail
-    new PathUtils();
+  public void only_statics() {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(PathUtils.class)).isTrue();
   }
 }
