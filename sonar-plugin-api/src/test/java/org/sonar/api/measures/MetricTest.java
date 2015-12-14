@@ -84,10 +84,10 @@ public class MetricTest {
   @Test
   public void fail_if_decimal_scale_is_greater_than_max_supported_value() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Scale of decimal metric [foo] must be less than or equal 20: 21");
+    expectedException.expectMessage("Scale of decimal metric [foo] must be less than or equal 5: 6");
 
     new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
-      .setDecimalScale(Metric.MAX_DECIMAL_SCALE + 1)
+      .setDecimalScale(6)
       .create();
   }
 
