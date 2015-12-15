@@ -39,7 +39,7 @@ public class EmbeddedDatabaseTest {
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
-  @Test(timeout = 5000)
+  @Test(timeout = 10000)
   public void should_start_and_stop() {
     int port = NetworkUtils.freePort();
 
