@@ -29,9 +29,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nonnull;
 import org.sonar.core.util.ProgressLogger;
 import org.sonar.db.Database;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.Upsert;
+import org.sonar.db.version.v53.Component;
+import org.sonar.db.version.v53.Migration53Mapper;
 
 /**
  * Remove all duplicated component that have the same keys.
@@ -44,9 +48,11 @@ import org.sonar.db.version.Upsert;
 public class RemoveDuplicatedComponentKeys extends BaseDataChange {
 
   private final AtomicLong counter = new AtomicLong(0L);
+  private final DbClient dbClient;
 
-  public RemoveDuplicatedComponentKeys(Database db) {
+  public RemoveDuplicatedComponentKeys(Database db, DbClient dbClient) {
     super(db);
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -54,10 +60,13 @@ public class RemoveDuplicatedComponentKeys extends BaseDataChange {
     Upsert componentUpdate = context.prepareUpsert("DELETE FROM projects WHERE id=?");
     Upsert issuesUpdate = context.prepareUpsert("UPDATE issues SET component_uuid=?, project_uuid=? WHERE component_uuid=?");
 
+    DbSession readSession = dbClient.openSession(false);
+    Migration53Mapper mapper = readSession.getMapper(Migration53Mapper.class);
+
     ProgressLogger progress = ProgressLogger.create(getClass(), counter);
     progress.start();
     try {
-      RemoveDuplicatedComponentHandler handler = new RemoveDuplicatedComponentHandler(context, componentUpdate, issuesUpdate);
+      RemoveDuplicatedComponentHandler handler = new RemoveDuplicatedComponentHandler(mapper, componentUpdate, issuesUpdate);
       context.prepareSelect(
         "SELECT p.kee, COUNT(p.kee) FROM projects p " +
           "GROUP BY p.kee " +
@@ -70,40 +79,39 @@ public class RemoveDuplicatedComponentKeys extends BaseDataChange {
       progress.log();
     } finally {
       progress.stop();
+      dbClient.closeSession(readSession);
       componentUpdate.close();
       issuesUpdate.close();
     }
   }
 
   private class RemoveDuplicatedComponentHandler implements Select.RowHandler {
-    private final Context context;
+    private final Migration53Mapper mapper;
     private final Upsert componentUpdate;
     private final Upsert issuesUpdate;
 
     private boolean isEmpty = true;
 
-    public RemoveDuplicatedComponentHandler(Context context, Upsert componentUpdate, Upsert issuesUpdate) {
-      this.context = context;
+    public RemoveDuplicatedComponentHandler(Migration53Mapper mapper, Upsert componentUpdate, Upsert issuesUpdate) {
+      this.mapper = mapper;
       this.componentUpdate = componentUpdate;
       this.issuesUpdate = issuesUpdate;
     }
 
     @Override
     public void handle(Select.Row row) throws SQLException {
-      List<Component> components = context
-        .prepareSelect("SELECT p.id, p.uuid, p.project_uuid, p.enabled FROM projects p WHERE p.kee=? ORDER BY id")
-        .setString(1, row.getString(1))
-        .list(ComponentRowReader.INSTANCE);
+      String componentKey = row.getString(1);
+      List<Component> components = mapper.selectComponentsByKey(componentKey);
       // We keep the enabled component or the last component of the list
       Component refComponent = FluentIterable.from(components).firstMatch(EnabledComponent.INSTANCE).or(components.get(components.size() - 1));
-      for (Component componentToRemove : FluentIterable.from(components).filter(Predicates.not(new MatchComponentId(refComponent.id)))) {
+      for (Component componentToRemove : FluentIterable.from(components).filter(Predicates.not(new MatchComponentId(refComponent.getId())))) {
         componentUpdate
-          .setLong(1, componentToRemove.id)
+          .setLong(1, componentToRemove.getId())
           .addBatch();
         issuesUpdate
-          .setString(1, refComponent.uuid)
-          .setString(2, refComponent.projectUuid)
-          .setString(3, componentToRemove.uuid)
+          .setString(1, refComponent.getUuid())
+          .setString(2, refComponent.getProjectUuid())
+          .setString(3, componentToRemove.getUuid())
           .addBatch();
         counter.getAndIncrement();
         isEmpty = false;
@@ -120,7 +128,7 @@ public class RemoveDuplicatedComponentKeys extends BaseDataChange {
 
     @Override
     public boolean apply(@Nonnull Component input) {
-      return input.enabled;
+      return input.isEnabled();
     }
   }
 
@@ -134,30 +142,8 @@ public class RemoveDuplicatedComponentKeys extends BaseDataChange {
 
     @Override
     public boolean apply(@Nonnull Component input) {
-      return input.id == this.id;
+      return input.getId() == this.id;
     }
   }
 
-  private enum ComponentRowReader implements Select.RowReader<Component> {
-    INSTANCE;
-
-    @Override
-    public Component read(Select.Row row) throws SQLException {
-      return new Component(row.getLong(1), row.getString(2), row.getString(3), row.getBoolean(4));
-    }
-  }
-
-  private static class Component {
-    private final long id;
-    private final String uuid;
-    private final String projectUuid;
-    private final boolean enabled;
-
-    public Component(long id, String uuid, String projectUuid, boolean enabled) {
-      this.id = id;
-      this.uuid = uuid;
-      this.projectUuid = projectUuid;
-      this.enabled = enabled;
-    }
-  }
 }
