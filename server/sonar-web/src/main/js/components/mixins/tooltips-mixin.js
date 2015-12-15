@@ -19,21 +19,21 @@ export const TooltipsMixin = {
   },
 
   initTooltips () {
-    if ($.fn.tooltip) {
+    if ($.fn && $.fn.tooltip) {
       $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this))
           .tooltip({ container: 'body', placement: 'bottom', html: true });
     }
   },
 
   hideTooltips () {
-    if ($.fn.tooltip) {
+    if ($.fn && $.fn.tooltip) {
       $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this))
           .tooltip('hide');
     }
   },
 
   destroyTooltips () {
-    if ($.fn.tooltip) {
+    if ($.fn && $.fn.tooltip) {
       $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this))
           .tooltip('destroy');
     }

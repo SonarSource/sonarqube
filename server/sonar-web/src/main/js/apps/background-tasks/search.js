@@ -62,7 +62,7 @@ export default React.createClass({
       changeYear: true,
       onSelect: this.onDateInputChange
     };
-    if ($.fn.datepicker) {
+    if ($.fn && $.fn.datepicker) {
       $(this.refs.minDate).datepicker(opts);
       $(this.refs.maxDate).datepicker(opts);
     }
