@@ -33,8 +33,8 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.FluentIterable.from;
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -339,7 +339,7 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
   }
 
   private static void checkComponentArgument(Component file, String argName) {
-    requireNonNull(file, format("%s can not be null", argName));
+    checkNotNull(file, "%s can not be null", argName);
     checkArgument(file.getType() == Component.Type.FILE, "type of %s argument must be FILE", argName);
   }
 
