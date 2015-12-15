@@ -39,7 +39,7 @@ public class RemoveDuplicatedComponentKeysTest {
     db.executeUpdateSql("truncate table projects");
     db.executeUpdateSql("truncate table issues");
 
-    migration = new RemoveDuplicatedComponentKeys(db.database());
+    migration = new RemoveDuplicatedComponentKeys(db.database(), db.getDbClient());
   }
 
   @Test

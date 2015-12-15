@@ -132,6 +132,7 @@ import org.sonar.db.version.SchemaMigrationDto;
 import org.sonar.db.version.SchemaMigrationMapper;
 import org.sonar.db.version.v45.Migration45Mapper;
 import org.sonar.db.version.v50.Migration50Mapper;
+import org.sonar.db.version.v53.Migration53Mapper;
 
 public class MyBatis {
 
@@ -235,7 +236,7 @@ public class MyBatis {
       MeasureMapper.class, MetricMapper.class, CustomMeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
       ProjectQgateAssociationMapper.class, EventMapper.class,
       CeQueueMapper.class, CeActivityMapper.class, ComponentLinkMapper.class,
-      Migration45Mapper.class, Migration50Mapper.class
+      Migration45Mapper.class, Migration50Mapper.class, Migration53Mapper.class
     };
     confBuilder.loadMappers(mappers);
 
