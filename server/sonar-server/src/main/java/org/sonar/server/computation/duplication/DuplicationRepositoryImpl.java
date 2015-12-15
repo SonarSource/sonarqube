@@ -52,8 +52,9 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
   public Set<Duplication> getDuplications(Component file) {
     checkFileComponentArgument(file);
 
-    if (duplicationsByComponentUuid.containsKey(file.getUuid())) {
-      return from(duplicationsByComponentUuid.get(file.getUuid()).getDuplicates())
+    Duplications duplications = duplicationsByComponentUuid.get(file.getUuid());
+    if (duplications != null) {
+      return from(duplications.getDuplicates())
         .transform(DuplicatesEntryToDuplication.INSTANCE)
         .toSet();
     }
@@ -231,8 +232,9 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
     private final Map<TextBlock, Duplicates> duplicatesByTextBlock = new HashMap<>();
 
     public Duplicates getOrCreate(TextBlock textBlock) {
-      if (duplicatesByTextBlock.containsKey(textBlock)) {
-        return duplicatesByTextBlock.get(textBlock);
+      Duplicates duplicates = duplicatesByTextBlock.get(textBlock);
+      if (duplicates != null) {
+        return duplicates;
       }
       Duplicates res = new Duplicates();
       duplicatesByTextBlock.put(textBlock, res);
