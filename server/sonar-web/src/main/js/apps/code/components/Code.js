@@ -49,9 +49,11 @@ class Code extends Component {
             <header className="page-header">
               <h1 className="page-title">{window.t('code.page')}</h1>
 
-              {fetching && (
-                  <i className="spinner"/>
-              )}
+              <div
+                  className="pull-left"
+                  style={{ visibility: fetching ? 'visible' : 'hidden' }}>
+                <i className="spinner"/>
+              </div>
 
               {shouldShowBreadcrumbs && (
                   <Breadcrumbs
