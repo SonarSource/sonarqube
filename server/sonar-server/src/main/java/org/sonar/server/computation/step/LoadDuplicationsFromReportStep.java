@@ -27,6 +27,7 @@ import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.duplication.DetailedTextBlock;
 import org.sonar.server.computation.duplication.DuplicationRepository;
 import org.sonar.server.computation.duplication.TextBlock;
 
@@ -59,8 +60,9 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
         public void visitFile(Component file) {
           CloseableIterator<BatchReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef());
           try {
+            int idGenerator = 1;
             while (duplications.hasNext()) {
-              loadDuplications(file, duplications.next());
+              loadDuplications(file, duplications.next(), idGenerator++);
             }
           } finally {
             duplications.close();
@@ -69,8 +71,8 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
       }).visit(treeRootHolder.getRoot());
   }
 
-  private void loadDuplications(Component file, BatchReport.Duplication duplication) {
-    TextBlock original = convert(duplication.getOriginPosition());
+  private void loadDuplications(Component file, BatchReport.Duplication duplication, int id) {
+    DetailedTextBlock original = convert(duplication.getOriginPosition(), id);
     for (BatchReport.Duplicate duplicate : duplication.getDuplicateList()) {
       if (duplicate.hasOtherFileRef()) {
         duplicationRepository.addDuplication(file, original, treeRootHolder.getComponentByRef(duplicate.getOtherFileRef()), convert(duplicate.getRange()));
@@ -82,5 +84,9 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
   private static TextBlock convert(BatchReport.TextRange textRange) {
     return new TextBlock(textRange.getStartLine(), textRange.getEndLine());
+  }
+
+  private static DetailedTextBlock convert(BatchReport.TextRange textRange, int id) {
+    return new DetailedTextBlock(id, textRange.getStartLine(), textRange.getEndLine());
   }
 }

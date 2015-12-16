@@ -28,6 +28,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.VisitException;
+import org.sonar.server.computation.duplication.DetailedTextBlock;
 import org.sonar.server.computation.duplication.Duplicate;
 import org.sonar.server.computation.duplication.Duplication;
 import org.sonar.server.computation.duplication.DuplicationRepositoryRule;
@@ -85,7 +86,7 @@ public class LoadDuplicationsFromReportStepTest {
     underTest.execute();
 
     assertNoDuplication(FILE_1_REF);
-    assertDuplications(FILE_2_REF, singleLineTextBlock(LINE), new InnerDuplicate(singleLineTextBlock(LINE + 1)));
+    assertDuplications(FILE_2_REF, singleLineDetailedTextBlock(1, LINE), new InnerDuplicate(singleLineTextBlock(LINE + 1)));
   }
 
   @Test
@@ -94,7 +95,7 @@ public class LoadDuplicationsFromReportStepTest {
 
     underTest.execute();
 
-    assertDuplications(FILE_1_REF, singleLineTextBlock(LINE), new InProjectDuplicate(treeRootHolder.getComponentByRef(FILE_2_REF), singleLineTextBlock(LINE + 1)));
+    assertDuplications(FILE_1_REF, singleLineDetailedTextBlock(1, LINE), new InProjectDuplicate(treeRootHolder.getComponentByRef(FILE_2_REF), singleLineTextBlock(LINE + 1)));
     assertNoDuplication(FILE_2_REF);
   }
 
@@ -118,16 +119,45 @@ public class LoadDuplicationsFromReportStepTest {
     Component file1Component = treeRootHolder.getComponentByRef(FILE_1_REF);
     assertThat(duplicationRepository.getDuplications(FILE_2_REF)).containsOnly(
       duplication(
-        singleLineTextBlock(LINE),
+        singleLineDetailedTextBlock(1, LINE),
         new InnerDuplicate(singleLineTextBlock(LINE + 1)), new InnerDuplicate(singleLineTextBlock(LINE + 2)), new InProjectDuplicate(file1Component, singleLineTextBlock(LINE)),
         new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 10))),
       duplication(
-        singleLineTextBlock(OTHER_LINE),
+        singleLineDetailedTextBlock(2, OTHER_LINE),
         new InProjectDuplicate(file1Component, singleLineTextBlock(OTHER_LINE))
       ),
       duplication(
-        singleLineTextBlock(OTHER_LINE + 80),
+        singleLineDetailedTextBlock(3, OTHER_LINE + 80),
         new InnerDuplicate(singleLineTextBlock(LINE)), new InnerDuplicate(singleLineTextBlock(LINE + 10))
+      )
+      );
+  }
+
+  @Test
+  public void loads_never_consider_originals_from_batch_on_same_lines_as_the_equals() {
+    reportReader.putDuplications(
+      FILE_2_REF,
+      createDuplication(
+        singleLineTextRange(LINE),
+        createInnerDuplicate(LINE + 1), createInnerDuplicate(LINE + 2), createInProjectDuplicate(FILE_1_REF, LINE + 2)),
+      createDuplication(
+        singleLineTextRange(LINE),
+        createInnerDuplicate(LINE + 2), createInnerDuplicate(LINE + 3), createInProjectDuplicate(FILE_1_REF, LINE + 2))
+      );
+
+    underTest.execute();
+
+    Component file1Component = treeRootHolder.getComponentByRef(FILE_1_REF);
+    assertThat(duplicationRepository.getDuplications(FILE_2_REF)).containsOnly(
+      duplication(
+        singleLineDetailedTextBlock(1, LINE),
+        new InnerDuplicate(singleLineTextBlock(LINE + 1)), new InnerDuplicate(singleLineTextBlock(LINE + 2)),
+        new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 2))
+      ),
+      duplication(
+        singleLineDetailedTextBlock(2, LINE),
+        new InnerDuplicate(singleLineTextBlock(LINE + 2)), new InnerDuplicate(singleLineTextBlock(LINE + 3)),
+        new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 2))
       )
       );
   }
@@ -164,6 +194,10 @@ public class LoadDuplicationsFromReportStepTest {
 
   private TextBlock singleLineTextBlock(int line) {
     return new TextBlock(line, line);
+  }
+
+  private DetailedTextBlock singleLineDetailedTextBlock(int id, int line) {
+    return new DetailedTextBlock(id, line, line);
   }
 
   private static BatchReport.Duplication createDuplication(BatchReport.TextRange original, BatchReport.Duplicate... duplicates) {
