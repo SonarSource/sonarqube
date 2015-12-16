@@ -93,6 +93,7 @@ describe('Code :: Components', () => {
       output = shallow(
           <Component
               component={exampleComponent}
+              coverageMetric="coverage"
               onBrowse={exampleOnBrowse}/>);
     });
 

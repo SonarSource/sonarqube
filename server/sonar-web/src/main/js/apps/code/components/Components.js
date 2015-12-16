@@ -4,7 +4,7 @@ import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 
 
-const Components = ({ baseComponent, components, onBrowse }) => (
+const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => (
     <table className="data zebra">
       <thead>
         <tr>
@@ -18,7 +18,9 @@ const Components = ({ baseComponent, components, onBrowse }) => (
         </tr>
       </thead>
       <tbody>
-        <Component component={baseComponent}/>
+        <Component
+            component={baseComponent}
+            coverageMetric={coverageMetric}/>
         <tr className="blank">
           <td colSpan="7">&nbsp;</td>
         </tr>
@@ -29,6 +31,7 @@ const Components = ({ baseComponent, components, onBrowse }) => (
                 <Component
                     key={component.key}
                     component={component}
+                    coverageMetric={coverageMetric}
                     onBrowse={onBrowse}/>
             ))
         ) : (

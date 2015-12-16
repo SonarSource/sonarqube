@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import { combineReducers } from 'redux';
 
 import { BROWSE, RECEIVE_COMPONENTS, SHOW_SOURCE } from '../actions';
@@ -70,12 +71,38 @@ export function sourceViewer (state = null, action) {
 }
 
 
+function selectCoverageMetric (component) {
+  const coverage = _.findWhere(component.msr, { key: 'coverage' });
+  const itCoverage = _.findWhere(component.msr, { key: 'it_coverage' });
+  const overallCoverage = _.findWhere(component.msr, { key: 'overall_coverage' });
+
+  if (coverage != null && itCoverage != null && overallCoverage != null) {
+    return 'overall_coverage';
+  } else if (coverage != null) {
+    return 'coverage';
+  } else {
+    return 'it_coverage';
+  }
+}
+
+
+export function coverageMetric (state = null, action) {
+  switch (action.type) {
+    case BROWSE:
+      return state !== null ? state : selectCoverageMetric(action.baseComponent);
+    default:
+      return state;
+  }
+}
+
+
 const rootReducer = combineReducers({
   fetching,
   baseComponent,
   components,
   breadcrumbs,
-  sourceViewer
+  sourceViewer,
+  coverageMetric
 });
 
 

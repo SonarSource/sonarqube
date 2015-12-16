@@ -5,7 +5,7 @@ import ComponentMeasure from './ComponentMeasure';
 import ComponentDetach from './ComponentDetach';
 
 
-const Component = ({ component, onBrowse }) => (
+const Component = ({ component, coverageMetric, onBrowse }) => (
     <tr>
       <td className="thin nowrap">
         <span className="spacer-right">
@@ -45,7 +45,7 @@ const Component = ({ component, onBrowse }) => (
         <div className="code-components-cell">
           <ComponentMeasure
               component={component}
-              metricKey="coverage"
+              metricKey={coverageMetric}
               metricType="PERCENT"/>
         </div>
       </td>

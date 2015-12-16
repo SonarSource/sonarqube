@@ -5,7 +5,8 @@ import {
     baseComponent,
     components,
     breadcrumbs,
-    sourceViewer
+    sourceViewer,
+    coverageMetric
 } from '../../../src/main/js/apps/code/reducers';
 import {
     requestComponents,
@@ -92,6 +93,73 @@ describe('Code :: Store', () => {
       it('should be unset on BROWSE', () => {
         expect(sourceViewer(exampleComponent, requestComponents({})))
             .to.equal(null);
+      });
+
+      describe('coverageMetric', () => {
+        it('should be initially null', () => {
+          expect(coverageMetric(undefined, {}))
+              .to.equal(null);
+        });
+
+        it('should be set to "coverage"', () => {
+          const componentWithCoverage = {
+            ...exampleComponent,
+            msr: [
+              { key: 'coverage', val: 13 }
+            ]
+          };
+
+          expect(coverageMetric(null, requestComponents(componentWithCoverage)))
+              .to.equal('coverage');
+        });
+
+        it('should be set to "it_coverage"', () => {
+          const componentWithCoverage = {
+            ...exampleComponent,
+            msr: [
+              { key: 'it_coverage', val: 13 }
+            ]
+          };
+
+          expect(coverageMetric(null, requestComponents(componentWithCoverage)))
+              .to.equal('it_coverage');
+        });
+
+        it('should be set to "overall_coverage"', () => {
+          const componentWithCoverage = {
+            ...exampleComponent,
+            msr: [
+              { key: 'coverage', val: 11 },
+              { key: 'it_coverage', val: 12 },
+              { key: 'overall_coverage', val: 13 }
+            ]
+          };
+
+          expect(coverageMetric(null, requestComponents(componentWithCoverage)))
+              .to.equal('overall_coverage');
+        });
+
+        it('should fallback to "it_coverage"', () => {
+          const componentWithCoverage = {
+            ...exampleComponent,
+            msr: []
+          };
+
+          expect(coverageMetric(null, requestComponents(componentWithCoverage)))
+              .to.equal('it_coverage');
+        });
+
+        it('should not be reset after set once', () => {
+          const componentWithCoverage = {
+            ...exampleComponent,
+            msr: [
+              { key: 'coverage', val: 13 }
+            ]
+          };
+
+          expect(coverageMetric('overall_coverage', requestComponents(componentWithCoverage)))
+              .to.equal('overall_coverage');
+        });
       });
     });
   });

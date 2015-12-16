@@ -7,9 +7,13 @@ const METRICS = [
   'ncloc',
   'sqale_index',
   'violations',
-  // TODO handle other types of coverage
-  'coverage',
   'duplicated_lines_density'
+];
+const METRICS_WITH_COVERAGE = [
+  ...METRICS,
+  'coverage',
+  'it_coverage',
+  'overall_coverage'
 ];
 
 
@@ -44,18 +48,22 @@ export function showSource (component) {
 }
 
 
-function fetchChildren (dispatch, baseComponent) {
+function fetchChildren (dispatch, getState, baseComponent) {
   dispatch(requestComponents(baseComponent));
-  return getChildren(baseComponent.key, METRICS)
+
+  const { coverageMetric } = getState();
+  const metrics = [...METRICS, coverageMetric];
+
+  return getChildren(baseComponent.key, metrics)
       .then(components => _.sortBy(components, 'name'))
       .then(components => dispatch(receiveComponents(baseComponent, components)));
 }
 
 
 export function initComponent (baseComponent) {
-  return dispatch => {
-    return getComponent(baseComponent.key, METRICS)
-        .then(component => fetchChildren(dispatch, component));
+  return (dispatch, getState) => {
+    return getComponent(baseComponent.key, METRICS_WITH_COVERAGE)
+        .then(component => fetchChildren(dispatch, getState, component));
   };
 }
 
@@ -64,7 +72,7 @@ export function fetchComponents (baseComponent) {
   return (dispatch, getState) => {
     const { fetching } = getState();
     if (!fetching) {
-      return fetchChildren(dispatch, baseComponent);
+      return fetchChildren(dispatch, getState, baseComponent);
     }
   };
 }

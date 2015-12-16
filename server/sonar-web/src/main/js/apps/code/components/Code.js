@@ -36,7 +36,7 @@ class Code extends Component {
   }
 
   render () {
-    const { fetching, baseComponent, components, breadcrumbs, sourceViewer } = this.props;
+    const { fetching, baseComponent, components, breadcrumbs, sourceViewer, coverageMetric } = this.props;
     const shouldShowBreadcrumbs = Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
     const shouldShowComponents = !sourceViewer && components;
     const shouldShowSourceViewer = sourceViewer;
@@ -65,6 +65,7 @@ class Code extends Component {
                   <Components
                       baseComponent={baseComponent}
                       components={components}
+                      coverageMetric={coverageMetric}
                       onBrowse={this.handleBrowse.bind(this)}/>
                 </div>
             )}
