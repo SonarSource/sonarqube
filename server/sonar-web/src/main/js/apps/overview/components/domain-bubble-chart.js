@@ -5,6 +5,7 @@ import { BubbleChart } from '../../../components/charts/bubble-chart';
 import { getComponentUrl } from '../../../helpers/urls';
 import { getFiles } from '../../../api/components';
 import { formatMeasure } from '../../../helpers/measures';
+import Workspace from '../../../components/workspace/main';
 
 
 const HEIGHT = 360;
@@ -83,6 +84,10 @@ export class DomainBubbleChart extends React.Component {
     return `<div class="text-left">${inner}</div>`;
   }
 
+  handleBubbleClick (uuid) {
+    Workspace.openComponent({ uuid });
+  }
+
   renderLoading () {
     return <div className="overview-chart-placeholder" style={{ height: HEIGHT }}>
       <i className="spinner"/>
@@ -99,7 +104,7 @@ export class DomainBubbleChart extends React.Component {
         x: getMeasure(component, this.props.xMetric),
         y: getMeasure(component, this.props.yMetric),
         size: this.getSizeMetricsValue(component),
-        link: getComponentUrl(component.key),
+        link: component.uuid,
         tooltip: this.getTooltip(component)
       };
     });
@@ -109,7 +114,8 @@ export class DomainBubbleChart extends React.Component {
                         height={HEIGHT}
                         padding={[25, 60, 50, 60]}
                         formatXTick={formatXTick}
-                        formatYTick={formatYTick}/>;
+                        formatYTick={formatYTick}
+                        onBubbleClick={this.handleBubbleClick}/>;
   }
 
   render () {
