@@ -107,9 +107,7 @@ public class ReportDuplicationMeasuresStepTest {
   @Test
   public void compute_duplicated_blocks_one_for_original_one_for_each_InnerDuplicate() {
     TextBlock original = new TextBlock(1, 1);
-    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(2, 2));
-    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(3, 3));
-    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(2, 3));
+    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(2, 2), new TextBlock(3, 3), new TextBlock(2, 3));
 
     underTest.execute();
 
@@ -213,8 +211,7 @@ public class ReportDuplicationMeasuresStepTest {
   @Test
   public void compute_duplicated_lines_counts_lines_from_original_and_InnerDuplicate_only_once() {
     TextBlock original = new TextBlock(1, 12);
-    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(10, 11));
-    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(11, 15));
+    duplicationRepository.addDuplication(FILE_1_REF, original, new TextBlock(10, 11), new TextBlock(11, 15));
     duplicationRepository.addDuplication(FILE_1_REF, new TextBlock(2, 2), new TextBlock(96, 96));
 
     underTest.execute();
@@ -454,9 +451,11 @@ public class ReportDuplicationMeasuresStepTest {
   private void addDuplicatedBlock(int fileRef, int blockCount) {
     checkArgument(blockCount > 1, "BlockCount can not be less than 2");
     TextBlock original = new TextBlock(1, 1);
+    TextBlock[] duplicates = new TextBlock[blockCount - 1];
     for (int i = 10; i < blockCount + 9; i++) {
-      duplicationRepository.addDuplication(fileRef, original, new TextBlock(i, i));
+      duplicates[i - 10] = new TextBlock(i, i);
     }
+    duplicationRepository.addDuplication(fileRef, original, duplicates);
   }
 
   private void addRawMeasure(int componentRef, String metricKey, int value) {

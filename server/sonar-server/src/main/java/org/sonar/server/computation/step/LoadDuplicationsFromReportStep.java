@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Function;
+import javax.annotation.Nonnull;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.batch.BatchReportReader;
@@ -28,9 +30,15 @@ import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.duplication.DetailedTextBlock;
+import org.sonar.server.computation.duplication.Duplicate;
+import org.sonar.server.computation.duplication.Duplication;
 import org.sonar.server.computation.duplication.DuplicationRepository;
+import org.sonar.server.computation.duplication.InProjectDuplicate;
+import org.sonar.server.computation.duplication.InnerDuplicate;
 import org.sonar.server.computation.duplication.TextBlock;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
@@ -72,14 +80,12 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
   }
 
   private void loadDuplications(Component file, BatchReport.Duplication duplication, int id) {
-    DetailedTextBlock original = convert(duplication.getOriginPosition(), id);
-    for (BatchReport.Duplicate duplicate : duplication.getDuplicateList()) {
-      if (duplicate.hasOtherFileRef()) {
-        duplicationRepository.addDuplication(file, original, treeRootHolder.getComponentByRef(duplicate.getOtherFileRef()), convert(duplicate.getRange()));
-      } else {
-        duplicationRepository.addDuplication(file, original, convert(duplicate.getRange()));
-      }
-    }
+    duplicationRepository.add(file,
+      new Duplication(
+        convert(duplication.getOriginPosition(), id),
+        from(duplication.getDuplicateList())
+          .transform(new BatchDuplicateToCeDuplicate(file))
+      ));
   }
 
   private static TextBlock convert(BatchReport.TextRange textRange) {
@@ -88,5 +94,25 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
   private static DetailedTextBlock convert(BatchReport.TextRange textRange, int id) {
     return new DetailedTextBlock(id, textRange.getStartLine(), textRange.getEndLine());
+  }
+
+  private class BatchDuplicateToCeDuplicate implements Function<BatchReport.Duplicate, Duplicate> {
+    private final Component file;
+
+    private BatchDuplicateToCeDuplicate(Component file) {
+      this.file = file;
+    }
+
+    @Override
+    @Nonnull
+    public Duplicate apply(@Nonnull BatchReport.Duplicate input) {
+      if (input.hasOtherFileRef()) {
+        checkArgument(input.getOtherFileRef() != file.getReportAttributes().getRef(), "file and otherFile references can not be the same");
+        return new InProjectDuplicate(
+          treeRootHolder.getComponentByRef(input.getOtherFileRef()),
+          convert(input.getRange()));
+      }
+      return new InnerDuplicate(convert(input.getRange()));
+    }
   }
 }

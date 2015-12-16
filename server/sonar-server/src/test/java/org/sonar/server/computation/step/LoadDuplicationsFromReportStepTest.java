@@ -179,7 +179,7 @@ public class LoadDuplicationsFromReportStepTest {
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(FILE_1_REF, line + 1)));
 
     expectedException.expect(VisitException.class);
-    expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("file and otherFile Components can not be the same"));
+    expectedException.expectCause(hasType(IllegalArgumentException.class).andMessage("file and otherFile references can not be the same"));
 
     underTest.execute();
   }

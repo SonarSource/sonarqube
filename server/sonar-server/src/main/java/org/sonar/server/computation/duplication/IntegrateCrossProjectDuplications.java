@@ -20,7 +20,9 @@
 
 package org.sonar.server.computation.duplication;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -91,19 +93,21 @@ public class IntegrateCrossProjectDuplications {
 
   private void addDuplication(Component file, CloneGroup duplication) {
     ClonePart originPart = duplication.getOriginPart();
-    TextBlock originTextBlock = new TextBlock(originPart.getStartLine(), originPart.getEndLine());
-    int clonePartCount = 0;
-    for (ClonePart part : from(duplication.getCloneParts())
-      .filter(new DoesNotMatchSameComponentKey(originPart.getResourceId()))) {
-      clonePartCount++;
-      if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
-        LOGGER.warn("Too many duplication references on file {} for block at line {}. Keeping only the first {} references.",
-          file.getKey(), originPart.getStartLine(), MAX_CLONE_PART_PER_GROUP);
-        break;
-      }
-      duplicationRepository.addDuplication(file, originTextBlock, part.getResourceId(),
-        new TextBlock(part.getStartLine(), part.getEndLine()));
+    Iterable<Duplicate> duplicates = convertClonePartsToDuplicates(file, duplication);
+    if (!Iterables.isEmpty(duplicates)) {
+      duplicationRepository.add(
+        file,
+        new Duplication(new TextBlock(originPart.getStartLine(), originPart.getEndLine()), duplicates)
+        );
     }
+  }
+
+  private static Iterable<Duplicate> convertClonePartsToDuplicates(final Component file, CloneGroup duplication) {
+    final ClonePart originPart = duplication.getOriginPart();
+    return from(duplication.getCloneParts())
+      .filter(new DoesNotMatchSameComponentKey(originPart.getResourceId()))
+      .filter(new DuplicateLimiter(file, originPart))
+      .transform(ClonePartToCrossProjectDuplicate.INSTANCE);
   }
 
   private NumberOfUnitsNotLessThan getNumberOfUnitsNotLessThan(String language) {
@@ -153,4 +157,35 @@ public class IntegrateCrossProjectDuplications {
     }
   }
 
+  private static class DuplicateLimiter implements Predicate<ClonePart> {
+    private final Component file;
+    private final ClonePart originPart;
+    private int counter = 0;
+
+    public DuplicateLimiter(Component file, ClonePart originPart) {
+      this.file = file;
+      this.originPart = originPart;
+    }
+
+    @Override
+    public boolean apply(@Nonnull ClonePart input) {
+      if (counter == MAX_CLONE_PART_PER_GROUP) {
+        LOGGER.warn("Too many duplication references on file {} for block at line {}. Keeping only the first {} references.",
+          file.getKey(), originPart.getStartLine(), MAX_CLONE_PART_PER_GROUP);
+      }
+      return counter++ <= MAX_CLONE_GROUP_PER_FILE;
+    }
+  }
+
+  private enum ClonePartToCrossProjectDuplicate implements Function<ClonePart, Duplicate> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public Duplicate apply(@Nonnull ClonePart input) {
+      return new CrossProjectDuplicate(
+        input.getResourceId(),
+        new TextBlock(input.getStartLine(), input.getEndLine()));
+    }
+  }
 }

@@ -21,6 +21,7 @@
 package org.sonar.server.computation.duplication;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Rule;
@@ -38,13 +39,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
@@ -52,6 +46,8 @@ public class IntegrateCrossProjectDuplicationsTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create();
 
   static final String XOO_LANGUAGE = "xoo";
 
@@ -64,8 +60,6 @@ public class IntegrateCrossProjectDuplicationsTest {
   static final String OTHER_FILE_KEY = "OTHER_FILE_KEY";
 
   Settings settings = new Settings();
-
-  DuplicationRepository duplicationRepository = mock(DuplicationRepository.class);
 
   IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(settings, duplicationRepository);
 
@@ -106,11 +100,9 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
-    verify(duplicationRepository).addDuplication(
-      ORIGIN_FILE,
-      new TextBlock(30, 45),
-      OTHER_FILE_KEY,
-      new TextBlock(40, 55)
+    assertThat(duplicationRepository.getDuplications(ORIGIN_FILE))
+      .containsExactly(
+        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55))
       );
   }
 
@@ -140,11 +132,9 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
-    verify(duplicationRepository).addDuplication(
-      ORIGIN_FILE,
-      new TextBlock(30, 45),
-      OTHER_FILE_KEY,
-      new TextBlock(40, 55)
+    assertThat(duplicationRepository.getDuplications(ORIGIN_FILE))
+      .containsExactly(
+        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55))
       );
   }
 
@@ -181,7 +171,7 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
-    verifyNoMoreInteractions(duplicationRepository);
+    assertNoDuplicationAdded(ORIGIN_FILE);
   }
 
   @Test
@@ -210,7 +200,7 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
-    verifyNoMoreInteractions(duplicationRepository);
+    assertNoDuplicationAdded(ORIGIN_FILE);
   }
 
   @Test
@@ -229,7 +219,7 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, Collections.<Block>emptyList());
 
-    verifyNoMoreInteractions(duplicationRepository);
+    assertNoDuplicationAdded(ORIGIN_FILE);
   }
 
   @Test
@@ -261,11 +251,9 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(javaFile, originBlocks, duplicatedBlocks);
 
-    verify(duplicationRepository).addDuplication(
-      ORIGIN_FILE,
-      new TextBlock(30, 45),
-      OTHER_FILE_KEY,
-      new TextBlock(40, 55)
+    assertThat(duplicationRepository.getDuplications(ORIGIN_FILE))
+      .containsExactly(
+        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55))
       );
   }
 
@@ -294,11 +282,9 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
-    verify(duplicationRepository).addDuplication(
-      ORIGIN_FILE,
-      new TextBlock(30, 45),
-      OTHER_FILE_KEY,
-      new TextBlock(40, 55)
+    assertThat(duplicationRepository.getDuplications(ORIGIN_FILE))
+      .containsExactly(
+        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55))
       );
   }
 
@@ -328,7 +314,9 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
       "Too many duplication references on file " + ORIGIN_FILE_KEY + " for block at line 30. Keeping only the first 100 references.");
-    verify(duplicationRepository, times(100)).addDuplication(eq(ORIGIN_FILE), any(TextBlock.class), anyString(), any(TextBlock.class));
+    Iterable<Duplication> duplications = duplicationRepository.getDuplications(ORIGIN_FILE);
+    assertThat(duplications).hasSize(1);
+    assertThat(duplications.iterator().next().getDuplicates()).hasSize(100);
   }
 
   @Test
@@ -359,8 +347,16 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
-    verify(duplicationRepository, times(100)).addDuplication(eq(ORIGIN_FILE), any(TextBlock.class), anyString(), any(TextBlock.class));
+    assertThat(duplicationRepository.getDuplications(ORIGIN_FILE)).hasSize(100);
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Too many duplication groups on file " + ORIGIN_FILE_KEY + ". Keeping only the first 100 groups.");
+  }
+
+  private static Duplication crossProjectDuplication(TextBlock original, String otherFileKey, TextBlock duplicate) {
+    return new Duplication(original, Arrays.<Duplicate>asList(new CrossProjectDuplicate(otherFileKey, duplicate)));
+  }
+
+  private void assertNoDuplicationAdded(Component file) {
+    assertThat(duplicationRepository.getDuplications(file)).isEmpty();
   }
 
 }

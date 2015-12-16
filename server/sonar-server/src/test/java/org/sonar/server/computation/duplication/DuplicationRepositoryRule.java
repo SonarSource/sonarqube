@@ -19,7 +19,12 @@
  */
 package org.sonar.server.computation.duplication;
 
-import java.util.Set;
+import com.google.common.base.Function;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import java.util.Arrays;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -27,78 +32,139 @@ import org.sonar.server.computation.component.ComponentProvider;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolderComponentProvider;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Objects.requireNonNull;
+
 public class DuplicationRepositoryRule extends ExternalResource implements DuplicationRepository {
-  private final TreeRootHolder treeRootHolder;
+  @CheckForNull
   private final ComponentProvider componentProvider;
   private DuplicationRepositoryImpl delegate;
+  private final Multimap<Component, TextBlock> componentRefsWithInnerDuplications = ArrayListMultimap.create();
+  private final Multimap<Component, TextBlock> componentRefsWithInProjectDuplications = ArrayListMultimap.create();
+  private final Multimap<Component, TextBlock> componentRefsWithCrossProjectDuplications = ArrayListMultimap.create();
 
   private DuplicationRepositoryRule(TreeRootHolder treeRootHolder) {
-    this.treeRootHolder = treeRootHolder;
     this.componentProvider = new TreeRootHolderComponentProvider(treeRootHolder);
+  }
+
+  public DuplicationRepositoryRule() {
+    this.componentProvider = null;
   }
 
   public static DuplicationRepositoryRule create(TreeRootHolderRule treeRootHolder) {
     return new DuplicationRepositoryRule(treeRootHolder);
   }
 
+  public static DuplicationRepositoryRule create() {
+    return new DuplicationRepositoryRule();
+  }
+
   @Override
   protected void before() throws Throwable {
-    this.delegate = new DuplicationRepositoryImpl(treeRootHolder);
+    this.delegate = new DuplicationRepositoryImpl();
   }
 
   @Override
   protected void after() {
-    this.componentProvider.reset();
+    if (this.componentProvider != null) {
+      this.componentProvider.reset();
+    }
+    this.componentRefsWithInnerDuplications.clear();
+    this.componentRefsWithInProjectDuplications.clear();
+    this.componentRefsWithCrossProjectDuplications.clear();
     this.delegate = null;
   }
 
-  public Set<Duplication> getDuplications(int fileRef) {
-    componentProvider.ensureInitialized();
+  public Iterable<Duplication> getDuplications(int fileRef) {
+    ensureComponentProviderInitialized();
 
     return delegate.getDuplications(componentProvider.getByRef(fileRef));
   }
 
-  public DuplicationRepositoryRule addDuplication(int fileRef, TextBlock original, TextBlock duplicate) {
-    componentProvider.ensureInitialized();
+  public void add(int fileRef, Duplication duplication) {
+    ensureComponentProviderInitialized();
 
-    delegate.addDuplication(componentProvider.getByRef(fileRef), original, duplicate);
+    delegate.add(componentProvider.getByRef(fileRef), duplication);
+  }
+
+  public DuplicationRepositoryRule addDuplication(int fileRef, TextBlock original, TextBlock... duplicates) {
+    ensureComponentProviderInitialized();
+    Component component = componentProvider.getByRef(fileRef);
+    checkArgument(!componentRefsWithInnerDuplications.containsEntry(component, original), "Inner duplications for file %s and original %s already set", fileRef, original);
+    checkArgument(!componentRefsWithInProjectDuplications.containsEntry(component, original), "InProject duplications for file %s and original %s already set. Use add(int, Duplication) instead", fileRef, original);
+
+    componentRefsWithInnerDuplications.put(component, original);
+    delegate.add(
+      component,
+      new Duplication(
+        original,
+        from(Arrays.asList(duplicates)).transform(TextBlockToInnerDuplicate.INSTANCE))
+      );
 
     return this;
   }
 
   public DuplicationRepositoryRule addDuplication(int fileRef, TextBlock original, int otherFileRef, TextBlock duplicate) {
-    componentProvider.ensureInitialized();
+    ensureComponentProviderInitialized();
+    Component component = componentProvider.getByRef(fileRef);
+    checkArgument(!componentRefsWithInProjectDuplications.containsEntry(component, original), "InProject duplications for file %s and original %s already set", fileRef, original);
+    checkArgument(!componentRefsWithInnerDuplications.containsEntry(component, original), "Inner duplications for file %s and original %s already set. Use add(int, Duplication) instead", fileRef, original);
 
-    delegate.addDuplication(componentProvider.getByRef(fileRef), original, componentProvider.getByRef(otherFileRef), duplicate);
+    componentRefsWithInProjectDuplications.put(component, original);
+    delegate.add(component,
+      new Duplication(
+        original,
+        Arrays.<Duplicate>asList(new InProjectDuplicate(componentProvider.getByRef(otherFileRef), duplicate))
+      )
+      );
 
     return this;
   }
 
   public DuplicationRepositoryRule addDuplication(int fileRef, TextBlock original, String otherFileKey, TextBlock duplicate) {
-    componentProvider.ensureInitialized();
+    ensureComponentProviderInitialized();
+    Component component = componentProvider.getByRef(fileRef);
+    checkArgument(!componentRefsWithCrossProjectDuplications.containsEntry(component, original), "CrossProject duplications for file %s and original %s already set", fileRef);
 
-    delegate.addDuplication(componentProvider.getByRef(fileRef), original, otherFileKey, duplicate);
+    componentRefsWithCrossProjectDuplications.put(component, original);
+    delegate.add(componentProvider.getByRef(fileRef),
+      new Duplication(
+        original,
+        Arrays.<Duplicate>asList(new CrossProjectDuplicate(otherFileKey, duplicate))
+      )
+      );
 
     return this;
   }
 
   @Override
-  public Set<Duplication> getDuplications(Component file) {
+  public Iterable<Duplication> getDuplications(Component file) {
     return delegate.getDuplications(file);
   }
 
   @Override
-  public void addDuplication(Component file, TextBlock original, TextBlock duplicate) {
-    delegate.addDuplication(file, original, duplicate);
+  public void add(Component file, Duplication duplication) {
+    TextBlock original = duplication.getOriginal();
+    checkArgument(!componentRefsWithInnerDuplications.containsEntry(file, original), "Inner duplications for file %s and original %s already set", file, original);
+    checkArgument(!componentRefsWithInProjectDuplications.containsEntry(file, original), "InProject duplications for file %s and original %s already set", file, original);
+    checkArgument(!componentRefsWithCrossProjectDuplications.containsEntry(file, original), "CrossProject duplications for file %s and original %s already set", file, original);
+
+    delegate.add(file, duplication);
   }
 
-  @Override
-  public void addDuplication(Component file, TextBlock original, Component otherFile, TextBlock duplicate) {
-    delegate.addDuplication(file, original, otherFile, duplicate);
+  private void ensureComponentProviderInitialized() {
+    requireNonNull(this.componentProvider, "Methods with component reference can not be used unless a TreeRootHolder has been provided when instantiating the rule");
+    this.componentProvider.ensureInitialized();
   }
 
-  @Override
-  public void addDuplication(Component file, TextBlock original, String otherFileKey, TextBlock duplicate) {
-    delegate.addDuplication(file, original, otherFileKey, duplicate);
+  private enum TextBlockToInnerDuplicate implements Function<TextBlock, Duplicate> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public Duplicate apply(@Nonnull TextBlock input) {
+      return new InnerDuplicate(input);
+    }
   }
 }

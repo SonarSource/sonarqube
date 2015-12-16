@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.duplication;
 
-import java.util.Set;
 import org.sonar.server.computation.component.Component;
 
 /**
@@ -34,58 +33,20 @@ import org.sonar.server.computation.component.Component;
  * </p>
  */
 public interface DuplicationRepository {
-
   /**
    * Returns the duplications in the specified file {@link Component}, if any.
    *
    * @throws NullPointerException if {@code file} is {@code null}
    * @throws IllegalArgumentException if the type of the {@link Component} argument is not {@link Component.Type#FILE}
    */
-  Set<Duplication> getDuplications(Component file);
+  Iterable<Duplication> getDuplications(Component file);
 
   /**
-   * Adds a project duplication of the specified original {@link TextBlock} in the specified file {@link Component}
-   * which is duplicated by the specified duplicate {@link TextBlock} in the same file.
-   * <p>
-   * This method can be called multiple times with the same {@code file} and {@code original} but a different
-   * {@code duplicate} to add multiple duplications of the same block.
-   * </p>
-   * <p>
-   * It must not, however, be called twice with {@code original} and {@code duplicate} swapped, this would raise
-   * an {@link IllegalArgumentException} as the duplication already exists.
-   * </p>
+   * Adds a project duplication in the specified file {@link Component} to the repository.
    *
    * @throws NullPointerException if any argument is {@code null}
    * @throws IllegalArgumentException if the type of the {@link Component} argument is not {@link Component.Type#FILE}
-   * @throws IllegalStateException if {@code original} and {@code duplicate} are the same
-   * @throws IllegalStateException if the specified duplication already exists in the repository
    */
-  void addDuplication(Component file, TextBlock original, TextBlock duplicate);
+  void add(Component file, Duplication duplication);
 
-  /**
-   * Adds a project duplication of the specified original {@link TextBlock} in the specified file {@link Component} as
-   * duplicated by the duplicate {@link TextBlock} in the other file {@link Component}.
-   * <p>
-   * Note: the reverse duplication relationship between files is not added automatically (which leaves open the
-   * possibility of inconsistent duplication information). This means that it is the responsibility of the repository's
-   * user to call this method again with the {@link Component} arguments and the {@link TextBlock} arguments swapped.
-   * </p>
-   *
-   * @throws NullPointerException if any argument is {@code null}
-   * @throws IllegalArgumentException if the type of any of the {@link Component} arguments is not {@link Component.Type#FILE}
-   * @throws IllegalArgumentException if {@code file} and {@code otherFile} are the same
-   * @throws IllegalStateException if the specified duplication already exists in the repository
-   */
-  void addDuplication(Component file, TextBlock original, Component otherFile, TextBlock duplicate);
-
-  /**
-   * Adds a cross-project duplication of the specified original {@link TextBlock} in the specified file {@link Component},
-   * as duplicated by the specified duplicate {@link TextBlock} in a file of another project identified by its key.
-   *
-   * @throws NullPointerException if any argument is {@code null}
-   * @throws IllegalArgumentException if the type of the {@link Component} argument is not {@link Component.Type#FILE}
-   * @throws IllegalArgumentException if {@code otherFileKey} is the key of a file in the project
-   * @throws IllegalStateException if the specified duplication already exists in the repository
-   */
-  void addDuplication(Component file, TextBlock original, String otherFileKey, TextBlock duplicate);
 }

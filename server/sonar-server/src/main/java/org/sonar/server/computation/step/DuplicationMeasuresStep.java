@@ -45,6 +45,7 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Iterables.isEmpty;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_BLOCKS_KEY;
@@ -123,9 +124,9 @@ public class DuplicationMeasuresStep implements ComputationStep {
     }
 
     private void initializeForFile(Component file) {
-      Set<Duplication> duplications = requireNonNull(this.duplicationRepository, "DuplicationRepository missing")
+      Iterable<Duplication> duplications = requireNonNull(this.duplicationRepository, "DuplicationRepository missing")
         .getDuplications(file);
-      if (duplications.isEmpty()) {
+      if (isEmpty(duplications)) {
         return;
       }
 
