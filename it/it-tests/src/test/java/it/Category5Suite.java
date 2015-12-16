@@ -24,6 +24,7 @@ import it.serverSystem.RestartTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
 import it.settings.SettingsTestRestartingOrchestrator;
 import it.updateCenter.UpdateCenterTest;
+import it.user.RailsExternalAuthenticationTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -39,8 +40,8 @@ import org.junit.runners.Suite;
   HttpsTest.class,
   SettingsTestRestartingOrchestrator.class,
   // update center
-  UpdateCenterTest.class
-
+  UpdateCenterTest.class,
+  RailsExternalAuthenticationTest.class
   })
 public class Category5Suite {
 

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.authorisation;
+package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
-import it.Category1Suite;
+import it.Category4Suite;
 import java.net.HttpURLConnection;
 import org.junit.After;
 import org.junit.Before;
@@ -45,7 +45,7 @@ import static util.ItUtils.setServerProperty;
 public class OAuth2IdentityProviderTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
   @Rule
   public UserRule userRule = UserRule.from(ORCHESTRATOR);

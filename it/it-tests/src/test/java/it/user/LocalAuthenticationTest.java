@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.authorisation;
+package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import it.Category1Suite;
+import it.Category4Suite;
 import java.util.UUID;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -54,7 +54,7 @@ import static util.ItUtils.setServerProperty;
 
 public class LocalAuthenticationTest {
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
   private static WsClient adminWsClient;
   private static UserTokensService userTokensWsClient;
 

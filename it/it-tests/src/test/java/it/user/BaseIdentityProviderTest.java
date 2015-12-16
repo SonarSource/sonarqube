@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.authorisation;
+package it.user;
 
 import com.google.common.base.Optional;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
-import it.Category1Suite;
+import it.Category4Suite;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -48,7 +48,7 @@ import static util.ItUtils.setServerProperty;
 public class BaseIdentityProviderTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
   @Rule
   public UserRule userRule = UserRule.from(ORCHESTRATOR);
@@ -100,8 +100,8 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
     ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("authenticate_through_ui",
-      "/authorisation/BaseIdentityProviderTest/authenticate_user.html"
-    ).build());
+      "/user/BaseIdentityProviderTest/authenticate_user.html"
+      ).build());
 
     userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
@@ -113,8 +113,8 @@ public class BaseIdentityProviderTest {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
 
     ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("display_unauthorized_page_when_authentication_failed",
-      "/authorisation/BaseIdentityProviderTest/display_unauthorized_page_when_authentication_failed.html"
-    ).build());
+      "/user/BaseIdentityProviderTest/display_unauthorized_page_when_authentication_failed.html"
+      ).build());
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
   }
@@ -127,8 +127,8 @@ public class BaseIdentityProviderTest {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.allowsUsersToSignUp", "false");
 
     ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
-      "/authorisation/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html"
-    ).build());
+      "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html"
+      ).build());
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
   }

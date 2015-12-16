@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
 /**
- * TODO This test should not require an analysis, only provionning the project should be enough
+ * TODO This test should not require an analysis, only provisioning the project should be enough
  */
 public class FavouriteTest {
 

@@ -29,12 +29,17 @@ import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
 import it.serverSystem.ServerSystemTest;
+import it.user.BaseIdentityProviderTest;
 import it.user.FavouriteTest;
 import it.user.ForceAuthenticationTest;
+import it.user.LocalAuthenticationTest;
+import it.user.MyAccountPageTest;
+import it.user.OAuth2IdentityProviderTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
@@ -42,8 +47,13 @@ import static util.ItUtils.xooPlugin;
   // server system
   ServerSystemTest.class,
   // user
-  ForceAuthenticationTest.class,
+  MyAccountPageTest.class,
   FavouriteTest.class,
+  // authentication
+  ForceAuthenticationTest.class,
+  LocalAuthenticationTest.class,
+  BaseIdentityProviderTest.class,
+  OAuth2IdentityProviderTest.class,
   // component search
   ProjectSearchTest.class,
   ComponentsWsTest.class,
@@ -62,5 +72,12 @@ public class Category4Suite {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
+
+    // Used in BaseIdentityProviderTest
+    .addPlugin(pluginArtifact("base-auth-plugin"))
+
+    // Used in OAuth2IdentityProviderTest
+    .addPlugin(pluginArtifact("oauth2-auth-plugin"))
+
     .build();
 }

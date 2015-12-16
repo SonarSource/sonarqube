@@ -21,8 +21,12 @@ package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
-import it.Category1Suite;
-import org.junit.*;
+import it.Category4Suite;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import util.selenium.SeleneseTest;
@@ -32,7 +36,7 @@ import static util.ItUtils.newAdminWsClient;
 public class MyAccountPageTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
   private static WsClient adminWsClient;
 
   @BeforeClass
