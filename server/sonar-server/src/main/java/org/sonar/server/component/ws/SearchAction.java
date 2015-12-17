@@ -46,9 +46,9 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
-import static org.sonar.server.component.ws.WsComponentsParameters.PARAM_QUALIFIERS;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
 public class SearchAction implements ComponentsWsAction {
@@ -180,12 +180,12 @@ public class SearchAction implements ComponentsWsAction {
     return i18n.message(userSession.locale(), QUALIFIER_PROPERTY_PREFIX + qualifier, "");
   }
 
-  private enum ComponentDToComponentResponseFunction implements Function<ComponentDto, WsComponents.SearchWsResponse.Component> {
+  private enum ComponentDToComponentResponseFunction implements Function<ComponentDto, WsComponents.Component> {
     INSTANCE;
 
     @Override
-    public WsComponents.SearchWsResponse.Component apply(@Nonnull ComponentDto dto) {
-      return SearchWsResponse.Component.newBuilder()
+    public WsComponents.Component apply(@Nonnull ComponentDto dto) {
+      return WsComponents.Component.newBuilder()
         .setId(dto.uuid())
         .setKey(dto.key())
         .setName(dto.name())

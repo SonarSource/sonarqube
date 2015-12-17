@@ -43,10 +43,10 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createQualifierParameter;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -82,7 +82,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .setHandler(this);
 
     createProjectParameter(action);
-    createQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
+    createRootQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
       .setSince("5.3");
   }
 

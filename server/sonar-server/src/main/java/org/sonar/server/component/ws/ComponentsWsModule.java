@@ -32,6 +32,7 @@ public class ComponentsWsModule extends Module {
       // actions
       AppAction.class,
       SearchAction.class,
+      TreeAction.class,
       SearchViewComponentsAction.class);
   }
 }

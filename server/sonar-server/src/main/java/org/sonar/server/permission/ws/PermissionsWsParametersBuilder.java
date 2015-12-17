@@ -20,20 +20,12 @@
 
 package org.sonar.server.permission.ws;
 
-import java.util.Set;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.server.ws.WebService.NewParam;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -42,7 +34,6 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
@@ -148,62 +139,5 @@ public class PermissionsWsParametersBuilder {
       .setRequired(true)
       .setDescription("Id")
       .setExampleValue("af8cb8cc-1e78-4c4e-8c00-ee8e814009a5");
-  }
-
-  public static NewParam createQualifierParameter(NewAction action, QualifierParameterContext context) {
-    return action.createParam(PARAM_QUALIFIER)
-      .setDescription("Project qualifier. Filter the results with the specified qualifier. Possible values are:" + buildRootQualifiersDescription(context))
-      .setPossibleValues(getRootQualifiers(context.getResourceTypes()));
-  }
-
-  private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
-    return from(resourceTypes.getRoots())
-      .transform(RESOURCE_TYPE_TO_QUALIFIER)
-      .toSortedSet(natural());
-  }
-
-  private static String buildRootQualifiersDescription(QualifierParameterContext context) {
-    StringBuilder description = new StringBuilder();
-    description.append("<ul>");
-    String qualifierPattern = "<li>%s - %s</li>";
-    for (String qualifier : getRootQualifiers(context.getResourceTypes())) {
-      description.append(format(qualifierPattern, qualifier, qualifierLabel(context, qualifier)));
-    }
-    description.append("</ul>");
-
-    return description.toString();
-  }
-
-  private static String qualifierLabel(QualifierParameterContext context, String qualifier) {
-    String qualifiersPropertyPrefix = "qualifiers.";
-    return context.getI18n().message(context.getUserSession().locale(), qualifiersPropertyPrefix + qualifier, "");
-  }
-
-  public static class QualifierParameterContext {
-    private final I18n i18n;
-    private final ResourceTypes resourceTypes;
-    private final UserSession userSession;
-
-    private QualifierParameterContext(UserSession userSession, I18n i18n, ResourceTypes resourceTypes) {
-      this.i18n = i18n;
-      this.resourceTypes = resourceTypes;
-      this.userSession = userSession;
-    }
-
-    public static QualifierParameterContext newQualifierParameterContext(UserSession userSession, I18n i18n, ResourceTypes resourceTypes) {
-      return new QualifierParameterContext(userSession, i18n, resourceTypes);
-    }
-
-    public I18n getI18n() {
-      return i18n;
-    }
-
-    public ResourceTypes getResourceTypes() {
-      return resourceTypes;
-    }
-
-    public UserSession getUserSession() {
-      return userSession;
-    }
   }
 }

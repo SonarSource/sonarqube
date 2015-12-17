@@ -20,6 +20,7 @@
 
 package org.sonar.db.component;
 
+import java.util.Date;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
@@ -42,6 +43,7 @@ public class ComponentTesting {
       .setScope(Scopes.FILE)
       .setQualifier(Qualifiers.FILE)
       .setPath(path)
+      .setCreatedAt(new Date())
       .setLanguage("xoo");
   }
 
@@ -168,6 +170,7 @@ public class ComponentTesting {
       .setModuleUuid(module.uuid())
       .setModuleUuidPath(module.moduleUuidPath())
       .setParentProjectId(module.getId())
+      .setCreatedAt(new Date())
       .setEnabled(true);
   }
 }

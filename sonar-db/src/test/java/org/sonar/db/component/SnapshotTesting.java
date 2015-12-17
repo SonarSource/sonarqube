@@ -20,8 +20,9 @@
 
 package org.sonar.db.component;
 
-import com.google.common.base.Preconditions;
 import org.assertj.core.util.Strings;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class SnapshotTesting {
 
@@ -29,11 +30,12 @@ public class SnapshotTesting {
    * Can be used for modules and files
    */
   public static SnapshotDto createForComponent(ComponentDto component, SnapshotDto parentSnapshot) {
-    Preconditions.checkNotNull(parentSnapshot.getId(), "The parent snapshot need to be persisted before creating this snapshot");
+    checkNotNull(parentSnapshot.getId(), "The parent snapshot need to be persisted before creating this snapshot");
     Long parentRootId = parentSnapshot.getRootId();
     return createBasicSnapshot(component, parentSnapshot.getRootProjectId())
       .setRootId(parentRootId != null ? parentRootId : parentSnapshot.getId())
       .setParentId(parentSnapshot.getId())
+      .setDepth(parentSnapshot.getDepth()+1)
       .setPath(
         Strings.isNullOrEmpty(parentSnapshot.getPath()) ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".");
   }
@@ -57,8 +59,8 @@ public class SnapshotTesting {
   }
 
   private static SnapshotDto createBasicSnapshot(ComponentDto component, Long rootProjectId) {
-    Preconditions.checkNotNull(component.getId(), "The project need to be persisted before creating this snapshot");
-    Preconditions.checkNotNull(rootProjectId, "Root project id is null");
+    checkNotNull(component.getId(), "The project need to be persisted before creating this snapshot");
+    checkNotNull(rootProjectId, "Root project id is null");
     return new SnapshotDto()
       .setComponentId(component.getId())
       .setRootProjectId(rootProjectId)

@@ -243,7 +243,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_project_id_and_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The component key or the component id must be provided, not both.");
+    expectedException.expectMessage("Either 'componentKey' or 'componentId' must be provided, not both");
 
     newRequest()
       .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
@@ -254,7 +254,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_project_id_nor_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The component key or the component id must be provided, not both.");
+    expectedException.expectMessage("Either 'componentKey' or 'componentId' must be provided, not both");
     newRequest().execute();
   }
 

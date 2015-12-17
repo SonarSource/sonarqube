@@ -140,7 +140,7 @@ public class LinesActionTest {
   @Test
   public void fail_when_no_uuid_or_key_param() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("The component key or the component id must be provided, not both.");
+    thrown.expectMessage("Either 'componentKey' or 'componentId' must be provided, not both");
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
     request.execute();

@@ -20,6 +20,8 @@
 
 package org.sonar.db.component;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +33,8 @@ import org.sonar.api.resources.ResourceTypes;
 public class ResourceTypesRule extends ResourceTypes {
   private final Set<ResourceType> allResourceTypes = new HashSet<>();
   private final Set<ResourceType> rootResourceTypes = new HashSet<>();
+  private final List<String> childrenQualifiers = new ArrayList<>();
+  private final List<String> leavesQualifiers = new ArrayList<>();
 
   @Override
   public Collection<ResourceType> getAll() {
@@ -47,6 +51,19 @@ public class ResourceTypesRule extends ResourceTypes {
     for (String qualifier : qualifiers) {
       rootResourceTypes.add(ResourceType.builder(qualifier).build());
     }
+
+    return this;
+  }
+
+  public ResourceTypesRule setLeavesQualifiers(String... qualifiers) {
+    leavesQualifiers.clear();
+    leavesQualifiers.addAll(Arrays.asList(qualifiers));
+    return this;
+  }
+
+  public ResourceTypesRule setChildrenQualifiers(String... qualifiers) {
+    childrenQualifiers.clear();
+    childrenQualifiers.addAll(Arrays.asList(qualifiers));
 
     return this;
   }
@@ -82,7 +99,7 @@ public class ResourceTypesRule extends ResourceTypes {
 
   @Override
   public List<String> getChildrenQualifiers(String qualifier) {
-    throw new UnsupportedOperationException();
+    return this.childrenQualifiers;
   }
 
   @Override
@@ -92,7 +109,7 @@ public class ResourceTypesRule extends ResourceTypes {
 
   @Override
   public List<String> getLeavesQualifiers(String qualifier) {
-    throw new UnsupportedOperationException();
+    return this.leavesQualifiers;
   }
 
   @Override

@@ -82,6 +82,10 @@ public class Paging {
     return (pageIndex - 1) * pageSize;
   }
 
+  public static int offset(int pageIndex, int pageSize) {
+    return (pageIndex - 1) * pageSize;
+  }
+
   /**
    * Number of pages. It is greater than or equal 0.
    */

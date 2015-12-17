@@ -42,6 +42,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 
@@ -672,11 +674,11 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_with_paging_query_and_qualifiers() {
-    componentDb.insertProjectAndSnapshot(dbSession, newProjectDto().setName("aaaa-name"));
-    componentDb.insertProjectAndSnapshot(dbSession, newView());
-    componentDb.insertProjectAndSnapshot(dbSession, newDeveloper("project-name"));
+    componentDb.insertProjectAndSnapshot(newProjectDto().setName("aaaa-name"));
+    componentDb.insertProjectAndSnapshot(newView());
+    componentDb.insertProjectAndSnapshot(newDeveloper("project-name"));
     for (int i = 9; i >= 1; i--) {
-      componentDb.insertProjectAndSnapshot(dbSession, newProjectDto().setName("project-" + i));
+      componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-" + i));
     }
     db.commit();
     componentDb.indexProjects();
@@ -691,7 +693,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_name_with_special_characters() {
-    componentDb.insertProjectAndSnapshot(dbSession, newProjectDto().setName("project-\\_%/-name"));
+    componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-\\_%/-name"));
     db.commit();
     componentDb.indexProjects();
 
@@ -704,7 +706,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_key_with_special_characters() {
-    componentDb.insertProjectAndSnapshot(dbSession, newProjectDto()
+    componentDb.insertProjectAndSnapshot(newProjectDto()
       .setKey("project-_%-key"));
     db.commit();
     componentDb.indexProjects();
@@ -714,5 +716,182 @@ public class ComponentDaoTest {
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).key()).isEqualTo("project-_%-key");
+  }
+
+  @Test
+  public void select_direct_children_of_a_project() {
+    ComponentDto project = newProjectDto().setKey("project-key").setUuid("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid"), moduleSnapshot);
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentTreeQuery query = newTreeQuery(projectSnapshot).build();
+
+    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    int count = underTest.countDirectChildren(dbSession, query);
+
+    assertThat(count).isEqualTo(2);
+    assertThat(result).extracting("uuid").containsExactly("file-1-uuid", "module-1-uuid");
+  }
+
+  @Test
+  public void select_direct_children_with_name_query() {
+    ComponentDto project = newProjectDto().setKey("project-key").setUuid("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid").setName("file-name-1"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid").setName("file-name-2"), moduleSnapshot);
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentTreeQuery query = newTreeQuery(projectSnapshot)
+      .setNameOrKeyQuery("file-name").build();
+
+    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    int count = underTest.countDirectChildren(dbSession, query);
+
+    assertThat(count).isEqualTo(1);
+    assertThat(result).extracting("uuid").containsExactly("file-1-uuid");
+  }
+
+  @Test
+  public void select_direct_children_with_key_query() {
+    ComponentDto project = newProjectDto().setKey("project-key").setUuid("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid").setKey("file-key-1"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid").setKey("file-key-2"), moduleSnapshot);
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentTreeQuery query = newTreeQuery(projectSnapshot)
+      .setNameOrKeyQuery("file-key").build();
+
+    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    int count = underTest.countDirectChildren(dbSession, query);
+
+    assertThat(count).isEqualTo(1);
+    assertThat(result).extracting("uuid").containsExactly("file-1-uuid");
+  }
+
+  @Test
+  public void select_direct_children_with_pagination() {
+    ComponentDto project = newProjectDto().setKey("project-key").setUuid("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    for (int i = 1; i <= 9; i++) {
+      componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-" + i), projectSnapshot);
+    }
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentTreeQuery query = newTreeQuery(projectSnapshot)
+      .setPage(2)
+      .setPageSize(3)
+      .setAsc(false)
+      .build();
+
+    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    int count = underTest.countDirectChildren(dbSession, query);
+
+    assertThat(count).isEqualTo(9);
+    assertThat(result).extracting("uuid").containsExactly("file-uuid-6", "file-uuid-5", "file-uuid-4");
+  }
+
+  @Test
+  public void select_direct_children_with_order_by_path() {
+    ComponentDto project = newProjectDto();
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-1").setName("file-name-1").setPath("3"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-2").setName("file-name-2").setPath("2"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-3").setName("file-name-3").setPath("1"), projectSnapshot);
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentTreeQuery query = newTreeQuery(projectSnapshot)
+      .setSortFields(singletonList("path"))
+      .setAsc(true)
+      .build();
+
+    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+
+    assertThat(result).extracting("uuid").containsExactly("file-uuid-3", "file-uuid-2", "file-uuid-1");
+  }
+
+  @Test
+  public void select_direct_children_of_a_module() {
+    ComponentDto project = newProjectDto();
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid"), moduleSnapshot);
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentTreeQuery query = newTreeQuery(moduleSnapshot).build();
+
+    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+
+    assertThat(result).extracting("uuid").containsOnly("file-2-uuid");
+  }
+
+  @Test
+  public void select_all_children_of_a_project() {
+    ComponentDto project = newProjectDto().setKey("project-key").setUuid("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid"), moduleSnapshot);
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentTreeQuery query = newTreeQuery(projectSnapshot).build();
+
+    List<ComponentDto> result = underTest.selectAllChildren(dbSession, query);
+    int count = underTest.countAllChildren(dbSession, query);
+
+    assertThat(count).isEqualTo(3);
+    assertThat(result).extracting("uuid").containsExactly("file-1-uuid", "file-2-uuid", "module-1-uuid");
+  }
+
+  @Test
+  public void select_all_files_of_a_project_paginated_and_ordered() {
+    ComponentDto project = newProjectDto().setKey("project-key").setUuid("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-1").setName("file-name-1"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "another-uuid"), projectSnapshot);
+    for (int i = 2; i <= 9; i++) {
+      componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-" + i).setName("file-name-" + i), moduleSnapshot);
+    }
+    db.commit();
+    componentDb.indexProjects();
+
+    ComponentTreeQuery query = newTreeQuery(projectSnapshot)
+      .setQualifiers(newArrayList(Qualifiers.FILE))
+      .setPage(2)
+      .setPageSize(3)
+      .setNameOrKeyQuery("file-name")
+      .setSortFields(singletonList("name"))
+      .setAsc(false)
+      .build();
+
+    List<ComponentDto> result = underTest.selectAllChildren(dbSession, query);
+    int count = underTest.countAllChildren(dbSession, query);
+
+    assertThat(count).isEqualTo(9);
+    assertThat(result).extracting("uuid").containsExactly("file-uuid-6", "file-uuid-5", "file-uuid-4");
+  }
+
+  private static ComponentTreeQuery.Builder newTreeQuery(SnapshotDto baseSnapshot) {
+    return ComponentTreeQuery.builder()
+      .setPage(1)
+      .setPageSize(500)
+      .setBaseSnapshot(baseSnapshot)
+      .setSortFields(singletonList("name"))
+      .setAsc(true)
+      .setQualifiers(newArrayList(Qualifiers.FILE, Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.PROJECT));
   }
 }

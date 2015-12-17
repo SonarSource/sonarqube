@@ -30,6 +30,6 @@ public class ComponentsWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new ComponentsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(8);
+    assertThat(container.size()).isEqualTo(7 + 2);
   }
 }

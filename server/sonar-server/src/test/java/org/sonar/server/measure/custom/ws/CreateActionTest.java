@@ -335,7 +335,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_id_nor_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The component key or the component id must be provided, not both.");
+    expectedException.expectMessage("Either 'componentKey' or 'componentId' must be provided, not both");
     insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
@@ -348,7 +348,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_id_and_project_key_are_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The component key or the component id must be provided, not both.");
+    expectedException.expectMessage("Either 'componentKey' or 'componentId' must be provided, not both");
     insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 

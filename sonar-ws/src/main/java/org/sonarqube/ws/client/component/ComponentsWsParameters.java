@@ -18,12 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.component.ws;
+package org.sonarqube.ws.client.component;
 
-class WsComponentsParameters {
-  private WsComponentsParameters() {
+public class ComponentsWsParameters {
+  private ComponentsWsParameters() {
     // static utility class
   }
 
-  static final String PARAM_QUALIFIERS = "qualifiers";
+  //actions
+  public static final String ACTION_TREE = "tree";
+
+  // parameters
+  public static final String PARAM_QUALIFIERS = "qualifiers";
+  public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
+  public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
+  public static final String PARAM_STRATEGY = "strategy";
 }

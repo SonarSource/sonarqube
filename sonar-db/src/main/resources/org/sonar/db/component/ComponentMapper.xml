@@ -280,23 +280,82 @@
       AND p.enabled=${_true}
       AND p.copy_resource_id is null
       AND p.qualifier in
-      <foreach collection="qualifiers" item="qualifier" open="(" close=")" separator=",">
+      <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
         #{qualifier}
       </foreach>
-      <if test="nameOrKeyQuery!=null">
+      <if test="query.nameOrKeyQuery!=null">
         AND (exists (
         select 1
         from resource_index ri
         where
         ri.resource_id=p.id
         AND ri.qualifier in
-        <foreach collection="qualifiers" item="qualifier" open="(" close=")" separator=",">
+        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
           #{qualifier}
         </foreach>
-        AND ri.kee like #{nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
-        OR p.kee like #{nameOrKeyQueryToSqlForProjectKey} ESCAPE '/')
+        AND ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
+        OR p.kee like #{query.nameOrKeyQueryToSqlForProjectKey} ESCAPE '/')
       </if>
     </where>
+  </sql>
+
+  <select id="selectDirectChildren" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    <include refid="sqlSelectByTreeQuery"/>
+    and s.parent_snapshot_id = #{query.baseSnapshot.id}
+    order by ${query.sqlSort}
+  </select>
+
+  <select id="countDirectChildren" resultType="int">
+    select count(p.id)
+    <include refid="sqlSelectByTreeQuery"/>
+    and s.parent_snapshot_id = #{query.baseSnapshot.id}
+  </select>
+
+  <select id="selectAllChildren" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    <include refid="sqlSelectAllChildren" />
+    order by ${query.sqlSort}
+  </select>
+
+  <select id="countAllChildren" resultType="int">
+    select count(p.id)
+    <include refid="sqlSelectAllChildren"/>
+  </select>
+
+  <sql id="sqlSelectAllChildren">
+    <include refid="sqlSelectByTreeQuery"/>
+    <if test="query.baseSnapshot.rootId!=null">
+      and s.root_snapshot_id = #{query.baseSnapshot.rootId}
+    </if>
+    <if test="query.baseSnapshot.rootId==null">
+      and s.root_snapshot_id = #{query.baseSnapshot.id}
+    </if>
+    and s.path like #{query.baseSnapshotPath} ESCAPE '/'
+  </sql>
+
+  <sql id="sqlSelectByTreeQuery">
+    from projects p
+    inner join snapshots s on p.id = s.project_id
+    where
+    p.enabled=${_true}
+    <if test="query.qualifiers!=null">
+      AND p.qualifier in
+      <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+        #{qualifier}
+      </foreach>
+    </if>
+    <if test="query.nameOrKeyQuery!=null">
+      AND (exists (
+      select 1
+      from resource_index ri
+      where
+      ri.resource_id=p.id
+      AND ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
+      OR p.kee like #{query.nameOrKeyQueryToSqlForProjectKey} ESCAPE '/')
+    </if>
   </sql>
 
   <select id="countRootComponents" resultType="int">

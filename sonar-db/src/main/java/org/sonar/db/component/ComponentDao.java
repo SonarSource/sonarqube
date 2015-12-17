@@ -41,6 +41,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
+import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class ComponentDao implements Dao {
@@ -148,6 +149,24 @@ public class ComponentDao implements Dao {
 
   public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {
     return mapper(session).selectComponentsHavingSameKeyOrderedById(key);
+  }
+
+  public List<ComponentDto> selectDirectChildren(DbSession dbSession, ComponentTreeQuery componentQuery) {
+    RowBounds rowBounds = new RowBounds(offset(componentQuery.getPage(), componentQuery.getPageSize()), componentQuery.getPageSize());
+    return mapper(dbSession).selectDirectChildren(componentQuery, rowBounds);
+  }
+
+  public List<ComponentDto> selectAllChildren(DbSession dbSession, ComponentTreeQuery componentQuery) {
+    RowBounds rowBounds = new RowBounds(offset(componentQuery.getPage(), componentQuery.getPageSize()), componentQuery.getPageSize());
+    return mapper(dbSession).selectAllChildren(componentQuery, rowBounds);
+  }
+
+  public int countDirectChildren(DbSession dbSession, ComponentTreeQuery query) {
+    return mapper(dbSession).countDirectChildren(query);
+  }
+
+  public int countAllChildren(DbSession dbSession, ComponentTreeQuery query) {
+    return mapper(dbSession).countAllChildren(query);
   }
 
   private static class KeyToDto implements Function<List<String>, List<ComponentDto>> {

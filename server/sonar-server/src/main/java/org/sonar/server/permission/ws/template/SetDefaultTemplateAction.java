@@ -38,10 +38,10 @@ import org.sonarqube.ws.client.permission.SetDefaultTemplateWsRequest;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createQualifierParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -74,7 +74,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
       .setHandler(this);
 
     createTemplateParameters(action);
-    createQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
+    createRootQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
       .setDefaultValue(Qualifiers.PROJECT);
   }
 

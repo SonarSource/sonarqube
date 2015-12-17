@@ -1,0 +1,90 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 10
+  },
+  "projectId": "project-id",
+  "components": [
+    {
+      "id": "file-id-1",
+      "key": "file-key-1",
+      "name": "file-name-1",
+      "description": "description 1",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-1"
+    },
+    {
+      "id": "file-id-10",
+      "key": "file-key-10",
+      "name": "file-name-10",
+      "description": "description 10",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-10"
+    },
+    {
+      "id": "file-id-2",
+      "key": "file-key-2",
+      "name": "file-name-2",
+      "description": "description 2",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-2"
+    },
+    {
+      "id": "file-id-3",
+      "key": "file-key-3",
+      "name": "file-name-3",
+      "description": "description 3",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-3"
+    },
+    {
+      "id": "file-id-4",
+      "key": "file-key-4",
+      "name": "file-name-4",
+      "description": "description 4",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-4"
+    },
+    {
+      "id": "file-id-5",
+      "key": "file-key-5",
+      "name": "file-name-5",
+      "description": "description 5",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-5"
+    },
+    {
+      "id": "file-id-6",
+      "key": "file-key-6",
+      "name": "file-name-6",
+      "description": "description 6",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-6"
+    },
+    {
+      "id": "file-id-7",
+      "key": "file-key-7",
+      "name": "file-name-7",
+      "description": "description 7",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-7"
+    },
+    {
+      "id": "file-id-8",
+      "key": "file-key-8",
+      "name": "file-name-8",
+      "description": "description 8",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-8"
+    },
+    {
+      "id": "file-id-9",
+      "key": "file-key-9",
+      "name": "file-name-9",
+      "description": "description 9",
+      "qualifier": "FIL",
+      "path": "path/to/file-name-9"
+    }
+  ]
+}

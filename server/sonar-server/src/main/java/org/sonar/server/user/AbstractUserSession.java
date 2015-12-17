@@ -41,6 +41,7 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class AbstractUserSession<T extends AbstractUserSession> implements UserSession {
   protected static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
+  private static final ForbiddenException INSUFFICIENT_PRIVILEGES_EXCEPTION = new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
 
   protected Integer userId;
   protected String login;
@@ -188,5 +189,9 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
+  }
+
+  public static ForbiddenException insufficientPrivilegesException() {
+    return INSUFFICIENT_PRIVILEGES_EXCEPTION;
   }
 }

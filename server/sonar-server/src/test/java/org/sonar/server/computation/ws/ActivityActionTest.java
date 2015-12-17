@@ -189,9 +189,9 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_by_component_name() throws IOException {
-    componentDb.insertProjectAndSnapshot(dbTester.getSession(), newProjectDto().setName("apache struts").setUuid("P1"));
-    componentDb.insertProjectAndSnapshot(dbTester.getSession(), newProjectDto().setName("apache zookeeper").setUuid("P2"));
-    componentDb.insertProjectAndSnapshot(dbTester.getSession(), newProjectDto().setName("eclipse").setUuid("P3"));
+    componentDb.insertProjectAndSnapshot(newProjectDto().setName("apache struts").setUuid("P1"));
+    componentDb.insertProjectAndSnapshot(newProjectDto().setName("apache zookeeper").setUuid("P2"));
+    componentDb.insertProjectAndSnapshot(newProjectDto().setName("eclipse").setUuid("P3"));
     dbTester.commit();
     componentDb.indexProjects();
     userSession.setGlobalPermissions(UserRole.ADMIN);
