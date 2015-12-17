@@ -19,8 +19,8 @@ export const Bubble = React.createClass({
   },
 
   handleClick () {
-    if (this.props.link) {
-      window.location = this.props.link;
+    if (this.props.onClick) {
+      this.props.onClick(this.props.link);
     }
   },
 
@@ -50,7 +50,8 @@ export const BubbleChart = React.createClass({
     height: React.PropTypes.number,
     padding: React.PropTypes.arrayOf(React.PropTypes.number),
     formatXTick: React.PropTypes.func,
-    formatYTick: React.PropTypes.func
+    formatYTick: React.PropTypes.func,
+    onBubbleClick: React.PropTypes.func
   },
 
   mixins: [ResizeMixin, TooltipsMixin],
@@ -203,9 +204,10 @@ export const BubbleChart = React.createClass({
     let bubbles = _.sortBy(this.props.items, (a, b) => b.size - a.size)
         .map((item, index) => {
           return <Bubble key={index}
-                         tooltip={item.tooltip}
                          link={item.link}
-                         x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}/>;
+                         tooltip={item.tooltip}
+                         x={xScale(item.x)} y={yScale(item.y)} r={sizeScale(item.size)}
+                         onClick={this.props.onBubbleClick}/>;
         });
 
     let xTicks = this.getTicks(xScale, this.props.formatXTick);
