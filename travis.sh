@@ -26,6 +26,7 @@ CI)
     # this pull request must be built and analyzed (without upload of report)
     mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify -Panalysis -Dclirr=true -B -e -V
 
+    installTravisTools
     build_snapshot "mojohaus/sonar-maven-plugin"
 
     mvn org.codehaus.mojo:sonar-maven-plugin:2.8-SNAPSHOT:sonar -B -e -V \
@@ -34,7 +35,8 @@ CI)
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
         -Dsonar.github.oauth=$GITHUB_TOKEN \
         -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN
+        -Dsonar.login=$SONAR_TOKEN \
+        -Dhttps.protocols=TLSv1.2
 
 
   else
