@@ -35,8 +35,7 @@ CI)
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
         -Dsonar.github.oauth=$GITHUB_TOKEN \
         -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN \
-        -Dhttps.protocols=TLSv1.2
+        -Dsonar.login=$SONAR_TOKEN
 
 
   else
