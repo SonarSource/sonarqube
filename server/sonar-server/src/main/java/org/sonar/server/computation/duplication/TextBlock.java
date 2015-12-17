@@ -31,7 +31,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * same start line, by smallest size (ie. lowest end line).
  * </p>
  */
-public final class TextBlock implements Comparable<TextBlock> {
+public class TextBlock implements Comparable<TextBlock> {
   private final int start;
   private final int end;
 

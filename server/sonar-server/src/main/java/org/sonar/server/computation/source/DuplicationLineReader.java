@@ -24,11 +24,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.db.protobuf.DbFileSources;
@@ -37,12 +35,13 @@ import org.sonar.server.computation.duplication.InnerDuplicate;
 import org.sonar.server.computation.duplication.TextBlock;
 
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Iterables.size;
 
 public class DuplicationLineReader implements LineReader {
 
   private final Map<TextBlock, Integer> duplicatedTextBlockIndexByTextBlock;
 
-  public DuplicationLineReader(Set<Duplication> duplications) {
+  public DuplicationLineReader(Iterable<Duplication> duplications) {
     this.duplicatedTextBlockIndexByTextBlock = createIndexOfDuplicatedTextBlocks(duplications);
   }
 
@@ -70,7 +69,7 @@ public class DuplicationLineReader implements LineReader {
    * index. It avoids false detections of changes in {@link DbFileSources.Line#getDuplicationList()}.
    * </p>
    */
-  private static Map<TextBlock, Integer> createIndexOfDuplicatedTextBlocks(Collection<Duplication> duplications) {
+  private static Map<TextBlock, Integer> createIndexOfDuplicatedTextBlocks(Iterable<Duplication> duplications) {
     List<TextBlock> duplicatedTextBlocks = extractAllDuplicatedTextBlocks(duplications);
     Collections.sort(duplicatedTextBlocks);
     return from(duplicatedTextBlocks)
@@ -84,10 +83,10 @@ public class DuplicationLineReader implements LineReader {
    * The returned list is mutable on purpose because it will be sorted.
    * </p>
    *
-   * @see {@link #createIndexOfDuplicatedTextBlocks(Collection)}
+   * @see {@link #createIndexOfDuplicatedTextBlocks(Iterable)}
    */
-  private static List<TextBlock> extractAllDuplicatedTextBlocks(Collection<Duplication> duplications) {
-    List<TextBlock> duplicatedBlock = new ArrayList<>(duplications.size());
+  private static List<TextBlock> extractAllDuplicatedTextBlocks(Iterable<Duplication> duplications) {
+    List<TextBlock> duplicatedBlock = new ArrayList<>(size(duplications));
     for (Duplication duplication : duplications) {
       duplicatedBlock.add(duplication.getOriginal());
       for (InnerDuplicate duplicate : from(duplication.getDuplicates()).filter(InnerDuplicate.class)) {

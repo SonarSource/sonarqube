@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
@@ -39,6 +38,7 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 
+import static com.google.common.collect.Iterables.isEmpty;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -75,8 +75,8 @@ public class DuplicationDataMeasuresStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      Set<Duplication> duplications = duplicationRepository.getDuplications(file);
-      if (!duplications.isEmpty()) {
+      Iterable<Duplication> duplications = duplicationRepository.getDuplications(file);
+      if (!isEmpty(duplications)) {
         computeDuplications(file, duplications);
       }
     }

@@ -23,6 +23,7 @@ package org.sonar.server.benchmark;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -43,7 +44,10 @@ import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.duplication.Duplicate;
+import org.sonar.server.computation.duplication.Duplication;
 import org.sonar.server.computation.duplication.DuplicationRepositoryRule;
+import org.sonar.server.computation.duplication.InnerDuplicate;
 import org.sonar.server.computation.duplication.TextBlock;
 import org.sonar.server.computation.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.source.SourceHashRepositoryImpl;
@@ -141,9 +145,13 @@ public class PersistFileSourcesStepTest {
     LineData lineData = new LineData();
     for (int line = 1; line <= NUMBER_OF_LINES; line++) {
       lineData.generateLineData(line);
-
-      duplicationRepository.addDuplication(fileRef, new TextBlock(line, line), new TextBlock(line + 1, line + 1));
-
+      duplicationRepository.add(
+        fileRef,
+        new Duplication(
+          new TextBlock(line, line),
+          Arrays.<Duplicate>asList(new InnerDuplicate(new TextBlock(line + 1, line + 1)))
+        )
+        );
     }
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(fileRef)

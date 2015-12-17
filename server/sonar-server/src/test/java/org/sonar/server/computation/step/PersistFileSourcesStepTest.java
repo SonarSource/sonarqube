@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +39,10 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.duplication.Duplicate;
+import org.sonar.server.computation.duplication.Duplication;
 import org.sonar.server.computation.duplication.DuplicationRepositoryRule;
+import org.sonar.server.computation.duplication.InnerDuplicate;
 import org.sonar.server.computation.duplication.TextBlock;
 import org.sonar.server.computation.scm.Changeset;
 import org.sonar.server.computation.scm.ScmInfoRepositoryRule;
@@ -242,7 +246,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_duplication() {
     initBasicReport(1);
 
-    duplicationRepository.addDuplication(FILE_REF, new TextBlock(1, 2), new TextBlock(3, 4));
+    duplicationRepository.add(
+      FILE_REF,
+      new Duplication(new TextBlock(1, 2), Arrays.<Duplicate>asList(new InnerDuplicate(new TextBlock(3, 4))))
+      );
 
     underTest.execute();
 
