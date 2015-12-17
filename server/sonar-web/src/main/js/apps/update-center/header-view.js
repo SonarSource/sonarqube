@@ -18,7 +18,7 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData: function () {
-    return _.extend(this._super(), {
+    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       installing: this.collection._installedCount,
       uninstalling: this.collection._uninstalledCount
     });

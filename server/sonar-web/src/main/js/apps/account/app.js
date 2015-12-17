@@ -1,7 +1,6 @@
 import $ from 'jquery';
-import Handlebars from 'hbsfy/runtime';
 import ChangePasswordView from './change-password-view';
-import '../../helpers/handlebars-helpers';
+import avatarHelper from '../../helpers/handlebars/avatarHelper';
 
 var shouldShowAvatars = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
 var favorites = $('.js-account-favorites tr');
@@ -15,7 +14,7 @@ class App {
     $('html').addClass('dashboard-page');
 
     if (shouldShowAvatars) {
-      var avatarHtml = Handlebars.helpers.avatarHelper(window.SS.userEmail, 100).string;
+      var avatarHtml = avatarHelper(window.SS.userEmail, 100).string;
       $('.js-avatar').html(avatarHtml);
     }
 

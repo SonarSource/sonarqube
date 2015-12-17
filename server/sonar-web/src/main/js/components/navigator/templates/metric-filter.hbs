@@ -2,7 +2,7 @@
   <select name="metric">
     <option></option>
     {{#each groupedMetrics}}
-      <optgroup label="{{domain}}">
+      <optgroup label="{{this.domain}}">
         {{#each metrics}}
           <option value="{{name}}">{{short_name}}</option>
         {{/each}}

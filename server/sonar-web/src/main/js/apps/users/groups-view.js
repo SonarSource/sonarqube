@@ -6,7 +6,7 @@ export default Modal.extend({
   template: Template,
 
   onRender: function () {
-    this._super();
+    Modal.prototype.onRender.apply(this, arguments);
     new window.SelectList({
       el: this.$('#users-groups'),
       width: '100%',

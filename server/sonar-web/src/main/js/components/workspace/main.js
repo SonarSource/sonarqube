@@ -5,7 +5,6 @@ import Items from './models/items';
 import ItemsView from './views/items-view';
 import ViewerView from './views/viewer-view';
 import RuleView from './views/rule-view';
-import '../../helpers/handlebars-helpers';
 
 
 var instance = null,

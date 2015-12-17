@@ -2,9 +2,9 @@ import 'babel-polyfill';
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
+import Marionette from 'backbone.marionette';
 import 'whatwg-fetch';
 import moment from 'moment';
-import '../libs/third-party/backbone-super.js';
 import './processes';
 import Navigation from './nav/app';
 
@@ -54,3 +54,16 @@ window.sonarqube.appStarted = Promise.resolve()
     .then(requestLocalizationBundle)
     .then(startNavigation)
     .then(prepareAppOptions);
+
+
+// expose libraries
+window.require = (module) => {
+  switch (module) {
+    case 'backbone':
+      return Backbone;
+    case 'backbone.marionette':
+      return Marionette;
+    case 'moment':
+      return moment;
+  }
+};

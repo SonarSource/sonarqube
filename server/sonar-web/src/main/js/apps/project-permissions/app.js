@@ -2,7 +2,6 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Main from './main';
-import '../../helpers/handlebars-helpers';
 
 function requestPermissionTemplates () {
   return $.get(baseUrl + '/api/permissions/search_templates');

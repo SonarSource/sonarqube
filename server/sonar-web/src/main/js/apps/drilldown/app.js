@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import Marionette from 'backbone.marionette';
 import SourceViewer from '../../components/source-viewer/main';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
     init = function () {

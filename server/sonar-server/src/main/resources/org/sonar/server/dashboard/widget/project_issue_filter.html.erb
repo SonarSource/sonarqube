@@ -34,7 +34,7 @@
           return;
         }
 
-        var IssueFilterWidget = require('issue-filter-widget');
+        var IssueFilterWidget = window.IssueFilterWidget;
         window.requestMessages().done(function () {
           new IssueFilterWidget({
             el: '#<%= container_id -%>',

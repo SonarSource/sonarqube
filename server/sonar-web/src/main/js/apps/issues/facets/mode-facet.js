@@ -15,7 +15,9 @@ export default BaseFacet.extend({
   },
 
   serializeData: function () {
-    return _.extend(this._super(), { mode: this.options.app.state.getFacetMode() });
+    return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+      mode: this.options.app.state.getFacetMode()
+    });
   }
 });
 

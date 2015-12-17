@@ -7,7 +7,7 @@ export default Modal.extend({
   template: Template,
 
   onRender: function () {
-    this._super();
+    Modal.prototype.onRender.apply(this, arguments);
     var searchUrl = baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission +
         '&projectId=' + this.options.project;
     new window.SelectList({
@@ -39,7 +39,7 @@ export default Modal.extend({
     if (this.options.refresh) {
       this.options.refresh();
     }
-    this._super();
+    Modal.prototype.onDestroy.apply(this, arguments);
   },
 
   serializeData: function () {

@@ -77,7 +77,9 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData: function () {
-    return _.extend(this._super(), { state: this.options.state.toJSON() });
+    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      state: this.options.state.toJSON()
+    });
   }
 });
 

@@ -5,7 +5,7 @@ export default ModalForm.extend({
   template: Template,
 
   onRender: function () {
-    this._super();
+    ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     this.$('#create-custom-measure-metric').select2({
       width: '250px',
@@ -14,7 +14,7 @@ export default ModalForm.extend({
   },
 
   onDestroy: function () {
-    this._super();
+    ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 

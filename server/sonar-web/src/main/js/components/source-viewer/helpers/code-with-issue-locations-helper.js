@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import Handlebars from 'hbsfy/runtime';
 
 /**
  * Intersect two ranges
@@ -112,14 +111,6 @@ function doTheStuff (code, issueLocations, optionalClassName) {
   var _className = optionalClassName ? optionalClassName : 'source-line-code-issue';
   return generateHTML(highlightIssueLocations(splitByTokens(_code), _issueLocations, _className));
 }
-
-
-/**
- * Handlebars helper to highlight issue locations in the source code
- */
-Handlebars.registerHelper('codeWithIssueLocations', function (code, issueLocations) {
-  return doTheStuff(code, issueLocations);
-});
 
 
 export default doTheStuff;

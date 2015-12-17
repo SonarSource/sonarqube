@@ -17,7 +17,7 @@ export default ActionOptionsView.extend({
   },
 
   initialize: function () {
-    this._super();
+    ActionOptionsView.prototype.initialize.apply(this, arguments);
     this.assignees = null;
     this.debouncedSearch = _.debounce(this.search, 250);
   },
@@ -32,7 +32,7 @@ export default ActionOptionsView.extend({
 
   onRender: function () {
     var that = this;
-    this._super();
+    ActionOptionsView.prototype.onRender.apply(this, arguments);
     this.renderTags();
     setTimeout(function () {
       that.$('input').focus();
@@ -55,7 +55,7 @@ export default ActionOptionsView.extend({
     var assignee = $(e.currentTarget).data('value'),
         assigneeName = $(e.currentTarget).data('text');
     this.submit(assignee, assigneeName);
-    return this._super(e);
+    return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
   submit: function (assignee) {

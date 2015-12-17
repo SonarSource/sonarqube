@@ -5,7 +5,6 @@ import ChangeProfileParentView from './change-profile-parent-view';
 import ProfileChangelogView from './profile-changelog-view';
 import ProfileComparisonView from './profile-comparison-view';
 import '../../components/common/select-list';
-import './helpers';
 import Template from './templates/quality-profiles-profile-details.hbs';
 
 export default Marionette.LayoutView.extend({

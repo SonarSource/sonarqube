@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Main from './main';
 import { getCurrentUser } from '../../api/users';
-import '../../helpers/handlebars-helpers';
 
 window.sonarqube.appStarted.then(options => {
   getCurrentUser().done(user => {

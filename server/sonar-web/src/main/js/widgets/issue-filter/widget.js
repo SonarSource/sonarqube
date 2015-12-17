@@ -2,7 +2,6 @@ import $ from 'jquery';
 import _ from 'underscore';
 import moment from 'moment';
 import Backbone from 'backbone';
-import Handlebars from 'hbsfy/runtime';
 import Marionette from 'backbone.marionette';
 
 import Template from './templates/widget-issue-filter.hbs';
@@ -12,12 +11,6 @@ import ResolutionsTemplate from './templates/widget-issue-filter-resolutions.hbs
 import SeveritiesTemplate from './templates/widget-issue-filter-severities.hbs';
 import StatusesTemplate from './templates/widget-issue-filter-statuses.hbs';
 
-import LimitPartial from './templates/_widget-issue-filter-limit.hbs';
-import TotalPartial from './templates/_widget-issue-filter-total.hbs';
-
-import { formatMeasure } from '../../helpers/measures';
-
-import '../../helpers/handlebars-helpers';
 
 var FACET_LIMIT = 15,
     defaultComparator = function (item) {
@@ -200,42 +193,6 @@ function getQuery (query, separator) {
   return route.join(separator);
 }
 
-Handlebars.registerHelper('issueFilterItemLink', function (query, property, value, mode) {
-  var criterion = {};
-  criterion[property] = value;
-  var r = _.extend({}, query, criterion);
-  if (mode === 'debt') {
-    r.facetMode = 'debt';
-  }
-  if (r.componentKey != null) {
-    return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
-        '#' + getQuery(_.omit(r, 'componentKey'));
-  } else {
-    return baseUrl + '/issues/search#' + getQuery(r);
-  }
-});
-
-Handlebars.registerHelper('issueFilterTotalLink', function (query, mode) {
-  var r = _.extend({}, query);
-  if (mode === 'debt') {
-    r.facetMode = 'debt';
-  }
-  if (r.componentKey != null) {
-    return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
-        '#' + getQuery(_.omit(r, 'componentKey'));
-  } else {
-    return baseUrl + '/issues/search#' + getQuery(r);
-  }
-});
-
-Handlebars.registerHelper('issueFilterValue', function (value, mode) {
-  var formatter = mode === 'debt' ? 'SHORT_WORK_DUR' : 'SHORT_INT';
-  return formatMeasure(value, formatter);
-});
-
-Handlebars.registerPartial('_widget-issue-filter-limit', LimitPartial);
-Handlebars.registerPartial('_widget-issue-filter-total', TotalPartial);
-
 export default Marionette.ItemView.extend({
 
   getTemplate: function () {
@@ -350,6 +307,8 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData: function () {
-    return _.extend(this._super(), { displayMode: this.options.displayMode });
+    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      displayMode: this.options.displayMode
+    });
   }
 });

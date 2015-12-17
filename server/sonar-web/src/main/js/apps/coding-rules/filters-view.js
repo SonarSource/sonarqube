@@ -17,6 +17,8 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData: function () {
-    return _.extend(this._super(), { canWrite: this.options.app.canWrite });
+    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      canWrite: this.options.app.canWrite
+    });
   }
 });

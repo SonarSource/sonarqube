@@ -9,7 +9,6 @@ import FavoriteFilters from '../../components/navigator/filters/favorite-filters
 import RangeFilters from '../../components/navigator/filters/range-filters';
 import StringFilterView from '../../components/navigator/filters/string-filters';
 import MetricFilterView from '../../components/navigator/filters/metric-filters';
-import '../../helpers/handlebars-helpers';
 
 var NavigatorApp = new Marionette.Application(),
 

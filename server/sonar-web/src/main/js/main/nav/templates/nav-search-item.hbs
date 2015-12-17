@@ -7,7 +7,7 @@
   {{/if}}
 {{/notNull}}
 
-<a href="{{url}}" data-title="{{name}}<br>{{key}}" data-toggle="tooltip">
+<a href="{{this.url}}" data-title="{{name}}<br>{{key}}" data-toggle="tooltip">
   {{#if icon}}<i class="icon-{{icon}} text-text-bottom"></i>{{/if}}
   {{#if q}}{{qualifierIcon q}}{{/if}}
   {{#eq q 'FIL'}}

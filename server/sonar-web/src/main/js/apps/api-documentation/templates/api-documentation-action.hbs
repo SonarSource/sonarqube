@@ -1,5 +1,5 @@
 <header class="page-header">
-  <h3 class="page-title big">{{#if post}}POST{{else}}GET{{/if}} {{path}}/{{key}}</h3>
+  <h3 class="page-title big">{{#if post}}POST{{else}}GET{{/if}} {{this.path}}/{{key}}</h3>
 
   <div class="page-actions">
     {{#if internal}}
@@ -19,7 +19,7 @@
       </span>
     {{/if}}
 
-    <a class="js-permalink icon-link" href="{{link '/api_documentation/' path '/' key}}" target="_blank"></a>
+    <a class="js-permalink icon-link" href="{{link '/api_documentation/' this.path '/' key}}" target="_blank"></a>
   </div>
 </header>
 

@@ -5,8 +5,8 @@ import Template from './templates/account-change-password.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function (e) {
-    this._super(e);
+  onFormSubmit: function () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
     if (this.checkPasswords()) {
       this.sendRequest();
     } else {

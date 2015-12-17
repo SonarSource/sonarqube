@@ -8,7 +8,7 @@ export default ModalForm.extend({
 
   onRender: function () {
     var that = this;
-    this._super();
+    ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     this.$('#create-metric-domain').select2({
       width: '250px',
@@ -34,17 +34,17 @@ export default ModalForm.extend({
   },
 
   onDestroy: function () {
-    this._super();
+    ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit: function (e) {
-    this._super(e);
+  onFormSubmit: function () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
   serializeData: function () {
-    return _.extend(this._super(), {
+    return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
       domains: this.options.domains,
       types: this.options.types
     });

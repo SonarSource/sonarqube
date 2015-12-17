@@ -12,9 +12,6 @@ import Router from '../issues/router';
 import WorkspaceListView from '../issues/workspace-list-view';
 import WorkspaceHeaderView from '../issues/workspace-header-view';
 import FacetsView from './../issues/facets-view';
-import './../issues/helpers/format-facet-value';
-import '../issues/partials';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
     init = function () {

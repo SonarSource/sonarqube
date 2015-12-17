@@ -8,8 +8,6 @@ import FooterView from './footer-view';
 import Controller from './controller';
 import Router from './router';
 import Plugins from './plugins';
-import './partials';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
     init = function () {

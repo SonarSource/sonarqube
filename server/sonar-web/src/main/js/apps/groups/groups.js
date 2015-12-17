@@ -18,7 +18,7 @@ export default Backbone.Collection.extend({
   fetch: function (options) {
     var d = (options && options.data) || {};
     this.q = d.q;
-    return this._super(options);
+    return Backbone.Collection.prototype.fetch.call(this, options);
   },
 
   fetchMore: function () {

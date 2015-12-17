@@ -1,0 +1,14 @@
+require('script!./translate.js');
+require('script!./third-party/jquery-ui.js');
+require('script!./third-party/select2.js');
+require('script!./third-party/keymaster.js');
+require('script!./third-party/numeral.js');
+require('script!./third-party/numeral-languages.js');
+require('script!./third-party/bootstrap/tooltip.js');
+require('script!./third-party/bootstrap/dropdown.js');
+require('script!./select2-jquery-ui-fix.js');
+require('script!./graphics/pie-chart.js');
+require('script!./sortable.js');
+require('script!./inputs.js');
+require('script!./jquery-isolated-scroll.js');
+require('script!./application.js');

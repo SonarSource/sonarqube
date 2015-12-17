@@ -24,7 +24,7 @@ export default Backbone.Collection.extend({
     var opts = _.defaults(options || {}, { data: {} });
     this.q = opts.data.q;
     opts.data.projectId = this.projectId;
-    return this._super(opts);
+    return Backbone.Collection.prototype.fetch.call(this, opts);
   },
 
   fetchMore: function () {

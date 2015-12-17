@@ -4,8 +4,8 @@ import Template from './templates/custom-measures-delete.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function (e) {
-    this._super(e);
+  onFormSubmit: function () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 

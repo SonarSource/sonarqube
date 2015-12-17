@@ -8,7 +8,6 @@ import List from './list';
 import ListView from './list-view';
 import FiltersView from './filters-view';
 import SearchView from './search-view';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
     init = function () {

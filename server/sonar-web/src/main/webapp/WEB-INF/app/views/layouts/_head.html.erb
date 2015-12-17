@@ -36,7 +36,8 @@
       updateCenterActive: <%= configuration('sonar.updatecenter.activate', true) %>
     };
   </script>
-  <script src="<%= ApplicationController.root_context -%>/js/sonar.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/vendor.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/sonar.js?v=<%= sonar_version -%>"></script>
   <script>
     var baseUrl = '<%= ApplicationController.root_context -%>';
     var $j = jQuery.noConflict();

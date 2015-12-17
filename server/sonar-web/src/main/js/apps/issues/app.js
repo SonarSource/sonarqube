@@ -12,9 +12,6 @@ import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
 import FiltersView from './filters-view';
-import './helpers/format-facet-value';
-import './partials';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
     init = function () {

@@ -2,8 +2,6 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import MainView from './main-view';
-import './partials';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application();
 

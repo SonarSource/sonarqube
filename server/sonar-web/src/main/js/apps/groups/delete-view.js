@@ -4,8 +4,8 @@ import Template from './templates/groups-delete.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function (e) {
-    this._super(e);
+  onFormSubmit: function () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
@@ -29,7 +29,7 @@ export default ModalForm.extend({
   showErrors: function (errors, warnings) {
     this.$('.js-modal-text').addClass('hidden');
     this.disableForm();
-    this._super(errors, warnings);
+    ModalForm.prototype.showErrors.call(this, errors, warnings);
   }
 });
 

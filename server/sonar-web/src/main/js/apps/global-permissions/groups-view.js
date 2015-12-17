@@ -22,7 +22,7 @@ export default Modal.extend({
   template: Template,
 
   onRender: function () {
-    this._super();
+    Modal.prototype.onRender.apply(this, arguments);
     new window.SelectList({
       el: this.$('#global-permissions-groups'),
       width: '100%',
@@ -47,7 +47,7 @@ export default Modal.extend({
 
   onDestroy: function () {
     this.options.refresh();
-    this._super();
+    Modal.prototype.onDestroy.apply(this, arguments);
   }
 });
 

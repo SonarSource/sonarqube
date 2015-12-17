@@ -5,7 +5,6 @@ import Metrics from './metrics';
 import HeaderView from './header-view';
 import ListView from './list-view';
 import ListFooterView from './list-footer-view';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
     init = function () {

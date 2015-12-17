@@ -62,7 +62,9 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData: function () {
-    return _.extend(this._super(), { setup: this.options.setup });
+    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      setup: this.options.setup
+    });
   }
 });
 

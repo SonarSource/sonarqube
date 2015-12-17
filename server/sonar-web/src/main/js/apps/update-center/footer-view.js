@@ -10,7 +10,7 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData: function () {
-    return _.extend(this._super(), {
+    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       total: this.collection.where({ _hidden: false }).length
     });
   }

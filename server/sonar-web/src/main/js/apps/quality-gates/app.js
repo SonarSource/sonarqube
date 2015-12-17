@@ -7,7 +7,6 @@ import ActionsView from './actions-view';
 import Router from './router';
 import Layout from './layout';
 import Controller from './controller';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application();
 

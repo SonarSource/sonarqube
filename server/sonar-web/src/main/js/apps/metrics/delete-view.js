@@ -5,7 +5,7 @@ export default ModalForm.extend({
   template: Template,
 
   onFormSubmit: function (e) {
-    this._super(e);
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 

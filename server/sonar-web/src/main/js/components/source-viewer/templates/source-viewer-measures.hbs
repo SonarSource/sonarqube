@@ -23,34 +23,34 @@
     <div class="source-viewer-measures">
       <div class="source-viewer-measures-section">
         <div class="source-viewer-measures-card">
-          {{> '_source-viewer-measures-lines'}}
+          {{> 'measures/_source-viewer-measures-lines'}}
         </div>
       </div>
 
       <div class="source-viewer-measures-section">
-        {{> '_source-viewer-measures-issues'}}
+        {{> 'measures/_source-viewer-measures-issues'}}
       </div>
 
       {{#any measures.coverage measures.it_coverage}}
         <div class="source-viewer-measures-section">
           <div class="source-viewer-measures-card">
-            {{> '_source-viewer-measures-coverage'}}
+            {{> 'measures/_source-viewer-measures-coverage'}}
           </div>
         </div>
       {{/any}}
 
       <div class="source-viewer-measures-section">
-        {{> '_source-viewer-measures-duplications'}}
+        {{> 'measures/_source-viewer-measures-duplications'}}
       </div>
     </div>
   {{else}}
     <div class="source-viewer-measures">
       <div class="source-viewer-measures-section">
-        {{> '_source-viewer-measures-tests'}}
+        {{> 'measures/_source-viewer-measures-tests'}}
       </div>
     </div>
     <div class="source-viewer-measures">
-      {{> '_source-viewer-measures-test-cases'}}
+      {{> 'measures/_source-viewer-measures-test-cases'}}
     </div>
   {{/unless}}
 
@@ -59,7 +59,7 @@
   <a class="js-show-all-measures">{{t 'component_viewer.show_all_measures'}}</a>
 
   <div class="source-viewer-measures source-viewer-measures-secondary js-all-measures hidden">
-    {{> '_source-viewer-measures-all'}}
+    {{> 'measures/_source-viewer-measures-all'}}
   </div>
 </div>
 

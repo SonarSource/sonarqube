@@ -27,7 +27,7 @@
     <select id="quality-gate-new-condition-metric" class="text-middle">
       <option></option>
       {{#each metricGroups}}
-        <optgroup label="{{domain}}">
+        <optgroup label="{{this.domain}}">
           {{#each metrics}}
             <option value="{{key}}">{{name}}</option>{{/each}}
         </optgroup>

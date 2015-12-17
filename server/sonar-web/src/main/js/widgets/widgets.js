@@ -10,3 +10,6 @@ import './old/treemap';
 import './old/word-cloud';
 
 import './old/widget';
+
+import IssueFilterWidget from './issue-filter/widget';
+window.IssueFilterWidget = IssueFilterWidget;

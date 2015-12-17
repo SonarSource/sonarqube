@@ -7,7 +7,6 @@ import Layout from './layout';
 import Profiles from './profiles';
 import ActionsView from './actions-view';
 import ProfilesView from './profiles-view';
-import '../../helpers/handlebars-helpers';
 
 var App = new Marionette.Application(),
     requestUser = $.get(baseUrl + '/api/users/current').done(function (r) {
