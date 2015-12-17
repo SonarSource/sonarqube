@@ -98,7 +98,7 @@ export const DebtMain = React.createClass({
   },
 
   renderLoading () {
-    return <div className="text-center">
+    return <div className="flex-1 text-center">
       <i className="spinner spinner-margin"/>
     </div>;
   },
