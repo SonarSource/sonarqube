@@ -26,11 +26,9 @@ CI)
     # this pull request must be built and analyzed (without upload of report)
     mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify -Panalysis -Dclirr=true -B -e -V
 
-    # Switch to java 8 as the Dory HTTPS certificate is not supported by Java 7
-    export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-    export PATH=$JAVA_HOME/bin:$PATH
+    build_snapshot "mojohaus/sonar-maven-plugin"
 
-    mvn sonar:sonar -B -e -V \
+    mvn org.codehaus.mojo:sonar-maven-plugin:2.8-SNAPSHOT:sonar -B -e -V \
         -Dsonar.analysis.mode=issues \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
