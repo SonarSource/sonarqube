@@ -19,6 +19,7 @@ const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => 
       </thead>
       <tbody>
         <Component
+            key={baseComponent.uuid}
             component={baseComponent}
             coverageMetric={coverageMetric}/>
         <tr className="blank">
@@ -29,7 +30,7 @@ const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => 
         {components.length ? (
             components.map(component => (
                 <Component
-                    key={component.key}
+                    key={component.uuid}
                     component={component}
                     coverageMetric={coverageMetric}
                     onBrowse={onBrowse}/>

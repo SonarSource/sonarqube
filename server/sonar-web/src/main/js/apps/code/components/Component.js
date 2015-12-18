@@ -12,7 +12,7 @@ const Component = ({ component, coverageMetric, onBrowse }) => (
           <ComponentDetach component={component}/>
         </span>
       </td>
-      <td>
+      <td className="code-name-cell">
         <ComponentName
             component={component}
             onBrowse={onBrowse}/>
