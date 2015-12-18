@@ -20,6 +20,7 @@
 package util.selenium;
 
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 
 public enum Browser {
   FIREFOX;
@@ -27,7 +28,16 @@ public enum Browser {
   private final ThreadLocal<SeleniumDriver> perThreadDriver = new ThreadLocal<SeleniumDriver>() {
     @Override
     protected SeleniumDriver initialValue() {
-      return ThreadSafeDriver.makeThreadSafe(new FirefoxDriver());
+      FirefoxProfile profile = new FirefoxProfile();
+      profile.setPreference("browser.startup.homepage", "about:blank");
+      profile.setPreference("startup.homepage_welcome_url", "about:blank");
+      profile.setPreference("startup.homepage_welcome_url.additional", "about:blank");
+      profile.setPreference("nglayout.initialpaint.delay", 0);
+      profile.setPreference("extensions.checkCompatibility", false);
+      profile.setPreference("browser.cache.use_new_backend", 1);
+      profile.setPreference("geo.enabled", false);
+      profile.setPreference("layout.spellcheckDefault", 0);
+      return ThreadSafeDriver.makeThreadSafe(new FirefoxDriver(profile));
     }
   };
 
