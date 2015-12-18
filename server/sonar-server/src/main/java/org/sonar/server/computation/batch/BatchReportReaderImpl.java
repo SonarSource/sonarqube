@@ -170,7 +170,7 @@ public class BatchReportReaderImpl implements BatchReportReader {
     }
 
     try {
-      return new ParserCloseableIterator<>(BatchReport.Test.PARSER, FileUtils.openInputStream(file));
+      return new ParserCloseableIterator<>(BatchReport.Test.parser(), FileUtils.openInputStream(file));
     } catch (IOException e) {
       Throwables.propagate(e);
       // actually never reached
@@ -186,7 +186,7 @@ public class BatchReportReaderImpl implements BatchReportReader {
     }
 
     try {
-      return new ParserCloseableIterator<>(BatchReport.CoverageDetail.PARSER, FileUtils.openInputStream(file));
+      return new ParserCloseableIterator<>(BatchReport.CoverageDetail.parser(), FileUtils.openInputStream(file));
     } catch (IOException e) {
       Throwables.propagate(e);
       // actually never reached
