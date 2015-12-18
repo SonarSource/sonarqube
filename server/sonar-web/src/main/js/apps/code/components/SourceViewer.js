@@ -27,6 +27,6 @@ export default class SourceViewer extends Component {
   }
 
   render () {
-    return <div ref="container"></div>;
+    return <div ref="container" className="code-source-viewer"></div>;
   }
 }
