@@ -1,6 +1,8 @@
 import _ from 'underscore';
+import { pushPath } from 'redux-simple-router';
 
 import { getChildren, getComponent } from '../../../api/components';
+import { getComponentNavigation } from '../../../api/nav';
 
 
 const METRICS = [
@@ -9,6 +11,7 @@ const METRICS = [
   'violations',
   'duplicated_lines_density'
 ];
+
 const METRICS_WITH_COVERAGE = [
   ...METRICS,
   'coverage',
@@ -19,60 +22,85 @@ const METRICS_WITH_COVERAGE = [
 
 export const INIT = 'INIT';
 export const BROWSE = 'BROWSE';
-export const RECEIVE_COMPONENTS = 'RECEIVE_COMPONENTS';
-export const SHOW_SOURCE = 'SHOW_SOURCE';
+export const START_FETCHING = 'START_FETCHING';
+export const STOP_FETCHING = 'STOP_FETCHING';
 
 
-export function requestComponents (baseComponent) {
+export function initComponentAction (component, breadcrumbs = []) {
+  return {
+    type: INIT,
+    component,
+    breadcrumbs
+  };
+}
+
+export function browseAction (component, children = [], breadcrumbs = []) {
   return {
     type: BROWSE,
-    baseComponent
+    component,
+    children,
+    breadcrumbs
   };
 }
 
+export function startFetching () {
+  return { type: START_FETCHING };
+}
 
-export function receiveComponents (baseComponent, components) {
-  return {
-    type: RECEIVE_COMPONENTS,
-    baseComponent,
-    components
+export function stopFetching () {
+  return { type: STOP_FETCHING };
+}
+
+
+function getPath (componentKey) {
+  return '/' + encodeURIComponent(componentKey);
+}
+
+function retrieveComponentBase (componentKey, candidate) {
+  return candidate ?
+      Promise.resolve(candidate) :
+      getComponent(componentKey, METRICS_WITH_COVERAGE);
+}
+
+function retrieveComponentChildren (componentKey, candidate) {
+  return candidate && candidate.children ?
+      Promise.resolve(candidate.children) :
+      getChildren(componentKey, METRICS_WITH_COVERAGE);
+}
+
+function retrieveComponentBreadcrumbs (componentKey, candidate) {
+  return candidate && candidate.breadcrumbs ?
+      Promise.resolve(candidate.breadcrumbs) :
+      getComponentNavigation(componentKey).then(navigation => navigation.breadcrumbs);
+}
+
+function retrieveComponent (componentKey, bucket) {
+  const candidate = _.findWhere(bucket, { key: componentKey });
+  return Promise.all([
+    retrieveComponentBase(componentKey, candidate),
+    retrieveComponentChildren(componentKey, candidate),
+    retrieveComponentBreadcrumbs(componentKey, candidate)
+  ]);
+}
+
+export function initComponent (componentKey, breadcrumbs) {
+  return dispatch => {
+    dispatch(startFetching());
+    return getComponent(componentKey, METRICS_WITH_COVERAGE)
+        .then(component => dispatch(initComponentAction(component, breadcrumbs)))
+        .then(() => dispatch(stopFetching()));
   };
 }
 
-
-export function showSource (component) {
-  return {
-    type: SHOW_SOURCE,
-    component
-  };
-}
-
-
-function fetchChildren (dispatch, getState, baseComponent) {
-  dispatch(requestComponents(baseComponent));
-
-  const { coverageMetric } = getState();
-  const metrics = [...METRICS, coverageMetric];
-
-  return getChildren(baseComponent.key, metrics)
-      .then(components => _.sortBy(components, 'name'))
-      .then(components => dispatch(receiveComponents(baseComponent, components)));
-}
-
-
-export function initComponent (baseComponent) {
+export function browse (componentKey) {
   return (dispatch, getState) => {
-    return getComponent(baseComponent.key, METRICS_WITH_COVERAGE)
-        .then(component => fetchChildren(dispatch, getState, component));
-  };
-}
-
-
-export function fetchComponents (baseComponent) {
-  return (dispatch, getState) => {
-    const { fetching } = getState();
-    if (!fetching) {
-      return fetchChildren(dispatch, getState, baseComponent);
-    }
+    const { bucket } = getState();
+    dispatch(startFetching());
+    return retrieveComponent(componentKey, bucket)
+        .then(([component, children, breadcrumbs]) => {
+          dispatch(browseAction(component, children, breadcrumbs));
+        })
+        .then(() => dispatch(pushPath(getPath(componentKey))))
+        .then(() => dispatch(stopFetching()));
   };
 }

@@ -1,75 +1,11 @@
 import _ from 'underscore';
-import { combineReducers } from 'redux';
 
-import { BROWSE, RECEIVE_COMPONENTS, SHOW_SOURCE } from '../actions';
+import { INIT, BROWSE, START_FETCHING, STOP_FETCHING } from '../actions';
 
 
-export function fetching (state = false, action) {
-  switch (action.type) {
-    case BROWSE:
-      return true;
-    case RECEIVE_COMPONENTS:
-      return false;
-    default:
-      return state;
-  }
+function hasSourceCode (component) {
+  return component.qualifier === 'FIL' || component.qualifier === 'UTS';
 }
-
-
-export function baseComponent (state = null, action) {
-  switch (action.type) {
-    case RECEIVE_COMPONENTS:
-      return action.baseComponent;
-    default:
-      return state;
-  }
-}
-
-
-export function components (state = null, action) {
-  switch (action.type) {
-    case RECEIVE_COMPONENTS:
-      return action.components;
-    default:
-      return state;
-  }
-}
-
-
-export function breadcrumbs (state = [], action) {
-  switch (action.type) {
-    case BROWSE:
-      const existedIndex = state.findIndex(b => b.key === action.baseComponent.key);
-      let nextBreadcrumbs;
-
-      if (existedIndex === -1) {
-        // browse deeper
-        nextBreadcrumbs = [...state, action.baseComponent];
-      } else {
-        // use breadcrumbs
-        nextBreadcrumbs = [...state.slice(0, existedIndex + 1)];
-      }
-
-      return nextBreadcrumbs;
-    case SHOW_SOURCE:
-      return [...state, action.component];
-    default:
-      return state;
-  }
-}
-
-
-export function sourceViewer (state = null, action) {
-  switch (action.type) {
-    case BROWSE:
-      return null;
-    case SHOW_SOURCE:
-      return action.component;
-    default:
-      return state;
-  }
-}
-
 
 function selectCoverageMetric (component) {
   const coverage = _.findWhere(component.msr, { key: 'coverage' });
@@ -85,25 +21,66 @@ function selectCoverageMetric (component) {
   }
 }
 
+function merge (components, candidate) {
+  const found = _.findWhere(components, { key: candidate.key });
+  const newEntry = Object.assign({}, found, candidate);
+  return [...(_.without(components, found)), newEntry];
+}
 
-export function coverageMetric (state = null, action) {
+
+export const initialState = {
+  fetching: false,
+  baseComponent: null,
+  components: null,
+  breadcrumbs: null,
+  sourceViewer: null,
+  coverageMetric: null,
+  baseBreadcrumbs: []
+};
+
+
+export function current (state = initialState, action) {
   switch (action.type) {
+    case INIT:
+      const coverageMetric = selectCoverageMetric(action.component);
+      const baseBreadcrumbs = action.breadcrumbs.length > 1 ? _.initial(action.breadcrumbs) : [];
+
+      return { ...state, coverageMetric, baseBreadcrumbs };
     case BROWSE:
-      return state !== null ? state : selectCoverageMetric(action.baseComponent);
+      const baseComponent = hasSourceCode(action.component) ? null : action.component;
+      const components = hasSourceCode(action.component) ? null : _.sortBy(action.children, 'name');
+      const baseBreadcrumbsLength = state.baseBreadcrumbs.length;
+      const breadcrumbs = action.breadcrumbs.slice(baseBreadcrumbsLength);
+      const sourceViewer = hasSourceCode(action.component) ? action.component : null;
+
+      return { ...state, baseComponent, components, breadcrumbs, sourceViewer };
+    case START_FETCHING:
+      return { ...state, fetching: true };
+    case STOP_FETCHING:
+      return { ...state, fetching: false };
     default:
       return state;
   }
 }
 
 
-const rootReducer = combineReducers({
-  fetching,
-  baseComponent,
-  components,
-  breadcrumbs,
-  sourceViewer,
-  coverageMetric
-});
-
-
-export default rootReducer;
+export function bucket (state = [], action) {
+  switch (action.type) {
+    case INIT:
+      return merge(state, action.component);
+    case BROWSE:
+      const candidate = Object.assign({}, action.component, {
+        children: action.children,
+        breadcrumbs: action.breadcrumbs
+      });
+      const nextState = merge(state, candidate);
+      return action.children.reduce((currentState, nextComponent) => {
+        const nextComponentWidthBreadcrumbs = Object.assign({}, nextComponent, {
+          breadcrumbs: [...action.breadcrumbs, nextComponent]
+        });
+        return merge(currentState, nextComponentWidthBreadcrumbs);
+      }, nextState);
+    default:
+      return state;
+  }
+}

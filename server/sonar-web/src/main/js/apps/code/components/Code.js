@@ -5,34 +5,31 @@ import { connect } from 'react-redux';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './SourceViewer';
-import { initComponent, fetchComponents, showSource } from '../actions';
+import { initComponent, browse } from '../actions';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
 
 class Code extends Component {
   componentDidMount () {
-    const { dispatch, component } = this.props;
-    dispatch(initComponent(component));
+    const { dispatch, component, routing } = this.props;
+    const selectedKey = (routing.path && decodeURIComponent(routing.path.substr(1))) || component.key;
+    dispatch(initComponent(component.key, component.breadcrumbs))
+        .then(() => dispatch(browse(selectedKey)));
   }
 
   componentWillReceiveProps (nextProps) {
-    if (nextProps.component !== this.props.component) {
-      const { dispatch, component } = this.props;
-      dispatch(initComponent(component));
+    if (nextProps.routing !== this.props.routing) {
+      const { dispatch, routing, component, fetching } = nextProps;
+      if (!fetching) {
+        const selectedKey = (routing.path && decodeURIComponent(routing.path.substr(1))) || component.key;
+        dispatch(browse(selectedKey));
+      }
     }
-  }
-
-  hasSourceCode (component) {
-    return component.qualifier === 'FIL' || component.qualifier === 'UTS';
   }
 
   handleBrowse (component) {
     const { dispatch } = this.props;
-    if (this.hasSourceCode(component)) {
-      dispatch(showSource(component));
-    } else {
-      dispatch(fetchComponents(component));
-    }
+    dispatch(browse(component.key));
   }
 
   render () {
@@ -83,5 +80,6 @@ class Code extends Component {
   }
 }
 
-
-export default connect(state => state)(Code);
+export default connect(state => {
+  return Object.assign({ routing: state.routing }, state.current);
+})(Code);

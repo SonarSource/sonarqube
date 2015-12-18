@@ -26,13 +26,14 @@ const measures = [
   { key: 'ncloc', val: 9757 }
 ];
 const exampleComponent = {
+  uuid: 'A1',
   key: 'A',
   name: 'AA',
   qualifier: 'TRK',
   msr: measures
 };
-const exampleComponent2 = { key: 'B' };
-const exampleComponent3 = { key: 'C' };
+const exampleComponent2 = { uuid: 'B2', key: 'B' };
+const exampleComponent3 = { uuid: 'C3', key: 'C' };
 const exampleOnBrowse = sinon.spy();
 
 

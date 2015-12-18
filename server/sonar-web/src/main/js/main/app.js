@@ -37,7 +37,8 @@ function prepareAppOptions (navResponse) {
         id: navResponse.component.uuid,
         key: navResponse.component.key,
         name: navResponse.component.name,
-        qualifier: _.last(navResponse.component.breadcrumbs).qualifier
+        qualifier: _.last(navResponse.component.breadcrumbs).qualifier,
+        breadcrumbs: navResponse.component.breadcrumbs
       };
     }
   }

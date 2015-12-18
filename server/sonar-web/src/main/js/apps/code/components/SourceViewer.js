@@ -8,6 +8,14 @@ export default class SourceViewer extends Component {
     this.renderSourceViewer();
   }
 
+  shouldComponentUpdate (nextProps) {
+    return nextProps.component.uuid !== this.props.component.uuid;
+  }
+
+  componentWillUpdate () {
+    this.destroySourceViewer();
+  }
+
   componentDidUpdate () {
     this.renderSourceViewer();
   }
