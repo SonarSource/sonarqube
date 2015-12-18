@@ -14,7 +14,6 @@ import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
@@ -90,14 +89,15 @@ public class DifferentialPeriodsTest {
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
     // Use old way to execute Selenium because 'assertSelectOptions' action is not supported by SeleneseTest
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("not-display-periods-selection-dropdown-on-first-analysis",
-      "/measureHistory/DifferentialPeriodsTest/not-display-periods-selection-dropdown-on-dashboard.html").build()).runOn(orchestrator);
+    orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("not-display-periods-selection-dropdown-on-first-analysis",
+      "/measureHistory/DifferentialPeriodsTest/not-display-periods-selection-dropdown-on-dashboard.html"
+      ).build());
 
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
-    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("display-periods-selection-dropdown-after-first-analysis",
+    orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("display-periods-selection-dropdown-after-first-analysis",
       "/measureHistory/DifferentialPeriodsTest/display-periods-selection-dropdown-on-dashboard.html"
-    ).build()).runOn(orchestrator);
+      ).build());
   }
 
 }

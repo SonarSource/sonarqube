@@ -30,7 +30,6 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.issue.ActionPlanClient;
-import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
@@ -79,7 +78,7 @@ public class ActionPlanUiTest {
         "/actionPlan/ActionPlanUiTest/edit_action_plan.html",
         // SONAR-3198
         "/actionPlan/ActionPlanUiTest/can_create_action_plan_with_date_today.html").build();
-    new SeleneseTest(selenese).runOn(orchestrator);
+    orchestrator.executeSelenese(selenese);
   }
 
 }
