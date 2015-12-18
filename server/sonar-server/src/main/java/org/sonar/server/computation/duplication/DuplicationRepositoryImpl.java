@@ -39,11 +39,11 @@ public class DuplicationRepositoryImpl implements DuplicationRepository {
   public Iterable<Duplication> getDuplications(Component file) {
     checkFileComponentArgument(file);
 
-    Collection<Duplication> duplications = this.duplications.asMap().get(file.getKey());
-    if (duplications == null) {
+    Collection<Duplication> res = this.duplications.asMap().get(file.getKey());
+    if (res == null) {
       return Collections.emptyList();
     }
-    return duplications;
+    return res;
   }
 
   @Override

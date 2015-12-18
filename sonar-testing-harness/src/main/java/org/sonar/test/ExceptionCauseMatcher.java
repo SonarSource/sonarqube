@@ -70,7 +70,10 @@ public class ExceptionCauseMatcher extends TypeSafeMatcher<Throwable> {
     if (expectedMessage == null) {
       return true;
     }
-    return EXPECT_NO_MESSAGE_CONSTANT.equals(expectedMessage) ? item.getMessage() == null : item.getMessage().contains(expectedMessage);
+    if (EXPECT_NO_MESSAGE_CONSTANT.equals(expectedMessage)) {
+      return item.getMessage() == null;
+    }
+    return item.getMessage().contains(expectedMessage);
   }
 
   @Override

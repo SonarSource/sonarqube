@@ -70,7 +70,8 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
           try {
             int idGenerator = 1;
             while (duplications.hasNext()) {
-              loadDuplications(file, duplications.next(), idGenerator++);
+              loadDuplications(file, duplications.next(), idGenerator);
+              idGenerator++;
             }
           } finally {
             duplications.close();

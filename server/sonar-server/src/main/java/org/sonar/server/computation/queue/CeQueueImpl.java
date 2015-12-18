@@ -191,7 +191,7 @@ public class CeQueueImpl implements CeQueue {
     }
   }
 
-  private void updateTaskResult(CeActivityDto activityDto, @Nullable CeTaskResult taskResult) {
+  private static void updateTaskResult(CeActivityDto activityDto, @Nullable CeTaskResult taskResult) {
     if (taskResult != null) {
       Long snapshotId = taskResult.getSnapshotId();
       if (snapshotId != null) {

@@ -173,7 +173,9 @@ public class IntegrateCrossProjectDuplications {
         LOGGER.warn("Too many duplication references on file {} for block at line {}. Keeping only the first {} references.",
           file.getKey(), originPart.getStartLine(), MAX_CLONE_PART_PER_GROUP);
       }
-      return counter++ <= MAX_CLONE_GROUP_PER_FILE;
+      boolean res = counter <= MAX_CLONE_GROUP_PER_FILE;
+      counter++;
+      return res;
     }
   }
 
