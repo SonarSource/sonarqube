@@ -63,13 +63,13 @@ public class HistoryUiTest {
   @Test
   public void test_timemachine_widget() {
     // Use old way to execute Selenium because 'waitForTextPresent' action is not supported by SeleneseTest
-    orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("history-timemachine-widget",
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("history-timemachine-widget",
       "/measureHistory/HistoryUiTest/history-timemachine-widget/time-machine-widget.html",
       // SONAR-3354 & SONAR-3353
       "/measureHistory/HistoryUiTest/history-timemachine-widget/should-display-empty-table-if-no-measure.html",
       // SONAR-3650
       "/measureHistory/HistoryUiTest/history-timemachine-widget/should-exclude-new-metrics.html"
-      ).build());
+      ).build()).runOn(orchestrator);
   }
 
   /**
