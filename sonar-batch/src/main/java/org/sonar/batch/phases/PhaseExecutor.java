@@ -22,6 +22,7 @@ package org.sonar.batch.phases;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.cpd.CpdExecutor;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -52,12 +53,14 @@ public final class PhaseExecutor {
   private final DefaultAnalysisMode analysisMode;
   private final IssueTransition localIssueTracking;
   private final IssueCallback issueCallback;
+  private final CpdExecutor cpdExecutor;
 
   public PhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ReportPublisher reportPublisher, ProjectInitializer pi,
     FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, IssueTransition localIssueTracking, IssueCallback issueCallback) {
+    IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, IssueTransition localIssueTracking, IssueCallback issueCallback,
+    CpdExecutor cpdExecutor) {
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
@@ -74,6 +77,7 @@ public final class PhaseExecutor {
     this.analysisMode = analysisMode;
     this.localIssueTracking = localIssueTracking;
     this.issueCallback = issueCallback;
+    this.cpdExecutor = cpdExecutor;
   }
 
   /**
@@ -101,6 +105,8 @@ public final class PhaseExecutor {
       if (analysisMode.isIssues()) {
         localIssueTracking();
         issuesCallback();
+      } else {
+        computeDuplications();
       }
       issuesReport();
       publishReportJob();
@@ -108,6 +114,13 @@ public final class PhaseExecutor {
     }
     cleanMemory();
     eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+  }
+
+  private void computeDuplications() {
+    String stepName = "Computing duplications";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    cpdExecutor.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
   }
 
   private void publishReportJob() {

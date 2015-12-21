@@ -27,12 +27,12 @@ public final class CpdComponents {
   private CpdComponents() {
   }
 
-  public static List all() {
+  public static List<Class<? extends Object>> all() {
     return ImmutableList.of(
       CpdSensor.class,
       CpdMappings.class,
-      JavaCpdEngine.class,
-      DefaultCpdEngine.class);
+      JavaCpdIndexer.class,
+      DefaultCpdIndexer.class);
   }
 
 }

@@ -23,8 +23,10 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
+import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 public class MemoryCloneIndex implements CloneIndex {
 
@@ -45,6 +47,11 @@ public class MemoryCloneIndex implements CloneIndex {
   public void insert(Block block) {
     byResource.put(block.getResourceId(), block);
     byHash.put(block.getBlockHash(), block);
+  }
+
+  @Override
+  public Iterator<ResourceBlocks> iterator() {
+    throw new UnsupportedOperationException();
   }
 
 }

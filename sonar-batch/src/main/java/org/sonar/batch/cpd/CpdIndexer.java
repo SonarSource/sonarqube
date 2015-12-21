@@ -21,14 +21,13 @@ package org.sonar.batch.cpd;
 
 import org.slf4j.Logger;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.sensor.SensorContext;
 
 @BatchSide
-public abstract class CpdEngine {
+public abstract class CpdIndexer {
 
   abstract boolean isLanguageSupported(String language);
 
-  abstract void analyse(String language, SensorContext context);
+  abstract void index(String language);
 
   protected void logExclusions(String[] exclusions, Logger logger) {
     if (exclusions.length > 0) {

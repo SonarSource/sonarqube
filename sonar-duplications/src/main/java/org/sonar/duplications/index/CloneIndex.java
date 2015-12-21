@@ -20,9 +20,11 @@
 package org.sonar.duplications.index;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
+import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 
 public interface CloneIndex {
 
@@ -44,5 +46,10 @@ public interface CloneIndex {
    * Adds specified block into index.
    */
   void insert(Block block);
+
+  /**
+   * Iterators through the resources, providing the list of blocks for each resource.
+   */
+  Iterator<ResourceBlocks> iterator();
 
 }

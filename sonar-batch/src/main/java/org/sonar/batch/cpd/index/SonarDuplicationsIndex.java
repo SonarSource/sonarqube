@@ -22,6 +22,8 @@ package org.sonar.batch.cpd.index;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
+import java.util.Iterator;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
@@ -34,6 +36,7 @@ import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.AbstractCloneIndex;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
+import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 
 public class SonarDuplicationsIndex extends AbstractCloneIndex {
 
@@ -76,7 +79,7 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
       && StringUtils.isBlank(settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
   }
 
-  public Collection<Block> getByInputFile(InputFile inputFile, String resourceKey) {
+  public Collection<Block> getByInputFile(String resourceKey) {
     return mem.getByResourceId(resourceKey);
   }
 
@@ -93,6 +96,11 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
   @Override
   public void insert(Block block) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Iterator<ResourceBlocks> iterator() {
+    return mem.iterator();
   }
 
 }

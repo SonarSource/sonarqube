@@ -35,12 +35,12 @@ public class CpdSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(CpdSensor.class);
 
-  private CpdEngine sonarEngine;
-  private CpdEngine sonarBridgeEngine;
+  private CpdIndexer sonarEngine;
+  private CpdIndexer sonarBridgeEngine;
   private Settings settings;
   private FileSystem fs;
 
-  public CpdSensor(JavaCpdEngine sonarEngine, DefaultCpdEngine sonarBridgeEngine, Settings settings, FileSystem fs) {
+  public CpdSensor(JavaCpdIndexer sonarEngine, DefaultCpdIndexer sonarBridgeEngine, Settings settings, FileSystem fs) {
     this.sonarEngine = sonarEngine;
     this.sonarBridgeEngine = sonarBridgeEngine;
     this.settings = settings;
@@ -54,7 +54,7 @@ public class CpdSensor implements Sensor {
   }
 
   @VisibleForTesting
-  CpdEngine getEngine(String language) {
+  CpdIndexer getEngine(String language) {
     if (sonarEngine.isLanguageSupported(language)) {
       return sonarEngine;
     }
@@ -87,13 +87,13 @@ public class CpdSensor implements Sensor {
         continue;
       }
 
-      CpdEngine engine = getEngine(language);
+      CpdIndexer engine = getEngine(language);
       if (!engine.isLanguageSupported(language)) {
         LOG.debug("Detection of duplicated code is not supported for {}", language);
         continue;
       }
       LOG.info("{} is used for {}", engine, language);
-      engine.analyse(language, context);
+      engine.index(language);
     }
   }
 

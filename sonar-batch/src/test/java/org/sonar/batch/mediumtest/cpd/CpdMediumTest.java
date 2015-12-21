@@ -81,11 +81,79 @@ public class CpdMediumTest {
   }
 
   @Test
+  public void testCrossModuleDuplications() throws IOException {
+    builder.put("sonar.modules", "module1,module2")
+      .put("sonar.cpd.xoo.minimumTokens", "10")
+      .put("sonar.verbose", "true");
+
+    // module 1
+    builder.put("module1.sonar.projectKey", "module1");
+    builder.put("module1.sonar.projectName", "Module 1");
+    builder.put("module1.sonar.sources", ".");
+
+    // module2
+    builder.put("module2.sonar.projectKey", "module2");
+    builder.put("module2.sonar.projectName", "Module 2");
+    builder.put("module2.sonar.sources", ".");
+
+    File module1Dir = new File(baseDir, "module1");
+    File module2Dir = new File(baseDir, "module2");
+
+    module1Dir.mkdir();
+    module2Dir.mkdir();
+
+    String duplicatedStuff = "Sample xoo\ncontent\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "bar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti";
+
+    // create duplicated file in both modules
+    File xooFile1 = new File(module1Dir, "sample1.xoo");
+    FileUtils.write(xooFile1, duplicatedStuff);
+
+    File xooFile2 = new File(module2Dir, "sample2.xoo");
+    FileUtils.write(xooFile2, duplicatedStuff);
+
+    TaskResult result = tester.newTask().properties(builder.build()).start();
+
+    assertThat(result.inputFiles()).hasSize(2);
+
+    InputFile inputFile1 = result.inputFile("sample1.xoo");
+    InputFile inputFile2 = result.inputFile("sample2.xoo");
+
+    // One clone group on each file
+    List<org.sonar.batch.protocol.output.BatchReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    assertThat(duplicationGroupsFile1).hasSize(1);
+
+    org.sonar.batch.protocol.output.BatchReport.Duplication cloneGroupFile1 = duplicationGroupsFile1.get(0);
+    assertThat(cloneGroupFile1.getOriginPosition().getStartLine()).isEqualTo(1);
+    assertThat(cloneGroupFile1.getOriginPosition().getEndLine()).isEqualTo(17);
+    assertThat(cloneGroupFile1.getDuplicateList()).hasSize(1);
+    assertThat(cloneGroupFile1.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(((DefaultInputFile) inputFile2).key()).getRef());
+
+    List<org.sonar.batch.protocol.output.BatchReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    assertThat(duplicationGroupsFile2).hasSize(1);
+
+    org.sonar.batch.protocol.output.BatchReport.Duplication cloneGroupFile2 = duplicationGroupsFile2.get(0);
+    assertThat(cloneGroupFile2.getOriginPosition().getStartLine()).isEqualTo(1);
+    assertThat(cloneGroupFile2.getOriginPosition().getEndLine()).isEqualTo(17);
+    assertThat(cloneGroupFile2.getDuplicateList()).hasSize(1);
+    assertThat(cloneGroupFile2.getDuplicate(0).getOtherFileRef()).isEqualTo(result.getReportComponent(((DefaultInputFile) inputFile1).key()).getRef());
+
+    assertThat(result.duplicationBlocksFor(inputFile1)).isEmpty();
+  }
+
+  @Test
   public void testCrossFileDuplications() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    String duplicatedStuff = "Sample xoo\ncontent\nfoo\nbar\ntoto\ntiti\nfoo\nbar\ntoto\ntiti\nbar\ntoto\ntiti\nfoo\nbar\ntoto\ntiti";
+    String duplicatedStuff = "Sample xoo\ncontent\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "bar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti";
 
     File xooFile1 = new File(srcDir, "sample1.xoo");
     FileUtils.write(xooFile1, duplicatedStuff);
@@ -102,8 +170,6 @@ public class CpdMediumTest {
       .start();
 
     assertThat(result.inputFiles()).hasSize(2);
-
-    Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
 
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
     InputFile inputFile2 = result.inputFile("src/sample2.xoo");

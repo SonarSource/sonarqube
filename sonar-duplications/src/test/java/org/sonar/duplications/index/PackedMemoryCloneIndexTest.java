@@ -23,9 +23,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
+import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -75,6 +79,34 @@ public class PackedMemoryCloneIndexTest {
     for (Block block : blocks) {
       assertThat(block.getBlockHash(), sameInstance(requestedHash));
     }
+  }
+  
+  @Test
+  public void iterate() {
+    index.insert(newBlock("a", 1));
+    index.insert(newBlock("c", 1));
+    index.insert(newBlock("b", 1));
+    index.insert(newBlock("c", 2));
+    index.insert(newBlock("a", 2));
+    
+    Iterator<ResourceBlocks> it = index.iterator();
+    
+    ArrayList<ResourceBlocks> resourcesBlocks = new ArrayList<>();
+    
+    while(it.hasNext()) {
+      resourcesBlocks.add(it.next());
+    }
+    
+    assertThat(resourcesBlocks).hasSize(3);
+    
+    assertThat(resourcesBlocks.get(0).resourceId()).isEqualTo("a");
+    assertThat(resourcesBlocks.get(1).resourceId()).isEqualTo("b");
+    assertThat(resourcesBlocks.get(2).resourceId()).isEqualTo("c");
+    
+    assertThat(resourcesBlocks.get(0).blocks()).hasSize(2);
+    assertThat(resourcesBlocks.get(1).blocks()).hasSize(1);
+    assertThat(resourcesBlocks.get(2).blocks()).hasSize(2);
+    
   }
 
   /**

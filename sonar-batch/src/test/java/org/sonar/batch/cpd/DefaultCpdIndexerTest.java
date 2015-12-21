@@ -31,15 +31,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class DefaultCpdEngineTest {
+public class DefaultCpdIndexerTest {
 
-  private DefaultCpdEngine engine;
+  private DefaultCpdIndexer engine;
   private Settings settings;
 
   @Before
   public void init() {
     settings = new Settings();
-    engine = new DefaultCpdEngine(null, null, settings, null, null);
+    engine = new DefaultCpdIndexer(null, null, settings, null);
   }
 
   @Test
@@ -59,9 +59,9 @@ public class DefaultCpdEngineTest {
 
   @Test
   public void shouldReturnDefaultBlockSize() {
-    assertThat(DefaultCpdEngine.getDefaultBlockSize("cobol")).isEqualTo(30);
-    assertThat(DefaultCpdEngine.getDefaultBlockSize("abap")).isEqualTo(20);
-    assertThat(DefaultCpdEngine.getDefaultBlockSize("other")).isEqualTo(10);
+    assertThat(DefaultCpdIndexer.getDefaultBlockSize("cobol")).isEqualTo(30);
+    assertThat(DefaultCpdIndexer.getDefaultBlockSize("abap")).isEqualTo(20);
+    assertThat(DefaultCpdIndexer.getDefaultBlockSize("other")).isEqualTo(10);
   }
 
   @Test
@@ -75,22 +75,6 @@ public class DefaultCpdEngineTest {
     settings.setProperty("sonar.cpd.cobol.minimumLines", "42");
 
     assertThat(engine.getBlockSize("cobol")).isEqualTo(42);
-  }
-
-  @Test
-  public void defaultMinimumTokens() {
-    assertThat(engine.getMinimumTokens("java")).isEqualTo(100);
-  }
-
-  @Test
-  public void minimumTokensByLanguage() {
-    settings.setProperty("sonar.cpd.java.minimumTokens", "42");
-    settings.setProperty("sonar.cpd.php.minimumTokens", "33");
-    assertThat(engine.getMinimumTokens("java")).isEqualTo(42);
-
-    settings.setProperty("sonar.cpd.java.minimumTokens", "42");
-    settings.setProperty("sonar.cpd.php.minimumTokens", "33");
-    assertThat(engine.getMinimumTokens("php")).isEqualTo(33);
   }
 
 }

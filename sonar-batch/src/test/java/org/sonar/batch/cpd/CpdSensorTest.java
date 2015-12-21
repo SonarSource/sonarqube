@@ -36,15 +36,15 @@ public class CpdSensorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  JavaCpdEngine sonarEngine;
-  DefaultCpdEngine sonarBridgeEngine;
+  JavaCpdIndexer sonarEngine;
+  DefaultCpdIndexer sonarBridgeEngine;
   CpdSensor sensor;
   Settings settings;
 
   @Before
   public void setUp() throws IOException {
-    sonarEngine = new JavaCpdEngine(null, null, null, null);
-    sonarBridgeEngine = new DefaultCpdEngine(new CpdMappings(), null, null, null, null);
+    sonarEngine = new JavaCpdIndexer(null, null, null);
+    sonarBridgeEngine = new DefaultCpdIndexer(new CpdMappings(), null, null, null);
     settings = new Settings(new PropertyDefinitions(CpdComponents.class));
 
     DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());

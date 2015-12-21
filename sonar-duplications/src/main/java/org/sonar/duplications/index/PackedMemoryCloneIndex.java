@@ -21,10 +21,15 @@ package org.sonar.duplications.index;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.utils.FastStringComparator;
+
+import javax.annotation.Nullable;
 
 /**
  * Provides an index optimized by memory.
@@ -104,31 +109,105 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     List<Block> result = new ArrayList<>();
     int realIndex = resourceIdsIndex[index];
     while (index < size && FastStringComparator.INSTANCE.compare(resourceIds[realIndex], resourceId) == 0) {
-      // extract block (note that there is no need to extract resourceId)
-      int offset = realIndex * blockInts;
-      int[] hash = new int[hashInts];
-      for (int j = 0; j < hashInts; j++) {
-        hash[j] = blockData[offset++];
-      }
-      int indexInFile = blockData[offset++];
-      int firstLineNumber = blockData[offset++];
-      int lastLineNumber = blockData[offset++];
-      int startUnit = blockData[offset++];
-      int endUnit = blockData[offset];
-
-      Block block = blockBuilder
-        .setResourceId(resourceId)
-        .setBlockHash(new ByteArray(hash))
-        .setIndexInFile(indexInFile)
-        .setLines(firstLineNumber, lastLineNumber)
-        .setUnit(startUnit, endUnit)
-        .build();
-      result.add(block);
+      result.add(getBlock(realIndex, resourceId));
 
       index++;
       realIndex = resourceIdsIndex[index];
     }
     return result;
+  }
+
+  private Block createBlock(int index, String resourceId, @Nullable ByteArray byteHash) {
+    int offset = index * blockInts;
+    ByteArray blockHash;
+    
+    if (byteHash == null) {
+      int[] hash = new int[hashInts];
+      for (int j = 0; j < hashInts; j++) {
+        hash[j] = blockData[offset++];
+      }
+      blockHash = new ByteArray(hash);
+    } else {
+      blockHash = byteHash;
+      offset += hashInts;
+    }
+
+    int indexInFile = blockData[offset++];
+    int firstLineNumber = blockData[offset++];
+    int lastLineNumber = blockData[offset++];
+    int startUnit = blockData[offset++];
+    int endUnit = blockData[offset];
+
+    return blockBuilder
+      .setResourceId(resourceId)
+      .setBlockHash(blockHash)
+      .setIndexInFile(indexInFile)
+      .setLines(firstLineNumber, lastLineNumber)
+      .setUnit(startUnit, endUnit)
+      .build();
+  }
+
+  private Block getBlock(int index, String resourceId) {
+    return createBlock(index, resourceId, null);
+  }
+
+  private class ResourceIterator implements Iterator<ResourceBlocks> {
+    private int index = 0;
+
+    @Override
+    public boolean hasNext() {
+      return index < size;
+    }
+
+    @Override
+    public ResourceBlocks next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+
+      String resourceId = resourceIds[resourceIdsIndex[index]];
+      List<Block> blocks = new ArrayList<>();
+
+      // while we are at the same resource, keep going
+      do {
+        blocks.add(getBlock(resourceIdsIndex[index], resourceId));
+        index++;
+      } while (hasNext() && FastStringComparator.INSTANCE.compare(resourceIds[resourceIdsIndex[index]], resourceId) == 0);
+
+      return new ResourceBlocks(resourceId, blocks);
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  public static class ResourceBlocks {
+    private Collection<Block> blocks;
+    private String resourceId;
+
+    public ResourceBlocks(String resourceId, Collection<Block> blocks) {
+      this.resourceId = resourceId;
+      this.blocks = blocks;
+    }
+
+    public Collection<Block> blocks() {
+      return blocks;
+    }
+
+    public String resourceId() {
+      return resourceId;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Iterator<ResourceBlocks> iterator() {
+    ensureSorted();
+    return new ResourceIterator();
   }
 
   /**
@@ -154,21 +233,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     while (index < size && !isLessByHash(size, index)) {
       // extract block (note that there is no need to extract hash)
       String resourceId = resourceIds[index];
-      offset = index * blockInts + hashInts;
-      int indexInFile = blockData[offset++];
-      int firstLineNumber = blockData[offset++];
-      int lastLineNumber = blockData[offset++];
-      int startUnit = blockData[offset++];
-      int endUnit = blockData[offset];
-
-      Block block = blockBuilder
-        .setResourceId(resourceId)
-        .setBlockHash(sequenceHash)
-        .setIndexInFile(indexInFile)
-        .setLines(firstLineNumber, lastLineNumber)
-        .setUnit(startUnit, endUnit)
-        .build();
-      result.add(block);
+      result.add(createBlock(index, resourceId, sequenceHash));
       index++;
     }
     return result;

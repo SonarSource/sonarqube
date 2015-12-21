@@ -17,45 +17,104 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.batch.cpd;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import java.util.List;
+import com.google.common.base.Predicate;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Duplicate;
 import org.sonar.batch.protocol.output.BatchReport.Duplication;
 import org.sonar.batch.report.ReportPublisher;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
+import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.collect.FluentIterable.from;
 
-public abstract class AbstractCpdEngine extends CpdEngine {
-
-  private static final Logger LOG = Loggers.get(AbstractCpdEngine.class);
-
+/**
+ * Runs on the root module, at the end of the project analysis.
+ * It executes copy paste detection involving all files of all modules, which were indexed during sensors execution for each module
+ * by {@link CpdSensor). The sensor is responsible for handling exclusions and block sizes.
+ */
+public class CpdExecutor {
+  private static final Logger LOG = Loggers.get(CpdExecutor.class);
   static final int MAX_CLONE_GROUP_PER_FILE = 100;
   static final int MAX_CLONE_PART_PER_GROUP = 100;
 
+  private final SonarDuplicationsIndex index;
   private final ReportPublisher publisher;
   private final BatchComponentCache batchComponentCache;
+  private final Settings settings;
 
-  public AbstractCpdEngine(ReportPublisher publisher, BatchComponentCache batchComponentCache) {
+  public CpdExecutor(Settings settings, SonarDuplicationsIndex index, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
+    this.settings = settings;
+    this.index = index;
     this.publisher = publisher;
     this.batchComponentCache = batchComponentCache;
   }
 
-  protected final void saveDuplications(final InputFile inputFile, List<CloneGroup> duplications) {
-    if (duplications.size() > MAX_CLONE_GROUP_PER_FILE) {
-      LOG.warn("Too many duplication groups on file " + inputFile.relativePath() + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE + " groups.");
+  public void execute() {
+    Iterator<ResourceBlocks> it = index.iterator();
+
+    while (it.hasNext()) {
+      ResourceBlocks resourceBlocks = it.next();
+      runCpdAnalysis(resourceBlocks.resourceId(), resourceBlocks.blocks());
     }
-    final BatchComponent component = batchComponentCache.get(inputFile);
+  }
+
+  private void runCpdAnalysis(String resource, Collection<Block> fileBlocks) {
+    LOG.debug("Detection of duplications for {}", resource);
+
+    BatchComponent component = batchComponentCache.get(resource);
+    if (component == null) {
+      LOG.error("Resource not found in component cache: {}. Skipping CPD computation for it", resource);
+      return;
+    }
+
+    List<CloneGroup> duplications;
+    try {
+      duplications = SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail during detection of duplication for " + resource, e);
+    }
+
+    InputFile inputFile = (InputFile) component.inputComponent();
+    Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(inputFile.language()));
+    List<CloneGroup> filtered = from(duplications).filter(minimumTokensPredicate).toList();
+
+    saveDuplications(component, filtered);
+  }
+
+  @VisibleForTesting
+  int getMinimumTokens(String languageKey) {
+    int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
+    if (minimumTokens == 0) {
+      minimumTokens = 100;
+    }
+
+    return minimumTokens;
+  }
+
+  @VisibleForTesting
+  final void saveDuplications(final BatchComponent component, List<CloneGroup> duplications) {
+    if (duplications.size() > MAX_CLONE_GROUP_PER_FILE) {
+      LOG.warn("Too many duplication groups on file " + component.inputComponent() + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE +
+        " groups.");
+    }
     Iterable<org.sonar.batch.protocol.output.BatchReport.Duplication> reportDuplications = from(duplications)
       .limit(MAX_CLONE_GROUP_PER_FILE)
       .transform(
@@ -65,14 +124,14 @@ public abstract class AbstractCpdEngine extends CpdEngine {
 
           @Override
           public BatchReport.Duplication apply(CloneGroup input) {
-            return toReportDuplication(component, inputFile, dupBuilder, blockBuilder, input);
+            return toReportDuplication(component, dupBuilder, blockBuilder, input);
           }
 
         });
     publisher.getWriter().writeComponentDuplications(component.batchId(), reportDuplications);
   }
 
-  private Duplication toReportDuplication(BatchComponent component, InputFile inputFile, Duplication.Builder dupBuilder, Duplicate.Builder blockBuilder, CloneGroup input) {
+  private Duplication toReportDuplication(BatchComponent component, Duplication.Builder dupBuilder, Duplicate.Builder blockBuilder, CloneGroup input) {
     dupBuilder.clear();
     ClonePart originBlock = input.getOriginPart();
     blockBuilder.clear();
@@ -85,7 +144,8 @@ public abstract class AbstractCpdEngine extends CpdEngine {
       if (!duplicate.equals(originBlock)) {
         clonePartCount++;
         if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
-          LOG.warn("Too many duplication references on file " + inputFile.relativePath() + " for block at line " + originBlock.getStartLine() + ". Keep only the first "
+          LOG.warn("Too many duplication references on file " + component.inputComponent() + " for block at line " +
+            originBlock.getStartLine() + ". Keep only the first "
             + MAX_CLONE_PART_PER_GROUP + " references.");
           break;
         }
@@ -105,5 +165,4 @@ public abstract class AbstractCpdEngine extends CpdEngine {
     }
     return dupBuilder.build();
   }
-
 }

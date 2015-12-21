@@ -25,15 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,44 +34,30 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
-import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.report.ReportPublisher;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
-import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
-import org.sonar.duplications.index.CloneGroup;
-import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.java.JavaStatementBuilder;
 import org.sonar.duplications.java.JavaTokenProducer;
 import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 
-public class JavaCpdEngine extends AbstractCpdEngine {
+public class JavaCpdIndexer extends CpdIndexer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JavaCpdEngine.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JavaCpdIndexer.class);
 
   private static final int BLOCK_SIZE = 10;
 
-  /**
-   * Limit of time to analyse one file (in seconds).
-   */
-  private static final int TIMEOUT = 5 * 60;
-
   private final FileSystem fs;
   private final Settings settings;
-  private final ReportPublisher publisher;
-  private final BatchComponentCache batchComponentCache;
+  private final SonarDuplicationsIndex index;
 
-  public JavaCpdEngine(FileSystem fs, Settings settings, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
-    super(publisher, batchComponentCache);
+  public JavaCpdIndexer(FileSystem fs, Settings settings, SonarDuplicationsIndex index) {
     this.fs = fs;
     this.settings = settings;
-    this.publisher = publisher;
-    this.batchComponentCache = batchComponentCache;
+    this.index = index;
   }
 
   @Override
@@ -88,7 +66,7 @@ public class JavaCpdEngine extends AbstractCpdEngine {
   }
 
   @Override
-  public void analyse(String languageKey, SensorContext context) {
+  public void index(String languageKey) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
     FilePredicates p = fs.predicates();
@@ -99,13 +77,10 @@ public class JavaCpdEngine extends AbstractCpdEngine {
     if (sourceFiles.isEmpty()) {
       return;
     }
-    SonarDuplicationsIndex index = createIndex(sourceFiles);
-    detect(index, context, sourceFiles);
+    createIndex(sourceFiles);
   }
 
-  private SonarDuplicationsIndex createIndex(Iterable<InputFile> sourceFiles) {
-    final SonarDuplicationsIndex index = new SonarDuplicationsIndex(publisher, batchComponentCache, settings);
-
+  private void createIndex(Iterable<InputFile> sourceFiles) {
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();
     BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
@@ -129,49 +104,5 @@ public class JavaCpdEngine extends AbstractCpdEngine {
       List<Block> blocks = blockChunker.chunk(resourceEffectiveKey, statements);
       index.insert(inputFile, blocks);
     }
-
-    return index;
   }
-
-  private void detect(SonarDuplicationsIndex index, org.sonar.api.batch.sensor.SensorContext context, List<InputFile> sourceFiles) {
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-    try {
-      for (InputFile inputFile : sourceFiles) {
-        LOG.debug("Detection of duplications for {}", inputFile);
-        String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
-
-        Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
-
-        List<CloneGroup> clones;
-        try {
-          clones = executorService.submit(new Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-          clones = Collections.emptyList();
-          LOG.warn("Timeout during detection of duplications for " + inputFile, e);
-        } catch (InterruptedException | ExecutionException e) {
-          throw new IllegalStateException("Fail during detection of duplication for " + inputFile, e);
-        }
-
-        saveDuplications(inputFile, clones);
-      }
-    } finally {
-      executorService.shutdown();
-    }
-  }
-
-  static class Task implements Callable<List<CloneGroup>> {
-    private final CloneIndex index;
-    private final Collection<Block> fileBlocks;
-
-    public Task(CloneIndex index, Collection<Block> fileBlocks) {
-      this.index = index;
-      this.fileBlocks = fileBlocks;
-    }
-
-    @Override
-    public List<CloneGroup> call() {
-      return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
-    }
-  }
-
 }

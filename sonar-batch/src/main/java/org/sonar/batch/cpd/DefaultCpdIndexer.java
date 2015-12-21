@@ -20,16 +20,8 @@
 package org.sonar.batch.cpd;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -38,39 +30,25 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
-import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.report.ReportPublisher;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;
 
-import static com.google.common.collect.FluentIterable.from;
+public class DefaultCpdIndexer extends CpdIndexer {
 
-public class DefaultCpdEngine extends AbstractCpdEngine {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultCpdEngine.class);
-
-  /**
-   * Limit of time to analyse one file (in seconds).
-   */
-  private static final int TIMEOUT = 5 * 60;
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultCpdIndexer.class);
 
   private final CpdMappings mappings;
   private final FileSystem fs;
   private final Settings settings;
-  private final ReportPublisher publisher;
-  private final BatchComponentCache batchComponentCache;
+  private final SonarDuplicationsIndex index;
 
-  public DefaultCpdEngine(CpdMappings mappings, FileSystem fs, Settings settings, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
-    super(publisher, batchComponentCache);
+  public DefaultCpdIndexer(CpdMappings mappings, FileSystem fs, Settings settings, SonarDuplicationsIndex index) {
     this.mappings = mappings;
     this.fs = fs;
     this.settings = settings;
-    this.publisher = publisher;
-    this.batchComponentCache = batchComponentCache;
+    this.index = index;
   }
 
   @Override
@@ -79,7 +57,7 @@ public class DefaultCpdEngine extends AbstractCpdEngine {
   }
 
   @Override
-  public void analyse(String languageKey, SensorContext context) {
+  public void index(String languageKey) {
     CpdMapping mapping = mappings.getMapping(languageKey);
     if (mapping == null) {
       LOG.debug("No CpdMapping for language " + languageKey);
@@ -98,41 +76,7 @@ public class DefaultCpdEngine extends AbstractCpdEngine {
     }
 
     // Create index
-    SonarDuplicationsIndex index = new SonarDuplicationsIndex(publisher, batchComponentCache, settings);
     populateIndex(languageKey, sourceFiles, mapping, index);
-
-    // Detect
-    runCpdAnalysis(languageKey, context, sourceFiles, index);
-  }
-
-  private void runCpdAnalysis(String languageKey, SensorContext context, List<InputFile> sourceFiles, SonarDuplicationsIndex index) {
-    Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(languageKey));
-
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-    try {
-      for (InputFile inputFile : sourceFiles) {
-        LOG.debug("Detection of duplications for {}", inputFile);
-        String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
-        Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
-
-        List<CloneGroup> filtered;
-        try {
-          List<CloneGroup> duplications = executorService.submit(new JavaCpdEngine.Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
-          filtered = from(duplications)
-            .filter(minimumTokensPredicate)
-            .toList();
-        } catch (TimeoutException e) {
-          filtered = Collections.emptyList();
-          LOG.warn("Timeout during detection of duplications for " + inputFile, e);
-        } catch (InterruptedException | ExecutionException e) {
-          throw new IllegalStateException("Fail during detection of duplication for " + inputFile, e);
-        }
-
-        saveDuplications(inputFile, filtered);
-      }
-    } finally {
-      executorService.shutdown();
-    }
   }
 
   private void populateIndex(String languageKey, List<InputFile> sourceFiles, CpdMapping mapping, SonarDuplicationsIndex index) {
@@ -163,16 +107,6 @@ public class DefaultCpdEngine extends AbstractCpdEngine {
     } else {
       return 10;
     }
-  }
-
-  @VisibleForTesting
-  int getMinimumTokens(String languageKey) {
-    int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
-    if (minimumTokens == 0) {
-      minimumTokens = 100;
-    }
-
-    return minimumTokens;
   }
 
 }
