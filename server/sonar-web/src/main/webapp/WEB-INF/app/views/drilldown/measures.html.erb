@@ -2,8 +2,12 @@
   <% if params[:period] && @snapshot.project_snapshot.periods? %>
     <div id="snapshot_title" class="spacer-bottom">
       <h4>
-        <form method="GET" action="<%= url_for :action => 'measures' -%>" style="display: inline">
-          <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
+        <form method="GET" action="<%= ApplicationController.root_context -%>/drilldown/measures" style="display: inline">
+          <input type="hidden" name="id" value="<%= h @snapshot.project.key -%>"/>
+          <input type="hidden" name="metric" value="<%= h params[:metric] -%>"/>
+          <% if params[:highlight] %>
+            <input type="hidden" name="highlight" value="<%= h params[:highlight] -%>"/>
+          <% end -%>
 
           <select id="select-comparison" name="period" onchange="submit()">
             <% if @drilldown.display_value? %>
