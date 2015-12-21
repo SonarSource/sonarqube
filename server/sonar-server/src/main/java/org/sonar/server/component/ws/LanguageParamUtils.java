@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.server.component.ws;
 
 import com.google.common.collect.Collections2;
 import org.sonar.api.resources.Language;
@@ -27,13 +27,13 @@ import org.sonar.core.util.NonNullInputFunction;
 import java.util.Arrays;
 import java.util.Collection;
 
-class LanguageParamUtils {
+public class LanguageParamUtils {
 
   private LanguageParamUtils() {
     // Utility class
   }
 
-  static String getExampleValue(Languages languages) {
+  public static String getExampleValue(Languages languages) {
     Language[] languageArray = languages.all();
     if (languageArray.length > 0) {
       return languageArray[0].getKey();
@@ -42,7 +42,7 @@ class LanguageParamUtils {
     }
   }
 
-  static Collection<String> getLanguageKeys(Languages languages) {
+  public static Collection<String> getLanguageKeys(Languages languages) {
     return Collections2.transform(Arrays.asList(languages.all()), new NonNullInputFunction<Language, String>() {
       @Override
       public String doApply(Language input) {

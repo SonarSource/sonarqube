@@ -15,7 +15,8 @@
       "id": "file-uuid",
       "key": "file-key",
       "qualifier": "FIL",
-      "name": "File Name"
+      "name": "File Name",
+      "language": "java"
     },
     {
       "id": "module-uuid",

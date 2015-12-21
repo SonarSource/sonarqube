@@ -160,7 +160,7 @@ public class ActivityAction implements CeWsAction {
       query.setComponentUuid(componentUuid);
     }
     if (componentQuery != null) {
-      ComponentQuery componentDtoQuery = new ComponentQuery(componentQuery, Qualifiers.PROJECT, Qualifiers.VIEW);
+      ComponentQuery componentDtoQuery = new ComponentQuery(componentQuery, null, Qualifiers.PROJECT, Qualifiers.VIEW);
       List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeActivityQuery.MAX_COMPONENT_UUIDS);
       query.setComponentUuids(Lists.transform(componentDtos, ComponentDtoFunctions.toUuid()));
     }

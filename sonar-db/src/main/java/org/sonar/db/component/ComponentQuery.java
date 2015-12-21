@@ -30,8 +30,10 @@ import static org.sonar.db.WildcardPosition.AFTER;
 public class ComponentQuery {
   private final String nameOrKeyQuery;
   private final String[] qualifiers;
+  private final String language;
 
-  public ComponentQuery(@Nullable String nameOrKeyQuery, String... qualifiers) {
+  public ComponentQuery(@Nullable String nameOrKeyQuery, String language, String... qualifiers) {
+    this.language = language;
     checkArgument(qualifiers.length > 0, "At least one qualifier must be provided");
 
     this.nameOrKeyQuery = nameOrKeyQuery;
@@ -55,5 +57,10 @@ public class ComponentQuery {
   @CheckForNull
   public String getNameOrKeyQueryToSqlForProjectKey() {
     return buildLikeValue(nameOrKeyQuery, AFTER);
+  }
+
+  @CheckForNull
+  public String getLanguage() {
+    return language;
   }
 }

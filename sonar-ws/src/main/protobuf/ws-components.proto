@@ -47,4 +47,5 @@ message Component {
   optional string description = 5;
   optional string qualifier = 6;
   optional string path = 7;
+  optional string language = 8;
 }

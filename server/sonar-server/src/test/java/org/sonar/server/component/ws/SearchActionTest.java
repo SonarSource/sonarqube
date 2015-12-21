@@ -23,20 +23,20 @@ package org.sonar.server.component.ws;
 import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -47,7 +47,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,8 +55,9 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchActionTest {
   @Rule
@@ -70,15 +70,17 @@ public class SearchActionTest {
   I18nRule i18n = new I18nRule();
 
   WsActionTester ws;
-  ResourceTypes resourceTypes;
+  ResourceTypesRule resourceTypes = new ResourceTypesRule();
+  Languages languages;
 
   @Before
   public void setUp() {
     userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    resourceTypes = mock(ResourceTypes.class);
-    when(resourceTypes.getAll()).thenReturn(resourceTypes());
+    resourceTypes.setAllQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.FILE);
+    languages = mock(Languages.class);
+    when(languages.all()).thenReturn(javaLanguage());
 
-    ws = new WsActionTester(new SearchAction(db.getDbClient(), resourceTypes, i18n, userSession));
+    ws = new WsActionTester(new SearchAction(db.getDbClient(), resourceTypes, i18n, userSession, languages));
 
   }
 
@@ -88,24 +90,21 @@ public class SearchActionTest {
     ComponentDto project = componentDb.insertComponent(
       newProjectDto("project-uuid")
         .setName("Project Name")
-        .setKey("project-key")
-      );
+        .setKey("project-key"));
     ComponentDto module = componentDb.insertComponent(
       newModuleDto("module-uuid", project)
         .setName("Module Name")
-        .setKey("module-key")
-      );
+        .setKey("module-key"));
     componentDb.insertComponent(
       newDirectory(module, "path/to/directoy")
         .setUuid("directory-uuid")
         .setKey("directory-key")
-        .setName("Directory Name")
-      );
+        .setName("Directory Name"));
     componentDb.insertComponent(
       newFileDto(module, "file-uuid")
         .setKey("file-key")
-        .setName("File Name")
-      );
+        .setLanguage("java")
+        .setName("File Name"));
     db.commit();
 
     String response = newRequest(Qualifiers.PROJECT, Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.FILE)
@@ -152,6 +151,21 @@ public class SearchActionTest {
   }
 
   @Test
+  public void search_with_language() throws IOException {
+    componentDb.insertComponent(newProjectDto().setKey("java-project").setLanguage("java"));
+    componentDb.insertComponent(newProjectDto().setKey("cpp-project").setLanguage("cpp"));
+    db.commit();
+
+    InputStream responseStream = newRequest(Qualifiers.PROJECT)
+      .setParam(PARAM_LANGUAGE, "java")
+      .execute().getInputStream();
+    SearchWsResponse response = SearchWsResponse.parseFrom(responseStream);
+
+    assertThat(response.getComponentsCount()).isEqualTo(1);
+    assertThat(response.getComponentsList().get(0).getKey()).isEqualTo("java-project");
+  }
+
+  @Test
   public void fail_if_unknown_qualifier_provided() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'qualifier' parameter must be one of [BRC, DIR, FIL, TRK]. 'Unknown-Qualifier' was passed.");
@@ -181,11 +195,22 @@ public class SearchActionTest {
       .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(qualifiers));
   }
 
-  private static List<ResourceType> resourceTypes() {
-    return asList(
-      ResourceType.builder(Qualifiers.PROJECT).build(),
-      ResourceType.builder(Qualifiers.MODULE).build(),
-      ResourceType.builder(Qualifiers.DIRECTORY).build(),
-      ResourceType.builder(Qualifiers.FILE).build());
+  private static Language[] javaLanguage() {
+    return new Language[] {new Language() {
+      @Override
+      public String getKey() {
+        return "java";
+      }
+
+      @Override
+      public String getName() {
+        return "Java";
+      }
+
+      @Override
+      public String[] getFileSuffixes() {
+        return new String[0];
+      }
+    }};
   }
 }

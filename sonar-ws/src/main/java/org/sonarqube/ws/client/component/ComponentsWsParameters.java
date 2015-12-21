@@ -30,6 +30,7 @@ public class ComponentsWsParameters {
 
   // parameters
   public static final String PARAM_QUALIFIERS = "qualifiers";
+  public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
   public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
   public static final String PARAM_STRATEGY = "strategy";

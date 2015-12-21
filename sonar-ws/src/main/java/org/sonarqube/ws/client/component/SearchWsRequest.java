@@ -31,6 +31,7 @@ public class SearchWsRequest {
   private Integer page;
   private Integer pageSize;
   private String query;
+  private String language;
 
   public List<String> getQualifiers() {
     return qualifiers;
@@ -68,6 +69,16 @@ public class SearchWsRequest {
 
   public SearchWsRequest setQuery(@Nullable String query) {
     this.query = query;
+    return this;
+  }
+
+  @CheckForNull
+  public String getLanguage() {
+    return language;
+  }
+
+  public SearchWsRequest setLanguage(@Nullable String language) {
+    this.language = language;
     return this;
   }
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
@@ -48,6 +49,7 @@ import static java.lang.String.format;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
@@ -58,12 +60,14 @@ public class SearchAction implements ComponentsWsAction {
   private final ResourceTypes resourceTypes;
   private final I18n i18n;
   private final UserSession userSession;
+  private final Languages languages;
 
-  public SearchAction(DbClient dbClient, ResourceTypes resourceTypes, I18n i18n, UserSession userSession) {
+  public SearchAction(DbClient dbClient, ResourceTypes resourceTypes, I18n i18n, UserSession userSession, Languages languages) {
     this.dbClient = dbClient;
     this.resourceTypes = resourceTypes;
     this.i18n = i18n;
     this.userSession = userSession;
+    this.languages = languages;
   }
 
   @Override
@@ -81,6 +85,13 @@ public class SearchAction implements ComponentsWsAction {
       .setRequired(true)
       .setExampleValue(format("%s,%s", Qualifiers.PROJECT, Qualifiers.MODULE))
       .setDescription("Comma-separated list of component qualifiers. Possible values are " + buildQualifiersDescription());
+
+    action
+      .createParam(PARAM_LANGUAGE)
+      .setDescription("Language key. If provided, only components for the given language are returned.")
+      .setExampleValue(LanguageParamUtils.getExampleValue(languages))
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
+      .setSince("5.4");
   }
 
   @Override
@@ -109,6 +120,7 @@ public class SearchAction implements ComponentsWsAction {
   private static SearchWsRequest toSearchWsRequest(Request request) {
     return new SearchWsRequest()
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
+      .setLanguage(request.param(PARAM_LANGUAGE))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
@@ -147,6 +159,7 @@ public class SearchAction implements ComponentsWsAction {
   private ComponentQuery buildQuery(SearchWsRequest request, List<String> qualifiers) {
     return new ComponentQuery(
       request.getQuery(),
+      request.getLanguage(),
       qualifiers.toArray(new String[qualifiers.size()]));
   }
 
@@ -185,12 +198,16 @@ public class SearchAction implements ComponentsWsAction {
 
     @Override
     public WsComponents.Component apply(@Nonnull ComponentDto dto) {
-      return WsComponents.Component.newBuilder()
+      WsComponents.Component.Builder builder = WsComponents.Component.newBuilder()
         .setId(dto.uuid())
         .setKey(dto.key())
         .setName(dto.name())
-        .setQualifier(dto.qualifier())
-        .build();
+        .setQualifier(dto.qualifier());
+      if (dto.language() != null) {
+        builder.setLanguage(dto.language());
+      }
+
+      return builder.build();
     }
   }
 }

@@ -35,6 +35,6 @@ public class ComponentQueryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At least one qualifier must be provided");
 
-    underTest = new ComponentQuery(null);
+    underTest = new ComponentQuery(null, "java");
   }
 }

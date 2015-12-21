@@ -37,6 +37,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.component.ws.LanguageParamUtils;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.qualityprofile.QProfileBackuper;

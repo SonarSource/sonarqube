@@ -283,6 +283,9 @@
       <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
         #{qualifier}
       </foreach>
+      <if test="query.language!=null">
+        AND p.language = #{query.language}
+      </if>
       <if test="query.nameOrKeyQuery!=null">
         AND (exists (
         select 1
