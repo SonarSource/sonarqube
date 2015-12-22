@@ -12,4 +12,4 @@ module.exports = function (children, options) {
   });
 
   return out;
-}
+};

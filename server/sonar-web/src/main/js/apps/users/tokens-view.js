@@ -42,8 +42,8 @@ export default Modal.extend({
           this.newToken = response.token;
           this.requestTokens();
         })
-        .catch(e => {
-          e.response.json().then(response => {
+        .catch(error => {
+          error.response.json().then(response => {
             this.errors = response.errors;
             this.render();
           });

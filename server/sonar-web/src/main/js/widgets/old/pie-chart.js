@@ -288,8 +288,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .on('mouseenter', function(d, i) {
           return enterHandler(d3.select(this), d.data, i, true);
         })
-        .on('mouseleave', function(d, i) {
-          return leaveHandler(d3.select(this), d.data, i, true);
+        .on('mouseleave', function() {
+          return leaveHandler(d3.select(this));
         })
         .on('click', function(d) {
           return clickHandler(d.data);
@@ -300,7 +300,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           return enterHandler(d3.select(widget.sectors[0][i]), d, i, false);
         })
         .on('mouseleave', function(d, i) {
-          return leaveHandler(d3.select(widget.sectors[0][i]), d, i, false);
+          return leaveHandler(d3.select(widget.sectors[0][i]));
         })
         .on('click', function(d) {
           return clickHandler(d);

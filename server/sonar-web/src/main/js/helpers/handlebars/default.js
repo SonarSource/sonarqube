@@ -3,4 +3,4 @@ module.exports = function () {
   return args.reduce(function (prev, current) {
     return prev != null ? prev : current;
   }, null);
-}
+};

@@ -11,9 +11,8 @@ export default Popup.extend({
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onClose: function () {
-    // TODO why onClose? why not onDestroy?
-    Popup.prototype.onClose.apply(this, arguments);
+  onDestroy: function () {
+    Popup.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 

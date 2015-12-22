@@ -66,5 +66,7 @@ window.require = (module) => {
       return Marionette;
     case 'moment':
       return moment;
+    default:
+      return null;
   }
 };
