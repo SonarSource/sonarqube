@@ -17,20 +17,22 @@ const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => 
           <th className="thin nowrap text-right">{window.t('metric.duplicated_lines_density.short_name')}</th>
         </tr>
       </thead>
-      <tbody>
-        <Component
-            key={baseComponent.uuid}
-            component={baseComponent}
-            coverageMetric={coverageMetric}/>
-        <tr className="blank">
-          <td colSpan="7">&nbsp;</td>
-        </tr>
-      </tbody>
+      {baseComponent && (
+          <tbody>
+            <Component
+                key={baseComponent.key}
+                component={baseComponent}
+                coverageMetric={coverageMetric}/>
+            <tr className="blank">
+              <td colSpan="7">&nbsp;</td>
+            </tr>
+          </tbody>
+      )}
       <tbody>
         {components.length ? (
             components.map(component => (
                 <Component
-                    key={component.uuid}
+                    key={component.key}
                     component={component}
                     coverageMetric={coverageMetric}
                     onBrowse={onBrowse}/>

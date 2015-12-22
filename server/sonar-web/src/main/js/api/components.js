@@ -49,3 +49,9 @@ export function getComponent (componentKey, metrics = []) {
   const data = { resource: componentKey, metrics: metrics.join(',') };
   return getJSON(url, data).then(r => r[0]);
 }
+
+export function getTree(baseComponentKey, options = {}) {
+  const url = baseUrl + '/api/components/tree';
+  const data = Object.assign({}, options, { baseComponentKey });
+  return getJSON(url, data);
+}

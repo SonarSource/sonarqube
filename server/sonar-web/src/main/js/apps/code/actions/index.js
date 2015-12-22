@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import { pushPath } from 'redux-simple-router';
 
-import { getChildren, getComponent } from '../../../api/components';
+import { getChildren, getComponent, getTree } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 
 
@@ -22,6 +22,8 @@ const METRICS_WITH_COVERAGE = [
 
 export const INIT = 'INIT';
 export const BROWSE = 'BROWSE';
+export const SEARCH = 'SEARCH';
+export const UPDATE_QUERY = 'UPDATE_QUERY';
 export const START_FETCHING = 'START_FETCHING';
 export const STOP_FETCHING = 'STOP_FETCHING';
 
@@ -40,6 +42,20 @@ export function browseAction (component, children = [], breadcrumbs = []) {
     component,
     children,
     breadcrumbs
+  };
+}
+
+export function searchAction (components) {
+  return {
+    type: SEARCH,
+    components
+  };
+}
+
+export function updateQueryAction (query) {
+  return {
+    type: UPDATE_QUERY,
+    query
   };
 }
 
@@ -83,6 +99,14 @@ function retrieveComponent (componentKey, bucket) {
   ]);
 }
 
+let requestTree = (query, baseComponent, dispatch) => {
+  dispatch(startFetching());
+  return getTree(baseComponent.key, { q: query, s: 'qualifier,name' })
+      .then(r => dispatch(searchAction(r.components)))
+      .then(() => dispatch(stopFetching()));
+};
+requestTree = _.debounce(requestTree, 250);
+
 export function initComponent (componentKey, breadcrumbs) {
   return dispatch => {
     dispatch(startFetching());
@@ -104,3 +128,16 @@ export function browse (componentKey) {
         .then(() => dispatch(stopFetching()));
   };
 }
+
+export function search (query, baseComponent) {
+  return dispatch => {
+    dispatch(updateQueryAction(query));
+    if (query) {
+      requestTree(query, baseComponent, dispatch);
+    } else {
+      dispatch(searchAction(null));
+    }
+  };
+}
+
+

@@ -6,12 +6,14 @@
 .code-breadcrumbs {
   display: flex;
   flex-wrap: wrap;
-  padding-left: 10px;
-  overflow: hidden;
 }
 
 .code-breadcrumbs > li {
   padding: 5px 5px 3px;
+}
+
+.code-breadcrumbs > li:first-child {
+  padding-left: 0;
 }
 
 .code-breadcrumbs > li::after {
@@ -48,4 +50,9 @@
 
 .code-source-viewer .source-viewer-header-component {
   visibility: hidden;
+}
+
+.code-search-box {
+  padding-left: 10px;
+  overflow: hidden;
 }

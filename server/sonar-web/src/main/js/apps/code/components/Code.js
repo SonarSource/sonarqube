@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './SourceViewer';
+import Search from './Search';
 import { initComponent, browse } from '../actions';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
@@ -33,10 +34,11 @@ class Code extends Component {
   }
 
   render () {
-    const { fetching, baseComponent, components, breadcrumbs, sourceViewer, coverageMetric } = this.props;
+    const { fetching, baseComponent, components, breadcrumbs, sourceViewer, coverageMetric, searchResults } = this.props;
     const shouldShowBreadcrumbs = Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
-    const shouldShowComponents = !sourceViewer && components;
-    const shouldShowSourceViewer = sourceViewer;
+    const shouldShowSearchResults = !!searchResults;
+    const shouldShowSourceViewer = !!sourceViewer;
+    const shouldShowComponents = !shouldShowSearchResults && !shouldShowSourceViewer && components;
 
     const componentsClassName = classNames('spacer-top', { 'new-loading': fetching });
 
@@ -52,12 +54,22 @@ class Code extends Component {
                 <i className="spinner"/>
               </div>
 
-              {shouldShowBreadcrumbs && (
-                  <Breadcrumbs
-                      breadcrumbs={breadcrumbs}
-                      onBrowse={this.handleBrowse.bind(this)}/>
-              )}
+              <Search component={this.props.component}/>
             </header>
+
+            {shouldShowBreadcrumbs && (
+                <Breadcrumbs
+                    breadcrumbs={breadcrumbs}
+                    onBrowse={this.handleBrowse.bind(this)}/>
+            )}
+
+            {shouldShowSearchResults && (
+                <div className={componentsClassName}>
+                  <Components
+                      components={searchResults}
+                      onBrowse={this.handleBrowse.bind(this)}/>
+                </div>
+            )}
 
             {shouldShowComponents && (
                 <div className={componentsClassName}>

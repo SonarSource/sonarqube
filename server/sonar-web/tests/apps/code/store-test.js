@@ -4,6 +4,8 @@ import { current, bucket, initialState } from '../../../src/main/js/apps/code/re
 import {
     initComponentAction,
     browseAction,
+    searchAction,
+    updateQueryAction,
     startFetching,
     stopFetching
 } from '../../../src/main/js/apps/code/actions';
@@ -177,6 +179,32 @@ describe('Code :: Store', () => {
 
           expect(current(initialState, initComponentAction(component, breadcrumbs)).baseBreadcrumbs)
               .to.have.length(1);
+        });
+      });
+      describe('searchResults', () => {
+        it('should be set', () => {
+          const results = [{ key: 'A' }, { key: 'B' }];
+          expect(current(initialState, searchAction(results)).searchResults)
+              .to.deep.equal(results)
+        });
+
+        it('should be reset', () => {
+          const results = [{ key: 'A' }, { key: 'B' }];
+          const stateBefore = Object.assign({}, initialState, { searchResults: results });
+          expect(current(stateBefore, browseAction(exampleComponent)).searchResults)
+              .to.be.null;
+        });
+      });
+      describe('searchQuery', () => {
+        it('should be set', () => {
+          expect(current(initialState, updateQueryAction('query')).searchQuery)
+              .to.equal('query');
+        });
+
+        it('should be reset', () => {
+          const stateBefore = Object.assign({}, initialState, { searchQuery: 'query' });
+          expect(current(stateBefore, browseAction(exampleComponent)).searchQuery)
+              .to.equal('');
         });
       });
     });
