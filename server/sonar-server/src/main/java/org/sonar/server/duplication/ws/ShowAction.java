@@ -20,7 +20,6 @@
 
 package org.sonar.server.duplication.ws;
 
-import com.google.common.base.Preconditions;
 import com.google.common.io.Resources;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -33,12 +32,13 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
 
 public class ShowAction implements RequestHandler {
 
@@ -79,22 +79,18 @@ public class ShowAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    String fileKey = request.param("key");
-    String fileUuid = request.param("uuid");
-    Preconditions.checkArgument(fileKey != null || fileUuid != null, "At least one of 'key' or 'uuid' must be provided");
-
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto component = componentFinder.getByUuidOrKey(session, fileUuid, fileKey);
+      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param("uuid"), request.param("key"), UUID_AND_KEY);
       String componentKey = component.key();
       userSession.checkComponentPermission(UserRole.CODEVIEWER, componentKey);
       JsonWriter json = response.newJsonWriter().beginObject();
-      String duplications = findDataFromComponent(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY, session);
-      List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, session);
-      duplicationsJsonWriter.write(blocks, json, session);
+      String duplications = findDataFromComponent(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY, dbSession);
+      List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, dbSession);
+      duplicationsJsonWriter.write(blocks, json, dbSession);
       json.endObject().close();
     } finally {
-      MyBatis.closeQuietly(session);
+      dbClient.closeSession(dbSession);
     }
   }
 

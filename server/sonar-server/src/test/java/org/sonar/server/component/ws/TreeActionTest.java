@@ -20,8 +20,15 @@
 
 package org.sonar.server.component.ws;
 
+import com.google.common.base.Charsets;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +38,6 @@ import org.mockito.Mockito;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -88,23 +94,10 @@ public class TreeActionTest {
 
   @Test
   public void json_example() throws IOException {
-    ComponentDto project = newProjectDto("project-id");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    for (int i = 1; i <= 10; i++) {
-      componentDb.insertComponentAndSnapshot(ComponentTesting.newFileDto(project, "file-id-" + i)
-        .setKey("file-key-" + i)
-        .setName("file-name-" + i)
-        .setPath("path/to/file-name-" + i)
-        .setProjectUuid("project-id")
-        .setDescription("description " + i)
-        .setCreatedAt(DateUtils.parseDateTime("2015-12-17T22:07:14+0100")),
-        projectSnapshot);
-    }
-    db.commit();
-    componentDb.indexProjects();
+    ComponentDto project = initJsonExampleComponents();
 
     String response = ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-id")
+      .setParam(PARAM_BASE_COMPONENT_ID, project.uuid())
       .execute().getInput();
 
     JsonAssert.assertJson(response)
@@ -346,6 +339,7 @@ public class TreeActionTest {
   @Test
   public void fail_when_no_base_component_parameter() {
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Either 'baseComponentId' or 'baseComponentKey' must be provided, not both");
 
     ws.newRequest().execute();
   }
@@ -355,5 +349,36 @@ public class TreeActionTest {
       .setName("file-name-" + i)
       .setKey("file-key-" + i)
       .setPath("file-path-" + i);
+  }
+
+  private ComponentDto initJsonExampleComponents() throws IOException {
+    ComponentDto project = newProjectDto("AVHE6JiwEplJjXTo0Rza");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    Date now = new Date();
+    JsonParser jsonParser = new JsonParser();
+    JsonElement jsonTree = jsonParser.parse(IOUtils.toString(getClass().getResource("tree-example.json"), Charsets.UTF_8));
+    JsonArray components = jsonTree.getAsJsonObject().getAsJsonArray("components");
+    for (JsonElement componentAsJsonElement : components) {
+      JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
+      componentDb.insertComponentAndSnapshot(new ComponentDto()
+          .setUuid(getJsonField(componentAsJsonObject, "id"))
+          .setKey(getJsonField(componentAsJsonObject, "key"))
+          .setName(getJsonField(componentAsJsonObject, "name"))
+          .setPath(getJsonField(componentAsJsonObject, "path"))
+          .setProjectUuid(project.projectUuid())
+          .setQualifier(getJsonField(componentAsJsonObject, "qualifier"))
+          .setDescription(getJsonField(componentAsJsonObject, "description"))
+          .setEnabled(true)
+          .setCreatedAt(now),
+        projectSnapshot);
+    }
+    db.commit();
+    componentDb.indexProjects();
+    return project;
+  }
+
+  private static String getJsonField(JsonObject jsonObject, String field) {
+    JsonElement jsonElement = jsonObject.get(field);
+    return jsonElement == null ? null : jsonElement.getAsString();
   }
 }

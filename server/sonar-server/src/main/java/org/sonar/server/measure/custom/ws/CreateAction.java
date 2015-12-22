@@ -39,6 +39,7 @@ import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
 
@@ -114,7 +115,7 @@ public class CreateAction implements CustomMeasuresWsAction {
     long now = system.now();
 
     try {
-      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY));
+      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY), PROJECT_ID_AND_KEY);
       MetricDto metric = searchMetric(dbSession, request);
       checkPermissions(userSession, component);
       checkIsProjectOrModule(component);

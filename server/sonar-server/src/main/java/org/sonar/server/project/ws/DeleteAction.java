@@ -35,6 +35,8 @@ import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
+
 public class DeleteAction implements ProjectsWsAction {
   private static final String ACTION = "delete";
 
@@ -81,7 +83,7 @@ public class DeleteAction implements ProjectsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key);
+      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key, ID_AND_KEY);
       componentCleanerService.delete(dbSession, Arrays.asList(project));
     } finally {
       MyBatis.closeQuietly(dbSession);

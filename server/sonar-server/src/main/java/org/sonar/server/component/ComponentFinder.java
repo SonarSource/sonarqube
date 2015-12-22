@@ -37,6 +37,7 @@ import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class ComponentFinder {
+  private static final String MSG_COMPONENT_ID_OR_KEY_TEMPLATE = "Either '%s' or '%s' must be provided, not both";
 
   private final DbClient dbClient;
 
@@ -44,8 +45,8 @@ public class ComponentFinder {
     this.dbClient = dbClient;
   }
 
-  public ComponentDto getByUuidOrKey(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey) {
-    checkArgument(componentUuid != null ^ componentKey != null, "Either 'componentKey' or 'componentId' must be provided, not both");
+  public ComponentDto getByUuidOrKey(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {
+    checkArgument(componentUuid != null ^ componentKey != null, MSG_COMPONENT_ID_OR_KEY_TEMPLATE, parameterNames.getUuidParam(), parameterNames.getKeyParam());
 
     if (componentUuid != null) {
       return getByUuid(dbSession, componentUuid);
@@ -96,5 +97,28 @@ public class ComponentFinder {
 
     checkRequest(rootQualifiers.contains(qualifier) || Qualifiers.MODULE.equals(qualifier),
       format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
+  }
+
+  public enum ParamNames {
+    PROJECT_ID_AND_KEY("projectId", "projectKey"),
+    UUID_AND_KEY("uuid", "key"),
+    ID_AND_KEY("id", "key"),
+    BASE_COMPONENT_ID_AND_KEY("baseComponentId", "baseComponentKey");
+
+    private final String uuidParamName;
+    private final String keyParamName;
+
+    ParamNames(String uuidParamName, String keyParamName) {
+      this.uuidParamName = uuidParamName;
+      this.keyParamName = keyParamName;
+    }
+
+    public String getUuidParam() {
+      return uuidParamName;
+    }
+
+    public String getKeyParam() {
+      return keyParamName;
+    }
   }
 }

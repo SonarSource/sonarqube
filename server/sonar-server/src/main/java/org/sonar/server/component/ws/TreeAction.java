@@ -48,6 +48,7 @@ import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
@@ -101,11 +102,11 @@ public class TreeAction implements ComponentsWsAction {
       .addPagingParams(100, MAX_SIZE);
 
     action.createParam(PARAM_BASE_COMPONENT_ID)
-      .setDescription("base component id. The search is based on this component. It is not included in the response.")
+      .setDescription("Base component id. The search is based on this component. It is not included in the response.")
       .setExampleValue(UUID_EXAMPLE_02);
 
     action.createParam(PARAM_BASE_COMPONENT_KEY)
-      .setDescription("base component key.The search is based on this component. It is not included in the response.")
+      .setDescription("Base component key.The search is based on this component. It is not included in the response.")
       .setExampleValue("org.apache.hbas:hbase");
 
     createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes));
@@ -130,7 +131,7 @@ public class TreeAction implements ComponentsWsAction {
   private TreeWsResponse doHandle(TreeWsRequest treeWsRequest) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, treeWsRequest.getBaseComponentId(), treeWsRequest.getBaseComponentKey());
+      ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, treeWsRequest.getBaseComponentId(), treeWsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
       checkPermissions(baseComponent);
       SnapshotDto baseSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, baseComponent.getId());
       if (baseSnapshot == null) {
@@ -178,9 +179,6 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(paging.total())
       .build();
 
-    if (!components.isEmpty()) {
-      response.setProjectId(components.get(0).projectUuid());
-    }
     for (ComponentDto dto : components) {
       response.addComponents(componentDtoToWsComponent(dto));
     }

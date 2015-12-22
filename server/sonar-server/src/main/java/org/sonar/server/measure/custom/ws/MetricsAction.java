@@ -35,6 +35,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.ws.MetricJsonWriter;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 
 public class MetricsAction implements CustomMeasuresWsAction {
@@ -77,7 +78,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
     DbSession dbSession = dbClient.openSession(false);
 
     try {
-      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY));
+      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY), PROJECT_ID_AND_KEY);
       checkPermissions(userSession, project);
       List<MetricDto> metrics = searchMetrics(dbSession, project);
 

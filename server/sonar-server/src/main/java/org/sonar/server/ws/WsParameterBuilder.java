@@ -20,7 +20,6 @@
 
 package org.sonar.server.ws;
 
-import java.util.Collections;
 import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
@@ -47,7 +46,6 @@ public class WsParameterBuilder {
   }
 
   public static WebService.NewParam createQualifiersParameter(WebService.NewAction action, QualifierParameterContext context) {
-    action.addFieldsParam(Collections.emptyList());
     return action.createParam(PARAM_QUALIFIERS)
       .setDescription(
         "Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. Possible values are:" + buildAllQualifiersDescription(context))

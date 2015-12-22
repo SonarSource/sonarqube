@@ -39,6 +39,8 @@ import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
+
 public class LinesAction implements SourcesWsAction {
 
   private static final String PARAM_UUID = "uuid";
@@ -112,7 +114,7 @@ public class LinesAction implements SourcesWsAction {
   public void handle(Request request, Response response) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto file = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_UUID), request.param(PARAM_KEY));
+      ComponentDto file = componentFinder.getByUuidOrKey(dbSession, request.param(PARAM_UUID), request.param(PARAM_KEY), UUID_AND_KEY);
       userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
 
       int from = request.mandatoryParamAsInt(PARAM_FROM);
