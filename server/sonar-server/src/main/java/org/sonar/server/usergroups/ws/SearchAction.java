@@ -36,7 +36,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.es.SearchOptions;
 
@@ -95,7 +94,7 @@ public class SearchAction implements UserGroupsWsAction {
       writeGroups(json, groups, userCountByGroup, fields);
       json.endObject().close();
     } finally {
-      MyBatis.closeQuietly(dbSession);
+      dbClient.closeSession(dbSession);
     }
   }
 

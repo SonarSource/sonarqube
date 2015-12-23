@@ -22,14 +22,17 @@ package org.sonar.db.user;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.WildcardPosition;
 
 public class GroupDao implements Dao {
 
@@ -92,18 +95,18 @@ public class GroupDao implements Dao {
     return item;
   }
 
-  public List<GroupDto> selectByUserLogin(DbSession session, String login){
+  public List<GroupDto> selectByUserLogin(DbSession session, String login) {
     return mapper(session).selectByUserLogin(login);
   }
 
-  private String groupSearchToSql(@Nullable String query) {
-    String sql = SQL_WILDCARD;
-    if (query != null) {
-      sql = StringUtils.replace(StringUtils.upperCase(query), SQL_WILDCARD, "/%");
-      sql = StringUtils.replace(sql, "_", "/_");
-      sql = SQL_WILDCARD + sql + SQL_WILDCARD;
+  @CheckForNull
+  private static String groupSearchToSql(@Nullable String query) {
+    if (query == null) {
+      return null;
     }
-    return sql;
+
+    String upperCasedNameQuery = StringUtils.upperCase(query, Locale.ENGLISH);
+    return DatabaseUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
   }
 
   private GroupMapper mapper(DbSession session) {

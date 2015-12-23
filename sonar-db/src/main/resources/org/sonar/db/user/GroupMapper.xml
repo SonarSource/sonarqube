@@ -65,13 +65,21 @@
     SELECT
     <include refid="groupColumns"/>
     FROM groups g
-    WHERE UPPER(g.name) LIKE #{query}
+    <where>
+      <if test="query!=null">
+        UPPER(g.name) LIKE #{query} ESCAPE '/'
+      </if>
+    </where>
     ORDER BY UPPER(g.name)
   </select>
 
   <select id="countByQuery" parameterType="map" resultType="int">
     SELECT count(g.id)
     FROM groups g
-    WHERE UPPER(g.name) LIKE #{query}
+    <where>
+      <if test="query!=null">
+        UPPER(g.name) LIKE #{query} ESCAPE '/'
+      </if>
+    </where>
   </select>
 </mapper>
