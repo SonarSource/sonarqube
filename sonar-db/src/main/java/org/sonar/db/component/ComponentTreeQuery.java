@@ -54,7 +54,7 @@ public class ComponentTreeQuery {
     this.page = builder.page;
     this.pageSize = builder.pageSize;
     this.baseSnapshot = builder.baseSnapshot;
-    this.baseSnapshotPath = buildLikeValue(baseSnapshot.getPath() + baseSnapshot.getId() + ".", WildcardPosition.AFTER);
+    this.baseSnapshotPath = buildBaseSnapshotPath(baseSnapshot);
     this.direction = builder.asc ? "ASC" : "DESC";
     this.sqlSort = sortFieldsToSqlSort(builder.sortFields, direction);
   }
@@ -110,6 +110,11 @@ public class ComponentTreeQuery {
       .transform(new SortFieldToSqlSortFieldFunction(direction)).toList();
 
     return Joiner.on(", ").join(sqlSortFields);
+  }
+
+  private String buildBaseSnapshotPath(SnapshotDto baseSnapshot) {
+    String existingSnapshotPath = baseSnapshot.getPath() == null ? "" : baseSnapshot.getPath();
+    return buildLikeValue(existingSnapshotPath + baseSnapshot.getId() + ".", WildcardPosition.AFTER);
   }
 
   public static class Builder {
