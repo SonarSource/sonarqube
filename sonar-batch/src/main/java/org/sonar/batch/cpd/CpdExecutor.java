@@ -93,13 +93,25 @@ public class CpdExecutor {
     }
 
     InputFile inputFile = (InputFile) component.inputComponent();
-    Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(inputFile.language()));
-    List<CloneGroup> filtered = from(duplications).filter(minimumTokensPredicate).toList();
+
+    List<CloneGroup> filtered;
+    if (!"java".equalsIgnoreCase(inputFile.language())) {
+      Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(inputFile.language()));
+      filtered = from(duplications).filter(minimumTokensPredicate).toList();
+    } else {
+      filtered = duplications;
+    }
 
     saveDuplications(component, filtered);
   }
 
   @VisibleForTesting
+  /**
+   * Not applicable to Java, as the {@link BlockChunker} that it uses does not record start and end units of each block. 
+   * Also, it uses statements instead of tokens. 
+   * @param languageKey
+   * @return
+   */
   int getMinimumTokens(String languageKey) {
     int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
     if (minimumTokens == 0) {
