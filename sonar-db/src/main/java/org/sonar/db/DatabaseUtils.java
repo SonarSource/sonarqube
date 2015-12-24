@@ -81,9 +81,6 @@ public class DatabaseUtils {
    * 
    * You <strong>must</strong> add "ESCAPE '/'" after your like query. It defines '/' as the escape character.
    */
-  /**
-   * 
-   */
   public static String buildLikeValue(String value, WildcardPosition wildcardPosition) {
     String escapedValue = escapePercentAndUnderscore(value);
     String wildcard = "%";

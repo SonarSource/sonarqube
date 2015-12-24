@@ -3,8 +3,8 @@
   "ps": 100,
   "total": 3,
   "groups": [
-    {"name": "customer1", "description": "Customer1", "membersCount": 0},
-    {"name": "customer2", "description": "Customer2", "membersCount": 0},
-    {"name": "customer3", "description": "Customer3", "membersCount": 0}
+    {"name": "customer%_%/1", "description": "Customer%_%/1", "membersCount": 0},
+    {"name": "customer%_%/2", "description": "Customer%_%/2", "membersCount": 0},
+    {"name": "customer%_%/3", "description": "Customer%_%/3", "membersCount": 0}
   ]
 }

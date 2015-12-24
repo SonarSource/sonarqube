@@ -31,7 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
@@ -39,6 +38,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 @Category(DbTests.class)
 public class SearchActionTest {
@@ -90,10 +90,10 @@ public class SearchActionTest {
 
   @Test
   public void search_with_query() throws Exception {
-    insertGroups("users", "admins", "customer1", "customer2", "customer3");
+    insertGroups("users", "admins", "customer%_%/1", "customer%_%/2", "customer%_%/3");
     dbSession.commit();
 
-    newRequest().setParam(Param.TEXT_QUERY, "custom").execute().assertJson(getClass(), "customers.json");
+    newRequest().setParam(Param.TEXT_QUERY, "tomer%_%/").execute().assertJson(getClass(), "customers.json");
   }
 
   @Test
@@ -151,7 +151,7 @@ public class SearchActionTest {
 
   private void insertGroups(String... groupNames) {
     for (String groupName : groupNames) {
-      groupDao.insert(dbSession, new GroupDto()
+      groupDao.insert(dbSession, newGroupDto()
         .setName(groupName)
         .setDescription(StringUtils.capitalize(groupName)));
     }
