@@ -69,7 +69,7 @@ module.exports = {
         exclude: /(node_modules|libs)/
       },
       {
-        test: /(blueimp-md5)/,
+        test: /(blueimp-md5|numeral)/,
         loader: 'imports?define=>false'
       },
       {
@@ -92,8 +92,5 @@ module.exports = {
         loader: 'expose?d3'
       }
     ]
-  },
-  externals: {
-    'numeral': 'numeral'
   }
 };

@@ -5,6 +5,7 @@ import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import 'whatwg-fetch';
 import moment from 'moment';
+import numeral from 'numeral';
 import './processes';
 import Navigation from './nav/app';
 
@@ -66,6 +67,8 @@ window.require = (module) => {
       return Marionette;
     case 'moment':
       return moment;
+    case 'numeral':
+      return numeral;
     default:
       return null;
   }
