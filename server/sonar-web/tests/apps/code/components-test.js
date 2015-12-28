@@ -279,7 +279,7 @@ describe('Code :: Components', () => {
           .to.equal('span');
       expect(output.text())
           .to.equal('123');
-      expect(output.prop('data-title'))
+      expect(output.prop('title'))
           .to.equal('ABC');
     });
   });
