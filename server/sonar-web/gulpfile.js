@@ -1,20 +1,19 @@
 var path = require('path');
 
 var del = require('del');
-
 var gulp = require('gulp');
 var gutil = require('gulp-util');
+var webpack = require('webpack');
 
 var argv = require('yargs').argv;
-var production = !argv.dev && !argv.fast;
-var dev = !!argv.dev && !argv.fast;
-var output = argv.output || './src/main/webapp';
+var output = argv.output || path.join(__dirname, 'src/main/webapp');
 
 var styles = require('./gulp/styles').styles;
+var webpackConfig = require('./webpack.config.js');
+webpackConfig.output.path = path.join(output, 'js/bundles');
 
-gulp.task('styles', function () {
-  return styles(output, production, dev);
-});
+
+// Clean
 
 gulp.task('clean', function (done) {
   del([
@@ -23,11 +22,54 @@ gulp.task('clean', function (done) {
   ], done);
 });
 
-gulp.task('build', ['clean', 'styles']);
 
-gulp.task('watch', [], function () {
-  gulp.watch('src/main/less/**/*.less', ['styles']);
-  gutil.log(gutil.colors.bgGreen('Watching for changes...'));
+// Styles
+
+gulp.task('styles:prod', function () {
+  return styles(output, true);
 });
 
+gulp.task('styles:dev', function () {
+  return styles(output, false, true);
+});
+
+
+// Webpack
+
+gulp.task('webpack:prod', function (callback) {
+  var webpackProdConfig = Object.create(webpackConfig);
+  webpackProdConfig.plugins = webpackProdConfig.plugins.concat(
+      new webpack.DefinePlugin({
+        'process.env': {
+          'NODE_ENV': JSON.stringify('production'),
+          'OUTPUT': output
+        }
+      }),
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.UglifyJsPlugin()
+  );
+
+  webpack(webpackProdConfig, function (err) {
+    if (err) {
+      throw new gutil.PluginError('webpack:prod', err);
+    }
+    callback();
+  });
+});
+
+gulp.task('webpack:dev', function (callback) {
+  // run webpack
+  webpack(webpackConfig, function (err) {
+    if (err) {
+      throw new gutil.PluginError('webpack:dev', err);
+    }
+    callback();
+  });
+});
+
+
+// Tasks
+
+gulp.task('build', ['clean', 'styles:prod', 'webpack:prod']);
+gulp.task('build:dev', ['clean', 'styles:dev', 'webpack:dev']);
 gulp.task('default', ['build']);

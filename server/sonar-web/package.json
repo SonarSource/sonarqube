@@ -36,9 +36,7 @@
     "gulp-cssnano": "2.0.0",
     "gulp-if": "2.0.0",
     "gulp-less": "3.0.3",
-    "gulp-plumber": "1.0.1",
     "gulp-rename": "1.2.2",
-    "gulp-sourcemaps": "1.6.0",
     "gulp-util": "3.0.6",
     "handlebars": "2.0.0",
     "handlebars-loader": "1.1.4",
@@ -71,8 +69,8 @@
     "yargs": "3.27.0"
   },
   "scripts": {
-    "build-fast": "gulp --fast && webpack",
-    "build": "NODE_ENV=PRODUCTION gulp && webpack -p",
+    "build-fast": "gulp build:dev",
+    "build": "gulp build",
     "test": "mocha --opts tests/mocha.opts tests",
     "coverage": "babel-node node_modules/.bin/isparta cover --root 'src/main/js' --include-all-sources --excludes '**/libs/**' --dir 'target/coverage' node_modules/.bin/_mocha -- --opts tests/mocha.opts tests",
     "lint": "eslint src/main/js"
