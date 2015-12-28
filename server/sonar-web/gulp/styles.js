@@ -4,7 +4,7 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 var gulpif = require('gulp-if');
 var less = require('gulp-less');
-var minifyCss = require('gulp-minify-css');
+var nano = require('gulp-cssnano');
 var sourcemaps = require('gulp-sourcemaps');
 var autoprefixer = require('gulp-autoprefixer');
 var plumber = require('gulp-plumber');
@@ -36,7 +36,7 @@ module.exports.styles = function (output, production, dev) {
           'IE 11'
         ]
       }))
-      .pipe(gulpif(production, minifyCss({ rebase: false })))
+      .pipe(gulpif(production, nano()))
       .pipe(concat('sonar.css'))
       .pipe(gulpif(dev, sourcemaps.write({ includeContent: true })))
       .pipe(gulp.dest(path.join(output, 'css')));

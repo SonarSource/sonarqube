@@ -71,6 +71,7 @@ MYSQL)
 WEB)
   set +eu
   source ~/.nvm/nvm.sh && nvm install 4
+  npm install -g npm@3.5.2
   cd server/sonar-web && npm install && npm test
   ;;
 
