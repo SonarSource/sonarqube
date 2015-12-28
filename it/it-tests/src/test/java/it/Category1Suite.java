@@ -56,7 +56,7 @@ import it.projectAdministration.BackgroundTasksTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
 import it.projectServices.ProjectCodeTest;
-import it.projectOverview.ProjectOverviewTest;
+import it.projectServices.ProjectOverviewTest;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.projectOverview;
+package it.projectServices;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -39,7 +39,7 @@ public class ProjectOverviewTest {
     executeBuild("shared/xoo-sample", "project-for-overview", "Project For Overview");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_overview_after_first_analysis",
-      "/projectOverview/ProjectOverviewTest/test_project_overview_after_first_analysis.html"
+      "/projectServices/ProjectOverviewTest/test_project_overview_after_first_analysis.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -49,7 +49,7 @@ public class ProjectOverviewTest {
     executeBuild("testing/xoo-sample-ut-coverage", "project-for-overview-ut-coverage", "Project For Overview UT");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_ut_coverage_on_project_overview",
-      "/projectOverview/ProjectOverviewTest/test_ut_coverage_on_project_overview.html"
+      "/projectServices/ProjectOverviewTest/test_ut_coverage_on_project_overview.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -59,7 +59,7 @@ public class ProjectOverviewTest {
     executeBuild("testing/xoo-sample-it-coverage", "project-for-overview-it-coverage", "Project For Overview IT");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_it_coverage_onfi_project_overview",
-      "/projectOverview/ProjectOverviewTest/test_it_coverage_on_project_overview.html"
+      "/projectServices/ProjectOverviewTest/test_it_coverage_on_project_overview.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -69,7 +69,7 @@ public class ProjectOverviewTest {
     executeBuild("testing/xoo-sample-overall-coverage", "project-for-overview-overall-coverage", "Project For Overview Overall");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_overall_coverage_on_project_overview",
-      "/projectOverview/ProjectOverviewTest/test_overall_coverage_on_project_overview.html"
+      "/projectServices/ProjectOverviewTest/test_overall_coverage_on_project_overview.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
