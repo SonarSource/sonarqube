@@ -30,16 +30,10 @@ export default Marionette.CollectionView.extend({
   },
 
   scrollToView: function (view) {
-    var el = view.$el,
-        parent = el.scrollParent();
-    var elOffset = el.offset(),
-        parentOffset = parent.offset();
-    if (parent.is(document)) {
-      parentOffset = { top: 0 };
-    }
-    if (elOffset != null && parentOffset != null) {
-      var scrollTop = elOffset.top - parentOffset.top - 70;
-      parent.scrollTop(scrollTop);
+    var elOffset = view.el.getBoundingClientRect();
+    if (elOffset != null) {
+      var scrollTop = elOffset.top - 70;
+      window.scrollTo(0, scrollTop);
     }
   }
 });
