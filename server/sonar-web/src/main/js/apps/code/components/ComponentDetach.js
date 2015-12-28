@@ -8,7 +8,6 @@ const ComponentDetach = ({ component }) => (
         className="icon-detach"
         target="_blank"
         title={window.t('code.open_in_new_tab')}
-        data-toggle="tooltip"
         href={getComponentUrl(component.key)}/>
 );
 

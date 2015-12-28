@@ -7,7 +7,6 @@ import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './SourceViewer';
 import Search from './Search';
 import { initComponent, browse } from '../actions';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
 
 class Code extends Component {
@@ -43,51 +42,49 @@ class Code extends Component {
     const componentsClassName = classNames('spacer-top', { 'new-loading': fetching });
 
     return (
-        <TooltipsContainer options={{ delay: { show: 500, hide: 0 } }}>
-          <div className="page">
-            <header className="page-header">
-              <h1 className="page-title">{window.t('code.page')}</h1>
+        <div className="page">
+          <header className="page-header">
+            <h1 className="page-title">{window.t('code.page')}</h1>
 
-              <div
-                  className="pull-left"
-                  style={{ visibility: fetching ? 'visible' : 'hidden' }}>
-                <i className="spinner"/>
-              </div>
+            <div
+                className="pull-left"
+                style={{ visibility: fetching ? 'visible' : 'hidden' }}>
+              <i className="spinner"/>
+            </div>
 
-              <Search component={this.props.component}/>
-            </header>
+            <Search component={this.props.component}/>
+          </header>
 
-            {shouldShowBreadcrumbs && (
-                <Breadcrumbs
-                    breadcrumbs={breadcrumbs}
+          {shouldShowBreadcrumbs && (
+              <Breadcrumbs
+                  breadcrumbs={breadcrumbs}
+                  onBrowse={this.handleBrowse.bind(this)}/>
+          )}
+
+          {shouldShowSearchResults && (
+              <div className={componentsClassName}>
+                <Components
+                    components={searchResults}
                     onBrowse={this.handleBrowse.bind(this)}/>
-            )}
+              </div>
+          )}
 
-            {shouldShowSearchResults && (
-                <div className={componentsClassName}>
-                  <Components
-                      components={searchResults}
-                      onBrowse={this.handleBrowse.bind(this)}/>
-                </div>
-            )}
+          {shouldShowComponents && (
+              <div className={componentsClassName}>
+                <Components
+                    baseComponent={baseComponent}
+                    components={components}
+                    coverageMetric={coverageMetric}
+                    onBrowse={this.handleBrowse.bind(this)}/>
+              </div>
+          )}
 
-            {shouldShowComponents && (
-                <div className={componentsClassName}>
-                  <Components
-                      baseComponent={baseComponent}
-                      components={components}
-                      coverageMetric={coverageMetric}
-                      onBrowse={this.handleBrowse.bind(this)}/>
-                </div>
-            )}
-
-            {shouldShowSourceViewer && (
-                <div className="spacer-top">
-                  <SourceViewer component={sourceViewer}/>
-                </div>
-            )}
-          </div>
-        </TooltipsContainer>
+          {shouldShowSourceViewer && (
+              <div className="spacer-top">
+                <SourceViewer component={sourceViewer}/>
+              </div>
+          )}
+        </div>
     );
   }
 }

@@ -4,8 +4,6 @@ import Truncated from './Truncated';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 
 
-// TODO collapse dirs
-
 const Component = ({ component, onBrowse }) => {
   const handleClick = (e) => {
     e.preventDefault();
