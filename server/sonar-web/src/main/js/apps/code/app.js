@@ -8,6 +8,8 @@ import { syncReduxAndRouter } from 'redux-simple-router';
 import Code from './components/Code';
 import configureStore from './store/configureStore';
 
+import './styles/code.css';
+
 
 const store = configureStore();
 const history = createHashHistory({

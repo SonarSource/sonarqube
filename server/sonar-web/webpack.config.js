@@ -1,5 +1,8 @@
 var path = require('path');
 var webpack = require('webpack');
+var autoprefixer = require('autoprefixer');
+
+var autoprefixerOptions = require('./gulp/styles').autoprefixerOptions;
 
 var baseOutput = process.env.OUTPUT || path.join(__dirname, 'src/main/webapp');
 var output = path.join(baseOutput, 'js/bundles');
@@ -90,7 +93,14 @@ module.exports = {
       {
         test: require.resolve('d3'),
         loader: 'expose?d3'
+      },
+      {
+        test: /\.css/,
+        loader: 'style-loader!css-loader!postcss-loader'
       }
     ]
+  },
+  postcss: function () {
+    return [autoprefixer(autoprefixerOptions)];
   }
 };

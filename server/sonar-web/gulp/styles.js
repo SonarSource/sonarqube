@@ -22,6 +22,8 @@ var autoprefixerOptions = {
 };
 
 
+module.exports.autoprefixerOptions = autoprefixerOptions;
+
 module.exports.styles = function (output, production) {
   return gulp.src(['src/main/less/sonar.less'])
       .pipe(less())

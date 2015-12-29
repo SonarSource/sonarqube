@@ -1,8 +1,3 @@
-@import (reference) "../mixins";
-@import (reference) "../variables";
-@import (reference) "../init/type";
-
-
 .code-breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -20,7 +15,7 @@
   position: relative;
   top: -1px;
   padding-left: 10px;
-  color: @secondFontColor;
+  color: #777;
   font-size: 11px;
   content: ">";
 }
@@ -37,7 +32,9 @@
   display: inline-block;
   vertical-align: text-top;
   max-width: 50vw;
-  .text-ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .code-name-cell {
