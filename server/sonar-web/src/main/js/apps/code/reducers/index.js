@@ -70,6 +70,7 @@ export function current (state = initialState, action) {
       return {
         ...state,
         searchResults: action.components,
+        sourceViewer: null,
         errorMessage: null
       };
     case UPDATE_QUERY:

@@ -115,6 +115,12 @@ describe('Code :: Store', () => {
           expect(current(initialState, browseAction(unknown, exampleComponents)).sourceViewer)
               .to.be.null;
         });
+
+        it('should be reset', () => {
+          const stateBefore = Object.assign({}, initialState, { sourceViewer: exampleComponent });
+          expect(current(stateBefore, searchAction(exampleComponents)).sourceViewer)
+              .to.be.null;
+        });
       });
       describe('coverageMetric', () => {
         it('should be set to "coverage"', () => {
