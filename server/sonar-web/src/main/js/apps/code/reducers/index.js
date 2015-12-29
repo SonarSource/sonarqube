@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-import { INIT, BROWSE, SEARCH, UPDATE_QUERY, START_FETCHING, STOP_FETCHING } from '../actions';
+import { INIT, BROWSE, SEARCH, UPDATE_QUERY, START_FETCHING, STOP_FETCHING, RAISE_ERROR } from '../actions';
 
 
 function hasSourceCode (component) {
@@ -37,7 +37,8 @@ export const initialState = {
   searchResults: null,
   searchQuery: '',
   coverageMetric: null,
-  baseBreadcrumbs: []
+  baseBreadcrumbs: [],
+  errorMessage: null
 };
 
 
@@ -55,15 +56,34 @@ export function current (state = initialState, action) {
       const breadcrumbs = action.breadcrumbs.slice(baseBreadcrumbsLength);
       const sourceViewer = hasSourceCode(action.component) ? action.component : null;
 
-      return { ...state, baseComponent, components, breadcrumbs, sourceViewer, searchResults: null, searchQuery: '' };
+      return {
+        ...state,
+        baseComponent,
+        components,
+        breadcrumbs,
+        sourceViewer,
+        searchResults: null,
+        searchQuery: '',
+        errorMessage: null
+      };
     case SEARCH:
-      return { ...state, searchResults: action.components };
+      return {
+        ...state,
+        searchResults: action.components,
+        errorMessage: null
+      };
     case UPDATE_QUERY:
       return { ...state, searchQuery: action.query };
     case START_FETCHING:
       return { ...state, fetching: true };
     case STOP_FETCHING:
       return { ...state, fetching: false };
+    case RAISE_ERROR:
+      return {
+        ...state,
+        errorMessage: action.message,
+        fetching: false
+      };
     default:
       return state;
   }

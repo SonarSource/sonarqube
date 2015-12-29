@@ -26,6 +26,7 @@ export const SEARCH = 'SEARCH';
 export const UPDATE_QUERY = 'UPDATE_QUERY';
 export const START_FETCHING = 'START_FETCHING';
 export const STOP_FETCHING = 'STOP_FETCHING';
+export const RAISE_ERROR = 'RAISE_ERROR';
 
 
 export function initComponentAction (component, breadcrumbs = []) {
@@ -65,6 +66,13 @@ export function startFetching () {
 
 export function stopFetching () {
   return { type: STOP_FETCHING };
+}
+
+export function raiseError (message) {
+  return {
+    type: RAISE_ERROR,
+    message
+  };
 }
 
 
@@ -107,6 +115,22 @@ let requestTree = (query, baseComponent, dispatch) => {
 };
 requestTree = _.debounce(requestTree, 250);
 
+async function getErrorMessage (response) {
+  switch (response.status) {
+    case 401:
+      return window.t('not_authorized');
+    default:
+      try {
+        let json = await response.json();
+        return json['err_msg'] ||
+            (json.errors && _.pluck(json.errors, 'msg').join('. ')) ||
+            window.t('default_error_message');
+      } catch (e) {
+        return window.t('default_error_message');
+      }
+  }
+}
+
 export function initComponent (componentKey, breadcrumbs) {
   return dispatch => {
     dispatch(startFetching());
@@ -125,7 +149,11 @@ export function browse (componentKey) {
           dispatch(browseAction(component, children, breadcrumbs));
         })
         .then(() => dispatch(pushPath(getPath(componentKey))))
-        .then(() => dispatch(stopFetching()));
+        .then(() => dispatch(stopFetching()))
+        .catch(e => {
+          getErrorMessage(e.response)
+              .then(message => dispatch(raiseError(message)));
+        });
   };
 }
 

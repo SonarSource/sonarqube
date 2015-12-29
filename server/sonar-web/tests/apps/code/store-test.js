@@ -7,7 +7,8 @@ import {
     searchAction,
     updateQueryAction,
     startFetching,
-    stopFetching
+    stopFetching,
+    raiseError
 } from '../../../src/main/js/apps/code/actions';
 
 
@@ -205,6 +206,20 @@ describe('Code :: Store', () => {
           const stateBefore = Object.assign({}, initialState, { searchQuery: 'query' });
           expect(current(stateBefore, browseAction(exampleComponent)).searchQuery)
               .to.equal('');
+        });
+      });
+      describe('errorMessage', () => {
+        it('should be set', () => {
+          expect(current(initialState, raiseError('error!')).errorMessage)
+              .to.equal('error!');
+        });
+
+        it('should be reset', () => {
+          const stateBefore = Object.assign({}, initialState, { errorMessage: 'error!' });
+          expect(current(stateBefore, browseAction(exampleComponent)).errorMessage)
+              .to.be.null;
+          expect(current(stateBefore, searchAction(exampleComponents)).errorMessage)
+              .to.be.null;
         });
       });
     });

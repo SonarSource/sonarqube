@@ -33,7 +33,15 @@ class Code extends Component {
   }
 
   render () {
-    const { fetching, baseComponent, components, breadcrumbs, sourceViewer, coverageMetric, searchResults } = this.props;
+    const {
+        fetching,
+        baseComponent,
+        components,
+        breadcrumbs,
+        sourceViewer,
+        coverageMetric,
+        searchResults,
+        errorMessage } = this.props;
     const shouldShowBreadcrumbs = Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
     const shouldShowSearchResults = !!searchResults;
     const shouldShowSourceViewer = !!sourceViewer;
@@ -54,6 +62,12 @@ class Code extends Component {
 
             <Search component={this.props.component}/>
           </header>
+
+          {errorMessage && (
+              <div className="alert alert-danger">
+                {errorMessage}
+              </div>
+          )}
 
           {shouldShowBreadcrumbs && (
               <Breadcrumbs

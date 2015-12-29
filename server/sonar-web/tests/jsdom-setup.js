@@ -1,4 +1,5 @@
 /* globals global: false */
+require("babel-polyfill");
 
 var jsdom = require('jsdom');
 
