@@ -75,7 +75,7 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
     requireNonNull(metric.getId(), "id can not be null");
 
     checkState(!metricsByKey.containsKey(metric.getKey()), format("Repository already contains a metric for key %s", metric.getKey()));
-    checkState(!metricsById.containsKey(metric.getId()), format("Repository already contains a metric for id %s", metric.getId()));
+    checkState(!metricsById.containsKey((long) metric.getId()), format("Repository already contains a metric for id %s", metric.getId()));
 
     metricsByKey.put(metric.getKey(), metric);
     metricsById.put((long) metric.getId(), metric);
