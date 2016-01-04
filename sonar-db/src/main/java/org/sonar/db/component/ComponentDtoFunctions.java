@@ -34,6 +34,32 @@ public final class ComponentDtoFunctions {
     return ToKey.INSTANCE;
   }
 
+  public static Function<ComponentDto, Long> toId() {
+    return ToId.INSTANCE;
+  }
+
+  public static Function<ComponentDto, String> toProjectUuid() {
+    return ToProjectUuid.INSTANCE;
+  }
+
+  public static Function<ComponentDto, String> toUuid() {
+    return ToUuid.INSTANCE;
+  }
+
+  public static Function<ComponentDto, Long> toCopyResourceId() {
+    return ToCopyResourceId.INSTANCE;
+  }
+
+  private enum ToId implements Function<ComponentDto, Long> {
+    INSTANCE;
+
+    @Override
+    public Long apply(@Nonnull ComponentDto input) {
+      return input.getId();
+    }
+  }
+
+
   private enum ToKey implements Function<ComponentDto, String> {
     INSTANCE;
 
@@ -41,10 +67,6 @@ public final class ComponentDtoFunctions {
     public String apply(@Nonnull ComponentDto input) {
       return input.key();
     }
-  }
-
-  public static Function<ComponentDto, String> toProjectUuid() {
-    return ToProjectUuid.INSTANCE;
   }
 
   private enum ToProjectUuid implements Function<ComponentDto, String> {
@@ -56,10 +78,6 @@ public final class ComponentDtoFunctions {
     }
   }
 
-  public static Function<ComponentDto, String> toUuid() {
-    return ToUuid.INSTANCE;
-  }
-
   private enum ToUuid implements Function<ComponentDto, String> {
     INSTANCE;
 
@@ -67,10 +85,6 @@ public final class ComponentDtoFunctions {
     public String apply(ComponentDto input) {
       return input.uuid();
     }
-  }
-
-  public static Function<ComponentDto, Long> toCopyResourceId() {
-    return ToCopyResourceId.INSTANCE;
   }
 
   private enum ToCopyResourceId implements Function<ComponentDto, Long> {

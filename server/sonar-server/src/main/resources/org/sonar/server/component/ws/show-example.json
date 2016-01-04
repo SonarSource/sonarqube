@@ -1,0 +1,25 @@
+{
+  "component": {
+    "id": "AVIF-FffA3Ax6PH2efPD",
+    "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java",
+    "name": "Rule.java",
+    "qualifier": "FIL",
+    "path": "src/main/java/com/sonarsource/markdown/impl/Rule.java"
+  },
+  "ancestors": [
+    {
+      "id": "AVIF-FfgA3Ax6PH2efPF",
+      "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl",
+      "name": "src/main/java/com/sonarsource/markdown/impl",
+      "qualifier": "DIR",
+      "path": "src/main/java/com/sonarsource/markdown/impl"
+    },
+    {
+      "id": "AVIF98jgA3Ax6PH2efOW",
+      "key": "com.sonarsource:java-markdown",
+      "name": "Java Markdown",
+      "description": "Java Markdown Project",
+      "qualifier": "TRK"
+    }
+  ]
+}

@@ -30,6 +30,8 @@ public interface SnapshotMapper {
   @CheckForNull
   SnapshotDto selectByKey(long id);
 
+  List<SnapshotDto> selectByIds(@Param("ids") List<Long> ids);
+
   void insert(SnapshotDto snapshot);
 
   @CheckForNull
@@ -53,7 +55,7 @@ public interface SnapshotMapper {
 
   int updateSnapshotAndChildrenLastFlag(@Param(value = "root") Long rootId, @Param(value = "pathRootId") Long pathRootId,
     @Param(value = "path") String path, @Param(value = "isLast") boolean isLast);
-  
+
   List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentId") long componentId, @Param("date") long date);
 
   ViewsSnapshotDto selectLatestSnapshot(@Param("componentId") long componentId);

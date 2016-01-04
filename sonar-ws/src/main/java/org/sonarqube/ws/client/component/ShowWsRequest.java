@@ -20,21 +20,30 @@
 
 package org.sonarqube.ws.client.component;
 
-public class ComponentsWsParameters {
-  private ComponentsWsParameters() {
-    // static utility class
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+public class ShowWsRequest {
+  @CheckForNull
+  private String id;
+  @CheckForNull
+  private String key;
+
+  public String getId() {
+    return id;
   }
 
-  //actions
-  public static final String ACTION_TREE = "tree";
-  public static final String ACTION_SHOW = "show";
+  public ShowWsRequest setId(@Nullable String id) {
+    this.id = id;
+    return this;
+  }
 
-  // parameters
-  public static final String PARAM_QUALIFIERS = "qualifiers";
-  public static final String PARAM_LANGUAGE = "language";
-  public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
-  public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
-  public static final String PARAM_STRATEGY = "strategy";
-  public static final String PARAM_ID = "id";
-  public static final String PARAM_KEY = "key";
+  public String getKey() {
+    return key;
+  }
+
+  public ShowWsRequest setKey(@Nullable String key) {
+    this.key = key;
+    return this;
+  }
 }

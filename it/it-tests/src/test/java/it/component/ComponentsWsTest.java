@@ -18,58 +18,53 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package it.componentSearch;
+package it.component;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import it.Category4Suite;
-import java.io.IOException;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.component.SearchWsRequest;
+import org.sonarqube.ws.client.component.ShowWsRequest;
+import util.ItUtils;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-public class ProjectSearchTest {
-
+public class ComponentsWsTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";
+  WsClient wsClient;
 
   @Before
   public void inspectProject() {
     orchestrator.resetData();
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+
+    wsClient = ItUtils.newAdminWsClient(orchestrator);
   }
 
-  /**
-   * SONAR-3105
-   */
   @Test
-  public void projects_web_service() throws IOException {
-    SonarRunner build = SonarRunner.create(projectDir("shared/xoo-sample"));
-    orchestrator.executeBuild(build);
+  public void show() {
+    WsComponents.ShowWsResponse response = wsClient.components().show(new ShowWsRequest().setKey(FILE_KEY));
 
-    String url = orchestrator.getServer().getUrl() + "/api/projects?key=sample&versions=true";
-    HttpClient httpclient = new DefaultHttpClient();
-    try {
-      HttpGet get = new HttpGet(url);
-      HttpResponse response = httpclient.execute(get);
+    assertThat(response).isNotNull();
+    assertThat(response.getComponent().getKey()).isEqualTo(FILE_KEY);
+    assertThat(response.getAncestorsList()).isNotEmpty();
+  }
 
-      assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
-      String content = IOUtils.toString(response.getEntity().getContent());
-      assertThat(content).doesNotContain("error");
-      assertThat(content).contains("sample");
-      EntityUtils.consume(response.getEntity());
+  @Test
+  public void search() {
+    WsComponents.SearchWsResponse response = wsClient.components().search(new SearchWsRequest()
+      .setQualifiers(singletonList("FIL")));
 
-    } finally {
-      httpclient.getConnectionManager().shutdown();
-    }
+    assertThat(response).isNotNull();
+    assertThat(response.getComponents(0).getKey()).isEqualTo(FILE_KEY);
   }
 }

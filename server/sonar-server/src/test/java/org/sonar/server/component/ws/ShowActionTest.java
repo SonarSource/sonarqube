@@ -1,0 +1,169 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.component.ws;
+
+import com.google.common.base.Throwables;
+import java.io.IOException;
+import java.io.InputStream;
+import javax.annotation.Nullable;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.DbTests;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsComponents.ShowWsResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
+
+@Category(DbTests.class)
+public class ShowActionTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone()
+    .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  ComponentDbTester componentDb = new ComponentDbTester(db);
+
+  WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient())));
+
+  @Test
+  public void json_example() throws IOException {
+    insertJsonExampleComponentsAndSnapshots();
+
+    String response = ws.newRequest()
+      .setParam("id", "AVIF-FffA3Ax6PH2efPD")
+      .execute()
+      .getInput();
+
+    assertJson(response).isSimilarTo(getClass().getResource("show-example.json"));
+  }
+
+  @Test
+  public void show_by_key_with_project_permission() {
+    userSession.anonymous().login().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid").setKey("project-key"));
+
+    ShowWsResponse response = newRequest(null, "project-key");
+
+    assertThat(response.getAncestorsCount()).isEqualTo(0);
+    assertThat(response.getComponent().getKey()).isEqualTo("project-key");
+  }
+
+  @Test
+  public void show_with_browse_permission() {
+    userSession.anonymous().addProjectUuidPermissions(UserRole.USER, "project-uuid");
+    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+
+    ShowWsResponse response = newRequest("project-uuid", null);
+
+    assertThat(response.getComponent().getId()).isEqualTo("project-uuid");
+  }
+
+  @Test
+  public void show_provided_project() {
+    componentDb.insertComponent(newProjectDto("project-uuid"));
+
+    ShowWsResponse response = newRequest("project-uuid", null);
+
+    assertThat(response.getComponent().getId()).isEqualTo("project-uuid");
+  }
+
+  @Test
+  public void fail_if_not_enough_privilege() {
+    userSession.anonymous().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    expectedException.expect(ForbiddenException.class);
+    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+
+    newRequest("project-uuid", null);
+  }
+
+  @Test
+  public void fail_if_component_does_not_exist() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component id 'unknown-uuid' not found");
+
+    newRequest("unknown-uuid", null);
+  }
+
+  private ShowWsResponse newRequest(@Nullable String uuid, @Nullable String key) {
+    TestRequest request = ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF);
+
+    if (uuid != null) {
+      request.setParam(PARAM_ID, uuid);
+    }
+    if (key != null) {
+      request.setParam(PARAM_KEY, key);
+    }
+
+    try(InputStream responseStream = request.execute().getInputStream()) {
+      return ShowWsResponse.parseFrom(responseStream);
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+  private void insertJsonExampleComponentsAndSnapshots() {
+    ComponentDto project = newProjectDto("AVIF98jgA3Ax6PH2efOW")
+      .setKey("com.sonarsource:java-markdown")
+      .setName("Java Markdown")
+      .setDescription("Java Markdown Project")
+      .setQualifier(Qualifiers.PROJECT);
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    ComponentDto directory = newDirectory(project, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")
+      .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
+      .setName("src/main/java/com/sonarsource/markdown/impl")
+      .setQualifier(Qualifiers.DIRECTORY);
+    SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(
+      directory,
+      projectSnapshot);
+    componentDb.insertComponentAndSnapshot(
+      newFileDto(directory, "AVIF-FffA3Ax6PH2efPD")
+        .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
+        .setName("Rule.java")
+        .setPath("src/main/java/com/sonarsource/markdown/impl/Rule.java")
+        .setQualifier(Qualifiers.FILE),
+      directorySnapshot);
+  }
+}

@@ -22,7 +22,8 @@ package it;
 import com.sonar.orchestrator.Orchestrator;
 import it.analysisExclusion.FileExclusionsTest;
 import it.analysisExclusion.IssueExclusionsTest;
-import it.componentSearch.ProjectSearchTest;
+import it.component.ComponentsWsTest;
+import it.component.ProjectSearchTest;
 import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
@@ -50,8 +51,9 @@ import static util.ItUtils.xooPlugin;
   // user
   ForceAuthenticationTest.class,
   FavouriteTest.class,
-  // project search
+  // component search
   ProjectSearchTest.class,
+  ComponentsWsTest.class,
   // update center
   UpdateCenterTest.class,
   // analysis exclusion

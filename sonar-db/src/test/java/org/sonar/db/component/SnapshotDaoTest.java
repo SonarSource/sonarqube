@@ -30,11 +30,14 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
@@ -48,7 +51,8 @@ public class SnapshotDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
+  ComponentDbTester componentDb = new ComponentDbTester(db);
+  DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
   SnapshotDao underTest = db.getDbClient().snapshotDao();
@@ -93,6 +97,18 @@ public class SnapshotDaoTest {
     assertThat(result.getBuildDate()).isEqualTo(1317247200000L);
 
     assertThat(underTest.selectById(db.getSession(), 999L)).isNull();
+  }
+
+  @Test
+  public void select_by_ids() {
+    SnapshotDto snapshot1 = componentDb.insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto snapshot2 = componentDb.insertProjectAndSnapshot(newProjectDto());
+    SnapshotDto snapshot3 = componentDb.insertProjectAndSnapshot(newProjectDto());
+
+    List<SnapshotDto> result = underTest.selectByIds(dbSession, newArrayList(snapshot1.getId(), snapshot2.getId(), snapshot3.getId(), 42L));
+
+    assertThat(result).hasSize(3);
+    assertThat(result).extracting("id").containsOnly(snapshot1.getId(), snapshot2.getId(), snapshot3.getId());
   }
 
   @Test

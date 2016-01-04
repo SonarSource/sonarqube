@@ -20,10 +20,22 @@
 
 package org.sonarqube.ws.client.component;
 
+import com.google.common.base.Joiner;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
+import org.sonarqube.ws.WsComponents.ShowWsResponse;
+import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
+
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ID;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
 public class ComponentsService extends BaseService {
 
@@ -33,10 +45,30 @@ public class ComponentsService extends BaseService {
 
   public SearchWsResponse search(SearchWsRequest request) {
     GetRequest get = new GetRequest(path("search"))
-      .setParam("qualifiers", request.getQualifiers())
+      .setParam("qualifiers", Joiner.on(",").join(request.getQualifiers()))
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize())
       .setParam("q", request.getQuery());
     return call(get, SearchWsResponse.parser());
+  }
+
+  public TreeWsResponse tree(TreeWsRequest request) {
+    GetRequest get = new GetRequest(path(ACTION_TREE))
+      .setParam(PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
+      .setParam(PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
+      .setParam(PARAM_QUALIFIERS, request.getQualifiers())
+      .setParam(PARAM_STRATEGY, request.getStrategy())
+      .setParam("p", request.getPage())
+      .setParam("ps", request.getPageSize())
+      .setParam("q", request.getQuery())
+      .setParam("s", request.getSort());
+    return call(get, TreeWsResponse.parser());
+  }
+
+  public ShowWsResponse show(ShowWsRequest request) {
+    GetRequest get = new GetRequest(path(ACTION_SHOW))
+      .setParam(PARAM_ID, request.getId())
+      .setParam(PARAM_KEY, request.getKey());
+    return call(get, ShowWsResponse.parser());
   }
 }

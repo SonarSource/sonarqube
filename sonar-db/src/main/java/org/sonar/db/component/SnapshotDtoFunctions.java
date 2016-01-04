@@ -18,23 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonarqube.ws.client.component;
+package org.sonar.db.component;
 
-public class ComponentsWsParameters {
-  private ComponentsWsParameters() {
-    // static utility class
+import com.google.common.base.Function;
+import javax.annotation.Nonnull;
+
+public class SnapshotDtoFunctions {
+  public static Function<SnapshotDto, Long> toId() {
+    return ToId.INSTANCE;
   }
 
-  //actions
-  public static final String ACTION_TREE = "tree";
-  public static final String ACTION_SHOW = "show";
+  public static Function<SnapshotDto, Long> toComponentId() {
+    return ToComponentId.INSTANCE;
+  }
 
-  // parameters
-  public static final String PARAM_QUALIFIERS = "qualifiers";
-  public static final String PARAM_LANGUAGE = "language";
-  public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
-  public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
-  public static final String PARAM_STRATEGY = "strategy";
-  public static final String PARAM_ID = "id";
-  public static final String PARAM_KEY = "key";
+  private enum ToId implements Function<SnapshotDto, Long> {
+    INSTANCE;
+
+    @Override
+    public Long apply(@Nonnull SnapshotDto input) {
+      return input.getId();
+    }
+  }
+
+  private enum ToComponentId implements Function<SnapshotDto, Long> {
+    INSTANCE;
+
+    @Override
+    public Long apply(@Nonnull SnapshotDto input) {
+      return input.getComponentId();
+    }
+  }
+
+
 }

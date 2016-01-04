@@ -20,11 +20,13 @@
 
 package org.sonar.db.component;
 
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Scopes;
@@ -34,6 +36,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class SnapshotDao implements Dao {
 
@@ -52,6 +55,16 @@ public class SnapshotDao implements Dao {
       throw new RowNotFoundException(String.format("Snapshot id does not exist: %d", id));
     }
     return value;
+  }
+
+  public List<SnapshotDto> selectByIds(final DbSession dbSession, List<Long> snapshotIds) {
+    return executeLargeInputs(snapshotIds, new Function<List<Long>, List<SnapshotDto>>() {
+      @Nonnull
+      @Override
+      public List<SnapshotDto> apply(@Nonnull List<Long> input) {
+        return mapper(dbSession).selectByIds(input);
+      }
+    });
   }
 
   @CheckForNull

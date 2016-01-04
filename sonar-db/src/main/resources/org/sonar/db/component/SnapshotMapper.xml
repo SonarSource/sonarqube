@@ -49,6 +49,17 @@
     </where>
   </select>
 
+  <select id="selectByIds" parameterType="Long" resultType="Snapshot">
+    SELECT
+    <include refid="snapshotColumns"/>
+    FROM snapshots s
+    WHERE
+    s.id in
+    <foreach collection="ids" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </select>
+
   <select id="selectLastSnapshot" resultType="Snapshot">
     select
     <include refid="snapshotColumns"/>

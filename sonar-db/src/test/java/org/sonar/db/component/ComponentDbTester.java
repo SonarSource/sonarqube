@@ -65,6 +65,7 @@ public class ComponentDbTester {
 
   public ComponentDto insertComponent(ComponentDto component) {
     dbClient.componentDao().insert(dbSession, component);
+    db.commit();
     return component;
   }
 

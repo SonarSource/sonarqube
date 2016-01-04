@@ -39,6 +39,13 @@ message TreeWsResponse {
   repeated Component components = 3;
 }
 
+// WS api/components/show
+message ShowWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  optional Component component = 2;
+  repeated Component ancestors = 3;
+}
+
 message Component {
   optional string id = 1;
   optional string key = 2;

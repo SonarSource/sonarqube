@@ -28,6 +28,7 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -361,15 +362,15 @@ public class TreeActionTest {
     for (JsonElement componentAsJsonElement : components) {
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
       componentDb.insertComponentAndSnapshot(new ComponentDto()
-        .setUuid(getJsonField(componentAsJsonObject, "id"))
-        .setKey(getJsonField(componentAsJsonObject, "key"))
-        .setName(getJsonField(componentAsJsonObject, "name"))
-        .setPath(getJsonField(componentAsJsonObject, "path"))
-        .setProjectUuid(project.projectUuid())
-        .setQualifier(getJsonField(componentAsJsonObject, "qualifier"))
-        .setDescription(getJsonField(componentAsJsonObject, "description"))
-        .setEnabled(true)
-        .setCreatedAt(now),
+          .setUuid(getJsonField(componentAsJsonObject, "id"))
+          .setKey(getJsonField(componentAsJsonObject, "key"))
+          .setName(getJsonField(componentAsJsonObject, "name"))
+          .setPath(getJsonField(componentAsJsonObject, "path"))
+          .setProjectUuid(project.projectUuid())
+          .setQualifier(getJsonField(componentAsJsonObject, "qualifier"))
+          .setDescription(getJsonField(componentAsJsonObject, "description"))
+          .setEnabled(true)
+          .setCreatedAt(now),
         projectSnapshot);
     }
     db.commit();
@@ -377,6 +378,7 @@ public class TreeActionTest {
     return project;
   }
 
+  @CheckForNull
   private static String getJsonField(JsonObject jsonObject, String field) {
     JsonElement jsonElement = jsonObject.get(field);
     return jsonElement == null ? null : jsonElement.getAsString();
