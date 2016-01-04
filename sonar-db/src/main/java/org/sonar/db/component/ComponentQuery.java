@@ -32,12 +32,23 @@ public class ComponentQuery {
   private final String[] qualifiers;
   private final String language;
 
-  public ComponentQuery(@Nullable String nameOrKeyQuery, String language, String... qualifiers) {
-    this.language = language;
-    checkArgument(qualifiers.length > 0, "At least one qualifier must be provided");
-
+  /**
+   * Used by Dev Cockpit 1.9.
+   * Could be removed when Dev Cockpit doesn't use it anymore.
+   *
+   * @deprecated since 5.4, use {@link Builder} instead
+   */
+  @Deprecated
+  public ComponentQuery(@Nullable String nameOrKeyQuery, String... qualifiers) {
     this.nameOrKeyQuery = nameOrKeyQuery;
-    this.qualifiers = qualifiers;
+    this.qualifiers = Builder.validateQualifiers(qualifiers);
+    this.language = null;
+  }
+
+  private ComponentQuery(Builder builder) {
+    this.nameOrKeyQuery = builder.nameOrKeyQuery;
+    this.qualifiers = builder.qualifiers;
+    this.language = builder.language;
   }
 
   public String[] getQualifiers() {
@@ -62,5 +73,40 @@ public class ComponentQuery {
   @CheckForNull
   public String getLanguage() {
     return language;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private String nameOrKeyQuery;
+    private String[] qualifiers;
+    private String language;
+
+    public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
+      this.nameOrKeyQuery = nameOrKeyQuery;
+      return this;
+    }
+
+    public Builder setQualifiers(String... qualifiers) {
+      this.qualifiers = validateQualifiers(qualifiers);
+      return this;
+    }
+
+    public Builder setLanguage(@Nullable String language) {
+      this.language = language;
+      return this;
+    }
+
+    protected static String[] validateQualifiers(@Nullable String... qualifiers) {
+      checkArgument(qualifiers != null && qualifiers.length > 0, "At least one qualifier must be provided");
+      return qualifiers;
+    }
+
+    public ComponentQuery build() {
+      validateQualifiers(this.qualifiers);
+      return new ComponentQuery(this);
+    }
   }
 }

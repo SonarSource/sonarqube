@@ -157,10 +157,11 @@ public class SearchAction implements ComponentsWsAction {
   }
 
   private ComponentQuery buildQuery(SearchWsRequest request, List<String> qualifiers) {
-    return new ComponentQuery(
-      request.getQuery(),
-      request.getLanguage(),
-      qualifiers.toArray(new String[qualifiers.size()]));
+    return ComponentQuery.builder()
+      .setNameOrKeyQuery(request.getQuery())
+      .setLanguage(request.getLanguage())
+      .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]))
+      .build();
   }
 
   private void validateQualifiers(List<String> qualifiers) {
