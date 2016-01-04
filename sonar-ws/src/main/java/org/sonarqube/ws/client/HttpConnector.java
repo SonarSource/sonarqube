@@ -54,7 +54,6 @@ public class HttpConnector implements WsConnector {
 
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLISECONDS = 30_000;
   public static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = 60_000;
-  public static final String[] TLS_PROTOCOLS = new String[] {"TLSv1", "TLSv1.1", "TLSv1.2"};
 
   /**
    * Base URL with trailing slash, for instance "https://localhost/sonarqube/".

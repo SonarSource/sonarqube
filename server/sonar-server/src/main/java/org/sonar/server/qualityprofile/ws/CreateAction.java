@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -119,7 +120,7 @@ public class CreateAction implements QProfileWsAction {
       dbSession.commit();
 
       response.stream().setMediaType(guessMediaType(request));
-      JsonWriter jsonWriter = JsonWriter.of(new OutputStreamWriter(response.stream().output()));
+      JsonWriter jsonWriter = JsonWriter.of(new OutputStreamWriter(response.stream().output(), StandardCharsets.UTF_8));
       writeResult(jsonWriter, result);
     } finally {
       dbSession.close();

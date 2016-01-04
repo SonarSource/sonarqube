@@ -167,7 +167,7 @@ public class ListAction implements TestsWsAction {
       }
       responseBuilder.addTests(testBuilder.build());
     }
-      WsUtils.writeProtobuf(responseBuilder.build(), request, response);
+    WsUtils.writeProtobuf(responseBuilder.build(), request, response);
   }
 
   private static int coveredLines(List<CoveredFileDoc> coveredFiles) {

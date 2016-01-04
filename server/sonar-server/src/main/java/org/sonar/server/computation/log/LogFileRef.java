@@ -79,7 +79,7 @@ public class LogFileRef {
     if (!taskUuid.equals(that.taskUuid)) {
       return false;
     }
-    return componentUuid == null ? that.componentUuid == null : componentUuid.equals(that.componentUuid);
+    return componentUuid == null ? (that.componentUuid == null) : componentUuid.equals(that.componentUuid);
 
   }
 

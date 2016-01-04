@@ -187,7 +187,7 @@ public class MeasureFilterFactory {
   @CheckForNull
   private Date toDays(@Nullable String s) {
     if (s != null) {
-      int days = Integer.valueOf(s);
+      int days = Integer.parseInt(s);
       Date date = org.apache.commons.lang.time.DateUtils.truncate(new Date(system.now()), Calendar.DATE);
       date = org.apache.commons.lang.time.DateUtils.addDays(date, -days);
       return date;
