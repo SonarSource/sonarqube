@@ -683,7 +683,7 @@ public class ComponentDaoTest {
     db.commit();
     componentDb.indexProjects();
 
-    ComponentQuery query = new ComponentQuery("oJect", null, Qualifiers.PROJECT);
+    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
 
     assertThat(result).hasSize(3);
@@ -697,7 +697,7 @@ public class ComponentDaoTest {
     db.commit();
     componentDb.indexProjects();
 
-    ComponentQuery query = new ComponentQuery("-\\_%/-", null, Qualifiers.PROJECT);
+    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
@@ -711,7 +711,7 @@ public class ComponentDaoTest {
     db.commit();
     componentDb.indexProjects();
 
-    ComponentQuery query = new ComponentQuery("project-_%-", null, Qualifiers.PROJECT);
+    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
@@ -724,7 +724,7 @@ public class ComponentDaoTest {
     componentDb.insertComponent(newProjectDto().setKey("cpp-project-key").setLanguage("cpp"));
     db.commit();
 
-    ComponentQuery query = new ComponentQuery(null, "java", Qualifiers.PROJECT);
+    ComponentQuery query = ComponentQuery.builder().setLanguage("java").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
