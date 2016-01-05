@@ -87,13 +87,14 @@ public class TreeAction implements ComponentsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy. The %s or the %s parameter must be provided.<br>" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "<li>'Browse' on the specified project</li>" +
-        "</ul>",
-        PARAM_BASE_COMPONENT_ID, PARAM_BASE_COMPONENT_KEY))
+          "Requires one of the following permissions:" +
+          "<ul>" +
+          "<li>'Administer System'</li>" +
+          "<li>'Administer' rights on the specified project</li>" +
+          "<li>'Browse' on the specified project</li>" +
+          "</ul>" +
+          "When limiting search with the %s parameter, directories are not returned.",
+        PARAM_BASE_COMPONENT_ID, PARAM_BASE_COMPONENT_KEY, Param.TEXT_QUERY))
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setHandler(this)
