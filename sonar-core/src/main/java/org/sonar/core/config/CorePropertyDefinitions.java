@@ -237,6 +237,7 @@ public class CorePropertyDefinitions {
         .defaultValue(TIMEMACHINE_DEFAULT_PERIOD_1)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .onQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW)
         .build(),
 
       PropertyDefinition.builder(TIMEMACHINE_PERIOD_PREFIX + 2)
