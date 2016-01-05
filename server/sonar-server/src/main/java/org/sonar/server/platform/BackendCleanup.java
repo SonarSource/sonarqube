@@ -20,7 +20,9 @@
 package org.sonar.server.platform;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -61,10 +63,12 @@ public class BackendCleanup {
   public void clearDb() {
     DbSession dbSession = myBatis.openSession(false);
     Connection connection = dbSession.getConnection();
+    Statement statement = null;
     try {
+      statement = connection.createStatement();
       for (String table : DatabaseVersion.TABLES) {
         try {
-          connection.createStatement().execute("TRUNCATE TABLE " + table.toLowerCase());
+          statement.execute("TRUNCATE TABLE " + table.toLowerCase());
           // commit is useless on some databases
           connection.commit();
         } catch (Exception e) {
@@ -72,7 +76,10 @@ public class BackendCleanup {
         }
       }
 
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to clear db", e);
     } finally {
+      DbUtils.closeQuietly(statement);
       DbUtils.closeQuietly(connection);
       MyBatis.closeQuietly(dbSession);
     }
@@ -106,11 +113,13 @@ public class BackendCleanup {
   public void resetData() {
     DbSession dbSession = myBatis.openSession(false);
     Connection connection = dbSession.getConnection();
+    Statement statement = null;
     try {
+      statement = connection.createStatement();
       // Clear inspection tables
       for (String table : INSPECTION_TABLES) {
         try {
-          connection.createStatement().execute("TRUNCATE TABLE " + table.toLowerCase());
+          statement.execute("TRUNCATE TABLE " + table.toLowerCase());
           // commit is useless on some databases
           connection.commit();
         } catch (Exception e) {
@@ -128,29 +137,40 @@ public class BackendCleanup {
       clearIndex(IssueIndexDefinition.INDEX);
       clearIndex(ViewIndexDefinition.INDEX);
 
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to reset data", e);
     } finally {
-      dbSession.close();
+      DbUtils.closeQuietly(statement);
       DbUtils.closeQuietly(connection);
+      MyBatis.closeQuietly(dbSession);
     }
   }
 
   private static void deleteWhereResourceIdNotNull(String tableName, Connection connection) {
+    PreparedStatement statement = null;
     try {
-      connection.prepareStatement("DELETE FROM " + tableName + " WHERE resource_id IS NOT NULL").execute();
+      statement = connection.prepareStatement("DELETE FROM " + tableName + " WHERE resource_id IS NOT NULL");
+      statement.execute();
       // commit is useless on some databases
       connection.commit();
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to delete table : " + tableName, e);
+    } finally {
+      DbUtils.closeQuietly(statement);
     }
   }
 
   private static void deleteManualRules(Connection connection) {
+    PreparedStatement statement = null;
     try {
-      connection.prepareStatement("DELETE FROM rules WHERE rules.plugin_name='manual'").execute();
+      statement = connection.prepareStatement("DELETE FROM rules WHERE rules.plugin_name='manual'");
+      statement.execute();
       // commit is useless on some databases
       connection.commit();
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to remove manual rules", e);
+    } finally {
+      DbUtils.closeQuietly(statement);
     }
   }
 
