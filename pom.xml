@@ -2,6 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sonarsource.parent</groupId>
+    <artifactId>parent</artifactId>
+    <version>26</version>
+  </parent>
   <groupId>org.sonarsource.sonarqube</groupId>
   <artifactId>sonarqube</artifactId>
   <packaging>pom</packaging>
@@ -47,11 +52,6 @@
       <url>https://api.bintray.com/maven/sonarsource/SonarQube/${project.groupId}/;publish=1</url>
     </repository>
   </distributionManagement>
-
-  <prerequisites>
-    <!-- Note that "prerequisites" not inherited, but used by versions-maven-plugin 1.3.1 -->
-    <maven>${maven.min.version}</maven>
-  </prerequisites>
 
   <properties>
     <sonarUpdateCenter.version>1.13</sonarUpdateCenter.version>
@@ -103,19 +103,6 @@
       <!-- Plugins ordered by shortname (assembly, antrun ...) -->
       <plugins>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>animal-sniffer-maven-plugin</artifactId>
-          <version>1.14</version>
-          <configuration>
-            <signature>
-              <groupId>org.codehaus.mojo.signature</groupId>
-              <artifactId>java17</artifactId>
-              <version>1.0</version>
-            </signature>
-            <skip>${skipSanityChecks}</skip>
-          </configuration>
-        </plugin>
-        <plugin>
           <groupId>com.github.eirslett</groupId>
           <artifactId>frontend-maven-plugin</artifactId>
           <version>0.0.26</version>
@@ -146,29 +133,9 @@
           <version>1.9.1</version>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.3</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>2.6.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.3</version>
-        </plugin>
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
           <version>2.10</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -186,11 +153,6 @@
           <version>1.6</version>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>0.7.5.201505241946</version>
@@ -206,11 +168,6 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>2.6</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.10.1</version>
           <configuration>
@@ -222,11 +179,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jxr-plugin</artifactId>
           <version>2.5</version>
-        </plugin>
-        <plugin>
-          <groupId>com.mycila.maven-license-plugin</groupId>
-          <artifactId>maven-license-plugin</artifactId>
-          <version>${version.maven-license.plugin}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -320,35 +272,6 @@
 
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>create</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <doCheck>false</doCheck>
-          <doUpdate>false</doUpdate>
-          <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
-          <revisionOnScmFailure>0</revisionOnScmFailure>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${jdk.min.version}</source>
-          <target>${jdk.min.version}</target>
-          <encoding>${project.build.sourceEncoding}</encoding>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
@@ -424,85 +347,12 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Version>${project.version}</Version>
-              <!-- ${buildNumber} is the Git revision. It's generated by the buildnumber-maven-plugin -->
-              <Implementation-Build>${buildNumber}</Implementation-Build>
-              <Build-Time>${timestamp}</Build-Time>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
-        <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <!-- ${buildNumber} is the Git revision. It's generated by the buildnumber-maven-plugin -->
-              <Implementation-Build>${buildNumber}</Implementation-Build>
-              <Build-Time>${timestamp}</Build-Time>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
         <configuration>
           <aggregate>true</aggregate>
           <linkJavadoc>true</linkJavadoc>
           <javadocDir>${project.reporting.outputDirectory}/${project.version}/apidocs</javadocDir>
         </configuration>
-      </plugin>
-      <!-- check copyright/license headers -->
-      <plugin>
-        <inherited>false</inherited>
-        <groupId>com.mycila.maven-license-plugin</groupId>
-        <artifactId>maven-license-plugin</artifactId>
-        <configuration>
-          <header>${project.basedir}/copyright.txt</header>
-          <failIfMissing>true</failIfMissing>
-          <strictCheck>true</strictCheck>
-          <aggregate>true</aggregate>
-          <includes>
-            <include>**/sonar-*/src/main/java/**</include>
-            <include>**/sonar-*/src/test/java/**</include>
-          </includes>
-          <excludes>
-            <exclude>tests/**</exclude>
-          </excludes>
-          <mapping>
-            <java>SLASHSTAR_STYLE</java>
-          </mapping>
-          <skip>${skipSanityChecks}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <id>enforce-license-headers</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-java-api-compatibility</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -524,18 +374,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <runOrder>random</runOrder>
@@ -548,27 +386,6 @@
           </systemPropertyVariables>
           <groups>${junitGroups}</groups>
           <threadCount>1</threadCount>
-        </configuration>
-      </plugin>
-      <plugin>
-        <!--
-        This plugin is used to list the licenses of all the dependencies. The module
-        sonar-testing-harness must be excluded. See third-party-licenses.sh
-        -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>1.8</version>
-        <configuration>
-          <includedScopes>compile</includedScopes>
-          <licenseMerges>
-            <licenseMerge>Apache 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|apache_v2</licenseMerge>
-            <licenseMerge>CDDL 1.0|COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0|Common Development and Distribution License (CDDL) v1.0|cddl_v1</licenseMerge>
-            <licenseMerge>GNU LGPL 2.1|GNU Lesser General Public License (LGPL), Version 2.1|GNU Lesser General Public License, version 2.1|lgpl_v2_1</licenseMerge>
-            <licenseMerge>GNU LGPL 3|GNU LESSER GENERAL PUBLIC LICENSE, Version 3|GNU Lesser General Public Licence|GNU Lesser General Public License|GNU LESSER GENERAL PUBLIC LICENSE</licenseMerge>
-            <licenseMerge>Dual license: CDDL 1.0 and GPL v2|Dual license consisting of the CDDL v1.0 and GPL v2|CDDL+GPLv2|CDDL+GPL|CDDL+GPL License</licenseMerge>
-            <licenseMerge>Dual license: CDDL 1.1 and GPL v2|Dual license consisting of the CDDL v1.1 and GPL v2|CDDL1_1+GPLv2</licenseMerge>
-            <licenseMerge>Dual License: CDDL 1.0 and GPL V2 with Classpath Exception|CDDL + GPLv2 with classpath exception</licenseMerge>
-          </licenseMerges>
         </configuration>
       </plugin>
     </plugins>
