@@ -30,11 +30,11 @@ export function translate (...keys) {
 export function translateWithParameters (messageKey, ...parameters) {
   const message = messages[messageKey];
   if (message) {
-    return parameters.reduce((acc, parameter, index) => (
-        acc.replace(`{${index}}`, parameter)
-    ));
+    return parameters.reduce((acc, parameter, index) => {
+      return acc.replace(`{${index}}`, parameter);
+    }, message);
   } else {
-    return `${messageKey} ${parameters.join(' ')}`;
+    return `${messageKey}.${parameters.join('.')}`;
   }
 }
 
@@ -78,6 +78,10 @@ export function requestMessages () {
     localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
     messages = bundle;
   });
+}
+
+export function resetBundle (bundle) {
+  messages = bundle;
 }
 
 export function installGlobal () {

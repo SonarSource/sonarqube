@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 
+import { resetBundle } from '../../src/main/js/helpers/l10n';
 import { formatMeasure, formatMeasureVariation } from '../../src/main/js/helpers/measures';
 
 
@@ -10,7 +11,7 @@ describe('Measures', function () {
       ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
   before(function () {
-    window.messages = {
+    resetBundle({
       'work_duration.x_days': '{0}d',
       'work_duration.x_hours': '{0}h',
       'work_duration.x_minutes': '{0}min',
@@ -18,26 +19,7 @@ describe('Measures', function () {
       'metric.level.ERROR': 'Error',
       'metric.level.WARN': 'Warning',
       'metric.level.OK': 'Ok'
-    };
-    window.t = function() {
-      if (!window.messages) {
-        return window.translate.apply(this, arguments);
-      }
-      var args = Array.prototype.slice.call(arguments, 0),
-          key = args.join('.');
-      return window.messages[key] != null ? window.messages[key] : key;
-    };
-    window.tp = function () {
-      var args = Array.prototype.slice.call(arguments, 0),
-          key = args.shift(),
-          message = window.messages[key];
-      if (message) {
-        args.forEach(function (p, i) {
-          message = message.replace('{' + i + '}', p);
-        });
-      }
-      return message || (key + ' ' + args.join(' '));
-    };
+    });
     window.SS = { hoursInDay: HOURS_IN_DAY };
   });
 
