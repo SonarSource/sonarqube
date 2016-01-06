@@ -22,6 +22,7 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from '../templates/rule/coding-rules-custom-rule.hbs';
 import confirmDialog from '../confirm-dialog';
+import { translate } from '../../../helpers/l10n';
 
 export default Marionette.ItemView.extend({
   tagName: 'tr',
@@ -38,8 +39,8 @@ export default Marionette.ItemView.extend({
   deleteRule: function () {
     var that = this;
     confirmDialog({
-      title: window.t('delete'),
-      html: window.t('are_you_sure'),
+      title: translate('delete'),
+      html: translate('are_you_sure'),
       yesHandler: function () {
         var url = baseUrl + '/api/rules/delete',
             options = { key: that.model.id };

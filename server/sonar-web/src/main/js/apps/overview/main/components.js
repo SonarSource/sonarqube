@@ -21,6 +21,7 @@ import moment from 'moment';
 import React from 'react';
 
 import { Timeline } from './timeline';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 
 export const Domain = React.createClass({
@@ -39,7 +40,7 @@ export const DomainTitle = React.createClass({
         <div className="overview-title">
           {this.props.children}
           <a className="small big-spacer-left link-no-underline" href={url}>
-            {window.t('more')}&nbsp;
+            {translate('more')}&nbsp;
             <i className="icon-chevron-right" style={{ position: 'relative', top: -1 }}/>
           </a>
         </div>
@@ -54,8 +55,8 @@ export const DomainTitle = React.createClass({
 export const DomainLeakTitle = React.createClass({
   renderInline (tooltip, fromNow) {
     return <span className="overview-domain-leak-title" title={tooltip} data-toggle="tooltip">
-      <span>{window.tp('overview.leak_period_x', this.props.label)}</span>
-      <span className="note spacer-left">{window.tp('overview.started_x', fromNow)}</span>
+      <span>{translateWithParameters('overview.leak_period_x', this.props.label)}</span>
+      <span className="note spacer-left">{translateWithParameters('overview.started_x', fromNow)}</span>
     </span>;
   },
 
@@ -70,9 +71,9 @@ export const DomainLeakTitle = React.createClass({
       return this.renderInline(tooltip, fromNow);
     }
     return <span className="overview-domain-leak-title" title={tooltip} data-toggle="tooltip">
-      <span>{window.tp('overview.leak_period_x', this.props.label)}</span>
+      <span>{translateWithParameters('overview.leak_period_x', this.props.label)}</span>
       <br/>
-      <span className="note">{window.tp('overview.started_x', fromNow)}</span>
+      <span className="note">{translateWithParameters('overview.started_x', fromNow)}</span>
     </span>;
   }
 });
@@ -158,7 +159,11 @@ export const DomainMixin = {
   renderTimelineStartDate() {
     let momentDate = moment(this.props.historyStartDate);
     let fromNow = momentDate.fromNow();
-    return <span className="overview-domain-timeline-date">{window.tp('overview.started_x', fromNow)}</span>;
+    return (
+      <span className="overview-domain-timeline-date">
+        {translateWithParameters('overview.started_x', fromNow)}
+      </span>
+    );
   },
 
   renderTimeline(range, displayDate) {

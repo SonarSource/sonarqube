@@ -22,6 +22,7 @@ import moment from 'moment';
 import React from 'react';
 import RadioToggle from '../../components/shared/radio-toggle';
 import { STATUSES, CURRENTS, DATE, DATE_FORMAT } from './constants';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   componentDidMount() {
@@ -34,25 +35,25 @@ export default React.createClass({
 
   getCurrentsOptions() {
     return [
-      { value: CURRENTS.ALL, label: window.t('background_tasks.currents_filter.ALL') },
-      { value: CURRENTS.ONLY_CURRENTS, label: window.t('background_tasks.currents_filter.ONLY_CURRENTS') }
+      { value: CURRENTS.ALL, label: translate('background_tasks.currents_filter.ALL') },
+      { value: CURRENTS.ONLY_CURRENTS, label: translate('background_tasks.currents_filter.ONLY_CURRENTS') }
     ];
   },
 
   getStatusOptions() {
     return [
-      { value: STATUSES.ALL, label: window.t('background_task.status.ALL') },
-      { value: STATUSES.SUCCESS, label: window.t('background_task.status.SUCCESS') },
-      { value: STATUSES.FAILED, label: window.t('background_task.status.FAILED') },
-      { value: STATUSES.CANCELED, label: window.t('background_task.status.CANCELED') }
+      { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
+      { value: STATUSES.SUCCESS, label: translate('background_task.status.SUCCESS') },
+      { value: STATUSES.FAILED, label: translate('background_task.status.FAILED') },
+      { value: STATUSES.CANCELED, label: translate('background_task.status.CANCELED') }
     ];
   },
 
   getDateOptions() {
     return [
-      { value: DATE.ANY, label: window.t('background_tasks.date_filter.ALL') },
-      { value: DATE.TODAY, label: window.t('background_tasks.date_filter.TODAY') },
-      { value: DATE.CUSTOM, label: window.t('background_tasks.date_filter.CUSTOM') }
+      { value: DATE.ANY, label: translate('background_tasks.date_filter.ALL') },
+      { value: DATE.TODAY, label: translate('background_tasks.date_filter.TODAY') },
+      { value: DATE.CUSTOM, label: translate('background_tasks.date_filter.CUSTOM') }
     ];
   },
 
@@ -158,7 +159,7 @@ export default React.createClass({
             </li>
             <li>{this.renderSearchBox()}</li>
             <li className="pull-right">
-              <button onClick={this.refresh} ref="reloadButton">{window.t('reload')}</button>
+              <button onClick={this.refresh} ref="reloadButton">{translate('reload')}</button>
             </li>
           </ul>
         </section>

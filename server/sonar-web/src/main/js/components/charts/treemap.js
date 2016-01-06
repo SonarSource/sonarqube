@@ -24,6 +24,7 @@ import React from 'react';
 import { TreemapBreadcrumbs } from './treemap-breadcrumbs';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
+import { translate } from '../../helpers/l10n';
 
 
 const SIZE_SCALE = d3.scale.linear()
@@ -121,7 +122,7 @@ export const Treemap = React.createClass({
   renderWhenNoData () {
     return <div className="sonar-d3">
       <div className="treemap-container" style={{ width: this.state.width, height: this.state.height }}>
-        {window.t('no_data')}
+        {translate('no_data')}
       </div>
       <TreemapBreadcrumbs {...this.props}/>
     </div>;

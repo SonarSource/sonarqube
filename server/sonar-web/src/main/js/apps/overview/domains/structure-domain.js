@@ -29,6 +29,7 @@ import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
 import { DomainLeakTitle } from '../main/components';
+import { translate } from '../../../helpers/l10n';
 
 
 export const StructureMain = React.createClass({
@@ -168,7 +169,7 @@ export const StructureMain = React.createClass({
     return <div className="overview-detailed-page">
       <div className="overview-card">
         <div className="overview-card-header">
-          <div className="overview-title">{window.t('overview.domain.structure')}</div>
+          <div className="overview-title">{translate('overview.domain.structure')}</div>
           {this.renderLegend()}
         </div>
 

@@ -31,6 +31,7 @@ import { filterMetrics, filterMetricsForDomains } from '../helpers/metrics';
 import { DomainLeakTitle } from '../main/components';
 import { CHART_REVERSED_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
 import { CoverageMeasuresList } from '../components/coverage-measures-list';
+import { translate } from '../../../helpers/l10n';
 
 
 const TEST_DOMAINS = ['Tests', 'Tests (Integration)', 'Tests (Overall)'];
@@ -95,7 +96,7 @@ export const CoverageMain = React.createClass({
   renderEmpty() {
     return <div className="overview-detailed-page">
       <div className="page">
-        <p>{window.t('overview.no_coverage')}</p>
+        <p>{translate('overview.no_coverage')}</p>
       </div>
     </div>;
   },
@@ -124,7 +125,7 @@ export const CoverageMain = React.createClass({
       <div className="overview-cards-list">
         <div className="overview-card overview-card-fixed-width">
           <div className="overview-card-header">
-            <div className="overview-title">{window.t('overview.domain.coverage')}</div>
+            <div className="overview-title">{translate('overview.domain.coverage')}</div>
             {this.renderLegend()}
           </div>
           <CoverageMeasuresList {...this.props} {...this.state}/>

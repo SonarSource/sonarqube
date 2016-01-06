@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import LinksMixin from '../links-mixin';
+import { translate } from '../../../helpers/l10n';
 
 export default React.createClass({
   mixins: [LinksMixin],
@@ -31,52 +32,52 @@ export default React.createClass({
     return (
         <div className="container">
           <ul className="nav navbar-nav nav-crumbs">
-            {this.renderLink('/settings', window.t('layout.settings'))}
+            {this.renderLink('/settings', translate('layout.settings'))}
           </ul>
 
           <ul className="nav navbar-nav nav-tabs">
             <li className="dropdown">
               <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                {window.t('sidebar.project_settings')}&nbsp;<i className="icon-dropdown"></i>
+                {translate('sidebar.project_settings')}&nbsp;<i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
-                {this.renderLink('/settings', window.t('settings.page'))}
+                {this.renderLink('/settings', translate('settings.page'))}
                 {this.renderLink('/metrics', 'Custom Metrics')}
-                {this.renderLink('/admin_dashboards', window.t('default_dashboards.page'))}
+                {this.renderLink('/admin_dashboards', translate('default_dashboards.page'))}
                 {this.props.extensions.map(e => this.renderLink(e.url, e.name))}
               </ul>
             </li>
 
             <li className="dropdown">
               <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                {window.t('sidebar.security')}&nbsp;<i className="icon-dropdown"></i>
+                {translate('sidebar.security')}&nbsp;<i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
-                {this.renderLink('/users', window.t('users.page'))}
-                {this.renderLink('/groups', window.t('user_groups.page'))}
-                {this.renderLink('/roles/global', window.t('global_permissions.page'))}
-                {this.renderLink('/roles/projects', window.t('roles.page'))}
-                {this.renderLink('/permission_templates', window.t('permission_templates'))}
+                {this.renderLink('/users', translate('users.page'))}
+                {this.renderLink('/groups', translate('user_groups.page'))}
+                {this.renderLink('/roles/global', translate('global_permissions.page'))}
+                {this.renderLink('/roles/projects', translate('roles.page'))}
+                {this.renderLink('/permission_templates', translate('permission_templates'))}
               </ul>
             </li>
 
             <li className="dropdown">
               <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                {window.t('sidebar.projects')}&nbsp;<i className="icon-dropdown"></i>
+                {translate('sidebar.projects')}&nbsp;<i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
                 {this.renderLink('/projects', 'Management')}
-                {this.renderLink('/background_tasks', window.t('background_tasks.page'))}
+                {this.renderLink('/background_tasks', translate('background_tasks.page'))}
               </ul>
             </li>
 
             <li className="dropdown">
               <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-                {window.t('sidebar.system')}&nbsp;<i className="icon-dropdown"></i>
+                {translate('sidebar.system')}&nbsp;<i className="icon-dropdown"></i>
               </a>
               <ul className="dropdown-menu">
-                {this.renderLink('/updatecenter', window.t('update_center.page'))}
-                {this.renderLink('/system', window.t('system_info.page'))}
+                {this.renderLink('/updatecenter', translate('update_center.page'))}
+                {this.renderLink('/system', translate('system_info.page'))}
               </ul>
             </li>
           </ul>

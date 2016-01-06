@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { setLogLevel } from '../../api/system';
+import { translate } from '../../helpers/l10n';
 
 const LOG_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 
@@ -40,7 +41,7 @@ export default React.createClass({
     });
     let warning = this.state.level !== 'INFO' ? (
         <div className="alert alert-danger spacer-top" style={{ wordBreak: 'normal' }}>
-          {window.t('system.log_level.warning')}
+          {translate('system.log_level.warning')}
         </div>
     ) : null;
     return <div>

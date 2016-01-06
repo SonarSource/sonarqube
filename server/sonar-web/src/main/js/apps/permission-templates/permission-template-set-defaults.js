@@ -21,6 +21,7 @@ import _ from 'underscore';
 import React from 'react';
 import { setDefaultPermissionTemplate } from '../../api/permissions';
 import QualifierIcon from '../../components/shared/qualifier-icon';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   propTypes: {
@@ -55,7 +56,7 @@ export default React.createClass({
       return (
           <li key={qualifier}>
             <a onClick={this.setDefault.bind(this, qualifier)} href="#">
-              Set Default for <QualifierIcon qualifier={qualifier}/> {window.t('qualifier', qualifier)}
+              Set Default for <QualifierIcon qualifier={qualifier}/> {translate('qualifier', qualifier)}
             </a>
           </li>
       );

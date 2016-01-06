@@ -23,6 +23,7 @@ import { DetailedMeasure } from './detailed-measure';
 import { DonutChart } from '../../../components/charts/donut-chart';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 
 export const CoverageMeasures = React.createClass({
@@ -84,7 +85,7 @@ export const CoverageMeasures = React.createClass({
     return <div className="overview-detailed-measure" style={{ lineHeight: '30px' }}>
       <div className="overview-detailed-measure-nutshell overview-leak">
         <span className="overview-detailed-measure-name">
-          {window.t('metric', newCoverageMetricName, 'name')}
+          {translate('metric', newCoverageMetricName, 'name')}
         </span>
       </div>
 
@@ -127,7 +128,7 @@ export const CoverageMeasures = React.createClass({
           <div className="overview-detailed-measure" style={{ lineHeight: '30px' }}>
             <div className="overview-detailed-measure-nutshell">
               <span className="overview-detailed-measure-name big">
-                {window.t('metric', coverageMetricName, 'name')}
+                {translate('metric', coverageMetricName, 'name')}
               </span>
               <span className="overview-detailed-measure-value">
                 <span className="spacer-right">{this.renderDonut()}</span>

@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { translate } from '../../../helpers/l10n';
+
 function hasRightDomain (metric, domains) {
   return domains.indexOf(metric.domain) !== -1;
 }
@@ -55,5 +57,5 @@ export function getShortType (type) {
 
 
 export function getMetricName (metricKey) {
-  return window.t('overview.metric', metricKey);
+  return translate('overview.metric', metricKey);
 }

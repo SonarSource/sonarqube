@@ -32,6 +32,7 @@ import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 import { LanguageDistribution } from '../components/language-distribution';
+import { translate } from '../../../helpers/l10n';
 
 
 export const GeneralStructure = React.createClass({
@@ -71,7 +72,7 @@ export const GeneralStructure = React.createClass({
   render () {
     return <Domain>
       <DomainHeader component={this.props.component}
-                    title={window.t('overview.domain.structure')}
+                    title={translate('overview.domain.structure')}
                     linkTo="/structure"/>
 
       <DomainPanel>

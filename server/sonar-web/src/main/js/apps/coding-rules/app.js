@@ -31,6 +31,7 @@ import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
 import FiltersView from './filters-view';
+import { translate } from '../../helpers/l10n';
 
 var App = new Marionette.Application(),
     init = function () {
@@ -80,7 +81,7 @@ var App = new Marionette.Application(),
 App.manualRepository = function () {
   return {
     key: 'manual',
-    name: window.t('coding_rules.manual_rule'),
+    name: translate('coding_rules.manual_rule'),
     language: 'none'
   };
 };

@@ -24,6 +24,7 @@ import Marionette from 'backbone.marionette';
 import ProfileActivationView from './profile-activation-view';
 import Template from '../templates/rule/coding-rules-rule-profile.hbs';
 import confirmDialog from '../confirm-dialog';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default Marionette.ItemView.extend({
   tagName: 'tr',
@@ -69,8 +70,8 @@ export default Marionette.ItemView.extend({
     var that = this,
         ruleKey = this.options.rule.get('key');
     confirmDialog({
-      title: window.t('coding_rules.revert_to_parent_definition'),
-      html: window.tp('coding_rules.revert_to_parent_definition.confirm', this.getParent().name),
+      title: translate('coding_rules.revert_to_parent_definition'),
+      html: translateWithParameters('coding_rules.revert_to_parent_definition.confirm', this.getParent().name),
       yesHandler: function () {
         return $.ajax({
           type: 'POST',
@@ -91,8 +92,8 @@ export default Marionette.ItemView.extend({
     var that = this,
         ruleKey = this.options.rule.get('key');
     confirmDialog({
-      title: window.t('coding_rules.deactivate'),
-      html: window.tp('coding_rules.deactivate.confirm'),
+      title: translate('coding_rules.deactivate'),
+      html: translateWithParameters('coding_rules.deactivate.confirm'),
       yesHandler: function () {
         return $.ajax({
           type: 'POST',

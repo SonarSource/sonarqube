@@ -19,6 +19,7 @@
  */
 import numeral from 'numeral';
 import _ from 'underscore';
+import { translate, translateWithParameters } from './l10n';
 
 
 /**
@@ -49,7 +50,7 @@ export function formatMeasureVariation (value, type) {
  * @returns {string}
  */
 export function localizeMetric (metricKey) {
-  return window.t('metric', metricKey, 'name');
+  return translate('metric', metricKey, 'name');
 }
 
 
@@ -168,7 +169,7 @@ function ratingFormatter (value) {
 
 function levelFormatter (value) {
   var l10nKey = 'metric.level.' + value,
-      result = window.t(l10nKey);
+      result = translate(l10nKey);
   // if couldn't translate, return the initial value
   return l10nKey !== result ? result : value;
 }
@@ -225,15 +226,17 @@ function addSpaceIfNeeded (value) {
 function formatDuration (isNegative, days, hours, minutes) {
   var formatted = '';
   if (shouldDisplayDays(days)) {
-    formatted += window.tp('work_duration.x_days', isNegative ? -1 * days : days);
+    formatted += translateWithParameters('work_duration.x_days', isNegative ? -1 * days : days);
   }
   if (shouldDisplayHours(days, hours)) {
     formatted = addSpaceIfNeeded(formatted);
-    formatted += window.tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+    formatted += translateWithParameters('work_duration.x_hours',
+        isNegative && formatted.length === 0 ? -1 * hours : hours);
   }
   if (shouldDisplayMinutes(days, hours, minutes)) {
     formatted = addSpaceIfNeeded(formatted);
-    formatted += window.tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+    formatted += translateWithParameters('work_duration.x_minutes',
+        isNegative && formatted.length === 0 ? -1 * minutes : minutes);
   }
   return formatted;
 }
@@ -242,15 +245,17 @@ function formatDurationShort (isNegative, days, hours, minutes) {
   var formatted = '';
   if (shouldDisplayDays(days)) {
     var formattedDays = formatMeasure(isNegative ? -1 * days : days, 'SHORT_INT');
-    formatted += window.tp('work_duration.x_days', formattedDays);
+    formatted += translateWithParameters('work_duration.x_days', formattedDays);
   }
   if (shouldDisplayHoursInShortFormat(days, hours)) {
     formatted = addSpaceIfNeeded(formatted);
-    formatted += window.tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+    formatted += translateWithParameters('work_duration.x_hours',
+        isNegative && formatted.length === 0 ? -1 * hours : hours);
   }
   if (shouldDisplayMinutesInShortFormat(days, hours, minutes)) {
     formatted = addSpaceIfNeeded(formatted);
-    formatted += window.tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+    formatted += translateWithParameters('work_duration.x_minutes',
+        isNegative && formatted.length === 0 ? -1 * minutes : minutes);
   }
   return formatted;
 }

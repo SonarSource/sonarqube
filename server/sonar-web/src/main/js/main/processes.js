@@ -21,6 +21,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
+import { translate } from '../helpers/l10n';
 
 var defaults = {
   queue: {},
@@ -49,7 +50,7 @@ var Process = Backbone.Model.extend({
 
       fail: function (message) {
         var that = this,
-            msg = message || window.t('process.fail');
+            msg = message || translate('process.fail');
         if (msg === 'process.fail') {
           // no translation
           msg = 'An error happened, some parts of the page might not render correctly. ' +

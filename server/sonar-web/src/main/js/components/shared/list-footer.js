@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import React from 'react';
+import { translate } from '../../helpers/l10n';
 
 
 export default React.createClass({
@@ -46,7 +47,7 @@ export default React.createClass({
 
   renderLoading() {
     return <footer className="spacer-top note text-center">
-      {window.t('loading')}
+      {translate('loading')}
     </footer>;
   },
 

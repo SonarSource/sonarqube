@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-require('script!./translate.js');
 require('script!./third-party/jquery-ui.js');
 require('script!./third-party/select2.js');
 require('script!./third-party/keymaster.js');

@@ -25,6 +25,7 @@ import ProfileChangelogView from './profile-changelog-view';
 import ProfileComparisonView from './profile-comparison-view';
 import '../../components/common/select-list';
 import Template from './templates/quality-profiles-profile-details.hbs';
+import { translate } from '../../helpers/l10n';
 
 export default Marionette.LayoutView.extend({
   template: Template,
@@ -92,14 +93,14 @@ export default Marionette.LayoutView.extend({
       selectParameter: 'projectUuid',
       selectParameterValue: 'uuid',
       labels: {
-        selected: window.t('quality_gates.projects.with'),
-        deselected: window.t('quality_gates.projects.without'),
-        all: window.t('quality_gates.projects.all'),
-        noResults: window.t('quality_gates.projects.noResults')
+        selected: translate('quality_gates.projects.with'),
+        deselected: translate('quality_gates.projects.without'),
+        all: translate('quality_gates.projects.all'),
+        noResults: translate('quality_gates.projects.noResults')
       },
       tooltips: {
-        select: window.t('quality_profiles.projects.select_hint'),
-        deselect: window.t('quality_profiles.projects.deselect_hint')
+        select: translate('quality_profiles.projects.select_hint'),
+        deselect: translate('quality_profiles.projects.deselect_hint')
       }
     });
     this.listenTo(this.projectsSelectList.collection, 'change:selected', this.onProjectsChange);

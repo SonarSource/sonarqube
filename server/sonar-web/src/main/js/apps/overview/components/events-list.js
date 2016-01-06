@@ -21,6 +21,7 @@ import React from 'react';
 
 import { Event } from './event';
 import { EventsListFilter } from './events-list-filter';
+import { translate } from '../../../helpers/l10n';
 
 
 const LIMIT = 5;
@@ -64,7 +65,7 @@ export const EventsList = React.createClass({
 
   renderMoreLink(filteredEvents) {
     if (filteredEvents.length > LIMIT) {
-      const text = this.state.limited ? window.t('widget.events.show_all') : window.t('hide');
+      const text = this.state.limited ? translate('widget.events.show_all') : translate('hide');
       return <p className="spacer-top note">
         <a onClick={this.handleClick} href="#">{text}</a>
       </p>;
@@ -77,7 +78,7 @@ export const EventsList = React.createClass({
     if (events.length) {
       return <ul>{events.map(event => <Event key={event.id} event={event}/>)}</ul>;
     } else {
-      return <p className="spacer-top note">{window.t('no_results')}</p>;
+      return <p className="spacer-top note">{translate('no_results')}</p>;
     }
   },
 
@@ -86,7 +87,7 @@ export const EventsList = React.createClass({
     const events = this.limitEvents(filteredEvents);
     return <div className="overview-meta-card">
       <div className="clearfix">
-        <h4 className="pull-left overview-meta-header">{window.t('widget.events.name')}</h4>
+        <h4 className="pull-left overview-meta-header">{translate('widget.events.name')}</h4>
         <div className="pull-right">
           <EventsListFilter currentFilter={this.state.filter} onFilter={this.handleFilter}/>
         </div>

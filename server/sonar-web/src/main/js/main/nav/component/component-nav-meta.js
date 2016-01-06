@@ -20,6 +20,7 @@
 import moment from 'moment';
 import React from 'react';
 import PendingIcon from '../../../components/shared/pending-icon';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default React.createClass({
   render() {
@@ -29,31 +30,31 @@ export default React.createClass({
 
     if (this.props.isInProgress) {
       let tooltip = canSeeBackgroundTasks ?
-          window.tp('component_navigation.status.in_progress.admin', backgroundTasksUrl) :
-          window.t('component_navigation.status.in_progress');
+          translateWithParameters('component_navigation.status.in_progress.admin', backgroundTasksUrl) :
+          translate('component_navigation.status.in_progress');
       metaList.push(
           <li key="isInProgress" data-toggle="tooltip" title={tooltip}>
             <i className="spinner" style={{ marginTop: '-1px' }}/>
             {' '}
-            <span className="text-info">{window.t('background_task.status.IN_PROGRESS')}</span>
+            <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
           </li>
       );
     } else if (this.props.isPending) {
       let tooltip = canSeeBackgroundTasks ?
-          window.tp('component_navigation.status.pending.admin', backgroundTasksUrl) :
-          window.t('component_navigation.status.pending');
+          translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl) :
+          translate('component_navigation.status.pending');
       metaList.push(
           <li key="isPending" data-toggle="tooltip" title={tooltip}>
-            <PendingIcon/> <span>{window.t('background_task.status.PENDING')}</span>
+            <PendingIcon/> <span>{translate('background_task.status.PENDING')}</span>
           </li>
       );
     } else if (this.props.isFailed) {
       let tooltip = canSeeBackgroundTasks ?
-          window.tp('component_navigation.status.failed.admin', backgroundTasksUrl) :
-          window.t('component_navigation.status.failed');
+          translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl) :
+          translate('component_navigation.status.failed');
       metaList.push(
           <li key="isFailed" data-toggle="tooltip" title={tooltip}>
-            <span className="badge badge-danger">{window.t('background_task.status.FAILED')}</span>
+            <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
           </li>
       );
     }

@@ -21,6 +21,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
+import { translate } from '../../../helpers/l10n';
 
 
 export const Event = React.createClass({
@@ -40,7 +41,7 @@ export const Event = React.createClass({
     const { event } = this.props;
     return <li className="spacer-top">
       <p>
-        <strong className="js-event-type">{window.t('event.category', event.type)}</strong>
+        <strong className="js-event-type">{translate('event.category', event.type)}</strong>
         :&nbsp;
         <span className="js-event-name">{event.name}</span>
         { event.text && <i className="spacer-left icon-help" data-toggle="tooltip" title={event.text}/> }

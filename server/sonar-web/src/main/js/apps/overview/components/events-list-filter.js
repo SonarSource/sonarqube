@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import Select from 'react-select';
+import { translate } from '../../../helpers/l10n';
 
 
 const TYPES = ['All', 'Version', 'Alert', 'Profile', 'Other'];
@@ -38,7 +39,7 @@ export const EventsListFilter = React.createClass({
     const options = TYPES.map(type => {
       return {
         value: type,
-        label: window.t('event.category', type)
+        label: translate('event.category', type)
       };
     });
     return <Select value={this.props.currentFilter}

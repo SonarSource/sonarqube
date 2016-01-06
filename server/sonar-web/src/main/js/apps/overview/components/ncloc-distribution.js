@@ -25,6 +25,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { collapsePath } from '../../../helpers/path';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
 import { getChildren } from '../../../api/components';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 
 const HEIGHT = 302;
@@ -105,9 +106,9 @@ export const NclocDistribution = React.createClass({
   render () {
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
-        <h2 className="overview-title">{window.t('overview.chart.components')}</h2>
+        <h2 className="overview-title">{translate('overview.chart.components')}</h2>
         <span className="small">
-          {window.tp('overview.chart.legend.size_x', window.t('metric.ncloc.name'))}
+          {translateWithParameters('overview.chart.legend.size_x', translate('metric.ncloc.name'))}
         </span>
       </div>
       <div className="overview-bar-chart">

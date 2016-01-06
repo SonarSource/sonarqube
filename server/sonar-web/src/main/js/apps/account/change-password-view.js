@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import ModalForm from '../../components/common/modal-form';
 import Template from './templates/account-change-password.hbs';
+import { translate } from '../../helpers/l10n';
 
 export default ModalForm.extend({
   template: Template,
@@ -29,7 +30,7 @@ export default ModalForm.extend({
     if (this.checkPasswords()) {
       this.sendRequest();
     } else {
-      this.showErrors([{ msg: window.t('user.password_doesnt_match_confirmation') }]);
+      this.showErrors([{ msg: translate('user.password_doesnt_match_confirmation') }]);
     }
   },
 

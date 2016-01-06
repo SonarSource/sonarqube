@@ -23,6 +23,7 @@ import React from 'react';
 import { Histogram } from '../../../components/charts/histogram';
 import { formatMeasure } from '../../../helpers/measures';
 import { getLanguages } from '../../../api/languages';
+import { translate } from '../../../helpers/l10n';
 
 
 export const LanguageDistribution = React.createClass({
@@ -42,7 +43,7 @@ export const LanguageDistribution = React.createClass({
   getLanguageName (langKey) {
     if (this.state && this.state.languages) {
       let lang = _.findWhere(this.state.languages, { key: langKey });
-      return lang ? lang.name : window.t('unknown');
+      return lang ? lang.name : translate('unknown');
     } else {
       return langKey;
     }

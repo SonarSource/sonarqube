@@ -25,6 +25,7 @@ import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { IssuesLink } from '../../../components/shared/issues-link';
 import { getShortType } from '../helpers/metrics';
 import SeverityHelper from '../../../components/shared/severity-helper';
+import { translate } from '../../../helpers/l10n';
 
 
 export const IssueMeasure = React.createClass({
@@ -91,7 +92,7 @@ export const AddedRemovedMeasure = React.createClass({
     return <div className="overview-detailed-measure-leak">
       <ul>
         <li style={{ display: 'flex', alignItems: 'baseline' }}>
-          <small className="flex-1 text-left">{window.t('overview.added')}</small>
+          <small className="flex-1 text-left">{translate('overview.added')}</small>
           <IssuesLink className="text-danger"
                       component={this.props.component.key} params={{ resolved: 'false', createdAfter }}>
             <span className="overview-detailed-measure-value">
@@ -100,7 +101,7 @@ export const AddedRemovedMeasure = React.createClass({
           </IssuesLink>
         </li>
         <li className="little-spacer-top" style={{ display: 'flex', alignItems: 'baseline' }}>
-          <small className="flex-1 text-left">{window.t('overview.removed')}</small>
+          <small className="flex-1 text-left">{translate('overview.removed')}</small>
           <span className="text-success">
             {formatMeasure(removed, getShortType(this.props.type))}
           </span>
@@ -195,7 +196,7 @@ export const OnNewCodeMeasure = React.createClass({
     return <div className="overview-detailed-measure-leak">
       <ul>
         <li className="little-spacer-top" style={{ display: 'flex', alignItems: 'center' }}>
-          <small className="flex-1 text-left">{window.t('overview.on_new_code')}</small>
+          <small className="flex-1 text-left">{translate('overview.on_new_code')}</small>
           <DrilldownLink component={this.props.component.key} metric={this.props.leakMetric}
                          period={this.props.leakPeriodIndex}>
             <span className="overview-detailed-measure-value">
@@ -253,7 +254,7 @@ export const SeverityMeasure = React.createClass({
     return <div className="overview-detailed-measure-leak">
       <ul>
         <li style={{ display: 'flex', alignItems: 'baseline' }}>
-          <small className="flex-1 text-left text-ellipsis">{window.t('overview.added')}</small>
+          <small className="flex-1 text-left text-ellipsis">{translate('overview.added')}</small>
           <IssuesLink className="text-danger"
                       component={this.props.component.key}
                       params={{ resolved: 'false', severities: this.props.severity, createdAfter: createdAfter }}>
@@ -263,7 +264,7 @@ export const SeverityMeasure = React.createClass({
           </IssuesLink>
         </li>
         <li className="little-spacer-top" style={{ display: 'flex', alignItems: 'baseline' }}>
-          <small className="flex-1 text-left text-ellipsis">{window.t('overview.removed')}</small>
+          <small className="flex-1 text-left text-ellipsis">{translate('overview.removed')}</small>
           <span className="text-success">
             {formatMeasure(removed, 'SHORT_INT')}
           </span>

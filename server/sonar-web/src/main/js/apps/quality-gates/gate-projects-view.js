@@ -21,6 +21,7 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from './templates/quality-gate-detail-projects.hbs';
 import '../../components/common/select-list';
+import { translate } from '../../helpers/l10n';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -44,14 +45,14 @@ export default Marionette.ItemView.extend({
         selectParameter: 'projectId',
         selectParameterValue: 'id',
         labels: {
-          selected: window.t('quality_gates.projects.with'),
-          deselected: window.t('quality_gates.projects.without'),
-          all: window.t('quality_gates.projects.all'),
-          noResults: window.t('quality_gates.projects.noResults')
+          selected: translate('quality_gates.projects.with'),
+          deselected: translate('quality_gates.projects.without'),
+          all: translate('quality_gates.projects.all'),
+          noResults: translate('quality_gates.projects.noResults')
         },
         tooltips: {
-          select: window.t('quality_gates.projects.select_hint'),
-          deselect: window.t('quality_gates.projects.deselect_hint')
+          select: translate('quality_gates.projects.select_hint'),
+          deselect: translate('quality_gates.projects.deselect_hint')
         }
       });
     }

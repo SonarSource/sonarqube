@@ -20,6 +20,7 @@
 import React from 'react';
 import Avatar from '../../../components/shared/avatar';
 import RecentHistory from '../component/recent-history';
+import { translate } from '../../../helpers/l10n';
 
 export default React.createClass({
   renderAuthenticated() {
@@ -31,10 +32,10 @@ export default React.createClass({
           </a>
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
-              <a href={`${window.baseUrl}/account/index`}>{window.t('layout.user_panel.my_profile')}</a>
+              <a href={`${window.baseUrl}/account/index`}>{translate('layout.user_panel.my_profile')}</a>
             </li>
             <li>
-              <a onClick={this.handleLogout} href="#">{window.t('layout.logout')}</a>
+              <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>
             </li>
           </ul>
         </li>
@@ -44,7 +45,7 @@ export default React.createClass({
   renderAnonymous() {
     return (
         <li>
-          <a onClick={this.handleLogin} href="#">{window.t('layout.login')}</a>
+          <a onClick={this.handleLogin} href="#">{translate('layout.login')}</a>
         </li>
     );
   },

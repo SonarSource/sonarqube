@@ -19,6 +19,7 @@
  */
 import _ from 'underscore';
 import moment from 'moment';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 
 export function getPeriodLabel (periods, periodIndex) {
@@ -27,9 +28,9 @@ export function getPeriodLabel (periods, periodIndex) {
     return null;
   }
   if (period.mode === 'previous_version' && !period.modeParam) {
-    return window.t('overview.period.previous_version_only_date');
+    return translate('overview.period.previous_version_only_date');
   }
-  return window.tp(`overview.period.${period.mode}`, period.modeParam);
+  return translateWithParameters(`overview.period.${period.mode}`, period.modeParam);
 }
 
 

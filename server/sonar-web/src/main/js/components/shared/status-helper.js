@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import StatusIcon from './status-icon';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   render: function () {
@@ -27,13 +28,13 @@ export default React.createClass({
     }
     var resolution;
     if (this.props.resolution) {
-      resolution = ' (' + window.t('issue.resolution', this.props.resolution) + ')';
+      resolution = ' (' + translate('issue.resolution', this.props.resolution) + ')';
     }
     return (
         <span>
             <StatusIcon status={this.props.status}/>
           &nbsp;
-          {window.t('issue.status', this.props.status)}
+          {translate('issue.status', this.props.status)}
           {resolution}
           </span>
     );

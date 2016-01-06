@@ -21,6 +21,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import ModalFormView from '../../components/common/modal-form';
 import Template from './templates/coding-rules-bulk-change-modal.hbs';
+import { translateWithParameters } from '../../helpers/l10n';
 
 export default ModalFormView.extend({
   template: Template,
@@ -34,14 +35,16 @@ export default ModalFormView.extend({
   showSuccessMessage: function (profile, succeeded) {
     var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
         profileName = profileBase != null ? profileBase.name : profile,
-        message = window.tp('coding_rules.bulk_change.success', profileName, profileBase.language, succeeded);
+        message = translateWithParameters('coding_rules.bulk_change.success',
+            profileName, profileBase.language, succeeded);
     this.ui.messagesContainer.append('<div class="alert alert-success">' + message + '</div>');
   },
 
   showWarnMessage: function (profile, succeeded, failed) {
     var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
         profileName = profileBase != null ? profileBase.name : profile,
-        message = window.tp('coding_rules.bulk_change.warning', profileName, profileBase.language, succeeded, failed);
+        message = translateWithParameters('coding_rules.bulk_change.warning',
+            profileName, profileBase.language, succeeded, failed);
     this.ui.messagesContainer.append('<div class="alert alert-warning">' + message + '</div>');
   },
 

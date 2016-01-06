@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { translate } from '../../helpers/l10n';
+
 module.exports = function (dashboardName) {
   var l10nKey = 'dashboard.' + dashboardName + '.name';
-  var l10nLabel = window.t(l10nKey);
+  var l10nLabel = translate(l10nKey);
   if (l10nLabel !== l10nKey) {
     return l10nLabel;
   } else {

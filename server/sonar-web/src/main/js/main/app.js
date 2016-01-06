@@ -27,6 +27,7 @@ import moment from 'moment';
 import numeral from 'numeral';
 import './processes';
 import Navigation from './nav/app';
+import { installGlobal, requestMessages } from '../helpers/l10n';
 
 // set the Backbone's $
 Backbone.$ = $;
@@ -34,7 +35,8 @@ Backbone.$ = $;
 
 function requestLocalizationBundle () {
   if (!window.sonarqube.bannedNavigation) {
-    return new Promise(resolve => window.requestMessages().done(resolve));
+    installGlobal();
+    return requestMessages();
   } else {
     return Promise.resolve();
   }

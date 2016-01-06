@@ -21,6 +21,7 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import DeleteConditionView from './gate-conditions-delete-view';
 import Template from './templates/quality-gate-detail-condition.hbs';
+import { translate } from '../../helpers/l10n';
 
 export default Marionette.ItemView.extend({
   tagName: 'tr',
@@ -109,7 +110,7 @@ export default Marionette.ItemView.extend({
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canEdit: this.options.canEdit,
       periods: this.options.periods,
-      periodText: period ? period.text : window.t('value'),
+      periodText: period ? period.text : translate('value'),
       metric: this.getMetric(),
       isDiffMetric: this.isDiffMetric()
     });

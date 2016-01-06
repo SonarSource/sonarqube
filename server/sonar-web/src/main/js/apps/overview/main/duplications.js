@@ -32,6 +32,7 @@ import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { DonutChart } from '../../../components/charts/donut-chart';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 
 export const GeneralDuplications = React.createClass({
@@ -77,7 +78,7 @@ export const GeneralDuplications = React.createClass({
 
     return <Domain>
       <DomainHeader component={this.props.component}
-                    title={window.t('overview.domain.duplications')}
+                    title={translate('overview.domain.duplications')}
                     linkTo="/duplications"/>
 
       <DomainPanel>

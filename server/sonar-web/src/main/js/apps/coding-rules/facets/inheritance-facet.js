@@ -21,6 +21,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/coding-rules-inheritance-facet.hbs';
+import { translate } from '../../../helpers/l10n';
 
 export default BaseFacet.extend({
   template: Template,
@@ -49,7 +50,7 @@ export default BaseFacet.extend({
 
   forbid: function () {
     BaseFacet.prototype.forbid.apply(this, arguments);
-    this.$el.prop('title', window.t('coding_rules.filters.inheritance.inactive'));
+    this.$el.prop('title', translate('coding_rules.filters.inheritance.inactive'));
   },
 
   allow: function () {
@@ -61,7 +62,7 @@ export default BaseFacet.extend({
     var values = ['NONE', 'INHERITED', 'OVERRIDES'];
     return values.map(function (key) {
       return {
-        label: window.t('coding_rules.filters.inheritance', key.toLowerCase()),
+        label: translate('coding_rules.filters.inheritance', key.toLowerCase()),
         val: key
       };
     });

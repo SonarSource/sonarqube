@@ -25,6 +25,7 @@ import Permissions from './permissions';
 import PermissionsFooter from './permissions-footer';
 import Search from './search';
 import ApplyTemplateView from './apply-template-view';
+import { translate } from '../../helpers/l10n';
 
 
 const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin'];
@@ -132,12 +133,12 @@ export default React.createClass({
     return (
         <div className="page">
           <header id="project-permissions-header" className="page-header">
-            <h1 className="page-title">{window.t('roles.page')}</h1>
+            <h1 className="page-title">{translate('roles.page')}</h1>
             {this.renderSpinner()}
             <div className="page-actions">
               {this.renderBulkApplyButton()}
             </div>
-            <p className="page-description">{window.t('roles.page.description2')}</p>
+            <p className="page-description">{translate('roles.page.description2')}</p>
           </header>
 
           <Search {...this.props}

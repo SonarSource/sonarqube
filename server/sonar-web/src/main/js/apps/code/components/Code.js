@@ -26,6 +26,7 @@ import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './SourceViewer';
 import Search from './Search';
 import { initComponent, browse } from '../actions';
+import { translate } from '../../../helpers/l10n';
 
 
 class Code extends Component {
@@ -71,7 +72,7 @@ class Code extends Component {
     return (
         <div className="page">
           <header className="page-header">
-            <h1 className="page-title">{window.t('code.page')}</h1>
+            <h1 className="page-title">{translate('code.page')}</h1>
 
             <div
                 className="pull-left"

@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { translate } from '../../../helpers/l10n';
 
 export default React.createClass({
   renderLogo() {
     let url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`;
     let width = this.props.logoWidth || 100;
     let height = 30;
-    let title = window.t('layout.sonar.slogan');
+    let title = translate('layout.sonar.slogan');
     return <img src={url}
                 width={width}
                 height={height}

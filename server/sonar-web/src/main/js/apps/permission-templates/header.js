@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import CreateView from './create-view';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   onCreate(e) {
@@ -38,12 +39,12 @@ export default React.createClass({
   render() {
     return (
         <header id="project-permissions-header" className="page-header">
-          <h1 className="page-title">{window.t('permission_templates.page')}</h1>
+          <h1 className="page-title">{translate('permission_templates.page')}</h1>
           {this.renderSpinner()}
           <div className="page-actions">
             <button onClick={this.onCreate}>Create</button>
           </div>
-          <p className="page-description">{window.t('roles.page.description')}</p>
+          <p className="page-description">{translate('roles.page.description')}</p>
         </header>
     );
   }

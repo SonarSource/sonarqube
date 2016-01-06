@@ -19,6 +19,7 @@
  */
 import _ from 'underscore';
 import CustomValuesFacet from './custom-values-facet';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
   prepareSearch: function () {
@@ -32,13 +33,13 @@ export default CustomValuesFacet.extend({
       minimumInputLength: 2,
       allowClear: false,
       formatNoMatches: function () {
-        return window.t('select2.noMatches');
+        return translate('select2.noMatches');
       },
       formatSearching: function () {
-        return window.t('select2.searching');
+        return translate('select2.searching');
       },
       formatInputTooShort: function () {
-        return window.tp('select2.tooShort', 2);
+        return translateWithParameters('select2.tooShort', 2);
       },
       width: '100%',
       ajax: {
@@ -50,7 +51,7 @@ export default CustomValuesFacet.extend({
         results: function (data) {
           var results;
           results = data.rules.map(function (rule) {
-            var lang = rule.langName || window.t('manual');
+            var lang = rule.langName || translate('manual');
             return {
               id: rule.key,
               text: '(' + lang + ') ' + rule.name

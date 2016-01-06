@@ -21,7 +21,7 @@ import _ from 'underscore';
 import React from 'react';
 
 import { BubbleChart } from '../../../components/charts/bubble-chart';
-import { getComponentUrl } from '../../../helpers/urls';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getFiles } from '../../../api/components';
 import { formatMeasure } from '../../../helpers/measures';
 import Workspace from '../../../components/workspace/main';
@@ -144,10 +144,10 @@ export class DomainBubbleChart extends React.Component {
 
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
-        <h2 className="overview-title">{window.t('overview.chart.files')}</h2>
+        <h2 className="overview-title">{translate('overview.chart.files')}</h2>
         <ul className="list-inline small">
           <li>
-            {window.tp('overview.chart.legend.size_x', this.getSizeMetricsTitle())}
+            {translateWithParameters('overview.chart.legend.size_x', this.getSizeMetricsTitle())}
           </li>
         </ul>
       </div>
@@ -160,7 +160,7 @@ export class DomainBubbleChart extends React.Component {
           {this.state.xMetric.name}
         </div>
         {this.state.total > BUBBLES_LIMIT &&
-        <div className="note text-center">{window.tp('overview.chart.files.limit_message', BUBBLES_LIMIT)}</div>}
+        <div className="note text-center">{translateWithParameters('overview.chart.files.limit_message', BUBBLES_LIMIT)}</div>}
       </div>
     </div>;
   }

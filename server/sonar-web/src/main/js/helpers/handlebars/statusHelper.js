@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Handlebars from 'handlebars/runtime';
+import { translate } from '../../helpers/l10n';
 
 module.exports = function (status, resolution) {
-  var s = '<i class="icon-status-' + status.toLowerCase() + '"></i>&nbsp;' + window.t('issue.status', status);
+  var s = '<i class="icon-status-' + status.toLowerCase() + '"></i>&nbsp;' + translate('issue.status', status);
   if (resolution != null) {
-    s = s + '&nbsp;(' + window.t('issue.resolution', resolution) + ')';
+    s = s + '&nbsp;(' + translate('issue.resolution', resolution) + ')';
   }
   return new Handlebars.default.SafeString(s);
 };

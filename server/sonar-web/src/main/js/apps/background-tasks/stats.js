@@ -21,6 +21,7 @@ import React from 'react';
 
 import { formatDuration } from './helpers';
 import { TooltipsMixin } from '../../components/mixins/tooltips-mixin';
+import { translate } from '../../helpers/l10n';
 
 
 export default React.createClass({
@@ -41,7 +42,7 @@ export default React.createClass({
       return null;
     }
     return (
-        <span className="huge-spacer-left" title={window.t('background_tasks.in_progress_duration')}
+        <span className="huge-spacer-left" title={translate('background_tasks.in_progress_duration')}
               data-toggle="tooltip">
           <i className="spinner spacer-right" style={{ verticalAlign: 'text-top' }}/>
           <span ref="inProgressDuration" className="emphasised-measure">
@@ -60,9 +61,9 @@ export default React.createClass({
           <span>
             <span ref="pendingCount" className="emphasised-measure">{this.props.pendingCount}</span>
             &nbsp;
-            {window.t('background_tasks.pending')}
+            {translate('background_tasks.pending')}
             <a ref="cancelPending" onClick={this.onPendingCanceled} className="icon-delete spacer-left"
-               title={window.t('background_tasks.cancel_all_tasks')} data-toggle="tooltip" href="#"></a>
+               title={translate('background_tasks.cancel_all_tasks')} data-toggle="tooltip" href="#"></a>
           </span>
       );
     } else {
@@ -70,7 +71,7 @@ export default React.createClass({
           <span>
             <span ref="pendingCount" className="emphasised-measure">{this.props.pendingCount}</span>
             &nbsp;
-            {window.t('background_tasks.pending')}
+            {translate('background_tasks.pending')}
           </span>
       );
     }
@@ -95,7 +96,7 @@ export default React.createClass({
                title="Count of projects where processing of most recent analysis report failed"
                href="#">{this.props.failuresCount}</a>
             &nbsp;
-            {window.t('background_tasks.failures')}
+            {translate('background_tasks.failures')}
           </span>
       );
     } else {
@@ -106,7 +107,7 @@ export default React.createClass({
               {this.props.failuresCount}
             </span>
             &nbsp;
-            {window.t('background_tasks.failures')}
+            {translate('background_tasks.failures')}
           </span>
       );
     }

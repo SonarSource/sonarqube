@@ -23,6 +23,7 @@ import Condition from './condition';
 import ConditionView from './gate-condition-view';
 import ConditionsEmptyView from './gate-conditions-empty-view';
 import Template from './templates/quality-gate-detail-conditions.hbs';
+import { translate } from '../../helpers/l10n';
 
 export default Marionette.CompositeView.extend({
   template: Template,
@@ -53,7 +54,7 @@ export default Marionette.CompositeView.extend({
     this.ui.metricSelect.select2({
       allowClear: false,
       width: '250px',
-      placeholder: window.t('alerts.select_metric')
+      placeholder: translate('alerts.select_metric')
     });
   },
 

@@ -22,6 +22,7 @@ import React from 'react';
 import { getPeriodLabel, getPeriodDate } from '../helpers/periods';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 
 const Measure = React.createClass({
@@ -37,7 +38,7 @@ const Measure = React.createClass({
 
 export default React.createClass({
   render() {
-    let metricName = window.t('metric', this.props.condition.metric.name, 'name');
+    let metricName = translate('metric', this.props.condition.metric.name, 'name');
     let threshold = this.props.condition.level === 'ERROR' ?
                     this.props.condition.error : this.props.condition.warning;
     let period = this.props.condition.period ?
@@ -63,7 +64,7 @@ export default React.createClass({
             <div className="overview-gate-condition-metric">
               <div>{metricName}</div>
               <div>
-                {window.t('quality_gates.operator', this.props.condition.op, 'short')}
+                {translate('quality_gates.operator', this.props.condition.op, 'short')}
                 {' '}
                 <Measure value={threshold} type={this.props.condition.metric.type}/>
               </div>

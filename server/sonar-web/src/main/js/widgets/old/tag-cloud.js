@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { translate } from '../../helpers/l10n';
+
 (function () {
 
   function TagCloud () {
@@ -83,7 +85,7 @@
 
   TagCloud.prototype.tooltip = function (d) {
     var suffixKey = d.value === 1 ? 'issue' : 'issues',
-        suffix = window.t(suffixKey);
+        suffix = translate(suffixKey);
     return (d.value + '\u00a0') + suffix;
   };
 

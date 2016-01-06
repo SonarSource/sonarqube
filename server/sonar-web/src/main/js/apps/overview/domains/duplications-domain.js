@@ -33,6 +33,7 @@ import { CHART_COLORS_RANGE_PERCENT } from '../../../helpers/constants';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 import { DonutChart } from '../../../components/charts/donut-chart';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import { translate } from '../../../helpers/l10n';
 
 
 export const DuplicationsMain = React.createClass({
@@ -89,7 +90,7 @@ export const DuplicationsMain = React.createClass({
   renderEmpty() {
     return <div className="overview-detailed-page">
       <div className="page">
-        <p>{window.t('overview.no_duplications')}</p>
+        <p>{translate('overview.no_duplications')}</p>
       </div>
     </div>;
   },
@@ -157,7 +158,7 @@ export const DuplicationsMain = React.createClass({
       <div className="overview-cards-list">
         <div className="overview-card overview-card-fixed-width">
           <div className="overview-card-header">
-            <div className="overview-title">{window.t('overview.domain.duplications')}</div>
+            <div className="overview-title">{translate('overview.domain.duplications')}</div>
             {this.renderLegend()}
           </div>
           <div className="overview-detailed-measures-list">

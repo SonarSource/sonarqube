@@ -20,6 +20,7 @@
 import React from 'react';
 import DashboardNameMixin from '../dashboard-name-mixin';
 import LinksMixin from '../links-mixin';
+import { translate } from '../../../helpers/l10n';
 
 export default React.createClass({
   mixins: [DashboardNameMixin, LinksMixin],
@@ -42,7 +43,7 @@ export default React.createClass({
     const url = `${window.baseUrl}/dashboards`;
     return (
         <li>
-          <a href={url}>{window.t('dashboard.manage_dashboards')}</a>
+          <a href={url}>{translate('dashboard.manage_dashboards')}</a>
         </li>
     );
   },
@@ -53,7 +54,7 @@ export default React.createClass({
     return (
         <li className="dropdown">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            {window.t('layout.dashboards')}&nbsp;<span className="icon-dropdown"/>
+            {translate('layout.dashboards')}&nbsp;<span className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
             {dashboards}
@@ -68,7 +69,7 @@ export default React.createClass({
     const url = `${window.baseUrl}/issues/search`;
     return (
         <li className={this.activeLink('/issues')}>
-          <a href={url}>{window.t('issues.page')}</a>
+          <a href={url}>{translate('issues.page')}</a>
         </li>
     );
   },
@@ -77,7 +78,7 @@ export default React.createClass({
     const url = `${window.baseUrl}/measures/search?qualifiers[]=TRK`;
     return (
         <li className={this.activeLink('/measures')}>
-          <a href={url}>{window.t('layout.measures')}</a>
+          <a href={url}>{translate('layout.measures')}</a>
         </li>
     );
   },
@@ -86,7 +87,7 @@ export default React.createClass({
     const url = `${window.baseUrl}/coding_rules`;
     return (
         <li className={this.activeLink('/coding_rules')}>
-          <a href={url}>{window.t('coding_rules.page')}</a>
+          <a href={url}>{translate('coding_rules.page')}</a>
         </li>
     );
   },
@@ -95,7 +96,7 @@ export default React.createClass({
     const url = `${window.baseUrl}/profiles`;
     return (
         <li className={this.activeLink('/profiles')}>
-          <a href={url}>{window.t('quality_profiles.page')}</a>
+          <a href={url}>{translate('quality_profiles.page')}</a>
         </li>
     );
   },
@@ -104,7 +105,7 @@ export default React.createClass({
     const url = `${window.baseUrl}/quality_gates`;
     return (
         <li className={this.activeLink('/quality_gates')}>
-          <a href={url}>{window.t('quality_gates.page')}</a>
+          <a href={url}>{translate('quality_gates.page')}</a>
         </li>
     );
   },
@@ -116,7 +117,7 @@ export default React.createClass({
     const url = `${window.baseUrl}/settings`;
     return (
         <li className={this.activeLink('/settings')}>
-          <a className="navbar-admin-link" href={url}>{window.t('layout.settings')}</a>
+          <a className="navbar-admin-link" href={url}>{translate('layout.settings')}</a>
         </li>
     );
   },
@@ -125,7 +126,7 @@ export default React.createClass({
     const url = `${window.baseUrl}/comparison`;
     return (
         <li className={this.activeLink('/comparison')}>
-          <a href={url}>{window.t('comparison_global.page')}</a>
+          <a href={url}>{translate('comparison_global.page')}</a>
         </li>
     );
   },
@@ -144,7 +145,7 @@ export default React.createClass({
     return (
         <li className="dropdown">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            {window.t('more')}&nbsp;<span className="icon-dropdown"/>
+            {translate('more')}&nbsp;<span className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
             {this.renderComparisonLink()}

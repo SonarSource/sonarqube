@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import React from 'react';
 import PermissionsList from './permissions-list';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   getInitialState() {
@@ -48,9 +49,9 @@ export default React.createClass({
     return (
         <div className="page">
           <header id="global-permissions-header" className="page-header">
-            <h1 className="page-title">{window.t('global_permissions.page')}</h1>
+            <h1 className="page-title">{translate('global_permissions.page')}</h1>
             {this.renderSpinner()}
-            <p className="page-description">{window.t('global_permissions.page.description')}</p>
+            <p className="page-description">{translate('global_permissions.page.description')}</p>
           </header>
           <PermissionsList ready={this.state.ready} permissions={this.state.permissions}/>
         </div>

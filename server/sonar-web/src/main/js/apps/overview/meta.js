@@ -25,6 +25,7 @@ import { QualityProfileLink } from './../../components/shared/quality-profile-li
 import { QualityGateLink } from './../../components/shared/quality-gate-link';
 import { getEvents } from '../../api/events';
 import { EventsList } from './components/events-list';
+import { translate } from '../../helpers/l10n';
 
 
 export default React.createClass({
@@ -96,14 +97,14 @@ export default React.createClass({
 
     let profilesCard = !this.isView() && !this.isDeveloper() && _.size(this.props.component.profiles) > 0 ? (
         <div className="overview-meta-card">
-          <h4 className="overview-meta-header">{window.t('overview.quality_profiles')}</h4>
+          <h4 className="overview-meta-header">{translate('overview.quality_profiles')}</h4>
           <ul className="overview-meta-list">{profiles}</ul>
         </div>
     ) : null;
 
     let gateCard = !this.isView() && !this.isDeveloper() && this.props.component.gate ? (
         <div className="overview-meta-card">
-          <h4 className="overview-meta-header">{window.t('overview.quality_gate')}</h4>
+          <h4 className="overview-meta-header">{translate('overview.quality_gate')}</h4>
           <ul className="overview-meta-list">
             <li>
               {this.props.component.gate.isDefault ?

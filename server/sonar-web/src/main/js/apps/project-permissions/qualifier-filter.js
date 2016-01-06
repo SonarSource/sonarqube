@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { translate } from '../../helpers/l10n';
 
 import RadioToggle from '../../components/shared/radio-toggle';
 
@@ -26,7 +27,7 @@ const rootQualifiersToOptions = (qualifiers) => {
   return qualifiers.map(q => {
     return {
       value: q,
-      label: window.t('qualifiers', q)
+      label: translate('qualifiers', q)
     };
   });
 };

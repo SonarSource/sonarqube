@@ -21,6 +21,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import ActionOptionsView from '../../common/action-options-view';
 import Template from '../templates/issue-plan-form.hbs';
+import { translate } from '../../../helpers/l10n';
 
 export default ActionOptionsView.extend({
   template: Template,
@@ -45,7 +46,7 @@ export default ActionOptionsView.extend({
   },
 
   getActionPlans: function () {
-    return [{ key: '', name: window.t('issue.unplanned') }].concat(this.collection.toJSON());
+    return [{ key: '', name: translate('issue.unplanned') }].concat(this.collection.toJSON());
   },
 
   serializeData: function () {

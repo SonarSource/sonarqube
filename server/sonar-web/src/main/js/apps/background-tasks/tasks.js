@@ -26,6 +26,7 @@ import PendingIcon from '../../components/shared/pending-icon';
 import { STATUSES } from './constants';
 import { formatDuration } from './helpers';
 import { TooltipsMixin } from '../../components/mixins/tooltips-mixin';
+import { translate } from '../../helpers/l10n';
 
 
 export default React.createClass({
@@ -55,18 +56,18 @@ export default React.createClass({
         inner = <i className="spinner"/>;
         break;
       case STATUSES.SUCCESS:
-        inner = <span className="badge badge-success">{window.t('background_task.status.SUCCESS')}</span>;
+        inner = <span className="badge badge-success">{translate('background_task.status.SUCCESS')}</span>;
         break;
       case STATUSES.FAILED:
-        inner = <span className="badge badge-danger">{window.t('background_task.status.FAILED')}</span>;
+        inner = <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>;
         break;
       case STATUSES.CANCELED:
-        inner = <span className="badge badge-muted">{window.t('background_task.status.CANCELED')}</span>;
+        inner = <span className="badge badge-muted">{translate('background_task.status.CANCELED')}</span>;
         break;
       default:
         inner = '';
     }
-    return <td className="thin spacer-right" title={window.t('background_task.status', task.status)}
+    return <td className="thin spacer-right" title={translate('background_task.status', task.status)}
                data-toggle="tooltip">{inner}</td>;
   },
 
@@ -125,7 +126,7 @@ export default React.createClass({
     if (task.status === STATUSES.PENDING) {
       return (
           <a onClick={this.onTaskCanceled.bind(this, task)} className="icon-delete"
-             title={window.t('background_tasks.cancel_task')} data-toggle="tooltip" href="#"></a>
+             title={translate('background_tasks.cancel_task')} data-toggle="tooltip" href="#"></a>
       );
     } else {
       return null;
@@ -135,7 +136,7 @@ export default React.createClass({
   renderLogsLink(task) {
     if (task.logs) {
       let url = `${window.baseUrl}/api/ce/logs?taskId=${task.id}`;
-      return <a target="_blank" href={url}>{window.t('background_tasks.logs')}</a>;
+      return <a target="_blank" href={url}>{translate('background_tasks.logs')}</a>;
     } else {
       return null;
     }
@@ -173,10 +174,10 @@ export default React.createClass({
             <th>&nbsp;</th>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
-            <th>{window.t('background_tasks.table.submitted')}</th>
-            <th>{window.t('background_tasks.table.started')}</th>
-            <th>{window.t('background_tasks.table.finished')}</th>
-            <th>{window.t('background_tasks.table.duration')}</th>
+            <th>{translate('background_tasks.table.submitted')}</th>
+            <th>{translate('background_tasks.table.started')}</th>
+            <th>{translate('background_tasks.table.finished')}</th>
+            <th>{translate('background_tasks.table.duration')}</th>
             <th>&nbsp;</th>
           </tr>
           </thead>

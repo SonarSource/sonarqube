@@ -35,6 +35,7 @@ import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { Legend } from '../components/legend';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 
 export const GeneralDebt = React.createClass({
@@ -76,7 +77,7 @@ export const GeneralDebt = React.createClass({
   render () {
     return <Domain>
       <DomainHeader component={this.props.component}
-                    title={window.t('overview.domain.debt')}
+                    title={translate('overview.domain.debt')}
                     linkTo="/debt"/>
 
       <DomainPanel>

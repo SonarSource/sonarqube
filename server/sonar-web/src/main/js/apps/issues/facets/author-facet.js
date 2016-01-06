@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import CustomValuesFacet from './custom-values-facet';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
   getUrl: function () {
@@ -30,13 +31,13 @@ export default CustomValuesFacet.extend({
       minimumInputLength: 2,
       allowClear: false,
       formatNoMatches: function () {
-        return window.t('select2.noMatches');
+        return translate('select2.noMatches');
       },
       formatSearching: function () {
-        return window.t('select2.searching');
+        return translate('select2.searching');
       },
       formatInputTooShort: function () {
-        return window.tp('select2.tooShort', 2);
+        return translateWithParameters('select2.tooShort', 2);
       },
       width: '100%',
       ajax: {

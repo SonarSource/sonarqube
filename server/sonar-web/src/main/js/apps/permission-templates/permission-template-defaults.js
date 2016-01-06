@@ -20,6 +20,7 @@
 import _ from 'underscore';
 import React from 'react';
 import QualifierIcon from '../../components/shared/qualifier-icon';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   propTypes: {
@@ -37,7 +38,7 @@ export default React.createClass({
 
   renderIfMultipleTopQualifiers() {
     let defaults = this.props.permissionTemplate.defaultFor.map(qualifier => {
-      return <li key={qualifier}><QualifierIcon qualifier={qualifier}/>&nbsp;{window.t('qualifier', qualifier)}</li>;
+      return <li key={qualifier}><QualifierIcon qualifier={qualifier}/>&nbsp;{translate('qualifier', qualifier)}</li>;
     });
     return (
         <ul className="list-inline nowrap spacer-bottom">

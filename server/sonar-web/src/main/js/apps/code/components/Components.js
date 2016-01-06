@@ -21,6 +21,7 @@ import React from 'react';
 
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
+import { translate } from '../../../helpers/l10n';
 
 
 const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => (
@@ -29,11 +30,11 @@ const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => 
         <tr>
           <th className="thin nowrap">&nbsp;</th>
           <th>&nbsp;</th>
-          <th className="thin nowrap text-right">{window.t('metric.ncloc.name')}</th>
-          <th className="thin nowrap text-right">{window.t('metric.sqale_index.short_name')}</th>
-          <th className="thin nowrap text-right">{window.t('metric.violations.name')}</th>
-          <th className="thin nowrap text-right">{window.t('metric.coverage.name')}</th>
-          <th className="thin nowrap text-right">{window.t('metric.duplicated_lines_density.short_name')}</th>
+          <th className="thin nowrap text-right">{translate('metric.ncloc.name')}</th>
+          <th className="thin nowrap text-right">{translate('metric.sqale_index.short_name')}</th>
+          <th className="thin nowrap text-right">{translate('metric.violations.name')}</th>
+          <th className="thin nowrap text-right">{translate('metric.coverage.name')}</th>
+          <th className="thin nowrap text-right">{translate('metric.duplicated_lines_density.short_name')}</th>
         </tr>
       </thead>
       {baseComponent && (

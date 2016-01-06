@@ -32,6 +32,7 @@ import CustomRuleCreationView from './rule/custom-rule-creation-view';
 import IssuesView from './rule/rule-issues-view';
 import Template from './templates/coding-rules-rule-details.hbs';
 import confirmDialog from './confirm-dialog';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 
 export default Marionette.LayoutView.extend({
   className: 'coding-rule-details',
@@ -149,8 +150,8 @@ export default Marionette.LayoutView.extend({
     var that = this,
         ruleType = this.model.has('templateKey') ? 'custom' : 'manual';
     confirmDialog({
-      title: window.t('delete'),
-      html: window.tp('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
+      title: translate('delete'),
+      html: translateWithParameters('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
       yesHandler: function () {
         var url = baseUrl + '/api/rules/delete',
             options = { key: that.model.id };

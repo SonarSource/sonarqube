@@ -27,6 +27,7 @@ import { getEvents } from '../../../api/events';
 import { formatMeasure, groupByDomain } from '../../../helpers/measures';
 import { getShortType } from '../helpers/metrics';
 import { Timeline } from './timeline-chart';
+import { translate } from '../../../helpers/l10n';
 
 
 const HEIGHT = 280;
@@ -244,7 +245,7 @@ export const DomainTimeline = React.createClass({
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
         <div>
-          <h2 className="overview-title">{window.t('overview.chart.history')}</h2>
+          <h2 className="overview-title">{translate('overview.chart.history')}</h2>
           {this.renderTimelineMetricSelect()}
         </div>
         {this.renderComparisonMetricSelect()}

@@ -19,6 +19,7 @@
  */
 import $ from 'jquery';
 import _ from 'underscore';
+import { translate } from '../../helpers/l10n';
 
 (function () {
 
@@ -56,7 +57,7 @@ import _ from 'underscore';
     this.filterComponents();
     if (!this.components().length) {
       this.maxResultsReachedLabel
-          .text(window.t('treemap.all_measures_undefined'))
+          .text(translate('treemap.all_measures_undefined'))
           .style('display', 'block');
       return;
     }

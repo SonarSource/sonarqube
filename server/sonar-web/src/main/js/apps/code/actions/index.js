@@ -22,6 +22,7 @@ import { pushPath } from 'redux-simple-router';
 
 import { getChildren, getComponent, getTree } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
+import { translate } from '../../../helpers/l10n';
 
 
 const METRICS = [
@@ -137,15 +138,15 @@ requestTree = _.debounce(requestTree, 250);
 async function getErrorMessage (response) {
   switch (response.status) {
     case 401:
-      return window.t('not_authorized');
+      return translate('not_authorized');
     default:
       try {
         let json = await response.json();
         return json['err_msg'] ||
             (json.errors && _.pluck(json.errors, 'msg').join('. ')) ||
-            window.t('default_error_message');
+            translate('default_error_message');
       } catch (e) {
-        return window.t('default_error_message');
+        return translate('default_error_message');
       }
   }
 }
@@ -186,5 +187,3 @@ export function search (query, baseComponent) {
     }
   };
 }
-
-

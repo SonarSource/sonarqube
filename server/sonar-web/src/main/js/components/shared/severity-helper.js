@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import SeverityIcon from './severity-icon';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   render() {
@@ -29,7 +30,7 @@ export default React.createClass({
       <span className="spacer-right">
         <SeverityIcon severity={this.props.severity}/>
       </span>
-      {window.t('severity', this.props.severity)}
+      {translate('severity', this.props.severity)}
     </span>;
   }
 });

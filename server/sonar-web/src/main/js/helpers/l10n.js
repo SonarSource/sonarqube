@@ -17,8 +17,77 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { stringify } from 'querystring';
+import moment from 'moment';
+
+let messages = {};
+
+export function translate (...keys) {
+  const messageKey = keys.join('.');
+  return messages[messageKey] || messageKey;
+}
+
+export function translateWithParameters (messageKey, ...parameters) {
+  const message = messages[messageKey];
+  if (message) {
+    return parameters.reduce((acc, parameter, index) => (
+        acc.replace(`{${index}}`, parameter)
+    ));
+  } else {
+    return `${messageKey} ${parameters.join(' ')}`;
+  }
+}
+
+function getCurrentLocale () {
+  const locale = window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
+  return locale.replace('-', '_');
+}
+
+function makeRequest (params) {
+  const url = `${window.baseUrl}/api/l10n/index?${stringify(params)}`;
+
+  return fetch(url, { credentials: 'same-origin' }).then(response => {
+    if (response.status === 304) {
+      return JSON.parse(localStorage.getItem('l10n.bundle'));
+    } else if (response.status === 200) {
+      return response.json();
+    } else {
+      throw new Error(response.status);
+    }
+  });
+}
+
+export function requestMessages () {
+  const currentLocale = getCurrentLocale();
+  const cachedLocale = localStorage.getItem('l10n.locale');
+
+  if (cachedLocale !== currentLocale) {
+    localStorage.removeItem('l10n.timestamp');
+  }
+
+  const bundleTimestamp = localStorage.getItem('l10n.timestamp');
+  const params = { locale: currentLocale };
+  if (bundleTimestamp !== null) {
+    params.ts = bundleTimestamp;
+  }
+
+  return makeRequest(params).then(bundle => {
+    const currentTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
+    localStorage.setItem('l10n.timestamp', currentTimestamp);
+    localStorage.setItem('l10n.locale', currentLocale);
+    localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
+    messages = bundle;
+  });
+}
+
+export function installGlobal () {
+  window.t = translate;
+  window.tp = translateWithParameters;
+  window.requestMessages = requestMessages;
+}
+
 export function getLocalizedDashboardName (baseName) {
   var l10nKey = 'dashboard.' + baseName + '.name';
-  var l10nLabel = window.t(l10nKey);
+  var l10nLabel = translate(l10nKey);
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }

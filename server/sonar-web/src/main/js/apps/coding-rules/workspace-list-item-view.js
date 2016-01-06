@@ -25,6 +25,7 @@ import ProfileActivationView from './rule/profile-activation-view';
 import RuleFilterMixin from './rule/rule-filter-mixin';
 import Template from './templates/coding-rules-workspace-list-item.hbs';
 import confirmDialog from './confirm-dialog';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 
 export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
   className: 'coding-rule',
@@ -81,8 +82,8 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
         ruleKey = this.model.get('key'),
         activation = this.model.get('activation');
     confirmDialog({
-      title: window.t('coding_rules.deactivate'),
-      html: window.tp('coding_rules.deactivate.confirm'),
+      title: translate('coding_rules.deactivate'),
+      html: translateWithParameters('coding_rules.deactivate.confirm'),
       yesHandler: function () {
         return $.ajax({
           type: 'POST',

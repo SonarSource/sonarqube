@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import React from 'react';
 
 import LinksMixin from '../links-mixin';
-import { getLocalizedDashboardName } from '../../../helpers/l10n';
+import { translate, getLocalizedDashboardName } from '../../../helpers/l10n';
 import {
     getComponentDashboardUrl,
     getComponentFixedDashboardUrl,
@@ -110,7 +110,7 @@ export default React.createClass({
       let key = 'fixed-dashboard-' + fixedDashboard.link.substr(1);
       let url = getComponentFixedDashboardUrl(this.props.component.key, fixedDashboard.link);
       let name = fixedDashboard.link !== '' ?
-          window.t(fixedDashboard.name) : <i className="icon-home"/>;
+          translate(fixedDashboard.name) : <i className="icon-home"/>;
       let className = classNames({ active: this.isFixedDashboardActive(fixedDashboard) });
       return <li key={key} className={className}>
         <a href={url}>{name}</a>
@@ -134,7 +134,7 @@ export default React.createClass({
     const managementLink = this.renderDashboardsManagementLink();
     return <li className={className}>
       <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-        {window.t('layout.dashboards')}&nbsp;
+        {translate('layout.dashboards')}&nbsp;
         <i className="icon-dropdown"/>
       </a>
       <ul className="dropdown-menu">
@@ -151,7 +151,7 @@ export default React.createClass({
     }
     let key = 'dashboard-management';
     let url = getComponentDashboardManagementUrl(this.props.component.key);
-    let name = window.t('dashboard.manage_dashboards');
+    let name = translate('dashboard.manage_dashboards');
     let className = classNames('pill-right', { active: this.isDashboardManagementActive() });
     return <li key={key} className={className}>
       <a className="note" href={url}>{name}</a>
@@ -164,17 +164,17 @@ export default React.createClass({
     }
 
     const url = `/code/index?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('code.page'), '/code');
+    return this.renderLink(url, translate('code.page'), '/code');
   },
 
   renderComponentsLink() {
     const url = `/components/index?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('components.page'), '/components');
+    return this.renderLink(url, translate('components.page'), '/components');
   },
 
   renderComponentIssuesLink() {
     const url = `/component_issues/index?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('issues.page'), '/component_issues');
+    return this.renderLink(url, translate('issues.page'), '/component_issues');
   },
 
   renderAdministration() {
@@ -200,7 +200,7 @@ export default React.createClass({
     return (
         <li className={className}>
           <a className="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">
-            {window.t('layout.settings')}&nbsp;
+            {translate('layout.settings')}&nbsp;
             <i className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
@@ -226,7 +226,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project/settings?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('project_settings.page'), '/project/settings');
+    return this.renderLink(url, translate('project_settings.page'), '/project/settings');
   },
 
   renderProfilesLink() {
@@ -234,7 +234,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project/profile?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('project_quality_profiles.page'), '/project/profile');
+    return this.renderLink(url, translate('project_quality_profiles.page'), '/project/profile');
   },
 
   renderQualityGatesLink() {
@@ -242,7 +242,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project/qualitygate?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('project_quality_gate.page'), '/project/qualitygate');
+    return this.renderLink(url, translate('project_quality_gate.page'), '/project/qualitygate');
   },
 
   renderCustomMeasuresLink() {
@@ -250,7 +250,7 @@ export default React.createClass({
       return null;
     }
     const url = `/custom_measures?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('custom_measures.page'), '/custom_measures');
+    return this.renderLink(url, translate('custom_measures.page'), '/custom_measures');
   },
 
   renderActionPlansLink() {
@@ -258,7 +258,7 @@ export default React.createClass({
       return null;
     }
     const url = `/action_plans?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('action_plans.page'), '/action_plans');
+    return this.renderLink(url, translate('action_plans.page'), '/action_plans');
   },
 
   renderLinksLink() {
@@ -266,7 +266,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project/links?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('project_links.page'), '/project/links');
+    return this.renderLink(url, translate('project_links.page'), '/project/links');
   },
 
   renderPermissionsLink() {
@@ -274,7 +274,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project_roles?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('permissions.page'), '/project_roles');
+    return this.renderLink(url, translate('permissions.page'), '/project_roles');
   },
 
   renderHistoryLink() {
@@ -282,7 +282,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project/history?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('project_history.page'), '/project/history');
+    return this.renderLink(url, translate('project_history.page'), '/project/history');
   },
 
   renderBackgroundTasksLink() {
@@ -290,7 +290,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('background_tasks.page'), '/project/background_tasks');
+    return this.renderLink(url, translate('background_tasks.page'), '/project/background_tasks');
   },
 
   renderUpdateKeyLink() {
@@ -298,7 +298,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project/key?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('update_key.page'), '/project/key');
+    return this.renderLink(url, translate('update_key.page'), '/project/key');
   },
 
   renderDeletionLink() {
@@ -306,7 +306,7 @@ export default React.createClass({
       return null;
     }
     const url = `/project/deletion?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, window.t('deletion.page'), '/project/deletion');
+    return this.renderLink(url, translate('deletion.page'), '/project/deletion');
   },
 
   renderExtensions() {

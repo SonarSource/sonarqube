@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { translate } from '../../../helpers/l10n';
 
 
 const ComponentsEmpty = () => (
     <tr>
       <td colSpan="2">
-        {window.t('no_results')}
+        {translate('no_results')}
       </td>
       <td colSpan="5">
         &nbsp;

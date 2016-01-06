@@ -21,6 +21,7 @@ import _ from 'underscore';
 import React from 'react';
 import { getSystemInfo } from '../../api/system';
 import Section from './section';
+import { translate } from '../../helpers/l10n';
 
 const SECTIONS_ORDER = ['SonarQube', 'Database', 'Plugins', 'System', 'ElasticSearch', 'JvmProperties',
   'ComputeEngine'];
@@ -62,7 +63,7 @@ export default React.createClass({
 
     return <div className="page">
       <header className="page-header">
-        <h1 className="page-title">{window.t('system_info.page')}</h1>
+        <h1 className="page-title">{translate('system_info.page')}</h1>
         <div className="page-actions">
           <a className="spacer-right" href={window.baseUrl + '/api/system/logs'} id="logs-link">Logs</a>
           <a href={window.baseUrl + '/api/system/info'} id="download-link">Download</a>

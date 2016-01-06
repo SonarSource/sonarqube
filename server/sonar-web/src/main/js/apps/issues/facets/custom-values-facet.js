@@ -20,6 +20,7 @@
 import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/issues-custom-values-facet.hbs';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default BaseFacet.extend({
   template: Template,
@@ -45,13 +46,13 @@ export default BaseFacet.extend({
       minimumInputLength: 2,
       allowClear: false,
       formatNoMatches: function () {
-        return window.t('select2.noMatches');
+        return translate('select2.noMatches');
       },
       formatSearching: function () {
-        return window.t('select2.searching');
+        return translate('select2.searching');
       },
       formatInputTooShort: function () {
-        return window.tp('select2.tooShort', 2);
+        return translateWithParameters('select2.tooShort', 2);
       },
       width: '100%',
       ajax: this.prepareAjaxSearch()

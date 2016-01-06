@@ -20,6 +20,7 @@
 import _ from 'underscore';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/coding-rules-custom-values-facet.hbs';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default BaseFacet.extend({
   template: Template,
@@ -41,17 +42,17 @@ export default BaseFacet.extend({
 
   prepareSearch: function () {
     this.$('.js-custom-value').select2({
-      placeholder: window.t('search_verb'),
+      placeholder: translate('search_verb'),
       minimumInputLength: 1,
       allowClear: false,
       formatNoMatches: function () {
-        return window.t('select2.noMatches');
+        return translate('select2.noMatches');
       },
       formatSearching: function () {
-        return window.t('select2.searching');
+        return translate('select2.searching');
       },
       formatInputTooShort: function () {
-        return window.tp('select2.tooShort', 1);
+        return translateWithParameters('select2.tooShort', 1);
       },
       width: '100%',
       ajax: this.prepareAjaxSearch()

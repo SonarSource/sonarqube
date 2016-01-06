@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Marionette from 'backbone.marionette';
+import { translate } from '../../helpers/l10n';
 
 export default Marionette.ItemView.extend({
   className: 'search-navigator-no-results',
 
   template: function () {
-    return window.t('coding_rules.no_results');
+    return translate('coding_rules.no_results');
   }
 });

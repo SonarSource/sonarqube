@@ -22,6 +22,7 @@ import _ from 'underscore';
 import ActionOptionsView from '../../common/action-options-view';
 import Template from '../templates/issue-assign-form.hbs';
 import OptionTemplate from '../templates/issue-assign-form-option.hbs';
+import { translate } from '../../../helpers/l10n';
 
 export default ActionOptionsView.extend({
   template: Template,
@@ -141,7 +142,7 @@ export default ActionOptionsView.extend({
     if (this.assignees) {
       return this.assignees;
     }
-    var assignees = [{ id: '', text: window.t('unassigned') }],
+    var assignees = [{ id: '', text: translate('unassigned') }],
         currentUser = window.SS.user,
         currentUserName = window.SS.userName;
     assignees.push({ id: currentUser, text: currentUserName });

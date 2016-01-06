@@ -17,16 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { translate, translateWithParameters } from '../../helpers/l10n';
+
 module.exports = function (diff) {
   var message = '';
   if (diff.newValue != null) {
-    message = window.tp('issue.changelog.changed_to', window.t('issue.changelog.field', diff.key), diff.newValue);
+    message = translateWithParameters('issue.changelog.changed_to',
+        translate('issue.changelog.field', diff.key), diff.newValue);
   } else {
-    message = window.tp('issue.changelog.removed', window.t('issue.changelog.field', diff.key));
+    message = translateWithParameters('issue.changelog.removed',
+        translate('issue.changelog.field', diff.key));
   }
   if (diff.oldValue != null) {
     message += ' (';
-    message += window.tp('issue.changelog.was', diff.oldValue);
+    message += translateWithParameters('issue.changelog.was', diff.oldValue);
     message += ')';
   }
   return message;

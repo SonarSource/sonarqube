@@ -40,6 +40,7 @@ import { getFacet, extractAssignees } from '../../../api/issues';
 import { Rating } from '../../../components/shared/rating';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { DomainLeakTitle } from '../main/components';
+import { translate } from '../../../helpers/l10n';
 
 
 const KNOWN_METRICS = ['violations', 'sqale_index', 'sqale_rating', 'sqale_debt_ratio', 'blocker_violations',
@@ -182,7 +183,7 @@ export const DebtMain = React.createClass({
       <div className="overview-cards-list">
         <div className="overview-card overview-card-fixed-width">
           <div className="overview-card-header">
-            <div className="overview-title">{window.t('overview.domain.debt')}</div>
+            <div className="overview-title">{translate('overview.domain.debt')}</div>
             {this.renderLegend()}
           </div>
 
@@ -209,7 +210,7 @@ export const DebtMain = React.createClass({
             <div className="overview-detailed-measure">
               <div className="overview-detailed-measure-nutshell">
                 <div className="overview-detailed-measure-name">
-                  {window.t('overview.unmanaged_issues')}
+                  {translate('overview.unmanaged_issues')}
                 </div>
                 <div className="spacer-top">
                   <Assignees {...this.props} assignees={this.state.assignees}/>

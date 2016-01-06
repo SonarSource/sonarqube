@@ -22,6 +22,7 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from '../templates/rule/coding-rules-rule-description.hbs';
 import confirmDialog from '../confirm-dialog';
+import { translate } from '../../../helpers/l10n';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -83,7 +84,7 @@ export default Marionette.ItemView.extend({
   removeExtendedDescription: function () {
     var that = this;
     confirmDialog({
-      html: window.t('coding_rules.remove_extended_description.confirm'),
+      html: translate('coding_rules.remove_extended_description.confirm'),
       yesHandler: function () {
         that.ui.extendDescriptionText.val('');
         that.submitExtendDescription();

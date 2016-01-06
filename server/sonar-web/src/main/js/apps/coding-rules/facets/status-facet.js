@@ -19,6 +19,7 @@
  */
 import _ from 'underscore';
 import BaseFacet from './base-facet';
+import { translate } from '../../../helpers/l10n';
 
 export default BaseFacet.extend({
   statuses: ['READY', 'DEPRECATED', 'BETA'],
@@ -26,7 +27,7 @@ export default BaseFacet.extend({
   getValues: function () {
     var values = this.model.getValues();
     var x = values.map(function (value) {
-      return _.extend(value, { label: window.t('rules.status', value.val.toLowerCase()) });
+      return _.extend(value, { label: translate('rules.status', value.val.toLowerCase()) });
     });
     return x;
   },

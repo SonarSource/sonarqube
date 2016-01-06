@@ -33,6 +33,7 @@ import LineActionsPopupView from './popups/line-actions-popup';
 import highlightLocations from './helpers/code-with-issue-locations-helper';
 import Template from './templates/source-viewer.hbs';
 import IssueLocationTemplate from './templates/source-viewer-issue-location.hbs';
+import { translateWithParameters } from '../../helpers/l10n';
 
 var HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
 
@@ -730,7 +731,7 @@ export default Marionette.LayoutView.extend({
     $(e.currentTarget).tooltip({
       container: 'body',
       placement: 'right',
-      title: window.tp('source_viewer.tooltip.new_code', this.sinceLabel),
+      title: translateWithParameters('source_viewer.tooltip.new_code', this.sinceLabel),
       trigger: 'manual'
     }).tooltip('show');
   },

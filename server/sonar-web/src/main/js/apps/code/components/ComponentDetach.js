@@ -20,13 +20,14 @@
 import React from 'react';
 
 import { getComponentUrl } from '../../../helpers/urls';
+import { translate } from '../../../helpers/l10n';
 
 
 const ComponentDetach = ({ component }) => (
     <a
         className="icon-detach"
         target="_blank"
-        title={window.t('code.open_in_new_tab')}
+        title={translate('code.open_in_new_tab')}
         href={getComponentUrl(component.key)}/>
 );
 

@@ -32,6 +32,7 @@ import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { DonutChart } from '../../../components/charts/donut-chart';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
+import { translate } from '../../../helpers/l10n';
 
 
 export const GeneralCoverage = React.createClass({
@@ -105,7 +106,7 @@ export const GeneralCoverage = React.createClass({
 
     return <Domain>
       <DomainHeader component={this.props.component}
-                    title={window.t('overview.domain.coverage')}
+                    title={translate('overview.domain.coverage')}
                     linkTo="/coverage"/>
 
       <DomainPanel>

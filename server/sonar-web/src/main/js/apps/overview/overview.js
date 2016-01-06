@@ -29,6 +29,7 @@ import { DebtMain } from './domains/debt-domain';
 
 import { getMetrics } from '../../api/metrics';
 import { RouterMixin } from '../../components/router/router';
+import { translate } from '../../helpers/l10n';
 
 
 export const Overview = React.createClass({
@@ -113,7 +114,7 @@ export const EmptyOverview = React.createClass({
     return (
         <div className="page">
           <div className="alert alert-warning">
-            {window.t('provisioning.no_analysis')}
+            {translate('provisioning.no_analysis')}
           </div>
         </div>
     );

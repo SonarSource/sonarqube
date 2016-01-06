@@ -23,6 +23,7 @@ import Backbone from 'backbone';
 import BaseFilters from './base-filters';
 import Template from '../templates/choice-filter.hbs';
 import ItemTemplate from '../templates/choice-filter-item.hbs';
+import { translate } from '../../../helpers/l10n';
 
 var DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
@@ -269,7 +270,7 @@ var ChoiceFilterView = BaseFilters.BaseFilterView.extend({
         }),
         defaultValue = this.model.has('defaultValue') ?
             this.model.get('defaultValue') :
-            this.model.get('multiple') ? window.t('all') : window.t('any');
+            this.model.get('multiple') ? translate('all') : translate('any');
 
     return this.isDefaultValue() ? defaultValue : value.join(', ');
   },

@@ -22,6 +22,7 @@ import _ from 'underscore';
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-manual-rule-creation.hbs';
 import latinize from '../../../helpers/latinize';
+import { translate } from '../../../helpers/l10n';
 
 export default ModalFormView.extend({
   template: Template,
@@ -118,7 +119,7 @@ export default ModalFormView.extend({
     }).fail(function (jqXHR) {
       if (jqXHR.status === 409) {
         that.existingRule = jqXHR.responseJSON.rule;
-        that.showErrors([], [{ msg: window.t('coding_rules.reactivate.help') }]);
+        that.showErrors([], [{ msg: translate('coding_rules.reactivate.help') }]);
         that.ui.manualRuleCreationCreate.addClass('hidden');
         that.ui.manualRuleCreationReactivate.removeClass('hidden');
       } else {

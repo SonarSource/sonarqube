@@ -23,6 +23,7 @@ import { TYPE, QUALIFIERS_ORDER } from './constants';
 import DeleteView from './delete-view';
 import RadioToggle from '../../components/shared/radio-toggle';
 import Checkbox from '../../components/shared/checkbox';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   propTypes: {
@@ -49,7 +50,7 @@ export default React.createClass({
 
   getQualifierOptions() {
     let options = this.props.topLevelQualifiers.map(q => {
-      return { value: q, label: window.t('qualifiers', q) };
+      return { value: q, label: translate('qualifiers', q) };
     });
     return _.sortBy(options, option => {
       return QUALIFIERS_ORDER.indexOf(option.value);
@@ -82,7 +83,7 @@ export default React.createClass({
     if (this.props.type !== TYPE.GHOSTS || !this.props.ready) {
       return null;
     }
-    return <div className="spacer-top alert alert-info">{window.t('bulk_deletion.ghosts.description')}</div>;
+    return <div className="spacer-top alert alert-info">{translate('bulk_deletion.ghosts.description')}</div>;
   },
 
   deleteProjects() {

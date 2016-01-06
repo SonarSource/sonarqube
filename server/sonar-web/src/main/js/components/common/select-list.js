@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
+import { translate } from '../../helpers/l10n';
 
 var showError = null;
 
@@ -251,7 +252,7 @@ var SelectListView = Backbone.View.extend({
     this.listItemViews = [];
 
     showError = function (jqXHR) {
-      var message = window.t('default_error_message');
+      var message = translate('default_error_message');
       if (jqXHR != null && jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
         message = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
       }
