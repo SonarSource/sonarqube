@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
+import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
@@ -220,8 +221,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
               sizeMetricValue = d.measures[widget.sizeMetric].fval;
 
           return '<div class="text-left">' +
-              window.collapsedDirFromPath(d.longName) + '<br>' +
-              window.fileFromPath(d.longName) + '<br>' + '<br>' +
+              collapsedDirFromPath(d.longName) + '<br>' +
+              fileFromPath(d.longName) + '<br>' + '<br>' +
               xMetricName + ': ' + xMetricValue + '<br>' +
               yMetricName + ': ' + yMetricValue + '<br>' +
               sizeMetricName + ': ' + sizeMetricValue +
