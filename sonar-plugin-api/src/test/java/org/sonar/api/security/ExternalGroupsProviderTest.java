@@ -86,7 +86,7 @@ public class ExternalGroupsProviderTest {
   }
 
   private static Map<String, Collection<String>> getTestUserGroupMapping() {
-    Map<String, Collection<String>> userGroupsMap = new HashMap<String, Collection<String>>();
+    Map<String, Collection<String>> userGroupsMap = new HashMap<>();
     addUserGroupMapping(userGroupsMap, "userWithOneGroups", new String[] {"group1"});
     addUserGroupMapping(userGroupsMap, "userWithTwoGroups", new String[] {"group1", "group2"});
     addUserGroupMapping(userGroupsMap, "userWithNoGroup", new String[] {});
@@ -98,7 +98,7 @@ public class ExternalGroupsProviderTest {
   private static void addUserGroupMapping(Map<String, Collection<String>> userGroupsMap, String user, @Nullable String[] groups) {
     Collection<String> groupsCollection = null;
     if (groups != null) {
-      groupsCollection = new ArrayList<String>();
+      groupsCollection = new ArrayList<>();
       groupsCollection.addAll(Arrays.asList(groups));
     }
 

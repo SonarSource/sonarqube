@@ -53,8 +53,8 @@ public class DefaultActiveRulesLoaderTest {
 
     String req1 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=1&ps=500";
     String req2 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=2&ps=500";
-    when(ws.loadStream(req1)).thenReturn(new WSLoaderResult<InputStream>(response1, false));
-    when(ws.loadStream(req2)).thenReturn(new WSLoaderResult<InputStream>(response2, false));
+    when(ws.loadStream(req1)).thenReturn(new WSLoaderResult<>(response1, false));
+    when(ws.loadStream(req2)).thenReturn(new WSLoaderResult<>(response2, false));
 
     Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445", null);
     assertThat(activeRules).hasSize(226);

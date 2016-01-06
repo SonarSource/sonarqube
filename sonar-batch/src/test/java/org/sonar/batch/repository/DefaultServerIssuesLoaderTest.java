@@ -77,7 +77,7 @@ public class DefaultServerIssuesLoaderTest {
   public void testError() throws IOException {
     InputStream is = mock(InputStream.class);
     when(is.read()).thenThrow(IOException.class);
-    when(wsLoader.loadStream("/batch/issues.protobuf?key=foo")).thenReturn(new WSLoaderResult<InputStream>(is, true));
+    when(wsLoader.loadStream("/batch/issues.protobuf?key=foo")).thenReturn(new WSLoaderResult<>(is, true));
     loader.load("foo", mock(Function.class));
   }
 }

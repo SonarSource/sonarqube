@@ -85,7 +85,7 @@ public class AnalysisContextReportPublisher {
   private void writeSystemProps(BufferedWriter fileWriter) throws IOException {
     fileWriter.write("System properties:\n");
     Properties sysProps = system.properties();
-    for (String prop : new TreeSet<String>(sysProps.stringPropertyNames())) {
+    for (String prop : new TreeSet<>(sysProps.stringPropertyNames())) {
       if (prop.startsWith(SONAR_PROP_PREFIX)) {
         continue;
       }
@@ -96,7 +96,7 @@ public class AnalysisContextReportPublisher {
   private void writeEnvVariables(BufferedWriter fileWriter) throws IOException {
     fileWriter.append("Environment variables:\n");
     Map<String, String> envVariables = system.envVariables();
-    for (String env : new TreeSet<String>(envVariables.keySet())) {
+    for (String env : new TreeSet<>(envVariables.keySet())) {
       fileWriter.append(String.format("  - %s=%s", env, envVariables.get(env))).append('\n');
     }
   }
@@ -109,7 +109,7 @@ public class AnalysisContextReportPublisher {
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
       fileWriter.append(String.format("Settings for module: %s", moduleDefinition.getKey())).append('\n');
       Map<String, String> moduleSettings = settings.getProperties();
-      for (String prop : new TreeSet<String>(moduleSettings.keySet())) {
+      for (String prop : new TreeSet<>(moduleSettings.keySet())) {
         if (isSystemProp(prop) || isEnvVariable(prop) || !isSqProp(prop)) {
           continue;
         }

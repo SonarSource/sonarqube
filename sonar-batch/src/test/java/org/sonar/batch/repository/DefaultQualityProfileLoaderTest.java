@@ -76,7 +76,7 @@ public class DefaultQualityProfileLoaderTest {
   @Test
   public void testNoProfile() throws IOException {
     InputStream is = createEncodedQP();
-    when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, false));
+    when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, false));
 
     exception.expect(MessageException.class);
     exception.expectMessage("No quality profiles");
@@ -88,7 +88,7 @@ public class DefaultQualityProfileLoaderTest {
   @Test
   public void use_real_response() throws IOException {
     InputStream is = getTestResource("quality_profile_search_default");
-    when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, false));
+    when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, false));
 
     List<QualityProfile> loaded = qpLoader.loadDefault(null, null);
     verify(ws).loadStream("/api/qualityprofiles/search.protobuf?defaults=true");

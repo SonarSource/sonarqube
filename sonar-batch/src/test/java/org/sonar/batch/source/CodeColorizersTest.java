@@ -195,7 +195,7 @@ public class CodeColorizersTest {
 
   public class WebCodeColorizerFormat extends CodeColorizerFormat {
 
-    private final List<Tokenizer> tokenizers = new ArrayList<Tokenizer>();
+    private final List<Tokenizer> tokenizers = new ArrayList<>();
 
     public WebCodeColorizerFormat() {
       super("web");

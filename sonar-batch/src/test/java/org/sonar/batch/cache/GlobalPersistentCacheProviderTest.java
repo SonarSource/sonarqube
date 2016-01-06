@@ -42,7 +42,7 @@ public class GlobalPersistentCacheProviderTest {
 
   @Before
   public void setUp() {
-    HashMap<String, String> map = new HashMap<String, String>();
+    HashMap<String, String> map = new HashMap<>();
     map.put("sonar.userHome", temp.getRoot().getAbsolutePath());
     globalProperties = new GlobalProperties(map);
     provider = new GlobalPersistentCacheProvider();

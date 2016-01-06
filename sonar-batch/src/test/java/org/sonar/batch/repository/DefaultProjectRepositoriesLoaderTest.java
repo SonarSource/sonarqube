@@ -126,7 +126,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   @Test
   public void readRealResponse() throws IOException {
     InputStream is = getTestResource("project.protobuf");
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<InputStream>(is, true));
+    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
 
     ProjectRepositories proj = loader.load("org.sonarsource.github:sonar-github-plugin", true, null);
     FileData fd = proj.fileData("org.sonarsource.github:sonar-github-plugin",

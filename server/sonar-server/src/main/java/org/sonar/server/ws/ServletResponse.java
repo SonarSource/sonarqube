@@ -34,7 +34,7 @@ import org.sonarqube.ws.MediaTypes;
 
 public class ServletResponse implements Response {
 
-  private Map<String, String> headers = new HashMap<String, String>();
+  private Map<String, String> headers = new HashMap<>();
 
   public static class ServletStream implements Stream {
     private String mediaType;

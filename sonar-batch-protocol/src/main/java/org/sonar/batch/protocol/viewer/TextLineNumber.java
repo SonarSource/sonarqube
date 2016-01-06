@@ -346,7 +346,7 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     } else // We need to check all the attributes for font changes
     {
       if (fonts == null)
-        fonts = new HashMap<String, FontMetrics>();
+        fonts = new HashMap<>();
 
       Element root = component.getDocument().getDefaultRootElement();
       int index = root.getElementIndex(rowStartOffset);

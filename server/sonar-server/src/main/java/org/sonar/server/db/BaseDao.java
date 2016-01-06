@@ -184,7 +184,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       item.setUpdatedAt(now);
       doUpdate(session, item);
       if (hasIndex()) {
-        session.enqueue(new UpsertDto<DTO>(getIndexType(), item));
+        session.enqueue(new UpsertDto<>(getIndexType(), item));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to update item in db: " + item, e);
@@ -208,7 +208,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   @Override
   public DTO insert(DbSession session, DTO item, DTO... others) {
-    insert(session, Lists.<DTO>asList(item, others));
+    insert(session, Lists.asList(item, others));
     return item;
   }
 
@@ -234,7 +234,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   @Override
   public void delete(DbSession session, DTO item, DTO... others) {
-    delete(session, Lists.<DTO>asList(item, others));
+    delete(session, Lists.asList(item, others));
   }
 
   @Override

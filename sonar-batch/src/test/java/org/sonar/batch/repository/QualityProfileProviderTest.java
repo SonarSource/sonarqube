@@ -73,7 +73,7 @@ public class QualityProfileProviderTest {
     when(key.get()).thenReturn("project");
     when(projectRepo.exists()).thenReturn(true);
 
-    response = new ArrayList<QualityProfile>(1);
+    response = new ArrayList<>(1);
     response.add(QualityProfile.newBuilder().setKey("profile").setName("profile").setLanguage("lang").build());
   }
 

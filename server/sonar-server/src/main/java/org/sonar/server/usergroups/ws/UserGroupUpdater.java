@@ -52,12 +52,12 @@ public class UserGroupUpdater {
     checkNameNotAnyone(name);
   }
 
-  private void checkNameLength(String name) {
+  private static void checkNameLength(String name) {
     Preconditions.checkArgument(!name.isEmpty(), "Name cannot be empty");
     Preconditions.checkArgument(name.length() <= NAME_MAX_LENGTH, String.format("Name cannot be longer than %d characters", NAME_MAX_LENGTH));
   }
 
-  private void checkNameNotAnyone(String name) {
+  private static void checkNameNotAnyone(String name) {
     Preconditions.checkArgument(!DefaultGroups.isAnyone(name), String.format("Name '%s' is reserved (regardless of case)", DefaultGroups.ANYONE));
   }
 
