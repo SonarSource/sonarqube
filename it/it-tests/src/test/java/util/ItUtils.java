@@ -220,10 +220,14 @@ public class ItUtils {
   }
 
   public static void setServerProperty(Orchestrator orchestrator, String key, @Nullable String value) {
+    setServerProperty(orchestrator, null, key, value);
+  }
+
+  public static void setServerProperty(Orchestrator orchestrator, @Nullable  String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery(key));
+      orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery(key).setResourceKeyOrId(componentKey));
     } else {
-      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery().setKey(key).setValue(value));
+      orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery().setKey(key).setResourceKeyOrId(componentKey).setValue(value));
     }
   }
 
@@ -265,6 +269,11 @@ public class ItUtils {
     } catch (ParseException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static String formatDate(Date d) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    return sdf.format(d);
   }
 
 }
