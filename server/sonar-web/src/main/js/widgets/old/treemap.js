@@ -281,7 +281,6 @@ import _ from 'underscore';
     this.maxResultsReachedLabel.classed('max-results-reached-message', true);
     this.renderLegend(box);
     this.renderBreadcrumbs(box);
-    this.renderTreemap();
     return window.SonarWidgets.BaseWidget.prototype.render.apply(this, arguments);
   };
 
@@ -291,7 +290,7 @@ import _ from 'underscore';
     if (this.components().length) {
       this.box.style('height', (this.height()) + 'px');
       this.treemap.size([this.width(), this.height()]);
-      this.cells.data(this.getNodes());
+      this.renderTreemap();
       this.positionCells();
     }
   };
