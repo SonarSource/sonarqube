@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import _ from 'underscore';
+
 const DEFAULT_ACTIONS = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity', 'set_tags'];
 
 module.exports = function (actions, options) {

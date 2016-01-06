@@ -23,7 +23,7 @@ import Template from './templates/metrics-delete.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function (e) {
+  onFormSubmit: function () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
@@ -45,5 +45,3 @@ export default ModalForm.extend({
     });
   }
 });
-
-

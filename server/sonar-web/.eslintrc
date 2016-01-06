@@ -55,7 +55,6 @@
 
     "react/jsx-closing-bracket-location": [1, "after-props"],
     "react/jsx-handler-names": 0,
-    "react/jsx-key": 2,
     "react/jsx-max-props-per-line": [1, { "maximum": 3 }],
     "react/jsx-no-duplicate-props": 2,
     "react/jsx-no-undef": 2,
@@ -73,7 +72,6 @@
     "react/sort-comp": 1,
 
     "import/no-unresolved": 2,
-    "import/named": 2,
     "import/export": 2,
     "import/no-duplicates": 2,
     "import/imports-first": 2
