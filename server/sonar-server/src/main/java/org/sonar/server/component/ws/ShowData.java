@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.db.component.ComponentDto;
@@ -54,7 +55,7 @@ class ShowData {
     private List<Long> orderedComponentIds;
 
     private Builder(SnapshotDto snapshot) {
-      List<String> orderedSnapshotIdsAsString = Splitter.on(".").omitEmptyStrings().splitToList(snapshot.getPath());
+      List<String> orderedSnapshotIdsAsString = snapshot.getPath() == null ? Collections.<String>emptyList() : Splitter.on(".").omitEmptyStrings().splitToList(snapshot.getPath());
       orderedSnapshotIds = Lists.transform(orderedSnapshotIdsAsString, StringToLongFunction.INSTANCE);
       snapshotOrdering = Ordering
         .explicit(orderedSnapshotIds)
