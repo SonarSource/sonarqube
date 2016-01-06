@@ -96,7 +96,7 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     List<MeasureDto> results = underTest.selectByComponentKeyAndMetricKeys(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java",
-        newArrayList("ncloc", "authors_by_line"));
+      newArrayList("ncloc", "authors_by_line"));
     assertThat(results).hasSize(2);
 
     results = underTest.selectByComponentKeyAndMetricKeys(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", newArrayList("ncloc"));
@@ -329,8 +329,8 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(db.getSession(),
-        DEVELOPER_ID, SNAPSHOT_ID,
-        ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
+      DEVELOPER_ID, SNAPSHOT_ID,
+      ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
 
     assertThat(measureDtos).isEmpty();
   }
@@ -340,8 +340,8 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
 
     List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(db.getSession(),
-        DEVELOPER_ID, SNAPSHOT_ID,
-        ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
+      DEVELOPER_ID, SNAPSHOT_ID,
+      ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
 
     assertThat(measureDtos).extracting("id").containsOnly(30L, 31L, 32L);
   }
@@ -351,8 +351,8 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
 
     List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(db.getSession(),
-        DEVELOPER_ID, SNAPSHOT_ID,
-        ImmutableList.of(NCLOC_METRIC_ID));
+      DEVELOPER_ID, SNAPSHOT_ID,
+      ImmutableList.of(NCLOC_METRIC_ID));
 
     assertThat(measureDtos).extracting("id").containsOnly(32L);
   }
@@ -362,8 +362,8 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
 
     List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(db.getSession(),
-        SNAPSHOT_ID,
-        ImmutableList.of(666));
+      SNAPSHOT_ID,
+      ImmutableList.of(666));
 
     assertThat(measureDtos).isEmpty();
   }
@@ -373,8 +373,8 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
 
     List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(db.getSession(),
-        SNAPSHOT_ID,
-        ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
+      SNAPSHOT_ID,
+      ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
 
     assertThat(measureDtos).extracting("id").containsOnly(20L, 21L, 22L);
   }
@@ -384,8 +384,8 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
 
     List<MeasureDto> measureDtos = underTest.selectBySnapshotAndMetrics(db.getSession(),
-        SNAPSHOT_ID,
-        ImmutableList.of(NCLOC_METRIC_ID));
+      SNAPSHOT_ID,
+      ImmutableList.of(NCLOC_METRIC_ID));
 
     assertThat(measureDtos).extracting("id").containsOnly(22L);
   }
@@ -395,8 +395,8 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
 
     List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(db.getSession(),
-        DEVELOPER_ID, SNAPSHOT_ID,
-        ImmutableList.of(666));
+      DEVELOPER_ID, SNAPSHOT_ID,
+      ImmutableList.of(666));
 
     assertThat(measureDtos).isEmpty();
   }
@@ -406,33 +406,35 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "with_some_measures_for_developer.xml");
 
     List<MeasureDto> measureDtos = underTest.selectByDeveloperForSnapshotAndMetrics(db.getSession(),
-        DEVELOPER_ID, 10,
-        ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
+      DEVELOPER_ID, 10,
+      ImmutableList.of(AUTHORS_BY_LINE_METRIC_ID, COVERAGE_LINE_HITS_DATA_METRIC_ID, NCLOC_METRIC_ID));
 
     assertThat(measureDtos).isEmpty();
   }
+
+  //TODO add test for selectBySnapshotIdsAndMetricIds
 
   @Test
   public void insert() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     underTest.insert(db.getSession(), new MeasureDto()
-        .setSnapshotId(2L)
-        .setMetricId(3)
-        .setCharacteristicId(4)
+      .setSnapshotId(2L)
+      .setMetricId(3)
+      .setCharacteristicId(4)
       .setDeveloperId(23L)
-        .setRuleId(5)
-        .setComponentId(6L)
-        .setValue(2.0d)
-        .setData("measure-value")
-        .setVariation(1, 1.0d)
-        .setVariation(2, 2.0d)
-        .setVariation(3, 3.0d)
-        .setVariation(4, 4.0d)
-        .setVariation(5, 5.0d)
-        .setAlertStatus("alert")
-        .setAlertText("alert-text")
-        .setDescription("measure-description")
+      .setRuleId(5)
+      .setComponentId(6L)
+      .setValue(2.0d)
+      .setData("measure-value")
+      .setVariation(1, 1.0d)
+      .setVariation(2, 2.0d)
+      .setVariation(3, 3.0d)
+      .setVariation(4, 4.0d)
+      .setVariation(5, 5.0d)
+      .setAlertStatus("alert")
+      .setAlertText("alert-text")
+      .setDescription("measure-description")
     );
     db.getSession().commit();
 

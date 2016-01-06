@@ -20,9 +20,6 @@
 package org.sonarqube.ws.client.issue;
 
 import com.google.common.base.Joiner;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
@@ -72,50 +69,43 @@ public class IssuesService extends BaseService {
   public SearchWsResponse search(SearchWsRequest request) {
     return call(
       new GetRequest(path("search"))
-        .setParam(ACTION_PLANS, listToParamList(request.getActionPlans()))
-        .setParam(ADDITIONAL_FIELDS, listToParamList(request.getAdditionalFields()))
+        .setParam(ACTION_PLANS, inlineMultipleParamValue(request.getActionPlans()))
+        .setParam(ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
         .setParam(ASC, request.getAsc())
         .setParam(ASSIGNED, request.getAssigned())
-        .setParam(ASSIGNEES, listToParamList(request.getAssignees()))
-        .setParam(AUTHORS, listToParamList(request.getAuthors()))
-        .setParam(COMPONENT_KEYS, listToParamList(request.getComponentKeys()))
-        .setParam(COMPONENT_ROOT_UUIDS, listToParamList(request.getComponentRootUuids()))
-        .setParam(COMPONENT_ROOTS, listToParamList(request.getComponentRoots()))
-        .setParam(COMPONENT_UUIDS, listToParamList(request.getComponentUuids()))
-        .setParam(COMPONENTS, listToParamList(request.getComponents()))
+        .setParam(ASSIGNEES, inlineMultipleParamValue(request.getAssignees()))
+        .setParam(AUTHORS, inlineMultipleParamValue(request.getAuthors()))
+        .setParam(COMPONENT_KEYS, inlineMultipleParamValue(request.getComponentKeys()))
+        .setParam(COMPONENT_ROOT_UUIDS, inlineMultipleParamValue(request.getComponentRootUuids()))
+        .setParam(COMPONENT_ROOTS, inlineMultipleParamValue(request.getComponentRoots()))
+        .setParam(COMPONENT_UUIDS, inlineMultipleParamValue(request.getComponentUuids()))
+        .setParam(COMPONENTS, inlineMultipleParamValue(request.getComponents()))
         .setParam(CREATED_AFTER, request.getCreatedAfter())
         .setParam(CREATED_AT, request.getCreatedAt())
         .setParam(CREATED_BEFORE, request.getCreatedBefore())
         .setParam(CREATED_IN_LAST, request.getCreatedInLast())
-        .setParam(DIRECTORIES, listToParamList(request.getDirectories()))
+        .setParam(DIRECTORIES, inlineMultipleParamValue(request.getDirectories()))
         .setParam(FACET_MODE, request.getFacetMode())
-        .setParam("facets", listToParamList(request.getFacets()))
-        .setParam(FILE_UUIDS, listToParamList(request.getFileUuids()))
-        .setParam(ISSUES, listToParamList(request.getIssues()))
-        .setParam(LANGUAGES, listToParamList(request.getLanguages()))
-        .setParam(MODULE_UUIDS, listToParamList(request.getModuleUuids()))
+        .setParam("facets", inlineMultipleParamValue(request.getFacets()))
+        .setParam(FILE_UUIDS, inlineMultipleParamValue(request.getFileUuids()))
+        .setParam(ISSUES, inlineMultipleParamValue(request.getIssues()))
+        .setParam(LANGUAGES, inlineMultipleParamValue(request.getLanguages()))
+        .setParam(MODULE_UUIDS, inlineMultipleParamValue(request.getModuleUuids()))
         .setParam(ON_COMPONENT_ONLY, request.getOnComponentOnly())
         .setParam("p", request.getPage())
         .setParam("ps", request.getPageSize())
         .setParam(PLANNED, request.getPlanned())
-        .setParam(PROJECT_KEYS, listToParamList(request.getProjectKeys()))
-        .setParam(PROJECT_UUIDS, listToParamList(request.getProjectUuids()))
-        .setParam(PROJECTS, listToParamList(request.getProjects()))
-        .setParam(REPORTERS, listToParamList(request.getReporters()))
-        .setParam(RESOLUTIONS, listToParamList(request.getResolutions()))
+        .setParam(PROJECT_KEYS, inlineMultipleParamValue(request.getProjectKeys()))
+        .setParam(PROJECT_UUIDS, inlineMultipleParamValue(request.getProjectUuids()))
+        .setParam(PROJECTS, inlineMultipleParamValue(request.getProjects()))
+        .setParam(REPORTERS, inlineMultipleParamValue(request.getReporters()))
+        .setParam(RESOLUTIONS, inlineMultipleParamValue(request.getResolutions()))
         .setParam(RESOLVED, request.getResolved())
-        .setParam(RULES, listToParamList(request.getRules()))
+        .setParam(RULES, inlineMultipleParamValue(request.getRules()))
         .setParam("s", request.getSort())
-        .setParam(SEVERITIES, listToParamList(request.getSeverities()))
-        .setParam(STATUSES, listToParamList(request.getStatuses()))
-        .setParam(TAGS, listToParamList(request.getTags())),
+        .setParam(SEVERITIES, inlineMultipleParamValue(request.getSeverities()))
+        .setParam(STATUSES, inlineMultipleParamValue(request.getStatuses()))
+        .setParam(TAGS, inlineMultipleParamValue(request.getTags())),
       SearchWsResponse.parser());
-  }
-
-  @CheckForNull
-  private static String listToParamList(@Nullable List<String> strings) {
-    return strings == null
-      ? null
-      : LIST_TO_PARAMS_STRING.join(strings);
   }
 }

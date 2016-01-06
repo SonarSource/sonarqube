@@ -308,6 +308,16 @@ public class ServiceTester<T extends BaseService> extends ExternalResource {
       return this;
     }
 
+    public RequestAssert hasParam(String key, boolean value) {
+      isNotNull();
+
+      MapEntry<String, String> entry = MapEntry.entry(key, String.valueOf(value));
+      Assertions.assertThat(actual.getParams()).contains(entry);
+      this.assertedParams.add(entry);
+
+      return this;
+    }
+
     public RequestAssert andNoOtherParam() {
       isNotNull();
 

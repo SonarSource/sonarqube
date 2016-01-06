@@ -1,5 +1,5 @@
 /*
- * SonarQube :: Database
+ * SonarQube :: Web Service
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
 
-import org.sonar.db.metric.MetricDto;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+package org.sonarqube.ws.client.measure;
 
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
+public class MeasuresWsParameters {
+  private MeasuresWsParameters() {
+    // static constants only
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentId((long) nextInt())
-      .setSnapshotId(snapshotId);
-  }
+  public static final String CONTROLLER_MEASURES = "api/measures";
+
+  // actions
+  public static final String ACTION_COMPONENT_TREE = "component_tree";
+
+  // parameters
+  public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
+  public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
+  public static final String PARAM_STRATEGY = "strategy";
+  public static final String PARAM_QUALIFIERS = "qualifiers";
+  public static final String PARAM_METRIC_KEYS = "metricKeys";
+  public static final String PARAM_METRIC_SORT = "metricSort";
+  public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
 }

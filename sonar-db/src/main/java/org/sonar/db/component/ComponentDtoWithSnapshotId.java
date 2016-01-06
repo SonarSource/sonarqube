@@ -17,22 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
+package org.sonar.db.component;
 
-import org.sonar.db.metric.MetricDto;
+public class ComponentDtoWithSnapshotId extends ComponentDto {
+  private Long snapshotId;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
+  public Long getSnapshotId() {
+    return snapshotId;
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentId((long) nextInt())
-      .setSnapshotId(snapshotId);
+  public ComponentDtoWithSnapshotId setSnapshotId(Long snapshotId) {
+    this.snapshotId = snapshotId;
+    return this;
   }
 }

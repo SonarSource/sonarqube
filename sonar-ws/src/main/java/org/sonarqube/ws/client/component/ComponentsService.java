@@ -55,7 +55,7 @@ public class ComponentsService extends BaseService {
     GetRequest get = new GetRequest(path(ACTION_TREE))
       .setParam(PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
       .setParam(PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
-      .setParam(PARAM_QUALIFIERS, request.getQualifiers())
+      .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
       .setParam(PARAM_STRATEGY, request.getStrategy())
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize())

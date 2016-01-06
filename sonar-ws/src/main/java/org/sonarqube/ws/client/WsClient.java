@@ -21,6 +21,7 @@ package org.sonarqube.ws.client;
 
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.issue.IssuesService;
+import org.sonarqube.ws.client.measure.MeasuresService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
@@ -41,6 +42,8 @@ public interface WsClient {
   UserTokensService userTokens();
 
   QualityGatesService qualityGates();
+
+  MeasuresService measures();
 
   WsConnector wsConnector();
 }

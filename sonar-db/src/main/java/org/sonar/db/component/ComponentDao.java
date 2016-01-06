@@ -150,12 +150,12 @@ public class ComponentDao implements Dao {
     return mapper(session).selectComponentsHavingSameKeyOrderedById(key);
   }
 
-  public List<ComponentDto> selectDirectChildren(DbSession dbSession, ComponentTreeQuery componentQuery) {
+  public List<ComponentDtoWithSnapshotId> selectDirectChildren(DbSession dbSession, ComponentTreeQuery componentQuery) {
     RowBounds rowBounds = new RowBounds(offset(componentQuery.getPage(), componentQuery.getPageSize()), componentQuery.getPageSize());
     return mapper(dbSession).selectDirectChildren(componentQuery, rowBounds);
   }
 
-  public List<ComponentDto> selectAllChildren(DbSession dbSession, ComponentTreeQuery componentQuery) {
+  public List<ComponentDtoWithSnapshotId> selectAllChildren(DbSession dbSession, ComponentTreeQuery componentQuery) {
     RowBounds rowBounds = new RowBounds(offset(componentQuery.getPage(), componentQuery.getPageSize()), componentQuery.getPageSize());
     return mapper(dbSession).selectAllChildren(componentQuery, rowBounds);
   }

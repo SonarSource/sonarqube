@@ -97,3 +97,18 @@ message TextRange {
   // If absent it means range ends at the last offset of end line
   optional int32 endOffset = 4;
 }
+
+message Metric {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string domain = 4;
+  optional string type = 5;
+  optional bool higherValuesAreBetter = 6;
+  optional bool qualitative = 7;
+  optional bool hidden = 8;
+  optional bool custom = 9;
+  optional int32 decimalScale = 10;
+  optional string bestValue = 11;
+  optional string worstValue = 12;
+}

@@ -411,32 +411,24 @@ public interface WebService extends Definable<WebService.Context> {
      * Add predefined parameters related to sorting of results.
      */
     public <V> NewAction addSortParams(Collection<V> possibleValues, @Nullable V defaultValue, boolean defaultAscending) {
-      genericAddSortParam(possibleValues, defaultValue, defaultAscending, "Sort field");
-
+      createSortParams(possibleValues, defaultValue, defaultAscending);
       return this;
     }
 
     /**
-     * Add predefined parameters related to sorting of results. Comma-separated list
+     * Add predefined parameters related to sorting of results.
      */
-    public <V> NewAction addMultiSortsParams(Collection<V> possibleValues, @Nullable V defaultValue, boolean defaultAscending) {
-      genericAddSortParam(possibleValues, defaultValue, defaultAscending, "Comma-separated list of sort fields");
-
-      return this;
-    }
-
-    public <V> NewAction genericAddSortParam(Collection<V> possibleValues, @Nullable V defaultValue, boolean defaultAscending, String description) {
-      createParam(Param.SORT)
-        .setDescription(description)
-        .setDeprecatedKey("sort")
-        .setDefaultValue(defaultValue)
-        .setPossibleValues(possibleValues);
-
+    public <V> NewParam createSortParams(Collection<V> possibleValues, @Nullable V defaultValue, boolean defaultAscending) {
       createParam(Param.ASCENDING)
         .setDescription("Ascending sort")
         .setBooleanPossibleValues()
         .setDefaultValue(defaultAscending);
-      return this;
+
+      return createParam(Param.SORT)
+        .setDescription("Sort field")
+        .setDeprecatedKey("sort")
+        .setDefaultValue(defaultValue)
+        .setPossibleValues(possibleValues);
     }
 
     /**

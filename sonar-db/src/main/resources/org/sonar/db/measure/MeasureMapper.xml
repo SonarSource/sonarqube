@@ -92,6 +92,26 @@
     </where>
   </select>
 
+  <select id="selectBySnapshotIdsAndMetricIds" parameterType="map" resultType="Measure">
+    SELECT
+    <include refid="measureColumns"/>
+    FROM project_measures pm
+    <where>
+      pm.snapshot_id in
+      <foreach item="snapshotId" collection="snapshotIds" open="(" separator="," close=")">
+        #{snapshotId}
+      </foreach>
+      AND
+      pm.metric_id in
+      <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
+        #{metricId}
+      </foreach>
+      AND pm.rule_id is NULL
+      AND pm.characteristic_id is NULL
+      AND pm.person_id is NULL
+    </where>
+  </select>
+
   <select id="selectBySnapshotAndMetrics" parameterType="map" resultType="Measure">
     SELECT
     <include refid="measureColumns"/>

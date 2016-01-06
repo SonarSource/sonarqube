@@ -302,9 +302,9 @@
     </where>
   </sql>
 
-  <select id="selectDirectChildren" resultType="Component">
+  <select id="selectDirectChildren" resultType="ComponentWithSnapshot">
     select
-    <include refid="componentColumns"/>
+    <include refid="componentColumns"/>, s.id as snapshotId
     <include refid="sqlSelectByTreeQuery"/>
     and s.parent_snapshot_id = #{query.baseSnapshot.id}
     order by ${query.sqlSort}
@@ -316,9 +316,9 @@
     and s.parent_snapshot_id = #{query.baseSnapshot.id}
   </select>
 
-  <select id="selectAllChildren" resultType="Component">
+  <select id="selectAllChildren" resultType="ComponentWithSnapshot">
     select
-    <include refid="componentColumns"/>
+    <include refid="componentColumns"/>, s.id as snapshotId
     <include refid="sqlSelectAllChildren" />
     order by ${query.sqlSort}
   </select>

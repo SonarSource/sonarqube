@@ -36,6 +36,8 @@ public interface MeasureMapper {
 
   List<MeasureDto> selectBySnapshotAndMetrics(@Param("snapshotId") long snapshotId, @Param("metricIds") List<Integer> input);
 
+  List<MeasureDto> selectBySnapshotIdsAndMetricIds(@Param("snapshotIds") List<Long> snapshotIds, @Param("metricIds") List<Integer> metricIds);
+
   @CheckForNull
   MeasureDto selectByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 

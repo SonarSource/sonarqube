@@ -55,7 +55,7 @@ public class MeasureDao implements Dao {
 
   /**
    * Selects all measures of a specific snapshot for the specified metric keys.
-   *
+   * <p/>
    * Uses by Views.
    */
   public List<MeasureDto> selectBySnapshotIdAndMetricKeys(final long snapshotId, Set<String> metricKeys, final DbSession dbSession) {
@@ -69,7 +69,7 @@ public class MeasureDao implements Dao {
   }
 
   public List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndMetricIds(final DbSession session, final String componentUuid, final long projectSnapshotId,
-    Set<Integer> metricIds) {
+                                                                                    Set<Integer> metricIds) {
     return DatabaseUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<PastMeasureDto>>() {
       @Override
       public List<PastMeasureDto> apply(List<Integer> ids) {
@@ -101,6 +101,16 @@ public class MeasureDao implements Dao {
       @Nonnull
       public List<MeasureDto> apply(@Nonnull List<Integer> input) {
         return mapper(dbSession).selectBySnapshotAndMetrics(snapshotId, input);
+      }
+    });
+  }
+
+  public List<MeasureDto> selectBySnapshotIdsAndMetricIds(final DbSession dbSession, List<Long> snapshotIds, final List<Integer> metricIds) {
+    return DatabaseUtils.executeLargeInputs(snapshotIds, new Function<List<Long>, List<MeasureDto>>() {
+      @Override
+      @Nonnull
+      public List<MeasureDto> apply(@Nonnull List<Long> input) {
+        return mapper(dbSession).selectBySnapshotIdsAndMetricIds(input, metricIds);
       }
     });
   }

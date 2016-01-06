@@ -41,11 +41,10 @@ public class MetricTesting {
       .setDeleteHistoricalData(RandomUtils.nextBoolean())
       .setDirection(RandomUtils.nextInt())
       .setHidden(RandomUtils.nextBoolean())
-      .setEnabled(RandomUtils.nextBoolean())
+      .setEnabled(true)
       .setOptimizedBestValue(RandomUtils.nextBoolean())
       .setQualitative(RandomUtils.nextBoolean())
       .setUserManaged(RandomUtils.nextBoolean())
       .setWorstValue(RandomUtils.nextDouble());
   }
-
 }

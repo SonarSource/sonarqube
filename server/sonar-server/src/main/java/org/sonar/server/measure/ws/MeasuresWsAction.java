@@ -1,5 +1,5 @@
 /*
- * SonarQube :: Database
+ * SonarQube :: Server
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
@@ -17,22 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
 
-import org.sonar.db.metric.MetricDto;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+package org.sonar.server.measure.ws;
 
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
-  }
+import org.sonar.server.ws.WsAction;
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentId((long) nextInt())
-      .setSnapshotId(snapshotId);
-  }
+public interface MeasuresWsAction extends WsAction {
+  // marker interface
 }

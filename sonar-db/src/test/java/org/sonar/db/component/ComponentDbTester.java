@@ -24,6 +24,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.sonar.db.component.SnapshotTesting.createForComponent;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForDeveloper;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForView;
 
@@ -49,6 +50,14 @@ public class ComponentDbTester {
   public SnapshotDto insertViewAndSnapshot(ComponentDto component) {
     dbClient.componentDao().insert(dbSession, component);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForView(component));
+    db.commit();
+
+    return snapshot;
+  }
+
+  public SnapshotDto insertDeveloperAndSnapshot(ComponentDto component) {
+    dbClient.componentDao().insert(dbSession, component);
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForDeveloper(component));
     db.commit();
 
     return snapshot;

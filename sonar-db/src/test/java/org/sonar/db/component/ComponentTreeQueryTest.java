@@ -19,12 +19,12 @@
  */
 package org.sonar.db.component;
 
-import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentTreeQueryTest {
@@ -47,7 +47,7 @@ public class ComponentTreeQueryTest {
     expectedException.expect(NullPointerException.class);
 
     ComponentTreeQuery.builder()
-      .setSortFields(Collections.<String>emptyList())
+      .setSortFields(singletonList("name"))
       .build();
   }
 

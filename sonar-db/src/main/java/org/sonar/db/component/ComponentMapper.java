@@ -65,14 +65,14 @@ public interface ComponentMapper {
   /**
    * Return direct children components
    */
-  List<ComponentDto> selectDirectChildren(@Param("query") ComponentTreeQuery componentTreeQuery, RowBounds rowBounds);
+  List<ComponentDtoWithSnapshotId> selectDirectChildren(@Param("query") ComponentTreeQuery componentTreeQuery, RowBounds rowBounds);
 
   int countDirectChildren(@Param("query") ComponentTreeQuery componentTreeQuery);
 
   /**
    * Return all children components.
    */
-  List<ComponentDto> selectAllChildren(@Param("query") ComponentTreeQuery componentTreeQuery,
+  List<ComponentDtoWithSnapshotId> selectAllChildren(@Param("query") ComponentTreeQuery componentTreeQuery,
                                        RowBounds rowBounds);
 
   int countAllChildren(@Param("query") ComponentTreeQuery componentTreeQuery);

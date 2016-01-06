@@ -34,6 +34,7 @@ import org.sonar.db.activity.ActivityMapper;
 import org.sonar.db.ce.CeActivityMapper;
 import org.sonar.db.ce.CeQueueMapper;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentLinkMapper;
 import org.sonar.db.component.ComponentMapper;
@@ -164,6 +165,7 @@ public class MyBatis {
     confBuilder.loadAlias("ActiveDashboard", ActiveDashboardDto.class);
     confBuilder.loadAlias("Author", AuthorDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
+    confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
     confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
     confBuilder.loadAlias("Dashboard", DashboardDto.class);
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);

@@ -17,22 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
+package org.sonar.db.metric;
 
-import org.sonar.db.metric.MetricDto;
+import com.google.common.base.Function;
+import javax.annotation.Nonnull;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
+/**
+ * Common functions on MetricDto
+ */
+public class MetricDtoFunctions {
+  private MetricDtoFunctions() {
+    // prevents instantiation
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentId((long) nextInt())
-      .setSnapshotId(snapshotId);
+  public static Function<MetricDto, Integer> toId() {
+    return ToId.INSTANCE;
+  }
+
+  public static Function<MetricDto, String> toKey() {
+    return ToKey.INSTANCE;
+  }
+
+  private enum ToId implements Function<MetricDto, Integer> {
+    INSTANCE;
+
+    @Override
+    public Integer apply(@Nonnull MetricDto input) {
+      return input.getId();
+    }
+  }
+
+  private enum ToKey implements Function<MetricDto, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull MetricDto input) {
+      return input.getKey();
+    }
   }
 }

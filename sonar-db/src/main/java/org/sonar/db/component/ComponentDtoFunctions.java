@@ -59,7 +59,6 @@ public final class ComponentDtoFunctions {
     }
   }
 
-
   private enum ToKey implements Function<ComponentDto, String> {
     INSTANCE;
 

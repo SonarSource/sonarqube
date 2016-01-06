@@ -48,8 +48,11 @@ public class ComponentFinder {
     checkArgument(componentUuid != null ^ componentKey != null, MSG_COMPONENT_ID_OR_KEY_TEMPLATE, parameterNames.getUuidParam(), parameterNames.getKeyParam());
 
     if (componentUuid != null) {
+      checkArgument(!componentUuid.isEmpty(), "The '%s' parameter must not be empty", parameterNames.getUuidParam());
       return getByUuid(dbSession, componentUuid);
     }
+
+    checkArgument(!componentKey.isEmpty(), "The '%s' parameter must not be empty", parameterNames.getKeyParam());
     return getByKey(dbSession, componentKey);
   }
 

@@ -1,5 +1,5 @@
 /*
- * SonarQube :: Database
+ * SonarQube :: Server
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
@@ -17,22 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
 
-import org.sonar.db.metric.MetricDto;
+package org.sonar.server.measure.ws;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import org.sonar.api.server.ws.WebService;
+import org.sonarqube.ws.client.measure.MeasuresWsParameters;
 
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
+public class MeasuresWs implements WebService {
+  private final MeasuresWsAction[] actions;
+
+  public MeasuresWs(MeasuresWsAction... actions) {
+    this.actions = actions;
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentId((long) nextInt())
-      .setSnapshotId(snapshotId);
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController(MeasuresWsParameters.CONTROLLER_MEASURES)
+      .setSince("5.4")
+      .setDescription("Measures search");
+
+    for (MeasuresWsAction action : actions) {
+      action.define(controller);
+    }
+
+    controller.done();
   }
 }

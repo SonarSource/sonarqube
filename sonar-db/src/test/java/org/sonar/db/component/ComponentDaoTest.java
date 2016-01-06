@@ -742,7 +742,7 @@ public class ComponentDaoTest {
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot).build();
 
-    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    List<ComponentDtoWithSnapshotId> result = underTest.selectDirectChildren(dbSession, query);
     int count = underTest.countDirectChildren(dbSession, query);
 
     assertThat(count).isEqualTo(2);
@@ -762,7 +762,7 @@ public class ComponentDaoTest {
     ComponentTreeQuery query = newTreeQuery(projectSnapshot)
       .setNameOrKeyQuery("file-name").build();
 
-    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    List<ComponentDtoWithSnapshotId> result = underTest.selectDirectChildren(dbSession, query);
     int count = underTest.countDirectChildren(dbSession, query);
 
     assertThat(count).isEqualTo(1);
@@ -782,7 +782,7 @@ public class ComponentDaoTest {
     ComponentTreeQuery query = newTreeQuery(projectSnapshot)
       .setNameOrKeyQuery("file-key").build();
 
-    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    List<ComponentDtoWithSnapshotId> result = underTest.selectDirectChildren(dbSession, query);
     int count = underTest.countDirectChildren(dbSession, query);
 
     assertThat(count).isEqualTo(1);
@@ -805,7 +805,7 @@ public class ComponentDaoTest {
       .setAsc(false)
       .build();
 
-    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    List<ComponentDtoWithSnapshotId> result = underTest.selectDirectChildren(dbSession, query);
     int count = underTest.countDirectChildren(dbSession, query);
 
     assertThat(count).isEqualTo(9);
@@ -827,7 +827,7 @@ public class ComponentDaoTest {
       .setAsc(true)
       .build();
 
-    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    List<ComponentDtoWithSnapshotId> result = underTest.selectDirectChildren(dbSession, query);
 
     assertThat(result).extracting("uuid").containsExactly("file-uuid-3", "file-uuid-2", "file-uuid-1");
   }
@@ -844,7 +844,7 @@ public class ComponentDaoTest {
 
     ComponentTreeQuery query = newTreeQuery(moduleSnapshot).build();
 
-    List<ComponentDto> result = underTest.selectDirectChildren(dbSession, query);
+    List<ComponentDtoWithSnapshotId> result = underTest.selectDirectChildren(dbSession, query);
 
     assertThat(result).extracting("uuid").containsOnly("file-2-uuid");
   }
@@ -861,7 +861,7 @@ public class ComponentDaoTest {
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot).build();
 
-    List<ComponentDto> result = underTest.selectAllChildren(dbSession, query);
+    List<ComponentDtoWithSnapshotId> result = underTest.selectAllChildren(dbSession, query);
     int count = underTest.countAllChildren(dbSession, query);
 
     assertThat(count).isEqualTo(3);
@@ -890,7 +890,7 @@ public class ComponentDaoTest {
       .setAsc(false)
       .build();
 
-    List<ComponentDto> result = underTest.selectAllChildren(dbSession, query);
+    List<ComponentDtoWithSnapshotId> result = underTest.selectAllChildren(dbSession, query);
     int count = underTest.countAllChildren(dbSession, query);
 
     assertThat(count).isEqualTo(9);

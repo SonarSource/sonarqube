@@ -1,0 +1,134 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 3
+  },
+  "baseComponent": {
+    "id": "project-id",
+    "key": "MY_PROJECT",
+    "name": "My Project",
+    "qualifier": "TRK"
+  },
+  "components": [
+    {
+      "id": "AVIwDXE-bJbJqrw6wFv5",
+      "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
+      "name": "ElementImpl.java",
+      "qualifier": "FIL",
+      "path": "src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
+      "measures": [
+        {
+          "metric": "new_violations",
+          "variationValueP1": "25",
+          "variationValueP2": "0",
+          "variationValueP3": "25"
+        },
+        {
+          "metric": "ncloc",
+          "value": "114"
+        },
+        {
+          "metric": "complexity",
+          "value": "12"
+        }
+      ]
+    },
+    {
+      "id": "AVIwDXE_bJbJqrw6wFwJ",
+      "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
+      "name": "ElementImplTest.java",
+      "qualifier": "UTS",
+      "path": "src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
+      "measures": [
+        {
+          "metric": "new_violations",
+          "value": "0",
+          "variationValueP1": "0",
+          "variationValueP2": "0",
+          "variationValueP3": "0"
+        }
+      ]
+    },
+    {
+      "id": "AVIwDXE-bJbJqrw6wFv8",
+      "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl",
+      "name": "src/main/java/com/sonarsource/markdown/impl",
+      "qualifier": "DIR",
+      "path": "src/main/java/com/sonarsource/markdown/impl",
+      "measures": [
+        {
+          "metric": "ncloc",
+          "value": "217",
+          "variationValueP2": "0"
+        },
+        {
+          "metric": "new_violations",
+          "variationValueP1": "25",
+          "variationValueP2": "0",
+          "variationValueP3": "25"
+        },
+        {
+          "metric": "complexity",
+          "value": "35",
+          "variationValueP2": "0"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "key": "complexity",
+      "name": "Complexity",
+      "description": "Cyclomatic complexity",
+      "domain": "Complexity",
+      "type": "INT",
+      "higherValuesAreBetter": false,
+      "qualitative": false,
+      "hidden": false,
+      "custom": false
+    },
+    {
+      "key": "ncloc",
+      "name": "Lines of code",
+      "description": "Non Commenting Lines of Code",
+      "domain": "Size",
+      "type": "INT",
+      "higherValuesAreBetter": false,
+      "qualitative": false,
+      "hidden": false,
+      "custom": false
+    },
+    {
+      "key": "new_violations",
+      "name": "New issues",
+      "description": "New Issues",
+      "domain": "Issues",
+      "type": "INT",
+      "higherValuesAreBetter": false,
+      "qualitative": true,
+      "hidden": false,
+      "custom": false
+    }
+  ],
+  "periods": [
+    {
+      "index": 1,
+      "mode": "previous_version",
+      "date": "2016-01-11T10:49:50+0100",
+      "parameter": "1.0-SNAPSHOT"
+    },
+    {
+      "index": 2,
+      "mode": "previous_analysis",
+      "date": "2016-01-11T10:50:06+0100",
+      "parameter": "2016-01-11"
+    },
+    {
+      "index": 3,
+      "mode": "days",
+      "date": "2016-01-11T10:38:45+0100",
+      "parameter": "30"
+    }
+  ]
+}

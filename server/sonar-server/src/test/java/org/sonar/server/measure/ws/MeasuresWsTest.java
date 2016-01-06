@@ -1,5 +1,5 @@
 /*
- * SonarQube :: Database
+ * SonarQube :: Server
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
@@ -17,22 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
 
-import org.sonar.db.metric.MetricDto;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+package org.sonar.server.measure.ws;
 
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
-  }
+import org.junit.Test;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsTester;
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentId((long) nextInt())
-      .setSnapshotId(snapshotId);
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+public class MeasuresWsTest {
+  WsTester ws = new WsTester(
+    new MeasuresWs(
+      new ComponentTreeAction(mock(ComponentTreeDataLoader.class), mock(UserSession.class), mock(I18n.class), mock(ResourceTypes.class))
+    ));
+
+  @Test
+  public void define_ws() {
+    WebService.Controller controller = ws.controller("api/measures");
+
+    assertThat(controller).isNotNull();
+    assertThat(controller.since()).isEqualTo("5.4");
   }
 }

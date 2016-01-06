@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.db.WildcardPosition;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.buildLikeValue;
@@ -163,8 +164,9 @@ public class ComponentTreeQuery {
       return this;
     }
 
-    public Builder setSortFields(List<String> sorts) {
-      this.sortFields = requireNonNull(sorts);
+    public Builder setSortFields(@Nullable List<String> sorts) {
+      checkArgument(sorts != null && !sorts.isEmpty());
+      this.sortFields = sorts;
       return this;
     }
 

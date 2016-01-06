@@ -35,6 +35,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentFinder;
@@ -66,7 +67,8 @@ public class TreeAction implements ComponentsWsAction {
   private static final String LEAVES_STRATEGY = "leaves";
   private static final Set<String> STRATEGIES = ImmutableSortedSet.of(ALL_STRATEGY, CHILDREN_STRATEGY, LEAVES_STRATEGY);
   private static final String NAME_SORT = "name";
-  private static final Set<String> SORTS = ImmutableSortedSet.of(NAME_SORT, "path", "qualifier");
+  private static final String PATH_SORT = "path";
+  private static final Set<String> SORTS = ImmutableSortedSet.of(NAME_SORT, PATH_SORT, "qualifier");
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -98,8 +100,11 @@ public class TreeAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setHandler(this)
       .addSearchQuery("sonar", "component names", "component keys")
-      .addMultiSortsParams(newHashSet(SORTS), NAME_SORT, true)
       .addPagingParams(100, MAX_SIZE);
+
+    action.createSortParams(newHashSet(SORTS), NAME_SORT, true)
+      .setDescription("Comma-separated list of sort fields")
+      .setExampleValue(NAME_SORT + ", " + PATH_SORT);
 
     action.createParam(PARAM_BASE_COMPONENT_ID)
       .setDescription("Base component id. The search is based on this component. It is not included in the response.")
@@ -139,7 +144,7 @@ public class TreeAction implements ComponentsWsAction {
       }
 
       ComponentTreeQuery query = toComponentTreeQuery(treeWsRequest, baseSnapshot);
-      List<ComponentDto> components;
+      List<ComponentDtoWithSnapshotId> components;
       int total;
       switch (treeWsRequest.getStrategy()) {
         case CHILDREN_STRATEGY:
@@ -171,7 +176,7 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private static TreeWsResponse buildResponse(List<ComponentDto> components, Paging paging) {
+  private static TreeWsResponse buildResponse(List<ComponentDtoWithSnapshotId> components, Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())

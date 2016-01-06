@@ -1,0 +1,96 @@
+/*
+ * SonarQube :: Web Service
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonarqube.ws.client.measure;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.ServiceTester;
+import org.sonarqube.ws.client.WsConnector;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
+
+public class MeasuresServiceTest {
+  private static final String VALUE_BASE_COMPONENT_ID = "base-component-id";
+  private static final String VALUE_BASE_COMPONENT_KEY = "base-component-key";
+  private static final List<String> VALUE_METRIC_KEYS = newArrayList("ncloc", "complexity");
+  private static final String VALUE_STRATEGY = "all";
+  private static final List<String> VALUE_QUALIFIERS = newArrayList("FIL", "PRJ");
+  private static final ArrayList<String> VALUE_ADDITIONAL_FIELDS = newArrayList("metrics");
+  private static final List<String> VALUE_SORT = newArrayList("qualifier", "metric");
+  private static final boolean VALUE_ASC = false;
+  private static final String VALUE_METRIC_SORT = "ncloc";
+  private static final int VALUE_PAGE = 42;
+  private static final int VALUE_PAGE_SIZE = 1984;
+  private static final String VALUE_QUERY = "query-sq";
+
+  @Rule
+  public ServiceTester<MeasuresService> serviceTester = new ServiceTester<>(new MeasuresService(mock(WsConnector.class)));
+
+  private MeasuresService underTest = serviceTester.getInstanceUnderTest();
+
+  @Test
+  public void component_tree() {
+    ComponentTreeWsRequest componentTreeRequest = new ComponentTreeWsRequest()
+      .setBaseComponentId(VALUE_BASE_COMPONENT_ID)
+      .setBaseComponentKey(VALUE_BASE_COMPONENT_KEY)
+      .setMetricKeys(VALUE_METRIC_KEYS)
+      .setStrategy(VALUE_STRATEGY)
+      .setQualifiers(VALUE_QUALIFIERS)
+      .setAdditionalFields(VALUE_ADDITIONAL_FIELDS)
+      .setSort(VALUE_SORT)
+      .setAsc(VALUE_ASC)
+      .setMetricSort(VALUE_METRIC_SORT)
+      .setPage(VALUE_PAGE)
+      .setPageSize(VALUE_PAGE_SIZE)
+      .setQuery(VALUE_QUERY);
+
+    underTest.componentTree(componentTreeRequest);
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(ComponentTreeWsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasParam(PARAM_BASE_COMPONENT_ID, VALUE_BASE_COMPONENT_ID)
+      .hasParam(PARAM_BASE_COMPONENT_KEY, VALUE_BASE_COMPONENT_KEY)
+      .hasParam(PARAM_METRIC_KEYS, "ncloc,complexity")
+      .hasParam(PARAM_STRATEGY, VALUE_STRATEGY)
+      .hasParam(PARAM_QUALIFIERS, "FIL,PRJ")
+      .hasParam(PARAM_ADDITIONAL_FIELDS, "metrics")
+      .hasParam("s", "qualifier,metric")
+      .hasParam("asc", VALUE_ASC)
+      .hasParam(PARAM_METRIC_SORT, VALUE_METRIC_SORT)
+      .hasParam("p", VALUE_PAGE)
+      .hasParam("ps", VALUE_PAGE_SIZE)
+      .hasParam("q", VALUE_QUERY)
+      .andNoOtherParam();
+  }
+}
