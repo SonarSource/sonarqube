@@ -99,6 +99,7 @@ public class ProjectScanContainer extends ComponentContainer {
   private static final Logger LOG = Loggers.get(ProjectScanContainer.class);
 
   private final AnalysisProperties props;
+  private ProjectLock lock;
 
   public ProjectScanContainer(ComponentContainer globalContainer, AnalysisProperties props) {
     super(globalContainer);
@@ -108,7 +109,8 @@ public class ProjectScanContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     addBatchComponents();
-    getComponentByType(ProjectLock.class).tryLock();
+    lock = getComponentByType(ProjectLock.class);
+    lock.tryLock();
     addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
@@ -125,7 +127,6 @@ public class ProjectScanContainer extends ComponentContainer {
       return super.startComponents();
     } catch (Exception e) {
       // ensure that lock is released
-      ProjectLock lock = getComponentByType(ProjectLock.class);
       if (lock != null) {
         lock.stop();
       }
