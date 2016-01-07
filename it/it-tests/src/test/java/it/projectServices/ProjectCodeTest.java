@@ -44,6 +44,16 @@ public class ProjectCodeTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
+  @Test
+  public void code_page_should_expand_root_dir() throws Exception {
+    executeBuild("shared/xoo-sample-with-root-dir", "project-for-code-root-dir", "Project For Code");
+
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("code_page_should_expand_root_dir",
+      "/projectServices/ProjectCodeTest/code_page_should_expand_root_dir.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
   private void executeBuild(String projectLocation, String projectKey, String projectName) {
     orchestrator.executeBuild(
       SonarRunner.create(projectDir(projectLocation))

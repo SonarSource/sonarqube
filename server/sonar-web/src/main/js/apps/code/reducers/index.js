@@ -46,6 +46,28 @@ function merge (components, candidate) {
   return [...(_.without(components, found)), newEntry];
 }
 
+function compare (a, b) {
+  if (a === b) {
+    return 0;
+  }
+  return a > b ? 1 : -1;
+}
+
+function sortChildren (children) {
+  const QUALIFIERS_ORDER = ['DIR', 'FIL', 'UTS'];
+  const temp = [...children];
+  temp.sort((a, b) => {
+    const qualifierA = QUALIFIERS_ORDER.indexOf(a.qualifier);
+    const qualifierB = QUALIFIERS_ORDER.indexOf(b.qualifier);
+    if (qualifierA !== qualifierB) {
+      return compare(qualifierA, qualifierB);
+    } else {
+      return compare(a.name, b.name);
+    }
+  });
+  return temp;
+}
+
 
 export const initialState = {
   fetching: false,
@@ -70,7 +92,7 @@ export function current (state = initialState, action) {
       return { ...state, coverageMetric, baseBreadcrumbs };
     case BROWSE:
       const baseComponent = hasSourceCode(action.component) ? null : action.component;
-      const components = hasSourceCode(action.component) ? null : _.sortBy(action.children, 'name');
+      const components = hasSourceCode(action.component) ? null : sortChildren(action.children);
       const baseBreadcrumbsLength = state.baseBreadcrumbs.length;
       const breadcrumbs = action.breadcrumbs.slice(baseBreadcrumbsLength);
       const sourceViewer = hasSourceCode(action.component) ? action.component : null;

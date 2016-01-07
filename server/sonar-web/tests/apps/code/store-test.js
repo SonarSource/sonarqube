@@ -72,6 +72,20 @@ describe('Code :: Store', () => {
               .to.deep.equal(componentsAfter);
         });
 
+        it('should sort components by qualifier and then by name', () => {
+          const component = {};
+          const componentsBefore = [
+            { key: 'A', name: 'A', qualifier: 'FIL' },
+            { key: 'B', name: 'B', qualifier: 'DIR' }
+          ];
+          const componentsAfter = [
+            { key: 'B', name: 'B', qualifier: 'DIR' },
+            { key: 'A', name: 'A', qualifier: 'FIL' }
+          ];
+          expect(current(initialState, browseAction(component, componentsBefore)).components)
+              .to.deep.equal(componentsAfter);
+        });
+
         it('should not be set for components with source code', () => {
           const file = { qualifier: 'FIL' };
           expect(current(initialState, browseAction(file, exampleComponents)).components)

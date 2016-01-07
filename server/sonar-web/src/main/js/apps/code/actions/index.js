@@ -100,6 +100,23 @@ function getPath (componentKey) {
   return '/' + encodeURIComponent(componentKey);
 }
 
+function expandRootDir (components) {
+  const rootDir = components.find(component => component.qualifier === 'DIR' && component.name === '/');
+  if (rootDir) {
+    return getChildren(rootDir.key, METRICS_WITH_COVERAGE).then(files => {
+      return _.without([...components, ...files], rootDir);
+    });
+  } else {
+    return components;
+  }
+}
+
+function skipRootDir (breadcrumbs) {
+  return breadcrumbs.filter(component => {
+    return !(component.qualifier === 'DIR' && component.name === '/');
+  });
+}
+
 function retrieveComponentBase (componentKey, candidate) {
   return candidate ?
       Promise.resolve(candidate) :
@@ -109,13 +126,15 @@ function retrieveComponentBase (componentKey, candidate) {
 function retrieveComponentChildren (componentKey, candidate) {
   return candidate && candidate.children ?
       Promise.resolve(candidate.children) :
-      getChildren(componentKey, METRICS_WITH_COVERAGE);
+      getChildren(componentKey, METRICS_WITH_COVERAGE).then(expandRootDir);
 }
 
 function retrieveComponentBreadcrumbs (componentKey, candidate) {
   return candidate && candidate.breadcrumbs ?
       Promise.resolve(candidate.breadcrumbs) :
-      getComponentNavigation(componentKey).then(navigation => navigation.breadcrumbs);
+      getComponentNavigation(componentKey)
+          .then(navigation => navigation.breadcrumbs)
+          .then(skipRootDir);
 }
 
 function retrieveComponent (componentKey, bucket) {
