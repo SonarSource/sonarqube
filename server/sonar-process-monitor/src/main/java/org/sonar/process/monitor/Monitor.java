@@ -48,7 +48,7 @@ public class Monitor {
   private RestartRequestWatcherThread restartWatcher;
   @CheckForNull
   private TerminatorThread terminator;
-  static int nextProcessId = 0;
+  static int nextProcessId = 1;
 
   Monitor(JavaProcessLauncher launcher, SystemExit exit) {
     this.launcher = launcher;
