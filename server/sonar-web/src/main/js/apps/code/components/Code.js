@@ -62,10 +62,10 @@ class Code extends Component {
         coverageMetric,
         searchResults,
         errorMessage } = this.props;
-    const shouldShowBreadcrumbs = Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
     const shouldShowSearchResults = !!searchResults;
     const shouldShowSourceViewer = !!sourceViewer;
     const shouldShowComponents = !shouldShowSearchResults && !shouldShowSourceViewer && components;
+    const shouldShowBreadcrumbs = !shouldShowSearchResults &&  Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
 
     const componentsClassName = classNames('spacer-top', { 'new-loading': fetching });
 
