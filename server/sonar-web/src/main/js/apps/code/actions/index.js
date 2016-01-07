@@ -148,7 +148,14 @@ function retrieveComponent (componentKey, bucket) {
 
 let requestTree = (query, baseComponent, dispatch) => {
   dispatch(startFetching());
-  return getTree(baseComponent.key, { q: query, s: 'qualifier,name' })
+
+  const params = { s: 'qualifier,name', qualifiers: 'BRC,FIL,UTS' };
+
+  if (query) {
+    params.q = query;
+  }
+
+  return getTree(baseComponent.key, params)
       .then(r => dispatch(searchAction(r.components)))
       .then(() => dispatch(stopFetching()));
 };
@@ -199,7 +206,7 @@ export function browse (componentKey) {
 export function search (query, baseComponent) {
   return dispatch => {
     dispatch(updateQueryAction(query));
-    if (query) {
+    if (query != null) {
       requestTree(query, baseComponent, dispatch);
     } else {
       dispatch(searchAction(null));

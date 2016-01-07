@@ -76,7 +76,7 @@ export const initialState = {
   breadcrumbs: null,
   sourceViewer: null,
   searchResults: null,
-  searchQuery: '',
+  searchQuery: null,
   coverageMetric: null,
   baseBreadcrumbs: [],
   errorMessage: null
@@ -104,7 +104,7 @@ export function current (state = initialState, action) {
         breadcrumbs,
         sourceViewer,
         searchResults: null,
-        searchQuery: '',
+        searchQuery: null,
         errorMessage: null
       };
     case SEARCH:

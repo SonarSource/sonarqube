@@ -225,7 +225,7 @@ describe('Code :: Store', () => {
         it('should be reset', () => {
           const stateBefore = Object.assign({}, initialState, { searchQuery: 'query' });
           expect(current(stateBefore, browseAction(exampleComponent)).searchQuery)
-              .to.equal('');
+              .to.be.null;
         });
       });
       describe('errorMessage', () => {

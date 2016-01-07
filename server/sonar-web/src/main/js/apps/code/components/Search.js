@@ -21,40 +21,80 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { search } from '../actions';
+import { translate } from '../../../helpers/l10n';
 
 
 class Search extends Component {
   componentDidMount () {
-    this.refs.input.focus();
+    this.focusSearchInput();
+  }
+
+  componentDidUpdate () {
+    this.focusSearchInput();
+  }
+
+  focusSearchInput () {
+    if (this.refs.input) {
+      this.refs.input.focus();
+    }
   }
 
   handleSearch (e) {
     e.preventDefault();
     const { dispatch, component } = this.props;
-    const query = this.refs.input.value;
+    const query = this.refs.input ? this.refs.input.value : '';
     dispatch(search(query, component));
+  }
+
+  handleStopSearch (e) {
+    e.preventDefault();
+    const { dispatch } = this.props;
+    dispatch(search(null));
+  }
+
+  handleKeyDown (e) {
+    const { dispatch } = this.props;
+
+    // "escape" key
+    if (e.keyCode === 27) {
+      dispatch(search(null));
+    }
   }
 
   render () {
     const { query } = this.props;
+    const hasQuery = query != null;
 
     return (
         <form
             onSubmit={this.handleSearch.bind(this)}
             className="search-box code-search-box">
-          <button className="search-box-submit button-clean">
-            <i className="icon-search"></i>
-          </button>
-          <input
-              ref="input"
-              onChange={this.handleSearch.bind(this)}
-              value={query}
-              className="search-box-input"
-              type="search"
-              name="q"
-              placeholder="Search"
-              maxLength="100"
-              autoComplete="off"/>
+          {hasQuery && (
+              <input
+                  ref="input"
+                  onChange={this.handleSearch.bind(this)}
+                  onKeyDown={this.handleKeyDown.bind(this)}
+                  value={query}
+                  className="search-box-input"
+                  type="search"
+                  name="q"
+                  placeholder="Search"
+                  maxLength="100"
+                  autoComplete="off"
+                  style={{ visibility: hasQuery ? 'visible': 'hidden' }}/>
+          )}
+          {!hasQuery && (
+              <button className="search-box-submit">
+                {translate('search_verb')}
+              </button>
+          )}
+          {hasQuery && (
+              <button
+                  className="search-box-submit"
+                  onClick={this.handleStopSearch.bind(this)}>
+                {translate('cancel')}
+              </button>
+          )}
         </form>
     );
   }
