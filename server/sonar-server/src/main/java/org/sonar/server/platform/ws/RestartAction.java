@@ -19,14 +19,20 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.io.File;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.api.web.UserRole;
+import org.sonar.process.DefaultProcessCommands;
+import org.sonar.process.ProcessCommands;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Implementation of the {@code restart} action for the System WebService.
@@ -34,11 +40,15 @@ import org.sonar.server.platform.Platform;
 public class RestartAction implements SystemWsAction {
 
   private static final Logger LOGGER = Loggers.get(RestartAction.class);
+  private static final String PROPERTY_SHARED_PATH = "process.sharedDir";
+  private static final String PROPERTY_PROCESS_INDEX = "process.index";
 
+  private final UserSession userSession;
   private final Settings settings;
   private final Platform platform;
 
-  public RestartAction(Settings settings, Platform platform) {
+  public RestartAction(UserSession userSession, Settings settings, Platform platform) {
+    this.userSession = userSession;
     this.settings = settings;
     this.platform = platform;
   }
@@ -46,8 +56,10 @@ public class RestartAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("restart")
-      .setDescription("Restart server. Available only on development mode (sonar.web.dev=true). " +
-        "Ruby on Rails extensions are not reloaded.")
+      .setDescription("Restart server. " +
+          "In development mode (sonar.web.dev=true), performs a partial and quick restart of only the web server where " +
+          "Ruby on Rails extensions are not reloaded. " +
+          "In Production mode, require system administration permission and fully restart web server and Elastic Search processes.")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);
@@ -55,14 +67,30 @@ public class RestartAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    if (!settings.getBoolean("sonar.web.dev")) {
-      throw new ForbiddenException("Webservice available only in dev mode");
+    if (settings.getBoolean("sonar.web.dev")) {
+      LOGGER.info("Restart server");
+      platform.restart();
+      LOGGER.info("Server restarted");
+    } else {
+      LOGGER.info("Requesting SonarQube restart");
+      userSession.checkPermission(UserRole.ADMIN);
+      ProcessCommands commands = new DefaultProcessCommands(
+        nonNullValueAsFile(PROPERTY_SHARED_PATH), nonNullAsInt(PROPERTY_PROCESS_INDEX));
+      commands.askForRestart();
     }
-
-    LOGGER.info("Restart server");
-    platform.restart();
-    LOGGER.info("Server restarted");
     response.noContent();
+  }
+
+  private int nonNullAsInt(String key) {
+    String s = settings.getString(key);
+    checkArgument(s != null, "Property %s is not set", key);
+    return Integer.parseInt(s);
+  }
+
+  public File nonNullValueAsFile(String key) {
+    String s = settings.getString(key);
+    checkArgument(s != null, "Property %s is not set", key);
+    return new File(s);
   }
 
 }

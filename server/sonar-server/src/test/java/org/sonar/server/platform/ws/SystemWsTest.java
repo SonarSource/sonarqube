@@ -24,6 +24,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.AnonymousMockUserSession;
+import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,7 +33,7 @@ public class SystemWsTest {
 
   @Test
   public void define() {
-    RestartAction action1 = new RestartAction(mock(Settings.class), mock(Platform.class));
+    RestartAction action1 = new RestartAction(mock(UserSession.class), mock(Settings.class), mock(Platform.class));
     InfoAction action2 = new InfoAction(new AnonymousMockUserSession());
     SystemWs ws = new SystemWs(action1, action2);
     WebService.Context context = new WebService.Context();
