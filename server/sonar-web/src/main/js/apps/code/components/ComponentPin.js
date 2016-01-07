@@ -19,16 +19,27 @@
  */
 import React from 'react';
 
-import { getComponentUrl } from '../../../helpers/urls';
+import Workspace from '../../../components/workspace/main';
+import PinIcon from '../../../components/shared/pin-icon';
 import { translate } from '../../../helpers/l10n';
 
 
-const ComponentDetach = ({ component }) => (
-    <a
-        className="icon-detach"
-        title={translate('code.open_component_page')}
-        href={getComponentUrl(component.key)}/>
-);
+const ComponentPin = ({ component }) => {
+  const handleClick = (e) => {
+    e.preventDefault();
+    Workspace.openComponent({ uuid: component.uuid });
+  };
+
+  return (
+      <a
+          className="link-no-underline"
+          onClick={handleClick}
+          title={translate('component_viewer.open_in_workspace')}
+          href="#">
+        <PinIcon/>
+      </a>
+  );
+};
 
 
-export default ComponentDetach;
+export default ComponentPin;

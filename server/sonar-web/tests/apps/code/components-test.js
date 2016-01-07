@@ -7,11 +7,9 @@ import TestUtils from 'react-addons-test-utils';
 
 import Breadcrumb from '../../../src/main/js/apps/code/components/Breadcrumb';
 import Breadcrumbs from '../../../src/main/js/apps/code/components/Breadcrumbs';
-import Component from '../../../src/main/js/apps/code/components/Component';
 import ComponentDetach from '../../../src/main/js/apps/code/components/ComponentDetach';
 import ComponentMeasure from '../../../src/main/js/apps/code/components/ComponentMeasure';
 import ComponentName from '../../../src/main/js/apps/code/components/ComponentName';
-import Components from '../../../src/main/js/apps/code/components/Components';
 import ComponentsEmpty from '../../../src/main/js/apps/code/components/ComponentsEmpty';
 import Truncated from '../../../src/main/js/apps/code/components/Truncated';
 
@@ -87,50 +85,6 @@ describe('Code :: Components', () => {
     });
   });
 
-  describe('<Component/>', () => {
-    let output;
-
-    before(() => {
-      output = shallow(
-          <Component
-              component={exampleComponent}
-              coverageMetric="coverage"
-              onBrowse={exampleOnBrowse}/>);
-    });
-
-    it('should render <ComponentName/>', () => {
-      const findings = output.find(ComponentName);
-      expect(findings)
-          .to.have.length(1);
-      expect(findings.first().props())
-          .to.deep.equal({ component: exampleComponent, previous: undefined, onBrowse: exampleOnBrowse });
-    });
-
-    it('should render <ComponentMeasure/>s', () => {
-      const findings = output.find(ComponentMeasure);
-      expect(findings)
-          .to.have.length(5);
-      expect(findings.at(0).props())
-          .to.deep.equal({ component: exampleComponent, metricKey: 'ncloc', metricType: 'SHORT_INT' });
-      expect(findings.at(1).props())
-          .to.deep.equal({ component: exampleComponent, metricKey: 'sqale_index', metricType: 'SHORT_WORK_DUR' });
-      expect(findings.at(2).props())
-          .to.deep.equal({ component: exampleComponent, metricKey: 'violations', metricType: 'SHORT_INT' });
-      expect(findings.at(3).props())
-          .to.deep.equal({ component: exampleComponent, metricKey: 'coverage', metricType: 'PERCENT' });
-      expect(findings.at(4).props())
-          .to.deep.equal({ component: exampleComponent, metricKey: 'duplicated_lines_density', metricType: 'PERCENT' });
-    });
-
-    it('should render <ComponentDetach/>', () => {
-      const findings = output.find(ComponentDetach);
-      expect(findings)
-          .to.have.length(1);
-      expect(findings.first().props())
-          .to.deep.equal({ component: exampleComponent });
-    });
-  });
-
   describe('<ComponentDetach/>', () => {
     it('should render link', () => {
       const output = shallow(
@@ -139,8 +93,6 @@ describe('Code :: Components', () => {
 
       expect(output.type())
           .to.equal('a');
-      expect(output.prop('target'))
-          .to.equal('_blank');
       expect(output.prop('href'))
           .to.equal(expectedUrl);
     });
@@ -225,40 +177,6 @@ describe('Code :: Components', () => {
 
       expect(preventDefaultSpy).to.have.been.called;
       expect(spy).to.have.been.calledWith(exampleComponent);
-    });
-  });
-
-  describe('<Components/>', () => {
-    let output;
-
-    before(() => {
-      output = shallow(
-          <Components
-              baseComponent={exampleComponent}
-              components={[exampleComponent2, exampleComponent3]}
-              onBrowse={exampleOnBrowse}/>);
-    });
-
-    it('should render base component', () => {
-      const findings = output.findWhere(node => {
-        return node.type() === Component && node.prop('component') === exampleComponent;
-      });
-
-      expect(findings)
-          .to.have.length(1);
-      expect(findings.first().prop('onBrowse'))
-          .to.not.be.ok;
-    });
-
-    it('should render children component', () => {
-      const findings = output.findWhere(node => {
-        return node.type() === Component && node.prop('component') !== exampleComponent;
-      });
-
-      expect(findings)
-          .to.have.length(2);
-      expect(findings.at(0).prop('onBrowse'))
-          .to.equal(exampleOnBrowse)
     });
   });
 

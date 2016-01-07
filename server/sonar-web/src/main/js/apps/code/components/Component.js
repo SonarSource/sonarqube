@@ -22,63 +22,77 @@ import React from 'react';
 import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentDetach from './ComponentDetach';
+import ComponentPin from './ComponentPin';
 
 
-const Component = ({ component, previous, coverageMetric, onBrowse }) => (
-    <tr>
-      <td className="thin nowrap">
-        <span className="spacer-right">
-          <ComponentDetach component={component}/>
-        </span>
-      </td>
-      <td className="code-name-cell">
-        <ComponentName
-            component={component}
-            previous={previous}
-            onBrowse={onBrowse}/>
-      </td>
-      <td className="thin nowrap text-right">
-        <div className="code-components-cell">
-          <ComponentMeasure
+const Component = ({ component, previous, coverageMetric, onBrowse }) => {
+  let componentAction = null;
+
+  switch (component.qualifier) {
+    case 'FIL':
+    case 'UTS':
+      componentAction = <ComponentPin component={component}/>;
+      break;
+    default:
+      componentAction = <ComponentDetach component={component}/>;
+  }
+
+  return (
+      <tr>
+        <td className="thin nowrap">
+          <span className="spacer-right">
+            {componentAction}
+          </span>
+        </td>
+        <td className="code-name-cell">
+          <ComponentName
               component={component}
-              metricKey="ncloc"
-              metricType="SHORT_INT"/>
-        </div>
-      </td>
-      <td className="thin nowrap text-right">
-        <div className="code-components-cell">
-          <ComponentMeasure
-              component={component}
-              metricKey="sqale_index"
-              metricType="SHORT_WORK_DUR"/>
-        </div>
-      </td>
-      <td className="thin nowrap text-right">
-        <div className="code-components-cell">
-          <ComponentMeasure
-              component={component}
-              metricKey="violations"
-              metricType="SHORT_INT"/>
-        </div>
-      </td>
-      <td className="thin nowrap text-right">
-        <div className="code-components-cell">
-          <ComponentMeasure
-              component={component}
-              metricKey={coverageMetric}
-              metricType="PERCENT"/>
-        </div>
-      </td>
-      <td className="thin nowrap text-right">
-        <div className="code-components-cell">
-          <ComponentMeasure
-              component={component}
-              metricKey="duplicated_lines_density"
-              metricType="PERCENT"/>
-        </div>
-      </td>
-    </tr>
-);
+              previous={previous}
+              onBrowse={onBrowse}/>
+        </td>
+        <td className="thin nowrap text-right">
+          <div className="code-components-cell">
+            <ComponentMeasure
+                component={component}
+                metricKey="ncloc"
+                metricType="SHORT_INT"/>
+          </div>
+        </td>
+        <td className="thin nowrap text-right">
+          <div className="code-components-cell">
+            <ComponentMeasure
+                component={component}
+                metricKey="sqale_index"
+                metricType="SHORT_WORK_DUR"/>
+          </div>
+        </td>
+        <td className="thin nowrap text-right">
+          <div className="code-components-cell">
+            <ComponentMeasure
+                component={component}
+                metricKey="violations"
+                metricType="SHORT_INT"/>
+          </div>
+        </td>
+        <td className="thin nowrap text-right">
+          <div className="code-components-cell">
+            <ComponentMeasure
+                component={component}
+                metricKey={coverageMetric}
+                metricType="PERCENT"/>
+          </div>
+        </td>
+        <td className="thin nowrap text-right">
+          <div className="code-components-cell">
+            <ComponentMeasure
+                component={component}
+                metricKey="duplicated_lines_density"
+                metricType="PERCENT"/>
+          </div>
+        </td>
+      </tr>
+  );
+};
 
 
 export default Component;
