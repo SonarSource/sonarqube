@@ -25,6 +25,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.sonar.process.Monitored;
+import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessEntryPoint;
 
 import javax.servlet.ServletException;
@@ -35,7 +36,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Http server used for testing (see MonitorTest). It accepts HTTP commands /ping and /kill to hardly exit.
+ * Http server used for testing (see MonitorTest).
+ * It accepts HTTP commands /ping, /restart to request restart of all child processes and /kill to hardly exit.
  * It also pushes status to temp files, so test can verify what was really done (when server went ready state and
  * if it was gracefully terminated)
  */
@@ -45,8 +47,10 @@ public class HttpProcess implements Monitored {
   private boolean ready = false;
   // temp dir is specific to this process
   private final File tempDir = new File(System.getProperty("java.io.tmpdir"));
+  private final ProcessCommands processCommands;
 
-  public HttpProcess(int httpPort) {
+  public HttpProcess(int httpPort, ProcessCommands processCommands) {
+    this.processCommands = processCommands;
     server = new Server(httpPort);
   }
 
@@ -63,6 +67,11 @@ public class HttpProcess implements Monitored {
         if ("/ping".equals(target)) {
           request.setHandled(true);
           httpServletResponse.getWriter().print("ping");
+        } else if ("/restart".equals(target)) {
+          writeTimeToFile("restartAskedAt");
+          request.setHandled(true);
+          processCommands.askForRestart();
+          httpServletResponse.getWriter().print("ok");
         } else if ("/kill".equals(target)) {
           writeTimeToFile("killedAt");
           System.exit(0);
@@ -111,7 +120,7 @@ public class HttpProcess implements Monitored {
 
   private void writeTimeToFile(String filename) {
     try {
-      FileUtils.write(new File(tempDir, filename), String.valueOf(System.currentTimeMillis()));
+      FileUtils.write(new File(tempDir, filename), System.currentTimeMillis() + ",", true);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
@@ -119,6 +128,6 @@ public class HttpProcess implements Monitored {
 
   public static void main(String[] args) {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
-    entryPoint.launch(new HttpProcess(entryPoint.getProps().valueAsInt("httpPort")));
+    entryPoint.launch(new HttpProcess(entryPoint.getProps().valueAsInt("httpPort"), entryPoint.getCommands()));
   }
 }

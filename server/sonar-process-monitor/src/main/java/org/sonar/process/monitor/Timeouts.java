@@ -24,20 +24,21 @@ package org.sonar.process.monitor;
  */
 class Timeouts {
 
-  private long terminationTimeout = 60000L;
+  private final long terminationTimeout;
+
+  Timeouts(long terminationTimeout) {
+    this.terminationTimeout = terminationTimeout;
+  }
+
+  public Timeouts() {
+    this(60000L);
+  }
 
   /**
    * [both monitor and monitored process] timeout of graceful termination before hard killing
    */
   long getTerminationTimeout() {
     return terminationTimeout;
-  }
-
-  /**
-   * @see #getTerminationTimeout()
-   */
-  void setTerminationTimeout(long l) {
-    this.terminationTimeout = l;
   }
 
 }

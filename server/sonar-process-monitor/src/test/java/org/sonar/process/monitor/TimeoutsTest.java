@@ -33,8 +33,7 @@ public class TimeoutsTest {
 
   @Test
   public void test_values() throws Exception {
-    Timeouts timeouts = new Timeouts();
-    timeouts.setTerminationTimeout(3L);
+    Timeouts timeouts = new Timeouts(3L);
     assertThat(timeouts.getTerminationTimeout()).isEqualTo(3L);
   }
 }

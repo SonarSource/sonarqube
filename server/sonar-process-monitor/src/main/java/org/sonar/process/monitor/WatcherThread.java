@@ -32,6 +32,7 @@ class WatcherThread extends Thread {
 
   private final ProcessRef processRef;
   private final Monitor monitor;
+  private boolean askedForRestart = false;
 
   WatcherThread(ProcessRef processRef, Monitor monitor) {
     // this name is different than Thread#toString(), which includes name, priority
@@ -48,6 +49,8 @@ class WatcherThread extends Thread {
     while (!stopped) {
       try {
         processRef.getProcess().waitFor();
+        askedForRestart = processRef.getCommands().askedForRestart();
+        processRef.getCommands().acknowledgeAskForRestart();
 
         // finalize status of ProcessRef
         processRef.stop();
@@ -59,5 +62,9 @@ class WatcherThread extends Thread {
         // continue to watch process
       }
     }
+  }
+
+  public boolean isAskedForRestart() {
+    return askedForRestart;
   }
 }

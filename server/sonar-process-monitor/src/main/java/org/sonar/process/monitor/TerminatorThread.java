@@ -30,12 +30,13 @@ import java.util.List;
  * if it does not receive the termination request.
  */
 class TerminatorThread extends Thread {
+  private static int instanceCounter = 0;
 
   private final Timeouts timeouts;
   private List<ProcessRef> processes = Collections.emptyList();
 
   TerminatorThread(Timeouts timeouts) {
-    super("Terminator");
+    super("Terminator " + (instanceCounter++));
     this.timeouts = timeouts;
   }
 

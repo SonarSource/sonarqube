@@ -22,10 +22,15 @@ package org.sonar.process.monitor;
 import com.github.kevinsawicki.http.HttpRequest;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.internal.Longs;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -42,6 +47,7 @@ import org.sonar.process.SystemExit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.sonar.process.monitor.MonitorTest.HttpProcessClientAssert.assertThat;
 
 public class MonitorTest {
 
@@ -129,13 +135,14 @@ public class MonitorTest {
     // blocks until started
     monitor.start(Arrays.asList(client.newCommand()));
 
-    assertThat(client.isReady()).isTrue();
-    assertThat(client.wasReadyAt()).isLessThanOrEqualTo(System.currentTimeMillis());
+    assertThat(client).isReady()
+      .wasStartedBefore(System.currentTimeMillis());
 
     // blocks until stopped
     monitor.stop();
-    assertThat(client.isReady()).isFalse();
-    assertThat(client.wasGracefullyTerminated()).isTrue();
+    assertThat(client)
+      .isNotReady()
+      .wasGracefullyTerminated();
     assertThat(monitor.getState()).isEqualTo(State.STOPPED);
   }
 
@@ -147,18 +154,21 @@ public class MonitorTest {
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     // start p2 when p1 is fully started (ready)
-    assertThat(p1.isReady()).isTrue();
-    assertThat(p2.isReady()).isTrue();
-    assertThat(p2.wasStartingAt()).isGreaterThanOrEqualTo(p1.wasReadyAt());
+    assertThat(p1)
+      .isReady()
+      .wasStartedBefore(p2);
+    assertThat(p2)
+        .isReady();
 
     monitor.stop();
 
     // stop in inverse order
-    assertThat(p1.isReady()).isFalse();
-    assertThat(p2.isReady()).isFalse();
-    assertThat(p1.wasGracefullyTerminated()).isTrue();
-    assertThat(p2.wasGracefullyTerminated()).isTrue();
-    assertThat(p2.wasGracefullyTerminatedAt()).isLessThanOrEqualTo(p1.wasGracefullyTerminatedAt());
+    assertThat(p1)
+      .isNotReady()
+      .wasGracefullyTerminated();
+    assertThat(p2)
+      .isNotReady()
+      .wasGracefullyTerminatedBefore(p1);
   }
 
   @Test
@@ -167,15 +177,46 @@ public class MonitorTest {
     HttpProcessClient p1 = new HttpProcessClient("p1");
     HttpProcessClient p2 = new HttpProcessClient("p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
-    assertThat(p1.isReady()).isTrue();
-    assertThat(p2.isReady()).isTrue();
+    assertThat(p1).isReady();
+    assertThat(p2).isReady();
 
     // emulate CTRL-C
     monitor.getShutdownHook().run();
     monitor.getShutdownHook().join();
 
-    assertThat(p1.wasGracefullyTerminated()).isTrue();
-    assertThat(p2.wasGracefullyTerminated()).isTrue();
+    assertThat(p1).wasGracefullyTerminated();
+    assertThat(p2).wasGracefullyTerminated();
+  }
+
+  @Test
+  public void restart_all_processes_if_one_asks_for_restart() throws Exception {
+    monitor = newDefaultMonitor();
+    HttpProcessClient p1 = new HttpProcessClient("p1");
+    HttpProcessClient p2 = new HttpProcessClient("p2");
+    monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+
+    assertThat(p1).isReady();
+    assertThat(p2).isReady();
+
+    p2.restart();
+
+    assertThat(monitor.waitForOneRestart()).isTrue();
+
+    assertThat(p1)
+        .wasStarted(2)
+        .wasGracefullyTerminated(1);
+    assertThat(p2)
+        .wasStarted(2)
+        .wasGracefullyTerminated(1);
+
+    monitor.stop();
+
+    assertThat(p1)
+        .wasStarted(2)
+        .wasGracefullyTerminated(2);
+    assertThat(p2)
+        .wasStarted(2)
+        .wasGracefullyTerminated(2);
   }
 
   @Test
@@ -191,10 +232,12 @@ public class MonitorTest {
     p1.kill();
     monitor.awaitTermination();
 
-    assertThat(p1.isReady()).isFalse();
-    assertThat(p2.isReady()).isFalse();
-    assertThat(p1.wasGracefullyTerminated()).isFalse();
-    assertThat(p2.wasGracefullyTerminated()).isTrue();
+    assertThat(p1)
+      .isNotReady()
+      .wasNotGracefullyTerminated();
+    assertThat(p2)
+      .isNotReady()
+      .wasGracefullyTerminated();
   }
 
   @Test
@@ -206,11 +249,13 @@ public class MonitorTest {
       monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
       fail();
     } catch (Exception expected) {
-      assertThat(p1.wasReady()).isTrue();
-      assertThat(p2.wasReady()).isFalse();
-      assertThat(p1.wasGracefullyTerminated()).isTrue();
-      // self "gracefully terminated", even if startup went bad
-      assertThat(p2.wasGracefullyTerminated()).isTrue();
+      assertThat(p1)
+        .hasBeenReady()
+        .wasGracefullyTerminated();
+      assertThat(p2)
+        .hasNotBeenReady()
+        // self "gracefully terminated", even if startup went bad
+        .wasGracefullyTerminated();
     }
   }
 
@@ -246,7 +291,7 @@ public class MonitorTest {
 
   private Monitor newDefaultMonitor() {
     Timeouts timeouts = new Timeouts();
-    return new Monitor(new JavaProcessLauncher(timeouts), exit, new TerminatorThread(timeouts));
+    return new Monitor(new JavaProcessLauncher(timeouts), exit);
   }
 
   /**
@@ -283,7 +328,7 @@ public class MonitorTest {
      */
     boolean isReady() {
       try {
-        HttpRequest httpRequest = HttpRequest.get("http://localhost:" + httpPort + "/ping")
+        HttpRequest httpRequest = HttpRequest.get("http://localhost:" + httpPort + "/" + "ping")
           .readTimeout(2000).connectTimeout(2000);
         return httpRequest.ok() && httpRequest.body().equals("ping");
       } catch (HttpRequest.HttpRequestException e) {
@@ -296,11 +341,23 @@ public class MonitorTest {
      */
     void kill() {
       try {
-        HttpRequest.post("http://localhost:" + httpPort + "/kill")
+        HttpRequest.post("http://localhost:" + httpPort + "/" + "kill")
           .readTimeout(5000).connectTimeout(5000).ok();
       } catch (Exception e) {
         // HTTP request can't be fully processed, as web server hardly
         // calls "System.exit()"
+      }
+    }
+
+    public void restart() {
+      try {
+        HttpRequest httpRequest = HttpRequest.post("http://localhost:" + httpPort + "/" + "restart")
+            .readTimeout(5000).connectTimeout(5000);
+        if (!httpRequest.ok() || !"ok".equals(httpRequest.body())) {
+          throw new IllegalStateException("Wrong response calling restart");
+        }
+      } catch (Exception e) {
+        throw new IllegalStateException("Failed to call restart", e);
       }
     }
 
@@ -311,11 +368,11 @@ public class MonitorTest {
       return fileExists("terminatedAt");
     }
 
-    long wasStartingAt() throws IOException {
+    List<Long> wasStartingAt() {
       return readTimeFromFile("startingAt");
     }
 
-    long wasGracefullyTerminatedAt() throws IOException {
+    List<Long> wasGracefullyTerminatedAt() {
       return readTimeFromFile("terminatedAt");
     }
 
@@ -323,14 +380,23 @@ public class MonitorTest {
       return fileExists("readyAt");
     }
 
-    long wasReadyAt() throws IOException {
+    List<Long> wasReadyAt() {
       return readTimeFromFile("readyAt");
     }
 
-    private long readTimeFromFile(String filename) throws IOException {
-      File file = new File(tempDir, filename);
-      if (file.isFile() && file.exists()) {
-        return Long.parseLong(FileUtils.readFileToString(file));
+    private List<Long> readTimeFromFile(String filename) {
+      try {
+        File file = new File(tempDir, filename);
+        if (file.isFile() && file.exists()) {
+          String[] split = StringUtils.split(FileUtils.readFileToString(file), ',');
+          List<Long> res = new ArrayList<>(split.length);
+          for (String s : split) {
+            res.add(Long.parseLong(s));
+          }
+          return res;
+        }
+      } catch (IOException e) {
+        return Collections.emptyList();
       }
       throw new IllegalStateException("File does not exist");
     }
@@ -338,6 +404,138 @@ public class MonitorTest {
     private boolean fileExists(String filename) {
       File file = new File(tempDir, filename);
       return file.isFile() && file.exists();
+    }
+  }
+
+  public static class HttpProcessClientAssert extends AbstractAssert<HttpProcessClientAssert, HttpProcessClient> {
+    Longs longs = Longs.instance();
+
+    protected HttpProcessClientAssert(HttpProcessClient actual) {
+      super(actual, HttpProcessClientAssert.class);
+    }
+
+    public static HttpProcessClientAssert assertThat(HttpProcessClient actual) {
+      return new HttpProcessClientAssert(actual);
+    }
+
+    public HttpProcessClientAssert wasStarted(int times) {
+      isNotNull();
+
+      List<Long> startingAt = actual.wasStartingAt();
+      longs.assertEqual(info, startingAt.size(), times);
+
+      return this;
+    }
+
+    public HttpProcessClientAssert wasStartedBefore(long date) {
+      isNotNull();
+
+      List<Long> startingAt = actual.wasStartingAt();
+      longs.assertEqual(info, startingAt.size(), 1);
+      longs.assertLessThanOrEqualTo(info, startingAt.iterator().next(), date);
+
+      return this;
+    }
+
+    public HttpProcessClientAssert wasStartedBefore(HttpProcessClient client) {
+      isNotNull();
+
+      List<Long> startingAt = actual.wasStartingAt();
+      longs.assertEqual(info, startingAt.size(), 1);
+      longs.assertLessThanOrEqualTo(info, startingAt.iterator().next(), client.wasStartingAt().iterator().next());
+
+      return this;
+    }
+
+    public HttpProcessClientAssert wasTerminated(int times) {
+      isNotNull();
+
+      List<Long> terminatedAt = actual.wasGracefullyTerminatedAt();
+      longs.assertEqual(info, terminatedAt.size(), 2);
+
+      return this;
+    }
+
+    public HttpProcessClientAssert wasGracefullyTerminated() {
+      isNotNull();
+
+      if (!actual.wasGracefullyTerminated()) {
+        failWithMessage("HttpClient %s should have been gracefully terminated", actual.commandKey);
+      }
+
+      return this;
+    }
+
+    public HttpProcessClientAssert wasNotGracefullyTerminated() {
+      isNotNull();
+
+      if (actual.wasGracefullyTerminated()) {
+        failWithMessage("HttpClient %s should not have been gracefully terminated", actual.commandKey);
+      }
+
+      return this;
+    }
+
+    public HttpProcessClientAssert wasGracefullyTerminatedBefore(HttpProcessClient p1) {
+      isNotNull();
+
+      List<Long> wasGracefullyTerminatedAt = actual.wasGracefullyTerminatedAt();
+      longs.assertEqual(info, wasGracefullyTerminatedAt.size(), 1);
+      longs.assertLessThanOrEqualTo(info, wasGracefullyTerminatedAt.iterator().next(), p1.wasGracefullyTerminatedAt().iterator().next());
+
+      return this;
+    }
+
+    public HttpProcessClientAssert wasGracefullyTerminated(int times) {
+      isNotNull();
+
+      List<Long> wasGracefullyTerminatedAt = actual.wasGracefullyTerminatedAt();
+      longs.assertEqual(info, wasGracefullyTerminatedAt.size(), times);
+
+      return this;
+    }
+
+    public HttpProcessClientAssert isReady() {
+      isNotNull();
+
+      // check condition
+      if (!actual.isReady()) {
+        failWithMessage("HttpClient %s should be ready", actual.commandKey);
+      }
+
+      return this;
+    }
+
+    public HttpProcessClientAssert isNotReady() {
+      isNotNull();
+
+      if (actual.isReady()) {
+        failWithMessage("HttpClient %s should not be ready", actual.commandKey);
+      }
+
+      return this;
+    }
+
+    public HttpProcessClientAssert hasBeenReady() {
+      isNotNull();
+
+      // check condition
+      if (!actual.wasReady()) {
+        failWithMessage("HttpClient %s should been ready at least once", actual.commandKey);
+      }
+
+      return this;
+    }
+
+    public HttpProcessClientAssert hasNotBeenReady() {
+      isNotNull();
+
+      // check condition
+      if (actual.wasReady()) {
+        failWithMessage("HttpClient %s should never been ready", actual.commandKey);
+      }
+
+      return this;
     }
   }
 

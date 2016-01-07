@@ -54,6 +54,10 @@ class ProcessRef {
     return process;
   }
 
+  public ProcessCommands getCommands() {
+    return commands;
+  }
+
   void waitForReady() {
     boolean ready = false;
     while (!ready) {
