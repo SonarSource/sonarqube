@@ -24,7 +24,7 @@ import ComponentMeasure from './ComponentMeasure';
 import ComponentDetach from './ComponentDetach';
 
 
-const Component = ({ component, coverageMetric, onBrowse }) => (
+const Component = ({ component, previous, coverageMetric, onBrowse }) => (
     <tr>
       <td className="thin nowrap">
         <span className="spacer-right">
@@ -34,6 +34,7 @@ const Component = ({ component, coverageMetric, onBrowse }) => (
       <td className="code-name-cell">
         <ComponentName
             component={component}
+            previous={previous}
             onBrowse={onBrowse}/>
       </td>
       <td className="thin nowrap text-right">

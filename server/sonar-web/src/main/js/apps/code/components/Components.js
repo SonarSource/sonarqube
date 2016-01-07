@@ -22,7 +22,6 @@ import React from 'react';
 import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
-import { translate } from '../../../helpers/l10n';
 
 
 const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => (
@@ -41,10 +40,11 @@ const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => 
       )}
       <tbody>
         {components.length ? (
-            components.map(component => (
+            components.map((component, index, list) => (
                 <Component
                     key={component.key}
                     component={component}
+                    previous={index > 0 ? list[index - 1] : null}
                     coverageMetric={coverageMetric}
                     onBrowse={onBrowse}/>
             ))

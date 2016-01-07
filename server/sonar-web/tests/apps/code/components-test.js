@@ -103,7 +103,7 @@ describe('Code :: Components', () => {
       expect(findings)
           .to.have.length(1);
       expect(findings.first().props())
-          .to.deep.equal({ component: exampleComponent, onBrowse: exampleOnBrowse });
+          .to.deep.equal({ component: exampleComponent, previous: undefined, onBrowse: exampleOnBrowse });
     });
 
     it('should render <ComponentMeasure/>s', () => {

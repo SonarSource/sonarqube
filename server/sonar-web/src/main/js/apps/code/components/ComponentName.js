@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import _ from 'underscore';
 import React from 'react';
 
 import Truncated from './Truncated';
@@ -32,12 +33,35 @@ function getTooltip (component) {
   }
 }
 
+function mostCommitPrefix (strings) {
+  var sortedStrings = strings.slice(0).sort(),
+      firstString = sortedStrings[0],
+      firstStringLength = firstString.length,
+      lastString = sortedStrings[sortedStrings.length - 1],
+      i = 0;
+  while (i < firstStringLength && firstString.charAt(i) === lastString.charAt(i)) {
+    i++;
+  }
+  var prefix = firstString.substr(0, i),
+      lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
+  return prefix.substr(0, prefix.length - lastPrefixPart.length);
+}
 
-const Component = ({ component, onBrowse }) => {
+
+const Component = ({ component, previous, onBrowse }) => {
   const handleClick = (e) => {
     e.preventDefault();
     onBrowse(component);
   };
+
+  const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
+  const prefix = areBothDirs ? mostCommitPrefix([component.name + '/', previous.name + '/']) : '';
+  const name = prefix ? (
+      <span>
+        <span style={{ color: '#777' }}>{prefix}</span>
+        <span>{component.name.substr(prefix.length)}</span>
+      </span>
+  ) : component.name;
 
   return (
       <Truncated title={getTooltip(component)}>
@@ -47,11 +71,11 @@ const Component = ({ component, onBrowse }) => {
             <a
                 onClick={handleClick}
                 href="#">
-              {component.name}
+              {name}
             </a>
         ) : (
             <span>
-              {component.name}
+              {name}
             </span>
         )}
       </Truncated>
