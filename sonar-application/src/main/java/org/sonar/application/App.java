@@ -41,6 +41,8 @@ import java.util.Properties;
  */
 public class App implements Stoppable {
 
+  private static final int APP_PROCESS_NUMBER = 0;
+
   private final Monitor monitor;
   private StopWatcher stopWatcher = null;
 
@@ -55,7 +57,7 @@ public class App implements Stoppable {
   public void start(Props props) {
     if (props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false)) {
       File tempDir = props.nonNullValueAsFile(ProcessProperties.PATH_TEMP);
-      ProcessCommands commands = new DefaultProcessCommands(tempDir, 0);
+      ProcessCommands commands = new DefaultProcessCommands(tempDir, APP_PROCESS_NUMBER);
       stopWatcher = new StopWatcher(commands, this);
       stopWatcher.start();
     }
@@ -63,7 +65,7 @@ public class App implements Stoppable {
     monitor.awaitTermination();
   }
 
-  List<JavaCommand> createCommands(Props props) {
+  private List<JavaCommand> createCommands(Props props) {
     List<JavaCommand> commands = new ArrayList<>();
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
     File tempDir = props.nonNullValueAsFile(ProcessProperties.PATH_TEMP);

@@ -20,9 +20,12 @@
 package org.sonar.process.monitor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
@@ -30,24 +33,26 @@ import org.sonar.process.ProcessCommands;
 import org.sonar.process.SystemExit;
 
 public class Monitor {
-  private static final Timeouts TIMEOUTS = new Timeouts();
 
-  private final List<ProcessRef> processes = new CopyOnWriteArrayList<>();
+  private static final Logger LOG = LoggerFactory.getLogger(Monitor.class);
+  private static final Timeouts TIMEOUTS = new Timeouts();
+  private static final long WATCH_DELAY_MS = 500L;
+
+  private static int restartorInstanceCounter = 0;
+
   private final JavaProcessLauncher launcher;
 
   private final SystemExit systemExit;
-  private Thread shutdownHook = new Thread(new MonitorShutdownHook(), "Monitor Shutdown Hook");
+  private final Thread shutdownHook = new Thread(new MonitorShutdownHook(), "Monitor Shutdown Hook");
 
-  // used by awaitStop() to block until all processes are shutdown
-  private List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<>();
+  private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<>();
+  private final Lifecycle lifecycle = new Lifecycle();
+  private final TerminatorThread terminator = new TerminatorThread();
+  private final RestartRequestWatcherThread restartWatcher = new RestartRequestWatcherThread();
   @CheckForNull
   private List<JavaCommand> javaCommands;
   @CheckForNull
-  private Lifecycle lifecycle;
-  @CheckForNull
-  private RestartRequestWatcherThread restartWatcher;
-  @CheckForNull
-  private TerminatorThread terminator;
+  private RestartorThread restartor;
   static int nextProcessId = 1;
 
   Monitor(JavaProcessLauncher launcher, SystemExit exit) {
@@ -70,43 +75,37 @@ public class Monitor {
       throw new IllegalArgumentException("At least one command is required");
     }
 
-    if (lifecycle != null) {
+    if (lifecycle.getState() != State.INIT) {
       throw new IllegalStateException("Can not start multiple times");
     }
 
     // intercepts CTRL-C
     Runtime.getRuntime().addShutdownHook(shutdownHook);
+    this.restartWatcher.start();
 
     this.javaCommands = commands;
-    start();
+    startProcesses();
   }
 
-  private void start() {
-    resetState();
-    List<ProcessRef> processRefs = startAndMonitorProcesses();
-    startWatchingForRestartRequests(processRefs);
+  private void startProcesses() {
+    // do no start any child process if not in state INIT or RESTARTING (a stop could be in progress too)
+    if (lifecycle.tryToMoveTo(State.STARTING)) {
+      startAndMonitorProcesses();
+      stopIfAnyProcessDidNotStart();
+    }
   }
 
-  private void resetState() {
-    this.lifecycle = new Lifecycle();
-    lifecycle.tryToMoveTo(State.STARTING);
-    this.watcherThreads.clear();
-  }
-
-  private List<ProcessRef> startAndMonitorProcesses() {
-    List<ProcessRef> processRefs = new ArrayList<>(javaCommands.size());
+  private void startAndMonitorProcesses() {
     for (JavaCommand command : javaCommands) {
       try {
         ProcessRef processRef = launcher.launch(command);
         monitor(processRef);
-        processRefs.add(processRef);
       } catch (RuntimeException e) {
         // fail to start or to monitor
         stop();
         throw e;
       }
     }
-    return processRefs;
   }
 
   private void monitor(ProcessRef processRef) {
@@ -115,19 +114,14 @@ public class Monitor {
     watcherThread.start();
     watcherThreads.add(watcherThread);
 
-    processes.add(processRef);
-
     // wait for process to be ready (accept requests or so on)
     processRef.waitForReady();
 
-    LoggerFactory.getLogger(getClass()).info(String.format("%s is up", processRef));
+    LOG.info("{} is up", processRef);
   }
 
-  private void startWatchingForRestartRequests(List<ProcessRef> processRefs) {
-    if (lifecycle.tryToMoveTo(State.STARTED)) {
-      stopRestartWatcher();
-      startRestartWatcher(processRefs);
-    } else {
+  private void stopIfAnyProcessDidNotStart() {
+    if (!lifecycle.tryToMoveTo(State.STARTED)) {
       // stopping or stopped during startup, for instance :
       // 1. A is started
       // 2. B starts
@@ -138,60 +132,43 @@ public class Monitor {
     }
   }
 
-  private void stopRestartWatcher() {
-    if (this.restartWatcher != null) {
-      this.restartWatcher.stopWatching();
-      try {
-        this.restartWatcher.join();
-      } catch (InterruptedException e) {
-        // failed to cleanly stop (very unlikely), ignore and proceed
-      }
-    }
-  }
-
-  private void startRestartWatcher(List<ProcessRef> processRefs) {
-    this.restartWatcher = new RestartRequestWatcherThread(this, processRefs);
-    this.restartWatcher.start();
-  }
-
   /**
    * Blocks until all processes are terminated
    */
   public void awaitTermination() {
-    while (awaitTerminationImpl()) {
-      LoggerFactory.getLogger(RestartRequestWatcherThread.class).info("Restarting SQ...");
-      start();
+    while (awaitChildProcessesTermination()) {
+      trace("await termination of restartor...");
+      awaitTermination(restartor);
     }
-    stopRestartWatcher();
+    cleanAfterTermination();
   }
 
   boolean waitForOneRestart() {
-    boolean restartRequested = awaitTerminationImpl();
+    boolean restartRequested = awaitChildProcessesTermination();
     if (restartRequested) {
-      start();
+      awaitTermination(restartor);
     }
     return restartRequested;
   }
 
-  private boolean awaitTerminationImpl() {
-    for (WatcherThread watcherThread : watcherThreads) {
-      while (watcherThread.isAlive()) {
-        try {
-          watcherThread.join();
-        } catch (InterruptedException ignored) {
-          // ignore, stop blocking
-        }
-      }
+  private boolean awaitChildProcessesTermination() {
+    trace("await termination of child processes...");
+    List<WatcherThread> watcherThreadsCopy = new ArrayList<>(this.watcherThreads);
+    for (WatcherThread watcherThread : watcherThreadsCopy) {
+      awaitTermination(watcherThread);
     }
-    return hasRestartBeenRequested();
+    trace("all child processes done");
+    return hasRestartBeenRequested(watcherThreadsCopy);
   }
 
-  private boolean hasRestartBeenRequested() {
+  private static boolean hasRestartBeenRequested(List<WatcherThread> watcherThreads) {
     for (WatcherThread watcherThread : watcherThreads) {
       if (watcherThread.isAskedForRestart()) {
+        trace("one child process requested restart");
         return true;
       }
     }
+    trace("no child process requested restart");
     return false;
   }
 
@@ -199,17 +176,28 @@ public class Monitor {
    * Blocks until all processes are terminated.
    */
   public void stop() {
+    trace("start stop async...");
     stopAsync();
-    try {
-      terminator.join();
-    } catch (InterruptedException ignored) {
-      // stop blocking and exiting
-    }
-    // safeguard if TerminatorThread is buggy
-    lifecycle.tryToMoveTo(State.STOPPED);
-    // cleanly stop restart watcher
-    stopRestartWatcher();
+    trace("await termination of terminator...");
+    awaitTermination(terminator);
+    cleanAfterTermination();
+    trace("exit...");
     systemExit.exit(0);
+  }
+
+  private void cleanAfterTermination() {
+    trace("go to STOPPED...");
+    // safeguard if TerminatorThread is buggy and stop restartWatcher
+    lifecycle.tryToMoveTo(State.STOPPED);
+    trace("await termination of restartWatcher...");
+    // wait for restartWatcher to cleanly stop
+    awaitTermination(restartWatcher);
+    trace("restartWatcher done");
+    // removing shutdown hook to avoid called stop() unnecessarily unless already in shutdownHook
+    if (!systemExit.isInShutdownHook()) {
+      trace("removing shutdown hook...");
+      Runtime.getRuntime().removeShutdownHook(shutdownHook);
+    }
   }
 
   /**
@@ -219,17 +207,117 @@ public class Monitor {
    */
   public void stopAsync() {
     if (lifecycle.tryToMoveTo(State.STOPPING)) {
-      if (terminator != null) {
-        try {
-          terminator.join();
-        } catch (InterruptedException e) {
-          // stop waiting for thread to complete and continue with creating a new one
-        }
-      }
-      terminator = new TerminatorThread(TIMEOUTS);
-      terminator.setProcesses(processes);
       terminator.start();
     }
+  }
+
+  public void restartAsync() {
+    if (lifecycle.tryToMoveTo(State.RESTARTING)) {
+      restartor = new RestartorThread();
+      restartor.start();
+    }
+  }
+
+  /**
+   * Runs every time a restart request is detected.
+   */
+  private class RestartorThread extends Thread {
+
+    private RestartorThread() {
+      super("Restartor " + (restartorInstanceCounter++));
+    }
+
+    @Override
+    public void run() {
+      stopProcesses();
+      startProcesses();
+    }
+  }
+
+  /**
+   * Runs only once
+   */
+  private class TerminatorThread extends Thread {
+
+    private TerminatorThread() {
+      super("Terminator");
+    }
+
+    @Override
+    public void run() {
+      stopProcesses();
+    }
+  }
+
+  /**
+   * Watches for any child process requesting a restart of all children processes.
+   * It runs once and as long as {@link #lifecycle} hasn't reached {@link Lifecycle.State#STOPPED} and holds its checks
+   * when {@link #lifecycle} is not in state {@link Lifecycle.State#STARTED} to avoid taking the same request into account
+   * twice.
+   */
+  public class RestartRequestWatcherThread extends Thread {
+    public RestartRequestWatcherThread() {
+      super("Restart watcher");
+    }
+
+    @Override
+    public void run() {
+      while (lifecycle.getState() != Lifecycle.State.STOPPED) {
+        if (lifecycle.getState() == Lifecycle.State.STARTED && didAnyProcessRequestRestart()) {
+          restartAsync();
+        }
+        try {
+          Thread.sleep(WATCH_DELAY_MS);
+        } catch (InterruptedException ignored) {
+          // keep watching
+        }
+      }
+    }
+
+    private boolean didAnyProcessRequestRestart() {
+      for (WatcherThread watcherThread : watcherThreads) {
+        ProcessRef processRef = watcherThread.getProcessRef();
+        if (processRef.getCommands().askedForRestart()) {
+          LOG.info("Process [{}] requested restart", processRef.getKey());
+          return true;
+        }
+      }
+      return false;
+    }
+
+  }
+
+  private void stopProcesses() {
+    ArrayList<WatcherThread> watcherThreads = new ArrayList<>(this.watcherThreads);
+    // create a copy and reverse it to terminate in reverse order of startup (dependency order)
+    Collections.reverse(watcherThreads);
+
+    for (WatcherThread watcherThread : watcherThreads) {
+      ProcessRef ref = watcherThread.getProcessRef();
+      if (!ref.isStopped()) {
+        LOG.info("{} is stopping", ref);
+        ref.askForGracefulAsyncStop();
+
+        long killAt = System.currentTimeMillis() + TIMEOUTS.getTerminationTimeout();
+        while (!ref.isStopped() && System.currentTimeMillis() < killAt) {
+          try {
+            Thread.sleep(10L);
+          } catch (InterruptedException e) {
+            // stop asking for graceful stops, Monitor will hardly kill all processes
+            break;
+          }
+        }
+        if (!ref.isStopped()) {
+          LOG.info("{} failed to stop in a timely fashion. Killing it.", ref);
+        }
+        ref.stop();
+        LOG.info("{} is stopped", ref);
+      }
+    }
+
+    // all processes are stopped, no need to keep references to these WatcherThread anymore
+    trace("all processes stopped, clean list of watcherThreads...");
+    this.watcherThreads.clear();
   }
 
   public State getState() {
@@ -240,17 +328,32 @@ public class Monitor {
     return shutdownHook;
   }
 
-  public void restartAsync() {
-    stopAsync();
-  }
-
   private class MonitorShutdownHook implements Runnable {
     @Override
     public void run() {
       systemExit.setInShutdownHook();
+      trace("calling stop from MonitorShutdownHook...");
       // blocks until everything is corrected terminated
       stop();
     }
+  }
+
+  private static void awaitTermination(@Nullable Thread t) {
+    if (t == null) {
+      return;
+    }
+
+    while (t.isAlive()) {
+      try {
+        t.join();
+      } catch (InterruptedException e) {
+        // ignore and stop blocking
+      }
+    }
+  }
+
+  private static void trace(String s) {
+    System.err.println("APP: " + s);
   }
 
   public static int getNextProcessId() {

@@ -64,6 +64,10 @@ class WatcherThread extends Thread {
     }
   }
 
+  public ProcessRef getProcessRef() {
+    return processRef;
+  }
+
   public boolean isAskedForRestart() {
     return askedForRestart;
   }

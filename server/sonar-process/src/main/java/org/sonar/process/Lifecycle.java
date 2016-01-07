@@ -19,10 +19,45 @@
  */
 package org.sonar.process;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Lifecycle {
+  private static final Logger LOG = LoggerFactory.getLogger(Lifecycle.class);
 
   public enum State {
-    INIT, STARTING, STARTED, STOPPING, STOPPED
+    INIT, STARTING, STARTED, RESTARTING, STOPPING, STOPPED
+  }
+
+  private static final Map<State, Set<State>> TRANSITIONS = buildTransitions();
+
+  private static Map<State, Set<State>> buildTransitions() {
+    Map<State, Set<State>> res = new HashMap<>(State.values().length);
+    res.put(State.INIT, toSet(State.STARTING));
+    res.put(State.STARTING, toSet(State.STARTED, State.STOPPING));
+    res.put(State.STARTED, toSet(State.RESTARTING, State.STOPPING));
+    res.put(State.RESTARTING, toSet(State.STARTING));
+    res.put(State.STOPPING, toSet(State.STOPPED));
+    res.put(State.STOPPED, toSet());
+    return res;
+  }
+
+  private static Set<State> toSet(State... states) {
+    if (states.length == 0) {
+      return Collections.emptySet();
+    }
+    if (states.length == 1) {
+      return Collections.singleton(states[0]);
+    }
+    Set<State> res = new HashSet<>(states.length);
+    Collections.addAll(res, states);
+    return res;
   }
 
   private State state = State.INIT;
@@ -32,15 +67,18 @@ public class Lifecycle {
   }
 
   public synchronized boolean tryToMoveTo(State to) {
-    if (state.ordinal() < to.ordinal()) {
-      state = to;
-      return true;
+    boolean res = false;
+    State currentState = state;
+    if (TRANSITIONS.get(currentState).contains(to)) {
+      this.state = to;
+      res = true;
     }
-    return false;
+    LOG.trace("tryToMoveTo from {} to {} => {}", currentState, to, res);
+    return res;
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
