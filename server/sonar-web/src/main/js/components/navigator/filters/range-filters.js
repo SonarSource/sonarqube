@@ -21,6 +21,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import BaseFilters from './base-filters';
 import Template from '../templates/range-filter.hbs';
+import { translate } from '../../../helpers/l10n';
 
 var DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
@@ -81,7 +82,7 @@ var RangeFilterView = BaseFilters.BaseFilterView.extend({
       var value = _.values(this.model.get('value'));
       return value.join(' — ');
     } else {
-      return window.SS.phrases.any;
+      return translate('any');
     }
   },
 
@@ -204,7 +205,7 @@ var DateRangeFilterView = RangeFilterView.extend({
       var value = _.values(this.model.get('value'));
       return value.join(' — ');
     } else {
-      return window.SS.phrases.anytime;
+      return translate('anytime')
     }
   }
 

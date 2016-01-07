@@ -28,16 +28,17 @@ import FavoriteFilters from '../../components/navigator/filters/favorite-filters
 import RangeFilters from '../../components/navigator/filters/range-filters';
 import StringFilterView from '../../components/navigator/filters/string-filters';
 import MetricFilterView from '../../components/navigator/filters/metric-filters';
+import { translate } from '../../helpers/l10n';
 
 var NavigatorApp = new Marionette.Application(),
 
     newLastAnalysisFilter = function () {
       return new BaseFilters.Filter({
-        name: window.SS.phrases.lastAnalysis,
+        name: translate('measure_filter.criteria.last_analysis'),
         propertyFrom: 'ageMinDays',
         propertyTo: 'ageMaxDays',
         type: RangeFilters.RangeFilterView,
-        placeholder: window.SS.phrases.days,
+        placeholder: translate('measure_filter.criteria.age.days'),
         enabled: false,
         optional: true
       });
@@ -45,7 +46,7 @@ var NavigatorApp = new Marionette.Application(),
 
     newMetricFilter = function (property) {
       return new BaseFilters.Filter({
-        name: window.SS.phrases.metric,
+        name: translate('measure_filter.criteria.metric'),
         property: property,
         type: MetricFilterView,
         metrics: window.SS.metrics,
@@ -58,7 +59,7 @@ var NavigatorApp = new Marionette.Application(),
 
     newNameFilter = function () {
       return new BaseFilters.Filter({
-        name: window.SS.phrases.nameContains,
+        name: translate('measure_filter.name_contains'),
         property: 'nameSearch',
         type: StringFilterView,
         enabled: false,
@@ -68,15 +69,15 @@ var NavigatorApp = new Marionette.Application(),
 
     newAlertFilter = function () {
       return new BaseFilters.Filter({
-        name: window.SS.phrases.alert,
+        name: translate('measure_filter.criteria.alert'),
         property: 'alertLevels[]',
         type: ChoiceFilters.ChoiceFilterView,
         enabled: false,
         optional: true,
         choices: {
-          'error': window.SS.phrases.error,
-          'warn': window.SS.phrases.warning,
-          'ok': window.SS.phrases.ok
+          'error': translate('measure_filter.criteria.alert.error'),
+          'warn': translate('measure_filter.criteria.alert.warn'),
+          'ok': translate('measure_filter.criteria.alert.ok')
         }
       });
     },
@@ -101,17 +102,17 @@ var NavigatorApp = new Marionette.Application(),
 
       this.filters.add([
         new BaseFilters.Filter({
-          name: window.SS.phrases.components,
+          name: translate('measure_filter.criteria.components'),
           property: 'qualifiers[]',
           type: ChoiceFilters.ChoiceFilterView,
           enabled: true,
           optional: false,
           choices: window.SS.qualifiers,
-          defaultValue: window.SS.phrases.any
+          defaultValue: translate('any')
         }),
 
         new BaseFilters.Filter({
-          name: window.SS.phrases.componentsOf,
+          name: translate('measure_filter.criteria.components_of'),
           property: 'base',
           type: AjaxSelectFilters.ComponentFilterView,
           multiple: false,
@@ -120,7 +121,7 @@ var NavigatorApp = new Marionette.Application(),
         }),
 
         new BaseFilters.Filter({
-          name: window.SS.phrases.favoritesOnly,
+          name: translate('measure_filter.criteria.only_favorites'),
           property: 'onFavourites',
           type: CheckboxFilterView,
           enabled: false,
@@ -128,7 +129,7 @@ var NavigatorApp = new Marionette.Application(),
         }),
 
         new BaseFilters.Filter({
-          name: window.SS.phrases.date,
+          name: translate('measure_filter.criteria.date'),
           propertyFrom: 'fromDate',
           propertyTo: 'toDate',
           type: RangeFilters.DateRangeFilterView,
@@ -137,7 +138,7 @@ var NavigatorApp = new Marionette.Application(),
         }),
 
         new BaseFilters.Filter({
-          name: window.SS.phrases.keyContains,
+          name: translate('measure_filter.criteria.key_contains'),
           property: 'keySearch',
           type: StringFilterView,
           enabled: false,

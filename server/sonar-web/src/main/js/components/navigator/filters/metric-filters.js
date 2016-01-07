@@ -21,6 +21,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import BaseFilters from './base-filters';
 import Template from '../templates/metric-filter.hbs';
+import { translate } from '../../../helpers/l10n';
 
 var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
@@ -91,7 +92,7 @@ var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
     var value = this.model.get('value') || {};
     this.$('[name=metric]').val(value.metric).select2({
       width: '100%',
-      placeholder: window.SS.phrases.metric
+      placeholder: translate('measure_filter.criteria.metric')
     });
     this.$('[name=period]').val(value.period || 0).select2({
       width: '100%',
@@ -153,7 +154,7 @@ export default BaseFilters.BaseFilterView.extend({
 
   renderValue: function () {
     return this.isDefaultValue() ?
-        window.SS.phrases.notSet :
+        translate('measure_filter.criteria.metric.not_set') :
     this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' +
     this.model.get('value').valText;
   },
