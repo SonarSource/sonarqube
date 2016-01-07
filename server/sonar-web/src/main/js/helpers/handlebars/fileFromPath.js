@@ -20,5 +20,5 @@
 import { fileFromPath } from '../path';
 
 module.exports = function (path) {
-  return window.fileFromPath(path);
+  return fileFromPath(path);
 };
