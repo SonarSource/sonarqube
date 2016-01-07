@@ -23,6 +23,16 @@ import Truncated from './Truncated';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 
 
+function getTooltip (component) {
+  const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
+  if (isFile && component.path) {
+    return component.path;
+  } else {
+    return component.name;
+  }
+}
+
+
 const Component = ({ component, onBrowse }) => {
   const handleClick = (e) => {
     e.preventDefault();
@@ -30,7 +40,7 @@ const Component = ({ component, onBrowse }) => {
   };
 
   return (
-      <Truncated title={component.name}>
+      <Truncated title={getTooltip(component)}>
         <QualifierIcon qualifier={component.qualifier}/>
         {' '}
         {onBrowse ? (
