@@ -31,8 +31,8 @@
           <div class="component-name-path">
             Lines:
             {{#joinEach blocks ','}}
-              <a class="link-action" data-uuid="{{../file.uuid}}" data-line="{{from}}">
-                {{from}} – {{sum from size -1}}
+              <a class="link-action" data-uuid="{{../file.uuid}}" data-line="{{this.from}}">
+                {{this.from}} – {{sum from size -1}}
               </a>
             {{/joinEach}}
           </div>
