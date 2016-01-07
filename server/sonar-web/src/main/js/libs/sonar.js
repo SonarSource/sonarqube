@@ -23,7 +23,6 @@ require('script!./third-party/keymaster.js');
 require('script!./third-party/bootstrap/tooltip.js');
 require('script!./third-party/bootstrap/dropdown.js');
 require('script!./select2-jquery-ui-fix.js');
-require('script!./sortable.js');
 require('script!./inputs.js');
 require('script!./jquery-isolated-scroll.js');
 require('script!./application.js');

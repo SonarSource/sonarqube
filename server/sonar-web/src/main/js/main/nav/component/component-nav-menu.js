@@ -167,11 +167,6 @@ export default React.createClass({
     return this.renderLink(url, translate('code.page'), '/code');
   },
 
-  renderComponentsLink() {
-    const url = `/components/index?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('components.page'), '/components');
-  },
-
   renderComponentIssuesLink() {
     const url = `/component_issues/index?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, translate('issues.page'), '/component_issues');
@@ -334,7 +329,6 @@ export default React.createClass({
           {!this.isDeveloper() && this.renderFixedDashboards()}
           {this.renderCustomDashboards()}
           {this.renderCodeLink()}
-          {this.renderComponentsLink()}
           {this.renderComponentIssuesLink()}
           {this.renderTools()}
           {this.renderAdministration()}
