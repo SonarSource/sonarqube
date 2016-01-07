@@ -52,6 +52,10 @@ public class ProcessEntryPoint implements Stoppable {
     this.stopWatcher = new StopWatcher(commands, this);
   }
 
+  public ProcessCommands getCommands() {
+    return commands;
+  }
+
   public Props getProps() {
     return props;
   }

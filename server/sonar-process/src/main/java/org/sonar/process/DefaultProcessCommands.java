@@ -56,17 +56,19 @@ public class DefaultProcessCommands implements ProcessCommands {
    * <ul>
    *   <li>First byte will contains the state 0x00 until READY 0x01</li>
    *   <li>The second byte will contains the request for stopping 0x00 or STOP (0xFF)</li>
+   *   <li>The second byte will contains the request for restarting 0x00 or RESTART (0xAA)</li>
    *   <li>The next 8 bytes contains a long (System.currentTimeInMillis for ping)</li>
    * </ul>
    */
   final MappedByteBuffer mappedByteBuffer;
   private final RandomAccessFile sharedMemory;
-  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 8;
+  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 8;
 
   // With this shared memory we can handle up to MAX_PROCESSES processes
   private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES;
 
   public static final byte STOP = (byte) 0xFF;
+  public static final byte RESTART = (byte) 0xAA;
   public static final byte READY = (byte) 0x01;
   public static final byte EMPTY = (byte) 0x00;
 
@@ -133,6 +135,21 @@ public class DefaultProcessCommands implements ProcessCommands {
   @Override
   public boolean askedForStop() {
     return mappedByteBuffer.get(offset() + 1) == STOP;
+  }
+
+  @Override
+  public void askForRestart() {
+    mappedByteBuffer.put(offset() + 3, RESTART);
+  }
+
+  @Override
+  public boolean askedForRestart() {
+    return mappedByteBuffer.get(offset() + 3) == RESTART;
+  }
+
+  @Override
+  public void acknowledgeAskForRestart() {
+    mappedByteBuffer.put(offset() + 3, EMPTY);
   }
 
   @Override

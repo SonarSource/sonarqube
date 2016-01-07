@@ -24,6 +24,7 @@ package org.sonar.process;
  * <ul>
  *   <li>share status of child process</li>
  *   <li>stop child process</li>
+ *   <li>restart all child processes</li>
  * </ul>
  *
  * <p/>
@@ -56,6 +57,21 @@ public interface ProcessCommands {
   void askForStop();
 
   boolean askedForStop();
+
+  /**
+   * To be executed by child process to ask for restart of all child processes
+   */
+  void askForRestart();
+
+  /**
+   * Can be called by child or monitor process to know whether child process asked for restart
+   */
+  boolean askedForRestart();
+
+  /**
+   * To be executed by monitor process to acknowledge restart request from child process.
+   */
+  void acknowledgeAskForRestart();
 
   void endWatch();
 }

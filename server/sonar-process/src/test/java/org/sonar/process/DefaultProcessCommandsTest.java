@@ -31,6 +31,8 @@ import static org.junit.Assert.fail;
 
 public class DefaultProcessCommandsTest {
 
+  private static final int PROCESS_NUMBER = 1;
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -40,7 +42,7 @@ public class DefaultProcessCommandsTest {
     FileUtils.deleteQuietly(dir);
 
     try {
-      new DefaultProcessCommands(dir, 1);
+      new DefaultProcessCommands(dir, PROCESS_NUMBER);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Not a valid directory: " + dir.getAbsolutePath());
@@ -51,7 +53,7 @@ public class DefaultProcessCommandsTest {
   public void child_process_update_the_mapped_memory() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = new DefaultProcessCommands(dir, 1);
+    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
     assertThat(commands.isReady()).isFalse();
     assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(DefaultProcessCommands.EMPTY);
     assertThat(commands.mappedByteBuffer.getLong(2 + commands.offset())).isEqualTo(0L);
@@ -69,13 +71,54 @@ public class DefaultProcessCommandsTest {
   public void ask_for_stop() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = new DefaultProcessCommands(dir, 1);
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 1)).isNotEqualTo(DefaultProcessCommands.STOP);
+    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + PROCESS_NUMBER)).isNotEqualTo(DefaultProcessCommands.STOP);
     assertThat(commands.askedForStop()).isFalse();
 
     commands.askForStop();
     assertThat(commands.askedForStop()).isTrue();
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 1)).isEqualTo(DefaultProcessCommands.STOP);
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + PROCESS_NUMBER)).isEqualTo(DefaultProcessCommands.STOP);
+  }
+
+  @Test
+  public void ask_for_restart() throws Exception {
+    File dir = temp.newFolder();
+
+    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isNotEqualTo(DefaultProcessCommands.RESTART);
+    assertThat(commands.askedForRestart()).isFalse();
+
+    commands.askForRestart();
+    assertThat(commands.askedForRestart()).isTrue();
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isEqualTo(DefaultProcessCommands.RESTART);
+  }
+
+  @Test
+  public void acknowledgeAskForRestart_has_no_effect_when_no_restart_asked() throws Exception {
+    File dir = temp.newFolder();
+
+    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isNotEqualTo(DefaultProcessCommands.RESTART);
+    assertThat(commands.askedForRestart()).isFalse();
+
+    commands.acknowledgeAskForRestart();
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isNotEqualTo(DefaultProcessCommands.RESTART);
+    assertThat(commands.askedForRestart()).isFalse();
+  }
+
+  @Test
+  public void acknowledgeAskForRestart_resets_askForRestart_has_no_effect_when_no_restart_asked() throws Exception {
+    File dir = temp.newFolder();
+
+    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+
+    commands.askForRestart();
+    assertThat(commands.askedForRestart()).isTrue();
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isEqualTo(DefaultProcessCommands.RESTART);
+
+    commands.acknowledgeAskForRestart();
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isNotEqualTo(DefaultProcessCommands.RESTART);
+    assertThat(commands.askedForRestart()).isFalse();
   }
 
   @Test
