@@ -42,9 +42,9 @@ import it.actionPlan.ActionPlanTest;
 import it.actionPlan.ActionPlanUiTest;
 import it.administration.UsersUITest;
 import it.authorisation.AuthenticationTest;
+import it.authorisation.ExecuteAnalysisPermissionTest;
 import it.authorisation.IssuePermissionTest;
 import it.authorisation.PermissionTest;
-import it.authorisation.ScanPermissionTest;
 import it.i18n.I18nTest;
 import it.measureHistory.DifferentialPeriodsTest;
 import it.measureHistory.HistoryUiTest;
@@ -96,7 +96,7 @@ import static util.ItUtils.xooPlugin;
   AuthenticationTest.class,
   PermissionTest.class,
   IssuePermissionTest.class,
-  ScanPermissionTest.class,
+  ExecuteAnalysisPermissionTest.class,
   // measure history
   DifferentialPeriodsTest.class,
   HistoryUiTest.class,

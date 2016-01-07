@@ -36,12 +36,13 @@ import static util.ItUtils.runProjectAnalysis;
 /**
  * SONAR-4397
  */
-public class ScanPermissionTest {
+public class ExecuteAnalysisPermissionTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   private final static String USER_LOGIN = "scanperm";
+  private final static String PROJECT_KEY = "sample";
 
   private static SonarClient adminClient;
 
@@ -50,22 +51,23 @@ public class ScanPermissionTest {
     orchestrator.resetData();
     adminClient = orchestrator.getServer().adminWsClient();
     adminClient.userClient().create(UserParameters.create().login(USER_LOGIN).name(USER_LOGIN).password("thewhite").passwordConfirmation("thewhite"));
+    orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
   }
 
   @After
-  public void teraDown() {
-    addPermission("anyone", "scan");
-    addPermission("anyone", "dryRunScan");
+  public void tearDown() {
+    addGlobalPermission("anyone", "scan");
+    addGlobalPermission("anyone", "dryRunScan");
     adminClient.userClient().deactivate(USER_LOGIN);
   }
 
   @Test
   public void should_fail_if_no_scan_permission() throws Exception {
-    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", "thewhite");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
-    removeGroupPermission("anyone", "scan");
+    removeGlobalPermission("anyone", "scan");
     try {
-      runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", "thewhite");
+      runProjectAnalysis(orchestrator, "shared/xoo-sample");
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains(
@@ -73,9 +75,9 @@ public class ScanPermissionTest {
     }
 
     // Remove Anyone from dryrun permission
-    removeGroupPermission("anyone", "dryRunScan");
+    removeGlobalPermission("anyone", "dryRunScan");
     try {
-      runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", "thewhite");
+      runProjectAnalysis(orchestrator, "shared/xoo-sample");
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains(
@@ -86,31 +88,47 @@ public class ScanPermissionTest {
   @Test
   public void no_need_for_browse_permission_to_scan() throws Exception {
     // Do a first analysis, no error
-    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", "thewhite");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     // Remove browse permission for groups Anyone on the project
-    removeGroupPermission("anyone", "sample", "user");
+    removeProjectPermission("anyone", "sample", "user");
 
     // still no error
-    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", "thewhite");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
   }
 
-  private static void addPermission(String groupName, String permission) {
+  @Test
+  public void execute_analysis_permission_only_on_project() throws Exception {
+    removeGlobalPermission("anyone", "scan");
+    addProjectPermission("anyone", PROJECT_KEY, "scan");
+    addGlobalPermission("anyone", "dryRunScan");
+
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
+  }
+
+  private static void addProjectPermission(String groupName, String projectKey, String permission) {
+    adminClient.post("api/permissions/add_group",
+      "groupName", groupName,
+      "projectKey", projectKey,
+      "permission", permission);
+  }
+
+  private static void addGlobalPermission(String groupName, String permission) {
     adminClient.post("api/permissions/add_group",
       "groupName", groupName,
       "permission", permission);
   }
 
-  private static void removeGroupPermission(String groupName, String permission) {
-    adminClient.post("api/permissions/remove_group",
-      "groupName", groupName,
-      "permission", permission);
-  }
-
-  private static void removeGroupPermission(String groupName, String projectKey, String permission) {
+  private static void removeProjectPermission(String groupName, String projectKey, String permission) {
     adminClient.post("api/permissions/remove_group",
       "groupName", groupName,
       "projectKey", projectKey,
+      "permission", permission);
+  }
+
+  private static void removeGlobalPermission(String groupName, String permission) {
+    adminClient.post("api/permissions/remove_group",
+      "groupName", groupName,
       "permission", permission);
   }
 }
