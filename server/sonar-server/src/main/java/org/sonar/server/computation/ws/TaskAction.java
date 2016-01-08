@@ -20,12 +20,10 @@
 package org.sonar.server.computation.ws;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -35,13 +33,15 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsCe;
 
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class TaskAction implements CeWsAction {
 
   public static final String ACTION = "task";
   public static final String PARAM_TASK_UUID = "id";
-  private static final Set<String> AUTHORIZED_PERMISSIONS = ImmutableSet.of(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.SYSTEM_ADMIN);
 
   private final DbClient dbClient;
   private final TaskFormatter wsTaskFormatter;
@@ -71,18 +71,18 @@ public class TaskAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkAnyPermissions(AUTHORIZED_PERMISSIONS);
-
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
     DbSession dbSession = dbClient.openSession(false);
     try {
       WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
       if (queueDto.isPresent()) {
+        checkPermission(queueDto.get().getComponentUuid());
         wsTaskResponse.setTask(wsTaskFormatter.formatQueue(dbSession, queueDto.get()));
       } else {
         Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid);
         if (activityDto.isPresent()) {
+          checkPermission(activityDto.get().getComponentUuid());
           wsTaskResponse.setTask(wsTaskFormatter.formatActivity(dbSession, activityDto.get()));
         } else {
           throw new NotFoundException();
@@ -92,6 +92,15 @@ public class TaskAction implements CeWsAction {
 
     } finally {
       dbClient.closeSession(dbSession);
+    }
+  }
+
+  private void checkPermission(@Nullable String projectUuid) {
+    if (!userSession.hasPermission(SYSTEM_ADMIN)
+      && !userSession.hasPermission(SCAN_EXECUTION)
+      && (projectUuid == null || !userSession.hasComponentUuidPermission(SCAN_EXECUTION, projectUuid))
+      ) {
+      throw insufficientPrivilegesException();
     }
   }
 }
