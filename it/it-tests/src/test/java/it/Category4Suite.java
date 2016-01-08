@@ -28,7 +28,7 @@ import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
-import it.serverSystem.DevModeTest;
+import it.serverSystem.RestartTest;
 import it.serverSystem.HttpsTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
 import it.serverSystem.ServerSystemTest;
@@ -44,7 +44,7 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   // server system
-  DevModeTest.class,
+  RestartTest.class,
   HttpsTest.class,
   ServerSystemTest.class,
   ServerSystemRestartingOrchestrator.class,

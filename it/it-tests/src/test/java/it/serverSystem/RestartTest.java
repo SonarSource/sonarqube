@@ -25,20 +25,25 @@ import org.apache.commons.lang.SystemUtils;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 /**
- * This class start a new orchestrator on each test case
+ * This class starts a new orchestrator on each test case
  */
-public class DevModeTest {
+public class RestartTest {
 
   Orchestrator orchestrator;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  @Rule
+  public TestRule globalTimeout = new DisableOnDebug(Timeout.seconds(120));
 
   @After
   public void stop() {
@@ -47,22 +52,29 @@ public class DevModeTest {
     }
   }
 
-  /**
-   * SONAR-4843
-   */
   @Test
-  public void restart_forbidden_if_not_dev_mode() throws Exception {
+  public void restart_in_prod_mode_requires_admin_privileges_and_restarts_WebServer_and_ES() throws Exception {
     // server classloader locks Jar files on Windows
     if (!SystemUtils.IS_OS_WINDOWS) {
       orchestrator = Orchestrator.builderEnv()
+        .setOrchestratorProperty("orchestrator.keepWorkspace", "true")
         .build();
       orchestrator.start();
+
       try {
-        orchestrator.getServer().adminWsClient().systemClient().restart();
+        orchestrator.getServer().wsClient().systemClient().restart();
         fail();
       } catch (Exception e) {
         assertThat(e.getMessage()).contains("403");
       }
+
+      orchestrator.getServer().adminWsClient().systemClient().restart();
+
+      // we just wait five seconds, for a lack of a better approach to waiting for the restart process to start in SQ
+      Thread.sleep(5000);
+
+      assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()))
+        .contains("Requesting SonarQube restart");
     }
   }
 
@@ -80,8 +92,8 @@ public class DevModeTest {
 
       orchestrator.getServer().adminWsClient().systemClient().restart();
       assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()))
-        .contains("Restart server")
-        .contains("Server restarted");
+        .contains("Fast restarting WebServer...")
+        .contains("WebServer restarted");
     }
   }
 }
