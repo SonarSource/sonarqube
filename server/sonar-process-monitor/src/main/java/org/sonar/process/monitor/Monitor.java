@@ -19,6 +19,7 @@
  */
 package org.sonar.process.monitor;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.AllProcessesCommands;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.ProcessCommands;
@@ -37,9 +39,11 @@ public class Monitor {
   private static final Logger LOG = LoggerFactory.getLogger(Monitor.class);
   private static final Timeouts TIMEOUTS = new Timeouts();
   private static final long WATCH_DELAY_MS = 500L;
+  private static final int CURRENT_PROCESS_NUMBER = 0;
 
   private static int restartorInstanceCounter = 0;
 
+  private final AllProcessesCommands allProcessesCommands;
   private final JavaProcessLauncher launcher;
 
   private final SystemExit systemExit;
@@ -53,15 +57,18 @@ public class Monitor {
   private List<JavaCommand> javaCommands;
   @CheckForNull
   private RestartorThread restartor;
+  @CheckForNull
+  HardStopWatcherThread hardStopWatcher;
   static int nextProcessId = 1;
 
-  Monitor(JavaProcessLauncher launcher, SystemExit exit) {
-    this.launcher = launcher;
+  Monitor(File tempDir, SystemExit exit) {
+    this.allProcessesCommands = new AllProcessesCommands(tempDir);
+    this.launcher = new JavaProcessLauncher(TIMEOUTS, tempDir, allProcessesCommands);
     this.systemExit = exit;
   }
 
-  public static Monitor create() {
-    return new Monitor(new JavaProcessLauncher(TIMEOUTS), new SystemExit());
+  public static Monitor create(File tempDir) {
+    return new Monitor(tempDir, new SystemExit());
   }
 
   /**
@@ -108,6 +115,12 @@ public class Monitor {
     }
   }
 
+  public void watchForHardStop() {
+    ProcessCommands processCommand = this.allProcessesCommands.getProcessCommand(CURRENT_PROCESS_NUMBER, true);
+    this.hardStopWatcher = new HardStopWatcherThread(processCommand);
+    this.hardStopWatcher.start();
+  }
+
   private void monitor(ProcessRef processRef) {
     // physically watch if process is alive
     WatcherThread watcherThread = new WatcherThread(processRef, this);
@@ -145,7 +158,9 @@ public class Monitor {
 
   boolean waitForOneRestart() {
     boolean restartRequested = awaitChildProcessesTermination();
+    trace("finished waiting, restartRequested=" + restartRequested);
     if (restartRequested) {
+      trace("awaitTermination(restartor)=" + restartor);
       awaitTermination(restartor);
     }
     return restartRequested;
@@ -176,8 +191,8 @@ public class Monitor {
    * Blocks until all processes are terminated.
    */
   public void stop() {
-    trace("start stop async...");
-    stopAsync();
+    trace("start hard stop async...");
+    stopAsync(State.HARD_STOPPING);
     trace("await termination of terminator...");
     awaitTermination(terminator);
     cleanAfterTermination();
@@ -187,17 +202,18 @@ public class Monitor {
 
   private void cleanAfterTermination() {
     trace("go to STOPPED...");
-    // safeguard if TerminatorThread is buggy and stop restartWatcher
     if (lifecycle.tryToMoveTo(State.STOPPED)) {
       trace("await termination of restartWatcher...");
-      // wait for restartWatcher to cleanly stop
-      awaitTermination(restartWatcher);
+      // wait for restartWatcher and hardStopWatcher to cleanly stop
+      awaitTermination(restartWatcher, hardStopWatcher);
       trace("restartWatcher done");
       // removing shutdown hook to avoid called stop() unnecessarily unless already in shutdownHook
       if (!systemExit.isInShutdownHook()) {
         trace("removing shutdown hook...");
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
       }
+      // cleanly close JavaLauncher
+      launcher.close();
     }
   }
 
@@ -207,7 +223,11 @@ public class Monitor {
    * this call will be blocking until the previous request finishes.
    */
   public void stopAsync() {
-    if (lifecycle.tryToMoveTo(State.STOPPING)) {
+    stopAsync(State.STOPPING);
+  }
+
+  private void stopAsync(State stoppingState) {
+    if (lifecycle.tryToMoveTo(stoppingState)) {
       terminator.start();
     }
   }
@@ -288,12 +308,38 @@ public class Monitor {
 
   }
 
-  private void stopProcesses() {
-    List<WatcherThread> watcherThreads = new ArrayList<>(this.watcherThreads);
-    // create a copy and reverse it to terminate in reverse order of startup (dependency order)
-    Collections.reverse(watcherThreads);
+  public class HardStopWatcherThread extends Thread {
+    private final ProcessCommands processCommands;
 
-    for (WatcherThread watcherThread : watcherThreads) {
+    public HardStopWatcherThread(ProcessCommands processCommands) {
+      super("Hard stop watcher");
+      this.processCommands = processCommands;
+    }
+
+    @Override
+    public void run() {
+      while (lifecycle.getState() != Lifecycle.State.STOPPED) {
+        if (processCommands.askedForStop()) {
+          trace("Stopping process");
+          Monitor.this.stop();
+        } else {
+          try {
+            Thread.sleep(WATCH_DELAY_MS);
+          } catch (InterruptedException ignored) {
+            // keep watching
+          }
+        }
+      }
+    }
+
+  }
+
+  private void stopProcesses() {
+    List<WatcherThread> watcherThreadsCopy = new ArrayList<>(this.watcherThreads);
+    // create a copy and reverse it to terminate in reverse order of startup (dependency order)
+    Collections.reverse(watcherThreadsCopy);
+
+    for (WatcherThread watcherThread : watcherThreadsCopy) {
       ProcessRef ref = watcherThread.getProcessRef();
       if (!ref.isStopped()) {
         LOG.info("{} is stopping", ref);
@@ -336,6 +382,12 @@ public class Monitor {
       trace("calling stop from MonitorShutdownHook...");
       // blocks until everything is corrected terminated
       stop();
+    }
+  }
+
+  private static void awaitTermination(Thread... threads) {
+    for (Thread thread : threads) {
+      awaitTermination(thread);
     }
   }
 

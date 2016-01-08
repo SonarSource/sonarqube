@@ -62,10 +62,10 @@ public class LifecycleTest {
   }
 
   @Test
-  public void can_move_to_STOPPING_from_any_state_but_STARTING_and_STARTED_only() {
+  public void can_move_to_STOPPING_from_STARTING_and_STARTED_only() {
     for (State state : values()) {
       boolean tryToMoveTo = newLifeCycle(state).tryToMoveTo(STOPPING);
-      if (state == STARTING || state == STARTED || state == RESTARTING) {
+      if (state == STARTING || state == STARTED) {
         assertThat(tryToMoveTo).describedAs("from state " + state).isTrue();
       } else {
         assertThat(tryToMoveTo).describedAs("from state " + state).isFalse();
@@ -90,6 +90,8 @@ public class LifecycleTest {
         return newLifeCycle(STARTED, state);
       case STOPPING:
         return newLifeCycle(STARTED, state);
+      case HARD_STOPPING:
+        return newLifeCycle(STARTING, state);
       case STOPPED:
         return newLifeCycle(STOPPING, state);
       default:

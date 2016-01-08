@@ -68,15 +68,20 @@ public class RestartAction implements SystemWsAction {
   @Override
   public void handle(Request request, Response response) {
     if (settings.getBoolean("sonar.web.dev")) {
-      LOGGER.info("Restart server");
+      LOGGER.info("Fast restarting WebServer...");
       platform.restart();
-      LOGGER.info("Server restarted");
+      LOGGER.info("WebServer restarted");
     } else {
       LOGGER.info("Requesting SonarQube restart");
       userSession.checkPermission(UserRole.ADMIN);
-      ProcessCommands commands = new DefaultProcessCommands(
-        nonNullValueAsFile(PROPERTY_SHARED_PATH), nonNullAsInt(PROPERTY_PROCESS_INDEX), false);
-      commands.askForRestart();
+
+      File shareDir = nonNullValueAsFile(PROPERTY_SHARED_PATH);
+      int processNumber = nonNullAsInt(PROPERTY_PROCESS_INDEX);
+      try (ProcessCommands commands = new DefaultProcessCommands(shareDir, processNumber, false)) {
+        commands.askForRestart();
+      } catch (Exception e) {
+        LOGGER.warn("Failed to close ProcessCommands", e);
+      }
     }
     response.noContent();
   }

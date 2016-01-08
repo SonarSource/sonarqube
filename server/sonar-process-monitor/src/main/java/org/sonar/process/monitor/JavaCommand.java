@@ -52,8 +52,6 @@ public class JavaCommand {
 
   private final Map<String, String> envVariables = new HashMap<>(System.getenv());
 
-  private File tempDir = null;
-
   private int processIndex = -1;
 
   public JavaCommand(String key) {
@@ -75,15 +73,6 @@ public class JavaCommand {
 
   public JavaCommand setWorkDir(File workDir) {
     this.workDir = workDir;
-    return this;
-  }
-
-  public File getTempDir() {
-    return tempDir;
-  }
-
-  public JavaCommand setTempDir(File tempDir) {
-    this.tempDir = tempDir;
     return this;
   }
 

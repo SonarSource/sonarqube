@@ -19,17 +19,25 @@
  */
 package org.sonar.process.monitor;
 
+import java.io.File;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.process.AllProcessesCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class JavaProcessLauncherTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
-  public void fail_to_launch() {
+  public void fail_to_launch() throws Exception {
+    File tempDir = temp.newFolder();
     JavaCommand command = new JavaCommand("test");
-    JavaProcessLauncher launcher = new JavaProcessLauncher(new Timeouts());
+    JavaProcessLauncher launcher = new JavaProcessLauncher(new Timeouts(), tempDir, new AllProcessesCommands(tempDir));
     try {
       // command is not correct (missing options), java.lang.ProcessBuilder#start()
       // throws an exception

@@ -36,7 +36,7 @@ package org.sonar.process;
  *   <li>execute OS-specific commands (for instance kill on *nix): OS-specific, so hell to support. Moreover how to get identify a process ?</li>
  * </ul>
  */
-public interface ProcessCommands {
+public interface ProcessCommands extends AutoCloseable {
 
   int MAX_PROCESSES = 50;
 

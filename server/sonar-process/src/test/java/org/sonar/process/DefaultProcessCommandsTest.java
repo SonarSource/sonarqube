@@ -23,11 +23,12 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assert.fail;
+import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
 
 public class DefaultProcessCommandsTest {
 
@@ -35,6 +36,8 @@ public class DefaultProcessCommandsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fail_to_init_if_dir_does_not_exist() throws Exception {
@@ -55,16 +58,9 @@ public class DefaultProcessCommandsTest {
 
     DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
     assertThat(commands.isReady()).isFalse();
-    assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(DefaultProcessCommands.EMPTY);
-    assertThat(commands.mappedByteBuffer.getLong(2 + commands.offset())).isEqualTo(0L);
 
     commands.setReady();
     assertThat(commands.isReady()).isTrue();
-    assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(DefaultProcessCommands.READY);
-
-    long currentTime = System.currentTimeMillis();
-    commands.ping();
-    assertThat(commands.mappedByteBuffer.getLong(2 + commands.offset())).isGreaterThanOrEqualTo(currentTime);
   }
 
   @Test
@@ -72,12 +68,10 @@ public class DefaultProcessCommandsTest {
     File dir = temp.newFolder();
 
     DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + PROCESS_NUMBER)).isNotEqualTo(DefaultProcessCommands.STOP);
     assertThat(commands.askedForStop()).isFalse();
 
     commands.askForStop();
     assertThat(commands.askedForStop()).isTrue();
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + PROCESS_NUMBER)).isEqualTo(DefaultProcessCommands.STOP);
   }
 
   @Test
@@ -85,12 +79,10 @@ public class DefaultProcessCommandsTest {
     File dir = temp.newFolder();
 
     DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isNotEqualTo(DefaultProcessCommands.RESTART);
     assertThat(commands.askedForRestart()).isFalse();
 
     commands.askForRestart();
     assertThat(commands.askedForRestart()).isTrue();
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isEqualTo(DefaultProcessCommands.RESTART);
   }
 
   @Test
@@ -98,11 +90,9 @@ public class DefaultProcessCommandsTest {
     File dir = temp.newFolder();
 
     DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isNotEqualTo(DefaultProcessCommands.RESTART);
     assertThat(commands.askedForRestart()).isFalse();
 
     commands.acknowledgeAskForRestart();
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isNotEqualTo(DefaultProcessCommands.RESTART);
     assertThat(commands.askedForRestart()).isFalse();
   }
 
@@ -114,27 +104,30 @@ public class DefaultProcessCommandsTest {
 
     commands.askForRestart();
     assertThat(commands.askedForRestart()).isTrue();
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isEqualTo(DefaultProcessCommands.RESTART);
 
     commands.acknowledgeAskForRestart();
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 3)).isNotEqualTo(DefaultProcessCommands.RESTART);
     assertThat(commands.askedForRestart()).isFalse();
   }
 
   @Test
-  public void test_max_processes() throws Exception {
+  public void constructor_fails_if_processNumber_is_less_than_0() throws Exception {
     File dir = temp.newFolder();
-    try {
-      new DefaultProcessCommands(dir, -2);
-      failBecauseExceptionWasNotThrown(AssertionError.class);
-    } catch (AssertionError e) {
-      assertThat(e).hasMessage("Incorrect process number");
-    }
-    try {
-      new DefaultProcessCommands(dir, ProcessCommands.MAX_PROCESSES + 1);
-      failBecauseExceptionWasNotThrown(AssertionError.class);
-    } catch (AssertionError e) {
-      assertThat(e).hasMessage("Incorrect process number");
-    }
+    int processNumber = -2;
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Process number " + processNumber + " is not valid");
+
+    new DefaultProcessCommands(dir, processNumber);
+  }
+
+  @Test
+  public void getProcessCommands_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
+    File dir = temp.newFolder();
+    int processNumber = MAX_PROCESSES + 1;
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Process number " + processNumber + " is not valid");
+
+    new DefaultProcessCommands(dir, processNumber);
   }
 }

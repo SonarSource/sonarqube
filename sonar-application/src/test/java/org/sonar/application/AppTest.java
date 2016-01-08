@@ -53,30 +53,6 @@ public class AppTest {
   }
 
   @Test
-  public void do_not_watch_stop_file_by_default() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
-    app.start(initDefaultProps());
-
-    assertThat(app.getStopWatcher()).isNull();
-  }
-
-  @Test
-  public void watch_stop_file() throws Exception {
-    Monitor monitor = mock(Monitor.class);
-    App app = new App(monitor);
-    Props props = initDefaultProps();
-    props.set("sonar.enableStopCommand", "true");
-    app.start(props);
-
-    assertThat(app.getStopWatcher()).isNotNull();
-    assertThat(app.getStopWatcher().isAlive()).isTrue();
-
-    app.getStopWatcher().stopWatching();
-    app.getStopWatcher().interrupt();
-  }
-
-  @Test
   public void start_elasticsearch_and_tomcat_by_default() throws Exception {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);

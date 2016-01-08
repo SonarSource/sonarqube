@@ -44,8 +44,6 @@ public class JavaCommandTest {
 
     command.setClassName("org.sonar.ElasticSearch");
     command.setEnvVariable("JAVA_COMMAND_TEST", "1000");
-    File tempDir = temp.newFolder();
-    command.setTempDir(tempDir);
     File workDir = temp.newFolder();
     command.setWorkDir(workDir);
     command.addClasspath("lib/*.jar");
@@ -56,7 +54,6 @@ public class JavaCommandTest {
     assertThat(command.getClasspath()).containsOnly("lib/*.jar", "conf/*.xml");
     assertThat(command.getJavaOptions()).containsOnly("-Xmx128m");
     assertThat(command.getWorkDir()).isSameAs(workDir);
-    assertThat(command.getTempDir()).isSameAs(tempDir);
     assertThat(command.getClassName()).isEqualTo("org.sonar.ElasticSearch");
 
     // copy current env variables

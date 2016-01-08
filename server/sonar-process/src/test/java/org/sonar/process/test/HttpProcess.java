@@ -43,6 +43,7 @@ import java.io.IOException;
  */
 public class HttpProcess implements Monitored {
 
+  private final int httpPort;
   private final Server server;
   private boolean ready = false;
   // temp dir is specific to this process
@@ -50,8 +51,9 @@ public class HttpProcess implements Monitored {
   private final ProcessCommands processCommands;
 
   public HttpProcess(int httpPort, ProcessCommands processCommands) {
+    this.httpPort = httpPort;
     this.processCommands = processCommands;
-    server = new Server(httpPort);
+    this.server = new Server(httpPort);
   }
 
   @Override
@@ -120,7 +122,7 @@ public class HttpProcess implements Monitored {
 
   private void writeTimeToFile(String filename) {
     try {
-      FileUtils.write(new File(tempDir, filename), System.currentTimeMillis() + ",", true);
+      FileUtils.write(new File(tempDir, httpPort + "-" + filename), System.currentTimeMillis() + ",", true);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }

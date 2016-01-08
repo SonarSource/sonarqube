@@ -19,35 +19,28 @@
  */
 package org.sonar.application;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.process.DefaultProcessCommands;
-import org.sonar.process.MinimumViableSystem;
-import org.sonar.process.ProcessCommands;
-import org.sonar.process.ProcessProperties;
-import org.sonar.process.Props;
-import org.sonar.process.StopWatcher;
-import org.sonar.process.Stoppable;
-import org.sonar.process.monitor.JavaCommand;
-import org.sonar.process.monitor.Monitor;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.process.MinimumViableSystem;
+import org.sonar.process.ProcessProperties;
+import org.sonar.process.Props;
+import org.sonar.process.Stoppable;
+import org.sonar.process.monitor.JavaCommand;
+import org.sonar.process.monitor.Monitor;
 
 /**
  * Entry-point of process that starts and monitors elasticsearch and web servers
  */
 public class App implements Stoppable {
 
-  private static final int APP_PROCESS_NUMBER = 0;
-
   private final Monitor monitor;
-  private StopWatcher stopWatcher = null;
 
-  public App() {
-    this(Monitor.create());
+  public App(File tempDir) {
+    this(Monitor.create(tempDir));
   }
 
   App(Monitor monitor) {
@@ -56,10 +49,7 @@ public class App implements Stoppable {
 
   public void start(Props props) {
     if (props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false)) {
-      File tempDir = props.nonNullValueAsFile(ProcessProperties.PATH_TEMP);
-      ProcessCommands commands = new DefaultProcessCommands(tempDir, APP_PROCESS_NUMBER);
-      stopWatcher = new StopWatcher(commands, this);
-      stopWatcher.start();
+      monitor.watchForHardStop();
     }
     monitor.start(createCommands(props));
     monitor.awaitTermination();
@@ -68,14 +58,12 @@ public class App implements Stoppable {
   private List<JavaCommand> createCommands(Props props) {
     List<JavaCommand> commands = new ArrayList<>();
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
-    File tempDir = props.nonNullValueAsFile(ProcessProperties.PATH_TEMP);
     JavaCommand elasticsearch = new JavaCommand("search");
     elasticsearch
       .setWorkDir(homeDir)
       .addJavaOptions("-Djava.awt.headless=true")
       .addJavaOptions(props.nonNullValue(ProcessProperties.SEARCH_JAVA_OPTS))
       .addJavaOptions(props.nonNullValue(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
-      .setTempDir(tempDir.getAbsoluteFile())
       .setClassName("org.sonar.search.SearchServer")
       .setArguments(props.rawProperties())
       .addClasspath("./lib/common/*")
@@ -89,7 +77,6 @@ public class App implements Stoppable {
         .addJavaOptions(ProcessProperties.WEB_ENFORCED_JVM_ARGS)
         .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_OPTS))
         .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS))
-        .setTempDir(tempDir.getAbsoluteFile())
           // required for logback tomcat valve
         .setEnvVariable(ProcessProperties.PATH_LOGS, props.nonNullValue(ProcessProperties.PATH_LOGS))
         .setClassName("org.sonar.server.app.WebServer")
@@ -118,16 +105,14 @@ public class App implements Stoppable {
     AppLogging logging = new AppLogging();
     logging.configure(props);
 
-    App app = new App();
+    File tempDir = props.nonNullValueAsFile(ProcessProperties.PATH_TEMP);
+    App app = new App(tempDir);
     app.start(props);
-  }
-
-  StopWatcher getStopWatcher() {
-    return stopWatcher;
   }
 
   @Override
   public void stopAsync() {
-    monitor.stopAsync();
+    monitor.stop();
   }
+
 }

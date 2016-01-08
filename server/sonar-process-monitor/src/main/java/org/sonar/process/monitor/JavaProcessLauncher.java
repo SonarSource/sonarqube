@@ -19,13 +19,6 @@
  */
 package org.sonar.process.monitor;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
-import org.sonar.process.DefaultProcessCommands;
-import org.sonar.process.ProcessCommands;
-import org.sonar.process.ProcessEntryPoint;
-import org.sonar.process.ProcessUtils;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -33,20 +26,33 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.sonar.process.AllProcessesCommands;
+import org.sonar.process.ProcessCommands;
+import org.sonar.process.ProcessEntryPoint;
+import org.sonar.process.ProcessUtils;
 
 public class JavaProcessLauncher {
 
   private final Timeouts timeouts;
+  private final File tempDir;
+  private final AllProcessesCommands allProcessesCommands;
 
-  public JavaProcessLauncher(Timeouts timeouts) {
+  public JavaProcessLauncher(Timeouts timeouts, File tempDir, AllProcessesCommands allProcessesCommands) {
     this.timeouts = timeouts;
+    this.tempDir = tempDir;
+    this.allProcessesCommands = allProcessesCommands;
+  }
+
+  public void close() {
+    allProcessesCommands.close();
   }
 
   ProcessRef launch(JavaCommand command) {
     Process process = null;
     try {
-      // cleanup existing monitor files
-      ProcessCommands commands = new DefaultProcessCommands(command.getTempDir(), command.getProcessIndex());
+      ProcessCommands commands = allProcessesCommands.getProcessCommand(command.getProcessIndex(), true);
 
       ProcessBuilder processBuilder = create(command);
       LoggerFactory.getLogger(getClass()).info("Launch process[{}]: {}",
@@ -69,7 +75,7 @@ public class JavaProcessLauncher {
     commands.add(buildJavaPath());
     commands.addAll(javaCommand.getJavaOptions());
     // TODO warning - does it work if temp dir contains a whitespace ?
-    commands.add(String.format("-Djava.io.tmpdir=%s", javaCommand.getTempDir().getAbsolutePath()));
+    commands.add(String.format("-Djava.io.tmpdir=%s", tempDir.getAbsolutePath()));
     commands.addAll(buildClasspath(javaCommand));
     commands.add(javaCommand.getClassName());
     commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
@@ -101,7 +107,7 @@ public class JavaProcessLauncher {
       props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_KEY, javaCommand.getKey());
       props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_INDEX, Integer.toString(javaCommand.getProcessIndex()));
       props.setProperty(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, String.valueOf(timeouts.getTerminationTimeout()));
-      props.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, javaCommand.getTempDir().getAbsolutePath());
+      props.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, tempDir.getAbsolutePath());
       OutputStream out = new FileOutputStream(propertiesFile);
       props.store(out, String.format("Temporary properties file for command [%s]", javaCommand.getKey()));
       out.close();

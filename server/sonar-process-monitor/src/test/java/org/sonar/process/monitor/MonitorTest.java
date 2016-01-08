@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.internal.Longs;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -90,6 +91,14 @@ public class MonitorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private File tempDir;
+
+  @Before
+  public void setUp() throws Exception {
+    tempDir = temp.newFolder();
+
+  }
+
   /**
    * Safeguard
    */
@@ -104,8 +113,8 @@ public class MonitorTest {
   }
 
   @Test
-  public void fail_to_start_if_no_commands() {
-    monitor = newDefaultMonitor();
+  public void fail_to_start_if_no_commands() throws Exception {
+    monitor = newDefaultMonitor(tempDir);
     try {
       monitor.start(Collections.<JavaCommand>emptyList());
       fail();
@@ -116,7 +125,7 @@ public class MonitorTest {
 
   @Test
   public void fail_to_start_multiple_times() throws Exception {
-    monitor = newDefaultMonitor();
+    monitor = newDefaultMonitor(tempDir);
     monitor.start(Arrays.asList(newStandardProcessCommand()));
     boolean failed = false;
     try {
@@ -130,8 +139,8 @@ public class MonitorTest {
 
   @Test
   public void start_then_stop_gracefully() throws Exception {
-    monitor = newDefaultMonitor();
-    HttpProcessClient client = new HttpProcessClient("test");
+    monitor = newDefaultMonitor(tempDir);
+    HttpProcessClient client = new HttpProcessClient(tempDir, "test");
     // blocks until started
     monitor.start(Arrays.asList(client.newCommand()));
 
@@ -148,9 +157,9 @@ public class MonitorTest {
 
   @Test
   public void start_then_stop_sequence_of_commands() throws Exception {
-    monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1");
-    HttpProcessClient p2 = new HttpProcessClient("p2");
+    monitor = newDefaultMonitor(tempDir);
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     // start p2 when p1 is fully started (ready)
@@ -173,9 +182,9 @@ public class MonitorTest {
 
   @Test
   public void stop_all_processes_if_monitor_shutdowns() throws Exception {
-    monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1");
-    HttpProcessClient p2 = new HttpProcessClient("p2");
+    monitor = newDefaultMonitor(tempDir);
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1).isReady();
     assertThat(p2).isReady();
@@ -190,9 +199,9 @@ public class MonitorTest {
 
   @Test
   public void restart_all_processes_if_one_asks_for_restart() throws Exception {
-    monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1");
-    HttpProcessClient p2 = new HttpProcessClient("p2");
+    monitor = newDefaultMonitor(tempDir);
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     assertThat(p1).isReady();
@@ -221,9 +230,9 @@ public class MonitorTest {
 
   @Test
   public void stop_all_processes_if_one_shutdowns() throws Exception {
-    monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1");
-    HttpProcessClient p2 = new HttpProcessClient("p2");
+    monitor = newDefaultMonitor(tempDir);
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1.isReady()).isTrue();
     assertThat(p2.isReady()).isTrue();
@@ -242,9 +251,9 @@ public class MonitorTest {
 
   @Test
   public void stop_all_processes_if_one_fails_to_start() throws Exception {
-    monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1");
-    HttpProcessClient p2 = new HttpProcessClient("p2", -1);
+    monitor = newDefaultMonitor(tempDir);
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2", -1);
     try {
       monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
       fail();
@@ -260,11 +269,11 @@ public class MonitorTest {
   }
 
   @Test
-  public void test_too_many_processes() {
+  public void test_too_many_processes() throws Exception {
     while (Monitor.getNextProcessId() < ProcessCommands.MAX_PROCESSES - 1) {
     }
     try {
-      newDefaultMonitor();
+      newDefaultMonitor(tempDir);
     } catch (IllegalStateException e) {
       assertThat(e).hasMessageStartingWith("The maximum number of processes launched has been reached ");
     } finally {
@@ -274,11 +283,10 @@ public class MonitorTest {
 
   @Test
   public void fail_to_start_if_bad_class_name() throws Exception {
-    monitor = newDefaultMonitor();
+    monitor = newDefaultMonitor(tempDir);
     JavaCommand command = new JavaCommand("test")
       .addClasspath(testJar.getAbsolutePath())
-      .setClassName("org.sonar.process.test.Unknown")
-      .setTempDir(temp.newFolder());
+      .setClassName("org.sonar.process.test.Unknown");
 
     try {
       monitor.start(Arrays.asList(command));
@@ -289,9 +297,19 @@ public class MonitorTest {
     }
   }
 
-  private Monitor newDefaultMonitor() {
-    Timeouts timeouts = new Timeouts();
-    return new Monitor(new JavaProcessLauncher(timeouts), exit);
+  @Test
+  public void watchForHardStop_adds_a_hardStopWatcher_thread_and_starts_it() throws Exception {
+    Monitor monitor = newDefaultMonitor(tempDir);
+    assertThat(monitor.hardStopWatcher).isNull();
+
+    monitor.watchForHardStop();
+
+    assertThat(monitor.hardStopWatcher).isNotNull();
+    assertThat(monitor.hardStopWatcher.isAlive()).isTrue();
+  }
+
+  private Monitor newDefaultMonitor(File tempDir) throws IOException {
+    return new Monitor(tempDir, exit);
   }
 
   /**
@@ -302,16 +320,16 @@ public class MonitorTest {
     private final String commandKey;
     private final File tempDir;
 
-    private HttpProcessClient(String commandKey) throws IOException {
-      this(commandKey, NetworkUtils.freePort());
+    private HttpProcessClient(File tempDir, String commandKey) throws IOException {
+      this(tempDir, commandKey, NetworkUtils.freePort());
     }
 
     /**
      * Use httpPort=-1 to make server fail to start
      */
-    private HttpProcessClient(String commandKey, int httpPort) throws IOException {
+    private HttpProcessClient(File tempDir, String commandKey, int httpPort) throws IOException {
+      this.tempDir = tempDir;
       this.commandKey = commandKey;
-      this.tempDir = temp.newFolder(commandKey);
       this.httpPort = httpPort;
     }
 
@@ -319,8 +337,7 @@ public class MonitorTest {
       return new JavaCommand(commandKey)
         .addClasspath(testJar.getAbsolutePath())
         .setClassName("org.sonar.process.test.HttpProcess")
-        .setArgument("httpPort", String.valueOf(httpPort))
-        .setTempDir(tempDir);
+        .setArgument("httpPort", String.valueOf(httpPort));
     }
 
     /**
@@ -386,7 +403,7 @@ public class MonitorTest {
 
     private List<Long> readTimeFromFile(String filename) {
       try {
-        File file = new File(tempDir, filename);
+        File file = new File(tempDir, httpPort + "-" + filename);
         if (file.isFile() && file.exists()) {
           String[] split = StringUtils.split(FileUtils.readFileToString(file), ',');
           List<Long> res = new ArrayList<>(split.length);
@@ -402,7 +419,7 @@ public class MonitorTest {
     }
 
     private boolean fileExists(String filename) {
-      File file = new File(tempDir, filename);
+      File file = new File(tempDir, httpPort + "-" + filename);
       return file.isFile() && file.exists();
     }
   }
@@ -542,8 +559,7 @@ public class MonitorTest {
   private JavaCommand newStandardProcessCommand() throws IOException {
     return new JavaCommand("standard")
       .addClasspath(testJar.getAbsolutePath())
-      .setClassName("org.sonar.process.test.StandardProcess")
-      .setTempDir(temp.newFolder());
+      .setClassName("org.sonar.process.test.StandardProcess");
   }
 
 }

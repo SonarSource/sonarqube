@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.sonar.process.Lifecycle.State.HARD_STOPPING;
 import static org.sonar.process.Lifecycle.State.INIT;
 import static org.sonar.process.Lifecycle.State.RESTARTING;
 import static org.sonar.process.Lifecycle.State.STARTED;
@@ -39,7 +40,7 @@ public class Lifecycle {
   private static final Logger LOG = LoggerFactory.getLogger(Lifecycle.class);
 
   public enum State {
-    INIT, STARTING, STARTED, RESTARTING, STOPPING, STOPPED
+    INIT, STARTING, STARTED, RESTARTING, STOPPING, HARD_STOPPING, STOPPED
   }
 
   private static final Map<State, Set<State>> TRANSITIONS = buildTransitions();
@@ -47,10 +48,11 @@ public class Lifecycle {
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);
     res.put(INIT, toSet(STARTING));
-    res.put(STARTING, toSet(STARTED, STOPPING));
-    res.put(STARTED, toSet(RESTARTING, STOPPING));
-    res.put(RESTARTING, toSet(STARTING, STOPPING));
+    res.put(STARTING, toSet(STARTED, STOPPING, HARD_STOPPING));
+    res.put(STARTED, toSet(RESTARTING, STOPPING, HARD_STOPPING));
+    res.put(RESTARTING, toSet(STARTING, HARD_STOPPING));
     res.put(STOPPING, toSet(STOPPED));
+    res.put(HARD_STOPPING, toSet(STOPPED));
     res.put(STOPPED, toSet());
     return res;
   }
