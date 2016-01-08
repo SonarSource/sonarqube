@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.Lifecycle.State;
+import static org.sonar.process.Lifecycle.State.*;
 
 public class LifecycleTest {
 
@@ -37,34 +38,34 @@ public class LifecycleTest {
 
     // different state
     Lifecycle stopping = new Lifecycle();
-    stopping.tryToMoveTo(State.STARTING);
+    stopping.tryToMoveTo(STARTING);
     assertThat(stopping).isNotEqualTo(init);
   }
 
   @Test
   public void try_to_move_does_not_support_jumping_states() {
     Lifecycle lifecycle = new Lifecycle();
-    assertThat(lifecycle.getState()).isEqualTo(State.INIT);
+    assertThat(lifecycle.getState()).isEqualTo(INIT);
 
-    assertThat(lifecycle.tryToMoveTo(State.STARTED)).isFalse();
-    assertThat(lifecycle.getState()).isEqualTo(State.INIT);
+    assertThat(lifecycle.tryToMoveTo(STARTED)).isFalse();
+    assertThat(lifecycle.getState()).isEqualTo(INIT);
 
-    assertThat(lifecycle.tryToMoveTo(State.STARTING)).isTrue();
-    assertThat(lifecycle.getState()).isEqualTo(State.STARTING);
+    assertThat(lifecycle.tryToMoveTo(STARTING)).isTrue();
+    assertThat(lifecycle.getState()).isEqualTo(STARTING);
   }
 
   @Test
   public void no_state_can_not_move_to_itself() {
-    for (State state : State.values()) {
+    for (State state : values()) {
       assertThat(newLifeCycle(state).tryToMoveTo(state)).isFalse();
     }
   }
 
   @Test
   public void can_move_to_STOPPING_from_any_state_but_STARTING_and_STARTED_only() {
-    for (State state : State.values()) {
-      boolean tryToMoveTo = newLifeCycle(state).tryToMoveTo(State.STOPPING);
-      if (state == State.STARTING || state == State.STARTED) {
+    for (State state : values()) {
+      boolean tryToMoveTo = newLifeCycle(state).tryToMoveTo(STOPPING);
+      if (state == STARTING || state == STARTED || state == RESTARTING) {
         assertThat(tryToMoveTo).describedAs("from state " + state).isTrue();
       } else {
         assertThat(tryToMoveTo).describedAs("from state " + state).isFalse();
@@ -74,7 +75,7 @@ public class LifecycleTest {
 
   @Test
   public void can_move_to_STARTING_from_RESTARTING() {
-    assertThat(newLifeCycle(State.RESTARTING).tryToMoveTo(State.STARTING)).isTrue();
+    assertThat(newLifeCycle(RESTARTING).tryToMoveTo(STARTING)).isTrue();
   }
 
   private static Lifecycle newLifeCycle(State state) {
@@ -82,15 +83,15 @@ public class LifecycleTest {
       case INIT:
         return new Lifecycle();
       case STARTING:
-        return newLifeCycle(State.INIT, state);
+        return newLifeCycle(INIT, state);
       case STARTED:
-        return newLifeCycle(State.STARTING, state);
+        return newLifeCycle(STARTING, state);
       case RESTARTING:
-        return newLifeCycle(State.STARTED, state);
+        return newLifeCycle(STARTED, state);
       case STOPPING:
-        return newLifeCycle(State.STARTED, state);
+        return newLifeCycle(STARTED, state);
       case STOPPED:
-        return newLifeCycle(State.STOPPING, state);
+        return newLifeCycle(STOPPING, state);
       default:
         throw new IllegalArgumentException("Unsupported state " + state);
     }

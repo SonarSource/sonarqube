@@ -20,13 +20,20 @@
 package org.sonar.process;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.sonar.process.Lifecycle.State.INIT;
+import static org.sonar.process.Lifecycle.State.RESTARTING;
+import static org.sonar.process.Lifecycle.State.STARTED;
+import static org.sonar.process.Lifecycle.State.STARTING;
+import static org.sonar.process.Lifecycle.State.STOPPED;
+import static org.sonar.process.Lifecycle.State.STOPPING;
 
 public class Lifecycle {
   private static final Logger LOG = LoggerFactory.getLogger(Lifecycle.class);
@@ -38,13 +45,13 @@ public class Lifecycle {
   private static final Map<State, Set<State>> TRANSITIONS = buildTransitions();
 
   private static Map<State, Set<State>> buildTransitions() {
-    Map<State, Set<State>> res = new HashMap<>(State.values().length);
-    res.put(State.INIT, toSet(State.STARTING));
-    res.put(State.STARTING, toSet(State.STARTED, State.STOPPING));
-    res.put(State.STARTED, toSet(State.RESTARTING, State.STOPPING));
-    res.put(State.RESTARTING, toSet(State.STARTING));
-    res.put(State.STOPPING, toSet(State.STOPPED));
-    res.put(State.STOPPED, toSet());
+    Map<State, Set<State>> res = new EnumMap<>(State.class);
+    res.put(INIT, toSet(STARTING));
+    res.put(STARTING, toSet(STARTED, STOPPING));
+    res.put(STARTED, toSet(RESTARTING, STOPPING));
+    res.put(RESTARTING, toSet(STARTING, STOPPING));
+    res.put(STOPPING, toSet(STOPPED));
+    res.put(STOPPED, toSet());
     return res;
   }
 
@@ -60,7 +67,7 @@ public class Lifecycle {
     return res;
   }
 
-  private State state = State.INIT;
+  private State state = INIT;
 
   public State getState() {
     return state;
@@ -73,7 +80,7 @@ public class Lifecycle {
       this.state = to;
       res = true;
     }
-    LOG.trace("tryToMoveTo from {} to {} => {}", currentState, to, res);
+    LOG.info("tryToMoveTo from {} to {} => {}", currentState, to, res);
     return res;
   }
 

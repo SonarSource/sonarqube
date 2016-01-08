@@ -75,6 +75,10 @@ public class DefaultProcessCommands implements ProcessCommands {
   private int processNumber;
 
   public DefaultProcessCommands(File directory, int processNumber) {
+    this(directory, processNumber, true);
+  }
+
+  public DefaultProcessCommands(File directory, int processNumber, boolean clean) {
     // processNumber should not excess MAX_PROCESSES and must not be below -1
     assert processNumber <= MAX_PROCESSES : "Incorrect process number";
     assert processNumber >= -1 : "Incorrect process number";
@@ -87,7 +91,9 @@ public class DefaultProcessCommands implements ProcessCommands {
     try {
       sharedMemory = new RandomAccessFile(new File(directory, "sharedmemory"), "rw");
       mappedByteBuffer = sharedMemory.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_SHARED_MEMORY);
-      cleanData();
+      if (clean) {
+        cleanData();
+      }
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to create shared memory : ", e);
     }

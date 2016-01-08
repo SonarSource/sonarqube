@@ -75,7 +75,7 @@ public class RestartAction implements SystemWsAction {
       LOGGER.info("Requesting SonarQube restart");
       userSession.checkPermission(UserRole.ADMIN);
       ProcessCommands commands = new DefaultProcessCommands(
-        nonNullValueAsFile(PROPERTY_SHARED_PATH), nonNullAsInt(PROPERTY_PROCESS_INDEX));
+        nonNullValueAsFile(PROPERTY_SHARED_PATH), nonNullAsInt(PROPERTY_PROCESS_INDEX), false);
       commands.askForRestart();
     }
     response.noContent();

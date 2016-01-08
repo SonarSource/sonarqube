@@ -188,15 +188,16 @@ public class Monitor {
   private void cleanAfterTermination() {
     trace("go to STOPPED...");
     // safeguard if TerminatorThread is buggy and stop restartWatcher
-    lifecycle.tryToMoveTo(State.STOPPED);
-    trace("await termination of restartWatcher...");
-    // wait for restartWatcher to cleanly stop
-    awaitTermination(restartWatcher);
-    trace("restartWatcher done");
-    // removing shutdown hook to avoid called stop() unnecessarily unless already in shutdownHook
-    if (!systemExit.isInShutdownHook()) {
-      trace("removing shutdown hook...");
-      Runtime.getRuntime().removeShutdownHook(shutdownHook);
+    if (lifecycle.tryToMoveTo(State.STOPPED)) {
+      trace("await termination of restartWatcher...");
+      // wait for restartWatcher to cleanly stop
+      awaitTermination(restartWatcher);
+      trace("restartWatcher done");
+      // removing shutdown hook to avoid called stop() unnecessarily unless already in shutdownHook
+      if (!systemExit.isInShutdownHook()) {
+        trace("removing shutdown hook...");
+        Runtime.getRuntime().removeShutdownHook(shutdownHook);
+      }
     }
   }
 
@@ -288,7 +289,7 @@ public class Monitor {
   }
 
   private void stopProcesses() {
-    ArrayList<WatcherThread> watcherThreads = new ArrayList<>(this.watcherThreads);
+    List<WatcherThread> watcherThreads = new ArrayList<>(this.watcherThreads);
     // create a copy and reverse it to terminate in reverse order of startup (dependency order)
     Collections.reverse(watcherThreads);
 
