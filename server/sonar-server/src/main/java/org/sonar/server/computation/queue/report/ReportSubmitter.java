@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
@@ -35,6 +34,8 @@ import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.queue.CeTaskSubmit;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 @ServerSide
 public class ReportSubmitter {
@@ -55,11 +56,12 @@ public class ReportSubmitter {
   }
 
   public CeTask submit(String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
-    userSession.checkPermission(GlobalPermissions.SCAN_EXECUTION);
-
     String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
     ComponentDto project = componentService.getNullableByKey(effectiveProjectKey);
     if (project == null) {
+      // the project does not exist -> require global permission
+      userSession.checkPermission(SCAN_EXECUTION);
+
       // the project does not exist -> requires to provision it
       NewComponent newProject = new NewComponent(projectKey, StringUtils.defaultIfBlank(projectName, projectKey));
       newProject.setBranch(projectBranch);
@@ -67,6 +69,9 @@ public class ReportSubmitter {
       // no need to verify the permission "provisioning" as it's already handled by componentService
       project = componentService.create(newProject);
       permissionService.applyDefaultPermissionTemplate(project.getKey());
+    } else {
+      // the project exists -> require global or project permission
+      userSession.checkComponentPermission(SCAN_EXECUTION, projectKey);
     }
 
     // the report file must be saved before submitting the task

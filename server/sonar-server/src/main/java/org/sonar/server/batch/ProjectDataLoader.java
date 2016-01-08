@@ -30,7 +30,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -42,6 +41,8 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 @ServerSide
@@ -56,14 +57,15 @@ public class ProjectDataLoader {
   }
 
   public ProjectRepositories load(ProjectDataQuery query) {
-    boolean hasScanPerm = userSession.hasPermission(GlobalPermissions.SCAN_EXECUTION);
-    checkPermission(query.isIssuesMode());
-
     DbSession session = dbClient.openSession(false);
     try {
       ProjectRepositories data = new ProjectRepositories();
       ComponentDto module = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, query.getModuleKey()),
         "Project or module with key '%s' is not found", query.getModuleKey());
+
+      boolean hasScanPerm = userSession.hasComponentUuidPermission(SCAN_EXECUTION, module.projectUuid());
+      boolean hasPreviewPerm = userSession.hasPermission(PREVIEW_EXECUTION);
+      checkPermission(query.isIssuesMode(), hasScanPerm, hasPreviewPerm);
 
       // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
       if (query.isIssuesMode() && !userSession.hasComponentUuidPermission(UserRole.USER, module.projectUuid())) {
@@ -180,9 +182,7 @@ public class ProjectDataLoader {
     }
   }
 
-  private void checkPermission(boolean preview) {
-    boolean hasScanPerm = userSession.hasPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean hasPreviewPerm = userSession.hasPermission(GlobalPermissions.PREVIEW_EXECUTION);
+  private void checkPermission(boolean preview, boolean hasScanPerm, boolean hasPreviewPerm) {
     if (!hasPreviewPerm && !hasScanPerm) {
       throw new ForbiddenException(Messages.NO_PERMISSION);
     }

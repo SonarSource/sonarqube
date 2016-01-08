@@ -138,20 +138,20 @@ public class MockUserSession extends AbstractUserSession<MockUserSession> implem
   @Override
   public boolean hasComponentPermission(String permission, String componentKey) {
     String projectKey = projectKeyByComponentKey.get(componentKey);
-    return projectKey != null && hasProjectPermission(permission, projectKey);
+    return hasPermission(permission) || (projectKey != null && hasProjectPermission(permission, projectKey));
   }
 
   private boolean hasProjectPermission(String permission, String projectKey) {
-    return hasPermission(permission) || (projectPermissionsCheckedByKey.contains(permission) && projectKeyByPermission.get(permission).contains(projectKey));
+    return projectPermissionsCheckedByKey.contains(permission) && projectKeyByPermission.get(permission).contains(projectKey);
   }
 
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     String projectUuid = projectUuidByComponentUuid.get(componentUuid);
-    return projectUuid != null && hasProjectPermissionByUuid(permission, projectUuid);
+    return hasPermission(permission) || (projectUuid != null && hasProjectPermissionByUuid(permission, projectUuid));
   }
 
   private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
-    return hasPermission(permission) || (projectPermissionsCheckedByUuid.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid));
+    return projectPermissionsCheckedByUuid.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
   }
 }
