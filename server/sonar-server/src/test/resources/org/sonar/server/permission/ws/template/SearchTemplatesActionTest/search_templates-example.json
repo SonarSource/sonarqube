@@ -72,27 +72,5 @@
       "templateId": "AU-TpxcA-iU5OvuD2FL0",
       "qualifier": "DEV"
     }
-  ],
-  "permissions": [
-    {
-      "key": "user",
-      "name": "Browse",
-      "description": "Ability to access a project, browse its measures, and create/edit issues for it."
-    },
-    {
-      "key": "admin",
-      "name": "Administer",
-      "description": "Ability to access project settings and perform administration tasks. (Users will also need \"Browse\" permission)"
-    },
-    {
-      "key": "issueadmin",
-      "name": "Administer Issues",
-      "description": "Grants the permission to perform advanced editing on issues: marking an issue False Positive / Won\u0027t Fix or changing an Issue\u0027s severity. (Users will also need \"Browse\" permission)"
-    },
-    {
-      "key": "codeviewer",
-      "name": "See Source Code",
-      "description": "Ability to view the project\u0027s source code. (Users will also need \"Browse\" permission)"
-    }
   ]
 }

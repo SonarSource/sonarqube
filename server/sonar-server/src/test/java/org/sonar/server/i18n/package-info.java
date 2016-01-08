@@ -1,5 +1,5 @@
 /*
- * SonarQube :: Database
+ * SonarQube :: Server
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
@@ -17,27 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.permission;
+@ParametersAreNonnullByDefault
+package org.sonar.server.i18n;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-import org.sonar.api.web.UserRole;
-
-/**
- * Holds the constants representing the various component permissions that can be assigned to users & groups
- *
- */
-public final class ProjectPermissions {
-
-  /**
-   * All the component permissions values, ordered from {@link UserRole#USER} to {@link GlobalPermissions#SCAN_EXECUTION}.
-   */
-  public static final List<String> ALL = ImmutableList.of(UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.CODEVIEWER, GlobalPermissions.SCAN_EXECUTION);
-
-  public static final String ALL_ON_ONE_LINE = Joiner.on(", ").join(ProjectPermissions.ALL);
-
-  private ProjectPermissions() {
-    // static constants only
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

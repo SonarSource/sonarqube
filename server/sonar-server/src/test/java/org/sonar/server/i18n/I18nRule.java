@@ -47,6 +47,9 @@ public class I18nRule implements I18n {
     put("projects_role.user.desc", "Ability to access a project, browse its measures, and create/edit issues for it.");
     put("projects_role.codeviewer", "See Source Code");
     put("projects_role.codeviewer.desc", "Ability to view the project's source code. (Users will also need \"Browse\" permission)");
+    put("projects_role.scan", "Execute Analysis");
+    put("projects_role.scan.desc",
+      "Ability to execute analyses, and to get all settings required to perform the analysis, even the secured ones like the scm account password, the jira account password, and so on.");
   }
 
   @Override

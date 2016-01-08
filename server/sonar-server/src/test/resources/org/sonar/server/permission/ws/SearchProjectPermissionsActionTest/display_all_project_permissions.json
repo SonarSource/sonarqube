@@ -1,0 +1,30 @@
+{
+  "projects": [],
+  "permissions": [
+    {
+      "key": "user",
+      "name": "Browse",
+      "description": "Ability to access a project, browse its measures, and create/edit issues for it."
+    },
+    {
+      "key": "admin",
+      "name": "Administer",
+      "description": "Ability to access project settings and perform administration tasks. (Users will also need \"Browse\" permission)"
+    },
+    {
+      "key": "issueadmin",
+      "name": "Administer Issues",
+      "description": "Grants the permission to perform advanced editing on issues: marking an issue False Positive / Won't Fix or changing an Issue's severity. (Users will also need \"Browse\" permission)"
+    },
+    {
+      "key": "codeviewer",
+      "name": "See Source Code",
+      "description": "Ability to view the project's source code. (Users will also need \"Browse\" permission)"
+    }
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 25,
+    "total": 0
+  }
+}

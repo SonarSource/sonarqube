@@ -19,25 +19,20 @@
  */
 package org.sonar.core.permission;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import org.junit.Test;
 import org.sonar.api.web.UserRole;
 
-/**
- * Holds the constants representing the various component permissions that can be assigned to users & groups
- *
- */
-public final class ProjectPermissions {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  /**
-   * All the component permissions values, ordered from {@link UserRole#USER} to {@link GlobalPermissions#SCAN_EXECUTION}.
-   */
-  public static final List<String> ALL = ImmutableList.of(UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.CODEVIEWER, GlobalPermissions.SCAN_EXECUTION);
+public class ProjectPermissionsTest {
 
-  public static final String ALL_ON_ONE_LINE = Joiner.on(", ").join(ProjectPermissions.ALL);
+  @Test
+  public void all_permissions() throws Exception {
+    assertThat(ProjectPermissions.ALL).containsOnly(UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.CODEVIEWER, GlobalPermissions.SCAN_EXECUTION);
+  }
 
-  private ProjectPermissions() {
-    // static constants only
+  @Test
+  public void all_permissions_as_string() throws Exception {
+    assertThat(ProjectPermissions.ALL_ON_ONE_LINE).isEqualTo("user, admin, issueadmin, codeviewer, scan");
   }
 }

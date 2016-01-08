@@ -136,7 +136,8 @@ public class SearchTemplatesActionTest {
 
     assertJson(result)
       .withStrictArrayOrder()
-      .isSimilarTo(getClass().getResource("search_templates-example.json"));
+      .ignoreFields("permissions")
+      .isSimilarTo(getClass().getResource("SearchTemplatesActionTest/search_templates-example.json"));
   }
 
   @Test
@@ -145,6 +146,7 @@ public class SearchTemplatesActionTest {
 
     assertJson(result)
       .withStrictArrayOrder()
+      .ignoreFields("permissions")
       .isSimilarTo(getClass().getResource("SearchTemplatesActionTest/empty.json"));
   }
 
@@ -178,6 +180,16 @@ public class SearchTemplatesActionTest {
     userSession.login().setGlobalPermissions(QUALITY_PROFILE_ADMIN);
 
     ws.newRequest().execute();
+  }
+
+  @Test
+  public void display_all_project_permissions() {
+    String result = newRequest();
+
+    assertJson(result)
+      .withStrictArrayOrder()
+      .ignoreFields("defaultTemplates", "permissionTemplates")
+      .isSimilarTo(getClass().getResource("SearchTemplatesActionTest/display_all_project_permissions.json"));
   }
 
   private String newRequest() {

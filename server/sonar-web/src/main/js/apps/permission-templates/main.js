@@ -23,7 +23,7 @@ import Header from './header';
 import PermissionTemplates from './permission-templates';
 import { getPermissionTemplates } from '../../api/permissions';
 
-const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin'];
+const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin', 'scan'];
 
 export default React.createClass({
   propTypes: {

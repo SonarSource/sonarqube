@@ -28,7 +28,7 @@ import ApplyTemplateView from './apply-template-view';
 import { translate } from '../../helpers/l10n';
 
 
-const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin'];
+const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin', 'scan'];
 
 
 export default React.createClass({

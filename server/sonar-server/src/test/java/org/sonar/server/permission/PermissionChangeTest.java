@@ -20,13 +20,12 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -132,7 +131,7 @@ public class PermissionChangeTest {
     PermissionChange query = PermissionChange.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
-    thrown.expectMessage("Invalid component permission key invalid. Valid values are [user, admin, issueadmin, codeviewer]");
+    thrown.expectMessage("Invalid component permission key invalid. Valid values are [user, admin, issueadmin, codeviewer, scan]");
     query.validate();
   }
 }

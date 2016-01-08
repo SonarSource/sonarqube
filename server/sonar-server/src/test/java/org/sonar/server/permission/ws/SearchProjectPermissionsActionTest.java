@@ -135,14 +135,18 @@ public class SearchProjectPermissionsActionTest {
 
     String result = ws.newRequest().execute().getInput();
 
-    assertJson(result).isSimilarTo(getClass().getResource("search_project_permissions-example.json"));
+    assertJson(result)
+      .ignoreFields("permissions")
+      .isSimilarTo(getClass().getResource("SearchProjectPermissionsActionTest/search_project_permissions-example.json"));
   }
 
   @Test
   public void empty_result() {
     String result = ws.newRequest().execute().getInput();
 
-    assertJson(result).isSimilarTo(getClass().getResource("SearchProjectPermissionsActionTest/empty.json"));
+    assertJson(result)
+      .ignoreFields("permissions")
+      .isSimilarTo(getClass().getResource("SearchProjectPermissionsActionTest/empty.json"));
   }
 
   @Test
@@ -273,6 +277,15 @@ public class SearchProjectPermissionsActionTest {
     userSession.login();
 
     ws.newRequest().execute();
+  }
+
+  @Test
+  public void display_all_project_permissions() {
+    String result = ws.newRequest().execute().getInput();
+
+    assertJson(result)
+      .ignoreFields("permissions")
+      .isSimilarTo(getClass().getResource("SearchProjectPermissionsActionTest/display_all_project_permissions.json"));
   }
 
   private ComponentDto insertView() {
