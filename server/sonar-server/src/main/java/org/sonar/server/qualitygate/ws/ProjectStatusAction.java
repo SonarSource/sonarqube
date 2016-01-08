@@ -31,16 +31,18 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -49,7 +51,7 @@ public class ProjectStatusAction implements QGateWsAction {
     .join(Lists.transform(Arrays.asList(ProjectStatusWsResponse.Status.values()), new Function<ProjectStatusWsResponse.Status, String>() {
       @Nonnull
       @Override
-      public String apply(ProjectStatusWsResponse.Status input) {
+      public String apply(@Nonnull ProjectStatusWsResponse.Status input) {
         return input.toString();
       }
     }));
@@ -86,12 +88,12 @@ public class ProjectStatusAction implements QGateWsAction {
   }
 
   private ProjectStatusWsResponse doHandle(ProjectStatusWsRequest request) {
-    checkScanOrAdminPermission();
-
     DbSession dbSession = dbClient.openSession(false);
     try {
       String snapshotId = request.getAnalysisId();
       SnapshotDto snapshotDto = getSnapshot(dbSession, snapshotId);
+      ComponentDto projectDto = dbClient.componentDao().selectOrFailById(dbSession, snapshotDto.getComponentId());
+      checkPermission(projectDto.uuid());
       String measureData = getQualityGateDetailsMeasureData(dbSession, snapshotDto);
 
       return ProjectStatusWsResponse.newBuilder()
@@ -133,7 +135,10 @@ public class ProjectStatusAction implements QGateWsAction {
       .setAnalysisId(request.mandatoryParam("analysisId"));
   }
 
-  private void checkScanOrAdminPermission() {
-    userSession.checkAnyPermissions(newHashSet(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.SYSTEM_ADMIN));
+  private void checkPermission(String projectUuid) {
+    if (!userSession.hasPermission(SYSTEM_ADMIN)
+      && !userSession.hasComponentUuidPermission(SCAN_EXECUTION, projectUuid)) {
+      throw insufficientPrivilegesException();
+    }
   }
 }
