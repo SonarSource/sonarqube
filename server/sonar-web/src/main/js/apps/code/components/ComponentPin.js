@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 const ComponentPin = ({ component }) => {
   const handleClick = (e) => {
     e.preventDefault();
-    Workspace.openComponent({ uuid: component.uuid });
+    Workspace.openComponent({ uuid: component.uuid || component.id });
   };
 
   return (
