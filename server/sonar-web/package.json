@@ -45,7 +45,7 @@
     "history": "1.17.0",
     "imports-loader": "0.6.5",
     "isparta": "4.0.0",
-    "jquery": "2.1.4",
+    "jquery": "2.2.0",
     "jsdom": "6.5.1",
     "mocha": "2.3.4",
     "moment": "2.10.6",
