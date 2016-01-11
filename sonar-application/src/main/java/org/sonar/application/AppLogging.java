@@ -50,7 +50,7 @@ class AppLogging {
     helper.enableJulChangePropagation(ctx);
     configureConsole(ctx);
     configureGobbler(props, ctx);
-    configureRoot(ctx);
+    configureRoot(props, ctx);
     if (props.valueAsBoolean("sonar.log.console", false)) {
       // used by SonarSource testing environment
       copyGobblerToConsole();
@@ -94,10 +94,10 @@ class AppLogging {
     gobblerLogger.addAppender(fileAppender);
   }
 
-  private void configureRoot(LoggerContext loggerContext) {
+  private void configureRoot(Props props, LoggerContext loggerContext) {
     ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, "ROOT_CONSOLE", APP_PATTERN, null);
     Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
-    rootLogger.setLevel(Level.INFO);
+    rootLogger.setLevel(Level.toLevel(props.value("sonar.app.log.level", Level.INFO.toString()), Level.INFO));
     rootLogger.addAppender(consoleAppender);
   }
 }

@@ -19,12 +19,15 @@
  */
 package org.sonar.application;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.rolling.RollingFileAppender;
+import java.io.File;
+import java.util.Properties;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,9 +36,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-
-import java.io.File;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,5 +90,39 @@ public class AppLoggingTest {
     Logger gobbler = ctx.getLogger(AppLogging.GOBBLER_LOGGER);
     assertThat(gobbler.getAppender(AppLogging.GOBBLER_APPENDER)).isNotNull();
     assertThat(gobbler.getAppender(AppLogging.CONSOLE_APPENDER)).isNotNull();
+  }
+
+  @Test
+  public void default_level_for_root_logger_is_INFO() {
+    LoggerContext ctx = underTest.configure(props);
+    Logger rootLogger = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
+    assertThat(rootLogger.getLevel()).isEqualTo(Level.INFO);
+  }
+
+  @Test
+  public void root_logger_level_can_be_changed_with_a_property() {
+    props.set("sonar.app.log.level", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+    Logger rootLogger = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
+    assertThat(rootLogger.getLevel()).isEqualTo(Level.TRACE);
+  }
+
+  @Test
+  public void property_changing_root_logger_level_is_case_insensitive() {
+    props.set("sonar.app.log.level", "trace");
+
+    LoggerContext ctx = underTest.configure(props);
+    Logger rootLogger = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
+    assertThat(rootLogger.getLevel()).isEqualTo(Level.TRACE);
+  }
+
+  @Test
+  public void default_to_INFO_if_property_changing_root_logger_level_has_invalid_value() {
+    props.set("sonar.app.log.level", "DodoDouh!");
+
+    LoggerContext ctx = underTest.configure(props);
+    Logger rootLogger = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
+    assertThat(rootLogger.getLevel()).isEqualTo(Level.INFO);
   }
 }
