@@ -76,7 +76,7 @@ public class CreateAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     NewAction create = controller.createAction("create")
       .setSince("5.2")
-      .setDescription("Create a quality profile.")
+      .setDescription("Create a quality profile. Require Administer Quality Profiles permission.")
       .setPost(true)
       .setResponseExample(getClass().getResource("example-create.json"))
       .setHandler(this);

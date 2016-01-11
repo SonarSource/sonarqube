@@ -59,8 +59,9 @@ public class OldRestoreAction implements WsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("restore")
       .setSince("5.2")
-      .setDescription("Restore a quality profile using an XML file. The restored profile name is taken from the backup file, "
-        + "so if a profile with the same name and language already exists, it will be overwritten.")
+      .setDescription("Restore a quality profile using an XML file. The restored profile name is taken from the backup file, " +
+        "so if a profile with the same name and language already exists, it will be overwritten. " +
+        "Require Administer Quality Profiles permission.")
       .setPost(true)
       .setInternal(true)
       .setHandler(this)
