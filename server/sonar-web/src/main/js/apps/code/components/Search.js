@@ -20,12 +20,32 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { search } from '../actions';
+import { search, selectCurrent, selectNext, selectPrev } from '../actions';
 
 
 class Search extends Component {
   componentDidMount () {
     this.refs.input.focus();
+  }
+
+  handleKeyDown (e) {
+    const { dispatch } = this.props;
+    switch (e.keyCode) {
+      case 13:
+        e.preventDefault();
+        dispatch(selectCurrent());
+        break;
+      case 38:
+        e.preventDefault();
+        dispatch(selectPrev());
+        break;
+      case 40:
+        e.preventDefault();
+        dispatch(selectNext());
+        break;
+      default:
+      // do nothing
+    }
   }
 
   handleSearch (e) {
@@ -47,6 +67,7 @@ class Search extends Component {
           </button>
           <input
               ref="input"
+              onKeyDown={this.handleKeyDown.bind(this)}
               onChange={this.handleSearch.bind(this)}
               value={query}
               className="search-box-input"

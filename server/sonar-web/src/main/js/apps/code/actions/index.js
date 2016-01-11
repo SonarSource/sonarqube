@@ -43,6 +43,8 @@ const METRICS_WITH_COVERAGE = [
 export const INIT = 'INIT';
 export const BROWSE = 'BROWSE';
 export const SEARCH = 'SEARCH';
+export const SELECT_NEXT = 'SELECT_NEXT';
+export const SELECT_PREV = 'SELECT_PREV';
 export const UPDATE_QUERY = 'UPDATE_QUERY';
 export const START_FETCHING = 'START_FETCHING';
 export const STOP_FETCHING = 'STOP_FETCHING';
@@ -78,6 +80,14 @@ export function updateQueryAction (query) {
     type: UPDATE_QUERY,
     query
   };
+}
+
+export function selectNext () {
+  return { type: SELECT_NEXT };
+}
+
+export function selectPrev () {
+  return { type: SELECT_PREV };
 }
 
 export function startFetching () {
@@ -208,5 +218,15 @@ export function search (query, baseComponent) {
   return dispatch => {
     dispatch(updateQueryAction(query));
     debouncedSearch(query, baseComponent, dispatch);
+  };
+}
+
+export function selectCurrent () {
+  return (dispatch, getState) => {
+    const { searchResults } = getState().current;
+    if (searchResults) {
+      const componentKey = getState().current.searchSelectedItem.key;
+      dispatch(browse(componentKey));
+    }
   };
 }

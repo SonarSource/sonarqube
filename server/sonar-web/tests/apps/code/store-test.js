@@ -6,6 +6,8 @@ import {
     browseAction,
     searchAction,
     updateQueryAction,
+    selectNext,
+    selectPrev,
     startFetching,
     stopFetching,
     raiseError
@@ -13,6 +15,7 @@ import {
 
 
 const exampleComponent = { key: 'A' };
+const exampleComponent2 = { key: 'B' };
 const exampleComponents = [
   { key: 'B' },
   { key: 'C' }
@@ -226,6 +229,61 @@ describe('Code :: Store', () => {
           const stateBefore = Object.assign({}, initialState, { searchQuery: 'query' });
           expect(current(stateBefore, browseAction(exampleComponent)).searchQuery)
               .to.equal('');
+        });
+      });
+      describe('searchSelectedItem', () => {
+        it('should be set to the first result', () => {
+          const results = [exampleComponent, exampleComponent2];
+          expect(current(initialState, searchAction(results)).searchSelectedItem)
+              .to.equal(exampleComponent);
+        });
+
+        it('should select next', () => {
+          const results = [exampleComponent, exampleComponent2];
+          const stateBefore = current(initialState, searchAction(results));
+          const stateAfter = current(stateBefore, selectNext());
+          expect(stateAfter.searchSelectedItem)
+              .to.equal(exampleComponent2);
+        });
+
+        it('should not select next', () => {
+          const results = [exampleComponent, exampleComponent2];
+          const stateBefore = Object.assign({}, current(initialState, searchAction(results)), {
+            searchSelectedItem: exampleComponent2
+          });
+          expect(current(stateBefore, selectNext()).searchSelectedItem)
+              .to.equal(exampleComponent2);
+        });
+
+        it('should select prev', () => {
+          const results = [exampleComponent, exampleComponent2];
+          const stateBefore = Object.assign({}, current(initialState, searchAction(results)), {
+            searchSelectedItem: exampleComponent2
+          });
+          expect(current(stateBefore, selectPrev()).searchSelectedItem)
+              .to.equal(exampleComponent);
+        });
+
+        it('should not select prev', () => {
+          const results = [exampleComponent, exampleComponent2];
+          const stateBefore = current(initialState, searchAction(results));
+          expect(current(stateBefore, selectPrev()).searchSelectedItem)
+              .to.equal(exampleComponent);
+        });
+
+        it('should ignore if no results', () => {
+          expect(current(initialState, selectNext()).searchSelectedItem)
+              .to.be.null;
+          expect(current(initialState, selectPrev()).searchSelectedItem)
+              .to.be.null;
+        });
+
+        it('should be reset on browse', () => {
+          const results = [exampleComponent, exampleComponent2];
+          const stateBefore = current(initialState, searchAction(results));
+          const stateAfter = current(stateBefore, browseAction(exampleComponent));
+          expect(stateAfter.searchSelectedItem)
+              .to.be.null;
         });
       });
       describe('errorMessage', () => {

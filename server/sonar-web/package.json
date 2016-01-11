@@ -52,6 +52,7 @@
     "numeral": "1.5.3",
     "postcss-loader": "0.8.0",
     "react": "0.14.2",
+    "react-addons-perf": "0.14.2",
     "react-addons-test-utils": "0.14.2",
     "react-dom": "0.14.2",
     "react-redux": "4.0.1",

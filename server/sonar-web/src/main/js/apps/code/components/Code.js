@@ -65,7 +65,7 @@ class Code extends Component {
     const shouldShowSearchResults = !!searchResults;
     const shouldShowSourceViewer = !!sourceViewer;
     const shouldShowComponents = !shouldShowSearchResults && !shouldShowSourceViewer && components;
-    const shouldShowBreadcrumbs = !shouldShowSearchResults &&  Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
+    const shouldShowBreadcrumbs = !shouldShowSearchResults && Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
 
     const componentsClassName = classNames('spacer-top', { 'new-loading': fetching });
 
@@ -124,5 +124,15 @@ class Code extends Component {
 }
 
 export default connect(state => {
-  return Object.assign({ routing: state.routing }, state.current);
+  return {
+    routing: state.routing,
+    fetching: state.current.fetching,
+    baseComponent: state.current.baseComponent,
+    components: state.current.components,
+    breadcrumbs: state.current.breadcrumbs,
+    sourceViewer: state.current.sourceViewer,
+    coverageMetric: state.current.coverageMetric,
+    searchResults: state.current.searchResults,
+    errorMessage: state.current.errorMessage
+  };
 })(Code);

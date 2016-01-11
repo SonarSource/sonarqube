@@ -19,7 +19,8 @@
  */
 import _ from 'underscore';
 
-import { INIT, BROWSE, SEARCH, UPDATE_QUERY, START_FETCHING, STOP_FETCHING, RAISE_ERROR } from '../actions';
+import { INIT, BROWSE, SEARCH, UPDATE_QUERY, SELECT_NEXT, SELECT_PREV, START_FETCHING, STOP_FETCHING,
+    RAISE_ERROR } from '../actions';
 
 
 function hasSourceCode (component) {
@@ -68,6 +69,25 @@ function sortChildren (children) {
   return temp;
 }
 
+function getNext (element, list) {
+  if (list) {
+    const length = list.length;
+    const index = list.indexOf(element);
+    return index < length - 1 ? list[index + 1] : element;
+  } else {
+    return element;
+  }
+}
+
+function getPrev (element, list) {
+  if (list) {
+    const index = list.indexOf(element);
+    return index > 0 ? list[index - 1] : element;
+  } else {
+    return element;
+  }
+}
+
 
 export const initialState = {
   fetching: false,
@@ -77,6 +97,7 @@ export const initialState = {
   sourceViewer: null,
   searchResults: null,
   searchQuery: '',
+  searchSelectedItem: null,
   coverageMetric: null,
   baseBreadcrumbs: [],
   errorMessage: null
@@ -105,17 +126,29 @@ export function current (state = initialState, action) {
         sourceViewer,
         searchResults: null,
         searchQuery: '',
+        searchSelectedItem: null,
         errorMessage: null
       };
     case SEARCH:
       return {
         ...state,
         searchResults: action.components,
+        searchSelectedItem: _.first(action.components),
         sourceViewer: null,
         errorMessage: null
       };
     case UPDATE_QUERY:
       return { ...state, searchQuery: action.query };
+    case SELECT_NEXT:
+      return {
+        ...state,
+        searchSelectedItem: getNext(state.searchSelectedItem, state.searchResults)
+      };
+    case SELECT_PREV:
+      return {
+        ...state,
+        searchSelectedItem: getPrev(state.searchSelectedItem, state.searchResults)
+      };
     case START_FETCHING:
       return { ...state, fetching: true };
     case STOP_FETCHING:
