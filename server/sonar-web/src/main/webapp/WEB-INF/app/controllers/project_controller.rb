@@ -118,7 +118,7 @@ class ProjectController < ApplicationController
   def qualitygate
     require_parameters :id
     @project_id = Api::Utils.project_id(params[:id])
-    access_denied unless (is_admin?(@project_id) || has_role?(:profileadmin))
+    access_denied unless (is_admin?(@project_id) || has_role?(:gateadmin))
     # Need to display breadcrumb
     @project = Project.by_key(@project_id)
 

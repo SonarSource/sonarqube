@@ -45,6 +45,7 @@ import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -84,6 +85,8 @@ public class SearchGlobalPermissionsActionTest {
     insertUserRole(newUserRoleDto(PROVISIONING, user.getId()));
     insertUserRole(newUserRoleDto(QUALITY_PROFILE_ADMIN, user.getId()));
     insertUserRole(newUserRoleDto(QUALITY_PROFILE_ADMIN, adminUser.getId()));
+    insertUserRole(newUserRoleDto(QUALITY_GATE_ADMIN, user.getId()));
+    insertUserRole(newUserRoleDto(QUALITY_GATE_ADMIN, adminUser.getId()));
     insertUserRole(newUserRoleDto(PREVIEW_EXECUTION, adminUser.getId()));
     insertUserRole(newUserRoleDto(PREVIEW_EXECUTION, user.getId()));
 
@@ -123,8 +126,10 @@ public class SearchGlobalPermissionsActionTest {
     i18n.put("global_permissions.admin", "Administer System");
     i18n.put("global_permissions.admin.desc", "Ability to perform all administration functions for the instance: " +
       "global configuration and personalization of default dashboards.");
-    i18n.put("global_permissions.profileadmin", "Administer Quality Profiles and Gates");
-    i18n.put("global_permissions.profileadmin.desc", "Ability to perform any action on the quality profiles and gates.");
+    i18n.put("global_permissions.profileadmin", "Administer Quality Profiles");
+    i18n.put("global_permissions.profileadmin.desc", "Ability to perform any action on the quality profiles.");
+    i18n.put("global_permissions.gateadmin", "Administer Quality Gates");
+    i18n.put("global_permissions.gateadmin.desc", "Ability to perform any action on the quality gates.");
     i18n.put("global_permissions.shareDashboard", "Share Dashboards And Filters");
     i18n.put("global_permissions.shareDashboard.desc", "Ability to share dashboards, issue filters and measure filters.");
     i18n.put("global_permissions.scan", "Execute Analysis");

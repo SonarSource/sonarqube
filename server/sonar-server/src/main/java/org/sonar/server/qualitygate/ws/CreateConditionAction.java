@@ -35,7 +35,7 @@ public class CreateConditionAction implements QGateWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction createCondition = controller.createAction("create_condition")
-      .setDescription("Add a new condition to a quality gate. Require Administer Quality Profiles and Gates permission")
+      .setDescription("Add a new condition to a quality gate. Require Administer Quality Gates permission")
       .setPost(true)
       .setSince("4.3")
       .setHandler(this);

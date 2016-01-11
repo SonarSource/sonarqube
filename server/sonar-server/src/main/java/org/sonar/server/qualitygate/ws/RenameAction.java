@@ -37,7 +37,7 @@ public class RenameAction implements QGateWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("rename")
-      .setDescription("Rename a Quality Gate. Require Administer Quality Profiles and Gates permission")
+      .setDescription("Rename a Quality Gate. Require Administer Quality Gates permission")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);

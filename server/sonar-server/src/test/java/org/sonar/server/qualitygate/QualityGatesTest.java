@@ -102,7 +102,7 @@ public class QualityGatesTest {
 
   static final String PROJECT_KEY = "SonarQube";
 
-  UserSession authorizedProfileAdminUserSession = new MockUserSession("gaudol").setName("Olivier").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  UserSession authorizedProfileAdminUserSession = new MockUserSession("gaudol").setName("Olivier").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
   UserSession authorizedProjectAdminUserSession = new MockUserSession("gaudol").setName("Olivier").addProjectPermissions(UserRole.ADMIN, PROJECT_KEY);
   UserSession unauthorizedUserSession = new MockUserSession("polop").setName("Polop");
   UserSession unauthenticatedUserSession = AnonymousUserSession.INSTANCE;
