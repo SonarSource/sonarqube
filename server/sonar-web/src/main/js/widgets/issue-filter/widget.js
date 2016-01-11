@@ -302,7 +302,8 @@ export default Marionette.ItemView.extend({
         options = _.extend({}, this.query, {
           ps: 1,
           facets: this.options.distributionAxis,
-          facetMode: facetMode
+          facetMode: facetMode,
+          additionalFields: '_all'
         });
     if (this.options.componentUuid != null) {
       _.extend(options, { componentUuids: this.options.componentUuid });
