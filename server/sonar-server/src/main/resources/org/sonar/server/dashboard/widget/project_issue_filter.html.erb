@@ -35,7 +35,7 @@
         }
 
         var IssueFilterWidget = window.IssueFilterWidget;
-        window.requestMessages().done(function () {
+        window.sonarqube.appStarted.then(function () {
           new IssueFilterWidget({
             el: '#<%= container_id -%>',
             query: query,

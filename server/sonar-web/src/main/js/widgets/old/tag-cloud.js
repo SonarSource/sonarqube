@@ -37,7 +37,7 @@ import { translate } from '../../helpers/l10n';
 
   TagCloud.prototype.renderWords = function () {
     var that = this;
-    return window.requestMessages().done(function () {
+    return window.sonarqube.appStarted.then(function () {
       var words = that.wordContainer.selectAll('.cloud-word').data(that.tags()),
           wordsEnter = words.enter().append('a').classed('cloud-word', true);
       wordsEnter.text(function (d) {
