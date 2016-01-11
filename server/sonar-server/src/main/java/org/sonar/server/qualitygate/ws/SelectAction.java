@@ -35,7 +35,7 @@ public class SelectAction implements QGateWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("select")
-      .setDescription("Associate a project to a quality gate. Require Administer Quality Profiles and Gates permission")
+      .setDescription("Associate a project to a quality gate. Require Administer Quality Gates permission")
       .setPost(true)
       .setSince("4.3")
       .setHandler(this);

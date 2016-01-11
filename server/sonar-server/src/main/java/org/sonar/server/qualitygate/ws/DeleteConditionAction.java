@@ -35,7 +35,7 @@ public class DeleteConditionAction implements QGateWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction createCondition = controller.createAction("delete_condition")
-      .setDescription("Delete a condition from a quality gate. Require Administer Quality Profiles and Gates permission")
+      .setDescription("Delete a condition from a quality gate. Require Administer Quality Gates permission")
       .setPost(true)
       .setSince("4.3")
       .setHandler(this);

@@ -35,7 +35,7 @@ public class SetAsDefaultAction implements QGateWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("set_as_default")
-      .setDescription("Set a quality gate as the default quality gate. Require Administer Quality Profiles and Gates permission")
+      .setDescription("Set a quality gate as the default quality gate. Require Administer Quality Gates permission")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);

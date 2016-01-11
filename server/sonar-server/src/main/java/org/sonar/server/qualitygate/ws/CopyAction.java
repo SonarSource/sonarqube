@@ -37,7 +37,7 @@ public class CopyAction implements QGateWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("copy")
-      .setDescription("Copy a Quality Gate. Require Administer Quality Profiles and Gates permission")
+      .setDescription("Copy a Quality Gate. Require Administer Quality Gates permission")
       .setPost(true)
       .setSince("4.3")
       .setHandler(this);
