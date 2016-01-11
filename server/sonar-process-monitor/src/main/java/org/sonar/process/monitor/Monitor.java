@@ -158,9 +158,9 @@ public class Monitor {
 
   boolean waitForOneRestart() {
     boolean restartRequested = awaitChildProcessesTermination();
-    trace("finished waiting, restartRequested=" + restartRequested);
+    trace("finished waiting, restartRequested={}", restartRequested);
     if (restartRequested) {
-      trace("awaitTermination(restartor)=" + restartor);
+      trace("awaitTermination restartor={}", restartor);
       awaitTermination(restartor);
     }
     return restartRequested;
@@ -203,7 +203,7 @@ public class Monitor {
   private void cleanAfterTermination() {
     trace("go to STOPPED...");
     if (lifecycle.tryToMoveTo(State.STOPPED)) {
-      trace("await termination of restartWatcher...");
+      trace("await termination of restartWatcher and hardStopWatcher...");
       // wait for restartWatcher and hardStopWatcher to cleanly stop
       awaitTermination(restartWatcher, hardStopWatcher);
       trace("restartWatcher done");
@@ -406,7 +406,11 @@ public class Monitor {
   }
 
   private static void trace(String s) {
-    System.err.println("APP: " + s);
+    LOG.trace(s);
+  }
+
+  private static void trace(String s, Object args) {
+    LOG.trace(s, args);
   }
 
   public static int getNextProcessId() {

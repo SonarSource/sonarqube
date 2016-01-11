@@ -82,7 +82,7 @@ public class Lifecycle {
       this.state = to;
       res = true;
     }
-    LOG.info("tryToMoveTo from {} to {} => {}", currentState, to, res);
+    LOG.trace("tryToMoveTo from {} to {} => {}", currentState, to, res);
     return res;
   }
 
