@@ -44,7 +44,7 @@ public class RenameAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     NewAction setDefault = controller.createAction("rename")
       .setSince("5.2")
-      .setDescription("Rename a quality profile.")
+      .setDescription("Rename a quality profile. Require Administer Quality Profiles permission.")
       .setPost(true)
       .setHandler(this);
 

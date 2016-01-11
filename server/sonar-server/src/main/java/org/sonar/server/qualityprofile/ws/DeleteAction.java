@@ -47,7 +47,8 @@ public class DeleteAction implements QProfileWsAction {
   @Override
   public void define(NewController controller) {
     NewAction action = controller.createAction("delete")
-      .setDescription("Delete a quality profile and all its descendants. The default quality profile cannot be deleted.")
+      .setDescription("Delete a quality profile and all its descendants. The default quality profile cannot be deleted. " +
+        "Require Administer Quality Profiles permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
@@ -55,12 +56,10 @@ public class DeleteAction implements QProfileWsAction {
     QProfileIdentificationParamUtils.defineProfileParams(action, languages);
   }
 
-
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
 
     DbSession session = dbClient.openSession(false);
     try {

@@ -59,7 +59,7 @@ public class SetDefaultAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     NewAction setDefault = controller.createAction("set_default")
       .setSince("5.2")
-      .setDescription("Select the default profile for a given language.")
+      .setDescription("Select the default profile for a given language. Require Administer Quality Profiles permission.")
       .setPost(true)
       .setHandler(this);
 

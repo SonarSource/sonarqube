@@ -49,7 +49,7 @@ public class CopyAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     NewAction setDefault = controller.createAction("copy")
       .setSince("5.2")
-      .setDescription("Copy a quality profile.")
+      .setDescription("Copy a quality profile. Require Administer Quality Profiles permission.")
       .setPost(true)
       .setHandler(this);
 
