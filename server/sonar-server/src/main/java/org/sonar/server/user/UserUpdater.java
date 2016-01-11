@@ -31,7 +31,6 @@ import java.util.Random;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
@@ -57,7 +56,6 @@ import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_LOCAL_USERS;
 public class UserUpdater {
 
   private static final String LOGIN_PARAM = "Login";
-  private static final String PASSWORD_CONFIRMATION_PARAM = "Password confirmation";
   private static final String PASSWORD_PARAM = "Password";
   private static final String NAME_PARAM = "Name";
   private static final String EMAIL_PARAM = "Email";
@@ -89,37 +87,39 @@ public class UserUpdater {
    * Return true if the user has been reactivated
    */
   public boolean create(NewUser newUser) {
-    boolean isUserReactivated = false;
-
     DbSession dbSession = dbClient.openSession(false);
     try {
-      UserDto userDto = createNewUserDto(dbSession, newUser);
-      String login = userDto.getLogin();
-      UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
-      if (existingUser == null) {
-        saveUser(dbSession, userDto);
-        addDefaultGroup(dbSession, userDto);
-      } else {
-        if (existingUser.isActive()) {
-          throw new IllegalArgumentException(String.format("An active user with login '%s' already exists", login));
-        }
-        UpdateUser updateUser = UpdateUser.create(login)
-          .setName(newUser.name())
-          .setEmail(newUser.email())
-          .setScmAccounts(newUser.scmAccounts())
-          .setPassword(newUser.password())
-          .setPasswordConfirmation(newUser.passwordConfirmation());
-        updateUserDto(dbSession, updateUser, existingUser);
-        updateUser(dbSession, existingUser);
-        addDefaultGroup(dbSession, existingUser);
-        isUserReactivated = true;
-      }
-      dbSession.commit();
-      notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
-      userIndexer.index();
+      return create(dbSession, newUser);
     } finally {
-      dbSession.close();
+      dbClient.closeSession(dbSession);
     }
+  }
+
+  public boolean create(DbSession dbSession, NewUser newUser){
+    boolean isUserReactivated = false;
+    UserDto userDto = createNewUserDto(dbSession, newUser);
+    String login = userDto.getLogin();
+    UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
+    if (existingUser == null) {
+      saveUser(dbSession, userDto);
+      addDefaultGroup(dbSession, userDto);
+    } else {
+      if (existingUser.isActive()) {
+        throw new IllegalArgumentException(String.format("An active user with login '%s' already exists", login));
+      }
+      UpdateUser updateUser = UpdateUser.create(login)
+        .setName(newUser.name())
+        .setEmail(newUser.email())
+        .setScmAccounts(newUser.scmAccounts())
+        .setPassword(newUser.password());
+      updateUserDto(dbSession, updateUser, existingUser);
+      updateUser(dbSession, existingUser);
+      addDefaultGroup(dbSession, existingUser);
+      isUserReactivated = true;
+    }
+    dbSession.commit();
+    notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
+    userIndexer.index();
     return isUserReactivated;
   }
 
@@ -183,9 +183,10 @@ public class UserUpdater {
     }
 
     String password = newUser.password();
-    String passwordConfirmation = newUser.passwordConfirmation();
-    validatePasswords(password, passwordConfirmation, messages);
-    setEncryptedPassWord(password, userDto);
+    if (password != null) {
+      validatePasswords(password, messages);
+      setEncryptedPassWord(password, userDto);
+    }
 
     List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
     if (scmAccounts != null && !scmAccounts.isEmpty()) {
@@ -215,10 +216,9 @@ public class UserUpdater {
     }
 
     String password = updateUser.password();
-    String passwordConfirmation = updateUser.passwordConfirmation();
     if (updateUser.isPasswordChanged()) {
       checkPasswordChangeAllowed(updateUser.login(), messages);
-      validatePasswords(password, passwordConfirmation, messages);
+      validatePasswords(password, messages);
       setEncryptedPassWord(password, userDto);
     }
 
@@ -275,12 +275,8 @@ public class UserUpdater {
     }
   }
 
-  private static void validatePasswords(@Nullable String password, @Nullable String passwordConfirmation, List<Message> messages) {
+  private static void validatePasswords(@Nullable String password, List<Message> messages) {
     checkNotEmptyParam(password, PASSWORD_PARAM, messages);
-    checkNotEmptyParam(passwordConfirmation, PASSWORD_CONFIRMATION_PARAM, messages);
-    if (!StringUtils.equals(password, passwordConfirmation)) {
-      messages.add(Message.of("user.password_doesnt_match_confirmation"));
-    }
   }
 
   private void validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,

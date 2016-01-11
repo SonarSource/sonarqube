@@ -25,17 +25,17 @@ import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.util.Validation;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -47,7 +47,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DefaultUserServiceTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -66,7 +65,7 @@ public class DefaultUserServiceTest {
       "logins", "simon,loic",
       "includeDeactivated", "true",
       "s", "sim"
-      ));
+    ));
 
     verify(finder, times(1)).find(argThat(new ArgumentMatcher<UserQuery>() {
       @Override
@@ -134,11 +133,13 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void create() {
+  public void create_user() {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("name", "John");
     params.put("email", "john@email.com");
+    params.put("password", "123456");
+    params.put("password_confirmation", "123456");
     params.put("scm_accounts", newArrayList("jn"));
     service.create(params);
 
@@ -147,90 +148,56 @@ public class DefaultUserServiceTest {
     assertThat(newUserCaptor.getValue().login()).isEqualTo("john");
     assertThat(newUserCaptor.getValue().name()).isEqualTo("John");
     assertThat(newUserCaptor.getValue().email()).isEqualTo("john@email.com");
+    assertThat(newUserCaptor.getValue().password()).isEqualTo("123456");
     assertThat(newUserCaptor.getValue().scmAccounts()).containsOnly("jn");
   }
 
   @Test
-  public void update() {
+  public void fail_to_create_user_when_password_is_empty() throws Exception {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("name", "John");
     params.put("email", "john@email.com");
-    params.put("scm_accounts", newArrayList("jn"));
-    params.put("password", "1234");
-    params.put("password_confirmation", "1234");
+    params.put("password", "");
+    params.put("password_confirmation", "123456");
 
-    service.update(params);
-
-    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userUpdater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().login()).isEqualTo("john");
-    assertThat(userCaptor.getValue().name()).isEqualTo("John");
-    assertThat(userCaptor.getValue().email()).isEqualTo("john@email.com");
-    assertThat(userCaptor.getValue().scmAccounts()).containsOnly("jn");
-    assertThat(userCaptor.getValue().password()).isEqualTo("1234");
-    assertThat(userCaptor.getValue().passwordConfirmation()).isEqualTo("1234");
+    try {
+      service.create(params);
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Password"));
+    }
   }
 
   @Test
-  public void update_only_name() {
+  public void fail_to_create_user_when_password_confirmation_is_empty() throws Exception {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("name", "John");
-    service.update(params);
-
-    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userUpdater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().isNameChanged()).isTrue();
-    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
-    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
-  }
-
-  @Test
-  public void update_only_email() {
-    Map<String, Object> params = newHashMap();
-    params.put("login", "john");
     params.put("email", "john@email.com");
-    service.update(params);
+    params.put("password", "123456");
+    params.put("password_confirmation", "");
 
-    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userUpdater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
-    assertThat(userCaptor.getValue().isEmailChanged()).isTrue();
-    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
+    try {
+      service.create(params);
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Password confirmation"));
+    }
   }
 
   @Test
-  public void update_only_scm_accounts() {
+  public void fail_to_create_user_when_password_does_not_match_confirmation() throws Exception {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
-    params.put("scm_accounts", newArrayList("jn"));
-    service.update(params);
+    params.put("name", "John");
+    params.put("email", "john@email.com");
+    params.put("password", "123456");
+    params.put("password_confirmation", "654321");
 
-    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userUpdater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
-    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
-    assertThat(userCaptor.getValue().isScmAccountsChanged()).isTrue();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
-  }
-
-  @Test
-  public void update_only_password() {
-    Map<String, Object> params = newHashMap();
-    params.put("login", "john");
-    params.put("password", "1234");
-    params.put("password_confirmation", "1234");
-    service.update(params);
-
-    ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userUpdater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
-    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
-    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isTrue();
+    try {
+      service.create(params);
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.password_doesnt_match_confirmation"));
+    }
   }
 
   @Test
