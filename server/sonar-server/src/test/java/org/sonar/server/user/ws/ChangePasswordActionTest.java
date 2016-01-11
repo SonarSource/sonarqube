@@ -30,7 +30,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -42,8 +44,6 @@ import org.sonar.server.user.NewUser;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -206,7 +206,6 @@ public class ChangePasswordActionTest {
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
-      .setPassword("Valar Dohaeris")
-      .setPasswordConfirmation("Valar Dohaeris"));
+      .setPassword("Valar Dohaeris"));
   }
 }

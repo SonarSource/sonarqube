@@ -620,7 +620,7 @@ public class IssueServiceMediumTest {
   }
 
   private void newUser(String login) {
-    tester.get(UserUpdater.class).create(NewUser.create().setLogin(login).setName(login).setPassword("test").setPasswordConfirmation("test"));
+    tester.get(UserUpdater.class).create(NewUser.create().setLogin(login).setName(login).setPassword("test"));
   }
 
   private void createDefaultGroup() {

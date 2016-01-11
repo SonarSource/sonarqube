@@ -100,8 +100,7 @@ public class CreateAction implements UsersWsAction {
       .setName(request.mandatoryParam(PARAM_NAME))
       .setEmail(request.param(PARAM_EMAIL))
       .setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS))
-      .setPassword(password)
-      .setPasswordConfirmation(password);
+      .setPassword(password);
 
     boolean isUserReactivated = userUpdater.create(newUser);
     writeResponse(response, login, isUserReactivated);

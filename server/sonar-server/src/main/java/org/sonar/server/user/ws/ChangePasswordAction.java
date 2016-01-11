@@ -80,9 +80,7 @@ public class ChangePasswordAction implements UsersWsAction {
     }
 
     String password = request.mandatoryParam(PARAM_PASSWORD);
-    UpdateUser updateUser = UpdateUser.create(login)
-      .setPassword(password)
-      .setPasswordConfirmation(password);
+    UpdateUser updateUser = UpdateUser.create(login).setPassword(password);
 
     userUpdater.update(updateUser);
     response.noContent();

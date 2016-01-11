@@ -115,7 +115,6 @@ public class UserUpdaterTest {
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("password")
-      .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "u_1", "User 1")));
 
     UserDto dto = userDao.selectByLogin(session, "user");
@@ -148,9 +147,7 @@ public class UserUpdaterTest {
 
     userUpdater.create(NewUser.create()
       .setLogin("user")
-      .setName("User")
-      .setPassword("password")
-      .setPasswordConfirmation("password"));
+      .setName("User"));
 
     UserDto dto = userDao.selectByLogin(session, "user");
     assertThat(dto.getId()).isNotNull();
@@ -170,7 +167,6 @@ public class UserUpdaterTest {
       .setLogin("user")
       .setName("User")
       .setPassword("password")
-      .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "", null)));
 
     assertThat(userDao.selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
@@ -185,7 +181,6 @@ public class UserUpdaterTest {
       .setLogin("user")
       .setName("User")
       .setPassword("password")
-      .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("")));
 
     assertThat(userDao.selectByLogin(session, "user").getScmAccounts()).isNull();
@@ -200,7 +195,6 @@ public class UserUpdaterTest {
       .setLogin("user")
       .setName("User")
       .setPassword("password")
-      .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "u1")));
 
     assertThat(userDao.selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
@@ -213,8 +207,7 @@ public class UserUpdaterTest {
         .setLogin(null)
         .setName("Marius")
         .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password"));
+        .setPassword("password"));
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Login"));
@@ -228,8 +221,7 @@ public class UserUpdaterTest {
         .setLogin("/marius/")
         .setName("Marius")
         .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password"));
+        .setPassword("password"));
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of("user.bad_login"));
@@ -243,8 +235,7 @@ public class UserUpdaterTest {
         .setLogin("ma")
         .setName("Marius")
         .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password"));
+        .setPassword("password"));
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of(Validation.IS_TOO_SHORT_MESSAGE, "Login", 3));
@@ -258,8 +249,7 @@ public class UserUpdaterTest {
         .setLogin(Strings.repeat("m", 256))
         .setName("Marius")
         .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password"));
+        .setPassword("password"));
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of(Validation.IS_TOO_LONG_MESSAGE, "Login", 255));
@@ -273,8 +263,7 @@ public class UserUpdaterTest {
         .setLogin(DEFAULT_LOGIN)
         .setName(null)
         .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password"));
+        .setPassword("password"));
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
@@ -288,8 +277,7 @@ public class UserUpdaterTest {
         .setLogin(DEFAULT_LOGIN)
         .setName(Strings.repeat("m", 201))
         .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password"));
+        .setPassword("password"));
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of(Validation.IS_TOO_LONG_MESSAGE, "Name", 200));
@@ -303,56 +291,10 @@ public class UserUpdaterTest {
         .setLogin(DEFAULT_LOGIN)
         .setName("Marius")
         .setEmail(Strings.repeat("m", 101))
-        .setPassword("password")
-        .setPasswordConfirmation("password"));
+        .setPassword("password"));
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of(Validation.IS_TOO_LONG_MESSAGE, "Email", 100));
-    }
-  }
-
-  @Test
-  public void fail_to_create_user_with_missing_password() {
-    try {
-      userUpdater.create(NewUser.create()
-        .setLogin(DEFAULT_LOGIN)
-        .setName("Marius")
-        .setEmail("marius@mail.com")
-        .setPassword(null)
-        .setPasswordConfirmation("password"));
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).contains(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Password"));
-    }
-  }
-
-  @Test
-  public void fail_to_create_user_with_missing_password_confirmation() {
-    try {
-      userUpdater.create(NewUser.create()
-        .setLogin(DEFAULT_LOGIN)
-        .setName("Marius")
-        .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation(null));
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).contains(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Password confirmation"));
-    }
-  }
-
-  @Test
-  public void fail_to_create_user_with_password_not_matching_password_confirmation() {
-    try {
-      userUpdater.create(NewUser.create()
-        .setLogin(DEFAULT_LOGIN)
-        .setName("Marius")
-        .setEmail("marius@mail.com")
-        .setPassword("password")
-        .setPasswordConfirmation("password2"));
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).containsOnly(Message.of("user.password_doesnt_match_confirmation"));
     }
   }
 
@@ -363,11 +305,10 @@ public class UserUpdaterTest {
         .setLogin("")
         .setName("")
         .setEmail("marius@mail.com")
-        .setPassword("")
-        .setPasswordConfirmation(""));
+        .setPassword(""));
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).hasSize(4);
+      assertThat(e.errors().messages()).hasSize(3);
     }
   }
 
@@ -381,7 +322,6 @@ public class UserUpdaterTest {
         .setName("Marius")
         .setEmail("marius@mail.com")
         .setPassword("password")
-        .setPasswordConfirmation("password")
         .setScmAccounts(newArrayList("jo")));
       fail();
     } catch (BadRequestException e) {
@@ -399,7 +339,6 @@ public class UserUpdaterTest {
         .setName("Marius")
         .setEmail("marius@mail.com")
         .setPassword("password")
-        .setPasswordConfirmation("password")
         .setScmAccounts(newArrayList("john@email.com")));
       fail();
     } catch (BadRequestException e) {
@@ -415,7 +354,6 @@ public class UserUpdaterTest {
         .setName("Marius2")
         .setEmail("marius2@mail.com")
         .setPassword("password2")
-        .setPasswordConfirmation("password2")
         .setScmAccounts(newArrayList(DEFAULT_LOGIN)));
       fail();
     } catch (BadRequestException e) {
@@ -431,7 +369,6 @@ public class UserUpdaterTest {
         .setName("Marius2")
         .setEmail("marius2@mail.com")
         .setPassword("password2")
-        .setPasswordConfirmation("password2")
         .setScmAccounts(newArrayList("marius2@mail.com")));
       fail();
     } catch (BadRequestException e) {
@@ -448,7 +385,6 @@ public class UserUpdaterTest {
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("password")
-      .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "u_1")));
 
     verify(newUserNotifier).onNewUser(newUserHandler.capture());
@@ -466,7 +402,6 @@ public class UserUpdaterTest {
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("password")
-      .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "u_1")));
 
     GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login("user").build());
@@ -485,7 +420,6 @@ public class UserUpdaterTest {
         .setName("User")
         .setEmail("user@mail.com")
         .setPassword("password")
-        .setPasswordConfirmation("password")
         .setScmAccounts(newArrayList("u1", "u_1")));
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ServerException.class).hasMessage("The default group property 'sonar.defaultGroup' is null");
@@ -502,7 +436,6 @@ public class UserUpdaterTest {
         .setName("User")
         .setEmail("user@mail.com")
         .setPassword("password")
-        .setPasswordConfirmation("password")
         .setScmAccounts(newArrayList("u1", "u_1")));
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ServerException.class)
@@ -520,8 +453,7 @@ public class UserUpdaterTest {
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .setPasswordConfirmation("password2"));
+      .setPassword("password2"));
     session.commit();
 
     UserDto dto = userDao.selectByLogin(session, DEFAULT_LOGIN);
@@ -548,8 +480,7 @@ public class UserUpdaterTest {
         .setLogin(DEFAULT_LOGIN)
         .setName("Marius2")
         .setEmail("marius2@mail.com")
-        .setPassword("password2")
-        .setPasswordConfirmation("password2"));
+        .setPassword("password2"));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("An active user with login 'marius' already exists");
@@ -565,8 +496,7 @@ public class UserUpdaterTest {
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
-      .setPassword("password2")
-      .setPasswordConfirmation("password2"));
+      .setPassword("password2"));
     session.commit();
 
     GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login(DEFAULT_LOGIN).groupSearch("sonar-users").build());
@@ -585,7 +515,6 @@ public class UserUpdaterTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setPasswordConfirmation("password2")
       .setScmAccounts(newArrayList("ma2")));
     session.commit();
     session.clearCache();
@@ -620,7 +549,6 @@ public class UserUpdaterTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setPasswordConfirmation("password2")
       .setScmAccounts(newArrayList("ma2")));
     session.commit();
     session.clearCache();
@@ -654,7 +582,6 @@ public class UserUpdaterTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setPasswordConfirmation("password2")
       .setScmAccounts(newArrayList("ma2", "", null)));
     session.commit();
     session.clearCache();
@@ -757,8 +684,7 @@ public class UserUpdaterTest {
     createDefaultGroup();
 
     userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
-      .setPassword("password2")
-      .setPasswordConfirmation("password2"));
+      .setPassword("password2"));
     session.commit();
     session.clearCache();
 
@@ -780,8 +706,7 @@ public class UserUpdaterTest {
 
     try {
       userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
-        .setPassword("password2")
-        .setPasswordConfirmation("password2"));
+        .setPassword("password2"));
     } catch (BadRequestException e) {
       assertThat(e.errors().messages()).containsOnly(Message.of("user.password_cant_be_changed_on_external_auth"));
     }
@@ -794,8 +719,7 @@ public class UserUpdaterTest {
     when(realmFactory.hasExternalAuthentication()).thenReturn(true);
 
     userUpdater.update(UpdateUser.create(TECHNICAL_USER)
-      .setPassword("password2")
-      .setPasswordConfirmation("password2"));
+      .setPassword("password2"));
 
     UserDto dto = userDao.selectByLogin(session, TECHNICAL_USER);
     assertThat(dto.getSalt()).isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
@@ -811,7 +735,6 @@ public class UserUpdaterTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setPasswordConfirmation("password2")
       .setScmAccounts(newArrayList("ma2")));
     session.commit();
 
@@ -837,7 +760,6 @@ public class UserUpdaterTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setPasswordConfirmation("password2")
       .setScmAccounts(newArrayList("ma2")));
     session.commit();
 
@@ -858,7 +780,6 @@ public class UserUpdaterTest {
         .setName("Marius2")
         .setEmail("marius2@mail.com")
         .setPassword("password2")
-        .setPasswordConfirmation("password2")
         .setScmAccounts(newArrayList("jo")));
       fail();
     } catch (BadRequestException e) {

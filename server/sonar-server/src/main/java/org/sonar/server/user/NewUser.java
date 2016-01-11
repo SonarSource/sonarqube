@@ -19,10 +19,9 @@
  */
 package org.sonar.server.user;
 
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.List;
 
 public class NewUser {
 
@@ -85,16 +84,6 @@ public class NewUser {
 
   public NewUser setPassword(String password) {
     this.password = password;
-    return this;
-  }
-
-  @Nullable
-  public String passwordConfirmation() {
-    return passwordConfirmation;
-  }
-
-  public NewUser setPasswordConfirmation(@Nullable String passwordConfirmation) {
-    this.passwordConfirmation = passwordConfirmation;
     return this;
   }
 

@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.user.RubyUserService;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
@@ -33,6 +34,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.RubyUtils;
+
+import static org.sonar.server.util.Validation.checkMandatoryParameter;
 
 public class DefaultUserService implements RubyUserService {
 
@@ -76,32 +79,21 @@ public class DefaultUserService implements RubyUserService {
   }
 
   public boolean create(Map<String, Object> params) {
+    String password = (String) params.get("password");
+    String passwordConfirmation = (String) params.get("password_confirmation");
+    checkMandatoryParameter(password, "Password");
+    checkMandatoryParameter(passwordConfirmation, "Password confirmation");
+    if (!StringUtils.equals(password, passwordConfirmation)) {
+      throw new BadRequestException("user.password_doesnt_match_confirmation");
+    }
+
     NewUser newUser = NewUser.create()
       .setLogin((String) params.get("login"))
       .setName((String) params.get("name"))
       .setEmail((String) params.get("email"))
       .setScmAccounts(RubyUtils.toStrings(params.get("scm_accounts")))
-      .setPassword((String) params.get("password"))
-      .setPasswordConfirmation((String) params.get("password_confirmation"));
+      .setPassword(password);
     return userUpdater.create(newUser);
-  }
-
-  public void update(Map<String, Object> params) {
-    UpdateUser updateUser = UpdateUser.create((String) params.get("login"));
-    if (params.containsKey("name")) {
-      updateUser.setName((String) params.get("name"));
-    }
-    if (params.containsKey("email")) {
-      updateUser.setEmail((String) params.get("email"));
-    }
-    if (params.containsKey("scm_accounts")) {
-      updateUser.setScmAccounts(RubyUtils.toStrings(params.get("scm_accounts")));
-    }
-    if (params.containsKey("password")) {
-      updateUser.setPassword((String) params.get("password"));
-      updateUser.setPasswordConfirmation((String) params.get("password_confirmation"));
-    }
-    userUpdater.update(updateUser);
   }
 
   public void deactivate(String login) {
