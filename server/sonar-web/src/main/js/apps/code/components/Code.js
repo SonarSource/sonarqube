@@ -25,7 +25,7 @@ import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './SourceViewer';
 import Search from './Search';
-import { initComponent, browse, search } from '../actions';
+import { initComponent, browse } from '../actions';
 import { translate } from '../../../helpers/l10n';
 
 
@@ -33,12 +33,8 @@ class Code extends Component {
   componentDidMount () {
     const { dispatch, component, routing } = this.props;
     const selectedKey = (routing.path && decodeURIComponent(routing.path.substr(1))) || component.key;
-
     dispatch(initComponent(component.key, component.breadcrumbs))
         .then(() => dispatch(browse(selectedKey)));
-
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.attachShortcuts();
   }
 
   componentWillReceiveProps (nextProps) {
@@ -51,30 +47,9 @@ class Code extends Component {
     }
   }
 
-  componentWillUnmount () {
-    this.removeShortcuts();
-  }
-
-  attachShortcuts () {
-    window.addEventListener('keyup', this.handleKeyDown);
-  }
-
-  removeShortcuts () {
-    window.removeEventListener('keyup', this.handleKeyDown);
-  }
-
   handleBrowse (component) {
     const { dispatch } = this.props;
     dispatch(browse(component.key));
-  }
-
-  handleKeyDown (e) {
-    const { dispatch, component, searchQuery } = this.props;
-
-    // "t" key
-    if (e.keyCode === 84 && searchQuery == null) {
-      dispatch(search('', component));
-    }
   }
 
   render () {
@@ -90,7 +65,7 @@ class Code extends Component {
     const shouldShowSearchResults = !!searchResults;
     const shouldShowSourceViewer = !!sourceViewer;
     const shouldShowComponents = !shouldShowSearchResults && !shouldShowSourceViewer && components;
-    const shouldShowBreadcrumbs = !shouldShowSearchResults && Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
+    const shouldShowBreadcrumbs = !shouldShowSearchResults &&  Array.isArray(breadcrumbs) && breadcrumbs.length > 1;
 
     const componentsClassName = classNames('spacer-top', { 'new-loading': fetching });
 
@@ -105,9 +80,7 @@ class Code extends Component {
               <i className="spinner"/>
             </div>
 
-            <div className="page-actions">
-              <Search component={this.props.component}/>
-            </div>
+            <Search component={this.props.component}/>
           </header>
 
           {errorMessage && (

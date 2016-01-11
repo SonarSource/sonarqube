@@ -146,20 +146,12 @@ function retrieveComponent (componentKey, bucket) {
   ]);
 }
 
-let requestTree = (query, baseComponent, dispatch) => {
+function requestTree (query, baseComponent, dispatch) {
   dispatch(startFetching());
-
-  const params = { s: 'qualifier,name', qualifiers: 'BRC,FIL,UTS' };
-
-  if (query) {
-    params.q = query;
-  }
-
-  return getTree(baseComponent.key, params)
+  return getTree(baseComponent.key, { q: query, s: 'qualifier,name' })
       .then(r => dispatch(searchAction(r.components)))
       .then(() => dispatch(stopFetching()));
-};
-requestTree = _.debounce(requestTree, 250);
+}
 
 async function getErrorMessage (response) {
   switch (response.status) {
@@ -203,13 +195,18 @@ export function browse (componentKey) {
   };
 }
 
+let debouncedSearch = function (query, baseComponent, dispatch) {
+  if (query) {
+    requestTree(query, baseComponent, dispatch);
+  } else {
+    dispatch(searchAction(null));
+  }
+};
+debouncedSearch = _.debounce(debouncedSearch, 250);
+
 export function search (query, baseComponent) {
   return dispatch => {
     dispatch(updateQueryAction(query));
-    if (query != null) {
-      requestTree(query, baseComponent, dispatch);
-    } else {
-      dispatch(searchAction(null));
-    }
+    debouncedSearch(query, baseComponent, dispatch);
   };
 }
