@@ -70,7 +70,7 @@ public class CreateAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String name = request.mandatoryParam(PARAM_NAME);
     String description = request.param(PARAM_DESCRIPTION);

@@ -43,8 +43,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.debt.CharacteristicDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
@@ -391,7 +391,7 @@ public class DebtModelBackup {
   }
 
   private void checkPermission() {
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private static class RuleDtoMatchLanguage implements Predicate<RuleDto> {

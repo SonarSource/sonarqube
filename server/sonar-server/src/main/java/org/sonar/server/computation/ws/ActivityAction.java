@@ -173,7 +173,7 @@ public class ActivityAction implements CeWsAction {
         throw new ForbiddenException("Requires administration permission");
       }
     } else {
-      userSession.checkGlobalPermission(UserRole.ADMIN);
+      userSession.checkPermission(UserRole.ADMIN);
     }
   }
 
@@ -189,6 +189,6 @@ public class ActivityAction implements CeWsAction {
   }
 
   public static boolean isAllowedOnComponentUuid(UserSession userSession, String componentUuid) {
-    return userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid);
+    return userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid);
   }
 }

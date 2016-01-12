@@ -21,9 +21,8 @@ package org.sonar.server.user;
 
 import java.util.Collections;
 import java.util.List;
-import org.sonar.core.permission.GlobalPermissions;
-
 import java.util.Locale;
+import org.sonar.core.permission.GlobalPermissions;
 
 /**
  * Allow code to be executed with the highest privileges possible, as if executed by a {@link GlobalPermissions#SYSTEM_ADMIN} account.
@@ -72,23 +71,13 @@ public final class DoPrivileged {
       }
 
       @Override
-      public boolean hasGlobalPermission(String globalPermission) {
+      public boolean hasPermission(String globalPermission) {
         return true;
       }
 
       @Override
       public List<String> globalPermissions() {
         return Collections.emptyList();
-      }
-
-      @Override
-      public boolean hasProjectPermission(String permission, String projectKey) {
-        return true;
-      }
-
-      @Override
-      public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
-        return true;
       }
 
       @Override

@@ -143,9 +143,9 @@ public class ShowAction implements ComponentsWsAction {
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, ShowWsRequest request) {
     ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
     String projectUuid = firstNonNull(component.projectUuid(), component.uuid());
-    if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) &&
-      !userSession.hasProjectPermissionByUuid(UserRole.ADMIN, projectUuid) &&
-      !userSession.hasProjectPermissionByUuid(UserRole.USER, projectUuid)) {
+    if (!userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) &&
+      !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
+      !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
       throw insufficientPrivilegesException();
     }
     return component;

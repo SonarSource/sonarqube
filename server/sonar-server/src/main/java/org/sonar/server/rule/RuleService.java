@@ -22,12 +22,10 @@ package org.sonar.server.rule;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.index.RuleIndex;
@@ -115,6 +113,6 @@ public class RuleService {
 
   private void checkPermission() {
     userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

@@ -67,7 +67,7 @@ public class ProvisionedAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
+    userSession.checkPermission(GlobalPermissions.PROVISIONING);
     SearchOptions options = new SearchOptions().setPage(
       request.mandatoryParamAsInt(Param.PAGE),
       request.mandatoryParamAsInt(Param.PAGE_SIZE)

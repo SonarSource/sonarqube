@@ -70,7 +70,7 @@ public class RawAction implements SourcesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
-      userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
+      userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
 
       Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(dbSession, file.uuid(), 1, Integer.MAX_VALUE);
       response.stream().setMediaType("text/plain");

@@ -76,11 +76,11 @@ public class DeleteAction implements CustomMeasuresWsAction {
   }
 
   private void checkPermissions(DbSession dbSession, CustomMeasureDto customMeasure) {
-    if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
+    if (userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN)) {
       return;
     }
 
     ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, customMeasure.getComponentUuid());
-    userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
+    userSession.checkLoggedIn().checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 }

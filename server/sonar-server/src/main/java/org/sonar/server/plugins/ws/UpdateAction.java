@@ -73,7 +73,7 @@ public class UpdateAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     String key = request.mandatoryParam(PARAM_KEY);
     PluginUpdate pluginUpdate = findPluginUpdateByKey(key);
     pluginDownloader.download(key, pluginUpdate.getRelease().getVersion());

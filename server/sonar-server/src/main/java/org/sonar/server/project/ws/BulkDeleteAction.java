@@ -70,7 +70,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkGlobalPermission(UserRole.ADMIN);
+    userSession.checkPermission(UserRole.ADMIN);
     List<String> uuids = request.paramAsStrings(PARAM_IDS);
     List<String> keys = request.paramAsStrings(PARAM_KEYS);
 

@@ -57,7 +57,7 @@ public class CancelAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
-    userSession.checkGlobalPermission(UserRole.ADMIN);
+    userSession.checkPermission(UserRole.ADMIN);
     String taskId = wsRequest.mandatoryParam(PARAM_TASK_ID);
     queue.cancel(taskId);
     wsResponse.noContent();

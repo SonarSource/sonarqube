@@ -93,16 +93,16 @@ public class DeleteAction implements ProjectsWsAction {
 
   private void checkPermissions(@Nullable String uuid, @Nullable String key) {
     if (missPermissionsBasedOnUuid(uuid) || missPermissionsBasedOnKey(key)) {
-      userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+      userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     }
   }
 
   private boolean missPermissionsBasedOnKey(@Nullable String key) {
-    return key != null && !userSession.hasProjectPermission(UserRole.ADMIN, key) && !userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    return key != null && !userSession.hasComponentPermission(UserRole.ADMIN, key) && !userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private boolean missPermissionsBasedOnUuid(@Nullable String uuid) {
-    return uuid != null && !userSession.hasProjectPermissionByUuid(UserRole.ADMIN, uuid) && !userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    return uuid != null && !userSession.hasComponentUuidPermission(UserRole.ADMIN, uuid) && !userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
 }

@@ -70,7 +70,7 @@ public class SearchAction implements UserTokensWsAction {
   }
 
   private SearchWsResponse doHandle(SearchWsRequest request) {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

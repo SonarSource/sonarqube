@@ -67,7 +67,7 @@ public class GhostsAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkGlobalPermission(UserRole.ADMIN);
+    userSession.checkPermission(UserRole.ADMIN);
     DbSession dbSession = dbClient.openSession(false);
     SearchOptions searchOptions = new SearchOptions()
       .setPage(request.mandatoryParamAsInt(Param.PAGE),

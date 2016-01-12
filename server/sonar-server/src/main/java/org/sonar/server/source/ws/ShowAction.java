@@ -89,7 +89,7 @@ public class ShowAction implements SourcesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
-      userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
+      userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
 
       Optional<Iterable<String>> linesHtml = sourceService.getLinesAsHtml(dbSession, file.uuid(), from, to);
       if (linesHtml.isPresent()) {

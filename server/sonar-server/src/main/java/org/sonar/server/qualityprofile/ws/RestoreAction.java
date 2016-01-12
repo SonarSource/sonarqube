@@ -20,6 +20,9 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Preconditions;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -32,10 +35,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.user.UserSession;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 public class RestoreAction implements QProfileWsAction {
 
@@ -66,7 +65,7 @@ public class RestoreAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
     InputStreamReader reader = null;
 

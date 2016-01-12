@@ -61,7 +61,7 @@ public class RenameAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);

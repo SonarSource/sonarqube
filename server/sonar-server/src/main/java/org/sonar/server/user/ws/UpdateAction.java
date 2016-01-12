@@ -27,9 +27,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.DbClient;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -89,7 +89,7 @@ public class UpdateAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     UpdateUser updateUser = UpdateUser.create(login);

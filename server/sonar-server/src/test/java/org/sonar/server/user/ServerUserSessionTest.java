@@ -22,12 +22,12 @@ package org.sonar.server.user;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.user.AuthorizationDao;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -36,6 +36,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ServerUserSessionTest {
+  static final String LOGIN = "marius";
+  static final String PROJECT_KEY = "com.foo:Bar";
+  static final String PROJECT_UUID = "ABCD";
+  static final String FILE_KEY = "com.foo:Bar:BarFile.xoo";
+  static final String FILE_UUID = "BCDE";
+
   AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   ResourceDao resourceDao = mock(ResourceDao.class);
 
@@ -48,94 +54,38 @@ public class ServerUserSessionTest {
 
   @Test
   public void has_global_permission() {
-    UserSession session = newServerUserSession().setLogin("marius");
+    UserSession session = newServerUserSession().setLogin(LOGIN);
 
-    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
+    when(authorizationDao.selectGlobalPermissions(LOGIN)).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    assertThat(session.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)).isTrue();
-    assertThat(session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)).isTrue();
-    assertThat(session.hasGlobalPermission(GlobalPermissions.DASHBOARD_SHARING)).isFalse();
+    assertThat(session.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)).isTrue();
+    assertThat(session.hasPermission(GlobalPermissions.SYSTEM_ADMIN)).isTrue();
+    assertThat(session.hasPermission(GlobalPermissions.DASHBOARD_SHARING)).isFalse();
   }
 
   @Test
   public void check_global_Permission_ok() {
-    UserSession session = newServerUserSession().setLogin("marius");
+    UserSession session = newServerUserSession().setLogin(LOGIN);
 
-    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
+    when(authorizationDao.selectGlobalPermissions(LOGIN)).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    session.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    session.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   @Test(expected = ForbiddenException.class)
   public void check_global_Permission_ko() {
-    UserSession session = newServerUserSession().setLogin("marius");
+    UserSession session = newServerUserSession().setLogin(LOGIN);
 
-    when(authorizationDao.selectGlobalPermissions("marius")).thenReturn(Arrays.asList("profileadmin", "admin"));
+    when(authorizationDao.selectGlobalPermissions(LOGIN)).thenReturn(Arrays.asList("profileadmin", "admin"));
 
-    session.checkGlobalPermission(GlobalPermissions.DASHBOARD_SHARING);
-  }
-
-  @Test
-  public void has_project_permission() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
-    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
-
-    assertThat(session.hasProjectPermission(UserRole.USER, "com.foo:Bar")).isTrue();
-    assertThat(session.hasProjectPermission(UserRole.CODEVIEWER, "com.foo:Bar")).isFalse();
-    assertThat(session.hasProjectPermission(UserRole.ADMIN, "com.foo:Bar")).isFalse();
-  }
-
-  @Test
-  public void has_project_permission_by_uuid() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
-    when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList("ABCD"));
-
-    assertThat(session.hasProjectPermissionByUuid(UserRole.USER, "ABCD")).isTrue();
-    assertThat(session.hasProjectPermissionByUuid(UserRole.CODEVIEWER, "ABCD")).isFalse();
-    assertThat(session.hasProjectPermissionByUuid(UserRole.ADMIN, "ABCD")).isFalse();
-  }
-
-  @Test
-  public void check_project_permission_ok() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
-    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
-
-    session.checkProjectPermission(UserRole.USER, "com.foo:Bar");
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void check_project_permission_ko() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
-    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar2"));
-
-    session.checkProjectPermission(UserRole.USER, "com.foo:Bar");
-  }
-
-  @Test
-  public void check_project_uuid_permission_ok() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
-
-    ComponentDto project = ComponentTesting.newProjectDto();
-    when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList(project.uuid()));
-
-    session.checkProjectUuidPermission(UserRole.USER, project.uuid());
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void check_project_uuid_permission_ko() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
-
-    ComponentDto project = ComponentTesting.newProjectDto();
-    when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList(project.uuid()));
-
-    session.checkProjectUuidPermission(UserRole.USER, "another project");
+    session.checkPermission(GlobalPermissions.DASHBOARD_SHARING);
   }
 
   @Test
   public void has_component_permission() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
 
-    String componentKey = "com.foo:Bar:BarFile.xoo";
+    String componentKey = FILE_KEY;
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(componentKey));
     when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList(componentKey));
 
@@ -145,28 +95,77 @@ public class ServerUserSessionTest {
   }
 
   @Test
+  public void has_component_uuid_permission() {
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
+
+    String componentUuid = FILE_UUID;
+    when(resourceDao.selectResource(componentUuid)).thenReturn(new ResourceDto().setUuid(componentUuid).setProjectUuid(PROJECT_UUID));
+    when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList(PROJECT_UUID));
+
+    assertThat(session.hasComponentUuidPermission(UserRole.USER, componentUuid)).isTrue();
+    assertThat(session.hasComponentUuidPermission(UserRole.CODEVIEWER, componentUuid)).isFalse();
+    assertThat(session.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)).isFalse();
+  }
+
+  @Test
+  public void has_component_permission_with_only_global_permission() {
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
+
+    String componentKey = FILE_KEY;
+    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(componentKey));
+    when(authorizationDao.selectGlobalPermissions(LOGIN)).thenReturn(Arrays.asList(UserRole.USER));
+
+    assertThat(session.hasComponentPermission(UserRole.USER, componentKey)).isTrue();
+    assertThat(session.hasComponentPermission(UserRole.CODEVIEWER, componentKey)).isFalse();
+    assertThat(session.hasComponentPermission(UserRole.ADMIN, componentKey)).isFalse();
+  }
+
+  @Test
+  public void has_component_uuid_permission_with_only_global_permission() {
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
+
+    String componentUuid = FILE_UUID;
+    when(resourceDao.selectResource(componentUuid)).thenReturn(new ResourceDto().setUuid(componentUuid).setProjectUuid(PROJECT_UUID));
+    when(authorizationDao.selectGlobalPermissions(LOGIN)).thenReturn(Arrays.asList(UserRole.USER));
+
+    assertThat(session.hasComponentUuidPermission(UserRole.USER, componentUuid)).isTrue();
+    assertThat(session.hasComponentUuidPermission(UserRole.CODEVIEWER, componentUuid)).isFalse();
+    assertThat(session.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)).isFalse();
+  }
+
+  @Test
   public void check_component_key_permission_ok() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
 
-    when(resourceDao.getRootProjectByComponentKey("com.foo:Bar:BarFile.xoo")).thenReturn(new ResourceDto().setKey("com.foo:Bar"));
-    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
+    when(resourceDao.getRootProjectByComponentKey(FILE_KEY)).thenReturn(new ResourceDto().setKey(PROJECT_KEY));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList(PROJECT_KEY));
 
-    session.checkComponentPermission(UserRole.USER, "com.foo:Bar:BarFile.xoo");
+    session.checkComponentPermission(UserRole.USER, FILE_KEY);
+  }
+
+  @Test
+  public void check_component_key_permission_with_only_global_permission_ok() {
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
+
+    when(resourceDao.getRootProjectByComponentKey(FILE_KEY)).thenReturn(new ResourceDto().setKey(PROJECT_KEY));
+    when(authorizationDao.selectGlobalPermissions(LOGIN)).thenReturn(Arrays.asList(UserRole.USER));
+
+    session.checkComponentPermission(UserRole.USER, FILE_KEY);
   }
 
   @Test(expected = ForbiddenException.class)
   public void check_component_key_permission_ko() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
 
-    when(resourceDao.getRootProjectByComponentKey("com.foo:Bar:BarFile.xoo")).thenReturn(new ResourceDto().setKey("com.foo:Bar2"));
-    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
+    when(resourceDao.getRootProjectByComponentKey(FILE_KEY)).thenReturn(new ResourceDto().setKey("com.foo:Bar2"));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList(PROJECT_KEY));
 
-    session.checkComponentPermission(UserRole.USER, "com.foo:Bar:BarFile.xoo");
+    session.checkComponentPermission(UserRole.USER, FILE_KEY);
   }
 
   @Test
   public void check_component_uuid_permission_ok() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
 
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, "file-uuid");
@@ -178,10 +177,9 @@ public class ServerUserSessionTest {
 
   @Test(expected = ForbiddenException.class)
   public void check_component_uuid_permission_ko() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
 
     ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project, "file-uuid");
     when(resourceDao.selectResource("file-uuid")).thenReturn(new ResourceDto().setProjectUuid(project.uuid()));
     when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList(project.uuid()));
 
@@ -190,16 +188,16 @@ public class ServerUserSessionTest {
 
   @Test(expected = ForbiddenException.class)
   public void check_component_key_permission_when_project_not_found() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
 
-    when(resourceDao.getRootProjectByComponentKey("com.foo:Bar:BarFile.xoo")).thenReturn(null);
+    when(resourceDao.getRootProjectByComponentKey(FILE_KEY)).thenReturn(null);
 
-    session.checkComponentPermission(UserRole.USER, "com.foo:Bar:BarFile.xoo");
+    session.checkComponentPermission(UserRole.USER, FILE_KEY);
   }
 
   @Test(expected = ForbiddenException.class)
   public void check_component_dto_permission_ko() {
-    UserSession session = newServerUserSession().setLogin("marius").setUserId(1);
+    UserSession session = newServerUserSession().setLogin(LOGIN).setUserId(1);
 
     ComponentDto project = ComponentTesting.newProjectDto();
     when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList(project.uuid()));

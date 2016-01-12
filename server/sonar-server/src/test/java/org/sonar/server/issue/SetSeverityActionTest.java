@@ -25,12 +25,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.tester.AnonymousMockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -89,14 +89,14 @@ public class SetSeverityActionTest {
 
   @Test
   public void should_support_only_unresolved_issues() {
-    when(userSessionMock.hasProjectPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
+    when(userSessionMock.hasComponentPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
     assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(Issue.RESOLUTION_FIXED))).isFalse();
   }
 
   @Test
   public void should_support_only_issues_with_issue_admin_permission() {
-    when(userSessionMock.hasProjectPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
+    when(userSessionMock.hasComponentPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
     assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar2").setResolution(null))).isFalse();
   }

@@ -26,8 +26,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
@@ -80,7 +80,7 @@ public class ChangeParentAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     DbSession session = dbClient.openSession(false);
     try {

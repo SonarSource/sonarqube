@@ -52,7 +52,7 @@ public class SetSeverityAction extends Action {
   }
 
   private boolean isCurrentUserIssueAdmin(String projectKey) {
-    return userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey);
+    return userSession.hasComponentPermission(UserRole.ISSUE_ADMIN, projectKey);
   }
 
   @Override

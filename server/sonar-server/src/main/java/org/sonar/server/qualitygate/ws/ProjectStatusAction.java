@@ -134,6 +134,6 @@ public class ProjectStatusAction implements QGateWsAction {
   }
 
   private void checkScanOrAdminPermission() {
-    userSession.checkAnyGlobalPermissions(newHashSet(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.SYSTEM_ADMIN));
+    userSession.checkAnyPermissions(newHashSet(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.SYSTEM_ADMIN));
   }
 }

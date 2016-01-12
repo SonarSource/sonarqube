@@ -72,7 +72,7 @@ public class OldRestoreAction implements WsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
     InputStreamReader reader = null;
 

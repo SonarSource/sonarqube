@@ -112,7 +112,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     try {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
 
-      userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
+      userSession.checkComponentUuidPermission(UserRole.USER, component.projectUuid());
 
       SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, component.getId());
 
@@ -120,7 +120,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       json.beginObject();
       writeComponent(json, session, component, snapshot, userSession);
 
-      if (userSession.hasProjectPermissionByUuid(UserRole.ADMIN, component.projectUuid()) || userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)) {
+      if (userSession.hasComponentUuidPermission(UserRole.ADMIN, component.projectUuid()) || userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)) {
         writeConfiguration(json, component, userSession);
       }
 
@@ -210,7 +210,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
   }
 
   private void writeConfiguration(JsonWriter json, ComponentDto component, UserSession userSession) {
-    boolean isAdmin = userSession.hasProjectPermissionByUuid(UserRole.ADMIN, component.projectUuid());
+    boolean isAdmin = userSession.hasComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
     Locale locale = userSession.locale();
 
     json.name("configuration").beginObject();

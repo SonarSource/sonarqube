@@ -68,7 +68,7 @@ public class RevokeAction implements UserTokensWsAction {
   }
 
   private void doHandle(RevokeWsRequest request) {
-    userSession.checkLoggedIn().checkGlobalPermission(SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(SYSTEM_ADMIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

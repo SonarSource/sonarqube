@@ -55,7 +55,7 @@ public class ReportSubmitter {
   }
 
   public CeTask submit(String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
-    userSession.checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+    userSession.checkPermission(GlobalPermissions.SCAN_EXECUTION);
 
     String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
     ComponentDto project = componentService.getNullableByKey(effectiveProjectKey);

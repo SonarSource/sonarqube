@@ -73,7 +73,7 @@ public class UsersAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     WsGroupRef wsGroupRef = WsGroupRef.newWsGroupRefFromUserGroupRequest(request);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);

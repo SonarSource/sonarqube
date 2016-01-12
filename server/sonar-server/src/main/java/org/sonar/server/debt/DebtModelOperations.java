@@ -32,8 +32,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.debt.CharacteristicDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtPredicates.CharacteristicDtoMatchKey;
 import org.sonar.server.exceptions.BadRequestException;
@@ -250,7 +250,7 @@ public class DebtModelOperations {
   }
 
   private void checkPermission() {
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private static DebtCharacteristic toCharacteristic(CharacteristicDto dto) {

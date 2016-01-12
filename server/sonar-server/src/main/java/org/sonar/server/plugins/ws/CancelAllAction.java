@@ -52,7 +52,7 @@ public class CancelAllAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     pluginDownloader.cancelDownloads();
     pluginRepository.cancelUninstalls();

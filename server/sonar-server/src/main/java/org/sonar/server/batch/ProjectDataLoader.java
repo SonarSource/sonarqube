@@ -56,7 +56,7 @@ public class ProjectDataLoader {
   }
 
   public ProjectRepositories load(ProjectDataQuery query) {
-    boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+    boolean hasScanPerm = userSession.hasPermission(GlobalPermissions.SCAN_EXECUTION);
     checkPermission(query.isIssuesMode());
 
     DbSession session = dbClient.openSession(false);
@@ -66,7 +66,7 @@ public class ProjectDataLoader {
         "Project or module with key '%s' is not found", query.getModuleKey());
 
       // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
-      if (query.isIssuesMode() && !userSession.hasProjectPermissionByUuid(UserRole.USER, module.projectUuid())) {
+      if (query.isIssuesMode() && !userSession.hasComponentUuidPermission(UserRole.USER, module.projectUuid())) {
         throw new ForbiddenException("You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
       }
 
@@ -181,8 +181,8 @@ public class ProjectDataLoader {
   }
 
   private void checkPermission(boolean preview) {
-    boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
+    boolean hasScanPerm = userSession.hasPermission(GlobalPermissions.SCAN_EXECUTION);
+    boolean hasPreviewPerm = userSession.hasPermission(GlobalPermissions.PREVIEW_EXECUTION);
     if (!hasPreviewPerm && !hasScanPerm) {
       throw new ForbiddenException(Messages.NO_PERMISSION);
     }

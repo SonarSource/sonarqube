@@ -164,9 +164,9 @@ public class TreeAction implements ComponentsWsAction {
 
   private void checkPermissions(ComponentDto baseComponent) {
     String projectUuid = firstNonNull(baseComponent.projectUuid(), baseComponent.uuid());
-    if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) &&
-      !userSession.hasProjectPermissionByUuid(UserRole.ADMIN, projectUuid) &&
-      !userSession.hasProjectPermissionByUuid(UserRole.USER, projectUuid)) {
+    if (!userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) &&
+      !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
+      !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
       throw insufficientPrivilegesException();
     }
   }

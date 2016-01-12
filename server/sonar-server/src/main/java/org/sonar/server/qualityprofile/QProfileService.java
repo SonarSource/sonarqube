@@ -26,10 +26,8 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.server.ServerSide;
@@ -211,7 +209,7 @@ public class QProfileService {
 
   private void verifyAdminPermission() {
     userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   public Result<QProfileActivity> searchActivities(QProfileActivityQuery query, SearchOptions options) {

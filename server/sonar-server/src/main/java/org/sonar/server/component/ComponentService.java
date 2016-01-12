@@ -109,7 +109,7 @@ public class ComponentService {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto projectOrModule = getByKey(session, projectOrModuleKey);
-      userSession.checkProjectUuidPermission(UserRole.ADMIN, projectOrModule.projectUuid());
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, projectOrModule.projectUuid());
       dbClient.resourceKeyUpdaterDao().updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
@@ -123,7 +123,7 @@ public class ComponentService {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto project = getByKey(projectKey);
-      userSession.checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
       return dbClient.resourceKeyUpdaterDao().checkModuleKeysBeforeRenaming(project.getId(), stringToReplace, replacementString);
     } finally {
       session.close();
@@ -135,7 +135,7 @@ public class ComponentService {
     DbSession session = dbClient.openSession(true);
     try {
       ComponentDto project = getByKey(session, projectKey);
-      userSession.checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
       dbClient.resourceKeyUpdaterDao().bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
       session.commit();
     } finally {
@@ -144,7 +144,7 @@ public class ComponentService {
   }
 
   public ComponentDto create(NewComponent newComponent) {
-    userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
+    userSession.checkPermission(GlobalPermissions.PROVISIONING);
 
     DbSession session = dbClient.openSession(false);
     try {
@@ -155,7 +155,7 @@ public class ComponentService {
   }
 
   public ComponentDto create(DbSession session, NewComponent newComponent) {
-    userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
+    userSession.checkPermission(GlobalPermissions.PROVISIONING);
     checkKeyFormat(newComponent.qualifier(), newComponent.key());
     ComponentDto project = createProject(session, newComponent);
     removeDuplicatedProjects(session, project.getKey());

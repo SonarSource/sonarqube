@@ -49,12 +49,12 @@ import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 /**
  * Used through ruby code <pre>Internal.issues</pre>
@@ -565,7 +565,7 @@ public class InternalRubyIssueService {
   }
 
   public boolean isUserIssueAdmin(String projectUuid) {
-    return userSession.hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid);
+    return userSession.hasComponentUuidPermission(UserRole.ISSUE_ADMIN, projectUuid);
   }
 
   private enum MatchIssueFilterParameters implements Predicate<Map.Entry<String, Object>> {

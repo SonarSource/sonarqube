@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -26,8 +27,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.platform.monitoring.Monitor;
 import org.sonar.server.user.UserSession;
-
-import java.util.Map;
 
 /**
  * Implementation of the {@code info} action for the System WebService.
@@ -55,7 +54,7 @@ public class InfoAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     JsonWriter json = response.newJsonWriter();
     writeJson(json);
     json.close();

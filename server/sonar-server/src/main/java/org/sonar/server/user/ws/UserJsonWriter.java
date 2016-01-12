@@ -76,7 +76,7 @@ public class UserJsonWriter {
   }
 
   private void writeGroupsIfNeeded(JsonWriter json, Collection<String> groups, @Nullable Collection<String> fields) {
-    if (isFieldNeeded(FIELD_GROUPS, fields) && userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
+    if (isFieldNeeded(FIELD_GROUPS, fields) && userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN)) {
       json.name(FIELD_GROUPS).beginArray();
       for (String groupName : groups) {
         json.value(groupName);

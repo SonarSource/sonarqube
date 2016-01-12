@@ -222,16 +222,6 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public boolean hasProjectPermission(String permission, String projectKey) {
-    return currentUserSession.hasProjectPermission(permission, projectKey);
-  }
-
-  @Override
-  public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
-    return currentUserSession.hasProjectPermissionByUuid(permission, projectUuid);
-  }
-
-  @Override
   public boolean hasComponentPermission(String permission, String componentKey) {
     return currentUserSession.hasComponentPermission(permission, componentKey);
   }
@@ -280,33 +270,18 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public UserSession checkGlobalPermission(String globalPermission) {
-    return currentUserSession.checkGlobalPermission(globalPermission);
+  public UserSession checkPermission(String globalPermission) {
+    return currentUserSession.checkPermission(globalPermission);
   }
 
   @Override
-  public UserSession checkGlobalPermission(String globalPermission, @Nullable String errorMessage) {
-    return currentUserSession.checkGlobalPermission(globalPermission, errorMessage);
+  public UserSession checkAnyPermissions(Collection<String> globalPermissions) {
+    return currentUserSession.checkAnyPermissions(globalPermissions);
   }
 
   @Override
-  public UserSession checkAnyGlobalPermissions(Collection<String> globalPermissions) {
-    return currentUserSession.checkAnyGlobalPermissions(globalPermissions);
-  }
-
-  @Override
-  public boolean hasGlobalPermission(String globalPermission) {
-    return currentUserSession.hasGlobalPermission(globalPermission);
-  }
-
-  @Override
-  public UserSession checkProjectPermission(String projectPermission, String projectKey) {
-    return currentUserSession.checkProjectPermission(projectPermission, projectKey);
-  }
-
-  @Override
-  public UserSession checkProjectUuidPermission(String projectPermission, String projectUuid) {
-    return currentUserSession.checkProjectUuidPermission(projectPermission, projectUuid);
+  public boolean hasPermission(String globalPermission) {
+    return currentUserSession.hasPermission(globalPermission);
   }
 
   @Override

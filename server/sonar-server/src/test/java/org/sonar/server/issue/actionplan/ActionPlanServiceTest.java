@@ -88,10 +88,11 @@ public class ActionPlanServiceTest {
   @Mock
   IssueStorage issueStorage;
 
-  String projectKey = "org.sonar.Sample";
+  static final String PROJECT_KEY = "org.sonar.Sample";
+  static final String PROJECT_UUID = "ABCD";
 
-  UserSession projectAdministratorUserSession = new MockUserSession("nicolas").setName("Nicolas").addProjectPermissions(UserRole.ADMIN, projectKey);
-  UserSession projectUserSession = new MockUserSession("nicolas").setName("Nicolas").addProjectPermissions(UserRole.USER, projectKey);
+  UserSession projectAdministratorUserSession = new MockUserSession("nicolas").setName("Nicolas").addProjectPermissions(UserRole.ADMIN, PROJECT_KEY);
+  UserSession projectUserSession = new MockUserSession("nicolas").setName("Nicolas").addProjectPermissions(UserRole.USER, PROJECT_KEY);
   UserSession unauthorizedUserSession = new MockUserSession("nicolas").setName("Nicolas");
 
   private ActionPlanService actionPlanService;
@@ -105,7 +106,7 @@ public class ActionPlanServiceTest {
 
   @Test
   public void create() {
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setUuid(PROJECT_UUID).setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
 
     actionPlanService.create(actionPlan, projectAdministratorUserSession);
@@ -114,7 +115,7 @@ public class ActionPlanServiceTest {
 
   @Test
   public void create_required_admin_role() {
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
 
     try {
@@ -128,8 +129,8 @@ public class ActionPlanServiceTest {
 
   @Test
   public void set_status() {
-    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(PROJECT_KEY));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
 
     ActionPlan result = actionPlanService.setStatus("ABCD", "CLOSED", projectAdministratorUserSession);
     verify(actionPlanDao).update(any(ActionPlanDto.class));
@@ -140,7 +141,7 @@ public class ActionPlanServiceTest {
 
   @Test
   public void update() {
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
 
     actionPlanService.update(actionPlan, projectAdministratorUserSession);
@@ -149,16 +150,16 @@ public class ActionPlanServiceTest {
 
   @Test
   public void delete() {
-    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(PROJECT_KEY));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
     actionPlanService.delete("ABCD", projectAdministratorUserSession);
     verify(actionPlanDao).delete("ABCD");
   }
 
   @Test
   public void unplan_all_linked_issues_when_deleting_an_action_plan() {
-    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(PROJECT_KEY));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
 
     IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey("squid", "s100").setIssueCreationDate(new Date());
     when(issueDao.selectByActionPlan(session, "ABCD")).thenReturn(newArrayList(issueDto));
@@ -173,8 +174,8 @@ public class ActionPlanServiceTest {
 
   @Test
   public void find_by_key() {
-    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(PROJECT_KEY));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
 
     ActionPlan result = actionPlanService.findByKey("ABCD", projectUserSession);
     assertThat(result).isNotNull();
@@ -197,20 +198,20 @@ public class ActionPlanServiceTest {
 
   @Test
   public void find_open_by_project_key() {
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
     when(actionPlanDao.selectOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
-    Collection<ActionPlan> results = actionPlanService.findOpenByProjectKey(projectKey, projectUserSession);
+    Collection<ActionPlan> results = actionPlanService.findOpenByProjectKey(PROJECT_KEY, projectUserSession);
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
   }
 
   @Test
   public void find_open_by_project_key_required_user_role() {
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
     when(actionPlanDao.selectOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
 
     try {
-      actionPlanService.findOpenByProjectKey(projectKey, unauthorizedUserSession);
+      actionPlanService.findOpenByProjectKey(PROJECT_KEY, unauthorizedUserSession);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
@@ -226,10 +227,10 @@ public class ActionPlanServiceTest {
 
   @Test
   public void find_action_plan_stats() {
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey(projectKey));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey(PROJECT_KEY));
     when(actionPlanStatsDao.selectByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
 
-    Collection<ActionPlanStats> results = actionPlanService.findActionPlanStats(projectKey, projectUserSession);
+    Collection<ActionPlanStats> results = actionPlanService.findActionPlanStats(PROJECT_KEY, projectUserSession);
     assertThat(results).hasSize(1);
   }
 
@@ -237,7 +238,7 @@ public class ActionPlanServiceTest {
   public void throw_exception_if_project_not_found_when_find_open_action_plan_stats() {
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(null);
 
-    actionPlanService.findActionPlanStats(projectKey, projectUserSession);
+    actionPlanService.findActionPlanStats(PROJECT_KEY, projectUserSession);
   }
 
 }

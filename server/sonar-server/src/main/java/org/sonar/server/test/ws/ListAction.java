@@ -236,6 +236,6 @@ public class ListAction implements TestsWsAction {
 
   private void checkComponentUuidPermission(DbSession dbSession, String componentUuid) {
     ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, componentUuid);
-    userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
+    userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
   }
 }

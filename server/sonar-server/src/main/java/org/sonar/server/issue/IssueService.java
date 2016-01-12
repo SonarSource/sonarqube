@@ -136,7 +136,7 @@ public class IssueService {
     for (Transition transition : outTransitions) {
       String projectUuid = issue.projectUuid();
       if (userSession.isLoggedIn() && StringUtils.isBlank(transition.requiredProjectPermission()) ||
-        (projectUuid != null && userSession.hasProjectPermissionByUuid(transition.requiredProjectPermission(), projectUuid))) {
+        (projectUuid != null && userSession.hasComponentUuidPermission(transition.requiredProjectPermission(), projectUuid))) {
         allowedTransitions.add(transition);
       }
     }
@@ -166,7 +166,7 @@ public class IssueService {
     for (Transition transition : outTransitions) {
       String projectKey = defaultIssue.projectKey();
       if (transition.key().equals(transitionKey) && StringUtils.isNotBlank(transition.requiredProjectPermission()) && projectKey != null) {
-        userSession.checkProjectPermission(transition.requiredProjectPermission(), projectKey);
+        userSession.checkComponentPermission(transition.requiredProjectPermission(), projectKey);
       }
     }
   }
@@ -226,7 +226,7 @@ public class IssueService {
     DbSession session = dbClient.openSession(false);
     try {
       DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      userSession.checkProjectPermission(UserRole.ISSUE_ADMIN, issue.projectKey());
+      userSession.checkComponentPermission(UserRole.ISSUE_ADMIN, issue.projectKey());
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueUpdater.setManualSeverity(issue, severity, context)) {
@@ -250,7 +250,7 @@ public class IssueService {
       ComponentDto component = componentOptional.get();
       ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, component.projectUuid());
 
-      userSession.checkProjectPermission(UserRole.USER, project.getKey());
+      userSession.checkComponentPermission(UserRole.USER, project.getKey());
       if (!ruleKey.isManual()) {
         throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + ruleKey);
       }

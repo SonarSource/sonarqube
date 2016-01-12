@@ -93,7 +93,7 @@ public class ActionService {
         }
         availableActions.add("plan");
         String projectUuid = issue.projectUuid();
-        if (projectUuid != null && userSession.hasProjectPermissionByUuid(ISSUE_ADMIN, projectUuid)) {
+        if (projectUuid != null && userSession.hasComponentUuidPermission(ISSUE_ADMIN, projectUuid)) {
           availableActions.add("set_severity");
         }
       }

@@ -67,7 +67,7 @@ public class DeleteAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     WsGroupRef groupRef = WsGroupRef.newWsGroupRefFromUserGroupRequest(request);
 

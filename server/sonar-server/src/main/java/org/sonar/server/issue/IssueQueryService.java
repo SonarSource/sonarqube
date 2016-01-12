@@ -341,7 +341,7 @@ public class IssueQueryService {
   private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<String> componentUuids, String uniqueQualifier) {
     List<String> filteredViewUuids = newArrayList();
     for (String viewUuid : componentUuids) {
-      if ((Qualifiers.VIEW.equals(uniqueQualifier) && userSession.hasProjectPermissionByUuid(UserRole.USER, viewUuid))
+      if ((Qualifiers.VIEW.equals(uniqueQualifier) && userSession.hasComponentUuidPermission(UserRole.USER, viewUuid))
         || (Qualifiers.SUBVIEW.equals(uniqueQualifier) && userSession.hasComponentUuidPermission(UserRole.USER, viewUuid))) {
         filteredViewUuids.add(viewUuid);
       }

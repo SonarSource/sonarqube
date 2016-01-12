@@ -46,8 +46,8 @@ public class DoPrivilegedTest {
 
     // verify the session used inside Privileged task
     assertThat(catcher.userSession.isLoggedIn()).isFalse();
-    assertThat(catcher.userSession.hasGlobalPermission("any permission")).isTrue();
-    assertThat(catcher.userSession.hasProjectPermission("any permission", "any project")).isTrue();
+    assertThat(catcher.userSession.hasPermission("any permission")).isTrue();
+    assertThat(catcher.userSession.hasComponentPermission("any permission", "any project")).isTrue();
 
     // verify session in place after task is done
     assertThat(threadLocalUserSession.get()).isSameAs(session);
@@ -72,8 +72,8 @@ public class DoPrivilegedTest {
 
       // verify the session used inside Privileged task
       assertThat(catcher.userSession.isLoggedIn()).isFalse();
-      assertThat(catcher.userSession.hasGlobalPermission("any permission")).isTrue();
-      assertThat(catcher.userSession.hasProjectPermission("any permission", "any project")).isTrue();
+      assertThat(catcher.userSession.hasPermission("any permission")).isTrue();
+      assertThat(catcher.userSession.hasComponentPermission("any permission", "any project")).isTrue();
     }
   }
 

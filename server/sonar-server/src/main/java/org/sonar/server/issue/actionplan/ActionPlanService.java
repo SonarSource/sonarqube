@@ -34,6 +34,7 @@ import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
@@ -43,7 +44,6 @@ import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.ActionPlanStatsDao;
 import org.sonar.db.issue.ActionPlanStatsDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.user.UserSession;
@@ -188,11 +188,11 @@ public class ActionPlanService {
   }
 
   private static void checkUserCanAccessProject(String projectKey, UserSession userSession) {
-    userSession.checkProjectPermission(UserRole.USER, projectKey);
+    userSession.checkComponentPermission(UserRole.USER, projectKey);
   }
 
   private static void checkUserIsProjectAdministrator(String projectKey, UserSession userSession) {
-    userSession.checkProjectPermission(UserRole.ADMIN, projectKey);
+    userSession.checkComponentPermission(UserRole.ADMIN, projectKey);
   }
 
   private enum ToActionPlanStats implements Function<ActionPlanStatsDto, ActionPlanStats> {

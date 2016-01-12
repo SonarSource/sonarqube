@@ -130,20 +130,15 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
   }
 
   @Override
-  public UserSession checkGlobalPermission(String globalPermission) {
-    return checkGlobalPermission(globalPermission, null);
-  }
-
-  @Override
-  public UserSession checkGlobalPermission(String globalPermission, @Nullable String errorMessage) {
-    if (!hasGlobalPermission(globalPermission)) {
-      throw new ForbiddenException(errorMessage != null ? errorMessage : INSUFFICIENT_PRIVILEGES_MESSAGE);
+  public UserSession checkPermission(String globalPermission) {
+    if (!hasPermission(globalPermission)) {
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;
   }
 
   @Override
-  public UserSession checkAnyGlobalPermissions(Collection<String> globalPermissionsToTest) {
+  public UserSession checkAnyPermissions(Collection<String> globalPermissionsToTest) {
     List<String> userGlobalPermissions = globalPermissions();
     for (String userGlobalPermission : userGlobalPermissions) {
       if (globalPermissionsToTest.contains(userGlobalPermission)) {
@@ -155,24 +150,8 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
   }
 
   @Override
-  public boolean hasGlobalPermission(String globalPermission) {
+  public boolean hasPermission(String globalPermission) {
     return globalPermissions().contains(globalPermission);
-  }
-
-  @Override
-  public UserSession checkProjectPermission(String projectPermission, String projectKey) {
-    if (!hasProjectPermission(projectPermission, projectKey)) {
-      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
-    }
-    return this;
-  }
-
-  @Override
-  public UserSession checkProjectUuidPermission(String projectPermission, String projectUuid) {
-    if (!hasProjectPermissionByUuid(projectPermission, projectUuid)) {
-      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
-    }
-    return this;
   }
 
   @Override

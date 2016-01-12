@@ -37,8 +37,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -76,7 +76,7 @@ public class IssuesAction implements BatchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
+    userSession.checkPermission(GlobalPermissions.PREVIEW_EXECUTION);
     final String moduleKey = request.mandatoryParam(PARAM_KEY);
 
     response.stream().setMediaType(MediaTypes.PROTOBUF);

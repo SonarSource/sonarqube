@@ -97,7 +97,7 @@ public class SearchViewComponentsAction implements RequestHandler {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto componentDto = componentFinder.getByUuid(session, componentUuid);
-      userSession.checkProjectUuidPermission(UserRole.USER, componentDto.projectUuid());
+      userSession.checkComponentUuidPermission(UserRole.USER, componentDto.projectUuid());
 
       Set<Long> projectIds = newLinkedHashSet(dbClient.componentIndexDao().selectProjectIdsFromQueryAndViewOrSubViewUuid(session, query, componentDto.uuid()));
       Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, userSession.getUserId(), UserRole.USER);

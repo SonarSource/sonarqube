@@ -70,7 +70,7 @@ public class HashAction implements SourcesWsAction {
     try {
       final String componentKey = request.mandatoryParam("key");
       final ComponentDto component = componentFinder.getByKey(session, componentKey);
-      userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
+      userSession.checkComponentUuidPermission(UserRole.USER, component.projectUuid());
 
       response.stream().setMediaType("text/plain");
       OutputStreamWriter writer = new OutputStreamWriter(response.stream().output(), StandardCharsets.UTF_8);

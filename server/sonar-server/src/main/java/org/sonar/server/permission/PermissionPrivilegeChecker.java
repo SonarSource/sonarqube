@@ -34,20 +34,20 @@ public class PermissionPrivilegeChecker {
   public static void checkGlobalAdminUser(UserSession userSession) {
     userSession
       .checkLoggedIn()
-      .checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+      .checkPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   public static void checkProjectAdminUserByComponentKey(UserSession userSession, @Nullable String componentKey) {
     userSession.checkLoggedIn();
-    if (componentKey == null || !userSession.hasProjectPermission(UserRole.ADMIN, componentKey)) {
-      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    if (componentKey == null || !userSession.hasComponentPermission(UserRole.ADMIN, componentKey)) {
+      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     }
   }
 
   public static void checkProjectAdminUserByComponentUuid(UserSession userSession, @Nullable String componentUuid) {
     userSession.checkLoggedIn();
-    if (componentUuid == null || !userSession.hasProjectPermissionByUuid(UserRole.ADMIN, componentUuid)) {
-      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    if (componentUuid == null || !userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
+      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     }
   }
 

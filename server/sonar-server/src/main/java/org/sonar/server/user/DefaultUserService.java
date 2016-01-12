@@ -21,6 +21,9 @@ package org.sonar.server.user;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.user.RubyUserService;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
@@ -30,11 +33,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.RubyUtils;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
-import java.util.Map;
 
 public class DefaultUserService implements RubyUserService {
 
@@ -110,7 +108,7 @@ public class DefaultUserService implements RubyUserService {
     if (Strings.isNullOrEmpty(login)) {
       throw new BadRequestException("Login is missing");
     }
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     if (Objects.equal(userSession.getLogin(), login)) {
       throw new BadRequestException("Self-deactivation is not possible");
     }

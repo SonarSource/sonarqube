@@ -77,7 +77,7 @@ public class UpdateAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     Long groupId = request.mandatoryParamAsLong(PARAM_ID);
     String name = request.param(PARAM_NAME);

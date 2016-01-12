@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 public interface UserSession {
   @CheckForNull
@@ -50,64 +49,48 @@ public interface UserSession {
   /**
    * Ensures that user implies the specified global permission, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkGlobalPermission(String globalPermission);
-
-  /**
-   * Ensures that user implies the specified global permission, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException} with
-   * the specified error message.
-   */
-  UserSession checkGlobalPermission(String globalPermission, @Nullable String errorMessage);
+  UserSession checkPermission(String globalPermission);
 
   /**
    * Ensures that user implies any of the specified global permissions, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException} with
    * the specified error message.
    */
-  UserSession checkAnyGlobalPermissions(Collection<String> globalPermissions);
+  UserSession checkAnyPermissions(Collection<String> globalPermissions);
 
   /**
    * Does the user have the given permission ?
    */
-  boolean hasGlobalPermission(String globalPermission);
+  boolean hasPermission(String globalPermission);
 
   List<String> globalPermissions();
 
   /**
-   * Ensures that user implies the specified project permission, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   */
-  UserSession checkProjectPermission(String projectPermission, String projectKey);
-
-  /**
-   * Ensures that user implies the specified project permission, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   */
-  UserSession checkProjectUuidPermission(String projectPermission, String projectUuid);
-
-  /**
-   * Does the user have the given project permission ?
-   */
-  boolean hasProjectPermission(String permission, String projectKey);
-
-  /**
-   * Does the user have the given project permission ?
-   */
-  boolean hasProjectPermissionByUuid(String permission, String projectUuid);
-
-  /**
-   * Ensures that user implies the specified project permission on a component, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * Ensures that user implies the specified permission globally or on a component, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * If the component doesn't exist and the user hasn't the global permission, throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkComponentPermission(String projectPermission, String componentKey);
 
   /**
-   * Ensures that user implies the specified component permission on a component, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * Ensures that user implies the specified component permission globally or on a component, otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
+   * If the component doesn't exist and the user hasn't the global permission, throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkComponentUuidPermission(String permission, String componentUuid);
 
   /**
-   * Does the user have the given project permission for a component key ?
+   * Does the user have the given permission for a component key ?
+   *
+   * First, check if the user has the global permission (even if the component doesn't exist)
+   * If not, check is the user has the permission on the project of the component
+   * If the component doesn't exist, return false
    */
   boolean hasComponentPermission(String permission, String componentKey);
 
   /**
    * Does the user have the given project permission for a component uuid ?
+
+   * First, check if the user has the global permission (even if the component doesn't exist)
+   * If not, check is the user has the permission on the project of the component
+   * If the component doesn't exist, return false
    */
   boolean hasComponentUuidPermission(String permission, String componentUuid);
 }

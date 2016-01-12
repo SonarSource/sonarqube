@@ -100,7 +100,7 @@ public class SearchAction implements ComponentsWsAction {
   }
 
   private SearchWsResponse doHandle(SearchWsRequest request) {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     List<String> qualifiers = request.getQualifiers();
     validateQualifiers(qualifiers);

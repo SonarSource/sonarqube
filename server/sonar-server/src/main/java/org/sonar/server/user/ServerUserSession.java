@@ -24,9 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.user.AuthorizationDao;
@@ -38,9 +35,7 @@ import static com.google.common.collect.Sets.newHashSet;
  * Part of the current HTTP session
  */
 public class ServerUserSession extends AbstractUserSession<ServerUserSession>
-    implements UserSession {
-
-  private static final Logger LOG = Loggers.get(ServerUserSession.class);
+  implements UserSession {
 
   private Map<String, String> projectKeyByComponentKey = newHashMap();
 
@@ -63,18 +58,13 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession>
       List<String> permissionKeys = authorizationDao.selectGlobalPermissions(login);
       globalPermissions = new ArrayList<>();
       for (String permissionKey : permissionKeys) {
-        if (!GlobalPermissions.ALL.contains(permissionKey)) {
-          LOG.warn("Ignoring unknown permission {} for user {}", permissionKey, login);
-        } else {
-          globalPermissions.add(permissionKey);
-        }
+        globalPermissions.add(permissionKey);
       }
     }
     return globalPermissions;
   }
 
-  @Override
-  public boolean hasProjectPermission(String permission, String projectKey) {
+  private boolean hasProjectPermission(String permission, String projectKey) {
     if (!projectPermissionsCheckedByKey.contains(permission)) {
       Collection<String> projectKeys = authorizationDao.selectAuthorizedRootProjectsKeys(userId, permission);
       for (String key : projectKeys) {
@@ -85,8 +75,8 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession>
     return projectKeyByPermission.get(permission).contains(projectKey);
   }
 
-  @Override
-  public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
+  // To keep private
+  private boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
     if (!projectPermissionsCheckedByUuid.contains(permission)) {
       Collection<String> projectUuids = authorizationDao.selectAuthorizedRootProjectsUuids(userId, permission);
       addProjectPermission(permission, projectUuids);
@@ -103,6 +93,10 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession>
 
   @Override
   public boolean hasComponentPermission(String permission, String componentKey) {
+    if (hasPermission(permission)) {
+      return true;
+    }
+
     String projectKey = projectKeyByComponentKey.get(componentKey);
     if (projectKey == null) {
       ResourceDto project = resourceDao.getRootProjectByComponentKey(componentKey);
@@ -121,6 +115,10 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession>
 
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+    if (hasPermission(permission)) {
+      return true;
+    }
+
     String projectUuid = projectUuidByComponentUuid.get(componentUuid);
     if (projectUuid == null) {
       ResourceDto project = resourceDao.selectResource(componentUuid);

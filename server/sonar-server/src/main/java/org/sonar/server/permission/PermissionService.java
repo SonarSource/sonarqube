@@ -72,7 +72,7 @@ public class PermissionService {
     if (provisioned == null) {
       checkProjectAdminUserByComponentKey(userSession, componentKey);
     } else {
-      userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
+      userSession.checkPermission(GlobalPermissions.PROVISIONING);
     }
     permissionRepository.applyDefaultPermissionTemplate(session, component);
     session.commit();

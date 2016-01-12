@@ -71,7 +71,7 @@ public class TaskAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkAnyGlobalPermissions(AUTHORIZED_PERMISSIONS);
+    userSession.checkAnyPermissions(AUTHORIZED_PERMISSIONS);
 
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
     DbSession dbSession = dbClient.openSession(false);

@@ -26,10 +26,10 @@ import javax.annotation.Nonnull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
@@ -69,7 +69,7 @@ public class DeleteAction implements MetricsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     DbSession dbSession = dbClient.openSession(false);
     try {
       List<Integer> ids = loadIds(dbSession, request);

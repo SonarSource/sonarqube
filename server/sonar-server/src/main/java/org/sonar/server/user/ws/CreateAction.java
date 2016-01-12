@@ -91,7 +91,7 @@ public class CreateAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     String password = request.mandatoryParam(PARAM_PASSWORD);

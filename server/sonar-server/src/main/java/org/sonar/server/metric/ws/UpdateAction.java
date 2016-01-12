@@ -100,7 +100,7 @@ public class UpdateAction implements MetricsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     int id = request.mandatoryParamAsInt(PARAM_ID);
 
     DbSession dbSession = dbClient.openSession(false);

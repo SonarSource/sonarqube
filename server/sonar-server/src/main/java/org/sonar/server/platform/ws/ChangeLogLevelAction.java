@@ -59,7 +59,7 @@ public class ChangeLogLevelAction implements SystemWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
-    userSession.checkGlobalPermission(UserRole.ADMIN);
+    userSession.checkPermission(UserRole.ADMIN);
     LoggerLevel level = LoggerLevel.valueOf(wsRequest.mandatoryParam(PARAM_LEVEL));
     db.enableSqlLogging(level.equals(LoggerLevel.TRACE));
     logging.changeLevel(level);

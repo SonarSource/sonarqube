@@ -85,7 +85,7 @@ public class GenerateAction implements UserTokensWsAction {
   }
 
   private WsUserTokens.GenerateWsResponse doHandle(GenerateWsRequest request) {
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

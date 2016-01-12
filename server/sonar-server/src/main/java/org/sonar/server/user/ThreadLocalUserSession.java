@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 /**
  * Part of the current HTTP session
@@ -89,48 +88,23 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  public UserSession checkGlobalPermission(String globalPermission) {
-    return get().checkGlobalPermission(globalPermission);
+  public UserSession checkPermission(String globalPermission) {
+    return get().checkPermission(globalPermission);
   }
 
   @Override
-  public UserSession checkGlobalPermission(String globalPermission, @Nullable String errorMessage) {
-    return get().checkGlobalPermission(globalPermission, errorMessage);
+  public UserSession checkAnyPermissions(Collection<String> globalPermissions) {
+    return get().checkAnyPermissions(globalPermissions);
   }
 
   @Override
-  public UserSession checkAnyGlobalPermissions(Collection<String> globalPermissions) {
-    return get().checkAnyGlobalPermissions(globalPermissions);
-  }
-
-  @Override
-  public boolean hasGlobalPermission(String globalPermission) {
-    return get().hasGlobalPermission(globalPermission);
+  public boolean hasPermission(String globalPermission) {
+    return get().hasPermission(globalPermission);
   }
 
   @Override
   public List<String> globalPermissions() {
     return get().globalPermissions();
-  }
-
-  @Override
-  public UserSession checkProjectPermission(String projectPermission, String projectKey) {
-    return get().checkProjectPermission(projectPermission, projectKey);
-  }
-
-  @Override
-  public UserSession checkProjectUuidPermission(String projectPermission, String projectUuid) {
-    return get().checkProjectUuidPermission(projectPermission, projectUuid);
-  }
-
-  @Override
-  public boolean hasProjectPermission(String permission, String projectKey) {
-    return get().hasProjectPermission(permission, projectKey);
-  }
-
-  @Override
-  public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
-    return get().hasProjectPermissionByUuid(permission, projectUuid);
   }
 
   @Override

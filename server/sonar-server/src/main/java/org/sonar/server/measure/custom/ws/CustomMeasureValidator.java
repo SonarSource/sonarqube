@@ -95,10 +95,10 @@ public class CustomMeasureValidator {
   }
 
   public static void checkPermissions(UserSession userSession, ComponentDto component) {
-    if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
+    if (userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN)) {
       return;
     }
 
-    userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
+    userSession.checkLoggedIn().checkComponentUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 }

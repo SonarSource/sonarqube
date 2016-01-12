@@ -98,7 +98,7 @@ public class CreateAction implements MetricsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
     String key = request.mandatoryParam(PARAM_KEY);
 
     DbSession dbSession = dbClient.openSession(false);

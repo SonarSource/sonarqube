@@ -32,8 +32,8 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.MediaTypes;
 
 public class GlobalAction implements BatchWsAction {
 
@@ -59,8 +59,8 @@ public class GlobalAction implements BatchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
+    boolean hasScanPerm = userSession.hasPermission(GlobalPermissions.SCAN_EXECUTION);
+    boolean hasPreviewPerm = userSession.hasPermission(GlobalPermissions.PREVIEW_EXECUTION);
     if (!hasPreviewPerm && !hasScanPerm) {
       throw new ForbiddenException(Messages.NO_PERMISSION);
     }

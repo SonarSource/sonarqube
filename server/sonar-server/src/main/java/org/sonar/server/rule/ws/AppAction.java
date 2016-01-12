@@ -91,7 +91,7 @@ public class AppAction implements RulesWsAction {
   }
 
   private void addPermissions(JsonWriter json) {
-    json.prop("canWrite", userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    json.prop("canWrite", userSession.hasPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN));
   }
 
   private void addProfiles(JsonWriter json) {

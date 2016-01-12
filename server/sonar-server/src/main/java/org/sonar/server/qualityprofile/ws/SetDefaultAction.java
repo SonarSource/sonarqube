@@ -79,7 +79,7 @@ public class SetDefaultAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String language = request.param(PARAM_LANGUAGE);
     String profileName = request.param(PARAM_PROFILE_NAME);

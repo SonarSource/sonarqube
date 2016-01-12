@@ -35,8 +35,8 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.MediaTypes;
 
 import static java.lang.String.format;
 
@@ -74,7 +74,7 @@ public class LogsAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkGlobalPermission(UserRole.ADMIN);
+    userSession.checkPermission(UserRole.ADMIN);
 
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
     LogFileRef ref = loadLogRef(taskUuid);

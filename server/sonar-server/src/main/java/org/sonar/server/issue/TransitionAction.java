@@ -69,7 +69,7 @@ public class TransitionAction extends Action {
       public boolean apply(Transition input) {
         return input.key().equals(transition) &&
           (StringUtils.isBlank(input.requiredProjectPermission()) ||
-          userSession.hasProjectPermission(input.requiredProjectPermission(), defaultIssue.projectKey()));
+          userSession.hasComponentPermission(input.requiredProjectPermission(), defaultIssue.projectKey()));
       }
     }, null) != null;
   }

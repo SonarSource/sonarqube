@@ -35,16 +35,6 @@ public final class AnonymousUserSession extends AbstractUserSession<AnonymousUse
   }
 
   @Override
-  public boolean hasProjectPermission(String permission, String projectKey) {
-    return false;
-  }
-
-  @Override
-  public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
-    return false;
-  }
-
-  @Override
   public boolean hasComponentPermission(String permission, String componentKey) {
     return false;
   }

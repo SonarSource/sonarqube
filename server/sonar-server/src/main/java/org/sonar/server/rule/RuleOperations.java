@@ -30,8 +30,8 @@ import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.debt.CharacteristicDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -152,7 +152,7 @@ public class RuleOperations {
 
   private static void checkPermission(UserSession userSession) {
     userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   public static class RuleChange {

@@ -72,11 +72,11 @@ public class QueueAction implements CeWsAction {
       List<CeQueueDto> dtos;
       if (componentUuid == null) {
         // no filters
-        userSession.checkGlobalPermission(UserRole.ADMIN);
+        userSession.checkPermission(UserRole.ADMIN);
         dtos = dbClient.ceQueueDao().selectAllInAscOrder(dbSession);
       } else {
         // filter by component
-        if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
+        if (userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid)) {
           dtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
         } else {
           throw new ForbiddenException("Requires system administration permission");
