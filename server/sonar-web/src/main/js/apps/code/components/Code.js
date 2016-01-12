@@ -72,15 +72,13 @@ class Code extends Component {
     return (
         <div className="page">
           <header className="page-header">
-            <h1 className="page-title">{translate('code.page')}</h1>
+            <Search component={this.props.component}/>
 
             <div
                 className="pull-left"
                 style={{ visibility: fetching ? 'visible' : 'hidden' }}>
               <i className="spinner"/>
             </div>
-
-            <Search component={this.props.component}/>
           </header>
 
           {errorMessage && (

@@ -50,6 +50,6 @@
 }
 
 .code-search-box {
-  padding-left: 10px;
-  overflow: hidden;
+  float: left;
+  padding-right: 10px;
 }

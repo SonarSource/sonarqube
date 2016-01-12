@@ -28,7 +28,8 @@ const METRICS = [
   'ncloc',
   'sqale_index',
   'violations',
-  'duplicated_lines_density'
+  'duplicated_lines_density',
+  'alert_status'
 ];
 
 const METRICS_WITH_COVERAGE = [

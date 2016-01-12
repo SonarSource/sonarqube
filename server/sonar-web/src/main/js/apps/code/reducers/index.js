@@ -99,6 +99,7 @@ export const initialState = {
   searchQuery: '',
   searchSelectedItem: null,
   coverageMetric: null,
+  isView: false,
   baseBreadcrumbs: [],
   errorMessage: null
 };
@@ -109,8 +110,9 @@ export function current (state = initialState, action) {
     case INIT:
       const coverageMetric = selectCoverageMetric(action.component);
       const baseBreadcrumbs = action.breadcrumbs.length > 1 ? _.initial(action.breadcrumbs) : [];
+      const isView = action.component.qualifier === 'VW' || action.component.qualifier === 'SVW';
 
-      return { ...state, coverageMetric, baseBreadcrumbs };
+      return { ...state, coverageMetric, baseBreadcrumbs, isView };
     case BROWSE:
       const baseComponent = hasSourceCode(action.component) ? null : action.component;
       const components = hasSourceCode(action.component) ? null : sortChildren(action.children);

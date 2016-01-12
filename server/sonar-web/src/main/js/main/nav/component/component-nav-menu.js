@@ -167,6 +167,15 @@ export default React.createClass({
     return this.renderLink(url, translate('code.page'), '/code');
   },
 
+  renderProjectsLink() {
+    if (!this.isView()) {
+      return null;
+    }
+
+    const url = `/view_projects/index?id=${encodeURIComponent(this.props.component.key)}`;
+    return this.renderLink(url, translate('view_projects.page'), '/view_projects');
+  },
+
   renderComponentIssuesLink() {
     const url = `/component_issues/index?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, translate('issues.page'), '/component_issues');
@@ -329,6 +338,7 @@ export default React.createClass({
           {!this.isDeveloper() && this.renderFixedDashboards()}
           {this.renderCustomDashboards()}
           {this.renderCodeLink()}
+          {this.renderProjectsLink()}
           {this.renderComponentIssuesLink()}
           {this.renderTools()}
           {this.renderAdministration()}

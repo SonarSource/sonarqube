@@ -62,12 +62,13 @@ const Component = ({ component, previous, onBrowse }) => {
         <span>{component.name.substr(prefix.length)}</span>
       </span>
   ) : component.name;
+  const canBrowse = !!onBrowse && !component.copy;
 
   return (
       <Truncated title={getTooltip(component)}>
         <QualifierIcon qualifier={component.qualifier}/>
         {' '}
-        {onBrowse ? (
+        {canBrowse ? (
             <a
                 onClick={handleClick}
                 href="#">

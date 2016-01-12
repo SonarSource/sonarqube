@@ -24,6 +24,7 @@ import { connect } from 'react-redux';
 
 import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
+import ComponentQualityGate from './ComponentQualityGate';
 import ComponentDetach from './ComponentDetach';
 import ComponentPin from './ComponentPin';
 
@@ -62,7 +63,7 @@ class Component extends React.Component {
   }
 
   render () {
-    const { component, selected, previous, coverageMetric, onBrowse } = this.props;
+    const { component, selected, previous, coverageMetric, onBrowse, isView } = this.props;
 
     let componentAction = null;
 
@@ -83,6 +84,10 @@ class Component extends React.Component {
             </span>
           </td>
           <td className="code-name-cell">
+            {isView && (
+                <ComponentQualityGate
+                    component={component}/>
+            )}
             <ComponentName
                 component={component}
                 previous={previous}
@@ -136,7 +141,8 @@ class Component extends React.Component {
 
 function mapStateToProps (state, ownProps) {
   return {
-    selected: state.current.searchSelectedItem === ownProps.component
+    selected: state.current.searchSelectedItem === ownProps.component,
+    isView: state.current.isView
   };
 }
 
