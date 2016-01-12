@@ -84,5 +84,8 @@ export function getParents ({ id, key }) {
 export function getBreadcrumbs ({ id, key }) {
   const url = baseUrl + '/api/components/show';
   const data = id ? { id } : { key };
-  return getJSON(url, data).then(r => [...r.ancestors, r.component]);
+  return getJSON(url, data).then(r => {
+    const reversedAncestors = [...r.ancestors].reverse();
+    return [...reversedAncestors, r.component];
+  });
 }
