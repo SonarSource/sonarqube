@@ -20,8 +20,7 @@
 import _ from 'underscore';
 import { pushPath } from 'redux-simple-router';
 
-import { getChildren, getComponent, getTree } from '../../../api/components';
-import { getComponentNavigation } from '../../../api/nav';
+import { getChildren, getComponent, getTree, getBreadcrumbs } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 
 
@@ -142,9 +141,7 @@ function retrieveComponentChildren (componentKey, candidate) {
 function retrieveComponentBreadcrumbs (componentKey, candidate) {
   return candidate && candidate.breadcrumbs ?
       Promise.resolve(candidate.breadcrumbs) :
-      getComponentNavigation(componentKey)
-          .then(navigation => navigation.breadcrumbs)
-          .then(skipRootDir);
+      getBreadcrumbs({ key: componentKey }).then(skipRootDir);
 }
 
 function retrieveComponent (componentKey, bucket) {

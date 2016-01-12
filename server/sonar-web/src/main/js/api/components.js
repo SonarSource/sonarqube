@@ -69,8 +69,20 @@ export function getComponent (componentKey, metrics = []) {
   return getJSON(url, data).then(r => r[0]);
 }
 
-export function getTree(baseComponentKey, options = {}) {
+export function getTree (baseComponentKey, options = {}) {
   const url = baseUrl + '/api/components/tree';
   const data = Object.assign({}, options, { baseComponentKey });
   return getJSON(url, data);
+}
+
+export function getParents ({ id, key }) {
+  const url = baseUrl + '/api/components/show';
+  const data = id ? { id } : { key };
+  return getJSON(url, data).then(r => r.ancestors);
+}
+
+export function getBreadcrumbs ({ id, key }) {
+  const url = baseUrl + '/api/components/show';
+  const data = id ? { id } : { key };
+  return getJSON(url, data).then(r => [...r.ancestors, r.component]);
 }
