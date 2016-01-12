@@ -98,7 +98,6 @@ class ComponentTreeSort {
 
   /**
    * Order by measure value, taking the metric direction into account
-   * Metric direction is taken into account in {@link ComponentDtoWithSnapshotIdToNumericalMeasureValue}
    */
   private static Ordering<ComponentDtoWithSnapshotId> metricOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {

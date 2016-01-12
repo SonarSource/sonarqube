@@ -19,16 +19,20 @@
  */
 package org.sonarqube.ws.client.measure;
 
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
+import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT_TREE;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.CONTROLLER_MEASURES;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
@@ -39,7 +43,7 @@ public class MeasuresService extends BaseService {
     super(wsConnector, CONTROLLER_MEASURES);
   }
 
-  public WsMeasures.ComponentTreeWsResponse componentTree(ComponentTreeWsRequest request) {
+  public ComponentTreeWsResponse componentTree(ComponentTreeWsRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_COMPONENT_TREE))
       .setParam(PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
       .setParam(PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
@@ -54,6 +58,16 @@ public class MeasuresService extends BaseService {
       .setParam("asc", request.getAsc())
       .setParam(PARAM_METRIC_SORT, request.getMetricSort());
 
-    return call(getRequest, WsMeasures.ComponentTreeWsResponse.parser());
+    return call(getRequest, ComponentTreeWsResponse.parser());
+  }
+
+  public ComponentWsResponse component(ComponentWsRequest request) {
+    GetRequest getRequest = new GetRequest(path(ACTION_COMPONENT))
+      .setParam(PARAM_COMPONENT_ID, request.getComponentId())
+      .setParam(PARAM_COMPONENT_KEY, request.getComponentKey())
+      .setParam(PARAM_ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
+      .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()));
+
+    return call(getRequest, ComponentWsResponse.parser());
   }
 }

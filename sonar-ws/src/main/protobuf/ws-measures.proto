@@ -35,6 +35,13 @@ message ComponentTreeWsResponse {
   optional Periods periods = 5;
 }
 
+// WS api/measures/component
+message ComponentWsResponse {
+  optional Component component = 1;
+  optional Metrics metrics = 2;
+  optional Periods periods = 3;
+}
+
 message Component {
   optional string id = 1;
   optional string key = 2;

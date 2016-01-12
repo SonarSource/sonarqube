@@ -212,7 +212,7 @@ public class ComponentTreeDataLoader {
   private static void addBestValuesToMeasures(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, List<ComponentDtoWithSnapshotId> components,
     List<MetricDto> metrics, List<WsMeasures.Period> periods) {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = from(metrics)
-      .filter(IsMetricOptimizedForBestValue.INSTANCE)
+      .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .transform(new MetricDtoToMetricDtoWithBestValue(periods))
       .toList();
     if (metricDtosWithBestValueMeasure.isEmpty()) {
@@ -222,8 +222,8 @@ public class ComponentTreeDataLoader {
     List<ComponentDtoWithSnapshotId> componentsEligibleForBestValue = from(components).filter(IsFileComponent.INSTANCE).toList();
     for (ComponentDtoWithSnapshotId component : componentsEligibleForBestValue) {
       for (MetricDtoWithBestValue metricWithBestValue : metricDtosWithBestValueMeasure) {
-        if (measuresByComponentUuidAndMetric.get(component.uuid(), metricWithBestValue.metric) == null) {
-          measuresByComponentUuidAndMetric.put(component.uuid(), metricWithBestValue.metric, metricWithBestValue.bestValue);
+        if (measuresByComponentUuidAndMetric.get(component.uuid(), metricWithBestValue.getMetric()) == null) {
+          measuresByComponentUuidAndMetric.put(component.uuid(), metricWithBestValue.getMetric(), metricWithBestValue.getBestValue());
         }
       }
     }
@@ -349,15 +349,6 @@ public class ComponentTreeDataLoader {
     }
   }
 
-  private enum IsMetricOptimizedForBestValue implements Predicate<MetricDto> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull MetricDto input) {
-      return input.isOptimizedBestValue() && input.getBestValue() != null;
-    }
-  }
-
   private enum IsFileComponent implements Predicate<ComponentDtoWithSnapshotId> {
     INSTANCE;
 
@@ -377,30 +368,6 @@ public class ComponentTreeDataLoader {
     @Override
     public MetricDtoWithBestValue apply(@Nonnull MetricDto input) {
       return new MetricDtoWithBestValue(input, periodIndexes);
-    }
-  }
-
-  private static class MetricDtoWithBestValue {
-    private static final String LOWER_CASE_NEW_METRIC_PREFIX = "new_";
-    private final MetricDto metric;
-
-    private final MeasureDto bestValue;
-
-    private MetricDtoWithBestValue(MetricDto metric, List<Integer> periodIndexes) {
-      this.metric = metric;
-      MeasureDto measure = new MeasureDto()
-        .setMetricId(metric.getId())
-        .setMetricKey(metric.getKey());
-      boolean isNewTypeMetric = metric.getKey().toLowerCase().startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
-      if (isNewTypeMetric) {
-        for (Integer periodIndex : periodIndexes) {
-          measure.setVariation(periodIndex, 0.0d);
-        }
-      } else {
-        measure.setValue(metric.getBestValue());
-      }
-
-      this.bestValue = measure;
     }
   }
 

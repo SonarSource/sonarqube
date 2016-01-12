@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.db.measure;
 
-package org.sonar.server.measure.ws;
+import com.google.common.base.Function;
+import javax.annotation.Nonnull;
 
-import org.sonar.core.platform.Module;
+public class MeasureDtoFunctions {
+  private MeasureDtoFunctions() {
+    // prevent instantiation
+  }
 
-public class MeasuresWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ComponentTreeDataLoader.class,
-      MeasuresWs.class,
-      ComponentTreeAction.class,
-      ComponentAction.class);
+  public static Function<MeasureDto, Integer> toMetricId() {
+    return ToMetricId.INSTANCE;
+  }
+
+  private enum ToMetricId implements Function<MeasureDto, Integer> {
+    INSTANCE;
+
+    @Override
+    public Integer apply(@Nonnull MeasureDto input) {
+      return input.getMetricId();
+    }
   }
 }

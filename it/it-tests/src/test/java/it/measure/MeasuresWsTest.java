@@ -30,8 +30,10 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
+import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
+import org.sonarqube.ws.client.measure.ComponentWsRequest;
 import util.ItUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -79,5 +81,19 @@ public class MeasuresWsTest {
     List<WsMeasures.Component> components = response.getComponentsList();
     assertThat(components).hasSize(2).extracting("key").containsOnly("sample:src/main/xoo/sample", FILE_KEY);
     assertThat(components.get(0).getMeasures().getMeasuresList().get(0).getValue()).isEqualTo("13");
+  }
+
+  @Test
+  public void component() {
+    ComponentWsResponse response = wsClient.measures().component(new ComponentWsRequest()
+      .setComponentKey("sample")
+      .setMetricKeys(singletonList("ncloc"))
+      .setAdditionalFields(newArrayList("metrics", "periods")));
+
+    WsMeasures.Component component = response.getComponent();
+    assertThat(component.getKey()).isEqualTo("sample");
+    assertThat(component.getMeasures().getMeasuresList()).isNotEmpty();
+    assertThat(response.getMetrics().getMetricsList()).extracting("key").containsOnly("ncloc");
+
   }
 }

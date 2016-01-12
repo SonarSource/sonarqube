@@ -20,6 +20,7 @@
 package org.sonar.db.metric;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import javax.annotation.Nonnull;
 
 /**
@@ -38,6 +39,10 @@ public class MetricDtoFunctions {
     return ToKey.INSTANCE;
   }
 
+  public static Predicate<MetricDto> isOptimizedForBestValue() {
+    return IsMetricOptimizedForBestValue.INSTANCE;
+  }
+
   private enum ToId implements Function<MetricDto, Integer> {
     INSTANCE;
 
@@ -53,6 +58,15 @@ public class MetricDtoFunctions {
     @Override
     public String apply(@Nonnull MetricDto input) {
       return input.getKey();
+    }
+  }
+
+  private enum IsMetricOptimizedForBestValue implements Predicate<MetricDto> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull MetricDto input) {
+      return input.isOptimizedBestValue() && input.getBestValue() != null;
     }
   }
 }

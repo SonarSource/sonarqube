@@ -1,0 +1,119 @@
+{
+  "component": {
+    "id": "AVIwDXE-bJbJqrw6wFv5",
+    "key": "MY_PROJECT:ElementImpl.java",
+    "name": "ElementImpl.java",
+    "qualifier": "FIL",
+    "path": "src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
+    "measures": [
+      {
+        "metric": "complexity",
+        "value": "12",
+        "periods": [
+          {
+            "index": 1,
+            "value": "2"
+          },
+          {
+            "index": 2,
+            "value": "0"
+          },
+          {
+            "index": 3,
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "metric": "new_violations",
+        "periods": [
+          {
+            "index": 1,
+            "value": "25"
+          },
+          {
+            "index": 2,
+            "value": "0"
+          },
+          {
+            "index": 3,
+            "value": "25"
+          }
+        ]
+      },
+      {
+        "metric": "ncloc",
+        "value": "114",
+        "periods": [
+          {
+            "index": 1,
+            "value": "3"
+          },
+          {
+            "index": 2,
+            "value": "-5"
+          },
+          {
+            "index": 3,
+            "value": "5"
+          }
+        ]
+      }
+    ]
+  },
+  "metrics": [
+    {
+      "key": "complexity",
+      "name": "Complexity",
+      "description": "Cyclomatic complexity",
+      "domain": "Complexity",
+      "type": "INT",
+      "higherValuesAreBetter": false,
+      "qualitative": false,
+      "hidden": false,
+      "custom": false
+    },
+    {
+      "key": "ncloc",
+      "name": "Lines of code",
+      "description": "Non Commenting Lines of Code",
+      "domain": "Size",
+      "type": "INT",
+      "higherValuesAreBetter": false,
+      "qualitative": false,
+      "hidden": false,
+      "custom": false
+    },
+    {
+      "key": "new_violations",
+      "name": "New issues",
+      "description": "New Issues",
+      "domain": "Issues",
+      "type": "INT",
+      "higherValuesAreBetter": false,
+      "qualitative": true,
+      "hidden": false,
+      "custom": false
+    }
+  ],
+  "periods": [
+    {
+      "index": 1,
+      "mode": "previous_version",
+      "date": "2016-01-11T10:49:50+0100",
+      "parameter": "1.0-SNAPSHOT"
+    },
+    {
+      "index": 2,
+      "mode": "previous_analysis",
+      "date": "2016-01-11T10:50:06+0100",
+      "parameter": "2016-01-11"
+    },
+    {
+      "index": 3,
+      "mode": "days",
+      "date": "2016-01-11T10:38:45+0100",
+      "parameter": "30"
+    }
+  ]
+}

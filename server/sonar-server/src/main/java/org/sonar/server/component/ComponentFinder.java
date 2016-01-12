@@ -105,6 +105,7 @@ public class ComponentFinder {
     PROJECT_ID_AND_KEY("projectId", "projectKey"),
     UUID_AND_KEY("uuid", "key"),
     ID_AND_KEY("id", "key"),
+    COMPONENT_ID_AND_KEY("componentId", "componentKey"),
     BASE_COMPONENT_ID_AND_KEY("baseComponentId", "baseComponentKey");
 
     private final String uuidParamName;

@@ -20,22 +20,33 @@
 
 package org.sonarqube.ws.client.measure;
 
-public class MeasuresWsParameters {
-  private MeasuresWsParameters() {
-    // static constants only
-  }
+import com.google.common.collect.ImmutableSortedSet;
+import java.util.Set;
 
+public class MeasuresWsParameters {
   public static final String CONTROLLER_MEASURES = "api/measures";
 
   // actions
   public static final String ACTION_COMPONENT_TREE = "component_tree";
 
+  public static final String ACTION_COMPONENT = "component";
   // parameters
   public static final String PARAM_BASE_COMPONENT_ID = "baseComponentId";
+
   public static final String PARAM_BASE_COMPONENT_KEY = "baseComponentKey";
   public static final String PARAM_STRATEGY = "strategy";
   public static final String PARAM_QUALIFIERS = "qualifiers";
   public static final String PARAM_METRIC_KEYS = "metricKeys";
   public static final String PARAM_METRIC_SORT = "metricSort";
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
+  public static final String PARAM_COMPONENT_ID = "componentId";
+  public static final String PARAM_COMPONENT_KEY = "componentKey";
+  public static final String ADDITIONAL_METRICS = "metrics";
+
+  public static final String ADDITIONAL_PERIODS = "periods";
+  public static final Set<String> ADDITIONAL_FIELDS = ImmutableSortedSet.of(ADDITIONAL_METRICS, ADDITIONAL_PERIODS);
+
+  private MeasuresWsParameters() {
+    // static constants only
+  }
 }

@@ -38,6 +38,8 @@ import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
@@ -45,6 +47,8 @@ import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT_TREE;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_METRICS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
@@ -80,9 +84,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String QUALIFIER_SORT = "qualifier";
   static final String METRIC_SORT = "metric";
   static final Set<String> SORTS = ImmutableSortedSet.of(NAME_SORT, PATH_SORT, QUALIFIER_SORT, METRIC_SORT);
-  static final String ADDITIONAL_METRICS = "metrics";
-  static final String ADDITIONAL_PERIODS = "periods";
-  static final Set<String> ADDITIONAL_FIELDS = ImmutableSortedSet.of(ADDITIONAL_METRICS, ADDITIONAL_PERIODS);
 
   private final ComponentTreeDataLoader dataLoader;
   private final UserSession userSession;
@@ -133,21 +134,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription("Base component key.The search is based on this component.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
-    action.createParam(PARAM_METRIC_KEYS)
-      .setDescription("Metric keys")
-      .setRequired(true)
-      .setExampleValue("ncloc,complexity,violations");
-
     action.createParam(PARAM_METRIC_SORT)
       .setDescription(
         format("Metric key to sort by. The '%s' parameter must contain the '%s' value. It must be part of the '%s' parameter", Param.SORT, METRIC_SORT, PARAM_METRIC_KEYS))
       .setExampleValue("ncloc");
 
-    action.createParam(PARAM_ADDITIONAL_FIELDS)
-      .setDescription("Comma-separated list of additional fields that can be returned in the response.")
-      .setPossibleValues(ADDITIONAL_FIELDS)
-      .setExampleValue("periods,metrics");
-
+    createMetricKeysParameter(action);
+    createAdditionalFieldsParameter(action);
     createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes));
 
     action.createParam(PARAM_STRATEGY)
