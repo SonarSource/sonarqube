@@ -9,10 +9,6 @@
     <value><![CDATA[ncloc]]></value>
   </property>
   <property>
-    <key>sonar.core.projectsdashboard.showTreemap</key>
-    <value><![CDATA[true]]></value>
-  </property>
-  <property>
     <key>sonar.plsql.suffixes</key>
     <value><![CDATA[sql,tab,pkb]]></value>
   </property>
