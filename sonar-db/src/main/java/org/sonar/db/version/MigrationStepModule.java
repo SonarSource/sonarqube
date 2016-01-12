@@ -62,6 +62,7 @@ import org.sonar.db.version.v52.RemoveSnapshotLibraries;
 import org.sonar.db.version.v53.FixMsSqlCollation;
 import org.sonar.db.version.v53.UpdateCustomDashboardInLoadedTemplates;
 import org.sonar.db.version.v54.InsertGateAdminPermissionForEachProfileAdmin;
+import org.sonar.db.version.v54.RemoveComponentPageProperties;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -119,6 +120,7 @@ public class MigrationStepModule extends Module {
       UpdateCustomDashboardInLoadedTemplates.class,
 
       // 5.4
-      InsertGateAdminPermissionForEachProfileAdmin.class);
+      InsertGateAdminPermissionForEachProfileAdmin.class,
+      RemoveComponentPageProperties.class);
   }
 }
