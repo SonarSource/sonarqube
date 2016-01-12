@@ -41,6 +41,7 @@ public class ResourcesWs implements WebService {
     NewAction action = controller.createAction("index")
       .setDescription("Get a list of components. Requires Browse permission on resource")
       .setSince("2.10")
+      .setDeprecatedSince("5.4")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "resources-example-index.json"));
 
@@ -118,6 +119,7 @@ public class ResourcesWs implements WebService {
     NewAction action = controller.createAction("search")
       .setDescription("Search for components")
       .setSince("3.3")
+      .setDeprecatedSince("5.4")
       .addPagingParams(10)
       .setInternal(true)
       .setHandler(RailsHandler.INSTANCE)
