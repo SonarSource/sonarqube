@@ -21,8 +21,13 @@
         {{/if}}
       </p>
     </div>
-    <div class="button-group pull-right">
-      <button class="js-cancel-all button-red">Revert</button>
+    <div class="pull-right">
+      {{#if restarting}}
+        <i class="spinner"></i>
+      {{else}}
+        <button class="js-restart">Restart</button>
+        <button class="js-cancel-all button-red">Revert</button>
+      {{/if}}
     </div>
   </div>
 {{/any}}

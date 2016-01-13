@@ -20,6 +20,7 @@
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from './templates/update-center-header.hbs';
+import { restartAndWait } from '../../api/system';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -29,17 +30,31 @@ export default Marionette.ItemView.extend({
   },
 
   events: {
+    'click .js-restart': 'restart',
     'click .js-cancel-all': 'cancelAll'
   },
 
-  cancelAll: function () {
+  initialize () {
+    this.restarting = false;
+  },
+
+  restart () {
+    this.restarting = true;
+    this.render();
+    restartAndWait().then(() => {
+      document.location.reload(true);
+    });
+  },
+
+  cancelAll () {
     this.collection.cancelAll();
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       installing: this.collection._installedCount,
-      uninstalling: this.collection._uninstalledCount
+      uninstalling: this.collection._uninstalledCount,
+      restarting: this.restarting
     });
   }
 });

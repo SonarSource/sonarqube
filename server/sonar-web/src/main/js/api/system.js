@@ -29,3 +29,31 @@ export function getSystemInfo () {
   const url = window.baseUrl + '/api/system/info';
   return getJSON(url);
 }
+
+export function getStatus () {
+  const url = window.baseUrl + '/api/system/status';
+  return getJSON(url);
+}
+
+export function restart () {
+  const url = window.baseUrl + '/api/system/restart';
+  return post(url);
+}
+
+const POLLING_INTERVAL = 2000;
+
+function pollStatus (cb) {
+  setTimeout(() => {
+    getStatus()
+        .then(() => cb())
+        .catch(() => pollStatus(cb));
+  }, POLLING_INTERVAL);
+}
+
+function promiseStatus () {
+  return new Promise(resolve => pollStatus(resolve));
+}
+
+export function restartAndWait () {
+  return restart().then(promiseStatus);
+}
