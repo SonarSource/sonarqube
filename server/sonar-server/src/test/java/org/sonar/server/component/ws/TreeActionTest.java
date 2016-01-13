@@ -243,10 +243,10 @@ public class TreeActionTest {
   public void direct_children_of_a_view() throws IOException {
     ComponentDto view = newView("view-uuid");
     SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
-    ComponentDto project = newProjectDto("project-uuid-1");
+    ComponentDto project = newProjectDto("project-uuid-1").setName("project-name");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponentAndSnapshot(newProjectCopy("project-uuid-1-copy", project, view), viewSnapshot);
-    componentDb.insertComponentAndSnapshot(newSubView(view, "sub-view-uuid", "sub-view-key"), viewSnapshot);
+    componentDb.insertComponentAndSnapshot(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"), viewSnapshot);
     db.commit();
     componentDb.indexProjects();
 
@@ -254,6 +254,7 @@ public class TreeActionTest {
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_STRATEGY, "children")
       .setParam(PARAM_BASE_COMPONENT_ID, "view-uuid")
+      .setParam(Param.TEXT_QUERY, "name")
       .execute().getInputStream();
     WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
 

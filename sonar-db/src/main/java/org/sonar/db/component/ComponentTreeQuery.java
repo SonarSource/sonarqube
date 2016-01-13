@@ -112,7 +112,7 @@ public class ComponentTreeQuery {
     return Joiner.on(", ").join(sqlSortFields);
   }
 
-  private String buildBaseSnapshotPath(SnapshotDto baseSnapshot) {
+  private static String buildBaseSnapshotPath(SnapshotDto baseSnapshot) {
     String existingSnapshotPath = baseSnapshot.getPath() == null ? "" : baseSnapshot.getPath();
     return buildLikeValue(existingSnapshotPath + baseSnapshot.getId() + ".", WildcardPosition.AFTER);
   }

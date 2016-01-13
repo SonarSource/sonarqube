@@ -355,7 +355,7 @@
       select 1
       from resource_index ri
       where
-      ri.resource_id=p.id
+      (ri.resource_id=p.id OR ri.resource_id=p.copy_resource_id)
       AND ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
       OR p.kee like #{query.nameOrKeyQueryToSqlForProjectKey} ESCAPE '/')
     </if>

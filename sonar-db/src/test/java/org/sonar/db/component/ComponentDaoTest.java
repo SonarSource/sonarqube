@@ -43,7 +43,9 @@ import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 
 @Category(DbTests.class)
@@ -869,6 +871,25 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void select_direct_children_of_a_view() {
+    ComponentDto view = newView("view-uuid");
+    SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
+    // one subview
+    ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview-name");
+    componentDb.insertComponentAndSnapshot(subView, viewSnapshot);
+    // one project and its copy linked to the view
+    ComponentDto project = newProjectDto("project-uuid").setName("project-name");
+    componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
+    componentDb.indexProjects();
+    ComponentTreeQuery dbQuery = newTreeQuery(viewSnapshot).setNameOrKeyQuery("name").build();
+
+    List<ComponentDtoWithSnapshotId> components = underTest.selectDirectChildren(dbSession, dbQuery);
+
+    assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
+  }
+
+  @Test
   public void select_all_files_of_a_project_paginated_and_ordered() {
     ComponentDto project = newProjectDto().setKey("project-key").setUuid("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
@@ -903,7 +924,6 @@ public class ComponentDaoTest {
       .setPageSize(500)
       .setBaseSnapshot(baseSnapshot)
       .setSortFields(singletonList("name"))
-      .setAsc(true)
-      .setQualifiers(newArrayList(Qualifiers.FILE, Qualifiers.MODULE, Qualifiers.DIRECTORY, Qualifiers.PROJECT));
+      .setAsc(true);
   }
 }
