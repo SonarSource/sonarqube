@@ -1,5 +1,5 @@
 /*
- * SonarQube :: Server
+ * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.measure.ws;
 
 import org.sonar.api.server.ws.WebService;

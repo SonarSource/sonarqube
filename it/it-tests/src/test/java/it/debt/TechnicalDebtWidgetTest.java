@@ -1,5 +1,5 @@
 /*
- * SonarQube Integration Tests :: Tests
+ * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
