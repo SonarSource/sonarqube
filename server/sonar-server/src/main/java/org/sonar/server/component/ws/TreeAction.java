@@ -50,6 +50,7 @@ import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -112,7 +113,7 @@ public class TreeAction implements ComponentsWsAction {
 
     action.createParam(PARAM_BASE_COMPONENT_KEY)
       .setDescription("Base component key.The search is based on this component. It is not included in the response.")
-      .setExampleValue("org.apache.hbas:hbase");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes));
 

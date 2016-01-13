@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 public class TimeMachineWs implements WebService {
 
   @Override
@@ -46,7 +48,7 @@ public class TimeMachineWs implements WebService {
     action.createParam("resource")
       .setDescription("id or key of the resource (ie: component)")
       .setRequired(true)
-      .setExampleValue("org.codehaus.sonar:sonar");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam("metrics")
       .setDescription("Comma-separated list of <a href=\"http://redirect.sonarsource.com/doc/metric-definitions.html\">metric keys/ids</a>")

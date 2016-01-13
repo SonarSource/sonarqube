@@ -36,6 +36,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
+
 public class HashAction implements SourcesWsAction {
 
   private final DbClient dbClient;
@@ -61,7 +63,7 @@ public class HashAction implements SourcesWsAction {
       .createParam("key")
       .setRequired(true)
       .setDescription("File key")
-      .setExampleValue("org.codehaus.sonar:sonar-server:src/main/java/org/sonar/server/source/SourceService.java");
+      .setExampleValue(KEY_FILE_EXAMPLE_001);
   }
 
   @Override

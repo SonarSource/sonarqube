@@ -30,6 +30,7 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.FileData.Builder;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProjectAction implements BatchWsAction {
@@ -57,7 +58,7 @@ public class ProjectAction implements BatchWsAction {
       .createParam(PARAM_KEY)
       .setRequired(true)
       .setDescription("Project or module key")
-      .setExampleValue("org.codehaus.sonar:sonar");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action
       .createParam(PARAM_PROFILE)

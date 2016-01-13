@@ -27,6 +27,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.IssueService;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 public class CreateAction implements IssuesWsAction {
 
   public static final String ACTION = "create";
@@ -50,7 +52,7 @@ public class CreateAction implements IssuesWsAction {
     action.createParam("component")
       .setDescription("Key of the component on which to log the issue")
       .setRequired(true)
-      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam("rule")
       .setDescription("Manual rule key")
       .setRequired(true)

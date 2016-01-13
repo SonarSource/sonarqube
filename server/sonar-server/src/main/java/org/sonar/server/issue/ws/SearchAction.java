@@ -55,6 +55,7 @@ import static com.google.common.collect.Iterables.concat;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ADDITIONAL_FIELDS;
@@ -208,7 +209,7 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("To retrieve issues associated to a specific list of components sub-components (comma-separated list of component keys). " +
         "A component can be a view, developer, project, module, directory or file. " +
         "If this parameter is set, componentUuids must not be set.")
-      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(IssueFilterParameters.COMPONENTS)
       .setDeprecatedSince("5.1")
       .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=true.");
@@ -234,7 +235,7 @@ public class SearchAction implements IssuesWsAction {
         INTERNAL_PARAMETER_DISCLAIMER +
         "If this parameter is set, projectUuids must not be set.")
       .setDeprecatedKey(IssueFilterParameters.PROJECTS)
-      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(IssueFilterParameters.PROJECT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +

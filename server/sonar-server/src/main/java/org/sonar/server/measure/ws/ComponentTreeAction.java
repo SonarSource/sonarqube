@@ -39,6 +39,7 @@ import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -114,7 +115,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     action.createParam(PARAM_BASE_COMPONENT_KEY)
       .setDescription("Base component key.The search is based on this component.")
-      .setExampleValue("org.apache.hbas:hbase");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_METRIC_KEYS)
       .setDescription("Metric keys")

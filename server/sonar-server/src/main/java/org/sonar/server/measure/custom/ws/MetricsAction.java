@@ -36,6 +36,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class MetricsAction implements CustomMeasuresWsAction {
   public static final String ACTION = "metrics";
@@ -69,7 +70,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
 
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("Project key")
-      .setExampleValue("org.apache.hbas:hbase");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override

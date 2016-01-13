@@ -32,6 +32,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 public class BulkDeleteAction implements ProjectsWsAction {
   private static final String ACTION = "bulk_delete";
 
@@ -65,7 +67,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
     action
       .createParam(PARAM_KEYS)
       .setDescription("List of project keys to delete")
-      .setExampleValue("org.apache.hbas:hbase,com.microsoft.roslyn:roslyn");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override
