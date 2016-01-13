@@ -47,7 +47,8 @@
   <%
      unless @resource.qualifier == 'DEV' or @resource.qualifier == 'VW' or @resource.qualifier == 'SVW'
        using_default=false
-       quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)
+       root = @resource.root_project
+       quality_gate=Property.value('sonar.qualitygate', root.id, nil)
        unless quality_gate
          quality_gate=Property.value('sonar.qualitygate', nil, nil)
          using_default=false || quality_gate

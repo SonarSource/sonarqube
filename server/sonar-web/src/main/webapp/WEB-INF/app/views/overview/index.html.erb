@@ -12,7 +12,8 @@
 
    is_gate_default = false
    gate = nil
-   gate_id = Property.value('sonar.qualitygate', @resource && @resource.id, nil)
+   root = @resource.root_project
+   gate_id = Property.value('sonar.qualitygate', root.id, nil)
    unless gate_id
      gate_id=Property.value('sonar.qualitygate', nil, nil)
      is_gate_default = false || gate_id
