@@ -78,12 +78,12 @@ describe('Code :: Store', () => {
         it('should sort components by qualifier and then by name', () => {
           const component = {};
           const componentsBefore = [
-            { key: 'A', name: 'A', qualifier: 'FIL' },
-            { key: 'B', name: 'B', qualifier: 'DIR' }
+            { key: 'A', name: 'A', qualifier: 'DIR' },
+            { key: 'B', name: 'B', qualifier: 'FIL' }
           ];
           const componentsAfter = [
-            { key: 'B', name: 'B', qualifier: 'DIR' },
-            { key: 'A', name: 'A', qualifier: 'FIL' }
+            { key: 'B', name: 'B', qualifier: 'FIL' },
+            { key: 'A', name: 'A', qualifier: 'DIR' }
           ];
           expect(current(initialState, browseAction(component, componentsBefore)).components)
               .to.deep.equal(componentsAfter);

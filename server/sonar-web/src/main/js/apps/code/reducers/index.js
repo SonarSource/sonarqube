@@ -55,7 +55,7 @@ function compare (a, b) {
 }
 
 function sortChildren (children) {
-  const QUALIFIERS_ORDER = ['DIR', 'FIL', 'UTS'];
+  const QUALIFIERS_ORDER = ['FIL', 'UTS', 'DIR'];
   const temp = [...children];
   temp.sort((a, b) => {
     const qualifierA = QUALIFIERS_ORDER.indexOf(a.qualifier);
