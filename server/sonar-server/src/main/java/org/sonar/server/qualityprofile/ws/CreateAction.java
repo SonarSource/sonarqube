@@ -119,26 +119,12 @@ public class CreateAction implements QProfileWsAction {
       }
       dbSession.commit();
 
-      response.stream().setMediaType(guessMediaType(request));
+      response.stream().setMediaType(request.getMediaType());
       JsonWriter jsonWriter = JsonWriter.of(new OutputStreamWriter(response.stream().output(), StandardCharsets.UTF_8));
       writeResult(jsonWriter, result);
     } finally {
       dbSession.close();
     }
-  }
-
-  private static String guessMediaType(Request request) {
-    if (request.getMediaType().contains("html")) {
-      // this is a hack for IE.
-      // The form which uploads files (for example PMD or Findbugs configuration files) opens a popup
-      // to download files if the response type header is application/json. Changing the response type to text/plain,
-      // even if response body is JSON, fixes the bug.
-      // This will be fixed in 5.3 when support of IE9/10 will be dropped in order to use
-      // more recent JS libs.
-      // We detect that caller is IE because it asks for application/html or text/html
-      return MediaTypes.TXT;
-    }
-    return request.getMediaType();
   }
 
   private void writeResult(JsonWriter json, QProfileResult result) {
