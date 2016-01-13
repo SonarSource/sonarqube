@@ -64,24 +64,4 @@ public class CreateActionTest {
     JsonAssert.assertJson(response.getInput()).isSimilarTo(getClass().getResource("CreateActionTest/create-no-importer.json"));
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.JSON);
   }
-
-  /**
-   * Do not return JSON content type header on IE.
-   */
-  @Test
-  public void test_ie_hack() throws Exception {
-    CreateAction underTest = new CreateAction(db.getDbClient(), new QProfileFactory(deprecatedDbClient), null, LanguageTesting.newLanguages("xoo"), userSessionRule);
-    WsActionTester wsTester = new WsActionTester(underTest);
-    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    TestResponse response = wsTester.newRequest()
-      .setMethod("POST")
-      // IE asks for application/html or text/html
-      .setMediaType("application/html")
-      .setParam("language", "xoo")
-      .setParam("name", "Yeehaw!")
-      .execute();
-    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
-
-  }
 }
