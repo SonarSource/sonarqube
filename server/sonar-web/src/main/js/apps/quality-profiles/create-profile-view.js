@@ -20,9 +20,9 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import ModalFormView from '../../components/common/modal-form';
-import uploader from '../../components/common/file-upload';
 import Profile from './profile';
 import Template from './templates/quality-profiles-create-profile.hbs';
+import { createQualityProfile } from '../../api/quality-profiles';
 
 export default ModalFormView.extend({
   template: Template,
@@ -33,9 +33,20 @@ export default ModalFormView.extend({
     });
   },
 
-  onFormSubmit: function (e) {
+  onFormSubmit: function () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-    this.sendRequest(e);
+
+    const form = this.$('form')[0];
+    const data = new FormData(form);
+
+    createQualityProfile(data)
+        .then(r => {
+          this.addProfile(r.profile);
+          this.destroy();
+        })
+        .catch(e => {
+          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+        });
   },
 
   onRender: function () {
@@ -63,18 +74,6 @@ export default ModalFormView.extend({
   emptyInput: function (e) {
     e.wrap('<form>').closest('form').get(0).reset();
     e.unwrap();
-  },
-
-  sendRequest: function (e) {
-    var that = this;
-    uploader({ form: $(e.currentTarget) }).done(function (r) {
-      if (_.isArray(r.errors) || _.isArray(r.warnings)) {
-        that.showErrors(r.errors, r.warnings);
-      } else {
-        that.addProfile(r.profile);
-        that.destroy();
-      }
-    });
   },
 
   addProfile: function (profileData) {
