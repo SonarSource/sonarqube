@@ -74,9 +74,10 @@ public class MeasuresWsTest {
       .setAdditionalFields(newArrayList("metrics", "periods")));
 
     assertThat(response).isNotNull();
+    assertThat(response.getBaseComponent().getKey()).isEqualTo("sample");
     assertThat(response.getMetrics().getMetricsList()).extracting("key").containsOnly("ncloc");
     List<WsMeasures.Component> components = response.getComponentsList();
     assertThat(components).hasSize(2).extracting("key").containsOnly("sample:src/main/xoo/sample", FILE_KEY);
-    assertThat(components.get(0).getMeasuresList().get(0).getValue()).isEqualTo("13");
+    assertThat(components.get(0).getMeasures().getMeasuresList().get(0).getValue()).isEqualTo("13");
   }
 }
