@@ -62,6 +62,12 @@ public interface UserSession {
    */
   boolean hasPermission(String globalPermission);
 
+  /**
+   * @deprecated Only used by Views and the Developer Cockpit.
+   */
+  @Deprecated
+  boolean hasGlobalPermission(String globalPermission);
+
   List<String> globalPermissions();
 
   /**

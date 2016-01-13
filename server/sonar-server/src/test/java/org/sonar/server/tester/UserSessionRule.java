@@ -285,6 +285,11 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
+  public boolean hasGlobalPermission(String globalPermission) {
+    return currentUserSession.hasGlobalPermission(globalPermission);
+  }
+
+  @Override
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
     return currentUserSession.checkComponentPermission(projectPermission, componentKey);
   }

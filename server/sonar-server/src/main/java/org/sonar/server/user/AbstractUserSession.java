@@ -155,6 +155,11 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
   }
 
   @Override
+  public boolean hasGlobalPermission(String globalPermission) {
+    return hasPermission(globalPermission);
+  }
+
+  @Override
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
     if (!hasComponentPermission(projectPermission, componentKey)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);

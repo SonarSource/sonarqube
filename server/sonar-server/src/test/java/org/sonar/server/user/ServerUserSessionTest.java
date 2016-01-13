@@ -205,6 +205,17 @@ public class ServerUserSessionTest {
     session.checkComponentPermission(UserRole.USER, "another");
   }
 
+  @Test
+  public void deprecated_has_global_permission() throws Exception {
+    UserSession session = newServerUserSession().setLogin(LOGIN);
+
+    when(authorizationDao.selectGlobalPermissions(LOGIN)).thenReturn(Arrays.asList("profileadmin", "admin"));
+
+    assertThat(session.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN)).isTrue();
+    assertThat(session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)).isTrue();
+    assertThat(session.hasGlobalPermission(GlobalPermissions.DASHBOARD_SHARING)).isFalse();
+  }
+
   private ServerUserSession newServerUserSession() {
     return new ServerUserSession(authorizationDao, resourceDao);
   }
