@@ -27,7 +27,7 @@ const ComponentDetach = ({ component }) => (
     <a
         className="icon-detach"
         title={translate('code.open_component_page')}
-        href={getComponentUrl(component.key)}/>
+        href={getComponentUrl(component.copy || component.key)}/>
 );
 
 
