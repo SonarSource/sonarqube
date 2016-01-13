@@ -19,12 +19,6 @@
  */
 package org.sonar.application;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.sonar.process.ConfigurationUtils;
-import org.sonar.process.ProcessProperties;
-import org.sonar.process.Props;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,6 +27,10 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import org.apache.commons.io.IOUtils;
+import org.sonar.process.ConfigurationUtils;
+import org.sonar.process.ProcessProperties;
+import org.sonar.process.Props;
 
 class PropsBuilder {
 
@@ -51,8 +49,7 @@ class PropsBuilder {
   }
 
   /**
-   * Load optional conf/sonar.properties, interpolates environment variables and
-   * initializes file system
+   * Load optional conf/sonar.properties, interpolates environment variables
    */
   Props build() throws IOException {
     Properties p = loadPropertiesFile(homeDir);
@@ -65,12 +62,6 @@ class PropsBuilder {
     // are accessed
     Props props = new Props(p);
     ProcessProperties.completeDefaults(props);
-
-    // init file system
-    initExistingDir(props, ProcessProperties.PATH_DATA, "data");
-    initExistingDir(props, ProcessProperties.PATH_WEB, "web");
-    initExistingDir(props, ProcessProperties.PATH_LOGS, "logs");
-    initTempDir(props);
 
     // check JDBC properties and set path to driver
     jdbcSettings.checkAndComplete(homeDir, props);
@@ -95,32 +86,5 @@ class PropsBuilder {
       }
     }
     return p;
-  }
-
-  private void initTempDir(Props props) throws IOException {
-    File dir = configureDir(props, ProcessProperties.PATH_TEMP, "temp");
-    FileUtils.deleteQuietly(dir);
-    FileUtils.forceMkdir(dir);
-  }
-
-  private void initExistingDir(Props props, String propKey, String defaultRelativePath) throws IOException {
-    File dir = configureDir(props, propKey, defaultRelativePath);
-    if (!dir.exists()) {
-      FileUtils.forceMkdir(dir);
-    }
-    if (!dir.isDirectory()) {
-      throw new IllegalStateException(String.format("Property '%s' is not valid, not a directory: %s",
-        propKey, dir.getAbsolutePath()));
-    }
-  }
-
-  private File configureDir(Props props, String propKey, String defaultRelativePath) {
-    String path = props.value(propKey, defaultRelativePath);
-    File d = new File(path);
-    if (!d.isAbsolute()) {
-      d = new File(homeDir, path);
-    }
-    props.set(propKey, d.getAbsolutePath());
-    return d;
   }
 }

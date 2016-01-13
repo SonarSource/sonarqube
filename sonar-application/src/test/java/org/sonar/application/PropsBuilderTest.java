@@ -19,6 +19,10 @@
  */
 package org.sonar.application;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,13 +30,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class PropsBuilderTest {
@@ -40,38 +38,20 @@ public class PropsBuilderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  File homeDir;
-  File dataDir;
-  File webDir;
-  File logsDir;
-  JdbcSettings jdbcSettings = mock(JdbcSettings.class);
+  private File homeDir;
+  private JdbcSettings jdbcSettings = mock(JdbcSettings.class);
 
   @Before
   public void before() throws IOException {
     homeDir = temp.newFolder();
-    dataDir = new File(homeDir, "data");
-    webDir = new File(homeDir, "web");
-    logsDir = new File(homeDir, "logs");
   }
 
   @Test
   public void build_props() throws Exception {
-    FileUtils.forceMkdir(dataDir);
-    FileUtils.forceMkdir(webDir);
-    FileUtils.forceMkdir(logsDir);
     Properties rawProperties = new Properties();
     rawProperties.setProperty("foo", "bar");
 
     Props props = new PropsBuilder(rawProperties, jdbcSettings, homeDir).build();
-
-    assertThat(props.nonNullValueAsFile("sonar.path.logs")).isEqualTo(logsDir);
-    assertThat(props.nonNullValueAsFile("sonar.path.home")).isEqualTo(homeDir);
-
-    // create <HOME>/temp
-    File tempDir = props.nonNullValueAsFile("sonar.path.temp");
-    assertThat(tempDir).isDirectory().exists();
-    assertThat(tempDir.getName()).isEqualTo("temp");
-    assertThat(tempDir.getParentFile()).isEqualTo(homeDir);
 
     assertThat(props.value("foo")).isEqualTo("bar");
     assertThat(props.value("unknown")).isNull();
@@ -81,36 +61,8 @@ public class PropsBuilderTest {
   }
 
   @Test
-  public void create_missing_required_directory() throws Exception {
-    // <home>/data is missing
-    FileUtils.forceMkdir(webDir);
-    FileUtils.forceMkdir(logsDir);
-
-    File dataDir = new File(homeDir, "data");
-    new PropsBuilder(new Properties(), jdbcSettings, homeDir).build();
-    assertThat(dataDir).isDirectory().exists();
-  }
-
-  @Test
-  public void fail_if_required_directory_is_a_file() throws Exception {
-    // <home>/data is missing
-    FileUtils.forceMkdir(webDir);
-    FileUtils.forceMkdir(logsDir);
-    try {
-      FileUtils.touch(dataDir);
-      new PropsBuilder(new Properties(), jdbcSettings, homeDir).build();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).startsWith("Property 'sonar.path.data' is not valid, not a directory: " + dataDir.getAbsolutePath());
-    }
-  }
-
-  @Test
   public void load_properties_file_if_exists() throws Exception {
     FileUtils.write(new File(homeDir, "conf/sonar.properties"), "sonar.jdbc.username=angela\nsonar.origin=file");
-    FileUtils.forceMkdir(dataDir);
-    FileUtils.forceMkdir(webDir);
-    FileUtils.forceMkdir(logsDir);
 
     Properties rawProperties = new Properties();
     rawProperties.setProperty("sonar.origin", "raw");
@@ -132,10 +84,6 @@ public class PropsBuilderTest {
 
   @Test
   public void do_not_load_properties_file_if_not_exists() throws Exception {
-    FileUtils.forceMkdir(dataDir);
-    FileUtils.forceMkdir(webDir);
-    FileUtils.forceMkdir(logsDir);
-
     Properties rawProperties = new Properties();
     rawProperties.setProperty("sonar.origin", "raw");
     Props props = new PropsBuilder(rawProperties, jdbcSettings, homeDir).build();

@@ -39,14 +39,18 @@ public class JavaProcessLauncher {
   private final File tempDir;
   private final AllProcessesCommands allProcessesCommands;
 
-  public JavaProcessLauncher(Timeouts timeouts, File tempDir, AllProcessesCommands allProcessesCommands) {
+  public JavaProcessLauncher(Timeouts timeouts, File tempDir) {
     this.timeouts = timeouts;
     this.tempDir = tempDir;
-    this.allProcessesCommands = allProcessesCommands;
+    this.allProcessesCommands = new AllProcessesCommands(tempDir);
   }
 
   public void close() {
     allProcessesCommands.close();
+  }
+
+  public ProcessCommands getProcessCommand(int processNumber, boolean clean) {
+    return allProcessesCommands.getProcessCommand(processNumber, clean);
   }
 
   ProcessRef launch(JavaCommand command) {

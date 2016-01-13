@@ -20,6 +20,7 @@
 package org.sonar.process.monitor;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.AllProcessesCommands;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.ProcessCommands;
@@ -43,32 +43,34 @@ public class Monitor {
 
   private static int restartorInstanceCounter = 0;
 
-  private final AllProcessesCommands allProcessesCommands;
-  private final JavaProcessLauncher launcher;
-
+  private final FileSystem fileSystem;
   private final SystemExit systemExit;
+  private final boolean watchForHardStop;
   private final Thread shutdownHook = new Thread(new MonitorShutdownHook(), "Monitor Shutdown Hook");
 
   private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<>();
   private final Lifecycle lifecycle = new Lifecycle();
+
   private final TerminatorThread terminator = new TerminatorThread();
   private final RestartRequestWatcherThread restartWatcher = new RestartRequestWatcherThread();
   @CheckForNull
   private List<JavaCommand> javaCommands;
+  @CheckForNull
+  private JavaProcessLauncher launcher;
   @CheckForNull
   private RestartorThread restartor;
   @CheckForNull
   HardStopWatcherThread hardStopWatcher;
   static int nextProcessId = 1;
 
-  Monitor(File tempDir, SystemExit exit) {
-    this.allProcessesCommands = new AllProcessesCommands(tempDir);
-    this.launcher = new JavaProcessLauncher(TIMEOUTS, tempDir, allProcessesCommands);
+  Monitor(FileSystem fileSystem, SystemExit exit, boolean watchForHardStop) {
+    this.fileSystem = fileSystem;
     this.systemExit = exit;
+    this.watchForHardStop = watchForHardStop;
   }
 
-  public static Monitor create(File tempDir) {
-    return new Monitor(tempDir, new SystemExit());
+  public static Monitor create(FileSystem fileSystem, boolean watchForHardStop) {
+    return new Monitor(fileSystem, new SystemExit(), watchForHardStop);
   }
 
   /**
@@ -88,6 +90,8 @@ public class Monitor {
 
     // intercepts CTRL-C
     Runtime.getRuntime().addShutdownHook(shutdownHook);
+
+    // start watching for restart requested by child process
     this.restartWatcher.start();
 
     this.javaCommands = commands;
@@ -97,12 +101,42 @@ public class Monitor {
   private void startProcesses() {
     // do no start any child process if not in state INIT or RESTARTING (a stop could be in progress too)
     if (lifecycle.tryToMoveTo(State.STARTING)) {
+      resetFileSystem();
+
       startAndMonitorProcesses();
       stopIfAnyProcessDidNotStart();
+      watchForHardStop();
+    }
+  }
+
+  private void watchForHardStop() {
+    if (!watchForHardStop) {
+      return;
+    }
+
+    if (this.hardStopWatcher != null) {
+      this.hardStopWatcher.stopWatching();
+      awaitTermination(this.hardStopWatcher);
+    }
+    ProcessCommands processCommand = this.launcher.getProcessCommand(CURRENT_PROCESS_NUMBER, true);
+    this.hardStopWatcher = new HardStopWatcherThread(processCommand);
+    this.hardStopWatcher.start();
+  }
+
+  private void resetFileSystem() {
+    // since JavaLauncher depends on temp directory, which is reset below, we need to close it first
+    closeJavaLauncher();
+    try {
+      fileSystem.reset();
+    } catch (IOException e) {
+      // failed to reset FileSystem
+      throw new RuntimeException("Failed to reset file system", e);
     }
   }
 
   private void startAndMonitorProcesses() {
+    File tempDir = fileSystem.getTempDir();
+    this.launcher = new JavaProcessLauncher(TIMEOUTS, tempDir);
     for (JavaCommand command : javaCommands) {
       try {
         ProcessRef processRef = launcher.launch(command);
@@ -115,10 +149,11 @@ public class Monitor {
     }
   }
 
-  public void watchForHardStop() {
-    ProcessCommands processCommand = this.allProcessesCommands.getProcessCommand(CURRENT_PROCESS_NUMBER, true);
-    this.hardStopWatcher = new HardStopWatcherThread(processCommand);
-    this.hardStopWatcher.start();
+  private void closeJavaLauncher() {
+    if (this.launcher != null) {
+      this.launcher.close();
+      this.launcher = null;
+    }
   }
 
   private void monitor(ProcessRef processRef) {
@@ -213,7 +248,7 @@ public class Monitor {
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
       }
       // cleanly close JavaLauncher
-      launcher.close();
+      closeJavaLauncher();
     }
   }
 
@@ -227,6 +262,7 @@ public class Monitor {
   }
 
   private void stopAsync(State stoppingState) {
+    assert stoppingState == State.STOPPING || stoppingState == State.HARD_STOPPING;
     if (lifecycle.tryToMoveTo(stoppingState)) {
       terminator.start();
     }
@@ -310,6 +346,7 @@ public class Monitor {
 
   public class HardStopWatcherThread extends Thread {
     private final ProcessCommands processCommands;
+    private boolean watch = true;
 
     public HardStopWatcherThread(ProcessCommands processCommands) {
       super("Hard stop watcher");
@@ -318,7 +355,7 @@ public class Monitor {
 
     @Override
     public void run() {
-      while (lifecycle.getState() != Lifecycle.State.STOPPED) {
+      while (watch && lifecycle.getState() != Lifecycle.State.STOPPED) {
         if (processCommands.askedForStop()) {
           trace("Stopping process");
           Monitor.this.stop();
@@ -332,6 +369,9 @@ public class Monitor {
       }
     }
 
+    public void stopWatching() {
+      this.watch = false;
+    }
   }
 
   private void stopProcesses() {

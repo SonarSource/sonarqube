@@ -45,16 +45,23 @@ import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessCommands;
 import org.sonar.process.SystemExit;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.process.monitor.MonitorTest.HttpProcessClientAssert.assertThat;
 
 public class MonitorTest {
 
-  static File testJar;
-  Monitor monitor;
-  SystemExit exit = mock(SystemExit.class);
+  private static File testJar;
+
+  private FileSystem fileSystem = mock(FileSystem.class);
+  private SystemExit exit = mock(SystemExit.class);
+
+  private Monitor underTest;
 
   /**
    * Find the JAR file containing the test apps. Classes can't be moved in sonar-process-monitor because
@@ -105,8 +112,8 @@ public class MonitorTest {
   @After
   public void tearDown() {
     try {
-      if (monitor != null) {
-        monitor.stop();
+      if (underTest != null) {
+        underTest.stop();
       }
     } catch (Throwable ignored) {
     }
@@ -114,9 +121,9 @@ public class MonitorTest {
 
   @Test
   public void fail_to_start_if_no_commands() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
+    underTest = newDefaultMonitor(tempDir);
     try {
-      monitor.start(Collections.<JavaCommand>emptyList());
+      underTest.start(Collections.<JavaCommand>emptyList());
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("At least one command is required");
@@ -125,51 +132,52 @@ public class MonitorTest {
 
   @Test
   public void fail_to_start_multiple_times() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
-    monitor.start(Arrays.asList(newStandardProcessCommand()));
+    underTest = newDefaultMonitor(tempDir);
+    underTest.start(singletonList(newStandardProcessCommand()));
     boolean failed = false;
     try {
-      monitor.start(Arrays.asList(newStandardProcessCommand()));
+      underTest.start(singletonList(newStandardProcessCommand()));
     } catch (IllegalStateException e) {
       failed = e.getMessage().equals("Can not start multiple times");
     }
-    monitor.stop();
+    underTest.stop();
     assertThat(failed).isTrue();
   }
 
   @Test
   public void start_then_stop_gracefully() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
+    underTest = newDefaultMonitor(tempDir);
     HttpProcessClient client = new HttpProcessClient(tempDir, "test");
     // blocks until started
-    monitor.start(Arrays.asList(client.newCommand()));
+    underTest.start(singletonList(client.newCommand()));
 
     assertThat(client).isReady()
       .wasStartedBefore(System.currentTimeMillis());
 
     // blocks until stopped
-    monitor.stop();
+    underTest.stop();
     assertThat(client)
       .isNotReady()
       .wasGracefullyTerminated();
-    assertThat(monitor.getState()).isEqualTo(State.STOPPED);
+    assertThat(underTest.getState()).isEqualTo(State.STOPPED);
+    verify(fileSystem).reset();
   }
 
   @Test
   public void start_then_stop_sequence_of_commands() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
+    underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
     HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
-    monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+    underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     // start p2 when p1 is fully started (ready)
     assertThat(p1)
       .isReady()
       .wasStartedBefore(p2);
     assertThat(p2)
-        .isReady();
+      .isReady();
 
-    monitor.stop();
+    underTest.stop();
 
     // stop in inverse order
     assertThat(p1)
@@ -178,68 +186,73 @@ public class MonitorTest {
     assertThat(p2)
       .isNotReady()
       .wasGracefullyTerminatedBefore(p1);
+    verify(fileSystem).reset();
   }
 
   @Test
   public void stop_all_processes_if_monitor_shutdowns() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
+    underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
     HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
-    monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+    underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1).isReady();
     assertThat(p2).isReady();
 
     // emulate CTRL-C
-    monitor.getShutdownHook().run();
-    monitor.getShutdownHook().join();
+    underTest.getShutdownHook().run();
+    underTest.getShutdownHook().join();
 
     assertThat(p1).wasGracefullyTerminated();
     assertThat(p2).wasGracefullyTerminated();
+
+    verify(fileSystem).reset();
   }
 
   @Test
   public void restart_all_processes_if_one_asks_for_restart() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
+    underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
     HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
-    monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+    underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     assertThat(p1).isReady();
     assertThat(p2).isReady();
 
     p2.restart();
 
-    assertThat(monitor.waitForOneRestart()).isTrue();
+    assertThat(underTest.waitForOneRestart()).isTrue();
 
     assertThat(p1)
-        .wasStarted(2)
-        .wasGracefullyTerminated(1);
+      .wasStarted(2)
+      .wasGracefullyTerminated(1);
     assertThat(p2)
-        .wasStarted(2)
-        .wasGracefullyTerminated(1);
+      .wasStarted(2)
+      .wasGracefullyTerminated(1);
 
-    monitor.stop();
+    underTest.stop();
 
     assertThat(p1)
-        .wasStarted(2)
-        .wasGracefullyTerminated(2);
+      .wasStarted(2)
+      .wasGracefullyTerminated(2);
     assertThat(p2)
-        .wasStarted(2)
-        .wasGracefullyTerminated(2);
+      .wasStarted(2)
+      .wasGracefullyTerminated(2);
+
+    verify(fileSystem, times(2)).reset();
   }
 
   @Test
   public void stop_all_processes_if_one_shutdowns() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
+    underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
     HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
-    monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+    underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1.isReady()).isTrue();
     assertThat(p2.isReady()).isTrue();
 
     // kill p1 -> waiting for detection by monitor than termination of p2
     p1.kill();
-    monitor.awaitTermination();
+    underTest.awaitTermination();
 
     assertThat(p1)
       .isNotReady()
@@ -247,15 +260,17 @@ public class MonitorTest {
     assertThat(p2)
       .isNotReady()
       .wasGracefullyTerminated();
+
+    verify(fileSystem).reset();
   }
 
   @Test
   public void stop_all_processes_if_one_fails_to_start() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
+    underTest = newDefaultMonitor(tempDir);
     HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
     HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2", -1);
     try {
-      monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
+      underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
       fail();
     } catch (Exception expected) {
       assertThat(p1)
@@ -283,13 +298,13 @@ public class MonitorTest {
 
   @Test
   public void fail_to_start_if_bad_class_name() throws Exception {
-    monitor = newDefaultMonitor(tempDir);
+    underTest = newDefaultMonitor(tempDir);
     JavaCommand command = new JavaCommand("test")
       .addClasspath(testJar.getAbsolutePath())
       .setClassName("org.sonar.process.test.Unknown");
 
     try {
-      monitor.start(Arrays.asList(command));
+      underTest.start(singletonList(command));
       fail();
     } catch (Exception e) {
       // expected
@@ -299,17 +314,28 @@ public class MonitorTest {
 
   @Test
   public void watchForHardStop_adds_a_hardStopWatcher_thread_and_starts_it() throws Exception {
-    Monitor monitor = newDefaultMonitor(tempDir);
-    assertThat(monitor.hardStopWatcher).isNull();
+    underTest = newDefaultMonitor(tempDir, true);
+    assertThat(underTest.hardStopWatcher).isNull();
 
-    monitor.watchForHardStop();
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
+    underTest.start(singletonList(p1.newCommand()));
 
-    assertThat(monitor.hardStopWatcher).isNotNull();
-    assertThat(monitor.hardStopWatcher.isAlive()).isTrue();
+    assertThat(underTest.hardStopWatcher).isNotNull();
+    assertThat(underTest.hardStopWatcher.isAlive()).isTrue();
+
+    p1.kill();
+    underTest.awaitTermination();
+
+    assertThat(underTest.hardStopWatcher.isAlive()).isFalse();
   }
 
   private Monitor newDefaultMonitor(File tempDir) throws IOException {
-    return new Monitor(tempDir, exit);
+    return newDefaultMonitor(tempDir, false);
+  }
+
+  private Monitor newDefaultMonitor(File tempDir, boolean watchForHardStop) throws IOException {
+    when(fileSystem.getTempDir()).thenReturn(tempDir);
+    return new Monitor(fileSystem, exit, watchForHardStop);
   }
 
   /**
@@ -369,7 +395,7 @@ public class MonitorTest {
     public void restart() {
       try {
         HttpRequest httpRequest = HttpRequest.post("http://localhost:" + httpPort + "/" + "restart")
-            .readTimeout(5000).connectTimeout(5000);
+          .readTimeout(5000).connectTimeout(5000);
         if (!httpRequest.ok() || !"ok".equals(httpRequest.body())) {
           throw new IllegalStateException("Wrong response calling restart");
         }

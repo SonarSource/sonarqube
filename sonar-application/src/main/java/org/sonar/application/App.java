@@ -39,8 +39,8 @@ public class App implements Stoppable {
 
   private final Monitor monitor;
 
-  public App(File tempDir) {
-    this(Monitor.create(tempDir));
+  public App(AppFileSystem appFileSystem, boolean watchForHardStop) {
+    this(Monitor.create(appFileSystem, watchForHardStop));
   }
 
   App(Monitor monitor) {
@@ -48,14 +48,11 @@ public class App implements Stoppable {
   }
 
   public void start(Props props) {
-    if (props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false)) {
-      monitor.watchForHardStop();
-    }
     monitor.start(createCommands(props));
     monitor.awaitTermination();
   }
 
-  private List<JavaCommand> createCommands(Props props) {
+  private static List<JavaCommand> createCommands(Props props) {
     List<JavaCommand> commands = new ArrayList<>();
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
     JavaCommand elasticsearch = new JavaCommand("search");
@@ -102,11 +99,14 @@ public class App implements Stoppable {
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
     Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
+    AppFileSystem appFileSystem = new AppFileSystem(props);
+    appFileSystem.verifyProps();
     AppLogging logging = new AppLogging();
     logging.configure(props);
 
-    File tempDir = props.nonNullValueAsFile(ProcessProperties.PATH_TEMP);
-    App app = new App(tempDir);
+    // used by orchestrator
+    boolean watchForHardStop = props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false);
+    App app = new App(appFileSystem, watchForHardStop);
     app.start(props);
   }
 

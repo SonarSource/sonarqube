@@ -20,30 +20,10 @@
 package org.sonar.process.monitor;
 
 import java.io.File;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+public interface FileSystem {
+  void reset() throws IOException;
 
-public class JavaProcessLauncherTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Test
-  public void fail_to_launch() throws Exception {
-    File tempDir = temp.newFolder();
-    JavaCommand command = new JavaCommand("test");
-    JavaProcessLauncher launcher = new JavaProcessLauncher(new Timeouts(), tempDir);
-    try {
-      // command is not correct (missing options), java.lang.ProcessBuilder#start()
-      // throws an exception
-      launcher.launch(command);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Fail to launch test");
-    }
-  }
+  File getTempDir();
 }
