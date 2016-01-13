@@ -84,26 +84,35 @@ export default React.createClass({
     });
 
     let descriptionCard = this.props.component.description ? (
-        <div className="overview-meta-card">
-          <div className="overview-meta-description">{this.props.component.description}</div>
+        <div className="overview-meta-description big-spacer-bottom">
+          {this.props.component.description}
         </div>
     ) : null;
 
     let linksCard = _.size(this.props.component.links) > 0 ? (
-        <div className="overview-meta-card">
-          <ul className="overview-meta-list">{links}</ul>
-        </div>
+        <ul className="overview-meta-list big-spacer-bottom">
+          {links}
+        </ul>
     ) : null;
 
+    let keyCard = (
+        <div>
+          <h4 className="overview-meta-header">{translate('key')}</h4>
+          <div style={{ overflow: 'auto', whiteSpace: 'nowrap' }}>
+            <code>{this.props.component.key}</code>
+          </div>
+        </div>
+    );
+
     let profilesCard = !this.isView() && !this.isDeveloper() && _.size(this.props.component.profiles) > 0 ? (
-        <div className="overview-meta-card">
+        <div>
           <h4 className="overview-meta-header">{translate('overview.quality_profiles')}</h4>
           <ul className="overview-meta-list">{profiles}</ul>
         </div>
     ) : null;
 
     let gateCard = !this.isView() && !this.isDeveloper() && this.props.component.gate ? (
-        <div className="overview-meta-card">
+        <div className="big-spacer-bottom">
           <h4 className="overview-meta-header">{translate('overview.quality_gate')}</h4>
           <ul className="overview-meta-list">
             <li>
@@ -119,10 +128,17 @@ export default React.createClass({
 
     return (
         <div className="overview-meta">
-          {descriptionCard}
-          {linksCard}
-          {gateCard}
-          {profilesCard}
+          <div className="overview-meta-card">
+            {descriptionCard}
+            {linksCard}
+            {keyCard}
+          </div>
+          {(!!gateCard || !!profilesCard) && (
+              <div className="overview-meta-card">
+                {gateCard}
+                {profilesCard}
+              </div>
+          )}
           {this.renderEvents()}
         </div>
     );
