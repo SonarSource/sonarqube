@@ -40,6 +40,7 @@ import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
+import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
 
 public class LinesAction implements SourcesWsAction {
 
@@ -94,7 +95,7 @@ public class LinesAction implements SourcesWsAction {
     action
       .createParam(PARAM_KEY)
       .setDescription("File key. Mandatory if param 'uuid' is not set. Available since 5.2")
-      .setExampleValue("org.sample:src/main/java/Foo.java");
+      .setExampleValue(KEY_FILE_EXAMPLE_001);
 
     action
       .createParam(PARAM_FROM)

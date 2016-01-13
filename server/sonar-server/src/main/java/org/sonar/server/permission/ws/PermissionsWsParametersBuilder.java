@@ -25,6 +25,7 @@ import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.Uuids;
 
 import static java.lang.String.format;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -94,7 +95,7 @@ public class PermissionsWsParametersBuilder {
   private static void createProjectKeyParameter(NewAction action) {
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("Project key")
-      .setExampleValue("org.apache.hbas:hbase");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   public static void createUserLoginParameter(NewAction action) {

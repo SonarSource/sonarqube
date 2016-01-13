@@ -36,6 +36,7 @@ import org.sonar.server.qualityprofile.QProfileProjectOperations;
 import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 @ServerSide
 public class ProjectAssociationActions {
@@ -92,7 +93,7 @@ public class ProjectAssociationActions {
       .setExampleValue("69e57151-be0d-4157-adff-c06741d88879");
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("A project key. Either this parameter, or projectUuid must be set.")
-      .setExampleValue("org.codehaus.sonar:sonar");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_PROFILE_KEY)
       .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.")
       .setExampleValue("sonar-way-java-12345");

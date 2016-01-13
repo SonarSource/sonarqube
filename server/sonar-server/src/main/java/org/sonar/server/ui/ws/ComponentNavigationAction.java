@@ -55,6 +55,8 @@ import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 public class ComponentNavigationAction implements NavigationWsAction {
 
   private static final String PARAM_COMPONENT_KEY = "componentKey";
@@ -99,8 +101,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
     projectNavigation.createParam(PARAM_COMPONENT_KEY)
       .setDescription("A component key.")
-      .setExampleValue("org.codehaus.sonar:sonar")
-      .setRequired(true);
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override

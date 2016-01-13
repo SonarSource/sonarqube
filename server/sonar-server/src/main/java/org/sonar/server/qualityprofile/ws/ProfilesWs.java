@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 /**
  * List of quality profiles WS implemented in Rails.
  * New WS on quality profiles MUST be declared in {@link org.sonar.server.qualityprofile.ws.QProfilesWs}
@@ -83,7 +85,7 @@ public class ProfilesWs implements WebService {
       .setExampleValue("java");
     action.createParam("project")
       .setDescription("Project key or id")
-      .setExampleValue("org.codehaus.sonar:sonar");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     RailsHandler.addJsonOnlyFormatParam(action);
   }
 }

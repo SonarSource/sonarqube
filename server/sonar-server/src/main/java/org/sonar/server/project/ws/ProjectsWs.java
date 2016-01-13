@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 public class ProjectsWs implements WebService {
   public static final String ENDPOINT = "api/projects";
   private static final String FALSE = "false";
@@ -59,7 +61,7 @@ public class ProjectsWs implements WebService {
 
     action.createParam("key")
       .setDescription("id or key of the project")
-      .setExampleValue("org.codehaus.sonar:sonar");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam("search")
       .setDescription("Substring of project name, case insensitive")
@@ -104,7 +106,7 @@ public class ProjectsWs implements WebService {
     action.createParam("key")
       .setDescription("Key of the project")
       .setRequired(true)
-      .setExampleValue("org.codehaus.sonar:sonar");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam("name")
       .setDescription("Name of the project")

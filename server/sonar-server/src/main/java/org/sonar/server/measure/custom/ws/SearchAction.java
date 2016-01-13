@@ -49,6 +49,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class SearchAction implements CustomMeasuresWsAction {
 
@@ -87,7 +88,7 @@ public class SearchAction implements CustomMeasuresWsAction {
 
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("Project key")
-      .setExampleValue("org.apache.hbas:hbase");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override

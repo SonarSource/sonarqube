@@ -35,6 +35,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class DeleteAction implements ProjectsWsAction {
   private static final String ACTION = "delete";
@@ -71,7 +72,7 @@ public class DeleteAction implements ProjectsWsAction {
     action
       .createParam(PARAM_KEY)
       .setDescription("Project key")
-      .setExampleValue("org.apache.hbas:hbase");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override

@@ -41,6 +41,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class IssuesAction implements BatchWsAction {
 
@@ -71,7 +72,7 @@ public class IssuesAction implements BatchWsAction {
       .createParam(PARAM_KEY)
       .setRequired(true)
       .setDescription("Project, module or file key")
-      .setExampleValue("org.codehaus.sonar:sonar");
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override

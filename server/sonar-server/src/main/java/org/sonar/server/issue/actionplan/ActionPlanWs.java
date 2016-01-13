@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+
 public class ActionPlanWs implements WebService {
 
   @Override
@@ -135,7 +137,7 @@ public class ActionPlanWs implements WebService {
   private static NewParam addProjectParam(WebService.NewAction action) {
     return action.createParam("project")
       .setDescription("Project key")
-      .setExampleValue("org.codehaus.sonar:sonar")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setRequired(true);
   }
 
