@@ -32,6 +32,8 @@ import org.junit.rules.Timeout;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newWsClient;
 
 /**
  * This class starts a new orchestrator on each test case
@@ -44,6 +46,7 @@ public class RestartTest {
   public ExpectedException thrown = ExpectedException.none();
   @Rule
   public TestRule globalTimeout = new DisableOnDebug(Timeout.seconds(120));
+
 
   @After
   public void stop() {
@@ -62,13 +65,13 @@ public class RestartTest {
       orchestrator.start();
 
       try {
-        orchestrator.getServer().wsClient().systemClient().restart();
+        newWsClient(orchestrator).system().restart();
         fail();
       } catch (Exception e) {
         assertThat(e.getMessage()).contains("403");
       }
 
-      orchestrator.getServer().adminWsClient().systemClient().restart();
+      newAdminWsClient(orchestrator).system().restart();
 
       // we just wait five seconds, for a lack of a better approach to waiting for the restart process to start in SQ
       Thread.sleep(5000);
@@ -90,7 +93,7 @@ public class RestartTest {
         .build();
       orchestrator.start();
 
-      orchestrator.getServer().adminWsClient().systemClient().restart();
+      newAdminWsClient(orchestrator).system().restart();
       assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()))
         .contains("Fast restarting WebServer...")
         .contains("WebServer restarted");

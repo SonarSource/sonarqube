@@ -103,6 +103,13 @@ public class ItUtils {
       .build());
   }
 
+  public static WsClient newWsClient(Orchestrator orchestrator) {
+    Server server = orchestrator.getServer();
+    return new HttpWsClient(new HttpConnector.Builder()
+      .url(server.getUrl())
+      .build());
+  }
+
   /**
    * Locate the directory of sample project
    *
@@ -223,7 +230,7 @@ public class ItUtils {
     setServerProperty(orchestrator, null, key, value);
   }
 
-  public static void setServerProperty(Orchestrator orchestrator, @Nullable  String componentKey, String key, @Nullable String value) {
+  public static void setServerProperty(Orchestrator orchestrator, @Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
       orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery(key).setResourceKeyOrId(componentKey));
     } else {
