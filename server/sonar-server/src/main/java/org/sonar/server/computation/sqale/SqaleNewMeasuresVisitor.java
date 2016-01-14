@@ -54,7 +54,7 @@ import static org.sonar.server.computation.measure.MeasureVariations.newMeasureV
  * This visitor depends on {@link org.sonar.server.computation.issue.IntegrateIssuesVisitor} for the computation of
  * metric {@link CoreMetrics#NEW_TECHNICAL_DEBT}.
  */
-public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMeasuresVisitor.NewDevelopmentCostCounter> {
+public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMeasuresVisitor.NewTechDebtRatioCounter> {
   private static final Logger LOG = Loggers.get(SqaleNewMeasuresVisitor.class);
 
   private final ScmInfoRepository scmInfoRepository;
@@ -83,38 +83,37 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
   }
 
   @Override
-  public void visitProject(Component project, Path<NewDevelopmentCostCounter> path) {
+  public void visitProject(Component project, Path<NewTechDebtRatioCounter> path) {
     computeAndSaveNewDebtRatioMeasure(project, path);
   }
 
   @Override
-  public void visitModule(Component module, Path<NewDevelopmentCostCounter> path) {
+  public void visitModule(Component module, Path<NewTechDebtRatioCounter> path) {
     computeAndSaveNewDebtRatioMeasure(module, path);
-    increaseNewDevCostOfParent(path);
+    increaseNewDebtAndDevCostOfParent(path);
   }
 
   @Override
-  public void visitDirectory(Component directory, Path<NewDevelopmentCostCounter> path) {
+  public void visitDirectory(Component directory, Path<NewTechDebtRatioCounter> path) {
     computeAndSaveNewDebtRatioMeasure(directory, path);
-    increaseNewDevCostOfParent(path);
+    increaseNewDebtAndDevCostOfParent(path);
   }
 
   @Override
-  public void visitFile(Component file, Path<NewDevelopmentCostCounter> path) {
+  public void visitFile(Component file, Path<NewTechDebtRatioCounter> path) {
     if (file.getFileAttributes().isUnitTest()) {
       return;
     }
 
     initNewDebtRatioCounter(file, path);
     computeAndSaveNewDebtRatioMeasure(file, path);
-    increaseNewDevCostOfParent(path);
+    increaseNewDebtAndDevCostOfParent(path);
   }
 
-  private void computeAndSaveNewDebtRatioMeasure(Component component, Path<NewDevelopmentCostCounter> path) {
+  private void computeAndSaveNewDebtRatioMeasure(Component component, Path<NewTechDebtRatioCounter> path) {
     MeasureVariations.Builder builder = newMeasureVariationsBuilder();
     for (Period period : periodsHolder.getPeriods()) {
-      long newDevCost = path.current().getValue(period).getValue();
-      double density = computeDensity(component, period, newDevCost);
+      double density = computeDensity(path.current(), period);
       builder.setVariation(period, 100.0 * density);
     }
     if (!builder.isEmpty()) {
@@ -123,10 +122,13 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
     }
   }
 
-  private double computeDensity(Component component, Period period, long developmentCost) {
-    double debt = getLongValue(measureRepository.getRawMeasure(component, this.newDebtMetric), period);
-    if (developmentCost != 0L) {
-      return debt / (double) developmentCost;
+  private double computeDensity(NewTechDebtRatioCounter counter, Period period) {
+    LongVariationValue newDebt = counter.getNewDebt(period);
+    if (newDebt.isSet()) {
+      long developmentCost = counter.getDevCost(period).getValue();
+      if (developmentCost != 0L) {
+        return newDebt.getValue() / (double) developmentCost;
+      }
     }
     return 0d;
   }
@@ -145,7 +147,7 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
     return 0L;
   }
 
-  private void initNewDebtRatioCounter(Component file, Path<NewDevelopmentCostCounter> path) {
+  private void initNewDebtRatioCounter(Component file, Path<NewTechDebtRatioCounter> path) {
     // first analysis, no period, no differential value to compute, save processing time and return now
     if (periodsHolder.getPeriods().isEmpty()) {
       return;
@@ -163,22 +165,31 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
     }
 
     ScmInfo scmInfo = scmInfoOptional.get();
-    initNewDebtRatioCounter(path.current(), file.getFileAttributes().getLanguageKey(), nclocDataMeasure.get(), scmInfo);
+    initNewDebtRatioCounter(path.current(), file, nclocDataMeasure.get(), scmInfo);
   }
 
-  private void initNewDebtRatioCounter(NewDevelopmentCostCounter devCostCounter, String languageKey, Measure nclocDataMeasure, ScmInfo scmInfo) {
-    long lineDevCost = sqaleRatingSettings.getDevCost(languageKey);
+  private void initNewDebtRatioCounter(NewTechDebtRatioCounter devCostCounter, Component file, Measure nclocDataMeasure, ScmInfo scmInfo) {
+    boolean[] hasDevCost = new boolean[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
+
+    long lineDevCost = sqaleRatingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
     for (Integer nclocLineIndex : nclocLineIndexes(nclocDataMeasure)) {
       Changeset changeset = scmInfo.getChangesetForLine(nclocLineIndex);
       for (Period period : periodsHolder.getPeriods()) {
         if (isLineInPeriod(changeset.getDate(), period)) {
-          devCostCounter.increment(period, lineDevCost);
+          devCostCounter.incrementDevCost(period, lineDevCost);
+          hasDevCost[period.getIndex()] = true;
         }
+      }
+    }
+    for (Period period : periodsHolder.getPeriods()) {
+      if (hasDevCost[period.getIndex()]) {
+        long newDebt = getLongValue(measureRepository.getRawMeasure(file, this.newDebtMetric), period);
+        devCostCounter.incrementNewDebt(period, newDebt);
       }
     }
   }
 
-  private static void increaseNewDevCostOfParent(Path<NewDevelopmentCostCounter> path) {
+  private static void increaseNewDebtAndDevCostOfParent(Path<NewTechDebtRatioCounter> path) {
     path.parent().add(path.current());
   }
 
@@ -202,19 +213,29 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
       .transform(MapEntryToKey.INSTANCE);
   }
 
-  public static final class NewDevelopmentCostCounter {
-    private final LongVariationValue.Array devCosts = LongVariationValue.newArray();
+  public static final class NewTechDebtRatioCounter {
+    private final LongVariationValue.Array newDebt = LongVariationValue.newArray();
+    private final LongVariationValue.Array devCost = LongVariationValue.newArray();
 
-    public void add(NewDevelopmentCostCounter counter) {
-      this.devCosts.incrementAll(counter.devCosts);
+    public void add(NewTechDebtRatioCounter counter) {
+      this.newDebt.incrementAll(counter.newDebt);
+      this.devCost.incrementAll(counter.devCost);
     }
 
-    public LongVariationValue.Array increment(Period period, long value) {
-      return devCosts.increment(period, value);
+    public LongVariationValue.Array incrementNewDebt(Period period, long value) {
+      return newDebt.increment(period, value);
     }
 
-    public LongVariationValue getValue(Period period) {
-      return this.devCosts.get(period);
+    public LongVariationValue.Array incrementDevCost(Period period, long value) {
+      return devCost.increment(period, value);
+    }
+
+    public LongVariationValue getNewDebt(Period period) {
+      return this.newDebt.get(period);
+    }
+
+    public LongVariationValue getDevCost(Period period) {
+      return this.devCost.get(period);
     }
 
   }
@@ -238,12 +259,12 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
     }
   }
 
-  private static class NewDevelopmentCostCounterFactory extends SimpleStackElementFactory<NewDevelopmentCostCounter> {
+  private static class NewDevelopmentCostCounterFactory extends SimpleStackElementFactory<NewTechDebtRatioCounter> {
     public static final NewDevelopmentCostCounterFactory INSTANCE = new NewDevelopmentCostCounterFactory();
 
     @Override
-    public NewDevelopmentCostCounter createForAny(Component component) {
-      return new NewDevelopmentCostCounter();
+    public NewTechDebtRatioCounter createForAny(Component component) {
+      return new NewTechDebtRatioCounter();
     }
   }
 }
