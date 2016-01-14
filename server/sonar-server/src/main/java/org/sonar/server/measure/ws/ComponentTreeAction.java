@@ -109,11 +109,11 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setExampleValue("FILE_NAM");
 
     action.createParam(PARAM_BASE_COMPONENT_ID)
-      .setDescription("Base component id. The search is based on this component. It is not included in the response.")
+      .setDescription("Base component id. The search is based on this component.")
       .setExampleValue(UUID_EXAMPLE_02);
 
     action.createParam(PARAM_BASE_COMPONENT_KEY)
-      .setDescription("Base component key.The search is based on this component. It is not included in the response.")
+      .setDescription("Base component key.The search is based on this component.")
       .setExampleValue("org.apache.hbas:hbase");
 
     action.createParam(PARAM_METRIC_KEYS)
@@ -152,7 +152,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
   private ComponentTreeWsResponse doHandle(ComponentTreeWsRequest request) {
     ComponentTreeData data = dataLoader.load(request);
-    if (data.getComponents()==null) {
+    if (data.getComponents() == null) {
       return emptyResponse(data.getBaseComponent(), request);
     }
 
