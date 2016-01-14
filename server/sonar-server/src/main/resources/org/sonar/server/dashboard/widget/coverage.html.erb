@@ -12,7 +12,7 @@
         <div class="widget-measure widget-measure-main">
           <span class="widget-label"><%= message('widget.code_coverage.name') -%></span>
           <span class="nowrap">
-            <%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown('coverage'), :default => '-') %>
+            <%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown('uncovered_lines', :highlight => 'coverage'), :default => '-') %>
             <%= format_variation(code_coverage_measure) if dashboard_configuration.selected_period? -%>
           </span>
         </div>
@@ -62,7 +62,7 @@
                     <span class="widget-label"><%= message('widget.code_coverage.on_new_code') -%></span>
                     <%= format_measure(new_coverage,
                                        :period => dashboard_configuration.period_index,
-                                       :url => url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index)) %>
+                                       :url => url_for_drilldown('new_uncovered_lines', :highlight => 'new_coverage', :period => dashboard_configuration.period_index)) %>
                   </div>
                 <% end %>
                 <% if new_line_coverage %>
@@ -152,5 +152,3 @@
     </div>
   </div>
 <% end %>
-
-
