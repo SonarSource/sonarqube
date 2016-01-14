@@ -20,18 +20,16 @@
 package org.sonar.server.metric.ws;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -44,21 +42,13 @@ public class SearchActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient;
-  DbSession dbSession;
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
   WsTester ws;
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao());
-    dbSession = dbClient.openSession(false);
     ws = new WsTester(new MetricsWs(new SearchAction(dbClient)));
-    db.truncateTables();
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test

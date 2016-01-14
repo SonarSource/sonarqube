@@ -26,12 +26,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndex;
 

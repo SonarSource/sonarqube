@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.issue;
 
-import com.google.common.base.Joiner;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
@@ -60,7 +59,6 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.STATUSES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.TAGS;
 
 public class IssuesService extends BaseService {
-  private static final Joiner LIST_TO_PARAMS_STRING = Joiner.on(",").skipNulls();
 
   public IssuesService(WsConnector wsConnector) {
     super(wsConnector, "api/issues");

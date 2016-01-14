@@ -23,7 +23,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.WsMeasures;
 
-import static org.sonar.server.measure.ws.MeasureValueFormatter.formatDoubleValue;
+import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;
 
 class MeasureDtoToWsMeasure {
@@ -41,19 +41,19 @@ class MeasureDtoToWsMeasure {
       measure.setValue(formatMeasureValue(measureDto, metricDto));
     }
     if (measureDto.getVariation(1) != null) {
-      measure.setVariationValueP1(formatDoubleValue(measureDto.getVariation(1), metricDto));
+      measure.setVariationValueP1(formatNumericalValue(measureDto.getVariation(1), metricDto));
     }
     if (measureDto.getVariation(2) != null) {
-      measure.setVariationValueP2(formatDoubleValue(measureDto.getVariation(2), metricDto));
+      measure.setVariationValueP2(formatNumericalValue(measureDto.getVariation(2), metricDto));
     }
     if (measureDto.getVariation(3) != null) {
-      measure.setVariationValueP3(formatDoubleValue(measureDto.getVariation(3), metricDto));
+      measure.setVariationValueP3(formatNumericalValue(measureDto.getVariation(3), metricDto));
     }
     if (measureDto.getVariation(4) != null) {
-      measure.setVariationValueP4(formatDoubleValue(measureDto.getVariation(4), metricDto));
+      measure.setVariationValueP4(formatNumericalValue(measureDto.getVariation(4), metricDto));
     }
     if (measureDto.getVariation(5) != null) {
-      measure.setVariationValueP5(formatDoubleValue(measureDto.getVariation(5), metricDto));
+      measure.setVariationValueP5(formatNumericalValue(measureDto.getVariation(5), metricDto));
     }
 
     return measure.build();

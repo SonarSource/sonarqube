@@ -47,6 +47,10 @@ class ComponentTreeSort {
 
   static List<ComponentDtoWithSnapshotId> sortComponents(List<ComponentDtoWithSnapshotId> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
+    List<String> sortParameters = wsRequest.getSort();
+    if (sortParameters == null || sortParameters.isEmpty()) {
+      return components;
+    }
     boolean isAscending = wsRequest.getAsc();
     Map<String, Ordering<ComponentDtoWithSnapshotId>> orderingsBySortField = ImmutableMap.<String, Ordering<ComponentDtoWithSnapshotId>>builder()
       .put(NAME_SORT, componentNameOrdering(isAscending))
@@ -55,7 +59,6 @@ class ComponentTreeSort {
       .put(METRIC_SORT, metricOrdering(wsRequest, metrics, measuresByComponentUuidAndMetric))
       .build();
 
-    List<String> sortParameters = wsRequest.getSort();
     String firstSortParameter = sortParameters.get(0);
     Ordering<ComponentDtoWithSnapshotId> primaryOrdering = orderingsBySortField.get(firstSortParameter);
     if (sortParameters.size() > 1) {

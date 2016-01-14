@@ -21,7 +21,6 @@ package org.sonar.server.metric.ws;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,15 +28,14 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.measure.custom.CustomMeasureDto;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureTesting;
 import org.sonar.db.metric.MetricDao;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -52,29 +50,22 @@ import static org.sonar.db.metric.MetricTesting.newMetricDto;
 public class DeleteActionTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  DbClient dbClient;
-  DbSession dbSession;
-  WsTester ws;
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
   MetricDao metricDao;
+
+  WsTester ws;
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao(), new CustomMeasureDao());
-    dbSession = dbClient.openSession(false);
-    db.truncateTables();
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     ws = new WsTester(new MetricsWs(new DeleteAction(dbClient, userSessionRule, mock(RubyBridge.class, RETURNS_DEEP_STUBS))));
     metricDao = dbClient.metricDao();
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test

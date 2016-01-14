@@ -19,7 +19,6 @@
  */
 package org.sonar.server.metric.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,14 +27,12 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.db.measure.custom.CustomMeasureDao;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -62,28 +59,20 @@ public class UpdateActionTest {
   private static final String DEFAULT_TYPE = ValueType.INT.name();
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
+
   WsTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao(), new CustomMeasureDao());
-    dbSession = dbClient.openSession(false);
-    db.truncateTables();
-
     ws = new WsTester(new MetricsWs(new UpdateAction(dbClient, userSessionRule, mock(RubyBridge.class, RETURNS_DEEP_STUBS))));
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test

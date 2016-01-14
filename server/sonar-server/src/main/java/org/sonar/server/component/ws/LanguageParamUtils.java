@@ -19,13 +19,13 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.core.util.NonNullInputFunction;
-
 import java.util.Arrays;
 import java.util.Collection;
+import javax.annotation.Nonnull;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 
 public class LanguageParamUtils {
 
@@ -43,11 +43,15 @@ public class LanguageParamUtils {
   }
 
   public static Collection<String> getLanguageKeys(Languages languages) {
-    return Collections2.transform(Arrays.asList(languages.all()), new NonNullInputFunction<Language, String>() {
-      @Override
-      public String doApply(Language input) {
-        return input.getKey();
-      }
-    });
+    return Collections2.transform(Arrays.asList(languages.all()), LanguageToKeyFunction.INSTANCE);
+  }
+
+  private enum LanguageToKeyFunction implements Function<Language, java.lang.String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull Language input) {
+      return input.getKey();
+    }
   }
 }

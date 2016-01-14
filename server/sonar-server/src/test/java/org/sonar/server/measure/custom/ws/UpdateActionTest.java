@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.custom.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -31,18 +30,15 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.custom.CustomMeasureDao;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
@@ -75,9 +71,9 @@ public class UpdateActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
-  DbClient dbClient;
-  DbSession dbSession;
-  System2 system;
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
+  System2 system = mock(System2.class);
   WsTester ws;
 
   @BeforeClass
@@ -91,19 +87,11 @@ public class UpdateActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new ComponentDao(), new MetricDao());
-    dbSession = dbClient.openSession(false);
-    db.truncateTables();
-    system = mock(System2.class);
     CustomMeasureValidator validator = new CustomMeasureValidator(newFullTypeValidations());
+
     ws = new WsTester(new CustomMeasuresWs(new UpdateAction(dbClient, userSessionRule, system, validator, new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule)),
       new UserIndex(es.client()))));
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test

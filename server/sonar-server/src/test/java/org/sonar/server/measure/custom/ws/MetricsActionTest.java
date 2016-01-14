@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.custom.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -32,19 +31,16 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.db.measure.custom.CustomMeasureDao;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -53,29 +49,26 @@ import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.measure.custom.ws.CustomMeasuresWs.ENDPOINT;
 import static org.sonar.server.measure.custom.ws.MetricsAction.ACTION;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 @Category(DbTests.class)
 public class MetricsActionTest {
   private static final String DEFAULT_PROJECT_UUID = "project-uuid";
   private static final String DEFAULT_PROJECT_KEY = "project-key";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
-
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
-
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
 
-  DbClient dbClient;
-  DbSession dbSession;
   WsTester ws;
   ComponentDto defaultProject;
 
@@ -90,17 +83,9 @@ public class MetricsActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao(), new ComponentDao(), new CustomMeasureDao());
-    dbSession = dbClient.openSession(false);
-    db.truncateTables();
     ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient, userSession, new ComponentFinder(dbClient))));
     userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     defaultProject = insertDefaultProject();
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test

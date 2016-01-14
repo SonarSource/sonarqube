@@ -19,7 +19,6 @@
  */
 package org.sonar.server.measure.custom.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,15 +27,13 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.custom.CustomMeasureDao;
-import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -52,27 +49,20 @@ public class DeleteActionTest {
   public static final String ACTION = "delete";
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
+
   WsTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new ComponentDao());
-    dbSession = dbClient.openSession(false);
     ws = new WsTester(new CustomMeasuresWs(new DeleteAction(dbClient, userSessionRule)));
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    db.truncateTables();
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test

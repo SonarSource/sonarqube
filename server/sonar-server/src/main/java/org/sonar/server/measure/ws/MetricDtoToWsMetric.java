@@ -22,7 +22,7 @@ package org.sonar.server.measure.ws;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Common.Metric;
 
-import static org.sonar.server.measure.ws.MeasureValueFormatter.formatDoubleValue;
+import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
 
 class MetricDtoToWsMetric {
   private MetricDtoToWsMetric() {
@@ -48,10 +48,10 @@ class MetricDtoToWsMetric {
       metric.setDecimalScale(metricDto.getDecimalScale());
     }
     if (metricDto.getBestValue() != null) {
-      metric.setBestValue(formatDoubleValue(metricDto.getBestValue(), metricDto));
+      metric.setBestValue(formatNumericalValue(metricDto.getBestValue(), metricDto));
     }
     if (metricDto.getWorstValue() != null) {
-      metric.setWorstValue(formatDoubleValue(metricDto.getWorstValue(), metricDto));
+      metric.setWorstValue(formatNumericalValue(metricDto.getWorstValue(), metricDto));
     }
 
     return metric.build();

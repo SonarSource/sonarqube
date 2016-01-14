@@ -57,7 +57,7 @@ class MeasureValueFormatter {
     }
   }
 
-  static String formatDoubleValue(Double value, MetricDto metric) {
+  static String formatNumericalValue(Double value, MetricDto metric) {
     Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
 
     switch (metricType) {

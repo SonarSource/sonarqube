@@ -25,12 +25,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.ws.MetricJsonWriter;
 import org.sonar.server.user.UserSession;
 
@@ -77,7 +77,8 @@ public class MetricsAction implements CustomMeasuresWsAction {
     DbSession dbSession = dbClient.openSession(false);
 
     try {
-      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY), PROJECT_ID_AND_KEY);
+      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY),
+        PROJECT_ID_AND_KEY);
       checkPermissions(userSession, project);
       List<MetricDto> metrics = searchMetrics(dbSession, project);
 

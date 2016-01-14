@@ -88,7 +88,6 @@ public class ComponentTreeDataLoader {
     this.resourceTypes = resourceTypes;
   }
 
-  @CheckForNull
   ComponentTreeData load(ComponentTreeWsRequest wsRequest) {
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -164,12 +163,7 @@ public class ComponentTreeDataLoader {
   private List<MetricDto> searchMetrics(DbSession dbSession, ComponentTreeWsRequest request) {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
     if (metrics.size() < request.getMetricKeys().size()) {
-      List<String> foundMetricKeys = Lists.transform(metrics, new Function<MetricDto, String>() {
-        @Override
-        public String apply(@Nonnull MetricDto input) {
-          return input.getKey();
-        }
-      });
+      List<String> foundMetricKeys = Lists.transform(metrics, MetricDtoFunctions.toKey());
       Set<String> missingMetricKeys = Sets.difference(
         new LinkedHashSet<>(request.getMetricKeys()),
         new LinkedHashSet<>(foundMetricKeys));
