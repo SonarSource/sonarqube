@@ -8,7 +8,23 @@
     "id": "project-id",
     "key": "MY_PROJECT",
     "name": "My Project",
-    "qualifier": "TRK"
+    "qualifier": "TRK",
+    "measures": [
+      {
+        "metric": "new_violations",
+        "variationValueP1": "255",
+        "variationValueP2": "0",
+        "variationValueP3": "255"
+      },
+      {
+        "metric": "ncloc",
+        "value": "1984"
+      },
+      {
+        "metric": "complexity",
+        "value": "42"
+      }
+    ]
   },
   "components": [
     {
@@ -43,7 +59,6 @@
       "measures": [
         {
           "metric": "new_violations",
-          "value": "0",
           "variationValueP1": "0",
           "variationValueP2": "0",
           "variationValueP3": "0"

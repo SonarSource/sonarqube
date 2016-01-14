@@ -173,7 +173,11 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setTotal(paging.total())
       .build();
 
-    response.setBaseComponent(componentDtoToWsComponent(data.getBaseComponent()));
+    response.setBaseComponent(
+      componentDtoToWsComponent(
+        data.getBaseComponent(),
+        data.getMeasuresByComponentUuidAndMetric().row(data.getBaseComponent().uuid()),
+        data.getReferenceComponentUuidsById()));
 
     for (ComponentDto componentDto : data.getComponents()) {
       response.addComponents(componentDtoToWsComponent(

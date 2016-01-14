@@ -106,7 +106,8 @@ public class ComponentTreeDataLoader {
       int componentCount = componentDtosAndTotal.total;
       List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
       List<WsMeasures.Period> periods = periodsFromSnapshot(baseSnapshot);
-      Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, components, metrics, periods);
+      Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, baseSnapshot, components, metrics,
+        periods);
 
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
       components = paginateComponents(components, componentCount, wsRequest);
@@ -174,9 +175,14 @@ public class ComponentTreeDataLoader {
     return metrics;
   }
 
-  private Table<String, MetricDto, MeasureDto> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, List<ComponentDtoWithSnapshotId> components, List<MetricDto> metrics,
+  private Table<String, MetricDto, MeasureDto> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, ComponentDto baseComponent, SnapshotDto baseSnapshot,
+    List<ComponentDtoWithSnapshotId> components, List<MetricDto> metrics,
     List<WsMeasures.Period> periods) {
-    Map<Long, ComponentDtoWithSnapshotId> componentsBySnapshotId = Maps.uniqueIndex(components, ComponentDtoWithSnapshotIdToSnapshotIdFunction.INSTANCE);
+    Map<Long, ComponentDto> componentsBySnapshotId = new HashMap<>();
+    componentsBySnapshotId.put(baseSnapshot.getId(), baseComponent);
+    for (ComponentDtoWithSnapshotId component : components) {
+      componentsBySnapshotId.put(component.getSnapshotId(), component);
+    }
 
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDtoFunctions.toId());
     List<MeasureDto> measureDtos = dbClient.measureDao().selectBySnapshotIdsAndMetricIds(dbSession,

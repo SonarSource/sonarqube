@@ -405,7 +405,9 @@ public class ComponentTreeActionTest {
         .setValue(12.0d),
       newMeasureDto(complexity, directorySnapshot.getId())
         .setValue(35.0d)
-        .setVariation(2, 0.0d));
+        .setVariation(2, 0.0d),
+      newMeasureDto(complexity, projectSnapshot.getId())
+        .setValue(42.0d));
 
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
@@ -413,7 +415,9 @@ public class ComponentTreeActionTest {
         .setValue(114.0d),
       newMeasureDto(ncloc, directorySnapshot.getId())
         .setValue(217.0d)
-        .setVariation(2, 0.0d));
+        .setVariation(2, 0.0d),
+      newMeasureDto(ncloc, projectSnapshot.getId())
+        .setValue(1984.0d));
 
     MetricDto newViolations = insertNewViolationsMetric();
     dbClient.measureDao().insert(dbSession,
@@ -422,14 +426,17 @@ public class ComponentTreeActionTest {
         .setVariation(2, 0.0d)
         .setVariation(3, 25.0d),
       newMeasureDto(newViolations, file2Snapshot.getId())
-        .setValue(0.0d)
         .setVariation(1, 0.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 0.0d),
       newMeasureDto(newViolations, directorySnapshot.getId())
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
-        .setVariation(3, 25.0d));
+        .setVariation(3, 25.0d),
+      newMeasureDto(newViolations, projectSnapshot.getId())
+        .setVariation(1, 255.0d)
+        .setVariation(2, 0.0d)
+        .setVariation(3, 255.0d));
 
     db.commit();
   }
