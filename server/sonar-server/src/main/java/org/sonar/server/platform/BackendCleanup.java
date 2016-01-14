@@ -67,15 +67,10 @@ public class BackendCleanup {
     try {
       statement = connection.createStatement();
       for (String table : DatabaseVersion.TABLES) {
-        try {
-          statement.execute("TRUNCATE TABLE " + table.toLowerCase());
-          // commit is useless on some databases
-          connection.commit();
-        } catch (Exception e) {
-          throw new IllegalStateException("Fail to truncate db table " + table, e);
-        }
+        statement.execute("TRUNCATE TABLE " + table.toLowerCase());
+        // commit is useless on some databases
+        connection.commit();
       }
-
     } catch (Exception e) {
       throw new IllegalStateException("Fail to clear db", e);
     } finally {
@@ -118,13 +113,9 @@ public class BackendCleanup {
       statement = connection.createStatement();
       // Clear inspection tables
       for (String table : INSPECTION_TABLES) {
-        try {
-          statement.execute("TRUNCATE TABLE " + table.toLowerCase());
-          // commit is useless on some databases
-          connection.commit();
-        } catch (Exception e) {
-          throw new IllegalStateException("Fail to truncate db table " + table, e);
-        }
+        statement.execute("TRUNCATE TABLE " + table.toLowerCase());
+        // commit is useless on some databases
+        connection.commit();
       }
 
       // Clear resource related tables

@@ -182,7 +182,7 @@ public class ProjectDataLoader {
     }
   }
 
-  private void checkPermission(boolean preview, boolean hasScanPerm, boolean hasPreviewPerm) {
+  private static void checkPermission(boolean preview, boolean hasScanPerm, boolean hasPreviewPerm) {
     if (!hasPreviewPerm && !hasScanPerm) {
       throw new ForbiddenException(Messages.NO_PERMISSION);
     }
