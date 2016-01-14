@@ -112,17 +112,6 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_metric_key_with_negative_metric_direction() {
-    metrics.get(0).setDirection(-1);
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, METRIC_KEY);
-
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
-
-    assertThat(result).extracting("path")
-      .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1");
-  }
-
-  @Test
   public void sort_on_multiple_fields() {
     components = newArrayList(
       newComponentWithoutSnapshotId("name-1", "qualifier-1", "path-2"),

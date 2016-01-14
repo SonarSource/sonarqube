@@ -130,7 +130,7 @@ class ComponentTreeSort {
         return null;
       }
 
-      return metric.getDirection() >= 0 ? measure.getValue() : -measure.getValue();
+      return measure.getValue();
     }
   }
 
