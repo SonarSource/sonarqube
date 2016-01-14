@@ -25,6 +25,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.measure.MeasureDto;
@@ -41,7 +42,8 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.PATH_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
 
 public class ComponentTreeSortTest {
-  private static final String METRIC_KEY = "violations";
+  private static final String NUM_METRIC_KEY = "violations";
+  private static final String TEXT_METRIC_KEY = "sqale_index";
 
   private List<MetricDto> metrics;
   private Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
@@ -60,14 +62,21 @@ public class ComponentTreeSortTest {
       newComponentWithoutSnapshotId("name-9", "qualifier-9", "path-2"),
       newComponentWithoutSnapshotId("name-8", "qualifier-1", "path-1"));
 
-    MetricDto metric = newMetricDto().setKey(METRIC_KEY).setDirection(1);
-    metrics = newArrayList(metric);
+    MetricDto violationsMetric = newMetricDto()
+      .setKey(NUM_METRIC_KEY)
+      .setValueType(ValueType.INT.name());
+    MetricDto sqaleIndexMetric = newMetricDto()
+      .setKey(TEXT_METRIC_KEY)
+      .setValueType(ValueType.DATA.name());
+
+    metrics = newArrayList(violationsMetric, sqaleIndexMetric);
 
     measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), 1);
     // same number than path field
     double currentValue = 9;
     for (ComponentDtoWithSnapshotId component : components) {
-      measuresByComponentUuidAndMetric.put(component.uuid(), metric, new MeasureDto().setValue(currentValue));
+      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, new MeasureDto().setValue(currentValue));
+      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, new MeasureDto().setData(String.valueOf(currentValue)));
       currentValue--;
     }
   }
@@ -102,8 +111,18 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_metric_key() {
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, METRIC_KEY);
+  public void sort_by_numerical_metric_key() {
+    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, NUM_METRIC_KEY);
+
+    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("path")
+      .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9");
+  }
+
+  @Test
+  public void sort_by_textual_metric_key() {
+    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, TEXT_METRIC_KEY);
 
     List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
 
