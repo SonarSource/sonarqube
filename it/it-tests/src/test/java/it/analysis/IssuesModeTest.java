@@ -47,6 +47,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -388,6 +389,8 @@ public class IssuesModeTest {
   }
 
   @Test
+  @Ignore
+  // Disabled until SONAR-7124 is fixed
   public void concurrent_issue_mode_on_existing_project() throws Exception {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
