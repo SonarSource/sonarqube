@@ -29,7 +29,9 @@ const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'actionPlans', 'langu
 export default Controller.extend({
   _facetsFromServer: function () {
     var facets = Controller.prototype._facetsFromServer.apply(this, arguments) || [];
-    facets.push('assigned_to_me');
+    if (facets.indexOf('assignees') !== -1) {
+      facets.push('assigned_to_me');
+    }
     return facets;
   },
 

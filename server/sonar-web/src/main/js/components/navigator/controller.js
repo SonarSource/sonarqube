@@ -43,6 +43,7 @@ export default Marionette.Controller.extend({
       return that.options.app.state.get('transform')[facet] != null ?
           that.options.app.state.get('transform')[facet] : facet;
     });
+    facets = _.uniq(facets);
     return facets.filter(function (facet) {
       return that.options.app.state.get('allFacets').indexOf(facet) !== -1;
     });
