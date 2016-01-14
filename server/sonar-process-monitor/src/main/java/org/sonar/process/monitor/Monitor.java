@@ -29,6 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.ProcessCommands;
@@ -91,6 +92,12 @@ public class Monitor {
     // intercepts CTRL-C
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
+    // start watching for stop requested by other process (eg. orchestrator) if enabled
+    if (watchForHardStop) {
+      this.hardStopWatcher = new HardStopWatcherThread();
+      this.hardStopWatcher.start();
+    }
+
     // start watching for restart requested by child process
     this.restartWatcher.start();
 
@@ -105,22 +112,7 @@ public class Monitor {
 
       startAndMonitorProcesses();
       stopIfAnyProcessDidNotStart();
-      watchForHardStop();
     }
-  }
-
-  private void watchForHardStop() {
-    if (!watchForHardStop) {
-      return;
-    }
-
-    if (this.hardStopWatcher != null) {
-      this.hardStopWatcher.stopWatching();
-      awaitTermination(this.hardStopWatcher);
-    }
-    ProcessCommands processCommand = this.launcher.getProcessCommand(CURRENT_PROCESS_NUMBER, true);
-    this.hardStopWatcher = new HardStopWatcherThread(processCommand);
-    this.hardStopWatcher.start();
   }
 
   private void resetFileSystem() {
@@ -131,6 +123,13 @@ public class Monitor {
     } catch (IOException e) {
       // failed to reset FileSystem
       throw new RuntimeException("Failed to reset file system", e);
+    }
+  }
+
+  private void closeJavaLauncher() {
+    if (this.launcher != null) {
+      this.launcher.close();
+      this.launcher = null;
     }
   }
 
@@ -146,13 +145,6 @@ public class Monitor {
         stop();
         throw e;
       }
-    }
-  }
-
-  private void closeJavaLauncher() {
-    if (this.launcher != null) {
-      this.launcher.close();
-      this.launcher = null;
     }
   }
 
@@ -345,33 +337,60 @@ public class Monitor {
   }
 
   public class HardStopWatcherThread extends Thread {
-    private final ProcessCommands processCommands;
-    private boolean watch = true;
 
-    public HardStopWatcherThread(ProcessCommands processCommands) {
+    public HardStopWatcherThread() {
       super("Hard stop watcher");
-      this.processCommands = processCommands;
     }
 
     @Override
     public void run() {
-      while (watch && lifecycle.getState() != Lifecycle.State.STOPPED) {
-        if (processCommands.askedForStop()) {
+      while (lifecycle.getState() != Lifecycle.State.STOPPED) {
+        if (askedForStop()) {
           trace("Stopping process");
           Monitor.this.stop();
         } else {
-          try {
-            Thread.sleep(WATCH_DELAY_MS);
-          } catch (InterruptedException ignored) {
-            // keep watching
-          }
+          delay();
         }
       }
     }
 
-    public void stopWatching() {
-      this.watch = false;
+    private boolean askedForStop() {
+      File tempDir = fileSystem.getTempDir();
+      try (DefaultProcessCommands processCommands = new DefaultProcessCommands(tempDir, CURRENT_PROCESS_NUMBER, false)) {
+        if (processCommands.askedForStop()) {
+          return true;
+        }
+      } catch (IllegalArgumentException e) {
+        // DefaultProcessCommand currently wraps IOException into a IllegalArgumentException
+        // accessing the shared memory file may fail if a restart is in progress and the temp directory
+        // is currently deleted and not yet recreated
+        if (e.getCause() instanceof IOException) {
+          ignore((IOException) e.getCause());
+        } else {
+          rethrow(e);
+        }
+      } catch (Exception e) {
+        rethrow(e);
+      }
+      return false;
     }
+
+    private void ignore(IOException e) {
+      trace("HardStopWatcherThread: Error checking stop flag in shared memory. Ignoring. Keep on watching.", e);
+    }
+
+    private void rethrow(Exception e) {
+      throw new RuntimeException("Unexpected error occurred while watch for stop flag in shared memory", e);
+    }
+
+    private void delay() {
+      try {
+        Thread.sleep(WATCH_DELAY_MS);
+      } catch (InterruptedException ignored) {
+        // keep watching
+      }
+    }
+
   }
 
   private void stopProcesses() {

@@ -49,10 +49,6 @@ public class JavaProcessLauncher {
     allProcessesCommands.close();
   }
 
-  public ProcessCommands getProcessCommand(int processNumber, boolean clean) {
-    return allProcessesCommands.getProcessCommand(processNumber, clean);
-  }
-
   ProcessRef launch(JavaCommand command) {
     Process process = null;
     try {
