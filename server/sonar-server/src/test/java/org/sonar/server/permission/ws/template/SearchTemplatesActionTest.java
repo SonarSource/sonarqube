@@ -137,7 +137,7 @@ public class SearchTemplatesActionTest {
     assertJson(result)
       .withStrictArrayOrder()
       .ignoreFields("permissions")
-      .isSimilarTo(getClass().getResource("SearchTemplatesActionTest/search_templates-example.json"));
+      .isSimilarTo(getClass().getResource("search_templates-example.json"));
   }
 
   @Test

@@ -137,7 +137,7 @@ public class SearchProjectPermissionsActionTest {
 
     assertJson(result)
       .ignoreFields("permissions")
-      .isSimilarTo(getClass().getResource("SearchProjectPermissionsActionTest/search_project_permissions-example.json"));
+      .isSimilarTo(getClass().getResource("search_project_permissions-example.json"));
   }
 
   @Test

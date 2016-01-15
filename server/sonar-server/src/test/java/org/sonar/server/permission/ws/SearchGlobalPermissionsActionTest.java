@@ -94,7 +94,7 @@ public class SearchGlobalPermissionsActionTest {
 
     String result = ws.newRequest().execute().getInput();
 
-    assertJson(result).isSimilarTo(getClass().getResource("SearchGlobalPermissionsActionTest/search_global_permissions-example.json"));
+    assertJson(result).isSimilarTo(getClass().getResource("search_global_permissions-example.json"));
   }
 
   @Test
