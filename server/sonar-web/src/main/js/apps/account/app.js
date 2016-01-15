@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
+import Backbone from 'backbone';
 import ChangePasswordView from './change-password-view';
+import TokensView from './tokens-view';
 import avatarHelper from '../../helpers/handlebars/avatarHelper';
 
 var shouldShowAvatars = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
@@ -47,6 +49,15 @@ class App {
       e.preventDefault();
       new ChangePasswordView().render();
     });
+
+    const account = new Backbone.Model({
+      id: window.SS.user
+    });
+
+    new TokensView({
+      el: '#account-tokens',
+      model: account
+    }).render();
   }
 }
 

@@ -1,0 +1,75 @@
+<h2 class="spacer-bottom">Tokens</h2>
+
+{{#notNull tokens}}
+  <div class="abs-width-400">
+    <table class="data">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th class="text-right">Created</th>
+        <th>&nbsp;</th>
+      </tr>
+      </thead>
+      <tbody>
+      {{#each tokens}}
+        <tr>
+          <td>
+            {{name}}
+          </td>
+          <td class="thin nowrap text-right">
+            {{d createdAt}}
+          </td>
+          <td class="thin nowrap text-right">
+            <div class="big-spacer-left">
+              <form class="js-revoke-token-form" data-token="{{name}}">
+                {{#if deleting}}
+                  <button class="button-red input-small">Sure?</button>
+                {{else}}
+                  <button class="button-red input-small">Revoke</button>
+                {{/if}}
+              </form>
+            </div>
+          </td>
+        </tr>
+      {{else}}
+        <tr>
+          <td colspan="3">
+            <span class="note">No tokens</span>
+          </td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  </div>
+{{/notNull}}
+
+<h3 class="big-spacer-top spacer-bottom">Generate Tokens</h3>
+
+{{#each errors}}
+  <div class="alert alert-danger">{{msg}}</div>
+{{/each}}
+
+<form class="js-generate-token-form">
+  <input type="text" required maxlength="30" placeholder="Enter Token Name">
+  <button>Generate</button>
+</form>
+
+{{#if newToken}}
+  <div class="panel panel-white big-spacer-top">
+    <div class="alert alert-warning">
+      Make sure you copy the token now. You won’t be able to see it again!
+    </div>
+
+    <table class="data">
+      <tr>
+
+        <td class="thin">
+          <button class="js-copy-to-clipboard" data-clipboard-text="{{newToken}}">Copy</button>
+        </td>
+        <td class="nowrap">
+          <code class="text-success">{{newToken}}</code>
+        </td>
+      </tr>
+    </table>
+  </div>
+{{/if}}
