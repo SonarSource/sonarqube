@@ -172,14 +172,18 @@ public class ComponentTreeActionTest {
     ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
     SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(directoryDto, projectSnapshot);
     SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(newFileDto(directoryDto, "file-uuid").setName("file-1"), directorySnapshot);
-    MetricDto ncloc = newMetricDto()
+    MetricDto coverage = insertCoverageMetric();
+    dbClient.metricDao().insert(dbSession, newMetricDto()
       .setKey("ncloc")
       .setValueType(ValueType.INT.name())
       .setOptimizedBestValue(true)
       .setBestValue(100d)
-      .setWorstValue(1_000d);
-    dbClient.metricDao().insert(dbSession, ncloc);
-    MetricDto coverage = insertCoverageMetric();
+      .setWorstValue(1000d));
+    dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+      .setKey("new_violations")
+      .setOptimizedBestValue(true)
+      .setBestValue(1984.0d)
+      .setValueType(ValueType.INT.name()));
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(coverage, fileSnapshot.getId()).setValue(15.5d),
       newMeasureDto(coverage, directorySnapshot.getId()).setValue(42.0d));
@@ -187,17 +191,18 @@ public class ComponentTreeActionTest {
 
     ComponentTreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_METRIC_KEYS, "ncloc,coverage")
+      .setParam(PARAM_METRIC_KEYS, "ncloc,coverage,new_violations")
       .setParam(PARAM_ADDITIONAL_FIELDS, "metrics"));
 
     // directory measures
     assertThat(response.getComponentsList().get(0).getMeasures().getMeasuresList()).extracting("metric").containsOnly("coverage");
     // file measures
-    assertThat(response.getComponentsList().get(1).getMeasures().getMeasuresList()).extracting("metric").containsOnly("ncloc", "coverage");
-    assertThat(response.getComponentsList().get(1).getMeasures().getMeasuresList()).extracting("value").containsOnly("100", "15.5");
+    List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasures().getMeasuresList();
+    assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage", "new_violations");
+    assertThat(fileMeasures).extracting("value").containsOnly("100", "15.5", "");
 
     List<Common.Metric> metrics = response.getMetrics().getMetricsList();
-    assertThat(metrics).extracting("bestValue").contains("100");
+    assertThat(metrics).extracting("bestValue").contains("100", "");
     assertThat(metrics).extracting("worstValue").contains("1000");
   }
 
@@ -386,7 +391,7 @@ public class ComponentTreeActionTest {
       .setName("ElementImpl.java")
       .setQualifier(Qualifiers.FILE)
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"), projectSnapshot);
-    SnapshotDto file2Snapshot = componentDb.insertComponentAndSnapshot(newFileDto(project)
+    componentDb.insertComponentAndSnapshot(newFileDto(project)
       .setUuid("AVIwDXE_bJbJqrw6wFwJ")
       .setKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
       .setName("ElementImplTest.java")
@@ -423,10 +428,6 @@ public class ComponentTreeActionTest {
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 25.0d),
-      newMeasureDto(newViolations, file2Snapshot.getId())
-        .setVariation(1, 0.0d)
-        .setVariation(2, 0.0d)
-        .setVariation(3, 0.0d),
       newMeasureDto(newViolations, directorySnapshot.getId())
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
@@ -449,7 +450,9 @@ public class ComponentTreeActionTest {
       .setDirection(-1)
       .setQualitative(true)
       .setHidden(false)
-      .setUserManaged(false));
+      .setUserManaged(false)
+      .setOptimizedBestValue(true)
+      .setBestValue(0.0d));
     db.commit();
     return metric;
   }

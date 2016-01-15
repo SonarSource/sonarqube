@@ -44,7 +44,7 @@ class MeasureDtoToWsMeasure {
     WsMeasures.PeriodValue.Builder periodBuilder = WsMeasures.PeriodValue.newBuilder();
     for (int i = 1; i <= 5; i++) {
       if (measureDto.getVariation(i) != null) {
-        measure.addPeriods(periodBuilder
+        measure.getPeriodsBuilder().addPeriodsValue(periodBuilder
           .clear()
           .setIndex(i)
           .setValue(formatNumericalValue(measureDto.getVariation(i), metricDto)));

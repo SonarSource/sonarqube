@@ -30,12 +30,10 @@
       {
         "metric": "complexity",
         "value": "42",
-        "periods": []
       },
       {
         "metric": "ncloc",
         "value": "1984",
-        "periods": []
       }
     ]
   },
@@ -67,12 +65,10 @@
         {
           "metric": "complexity",
           "value": "12",
-          "periods": []
         },
         {
           "metric": "ncloc",
           "value": "114",
-          "periods": []
         }
       ]
     },
@@ -181,7 +177,8 @@
       "higherValuesAreBetter": false,
       "qualitative": true,
       "hidden": false,
-      "custom": false
+      "custom": false,
+      "bestValue": "0"
     }
   ],
   "periods": [

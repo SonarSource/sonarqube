@@ -70,7 +70,11 @@ message Measures {
 message Measure {
   optional string metric = 1;
   optional string value = 2;
-  repeated PeriodValue periods = 3;
+  optional PeriodsValue periods = 3;
+}
+
+message PeriodsValue {
+  repeated PeriodValue periodsValue = 1;
 }
 
 message PeriodValue {

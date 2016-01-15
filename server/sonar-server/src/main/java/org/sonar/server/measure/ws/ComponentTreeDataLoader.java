@@ -211,7 +211,6 @@ public class ComponentTreeDataLoader {
    */
   private static void addBestValuesToMeasures(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, List<ComponentDtoWithSnapshotId> components,
     List<MetricDto> metrics, List<WsMeasures.Period> periods) {
-    List<ComponentDtoWithSnapshotId> componentsEligibleForBestValue = from(components).filter(IsFileComponent.INSTANCE).toList();
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = from(metrics)
       .filter(IsMetricOptimizedForBestValue.INSTANCE)
       .transform(new MetricDtoToMetricDtoWithBestValue(periods))
@@ -220,6 +219,7 @@ public class ComponentTreeDataLoader {
       return;
     }
 
+    List<ComponentDtoWithSnapshotId> componentsEligibleForBestValue = from(components).filter(IsFileComponent.INSTANCE).toList();
     for (ComponentDtoWithSnapshotId component : componentsEligibleForBestValue) {
       for (MetricDtoWithBestValue metricWithBestValue : metricDtosWithBestValueMeasure) {
         if (measuresByComponentUuidAndMetric.get(component.uuid(), metricWithBestValue.metric) == null) {
@@ -381,6 +381,7 @@ public class ComponentTreeDataLoader {
   }
 
   private static class MetricDtoWithBestValue {
+    private static final String LOWER_CASE_NEW_METRIC_PREFIX = "new_";
     private final MetricDto metric;
 
     private final MeasureDto bestValue;
@@ -389,11 +390,16 @@ public class ComponentTreeDataLoader {
       this.metric = metric;
       MeasureDto measure = new MeasureDto()
         .setMetricId(metric.getId())
-        .setMetricKey(metric.getKey())
-        .setValue(metric.getBestValue());
-      for (Integer periodIndex : periodIndexes) {
-        measure.setVariation(periodIndex, 0.0d);
+        .setMetricKey(metric.getKey());
+      boolean isNewTypeMetric = metric.getKey().toLowerCase().startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
+      if (isNewTypeMetric) {
+        for (Integer periodIndex : periodIndexes) {
+          measure.setVariation(periodIndex, 0.0d);
+        }
+      } else {
+        measure.setValue(metric.getBestValue());
       }
+
       this.bestValue = measure;
     }
   }
@@ -404,15 +410,6 @@ public class ComponentTreeDataLoader {
     @Override
     public Integer apply(@Nonnull WsMeasures.Period input) {
       return input.getIndex();
-    }
-  }
-
-  private enum ComponentDtoWithSnapshotIdToSnapshotIdFunction implements Function<ComponentDtoWithSnapshotId, Long> {
-    INSTANCE;
-
-    @Override
-    public Long apply(@Nonnull ComponentDtoWithSnapshotId input) {
-      return input.getSnapshotId();
     }
   }
 
