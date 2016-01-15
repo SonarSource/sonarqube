@@ -145,7 +145,7 @@ export const AddedRemovedDebt = React.createClass({
     return <div className="overview-detailed-measure-leak">
       <ul>
         <li style={{ display: 'flex', alignItems: 'baseline' }}>
-          <small className="flex-1 text-left">Added</small>
+          <small className="flex-1 text-left">{translate('overview.added')}</small>
           <DrilldownLink className="text-danger" component={this.props.component.key} metric={this.props.leakMetric}
                          period={this.props.leakPeriodIndex}>
             <span className="overview-detailed-measure-value">
@@ -154,7 +154,7 @@ export const AddedRemovedDebt = React.createClass({
           </DrilldownLink>
         </li>
         <li className="little-spacer-top" style={{ display: 'flex', alignItems: 'baseline' }}>
-          <small className="flex-1 text-left">Removed</small>
+          <small className="flex-1 text-left">{translate('overview.removed')}</small>
           <span className="text-success">
             {formatMeasure(removed, getShortType(this.props.type))}
           </span>
