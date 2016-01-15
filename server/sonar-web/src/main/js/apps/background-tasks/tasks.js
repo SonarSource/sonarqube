@@ -78,10 +78,12 @@ export default React.createClass({
 
     return (
         <td>
-          <span className="little-spacer-right">
-            <QualifierIcon qualifier={task.componentQualifier}/>
-          </span>
-          <a href={getComponentUrl(task.componentKey)}>{task.componentName}</a>
+          <a className="link-with-icon" href={getComponentUrl(task.componentKey)}>
+            <span className="little-spacer-right">
+              <QualifierIcon qualifier={task.componentQualifier}/>
+            </span>
+            <span>{task.componentName}</span>
+          </a>
         </td>
     );
   },
@@ -170,16 +172,16 @@ export default React.createClass({
     return (
         <table className="data zebra background-tasks">
           <thead>
-          <tr>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>&nbsp;</th>
-            <th>{translate('background_tasks.table.submitted')}</th>
-            <th>{translate('background_tasks.table.started')}</th>
-            <th>{translate('background_tasks.table.finished')}</th>
-            <th>{translate('background_tasks.table.duration')}</th>
-            <th>&nbsp;</th>
-          </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <th>&nbsp;</th>
+              <th>&nbsp;</th>
+              <th>{translate('background_tasks.table.submitted')}</th>
+              <th>{translate('background_tasks.table.started')}</th>
+              <th>{translate('background_tasks.table.finished')}</th>
+              <th>{translate('background_tasks.table.duration')}</th>
+              <th>&nbsp;</th>
+            </tr>
           </thead>
           <tbody>{tasks}</tbody>
         </table>
