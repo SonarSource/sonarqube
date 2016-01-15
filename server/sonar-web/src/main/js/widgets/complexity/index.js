@@ -17,21 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import './old/base';
+import React from 'react';
+import { render } from 'react-dom';
+import { translate } from '../../helpers/l10n';
+import { ComplexityDistribution } from '../../apps/overview/components/complexity-distribution';
 
-import './old/bubble-chart';
-import './old/histogram';
-import './old/pie-chart';
-import './old/stack-area';
-import './old/tag-cloud';
-import './old/timeline';
-import './old/treemap';
-import './old/word-cloud';
+const Widget = ({ value, of }) => {
+  return (
+      <div>
+        <span className="widget-label">
+          {translate(`metric.${of}_complexity_distribution.name`)}
+        </span>
+        <ComplexityDistribution distribution={value} of={of}/>
+      </div>
+  );
+};
 
-import './old/widget';
+function start ({ el, ...other }) {
+  window.sonarqube.appStarted.then(() => {
+    const element = document.querySelector(el);
+    render(<Widget {...other}/>, element);
+  });
+}
 
-import IssueFilterWidget from './issue-filter/widget';
-import ComplexityDistribution from './complexity';
-
-window.IssueFilterWidget = IssueFilterWidget;
-window.ComplexityDistribution = ComplexityDistribution;
+export default function (options) {
+  if (options.value) {
+    document.addEventListener('DOMContentLoaded', () => start(options), false);
+  }
+}
