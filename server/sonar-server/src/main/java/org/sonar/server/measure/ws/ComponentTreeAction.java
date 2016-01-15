@@ -53,6 +53,22 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 
+/**
+ * <p>Navigate through components based on different strategy with specified measures.
+ * To limit the number of rows in database, a best value algorithm exists in database.</p>
+ * A measure is not stored in database if:
+ * <ul>
+ *   <li>the component is a file (production or test)</li>
+ *   <li>optimization algorithm is enabled on the metric</li>
+ *   <li>the measure computed equals the metric best value</li>
+ *   <li>the period values are all equal to 0</li>
+ * </ul>
+ * To recreate a best value 2 different cases:
+ * <ul>
+ *   <li>Metric starts with 'new_' (ex: new_violations): the best value measure doesn't have a value and period values are all equal to 0</li>
+ *   <li>Other metrics: the best value measure has a value of 0 and no period value</li>
+ * </ul>
+ */
 public class ComponentTreeAction implements MeasuresWsAction {
   private static final int MAX_SIZE = 500;
   static final String ALL_STRATEGY = "all";
