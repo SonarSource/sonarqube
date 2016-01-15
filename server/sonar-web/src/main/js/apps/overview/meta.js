@@ -98,9 +98,10 @@ export default React.createClass({
     let keyCard = (
         <div>
           <h4 className="overview-meta-header">{translate('key')}</h4>
-          <div style={{ overflow: 'auto', whiteSpace: 'nowrap' }}>
-            <code>{this.props.component.key}</code>
-          </div>
+          <input
+              type="text"
+              value={this.props.component.key}
+              style={{ width: '100%' }}/>
         </div>
     );
 
