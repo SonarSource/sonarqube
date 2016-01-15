@@ -12,17 +12,30 @@
     "measures": [
       {
         "metric": "new_violations",
-        "variationValueP1": "255",
-        "variationValueP2": "0",
-        "variationValueP3": "255"
-      },
-      {
-        "metric": "ncloc",
-        "value": "1984"
+        "periods": [
+          {
+            "index": 1,
+            "value": "255"
+          },
+          {
+            "index": 2,
+            "value": "0"
+          },
+          {
+            "index": 3,
+            "value": "255"
+          }
+        ]
       },
       {
         "metric": "complexity",
-        "value": "42"
+        "value": "42",
+        "periods": []
+      },
+      {
+        "metric": "ncloc",
+        "value": "1984",
+        "periods": []
       }
     ]
   },
@@ -36,17 +49,30 @@
       "measures": [
         {
           "metric": "new_violations",
-          "variationValueP1": "25",
-          "variationValueP2": "0",
-          "variationValueP3": "25"
-        },
-        {
-          "metric": "ncloc",
-          "value": "114"
+          "periods": [
+            {
+              "index": 1,
+              "value": "25"
+            },
+            {
+              "index": 2,
+              "value": "0"
+            },
+            {
+              "index": 3,
+              "value": "25"
+            }
+          ]
         },
         {
           "metric": "complexity",
-          "value": "12"
+          "value": "12",
+          "periods": []
+        },
+        {
+          "metric": "ncloc",
+          "value": "114",
+          "periods": []
         }
       ]
     },
@@ -59,9 +85,20 @@
       "measures": [
         {
           "metric": "new_violations",
-          "variationValueP1": "0",
-          "variationValueP2": "0",
-          "variationValueP3": "0"
+          "periods": [
+            {
+              "index": 1,
+              "value": "0"
+            },
+            {
+              "index": 2,
+              "value": "0"
+            },
+            {
+              "index": 3,
+              "value": "0"
+            }
+          ]
         }
       ]
     },
@@ -73,20 +110,41 @@
       "path": "src/main/java/com/sonarsource/markdown/impl",
       "measures": [
         {
-          "metric": "ncloc",
-          "value": "217",
-          "variationValueP2": "0"
-        },
-        {
           "metric": "new_violations",
-          "variationValueP1": "25",
-          "variationValueP2": "0",
-          "variationValueP3": "25"
+          "periods": [
+            {
+              "index": 1,
+              "value": "25"
+            },
+            {
+              "index": 2,
+              "value": "0"
+            },
+            {
+              "index": 3,
+              "value": "25"
+            }
+          ]
         },
         {
           "metric": "complexity",
           "value": "35",
-          "variationValueP2": "0"
+          "periods": [
+            {
+              "index": 2,
+              "value": "0"
+            }
+          ]
+        },
+        {
+          "metric": "ncloc",
+          "value": "217",
+          "periods": [
+            {
+              "index": 2,
+              "value": "0"
+            }
+          ]
         }
       ]
     }

@@ -161,8 +161,6 @@ public class ComponentTreeActionTest {
     List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasures().getMeasuresList();
     assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage");
     assertThat(fileMeasures).extracting("value").containsOnly("5", "15.5");
-    assertThat(fileMeasures).extracting("variationValueP1").containsOnly("", "4");
-    assertThat(fileMeasures).extracting("variationValueP3").containsOnly("", "2.0");
     assertThat(response.getPeriods().getPeriodsList()).extracting("mode").containsOnly("last_version", "last_analysis");
   }
 

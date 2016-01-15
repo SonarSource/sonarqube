@@ -23,8 +23,8 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.WsMeasures;
 
-import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;
+import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
 
 class MeasureDtoToWsMeasure {
 
@@ -37,23 +37,18 @@ class MeasureDtoToWsMeasure {
     measure.setMetric(metricDto.getKey());
     // a measure value can be null, new_violations metric for example
     if (measureDto.getValue() != null
-      || measureDto.getData()!=null) {
+      || measureDto.getData() != null) {
       measure.setValue(formatMeasureValue(measureDto, metricDto));
     }
-    if (measureDto.getVariation(1) != null) {
-      measure.setVariationValueP1(formatNumericalValue(measureDto.getVariation(1), metricDto));
-    }
-    if (measureDto.getVariation(2) != null) {
-      measure.setVariationValueP2(formatNumericalValue(measureDto.getVariation(2), metricDto));
-    }
-    if (measureDto.getVariation(3) != null) {
-      measure.setVariationValueP3(formatNumericalValue(measureDto.getVariation(3), metricDto));
-    }
-    if (measureDto.getVariation(4) != null) {
-      measure.setVariationValueP4(formatNumericalValue(measureDto.getVariation(4), metricDto));
-    }
-    if (measureDto.getVariation(5) != null) {
-      measure.setVariationValueP5(formatNumericalValue(measureDto.getVariation(5), metricDto));
+
+    WsMeasures.PeriodValue.Builder periodBuilder = WsMeasures.PeriodValue.newBuilder();
+    for (int i = 1; i <= 5; i++) {
+      if (measureDto.getVariation(i) != null) {
+        measure.addPeriods(periodBuilder
+          .clear()
+          .setIndex(i)
+          .setValue(formatNumericalValue(measureDto.getVariation(i), metricDto)));
+      }
     }
 
     return measure.build();

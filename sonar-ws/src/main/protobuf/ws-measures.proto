@@ -70,9 +70,10 @@ message Measures {
 message Measure {
   optional string metric = 1;
   optional string value = 2;
-  optional string variationValueP1 = 3;
-  optional string variationValueP2 = 4;
-  optional string variationValueP3 = 5;
-  optional string variationValueP4 = 6;
-  optional string variationValueP5 = 7;
+  repeated PeriodValue periods = 3;
+}
+
+message PeriodValue {
+  optional int32 index = 1;
+  optional string value = 2;
 }

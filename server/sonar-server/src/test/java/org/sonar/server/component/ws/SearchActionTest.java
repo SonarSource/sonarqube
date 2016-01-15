@@ -141,7 +141,7 @@ public class SearchActionTest {
     db.commit();
 
     InputStream responseStream = newRequest(Qualifiers.PROJECT)
-      .setParam(Param.TEXT_QUERY, "project-_%")
+      .setParam(Param.TEXT_QUERY, "project-_%-key")
       .execute().getInputStream();
     SearchWsResponse response = SearchWsResponse.parseFrom(responseStream);
 

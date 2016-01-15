@@ -63,6 +63,7 @@ public class ComponentTreeQuery {
     return qualifiers;
   }
 
+  @CheckForNull
   public String getNameOrKeyQuery() {
     return nameOrKeyQuery;
   }
@@ -70,11 +71,6 @@ public class ComponentTreeQuery {
   @CheckForNull
   public String getNameOrKeyQueryToSqlForResourceIndex() {
     return nameOrKeyQuery == null ? null : buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase();
-  }
-
-  @CheckForNull
-  public String getNameOrKeyQueryToSqlForProjectKey() {
-    return nameOrKeyQuery == null ? null : buildLikeValue(nameOrKeyQuery, AFTER);
   }
 
   public Integer getPage() {
