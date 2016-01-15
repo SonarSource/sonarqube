@@ -287,17 +287,18 @@
         AND p.language = #{query.language}
       </if>
       <if test="query.nameOrKeyQuery!=null">
-        AND (exists (
-        select 1
-        from resource_index ri
-        where
-        ri.resource_id=p.id
-        AND ri.qualifier in
-        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
-          #{qualifier}
-        </foreach>
-        AND ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
-        OR p.kee like #{query.nameOrKeyQueryToSqlForProjectKey} ESCAPE '/')
+        AND (
+          exists (
+            select 1
+            from resource_index ri
+            where
+            ri.resource_id=p.id
+            AND ri.qualifier in
+            <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+              #{qualifier}
+            </foreach>
+            AND ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
+          OR p.kee = #{query.nameOrKeyQuery})
       </if>
     </where>
   </sql>
@@ -351,13 +352,14 @@
       </foreach>
     </if>
     <if test="query.nameOrKeyQuery!=null">
-      AND (exists (
-      select 1
-      from resource_index ri
-      where
-      (ri.resource_id=p.id OR ri.resource_id=p.copy_resource_id)
-      AND ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
-      OR p.kee like #{query.nameOrKeyQueryToSqlForProjectKey} ESCAPE '/')
+      AND (
+        exists (
+          select 1
+          from resource_index ri
+          where
+          (ri.resource_id=p.id OR ri.resource_id=p.copy_resource_id)
+            AND ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/')
+        OR p.kee = #{query.nameOrKeyQuery})
     </if>
   </sql>
 

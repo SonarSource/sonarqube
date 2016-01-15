@@ -712,7 +712,7 @@ public class ComponentDaoTest {
     db.commit();
     componentDb.indexProjects();
 
-    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-").setQualifiers(Qualifiers.PROJECT).build();
+    ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
 
     assertThat(result).hasSize(1);
@@ -782,7 +782,7 @@ public class ComponentDaoTest {
     componentDb.indexProjects();
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot)
-      .setNameOrKeyQuery("file-key").build();
+      .setNameOrKeyQuery("file-key-1").build();
 
     List<ComponentDtoWithSnapshotId> result = underTest.selectDirectChildren(dbSession, query);
     int count = underTest.countDirectChildren(dbSession, query);
