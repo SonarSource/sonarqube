@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usertoken.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UserSession;
 
@@ -29,9 +30,9 @@ class TokenPermissionsValidator {
     // prevent instantiation
   }
 
-  static void validate(UserSession userSession, String requestLogin) {
+  static void validate(UserSession userSession, @Nullable String requestLogin) {
     if (userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN)
-      || requestLogin.equals(userSession.getLogin())) {
+      || (requestLogin != null && requestLogin.equals(userSession.getLogin()))) {
       return;
     }
 

@@ -19,14 +19,18 @@
  */
 package org.sonarqube.ws.client.usertoken;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class SearchWsRequest {
   private String login;
 
+  @CheckForNull
   public String getLogin() {
     return login;
   }
 
-  public SearchWsRequest setLogin(String login) {
+  public SearchWsRequest setLogin(@Nullable String login) {
     this.login = login;
     return this;
   }

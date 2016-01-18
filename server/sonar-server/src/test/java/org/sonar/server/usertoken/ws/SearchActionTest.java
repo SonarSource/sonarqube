@@ -21,6 +21,7 @@ package org.sonar.server.usertoken.ws;
 
 import com.google.common.base.Throwables;
 import java.io.IOException;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,14 +35,15 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUserTokens.SearchWsResponse;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -51,7 +53,6 @@ import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOG
 public class SearchActionTest {
   static final String GRACE_HOPPER = "grace.hopper";
   static final String ADA_LOVELACE = "ada.lovelace";
-  static final String TOKEN_NAME = "token-name";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -91,11 +92,26 @@ public class SearchActionTest {
       .setName("Project scan on Travis")
       .setLogin(ADA_LOVELACE));
     dbSession.commit();
+
     String response = ws.newRequest()
       .setParam(PARAM_LOGIN, GRACE_HOPPER)
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("search-example.json"));
+  }
+
+  @Test
+  public void a_user_can_search_its_own_token() {
+    userSession.login(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    dbClient.userTokenDao().insert(dbSession, newUserToken()
+      .setCreatedAt(1448523067221L)
+      .setName("Project scan on Travis")
+      .setLogin(GRACE_HOPPER));
+    db.commit();
+
+    SearchWsResponse response = newRequest(null);
+
+    assertThat(response.getUserTokensCount()).isEqualTo(1);
   }
 
   @Test
@@ -107,14 +123,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void fail_when_not_logged_in() {
-    userSession.anonymous();
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest(GRACE_HOPPER);
-  }
-
-  @Test
   public void fail_when_insufficient_privileges() {
     userSession.login().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     expectedException.expect(ForbiddenException.class);
@@ -122,11 +130,15 @@ public class SearchActionTest {
     newRequest(GRACE_HOPPER);
   }
 
-  private SearchWsResponse newRequest(String login) {
-    TestResponse response = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .setParam(PARAM_LOGIN, login)
-      .execute();
+  private SearchWsResponse newRequest(@Nullable String login) {
+    TestRequest testRequest = ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF);
+    if (login != null) {
+      testRequest.setParam(PARAM_LOGIN, login);
+    }
+
+    TestResponse response = testRequest.execute();
+
     try {
       return SearchWsResponse.parseFrom(response.getInputStream());
     } catch (IOException e) {
