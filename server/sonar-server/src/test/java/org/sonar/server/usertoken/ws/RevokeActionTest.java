@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usertoken.ws;
 
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,8 +32,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 
@@ -46,7 +47,6 @@ public class RevokeActionTest {
   static final String GRACE_HOPPER = "grace.hopper";
   static final String ADA_LOVELACE = "ada.lovelace";
   static final String TOKEN_NAME = "token-name";
-
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -84,19 +84,21 @@ public class RevokeActionTest {
   }
 
   @Test
+  public void user_can_delete_its_own_tokens() {
+    userSession.login(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName("token-to-delete"));
+
+    String response = newRequest(null, "token-to-delete");
+
+    assertThat(response).isEmpty();
+    assertThat(dbClient.userTokenDao().selectByLogin(dbSession, GRACE_HOPPER)).isEmpty();
+  }
+
+  @Test
   public void does_not_fail_when_incorrect_login_or_name() {
     insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
 
     newRequest(ADA_LOVELACE, "another-token-name");
-  }
-
-  @Test
-  public void fail_if_not_logged_in() {
-    userSession.anonymous();
-    insertUserToken(newUserToken().setLogin(GRACE_HOPPER).setName(TOKEN_NAME));
-    expectedException.expect(UnauthorizedException.class);
-
-    newRequest(GRACE_HOPPER, TOKEN_NAME);
   }
 
   @Test
@@ -108,11 +110,14 @@ public class RevokeActionTest {
     newRequest(GRACE_HOPPER, TOKEN_NAME);
   }
 
-  private String newRequest(String login, String name) {
-    return ws.newRequest()
-      .setParam(PARAM_LOGIN, login)
-      .setParam(PARAM_NAME, name)
-      .execute().getInput();
+  private String newRequest(@Nullable String login, String name) {
+    TestRequest testRequest = ws.newRequest()
+      .setParam(PARAM_NAME, name);
+    if (login != null) {
+      testRequest.setParam(PARAM_LOGIN, login);
+    }
+
+    return testRequest.execute().getInput();
   }
 
   private void insertUserToken(UserTokenDto userToken) {

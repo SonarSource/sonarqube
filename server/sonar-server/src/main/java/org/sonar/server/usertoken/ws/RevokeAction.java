@@ -27,7 +27,6 @@ import org.sonar.db.DbSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_REVOKE;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
@@ -45,13 +44,12 @@ public class RevokeAction implements UserTokensWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_REVOKE)
       .setDescription("Revoke a user access token. <br/>"+
-        "It requires administration permissions.")
+        "If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.")
       .setSince("5.3")
       .setPost(true)
       .setHandler(this);
 
     action.createParam(PARAM_LOGIN)
-      .setRequired(true)
       .setDescription("User login")
       .setExampleValue("g.hopper");
 
@@ -68,7 +66,7 @@ public class RevokeAction implements UserTokensWsAction {
   }
 
   private void doHandle(RevokeWsRequest request) {
-    userSession.checkLoggedIn().checkPermission(SYSTEM_ADMIN);
+    TokenPermissionsValidator.validate(userSession, request.getLogin());
 
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -79,9 +77,13 @@ public class RevokeAction implements UserTokensWsAction {
     }
   }
 
-  private static RevokeWsRequest toRevokeWsRequest(Request request) {
-    return new RevokeWsRequest()
-      .setLogin(request.mandatoryParam(PARAM_LOGIN))
+  private RevokeWsRequest toRevokeWsRequest(Request request) {
+    RevokeWsRequest revokeWsRequest = new RevokeWsRequest()
+      .setLogin(request.param(PARAM_LOGIN))
       .setName(request.mandatoryParam(PARAM_NAME));
+    if (revokeWsRequest.getLogin() == null) {
+      revokeWsRequest.setLogin(userSession.getLogin());
+    }
+    return revokeWsRequest;
   }
 }
