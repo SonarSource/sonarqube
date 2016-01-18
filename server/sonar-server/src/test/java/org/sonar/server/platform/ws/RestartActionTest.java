@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -38,15 +40,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class RestartActionTest {
-  private static final int PROCESS_NUMBER = 1;
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
+  @Rule
+  public LogTester logTester = new LogTester();
 
   Settings settings = new Settings();
   Platform platform = mock(Platform.class);
@@ -102,10 +103,24 @@ public class RestartActionTest {
     settings.setProperty("process.index", processNumber);
 
     DefaultProcessCommands processCommands = new DefaultProcessCommands(tempFolder, processNumber);
-    
+
     actionTester.newRequest().execute();
 
     assertThat(processCommands.askedForRestart()).isTrue();
+  }
+
+  @Test
+  public void logs_login_of_authenticated_user_requesting_the_restart_in_production_mode() throws Exception {
+    String login = "BigBother";
+
+    userSessionRule.login(login).setGlobalPermissions(UserRole.ADMIN);
+    settings.setProperty("process.sharedDir", temp.newFolder().getAbsoluteFile().getAbsolutePath());
+    settings.setProperty("process.index", 2);
+
+    actionTester.newRequest().execute();
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("SonarQube restart requested by " + login);
   }
 
 }

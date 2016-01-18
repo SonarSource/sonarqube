@@ -77,7 +77,7 @@ public class RestartTest {
       Thread.sleep(5000);
 
       assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs()))
-        .contains("Requesting SonarQube restart");
+        .contains("SonarQube restart requested by admin");
     }
   }
 

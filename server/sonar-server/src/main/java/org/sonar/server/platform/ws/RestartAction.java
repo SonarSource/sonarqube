@@ -72,8 +72,8 @@ public class RestartAction implements SystemWsAction {
       platform.restart();
       LOGGER.info("WebServer restarted");
     } else {
-      LOGGER.info("Requesting SonarQube restart");
       userSession.checkPermission(UserRole.ADMIN);
+      LOGGER.info("SonarQube restart requested by {}", userSession.getLogin());
 
       File shareDir = nonNullValueAsFile(PROPERTY_SHARED_PATH);
       int processNumber = nonNullAsInt(PROPERTY_PROCESS_INDEX);
