@@ -5,7 +5,15 @@
   <% current_user.favourites.each_with_index do |f, index | %>
     <tr <% if index >= max_favorites %>class="hidden"<% end %>>
       <td class="thin"><%= link_to_favourite f -%></td>
-      <td><%= qualifier_icon f %> <%= link_to_resource f %></td>
+      <td>
+        <%
+          url = ApplicationController.root_context + '/dashboard?id=' + url_encode(f.key)
+        %>
+        <a href="<%= url -%>" class="link-with-icon">
+          <%= qualifier_icon f %>
+          <span><%= h f.name -%></span>
+        </a>
+      </td>
     </tr>
   <% end %>
 </table>
