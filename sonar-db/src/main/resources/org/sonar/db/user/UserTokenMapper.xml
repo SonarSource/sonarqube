@@ -35,6 +35,16 @@
     FROM user_tokens t
     WHERE t.login=#{login}
   </select>
+  
+  <select id="countTokensByLogins" parameterType="map" resultType="UserTokenCount">
+    SELECT t.login as "login", count(t.name) as "tokenCount"
+    FROM user_tokens t
+    WHERE t.login in
+    <foreach collection="logins" open="(" close=")" item="login" separator=",">
+      #{login}
+    </foreach>
+    GROUP BY t.login
+  </select>
 
   <delete id="deleteByLogin">
     DELETE FROM user_tokens WHERE login=#{login}

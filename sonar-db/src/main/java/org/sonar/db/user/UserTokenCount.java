@@ -19,21 +19,25 @@
  */
 package org.sonar.db.user;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+public class UserTokenCount {
+  private String login;
+  private Integer tokenCount;
 
-public interface UserTokenMapper {
-  void insert(UserTokenDto userToken);
+  public String getLogin() {
+    return login;
+  }
 
-  UserTokenDto selectByTokenHash(String tokenHash);
+  public UserTokenCount setLogin(String login) {
+    this.login = login;
+    return this;
+  }
 
-  UserTokenDto selectByLoginAndName(@Param("login") String login, @Param("name") String name);
+  public Integer tokenCount() {
+    return tokenCount;
+  }
 
-  List<UserTokenDto> selectByLogin(String login);
-
-  void deleteByLogin(String login);
-
-  void deleteByLoginAndName(@Param("login") String login, @Param("name") String name);
-
-  List<UserTokenCount> countTokensByLogins(@Param("logins") List<String> logins);
+  public UserTokenCount setTokenCount(Integer tokenCount) {
+    this.tokenCount = tokenCount;
+    return this;
+  }
 }

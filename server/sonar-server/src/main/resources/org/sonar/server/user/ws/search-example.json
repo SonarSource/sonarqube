@@ -6,15 +6,25 @@
       "active": true,
       "email": "f@m.com",
       "scmAccounts": [],
-      "groups": ["sonar-users", "sonar-administrators"]
+      "groups": [
+        "sonar-users",
+        "sonar-administrators"
+      ],
+      "tokenCount": 1
     },
     {
       "login": "sbrandhof",
       "name": "Simon",
       "active": true,
       "email": "s.brandhof@company.tld",
-      "scmAccounts": ["simon.brandhof", "s.brandhof@company.tld"],
-      "groups": ["sonar-users"]
+      "scmAccounts": [
+        "simon.brandhof",
+        "s.brandhof@company.tld"
+      ],
+      "groups": [
+        "sonar-users"
+      ],
+      "tokenCount": 3
     }
   ]
 }

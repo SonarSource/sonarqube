@@ -9,7 +9,8 @@
       "email": "user-1@mail.com",
       "scmAccounts": [
         "user-1"
-      ]
+      ],
+      "tokenCount": 1
     }
   ]
 }

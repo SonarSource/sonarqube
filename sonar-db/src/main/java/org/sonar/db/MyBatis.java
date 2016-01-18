@@ -126,6 +126,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.db.user.UserGroupMapper;
 import org.sonar.db.user.UserMapper;
 import org.sonar.db.user.UserRoleDto;
+import org.sonar.db.user.UserTokenCount;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.db.user.UserTokenMapper;
 import org.sonar.db.version.SchemaMigrationDto;
@@ -216,6 +217,7 @@ public class MyBatis {
     confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
     confBuilder.loadAlias("ViewsSnapshot", ViewsSnapshotDto.class);
     confBuilder.loadAlias("UserToken", UserTokenDto.class);
+    confBuilder.loadAlias("UserTokenCount", UserTokenCount.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     confBuilder.loadMapper("org.sonar.db.user.AuthorizationMapper");

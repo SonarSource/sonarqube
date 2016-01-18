@@ -19,9 +19,14 @@
  */
 package org.sonar.db.user;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
@@ -51,6 +56,22 @@ public class UserTokenDao implements Dao {
 
   public List<UserTokenDto> selectByLogin(DbSession dbSession, String login) {
     return mapper(dbSession).selectByLogin(login);
+  }
+
+  public Map<String, Integer> countTokensByLogins(final DbSession dbSession, List<String> logins) {
+    final Map<String, Integer> result = new HashMap<>();
+    DatabaseUtils.executeLargeInputs(logins, new Function<List<String>, List<UserTokenCount>>() {
+      @Override
+      public List<UserTokenCount> apply(@Nonnull List<String> input) {
+        List<UserTokenCount> userTokenCounts = mapper(dbSession).countTokensByLogins(input);
+        for (UserTokenCount userTokenCount : userTokenCounts) {
+          result.put(userTokenCount.getLogin(), userTokenCount.tokenCount());
+        }
+        return userTokenCounts;
+      }
+    });
+
+    return result;
   }
 
   public void deleteByLogin(DbSession dbSession, String login) {

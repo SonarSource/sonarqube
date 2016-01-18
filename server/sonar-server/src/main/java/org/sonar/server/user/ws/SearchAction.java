@@ -21,10 +21,12 @@ package org.sonar.server.user.ws;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -32,14 +34,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
+import static com.google.common.base.Objects.firstNonNull;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class SearchAction implements UsersWsAction {
@@ -60,7 +62,7 @@ public class SearchAction implements UsersWsAction {
       .setDescription("Get a list of active users. Administer System permission is required to show the 'groups' field.")
       .setSince("3.6")
       .setHandler(this)
-      .setResponseExample(getClass().getResource("example-search.json"));
+      .setResponseExample(getClass().getResource("search-example.json"));
 
     action.addFieldsParam(UserJsonWriter.FIELDS);
     action.addPagingParams(50, MAX_LIMIT);
@@ -77,31 +79,34 @@ public class SearchAction implements UsersWsAction {
     SearchResult<UserDoc> result = userIndex.search(request.param(Param.TEXT_QUERY), options);
 
     Multimap<String, String> groupsByLogin = ArrayListMultimap.create();
+    Map<String, Integer> tokenCountsByLogin = new HashMap<>();
     DbSession dbSession = dbClient.openSession(false);
     try {
-      Collection<String> logins = Collections2.transform(result.getDocs(), new Function<UserDoc, String>() {
+      List<String> logins = Lists.transform(result.getDocs(), new Function<UserDoc, String>() {
         @Override
         public String apply(@Nonnull UserDoc input) {
           return input.login();
         }
       });
       groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
+      tokenCountsByLogin = dbClient.userTokenDao().countTokensByLogins(dbSession, logins);
     } finally {
-      MyBatis.closeQuietly(dbSession);
+      dbClient.closeSession(dbSession);
     }
 
     JsonWriter json = response.newJsonWriter().beginObject();
     options.writeJson(json, result.getTotal());
-    writeUsers(json, result, fields, groupsByLogin);
+    writeUsers(json, result, groupsByLogin, tokenCountsByLogin, fields);
     json.endObject().close();
   }
 
-  private void writeUsers(JsonWriter json, SearchResult<UserDoc> result, @Nullable List<String> fields, Multimap<String, String> groupsByLogin) {
+  private void writeUsers(JsonWriter json, SearchResult<UserDoc> result, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
+    @Nullable List<String> fields) {
 
     json.name("users").beginArray();
     for (UserDoc user : result.getDocs()) {
       Collection<String> groups = groupsByLogin.get(user.login());
-      userWriter.write(json, user, groups, fields);
+      userWriter.write(json, user, firstNonNull(tokenCountsByLogin.get(user.login()), 0), groups, fields);
     }
     json.endArray();
   }

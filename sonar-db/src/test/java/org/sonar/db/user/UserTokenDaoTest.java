@@ -20,6 +20,7 @@
 package org.sonar.db.user;
 
 import com.google.common.base.Optional;
+import java.util.Map;
 import org.assertj.guava.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
@@ -127,6 +129,17 @@ public class UserTokenDaoTest {
     Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "login", "name")).isAbsent();
     Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "login", "another-name")).isPresent();
     Assertions.assertThat(underTest.selectByLoginAndName(dbSession, "another-login", "name")).isPresent();
+  }
+
+  @Test
+  public void count_tokens_by_login() {
+    insertToken(newUserToken().setLogin("login").setName("name"));
+    insertToken(newUserToken().setLogin("login").setName("another-name"));
+
+    Map<String, Integer> result = underTest.countTokensByLogins(dbSession, newArrayList("login"));
+
+    assertThat(result.get("login")).isEqualTo(2);
+    assertThat(result.get("unknown-login")).isNull();
   }
 
   private void insertToken(UserTokenDto userToken) {

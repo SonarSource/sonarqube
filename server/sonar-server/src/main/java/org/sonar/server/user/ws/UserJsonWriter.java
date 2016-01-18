@@ -40,6 +40,7 @@ public class UserJsonWriter {
   private static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
   private static final String FIELD_GROUPS = "groups";
   private static final String FIELD_ACTIVE = "active";
+  private static final String FIELD_TOKEN_COUNT = "tokenCount";
 
   public static final Set<String> FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_EMAIL, FIELD_SCM_ACCOUNTS, FIELD_GROUPS, FIELD_ACTIVE);
   private static final Set<String> CONCISE_FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_EMAIL, FIELD_ACTIVE);
@@ -53,7 +54,14 @@ public class UserJsonWriter {
   /**
    * Serializes a user to the passed JsonWriter.
    */
-  public void write(JsonWriter json, User user, Collection<String> groups, Collection<String> fields) {
+  public void write(JsonWriter json, User user, Collection<String> groups, @Nullable Collection<String> fields) {
+    write(json, user, null, groups, fields);
+  }
+
+  /**
+   * Serializes a user to the passed JsonWriter.
+   */
+  public void write(JsonWriter json, User user, @Nullable Integer tokenCount, Collection<String> groups, @Nullable Collection<String> fields) {
     json.beginObject();
     json.prop(FIELD_LOGIN, user.login());
     writeIfNeeded(json, user.name(), FIELD_NAME, fields);
@@ -61,6 +69,7 @@ public class UserJsonWriter {
     writeIfNeeded(json, user.active(), FIELD_ACTIVE, fields);
     writeGroupsIfNeeded(json, groups, fields);
     writeScmAccountsIfNeeded(json, fields, user);
+    writeTokenCount(json, tokenCount);
     json.endObject();
   }
 
@@ -92,5 +101,13 @@ public class UserJsonWriter {
         .values(((UserDoc) user).scmAccounts())
         .endArray();
     }
+  }
+
+  private static void writeTokenCount(JsonWriter json, @Nullable Integer tokenCount) {
+    if (tokenCount == null) {
+      return;
+    }
+
+    json.prop(FIELD_TOKEN_COUNT, tokenCount);
   }
 }
