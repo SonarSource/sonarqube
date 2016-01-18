@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Modal from '../../components/common/modals';
-import '../../components/common/select-list';
+import '../../components/SelectList';
 import Template from './templates/groups-users.hbs';
 
 export default Modal.extend({

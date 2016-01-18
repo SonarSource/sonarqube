@@ -19,7 +19,7 @@
  */
 import Modal from '../../components/common/modals';
 import Template from './templates/global-permissions-groups.hbs';
-import '../../components/common/select-list';
+import '../../components/SelectList';
 
 function getSearchUrl (permission, project) {
   var url = baseUrl + '/api/permissions/groups?ps=100&permission=' + permission;

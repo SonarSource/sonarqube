@@ -19,7 +19,7 @@
  */
 import _ from 'underscore';
 import Modal from '../../components/common/modals';
-import '../../components/common/select-list';
+import '../../components/SelectList';
 import Template from './templates/permission-templates-groups.hbs';
 
 function getSearchUrl (permission, permissionTemplate) {

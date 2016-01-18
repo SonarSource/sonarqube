@@ -21,6 +21,8 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import { translate } from '../../helpers/l10n';
+import ItemTemplate from './templates/item.hbs';
+import ListTemplate from './templates/list.hbs';
 
 var showError = null;
 
@@ -75,11 +77,7 @@ var SelectListCollection = Backbone.Collection.extend({
 
 var SelectListItemView = Backbone.View.extend({
   tagName: 'li',
-
-  template: function (d) {
-    return '<input class="select-list-list-checkbox" type="checkbox">' +
-        '<div class="select-list-list-item">' + d + '</div>';
-  },
+  template: ItemTemplate,
 
   events: {
     'change .select-list-list-checkbox': 'toggle'
@@ -96,9 +94,9 @@ var SelectListItemView = Backbone.View.extend({
     this.$el.toggleClass('selected', this.model.get('selected'));
     this.$('.select-list-list-checkbox')
         .prop('title',
-        this.model.get('selected') ?
-            this.settings.tooltips.deselect :
-            this.settings.tooltips.select)
+            this.model.get('selected') ?
+                this.settings.tooltips.deselect :
+                this.settings.tooltips.select)
         .prop('checked', this.model.get('selected'));
 
     if (this.settings.readOnly) {
@@ -128,17 +126,17 @@ var SelectListItemView = Backbone.View.extend({
 
     that.$el.addClass('progress');
     $.ajax({
-      url: url,
-      type: 'POST',
-      data: data,
-      statusCode: {
-        // do not show global error
-        400: null,
-        401: null,
-        403: null,
-        500: null
-      }
-    })
+          url: url,
+          type: 'POST',
+          data: data,
+          statusCode: {
+            // do not show global error
+            400: null,
+            401: null,
+            403: null,
+            500: null
+          }
+        })
         .done(function () {
           that.model.set('selected', !selected);
         })
@@ -158,27 +156,7 @@ var SelectListItemView = Backbone.View.extend({
  */
 
 var SelectListView = Backbone.View.extend({
-  template: function (l) {
-    /* eslint max-len: 0 */
-    return '<div class="select-list-container">' +
-        '<div class="select-list-control">' +
-        '<div class="select-list-check-control">' +
-        '<a class="select-list-control-button" name="selected">' + l.selected + '</a>' +
-        '<a class="select-list-control-button" name="deselected">' + l.deselected + '</a>' +
-        '<a class="select-list-control-button" name="all">' + l.all + '</a>' +
-        '</div>' +
-        '<div class="select-list-search-control">' +
-        '<form class="search-box">' +
-        '<span class="search-box-submit button-clean"><i class="icon-search"></i></span>' +
-        '<input class="search-box-input" type="search" name="q" placeholder="Search" maxlength="100" autocomplete="off">' +
-        '</form>' +
-        '</div>' +
-        '</div>' +
-        '<div class="select-list-list-container">' +
-        '<ul class="select-list-list"></ul>' +
-        '</div>' +
-        '</div>';
-  },
+  template: ListTemplate,
 
   events: {
     'click .select-list-control-button[name=selected]': 'showSelected',

@@ -23,7 +23,7 @@ import Marionette from 'backbone.marionette';
 import ChangeProfileParentView from './change-profile-parent-view';
 import ProfileChangelogView from './profile-changelog-view';
 import ProfileComparisonView from './profile-comparison-view';
-import '../../components/common/select-list';
+import '../../components/SelectList';
 import Template from './templates/quality-profiles-profile-details.hbs';
 import { translate } from '../../helpers/l10n';
 
