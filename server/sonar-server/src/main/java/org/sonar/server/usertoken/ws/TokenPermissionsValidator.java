@@ -17,31 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.usertoken;
+package org.sonar.server.usertoken.ws;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.user.UserSession;
 
-public class GenerateWsRequest {
-  private String login;
-  private String name;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
-  @CheckForNull
-  public String getLogin() {
-    return login;
+class TokenPermissionsValidator {
+  private TokenPermissionsValidator() {
+    // prevent instantiation
   }
 
-  public GenerateWsRequest setLogin(@Nullable String login) {
-    this.login = login;
-    return this;
-  }
+  static void validate(UserSession userSession, String requestLogin) {
+    if (userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN)
+      || requestLogin.equals(userSession.getLogin())) {
+      return;
+    }
 
-  public String getName() {
-    return name;
-  }
-
-  public GenerateWsRequest setName(String name) {
-    this.name = name;
-    return this;
+    throw insufficientPrivilegesException();
   }
 }

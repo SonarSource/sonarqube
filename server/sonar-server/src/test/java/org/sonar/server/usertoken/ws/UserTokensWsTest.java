@@ -57,7 +57,7 @@ public class UserTokensWsTest {
     assertThat(action.since()).isEqualTo("5.3");
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.param("login").isRequired()).isTrue();
+    assertThat(action.param("login").isRequired()).isFalse();
     assertThat(action.param("name").isRequired()).isTrue();
   }
 

@@ -21,6 +21,7 @@ package org.sonar.server.usertoken.ws;
 
 import java.io.IOException;
 import java.io.InputStream;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,16 +32,18 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usertoken.TokenGenerator;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
 
 import static com.google.common.base.Throwables.propagate;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -82,7 +85,7 @@ public class GenerateActionTest {
   }
 
   @Test
-  public void return_json_example() {
+  public void json_example() {
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .setParam(PARAM_LOGIN, GRACE_HOPPER)
@@ -93,9 +96,17 @@ public class GenerateActionTest {
   }
 
   @Test
+  public void a_user_can_generate_token_for_himself() {
+    userSession.login(GRACE_HOPPER).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    GenerateWsResponse response = newRequest(null, TOKEN_NAME);
+
+    assertThat(response.getLogin()).isEqualTo(GRACE_HOPPER);
+  }
+
+  @Test
   public void fail_if_login_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login 'unknown-login' not found");
+    expectedException.expect(ForbiddenException.class);
 
     newRequest("unknown-login", "any-name");
   }
@@ -120,11 +131,23 @@ public class GenerateActionTest {
     newRequest(GRACE_HOPPER, TOKEN_NAME);
   }
 
-  private GenerateWsResponse newRequest(String login, String name) {
-    InputStream responseStream = ws.newRequest()
+  @Test
+  public void fail_if_insufficient_privileges() {
+    userSession.login(ADA_LOVELACE).setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    expectedException.expect(ForbiddenException.class);
+
+    newRequest(GRACE_HOPPER, TOKEN_NAME);
+  }
+
+  private GenerateWsResponse newRequest(@Nullable String login, String name) {
+    TestRequest testRequest = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam(PARAM_LOGIN, login)
-      .setParam(PARAM_NAME, name)
+      .setParam(PARAM_NAME, name);
+    if (login != null) {
+      testRequest.setParam(PARAM_LOGIN, login);
+    }
+
+    InputStream responseStream = testRequest
       .execute().getInputStream();
 
     try {

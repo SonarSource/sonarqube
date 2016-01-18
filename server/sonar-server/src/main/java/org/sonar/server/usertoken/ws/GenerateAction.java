@@ -24,9 +24,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
@@ -36,7 +36,7 @@ import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_GENERATE;
@@ -63,13 +63,12 @@ public class GenerateAction implements UserTokensWsAction {
       .setPost(true)
       .setDescription("Generate a user access token. <br />" +
         "Please keep your tokens secret. They enable to authenticate and analyze projects.<br />" +
-        "It requires administration permissions.")
+        "If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.")
       .setResponseExample(getClass().getResource("generate-example.json"))
       .setHandler(this);
 
     action.createParam(PARAM_LOGIN)
-      .setRequired(true)
-      .setDescription("User login")
+      .setDescription("User login. If not set, the token is generated for the authenticated user.")
       .setExampleValue("g.hopper");
 
     action.createParam(PARAM_NAME)
@@ -85,11 +84,10 @@ public class GenerateAction implements UserTokensWsAction {
   }
 
   private WsUserTokens.GenerateWsResponse doHandle(GenerateWsRequest request) {
-    userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-
     DbSession dbSession = dbClient.openSession(false);
     try {
       checkWsRequest(dbSession, request);
+      TokenPermissionsValidator.validate(userSession, request.getLogin());
 
       String token = tokenGenerator.generate();
       String tokenHash = hashToken(dbSession, token);
@@ -120,7 +118,10 @@ public class GenerateAction implements UserTokensWsAction {
   }
 
   private void checkLoginExists(DbSession dbSession, GenerateWsRequest request) {
-    checkFound(dbClient.userDao().selectByLogin(dbSession, request.getLogin()), "User with login '%s' not found", request.getLogin());
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, request.getLogin());
+    if (user == null) {
+      throw insufficientPrivilegesException();
+    }
   }
 
   private UserTokenDto insertTokenInDb(DbSession dbSession, GenerateWsRequest request, String tokenHash) {
@@ -135,10 +136,15 @@ public class GenerateAction implements UserTokensWsAction {
     return userTokenDto;
   }
 
-  private static GenerateWsRequest toCreateWsRequest(Request request) {
-    return new GenerateWsRequest()
-      .setLogin(request.mandatoryParam(PARAM_LOGIN))
+  private GenerateWsRequest toCreateWsRequest(Request request) {
+    GenerateWsRequest generateWsRequest = new GenerateWsRequest()
+      .setLogin(request.param(PARAM_LOGIN))
       .setName(request.mandatoryParam(PARAM_NAME));
+    if (generateWsRequest.getLogin() == null) {
+      generateWsRequest.setLogin(userSession.getLogin());
+    }
+
+    return generateWsRequest;
   }
 
   private static GenerateWsResponse buildResponse(UserTokenDto userTokenDto, String token) {
