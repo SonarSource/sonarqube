@@ -75,15 +75,16 @@ public class DifferentialPeriodsTest {
     setServerProperty(orchestrator, PROJECT_KEY, "sonar.timemachine.period4", "30");
     setServerProperty(orchestrator, PROJECT_KEY, "sonar.timemachine.period5", "previous_analysis");
 
-    // Execute an analysis in the past to have a past snapshot without any issues
+    // Execute an analysis 60 days ago to have a past snapshot without any issues
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "empty");
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectDate", formatDate(addDays(new Date(), -60))));
 
-    // Second analysis -> issues will be created
+    // Second analysis, 20 days ago, issues will be created
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
+        .setProperty("sonar.projectDate", formatDate(addDays(new Date(), -20))));
 
     // New technical debt only comes from new issues
     Resource newTechnicalDebt = orchestrator.getServer().getWsClient()
@@ -92,7 +93,7 @@ public class DifferentialPeriodsTest {
     assertThat(measures.get(0).getVariation4()).isEqualTo(17);
     assertThat(measures.get(0).getVariation5()).isEqualTo(17);
 
-    // Third analysis, with exactly the same profile -> no new issues so no new technical debt
+    // Third analysis, today, with exactly the same profile -> no new issues so no new technical debt
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
     orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
