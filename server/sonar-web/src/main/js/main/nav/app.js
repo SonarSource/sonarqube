@@ -25,12 +25,13 @@ import GlobalNav from './global/global-nav';
 import ComponentNav from './component/component-nav';
 import SettingsNav from './settings/settings-nav';
 import { getGlobalNavigation, getComponentNavigation, getSettingsNavigation } from '../../api/nav';
-import '../../components/workspace/main';
 
 
 export default class App {
   start () {
     let options = window.sonarqube;
+
+    require('../../components/workspace/main');
 
     return new Promise((resolve) => {
       let response = {};
