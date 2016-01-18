@@ -19,18 +19,15 @@
  */
 import _ from 'underscore';
 import React from 'react';
-import { getSystemInfo, restartAndWait } from '../../api/system';
+import { getSystemInfo } from '../../api/system';
 import Section from './section';
 import { translate } from '../../helpers/l10n';
+import RestartModal from '../../components/RestartModal';
 
 const SECTIONS_ORDER = ['SonarQube', 'Database', 'Plugins', 'System', 'ElasticSearch', 'JvmProperties',
   'ComputeEngine'];
 
 export default React.createClass({
-  getInitialState() {
-    return { restarting: false };
-  },
-
   componentDidMount() {
     getSystemInfo().then(info => this.setState({ sections: this.parseSections(info) }));
   },
@@ -58,15 +55,12 @@ export default React.createClass({
   },
 
   handleServerRestart () {
-    this.setState({ restarting: true });
-    restartAndWait().then(() => {
-      document.location.reload();
-    });
+    new RestartModal().render();
   },
 
   render() {
     let sections = null;
-    if (this.state.sections) {
+    if (this.state && this.state.sections) {
       sections = this.state.sections.map(section => {
         return <Section key={section.name} section={section.name} items={section.items}/>;
       });
@@ -78,16 +72,12 @@ export default React.createClass({
         <div className="page-actions">
           <a className="spacer-right" href={window.baseUrl + '/api/system/logs'} id="logs-link">Logs</a>
           <a href={window.baseUrl + '/api/system/info'} id="download-link">Download</a>
-          {this.state.restarting ? (
-              <i className="spinner"/>
-          ) : (
-              <button
-                  id="restart-server-button"
-                  className="big-spacer-left"
-                  onClick={this.handleServerRestart}>
-                Restart Server
-              </button>
-          )}
+          <button
+              id="restart-server-button"
+              className="big-spacer-left"
+              onClick={this.handleServerRestart}>
+            Restart Server
+          </button>
         </div>
       </header>
       {sections}

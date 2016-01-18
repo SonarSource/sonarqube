@@ -1,5 +1,5 @@
 /*
- * SonarQube
+ * SonarQube :: Web
  * Copyright (C) 2009-2016 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
@@ -17,37 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-import Marionette from 'backbone.marionette';
-import Template from './templates/update-center-header.hbs';
-import RestartModal from '../../components/RestartModal';
+import ModalForm from '../common/modal-form';
+import Template from './templates/template.hbs';
+import RestartingTemplate from './templates/restarting.hbs';
+import { restartAndWait } from '../../api/system';
 
-export default Marionette.ItemView.extend({
+
+const RestartModal = ModalForm.extend({
   template: Template,
+  restartingTemplate: RestartingTemplate,
 
-  collectionEvents: {
-    all: 'render'
+  initialize() {
+    this.restarting = false;
   },
 
-  events: {
-    'click .js-restart': 'restart',
-    'click .js-cancel-all': 'cancelAll'
+  getTemplate() {
+    return this.restarting ? this.restartingTemplate : this.template;
   },
 
-  restart () {
-    new RestartModal().render();
-  },
-
-  cancelAll () {
-    this.collection.cancelAll();
-  },
-
-  serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      installing: this.collection._installedCount,
-      uninstalling: this.collection._uninstalledCount
+  onFormSubmit() {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    this.restarting = true;
+    this.render();
+    restartAndWait().then(() => {
+      document.location.reload();
     });
   }
 });
 
-
+export default RestartModal;
