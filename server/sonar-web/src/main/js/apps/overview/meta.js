@@ -101,6 +101,7 @@ export default React.createClass({
           <input
               type="text"
               value={this.props.component.key}
+              readOnly={true}
               style={{ width: '100%' }}/>
         </div>
     );
