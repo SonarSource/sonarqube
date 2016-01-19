@@ -19,21 +19,18 @@
  */
 package org.sonar.batch.platform;
 
-import org.apache.commons.lang.StringUtils;
-
-import org.sonar.batch.bootstrap.GlobalProperties;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
-import org.sonar.api.platform.Server;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.config.Settings;
+import org.sonar.api.platform.Server;
+import org.sonar.batch.bootstrap.GlobalProperties;
 
 @BatchSide
 public class DefaultServer extends Server {
@@ -84,6 +81,21 @@ public class DefaultServer extends Server {
   @Override
   public String getContextPath() {
     return null;
+  }
+
+  @Override
+  public String getPublicRootUrl() {
+    return null;
+  }
+
+  @Override
+  public boolean isDev() {
+    return false;
+  }
+
+  @Override
+  public boolean isSecured() {
+    return false;
   }
 
   @Override

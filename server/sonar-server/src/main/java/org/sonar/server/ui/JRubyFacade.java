@@ -49,6 +49,8 @@ import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.authentication.IdentityProviderRepository;
+import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.measure.MeasureFilterEngine;
@@ -409,6 +411,10 @@ public final class JRubyFacade {
    */
   public void indexResource(long resourceId) {
     get(ResourceIndexDao.class).indexResource(resourceId);
+  }
+
+  public List<IdentityProvider> getIdentityProviders(){
+    return get(IdentityProviderRepository.class).getAllEnabledAndSorted();
   }
 
 }

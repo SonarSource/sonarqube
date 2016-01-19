@@ -21,7 +21,17 @@ package org.sonar.server.platform;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.io.Resources;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Properties;
+import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
@@ -32,16 +42,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 
-import javax.annotation.CheckForNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Properties;
+import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
+import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
 
 public final class ServerImpl extends Server implements Startable {
   private static final Logger LOG = Loggers.get(ServerImpl.class);
@@ -139,6 +141,21 @@ public final class ServerImpl extends Server implements Startable {
     return contextPath;
   }
 
+  @Override
+  public String getPublicRootUrl() {
+    return get(SERVER_BASE_URL, SERVER_BASE_URL_DEFAULT_VALUE);
+  }
+
+  @Override
+  public boolean isDev() {
+    return settings.getBoolean("sonar.web.dev");
+  }
+
+  @Override
+  public boolean isSecured() {
+    return get(SERVER_BASE_URL, SERVER_BASE_URL_DEFAULT_VALUE).startsWith("https://");
+  }
+
   private static String readVersion(String filename) throws IOException {
     URL url = ServerImpl.class.getResource(filename);
     if (url != null) {
@@ -170,4 +187,9 @@ public final class ServerImpl extends Server implements Startable {
   public String getURL() {
     return null;
   }
+
+  private String get(String key, String defaultValue) {
+    return Objects.firstNonNull(settings.getString(key), defaultValue);
+  }
+
 }

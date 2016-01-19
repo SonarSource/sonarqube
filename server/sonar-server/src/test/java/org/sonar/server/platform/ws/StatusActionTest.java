@@ -231,6 +231,21 @@ public class StatusActionTest {
     }
 
     @Override
+    public String getPublicRootUrl() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isDev() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isSecured() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getURL() {
       throw new UnsupportedOperationException();
     }

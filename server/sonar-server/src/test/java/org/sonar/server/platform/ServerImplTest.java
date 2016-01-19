@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import java.io.File;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,8 +29,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
@@ -139,4 +138,37 @@ public class ServerImplTest {
     assertThat(server.getContextPath()).isEqualTo("/my_path");
   }
 
+  @Test
+  public void is_dev() throws Exception {
+    settings.setProperty("sonar.web.dev", true);
+    server.start();
+    assertThat(server.isDev()).isTrue();
+  }
+
+  @Test
+  public void get_default_public_root_url() throws Exception {
+    server.start();
+    assertThat(server.getPublicRootUrl()).isEqualTo("http://localhost:9000");
+  }
+
+  @Test
+  public void get_public_root_url() throws Exception {
+    settings.setProperty("sonar.core.serverBaseURL", "http://mydomain.com");
+    server.start();
+    assertThat(server.getPublicRootUrl()).isEqualTo("http://mydomain.com");
+  }
+
+  @Test
+  public void is_secured_on_secured_server() throws Exception {
+    settings.setProperty("sonar.core.serverBaseURL", "https://mydomain.com");
+    server.start();
+    assertThat(server.isSecured()).isTrue();
+  }
+
+  @Test
+  public void is_secured_on_not_secured_server() throws Exception {
+    settings.setProperty("sonar.core.serverBaseURL", "http://mydomain.com");
+    server.start();
+    assertThat(server.isSecured()).isFalse();
+  }
 }
