@@ -112,6 +112,24 @@
     </where>
   </select>
 
+  <select id="selectProjectMeasuresByDeveloperForMetrics" parameterType="map" resultType="Measure">
+    SELECT
+    <include refid="measureColumns"/>,
+    s.project_id as componentId
+    FROM project_measures pm
+    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true} AND s.scope='PRJ' AND s.qualifier='TRK'
+    <where>
+      pm.person_id = #{developerId}
+      AND
+      pm.metric_id in
+      <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
+        #{metricId}
+      </foreach>
+      AND pm.rule_id is NULL
+      AND pm.characteristic_id is NULL
+    </where>
+  </select>
+
   <select id="selectBySnapshotAndMetrics" parameterType="map" resultType="Measure">
     SELECT
     <include refid="measureColumns"/>

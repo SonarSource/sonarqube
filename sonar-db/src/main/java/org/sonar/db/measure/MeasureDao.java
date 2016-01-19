@@ -105,6 +105,9 @@ public class MeasureDao implements Dao {
     });
   }
 
+  /**
+   * Used by plugin Developer Cockpit
+   */
   public List<MeasureDto> selectBySnapshotIdsAndMetricIds(final DbSession dbSession, List<Long> snapshotIds, final List<Integer> metricIds) {
     return DatabaseUtils.executeLargeInputs(snapshotIds, new Function<List<Long>, List<MeasureDto>>() {
       @Override
@@ -113,6 +116,16 @@ public class MeasureDao implements Dao {
         return mapper(dbSession).selectBySnapshotIdsAndMetricIds(input, metricIds);
       }
     });
+  }
+
+  /**
+   * Retrieves all measures associated to a specific developer and to the last snapshot of any project.
+   * <strong>property {@link MeasureDto#componentId} of the returned objects is populated</strong>
+   *
+   * Used by Developer Cockpit
+   */
+  public List<MeasureDto> selectProjectMeasuresByDeveloperForMetrics(DbSession dbSession, long developerId, Collection<Integer> metricIds) {
+    return mapper(dbSession).selectProjectMeasuresByDeveloperForMetrics(developerId, metricIds);
   }
 
   public void insert(DbSession session, MeasureDto measureDto) {

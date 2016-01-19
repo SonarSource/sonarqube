@@ -19,6 +19,7 @@
  */
 package org.sonar.db.measure;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
@@ -37,6 +38,8 @@ public interface MeasureMapper {
   List<MeasureDto> selectBySnapshotAndMetrics(@Param("snapshotId") long snapshotId, @Param("metricIds") List<Integer> input);
 
   List<MeasureDto> selectBySnapshotIdsAndMetricIds(@Param("snapshotIds") List<Long> snapshotIds, @Param("metricIds") List<Integer> metricIds);
+
+  List<MeasureDto> selectProjectMeasuresByDeveloperForMetrics(@Param("developerId") long developerId, @Param("metricIds") Collection<Integer> metricIds);
 
   @CheckForNull
   MeasureDto selectByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
