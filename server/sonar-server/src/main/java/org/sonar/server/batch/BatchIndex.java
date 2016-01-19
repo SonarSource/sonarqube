@@ -19,19 +19,19 @@
  */
 package org.sonar.server.batch;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Collection;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.platform.Server;
-import org.sonar.home.cache.FileHashes;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
+import org.sonar.api.server.ServerSide;
 
 /**
  * JAR files to be downloaded by sonar-runner.
@@ -56,7 +56,11 @@ public class BatchIndex implements Startable {
       for (File file : files) {
         String filename = file.getName();
         if (StringUtils.endsWith(filename, ".jar")) {
-          sb.append(filename).append('|').append(new FileHashes().of(file)).append(CharUtils.LF);
+          try (FileInputStream fis = new FileInputStream(file)) {
+            sb.append(filename).append('|').append(DigestUtils.md5Hex(fis)).append(CharUtils.LF);
+          } catch (IOException e) {
+            throw new IllegalStateException("Fail to compute hash", e);
+          }
         }
       }
     }

@@ -20,11 +20,12 @@
 package org.sonar.server.startup;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import javax.annotation.Nullable;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
-import org.sonar.home.cache.FileHashes;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
@@ -66,8 +67,12 @@ public class JdbcDriverDeployer {
 
   private static String driverIndexContent(@Nullable File deployedDriver) {
     if (deployedDriver != null) {
-      String hash = new FileHashes().of(deployedDriver);
-      return deployedDriver.getName() + "|" + hash;
+      try (FileInputStream fis = new FileInputStream(deployedDriver)) {
+        String hash = DigestUtils.md5Hex(fis);
+        return deployedDriver.getName() + "|" + hash;
+      } catch (IOException e) {
+        throw new IllegalStateException("Fail to compute hash", e);
+      }
     }
     return "";
   }
