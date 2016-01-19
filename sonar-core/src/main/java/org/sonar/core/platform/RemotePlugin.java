@@ -20,8 +20,10 @@
 package org.sonar.core.platform;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.home.cache.FileHashes;
 
 public class RemotePlugin {
   private String pluginKey;
@@ -64,7 +66,11 @@ public class RemotePlugin {
   }
 
   public RemotePlugin setFile(File f) {
-    return this.setFile(f.getName(), new FileHashes().of(f));
+    try (FileInputStream fis = new FileInputStream(f)) {
+      return this.setFile(f.getName(), DigestUtils.md5Hex(fis));
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to compute hash", e);
+    }
   }
 
   public RemotePluginFile file() {

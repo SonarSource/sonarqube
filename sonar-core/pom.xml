@@ -43,10 +43,6 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-update-center-common</artifactId>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-home</artifactId>
-    </dependency>
 
     <!-- logging -->
     <dependency>
