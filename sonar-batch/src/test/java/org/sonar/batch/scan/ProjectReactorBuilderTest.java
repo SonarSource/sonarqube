@@ -23,10 +23,12 @@ import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,7 +40,6 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.analysis.AnalysisProperties;
-import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -74,7 +75,7 @@ public class ProjectReactorBuilderTest {
   public void shouldFailIfUnexistingSourceDirectory() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project' (base directory = "
-      + TestUtils.getResource(this.getClass(), "simple-project-with-unexisting-source-dir") + ")");
+      + getResource(this.getClass(), "simple-project-with-unexisting-source-dir") + ")");
 
     loadProjectDefinition("simple-project-with-unexisting-source-dir");
   }
@@ -133,9 +134,9 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(rootProject.getBaseDir().getCanonicalFile())
-      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"));
+      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root"));
     assertThat(rootProject.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar"));
+      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar"));
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
@@ -143,7 +144,7 @@ public class ProjectReactorBuilderTest {
 
     // Module 1
     ProjectDefinition module1 = modules.get(0);
-    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
+    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
     assertThat(module1.getKey()).isEqualTo("com.foo.project:module1");
     assertThat(module1.getName()).isEqualTo("module1");
     assertThat(module1.getVersion()).isEqualTo("1.0-SNAPSHOT");
@@ -157,13 +158,13 @@ public class ProjectReactorBuilderTest {
     assertThat(module1.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module1.getBaseDir().getCanonicalFile())
-      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
+      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root/module1"));
     assertThat(module1.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_module1"));
+      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_module1"));
 
     // Module 2
     ProjectDefinition module2 = modules.get(1);
-    assertThat(module2.getBaseDir().getCanonicalFile()).isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
+    assertThat(module2.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
     assertThat(module2.getKey()).isEqualTo("com.foo.project:com.foo.project.module2");
     assertThat(module2.getName()).isEqualTo("Foo Module 2");
     assertThat(module2.getVersion()).isEqualTo("1.0-SNAPSHOT");
@@ -176,9 +177,9 @@ public class ProjectReactorBuilderTest {
     assertThat(module2.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module2.getBaseDir().getCanonicalFile())
-      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
+      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-all-in-root/module2"));
     assertThat(module2.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_com.foo.project.module2"));
+      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-all-in-root"), ".sonar/com.foo.project_com.foo.project.module2"));
   }
 
   // SONAR-4876
@@ -216,19 +217,19 @@ public class ProjectReactorBuilderTest {
 
     // Module 1
     ProjectDefinition module1 = modules.get(0);
-    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(TestUtils.getResource(this.getClass(), "multi-language-definitions-all-in-root"));
+    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), "multi-language-definitions-all-in-root"));
     assertThat(module1.getSourceDirs()).contains("src/main/java");
     // and module properties must have been cleaned
     assertThat(module1.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-language-definitions-all-in-root"), ".sonar/example_java-module"));
+      .isEqualTo(new File(getResource(this.getClass(), "multi-language-definitions-all-in-root"), ".sonar/example_java-module"));
 
     // Module 2
     ProjectDefinition module2 = modules.get(1);
-    assertThat(module2.getBaseDir().getCanonicalFile()).isEqualTo(TestUtils.getResource(this.getClass(), "multi-language-definitions-all-in-root"));
+    assertThat(module2.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), "multi-language-definitions-all-in-root"));
     assertThat(module2.getSourceDirs()).contains("src/main/groovy");
     // and module properties must have been cleaned
     assertThat(module2.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-language-definitions-all-in-root"), ".sonar/example_groovy-module"));
+      .isEqualTo(new File(getResource(this.getClass(), "multi-language-definitions-all-in-root"), ".sonar/example_groovy-module"));
   }
 
   @Test
@@ -243,7 +244,7 @@ public class ProjectReactorBuilderTest {
   public void shouldFailIfUnexistingModuleBaseDir() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The base directory of the module 'module1' does not exist: "
-      + TestUtils.getResource(this.getClass(), "multi-module-with-unexisting-basedir").getAbsolutePath() + File.separator + "module1");
+      + getResource(this.getClass(), "multi-module-with-unexisting-basedir").getAbsolutePath() + File.separator + "module1");
 
     loadProjectDefinition("multi-module-with-unexisting-basedir");
   }
@@ -252,7 +253,7 @@ public class ProjectReactorBuilderTest {
   public void shouldFailIfUnexistingSourceFolderInheritedInMultimodule() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project:module1' (base directory = "
-      + TestUtils.getResource(this.getClass(), "multi-module-with-unexisting-source-dir").getAbsolutePath() + File.separator + "module1)");
+      + getResource(this.getClass(), "multi-module-with-unexisting-source-dir").getAbsolutePath() + File.separator + "module1)");
 
     loadProjectDefinition("multi-module-with-unexisting-source-dir");
   }
@@ -261,7 +262,7 @@ public class ProjectReactorBuilderTest {
   public void shouldFailIfExplicitUnexistingTestFolder() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'tests' does not exist for 'com.foo.project' (base directory = "
-      + TestUtils.getResource(this.getClass(), "simple-project-with-unexisting-test-dir").getAbsolutePath());
+      + getResource(this.getClass(), "simple-project-with-unexisting-test-dir").getAbsolutePath());
 
     loadProjectDefinition("simple-project-with-unexisting-test-dir");
   }
@@ -270,7 +271,7 @@ public class ProjectReactorBuilderTest {
   public void shouldFailIfExplicitUnexistingTestFolderOnModule() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'tests' does not exist for 'module1' (base directory = "
-      + TestUtils.getResource(this.getClass(), "multi-module-with-explicit-unexisting-test-dir").getAbsolutePath() + File.separator + "module1)");
+      + getResource(this.getClass(), "multi-module-with-explicit-unexisting-test-dir").getAbsolutePath() + File.separator + "module1)");
 
     loadProjectDefinition("multi-module-with-explicit-unexisting-test-dir");
   }
@@ -364,15 +365,15 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldGetRelativeFile() {
-    assertThat(ProjectReactorBuilder.resolvePath(TestUtils.getResource(this.getClass(), "/"), "shouldGetFile/foo.properties"))
-      .isEqualTo(TestUtils.getResource(this.getClass(), "shouldGetFile/foo.properties"));
+    assertThat(ProjectReactorBuilder.resolvePath(getResource(this.getClass(), "/"), "shouldGetFile/foo.properties"))
+      .isEqualTo(getResource(this.getClass(), "shouldGetFile/foo.properties"));
   }
 
   @Test
   public void shouldGetAbsoluteFile() {
-    File file = TestUtils.getResource(this.getClass(), "shouldGetFile/foo.properties");
+    File file = getResource(this.getClass(), "shouldGetFile/foo.properties");
 
-    assertThat(ProjectReactorBuilder.resolvePath(TestUtils.getResource(this.getClass(), "/"), file.getAbsolutePath()))
+    assertThat(ProjectReactorBuilder.resolvePath(getResource(this.getClass(), "/"), file.getAbsolutePath()))
       .isEqualTo(file);
   }
 
@@ -509,11 +510,11 @@ public class ProjectReactorBuilderTest {
 
   private Map<String, String> loadProps(String projectFolder) {
     Map<String, String> props = Maps.<String, String>newHashMap();
-    Properties runnerProps = toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
+    Properties runnerProps = toProperties(getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
     for (final String name : runnerProps.stringPropertyNames()) {
       props.put(name, runnerProps.getProperty(name));
     }
-    props.put("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
+    props.put("sonar.projectBaseDir", getResource(this.getClass(), projectFolder).getAbsolutePath());
     return props;
   }
 
@@ -575,9 +576,9 @@ public class ProjectReactorBuilderTest {
     assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(rootProject.getBaseDir().getCanonicalFile())
-      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"));
+      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-same-prefix"));
     assertThat(rootProject.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar"));
+      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar"));
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
@@ -585,7 +586,7 @@ public class ProjectReactorBuilderTest {
 
     // Module 1
     ProjectDefinition module1 = modules.get(0);
-    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1"));
+    assertThat(module1.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), "multi-module-definitions-same-prefix/module1"));
     assertThat(module1.getKey()).isEqualTo("com.foo.project:module1");
     assertThat(module1.getName()).isEqualTo("module1");
     assertThat(module1.getVersion()).isEqualTo("1.0-SNAPSHOT");
@@ -599,13 +600,13 @@ public class ProjectReactorBuilderTest {
     assertThat(module1.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module1.getBaseDir().getCanonicalFile())
-      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1"));
+      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-same-prefix/module1"));
     assertThat(module1.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_module1"));
+      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_module1"));
 
     // Module 1 Feature
     ProjectDefinition module1Feature = modules.get(1);
-    assertThat(module1Feature.getBaseDir().getCanonicalFile()).isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
+    assertThat(module1Feature.getBaseDir().getCanonicalFile()).isEqualTo(getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
     assertThat(module1Feature.getKey()).isEqualTo("com.foo.project:com.foo.project.module1.feature");
     assertThat(module1Feature.getName()).isEqualTo("Foo Module 1 Feature");
     assertThat(module1Feature.getVersion()).isEqualTo("1.0-SNAPSHOT");
@@ -618,9 +619,9 @@ public class ProjectReactorBuilderTest {
     assertThat(module1Feature.properties().get("module2.sonar.projectKey")).isNull();
     // Check baseDir and workDir
     assertThat(module1Feature.getBaseDir().getCanonicalFile())
-      .isEqualTo(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
+      .isEqualTo(getResource(this.getClass(), "multi-module-definitions-same-prefix/module1.feature"));
     assertThat(module1Feature.getWorkDir().getCanonicalFile())
-      .isEqualTo(new File(TestUtils.getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_com.foo.project.module1.feature"));
+      .isEqualTo(new File(getResource(this.getClass(), "multi-module-definitions-same-prefix"), ".sonar/com.foo.project_com.foo.project.module1.feature"));
   }
 
   @Test
@@ -635,7 +636,7 @@ public class ProjectReactorBuilderTest {
 
   private Map<String, String> loadPropsFromFile(String filePath) throws IOException {
     Properties props = new Properties();
-    try (FileInputStream fileInputStream = new FileInputStream(TestUtils.getResource(this.getClass(), filePath))) {
+    try (FileInputStream fileInputStream = new FileInputStream(getResource(this.getClass(), filePath))) {
       props.load(fileInputStream);
     }
     Map<String, String> result = new HashMap<>();
@@ -643,6 +644,39 @@ public class ProjectReactorBuilderTest {
       result.put(entry.getKey().toString(), entry.getValue().toString());
     }
     return result;
+  }
+
+  /**
+   * Search for a test resource in the classpath. For example getResource("org/sonar/MyClass/foo.txt");
+   *
+   * @param path the starting slash is optional
+   * @return the resource. Null if resource not found
+   */
+  public static File getResource(String path) {
+    String resourcePath = path;
+    if (!resourcePath.startsWith("/")) {
+      resourcePath = "/" + resourcePath;
+    }
+    URL url = ProjectReactorBuilderTest.class.getResource(resourcePath);
+    if (url != null) {
+      return FileUtils.toFile(url);
+    }
+    return null;
+  }
+
+  /**
+   * Search for a resource in the classpath. For example calling the method getResource(getClass(), "myTestName/foo.txt") from
+   * the class org.sonar.Foo loads the file $basedir/src/test/resources/org/sonar/Foo/myTestName/foo.txt
+   *
+   * @return the resource. Null if resource not found
+   */
+  public static File getResource(Class baseClass, String path) {
+    String resourcePath = StringUtils.replaceChars(baseClass.getCanonicalName(), '.', '/');
+    if (!path.startsWith("/")) {
+      resourcePath += "/";
+    }
+    resourcePath += path;
+    return getResource(resourcePath);
   }
 
 }

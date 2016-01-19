@@ -19,10 +19,7 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
 import com.google.common.collect.Lists;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -30,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.TimeZone;
-
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -48,10 +45,12 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.test.JsonAssert;
+
+import static net.javacrumbs.jsonunit.assertj.JsonAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -126,7 +125,7 @@ public class JSONReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JsonAssert.assertJson(writer.toString()).isSimilarTo(this.getClass().getResource(this.getClass().getSimpleName() + "/report.json"));
+    assertThatJson(writer.toString()).isEqualTo(IOUtils.toString(this.getClass().getResource(this.getClass().getSimpleName() + "/report.json")));
   }
 
   @Test
@@ -145,17 +144,7 @@ public class JSONReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JsonAssert.assertJson(writer.toString()).isSimilarTo(this.getClass().getResource(this.getClass().getSimpleName() + "/report-without-resolved-issues.json"));
-  }
-
-  @Test
-  public void should_ignore_components_without_issue() {
-    when(issueCache.all()).thenReturn(Collections.<TrackedIssue>emptyList());
-
-    StringWriter writer = new StringWriter();
-    jsonReport.writeJson(writer);
-
-    JsonAssert.assertJson(writer.toString()).isSimilarTo("{\"version\":\"3.6\"}");
+    assertThatJson(writer.toString()).isEqualTo(IOUtils.toString(this.getClass().getResource(this.getClass().getSimpleName() + "/report-without-resolved-issues.json")));
   }
 
   @Test

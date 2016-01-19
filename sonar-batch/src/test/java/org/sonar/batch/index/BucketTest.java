@@ -24,12 +24,9 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNot.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 
 public class BucketTest {
 
@@ -43,9 +40,8 @@ public class BucketTest {
     Bucket fileBucket = new Bucket(javaFile);
     fileBucket.setParent(packageBucket);
 
-    assertThat(fileBucket.getParent(), is(packageBucket));
-    assertThat(packageBucket.getChildren().size(), is(1));
-    assertThat(packageBucket.getChildren(), hasItem(fileBucket));
+    assertThat(fileBucket.getParent()).isEqualTo(packageBucket);
+    assertThat(packageBucket.getChildren()).containsExactly(fileBucket);
   }
 
   @Test
@@ -57,6 +53,6 @@ public class BucketTest {
   @Test
   public void shouldNotBeEquals() {
     assertFalse(new Bucket(directory).equals(new Bucket(javaFile)));
-    assertThat(new Bucket(directory).hashCode(), not(is(new Bucket(javaFile).hashCode())));
+    assertThat(new Bucket(directory).hashCode()).isNotEqualTo(new Bucket(javaFile).hashCode());
   }
 }

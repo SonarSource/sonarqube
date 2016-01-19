@@ -19,32 +19,32 @@
  */
 package org.sonar.batch.protocol.input;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.sonar.test.JsonAssert;
 
+import static net.javacrumbs.jsonunit.assertj.JsonAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GlobalRepositoriesTest {
 
   @Test
-  public void to_json() {
+  public void to_json() throws Exception {
     GlobalRepositories ref = new GlobalRepositories();
     ref.addMetric(new Metric(1, "ncloc", "INT", "Description", -1, "NCLOC", true, false, 2.0, 1.0, true));
     ref.addGlobalSetting("prop", "value");
     ref.setTimestamp(10);
 
-    JsonAssert
-      .assertJson(ref.toJson())
-      .isSimilarTo(getClass().getResource("GlobalRepositoriesTest/expected.json"));
+    assertThatJson(ref.toJson())
+      .isEqualTo(IOUtils.toString(getClass().getResource("GlobalRepositoriesTest/expected.json")));
   }
 
   @Test
   public void from_json() {
     GlobalRepositories ref = GlobalRepositories
       .fromJson(
-      "{timestamp:1,"
-        + "metrics:[{id:1,key:ncloc,valueType:DATA,description:Description,direction:-1,name:NCLOC,qualitative:true,userManaged:false,worstValue:2.0,bestValue:1.0,optimizedBestValue:true}],"
-        + "globalSettings:{prop:value}}");
+        "{timestamp:1,"
+          + "metrics:[{id:1,key:ncloc,valueType:DATA,description:Description,direction:-1,name:NCLOC,qualitative:true,userManaged:false,worstValue:2.0,bestValue:1.0,optimizedBestValue:true}],"
+          + "globalSettings:{prop:value}}");
 
     assertThat(ref.timestamp()).isEqualTo(1);
     Metric metric = ref.metrics().iterator().next();

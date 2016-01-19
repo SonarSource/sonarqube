@@ -22,7 +22,6 @@ package org.sonar.batch.cache;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,7 +32,6 @@ import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.MockWsResponse;
-import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -188,7 +186,7 @@ public class WSLoaderTest {
     turnServerOffline();
 
     exception.expect(IllegalStateException.class);
-    exception.expectMessage(Matchers.containsString("Server is not available"));
+    exception.expectMessage("Server is not available");
 
     WSLoader loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, ws);
     loader.loadString(ID);
@@ -200,7 +198,7 @@ public class WSLoaderTest {
     turnCacheEmpty();
 
     exception.expect(IllegalStateException.class);
-    exception.expectMessage(Matchers.is("Server is not accessible and data is not cached"));
+    exception.expectMessage("Server is not accessible and data is not cached");
 
     WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, ws);
     loader.loadString(ID);
@@ -211,7 +209,7 @@ public class WSLoaderTest {
     turnCacheEmpty();
 
     exception.expect(IllegalStateException.class);
-    exception.expectMessage(Matchers.is("Data is not cached"));
+    exception.expectMessage("Data is not cached");
 
     WSLoader loader = new WSLoader(LoadStrategy.CACHE_ONLY, cache, ws);
     loader.loadString(ID);

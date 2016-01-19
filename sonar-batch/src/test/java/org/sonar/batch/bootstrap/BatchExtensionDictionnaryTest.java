@@ -20,6 +20,9 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.BuildBreaker;
@@ -38,14 +41,8 @@ import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.SensorOptimizer;
 import org.sonar.core.platform.ComponentContainer;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class BatchExtensionDictionnaryTest {
@@ -72,7 +69,7 @@ public class BatchExtensionDictionnaryTest {
       }
     });
 
-    assertThat(sensors, hasItem(sensor1));
+    assertThat(sensors).contains(sensor1);
     assertEquals(1, sensors.size());
   }
 

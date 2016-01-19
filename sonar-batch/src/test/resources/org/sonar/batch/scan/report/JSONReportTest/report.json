@@ -4,6 +4,7 @@
     {
       "key": "200",
       "component": "struts:src/main/java/org/apache/struts/Action.java",
+      "line": 1,
       "startLine": 1,
       "startOffset": 3,
       "endLine": 2,
@@ -15,7 +16,7 @@
       "isNew": false,
       "assignee": "simon",
       "effortToFix": 3.14,
-      "creationDate": "2013-04-24T00:00:00+0200"
+      "creationDate": "${json-unit.ignore}"
     }
   ],
   "components": [

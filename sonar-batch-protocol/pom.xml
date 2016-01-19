@@ -47,8 +47,24 @@
 
     <!-- unit tests -->
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-testing-harness</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.javacrumbs.json-unit</groupId>
+      <artifactId>json-unit-assertj</artifactId>
+      <version>0.0.15</version>
       <scope>test</scope>
     </dependency>
     <dependency>
