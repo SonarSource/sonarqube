@@ -40,6 +40,8 @@ public class UserDto {
   private String email;
   private boolean active = true;
   private String scmAccounts;
+  private String externalIdentity;
+  private String externalIdentityProvider;
   private String cryptedPassword;
   private String salt;
   private Long createdAt;
@@ -127,6 +129,24 @@ public class UserDto {
     } else {
       return Lists.newArrayList(Splitter.on(SCM_ACCOUNTS_SEPARATOR).omitEmptyStrings().split(dbValue));
     }
+  }
+
+  public String getExternalIdentity() {
+    return externalIdentity;
+  }
+
+  public UserDto setExternalIdentity(String authorithy) {
+    this.externalIdentity = authorithy;
+    return this;
+  }
+
+  public String getExternalIdentityProvider() {
+    return externalIdentityProvider;
+  }
+
+  public UserDto setExternalIdentityProvider(String externalIdentityProvider) {
+    this.externalIdentityProvider = externalIdentityProvider;
+    return this;
   }
 
   public String getCryptedPassword() {

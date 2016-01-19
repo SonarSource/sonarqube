@@ -33,9 +33,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -43,8 +45,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -154,11 +154,7 @@ public class CreateActionTest {
   public void reactivate_user() throws Exception {
     userSessionRule.login("admin").setLocale(Locale.FRENCH).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    dbClient.userDao().insert(session, new UserDto()
-      .setEmail("john@email.com")
-      .setLogin("john")
-      .setName("John")
-      .setActive(true));
+    dbClient.userDao().insert(session, UserTesting.newUserDto("john", "John", "john@email.com"));
     session.commit();
     dbClient.userDao().deactivateUserByLogin(session, "john");
     userIndexer.index();

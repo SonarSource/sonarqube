@@ -12,6 +12,8 @@
     u.scm_accounts as "scmAccounts",
     u.salt as "salt",
     u.crypted_password as "cryptedPassword",
+    u.external_identity as "externalIdentity",
+    u.external_identity_provider as "externalIdentityProvider",
     u.created_at as "createdAt",
     u.updated_at as "updatedAt"
   </sql>
@@ -87,6 +89,15 @@
     ORDER BY u.name
   </select>
 
+  <select id="selectByIdentity" parameterType="map" resultType="User">
+    SELECT <include refid="userColumns"/>
+    FROM users u
+    <where>
+      u.external_identity=#{extIdentity}
+      AND u.external_identity_provider=#{extIdentityProvider}
+    </where>
+  </select>
+
   <select id="selectGroupByName" parameterType="string" resultType="Group">
     SELECT id, name, description, created_at AS "createdAt", updated_at AS "updatedAt"
     FROM groups WHERE name=#{id}
@@ -133,9 +144,9 @@
   </update>
 
   <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO users (login, name, email, active, scm_accounts, salt, crypted_password, created_at, updated_at)
+    INSERT INTO users (login, name, email, active, scm_accounts, external_identity, external_identity_provider, salt, crypted_password, created_at, updated_at)
     VALUES (#{login,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{active,jdbcType=BOOLEAN},
-    #{scmAccounts,jdbcType=VARCHAR},
+    #{scmAccounts,jdbcType=VARCHAR}, #{externalIdentity,jdbcType=VARCHAR}, #{externalIdentityProvider,jdbcType=VARCHAR},
     #{salt,jdbcType=VARCHAR}, #{cryptedPassword,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT})
   </insert>

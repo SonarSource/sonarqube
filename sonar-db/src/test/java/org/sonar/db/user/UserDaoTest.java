@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -35,12 +36,16 @@ import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
 public class UserDaoTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   System2 system2 = mock(System2.class);
 
@@ -160,6 +165,8 @@ public class UserDaoTest {
       .setActive(true)
       .setSalt("1234")
       .setCryptedPassword("abcd")
+      .setExternalIdentity("johngithub")
+      .setExternalIdentityProvider("github")
       .setCreatedAt(date)
       .setUpdatedAt(date);
     underTest.insert(db.getSession(), userDto);
@@ -175,6 +182,8 @@ public class UserDaoTest {
     assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,");
     assertThat(user.getSalt()).isEqualTo("1234");
     assertThat(user.getCryptedPassword()).isEqualTo("abcd");
+    assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
+    assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.getCreatedAt()).isEqualTo(date);
     assertThat(user.getUpdatedAt()).isEqualTo(date);
   }
@@ -313,5 +322,24 @@ public class UserDaoTest {
     assertThat(underTest.selectByLogin(session, "marius")).isNotNull();
 
     assertThat(underTest.selectByLogin(session, "unknown")).isNull();
+  }
+
+  @Test
+  public void select_user_by_external_identity() {
+    db.prepareDbUnit(getClass(), "select_users_by_ext_identity.xml");
+
+    assertThat(underTest.selectByExternalIdentity(session, "mariusgithub", "github")).isPresent();
+    assertThat(underTest.selectByExternalIdentity(session, "mariusgithub", "google")).isAbsent();
+    assertThat(underTest.selectByExternalIdentity(session, "unknown", "unknown")).isAbsent();
+  }
+
+  @Test
+  public void select_or_fail_by_external_identity() throws Exception {
+    db.prepareDbUnit(getClass(), "select_users_by_ext_identity.xml");
+    assertThat(underTest.selectOrFailByExternalIdentity(session, "mariusgithub", "github")).isNotNull();
+
+    thrown.expect(RowNotFoundException.class);
+    thrown.expectMessage("User with identity provider 'unknown' and id 'unknown' has not been found");
+    underTest.selectOrFailByExternalIdentity(session, "unknown", "unknown");
   }
 }
