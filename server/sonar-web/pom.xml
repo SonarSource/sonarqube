@@ -18,14 +18,6 @@
     <npm.script>build</npm.script>
   </properties>
   
-  <dependencies>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-colorizer</artifactId>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
-
   <build>
     <resources>
       <resource>
