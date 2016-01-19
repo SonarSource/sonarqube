@@ -70,4 +70,11 @@ class SessionsController < ApplicationController
     end
   end
 
+  def unauthorized
+    flash[:error] = session['error']
+    session['error'] = nil
+    params[:layout]='false'
+    render :action => 'unauthorized'
+  end
+
 end

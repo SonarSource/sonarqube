@@ -133,18 +133,22 @@ public class UserUpdater {
   public void update(UpdateUser updateUser) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
-      if (user == null) {
-        throw new NotFoundException(String.format("User with login '%s' has not been found", updateUser.login()));
-      }
-      updateUserDto(dbSession, updateUser, user);
-      updateUser(dbSession, user);
-      dbSession.commit();
-      notifyNewUser(user.getLogin(), user.getName(), user.getEmail());
-      userIndexer.index();
+      update(dbSession, updateUser);
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  public void update(DbSession dbSession, UpdateUser updateUser) {
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
+    if (user == null) {
+      throw new NotFoundException(String.format("User with login '%s' has not been found", updateUser.login()));
+    }
+    updateUserDto(dbSession, updateUser, user);
+    updateUser(dbSession, user);
+    dbSession.commit();
+    notifyNewUser(user.getLogin(), user.getName(), user.getEmail());
+    userIndexer.index();
   }
 
   public void deactivateUserByLogin(String login) {
@@ -297,7 +301,7 @@ public class UserUpdater {
   }
 
   private void validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
-                                   List<Message> messages) {
+    List<Message> messages) {
     for (String scmAccount : scmAccounts) {
       if (scmAccount.equals(login) || scmAccount.equals(email)) {
         messages.add(Message.of("user.login_or_email_used_as_scm_account"));

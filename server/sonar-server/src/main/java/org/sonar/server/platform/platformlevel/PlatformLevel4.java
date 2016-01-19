@@ -48,7 +48,7 @@ import org.sonar.server.activity.index.ActivityIndexDefinition;
 import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.activity.ws.ActivitiesWs;
 import org.sonar.server.activity.ws.ActivityMapping;
-import org.sonar.server.authentication.ws.AuthenticationWs;
+import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.charts.DistributionAreaChart;
@@ -521,7 +521,7 @@ public class PlatformLevel4 extends PlatformLevel {
       L10nWs.class,
 
       // authentication
-      AuthenticationWs.class,
+      AuthenticationModule.class,
 
       // users
       SecurityRealmFactory.class,

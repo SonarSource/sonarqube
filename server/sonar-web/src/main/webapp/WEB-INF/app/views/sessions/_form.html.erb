@@ -33,10 +33,28 @@
     <label for="remember_me"><%= message('sessions.remember_me') -%></label>
   </p>
 
-  <p class="text-right">
-    <button name="commit"><%= message('sessions.log_in') -%></button>
-    <a class="spacer-left" href="<%= home_path -%>"><%= message('cancel') -%></a>
-  </p>
+  <div>
+    <div class="pull-left">
+      <% auth_providers = Api::Utils.java_facade.getIdentityProviders().to_a %>
+      <ul class="list-inline">
+        <% auth_providers.each do |provider| %>
+          <li>
+            <a class="oauth-link"
+               href="<%= ApplicationController.root_context -%>/sessions/init/<%= provider.getKey().to_s %>"
+               title="Login with <%= provider.getName().to_s -%>">
+              <img alt="<%= provider.getName().to_s -%>" width="24" height="24"
+                   src="<%= ApplicationController.root_context + provider.getIconPath().to_s -%>">
+            </a>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="text-right overflow-hidden">
+      <button name="commit"><%= message('sessions.log_in') -%></button>
+      <a class="spacer-left" href="<%= home_path -%>"><%= message('cancel') -%></a>
+    </div>
+  </div>
+
 </form>
 
 <script>

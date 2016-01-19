@@ -19,13 +19,11 @@
  */
 package org.sonar.api.platform;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.2
@@ -46,6 +44,28 @@ public abstract class Server {
   public abstract File getDeployDir();
 
   public abstract String getContextPath();
+
+  /**
+   * Return the public root url, for instance : https://nemo.sonarqube.org.
+   * Default value is {@link org.sonar.api.CoreProperties#SERVER_BASE_URL_DEFAULT_VALUE}
+   *
+   * @since 5.4
+   */
+  public abstract String getPublicRootUrl();
+
+  /**
+   * The dev mode is enabled when the property sonar.web.dev is true.
+   *
+   * @since 5.4
+   */
+  public abstract boolean isDev();
+
+  /**
+   * Return whether or not the {#getPublicRootUrl} is started with https.
+   *
+   * @since 5.4
+   */
+  public abstract boolean isSecured();
 
   /**
    * @return the server URL when executed from batch, else null.

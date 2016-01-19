@@ -118,11 +118,8 @@ public class AuthenticationTest {
     assertThat(searchResponse.getUserTokensCount()).isEqualTo(0);
   }
 
-  /**
-   * This is currently a limitation of Ruby on Rails stack.
-   */
   @Test
-  public void basic_authentication_does_not_support_utf8_passwords() {
+  public void basic_authentication_with_utf8_passwords() {
     String userId = UUID.randomUUID().toString();
     String login = format("login-%s", userId);
     // see http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
@@ -134,7 +131,7 @@ public class AuthenticationTest {
     // authenticate
     WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
     WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
-    assertThat(response.content()).isEqualTo("{\"valid\":false}");
+    assertThat(response.content()).isEqualTo("{\"valid\":true}");
   }
 
   @Test
