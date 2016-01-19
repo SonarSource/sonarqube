@@ -20,11 +20,15 @@
 package org.sonarqube.ws.client.usertoken;
 
 import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
+import org.sonarqube.ws.WsUserTokens.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_GENERATE;
+import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_REVOKE;
+import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
@@ -42,4 +46,18 @@ public class UserTokensService extends BaseService {
         .setParam(PARAM_NAME, request.getName()),
       GenerateWsResponse.parser());
   }
+
+  public SearchWsResponse search(SearchWsRequest request) {
+    return call(
+      new GetRequest(path(ACTION_SEARCH)).setParam(PARAM_LOGIN, request.getLogin()),
+      SearchWsResponse.parser());
+  }
+
+  public void revoke(RevokeWsRequest request) {
+    call(
+      new PostRequest(path(ACTION_REVOKE))
+        .setParam(PARAM_LOGIN, request.getLogin())
+        .setParam(PARAM_NAME, request.getName()));
+  }
+
 }

@@ -41,6 +41,8 @@ import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
+import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
+import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 
 import static java.lang.String.format;
@@ -97,9 +99,10 @@ public class AuthenticationTest {
 
   @Test
   public void basic_authentication_based_on_token() {
+    String tokenName = "Validate token based authentication";
     WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
       .setLogin(LOGIN)
-      .setName("Validate token based authentication"));
+      .setName(tokenName));
     WsClient wsClient = new HttpWsClient(new HttpConnector.Builder()
       .url(ORCHESTRATOR.getServer().getUrl())
       .token(generateWsResponse.getToken()).build());
@@ -107,6 +110,12 @@ public class AuthenticationTest {
     WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
 
     assertThat(response.content()).isEqualTo("{\"valid\":true}");
+
+    WsUserTokens.SearchWsResponse searchResponse = userTokensWsClient.search(new SearchWsRequest().setLogin(LOGIN));
+    assertThat(searchResponse.getUserTokensCount()).isEqualTo(1);
+    userTokensWsClient.revoke(new RevokeWsRequest().setLogin(LOGIN).setName(tokenName));
+    searchResponse = userTokensWsClient.search(new SearchWsRequest().setLogin(LOGIN));
+    assertThat(searchResponse.getUserTokensCount()).isEqualTo(0);
   }
 
   /**
@@ -136,9 +145,10 @@ public class AuthenticationTest {
 
   @Test
   public void run_analysis_with_token_authentication() {
+    String tokenName = "Analyze Project";
     WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
       .setLogin(LOGIN)
-      .setName("Analyze Project"));
+      .setName(tokenName));
     SonarRunner sampleProject = SonarRunner.create(projectDir("shared/xoo-sample"));
     sampleProject.setProperties(
       "sonar.login", generateWsResponse.getToken(),
@@ -147,6 +157,7 @@ public class AuthenticationTest {
     BuildResult buildResult = ORCHESTRATOR.executeBuild(sampleProject);
 
     assertThat(buildResult.isSuccess()).isTrue();
+    userTokensWsClient.revoke(new RevokeWsRequest().setLogin(LOGIN).setName(tokenName));
   }
 
   @Test
