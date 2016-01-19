@@ -19,12 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 public class ExtensionUtils {
 
@@ -42,24 +39,6 @@ public class ExtensionUtils {
 
   public static boolean isBatchSide(Object extension) {
     return AnnotationUtils.getAnnotation(extension, BatchSide.class) != null;
-  }
-
-  public static boolean supportsEnvironment(Object extension, EnvironmentInformation environment) {
-    SupportedEnvironment env = AnnotationUtils.getAnnotation(extension, SupportedEnvironment.class);
-    if (env == null) {
-      return true;
-    }
-    for (String supported : env.value()) {
-      if (StringUtils.equalsIgnoreCase(environment.getKey(), supported)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public static boolean isMavenExtensionOnly(Object extension) {
-    SupportedEnvironment env = AnnotationUtils.getAnnotation(extension, SupportedEnvironment.class);
-    return env != null && env.value().length == 1 && StringUtils.equalsIgnoreCase("maven", env.value()[0]);
   }
 
   public static boolean isType(Object extension, Class<?> extensionClass) {

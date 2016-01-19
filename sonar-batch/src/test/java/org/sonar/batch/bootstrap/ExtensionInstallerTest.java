@@ -27,8 +27,6 @@ import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 
@@ -60,7 +58,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(Foo.class, Bar.class));
 
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository);
     installer.install(container, new FooMatcher());
 
     assertThat(container.getComponentByType(Foo.class)).isNotNull();
@@ -72,7 +70,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooProvider(), new BarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository);
 
     installer.install(container, new FooMatcher());
 
@@ -85,25 +83,10 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooBarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository);
 
     installer.install(container, new TrueMatcher());
 
-    assertThat(container.getComponentByType(Foo.class)).isNotNull();
-    assertThat(container.getComponentByType(Bar.class)).isNotNull();
-  }
-
-  @Test
-  public void should_not_install_on_unsupported_environment() {
-    when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
-    when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(Foo.class, MavenExtension.class, AntExtension.class, new BarProvider()));
-    ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
-
-    installer.install(container, new TrueMatcher());
-
-    assertThat(container.getComponentByType(MavenExtension.class)).isNull();
-    assertThat(container.getComponentByType(AntExtension.class)).isNotNull();
     assertThat(container.getComponentByType(Foo.class)).isNotNull();
     assertThat(container.getComponentByType(Bar.class)).isNotNull();
   }
@@ -125,16 +108,6 @@ public class ExtensionInstallerTest {
   }
 
   public static class Bar implements BatchExtension {
-
-  }
-
-  @SupportedEnvironment("maven")
-  public static class MavenExtension implements BatchExtension {
-
-  }
-
-  @SupportedEnvironment("ant")
-  public static class AntExtension implements BatchExtension {
 
   }
 

@@ -23,9 +23,7 @@ import org.junit.Test;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.server.ServerSide;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,25 +59,6 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.isBatchSide(new ServerService())).isFalse();
   }
 
-  @Test
-  public void shouldCheckEnvironment() {
-    assertThat(ExtensionUtils.supportsEnvironment(new MavenService(), new EnvironmentInformation("maven", "2.2.1"))).isTrue();
-    assertThat(ExtensionUtils.supportsEnvironment(new BuildToolService(), new EnvironmentInformation("maven", "2.2.1"))).isTrue();
-    assertThat(ExtensionUtils.supportsEnvironment(new DefaultService(), new EnvironmentInformation("maven", "2.2.1"))).isTrue();
-
-    assertThat(ExtensionUtils.supportsEnvironment(new BuildToolService(), new EnvironmentInformation("eclipse", "0.1"))).isFalse();
-  }
-
-  @Test
-  public void shouldBeMavenExtensionOnly() {
-    assertThat(ExtensionUtils.isMavenExtensionOnly(DefaultService.class)).isFalse();
-    assertThat(ExtensionUtils.isMavenExtensionOnly(new DefaultService())).isFalse();
-    assertThat(ExtensionUtils.isMavenExtensionOnly(MavenService.class)).isTrue();
-    assertThat(ExtensionUtils.isMavenExtensionOnly(new MavenService())).isTrue();
-    assertThat(ExtensionUtils.isMavenExtensionOnly(BuildToolService.class)).isFalse();
-    assertThat(ExtensionUtils.isMavenExtensionOnly(new BuildToolService())).isFalse();
-  }
-
   @BatchSide
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchService {
@@ -106,15 +85,4 @@ public class ExtensionUtilsTest {
 
   }
 
-  @BatchSide
-  @SupportedEnvironment("maven")
-  public static class MavenService {
-
-  }
-
-  @BatchSide
-  @SupportedEnvironment({"maven", "ant", "gradle"})
-  public static class BuildToolService {
-
-  }
 }

@@ -23,7 +23,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.SonarPlugin;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -31,11 +30,9 @@ import org.sonar.core.platform.PluginRepository;
 public class ExtensionInstaller {
 
   private final PluginRepository pluginRepository;
-  private final EnvironmentInformation env;
 
-  public ExtensionInstaller(PluginRepository pluginRepository, EnvironmentInformation env) {
+  public ExtensionInstaller(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
-    this.env = env;
   }
 
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
@@ -66,9 +63,8 @@ public class ExtensionInstaller {
     return this;
   }
 
-  private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginInfo pluginInfo, Object extension) {
-    if (ExtensionUtils.supportsEnvironment(extension, env)
-      && matcher.accept(extension)) {
+  private static void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginInfo pluginInfo, Object extension) {
+    if (matcher.accept(extension)) {
       container.addExtension(pluginInfo, extension);
     } else {
       container.declareExtension(pluginInfo, extension);
