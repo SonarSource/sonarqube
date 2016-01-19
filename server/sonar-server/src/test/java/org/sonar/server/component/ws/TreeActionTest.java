@@ -259,12 +259,12 @@ public class TreeActionTest {
     WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("project-uuid-1-copy", "sub-view-uuid");
+    assertThat(response.getComponentsList()).extracting("refId").containsExactly("project-uuid-1", "");
   }
 
   @Test
   public void empty_response_for_provisioned_project() throws IOException {
     componentDb.insertComponent(newProjectDto("project-uuid"));
-    db.commit();
 
     InputStream responseStream = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -272,6 +272,7 @@ public class TreeActionTest {
       .execute().getInputStream();
     WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
 
+    assertThat(response.getBaseComponent().getId()).isEqualTo("project-uuid");
     assertThat(response.getComponentsList()).isEmpty();
     assertThat(response.getPaging().getTotal()).isEqualTo(0);
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
@@ -353,7 +354,9 @@ public class TreeActionTest {
   }
 
   private ComponentDto initJsonExampleComponents() throws IOException {
-    ComponentDto project = newProjectDto("AVHE6JiwEplJjXTo0Rza");
+    ComponentDto project = newProjectDto("MY_PROJECT_ID")
+      .setKey("MY_PROJECT_KEY")
+      .setName("Project Name");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     Date now = new Date();
     JsonParser jsonParser = new JsonParser();
@@ -362,15 +365,15 @@ public class TreeActionTest {
     for (JsonElement componentAsJsonElement : components) {
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
       componentDb.insertComponentAndSnapshot(new ComponentDto()
-          .setUuid(getJsonField(componentAsJsonObject, "id"))
-          .setKey(getJsonField(componentAsJsonObject, "key"))
-          .setName(getJsonField(componentAsJsonObject, "name"))
-          .setPath(getJsonField(componentAsJsonObject, "path"))
-          .setProjectUuid(project.projectUuid())
-          .setQualifier(getJsonField(componentAsJsonObject, "qualifier"))
-          .setDescription(getJsonField(componentAsJsonObject, "description"))
-          .setEnabled(true)
-          .setCreatedAt(now),
+        .setUuid(getJsonField(componentAsJsonObject, "id"))
+        .setKey(getJsonField(componentAsJsonObject, "key"))
+        .setName(getJsonField(componentAsJsonObject, "name"))
+        .setPath(getJsonField(componentAsJsonObject, "path"))
+        .setProjectUuid(project.projectUuid())
+        .setQualifier(getJsonField(componentAsJsonObject, "qualifier"))
+        .setDescription(getJsonField(componentAsJsonObject, "description"))
+        .setEnabled(true)
+        .setCreatedAt(now),
         projectSnapshot);
     }
     db.commit();

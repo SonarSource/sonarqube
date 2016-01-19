@@ -4,6 +4,12 @@
     "pageSize": 100,
     "total": 3
   },
+  "baseComponent": {
+    "id": "MY_PROJECT_ID",
+    "key": "MY_PROJECT_KEY",
+    "name": "Project Name",
+    "qualifier": "TRK"
+  },
   "components": [
     {
       "id": "AVHE6Jo2EplJjXTo0Rzw",

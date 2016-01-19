@@ -19,10 +19,16 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSortedSet;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
@@ -45,8 +51,9 @@ import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 
 import static com.google.common.base.Objects.firstNonNull;
-import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -89,40 +96,46 @@ public class TreeAction implements ComponentsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_TREE)
       .setDescription(format("Navigate through components based on the chosen strategy. The %s or the %s parameter must be provided.<br>" +
-          "Requires one of the following permissions:" +
-          "<ul>" +
-          "<li>'Administer System'</li>" +
-          "<li>'Administer' rights on the specified project</li>" +
-          "<li>'Browse' on the specified project</li>" +
-          "</ul>" +
-          "When limiting search with the %s parameter, directories are not returned.",
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified project</li>" +
+        "<li>'Browse' on the specified project</li>" +
+        "</ul>" +
+        "When limiting search with the %s parameter, directories are not returned.",
         PARAM_BASE_COMPONENT_ID, PARAM_BASE_COMPONENT_KEY, Param.TEXT_QUERY))
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setHandler(this)
-      .addSearchQuery("sonar", "component names", "component keys")
       .addPagingParams(100, MAX_SIZE);
 
-    action.createSortParams(newHashSet(SORTS), NAME_SORT, true)
-      .setDescription("Comma-separated list of sort fields")
-      .setExampleValue(NAME_SORT + ", " + PATH_SORT);
-
     action.createParam(PARAM_BASE_COMPONENT_ID)
-      .setDescription("Base component id. The search is based on this component. It is not included in the response.")
+      .setDescription("Base component id. The search is based on this component.")
       .setExampleValue(UUID_EXAMPLE_02);
 
     action.createParam(PARAM_BASE_COMPONENT_KEY)
-      .setDescription("Base component key.The search is based on this component. It is not included in the response.")
+      .setDescription("Base component key.The search is based on this component.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
+    action.createSortParams(SORTS, NAME_SORT, true)
+      .setDescription("Comma-separated list of sort fields")
+      .setExampleValue(NAME_SORT + ", " + PATH_SORT);
+
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("Limit search to: <ul>" +
+        "<li>component names that contain the supplied string</li>" +
+        "<li>component keys that are exactly the same as the supplied string</li>" +
+        "</ul>")
+      .setExampleValue("FILE_NAM");
 
     createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes));
 
     action.createParam(PARAM_STRATEGY)
-      .setDescription("Strategy to search for base component children:" +
+      .setDescription("Strategy to search for base component descendants:" +
         "<ul>" +
-        "<li>children: return the direct children components of the base component. Grandchildren components are not returned</li>" +
-        "<li>all: return all the children components of the base component. Grandchildren are returned.</li>" +
-        "<li>leaves: return all the children components (files, in general) which don't have other children. They are the leaves of the component tree.</li>" +
+        "<li>children: return the children components of the base component. Grandchildren components are not returned</li>" +
+        "<li>all: return all the descendants components of the base component. Grandchildren are returned. Base component is not returned.</li>" +
+        "<li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li>" +
         "</ul>")
       .setPossibleValues(STRATEGIES)
       .setDefaultValue(ALL_STRATEGY);
@@ -141,7 +154,7 @@ public class TreeAction implements ComponentsWsAction {
       checkPermissions(baseComponent);
       SnapshotDto baseSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, baseComponent.getId());
       if (baseSnapshot == null) {
-        return emptyResponse(treeWsRequest);
+        return emptyResponse(baseComponent, treeWsRequest);
       }
 
       ComponentTreeQuery query = toComponentTreeQuery(treeWsRequest, baseSnapshot);
@@ -160,12 +173,31 @@ public class TreeAction implements ComponentsWsAction {
         default:
           throw new IllegalStateException("Unknown component tree strategy");
       }
+      Map<Long, String> referenceComponentUuidsById = searchReferenceComponentUuidsById(dbSession, components);
 
-      return buildResponse(components,
+      return buildResponse(baseComponent, components, referenceComponentUuidsById,
         Paging.forPageIndex(query.getPage()).withPageSize(query.getPageSize()).andTotal(total));
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private Map<Long, String> searchReferenceComponentUuidsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
+    List<Long> referenceComponentIds = from(components)
+      .transform(ComponentDtoWithSnapshotIdToCopyResourceIdFunction.INSTANCE)
+      .filter(Predicates.<Long>notNull())
+      .toList();
+    if (referenceComponentIds.isEmpty()) {
+      return emptyMap();
+    }
+
+    List<ComponentDto> referenceComponents = dbClient.componentDao().selectByIds(dbSession, referenceComponentIds);
+    Map<Long, String> referenceComponentUuidsById = new HashMap<>();
+    for (ComponentDto referenceComponent : referenceComponents) {
+      referenceComponentUuidsById.put(referenceComponent.getId(), referenceComponent.uuid());
+    }
+
+    return referenceComponentUuidsById;
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
@@ -177,7 +209,8 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private static TreeWsResponse buildResponse(List<ComponentDtoWithSnapshotId> components, Paging paging) {
+  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDtoWithSnapshotId> components, Map<Long, String> referenceComponentUuidsById,
+    Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -185,14 +218,15 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(paging.total())
       .build();
 
+    response.setBaseComponent(componentDtoToWsComponent(baseComponent, referenceComponentUuidsById));
     for (ComponentDto dto : components) {
-      response.addComponents(componentDtoToWsComponent(dto));
+      response.addComponents(componentDtoToWsComponent(dto, referenceComponentUuidsById));
     }
 
     return response.build();
   }
 
-  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto) {
+  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, Map<Long, String> referenceComponentUuidsById) {
     WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
       .setId(dto.uuid())
       .setKey(dto.key())
@@ -204,16 +238,20 @@ public class TreeAction implements ComponentsWsAction {
     if (dto.description() != null) {
       wsComponent.setDescription(dto.description());
     }
+    if (!referenceComponentUuidsById.isEmpty() && referenceComponentUuidsById.get(dto.getCopyResourceId()) != null) {
+      wsComponent.setRefId(referenceComponentUuidsById.get(dto.getCopyResourceId()));
+    }
 
     return wsComponent;
   }
 
-  private static TreeWsResponse emptyResponse(TreeWsRequest request) {
+  private static TreeWsResponse emptyResponse(ComponentDto baseComponent, TreeWsRequest request) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setTotal(0)
       .setPageIndex(request.getPage())
       .setPageSize(request.getPageSize());
+    response.setBaseComponent(componentDtoToWsComponent(baseComponent, Collections.<Long, String>emptyMap()));
 
     return response.build();
   }
@@ -273,5 +311,13 @@ public class TreeAction implements ComponentsWsAction {
     checkRequest(treeWsRequest.getPageSize() <= MAX_SIZE, "The '%s' parameter must be less thant %d", Param.PAGE_SIZE, MAX_SIZE);
 
     return treeWsRequest;
+  }
+
+  private enum ComponentDtoWithSnapshotIdToCopyResourceIdFunction implements Function<ComponentDtoWithSnapshotId, Long> {
+    INSTANCE;
+    @Override
+    public Long apply(@Nonnull ComponentDtoWithSnapshotId input) {
+      return input.getCopyResourceId();
+    }
   }
 }
