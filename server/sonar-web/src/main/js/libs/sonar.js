@@ -26,3 +26,12 @@ require('script!./select2-jquery-ui-fix.js');
 require('script!./inputs.js');
 require('script!./jquery-isolated-scroll.js');
 require('script!./application.js');
+
+window.$j = jQuery.noConflict();
+
+jQuery(function () {
+  jQuery('.open-modal').modal();
+});
+
+window.sonarqube = {};
+window.sonarqube.el = '#content';
