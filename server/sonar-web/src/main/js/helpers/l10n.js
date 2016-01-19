@@ -19,6 +19,7 @@
  */
 import { stringify } from 'querystring';
 import moment from 'moment';
+import _ from 'underscore';
 
 let messages = {};
 
@@ -40,7 +41,9 @@ export function translateWithParameters (messageKey, ...parameters) {
 
 function getCurrentLocale () {
   const locale = window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
-  return locale.replace('-', '_');
+  const tags = locale.split('-');
+  const [region, ...other] = tags;
+  return [region.toLowerCase(), ...other.map(t => t.toUpperCase())].join('_');
 }
 
 function makeRequest (params) {
