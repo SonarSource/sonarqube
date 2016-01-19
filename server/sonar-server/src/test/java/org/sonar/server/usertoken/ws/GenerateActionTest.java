@@ -112,6 +112,14 @@ public class GenerateActionTest {
   }
 
   @Test
+  public void fail_if_name_is_blank() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The 'name' parameter must not be blank");
+
+    newRequest(GRACE_HOPPER, "   ");
+  }
+
+  @Test
   public void fail_if_token_with_same_login_and_name_exists() {
     newRequest(GRACE_HOPPER, TOKEN_NAME);
     expectedException.expect(BadRequestException.class);

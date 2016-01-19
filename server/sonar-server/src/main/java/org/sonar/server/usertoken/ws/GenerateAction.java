@@ -139,10 +139,12 @@ public class GenerateAction implements UserTokensWsAction {
   private GenerateWsRequest toCreateWsRequest(Request request) {
     GenerateWsRequest generateWsRequest = new GenerateWsRequest()
       .setLogin(request.param(PARAM_LOGIN))
-      .setName(request.mandatoryParam(PARAM_NAME));
+      .setName(request.mandatoryParam(PARAM_NAME).trim());
     if (generateWsRequest.getLogin() == null) {
       generateWsRequest.setLogin(userSession.getLogin());
     }
+
+    checkRequest(!generateWsRequest.getName().isEmpty(), "The '%s' parameter must not be blank", PARAM_NAME);
 
     return generateWsRequest;
   }
