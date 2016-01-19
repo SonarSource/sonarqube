@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -54,6 +55,8 @@ import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_LOCAL_USERS;
 
 @ServerSide
 public class UserUpdater {
+
+  private static final String SQ_AUTHORITY = "sonarqube";
 
   private static final String LOGIN_PARAM = "Login";
   private static final String PASSWORD_PARAM = "Password";
@@ -95,32 +98,36 @@ public class UserUpdater {
     }
   }
 
-  public boolean create(DbSession dbSession, NewUser newUser){
+  public boolean create(DbSession dbSession, NewUser newUser) {
     boolean isUserReactivated = false;
     UserDto userDto = createNewUserDto(dbSession, newUser);
     String login = userDto.getLogin();
-    UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
-    if (existingUser == null) {
+    Optional<UserDto> existingUser = dbClient.userDao().selectByExternalIdentity(dbSession, userDto.getExternalIdentity(), userDto.getExternalIdentityProvider());
+    if (!existingUser.isPresent()) {
       saveUser(dbSession, userDto);
       addDefaultGroup(dbSession, userDto);
     } else {
-      if (existingUser.isActive()) {
-        throw new IllegalArgumentException(String.format("An active user with login '%s' already exists", login));
-      }
-      UpdateUser updateUser = UpdateUser.create(login)
-        .setName(newUser.name())
-        .setEmail(newUser.email())
-        .setScmAccounts(newUser.scmAccounts())
-        .setPassword(newUser.password());
-      updateUserDto(dbSession, updateUser, existingUser);
-      updateUser(dbSession, existingUser);
-      addDefaultGroup(dbSession, existingUser);
-      isUserReactivated = true;
+      isUserReactivated = updateExistingUser(dbSession, existingUser.get(), login, newUser);
     }
     dbSession.commit();
     notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
     userIndexer.index();
     return isUserReactivated;
+  }
+
+  private boolean updateExistingUser(DbSession dbSession, UserDto existingUser, String login, NewUser newUser) {
+    if (existingUser.isActive()) {
+      throw new IllegalArgumentException(String.format("An active user with login '%s' already exists", login));
+    }
+    UpdateUser updateUser = UpdateUser.create(login)
+      .setName(newUser.name())
+      .setEmail(newUser.email())
+      .setScmAccounts(newUser.scmAccounts())
+      .setPassword(newUser.password());
+    updateUserDto(dbSession, updateUser, existingUser);
+    updateUser(dbSession, existingUser);
+    addDefaultGroup(dbSession, existingUser);
+    return true;
   }
 
   public void update(UpdateUser updateUser) {
@@ -194,6 +201,15 @@ public class UserUpdater {
       userDto.setScmAccounts(scmAccounts);
     }
 
+    NewUser.ExternalIdentity externalIdentity = newUser.externalIdentity();
+    if (externalIdentity == null) {
+      userDto.setExternalIdentity(login);
+      userDto.setExternalIdentityProvider(SQ_AUTHORITY);
+    } else {
+      userDto.setExternalIdentity(externalIdentity.getId());
+      userDto.setExternalIdentityProvider(externalIdentity.getProvider());
+    }
+
     if (!messages.isEmpty()) {
       throw new BadRequestException(messages);
     }
@@ -243,7 +259,7 @@ public class UserUpdater {
     }
   }
 
-  private static void validateLoginFormat(@Nullable String login, List<Message> messages) {
+  private static String validateLoginFormat(@Nullable String login, List<Message> messages) {
     checkNotEmptyParam(login, LOGIN_PARAM, messages);
     if (!Strings.isNullOrEmpty(login)) {
       if (login.length() < LOGIN_MIN_LENGTH) {
@@ -254,6 +270,7 @@ public class UserUpdater {
         messages.add(Message.of("user.bad_login"));
       }
     }
+    return login;
   }
 
   private static void validateNameFormat(@Nullable String name, List<Message> messages) {
@@ -280,7 +297,7 @@ public class UserUpdater {
   }
 
   private void validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
-    List<Message> messages) {
+                                   List<Message> messages) {
     for (String scmAccount : scmAccounts) {
       if (scmAccount.equals(login) || scmAccount.equals(email)) {
         messages.add(Message.of("user.login_or_email_used_as_scm_account"));

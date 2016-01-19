@@ -141,6 +141,35 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void create_user_with_sq_authority_when_no_authority_set() throws Exception {
+    createDefaultGroup();
+
+    userUpdater.create(NewUser.create()
+      .setLogin("user")
+      .setName("User")
+      .setPassword("password"));
+
+    UserDto dto = userDao.selectByLogin(session, "user");
+    assertThat(dto.getExternalIdentity()).isEqualTo("user");
+    assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
+  }
+
+  @Test
+  public void create_user_with_authority() {
+    createDefaultGroup();
+
+    userUpdater.create(NewUser.create()
+      .setLogin("ABCD")
+      .setName("User")
+      .setPassword("password")
+      .setExternalIdentity(new NewUser.ExternalIdentity("github", "user")));
+
+    UserDto dto = userDao.selectByLogin(session, "ABCD");
+    assertThat(dto.getExternalIdentity()).isEqualTo("user");
+    assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
+  }
+
+  @Test
   public void create_user_with_minimum_fields() {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();

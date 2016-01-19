@@ -17,26 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.db.version.v54;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.db.version.MigrationStep;
 
-public class UserTesting {
+import static java.sql.Types.VARCHAR;
 
-  public static UserDto newUserDto() {
-    return newUserDto(randomAlphanumeric(30), randomAlphanumeric(30), randomAlphanumeric(30));
+public class AddUsersIdentityColumnsTest {
+
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddUsersIdentityColumnsTest.class, "schema.sql");
+
+  MigrationStep migration;
+
+  @Before
+  public void setUp() {
+    migration = new AddUsersIdentityColumns(db.database());
   }
 
-  public static UserDto newUserDto(String login, String name, String email) {
-    return new UserDto()
-      .setActive(true)
-      .setName(name)
-      .setEmail(email)
-      .setLogin(login)
-      .setExternalIdentity(login)
-      .setExternalIdentityProvider("sonarqube")
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+  @Test
+  public void update_columns() throws Exception {
+    migration.execute();
+
+    db.assertColumnDefinition("users", "external_identity_provider", VARCHAR, 100);
+    db.assertColumnDefinition("users", "external_identity", VARCHAR, 4000);
   }
+
 }

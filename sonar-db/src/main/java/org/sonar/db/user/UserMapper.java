@@ -52,6 +52,9 @@ public interface UserMapper {
   List<UserDto> selectByLogins(List<String> logins);
 
   @CheckForNull
+  UserDto selectByIdentity(@Param("extIdentity") String authorityId, @Param("extIdentityProvider") String authorityProvider);
+
+  @CheckForNull
   GroupDto selectGroupByName(String name);
 
   void insert(UserDto userDto);

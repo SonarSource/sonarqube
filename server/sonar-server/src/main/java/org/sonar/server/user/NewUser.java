@@ -23,15 +23,16 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static java.util.Objects.requireNonNull;
+
 public class NewUser {
 
   private String login;
   private String name;
   private String email;
   private List<String> scmAccounts;
-
   private String password;
-  private String passwordConfirmation;
+  private ExternalIdentity externalIdentity;
 
   private NewUser() {
     // No direct call to this constructor
@@ -82,12 +83,40 @@ public class NewUser {
     return password;
   }
 
-  public NewUser setPassword(String password) {
+  public NewUser setPassword(@Nullable String password) {
     this.password = password;
+    return this;
+  }
+
+  @Nullable
+  public ExternalIdentity externalIdentity() {
+    return externalIdentity;
+  }
+
+  public NewUser setExternalIdentity(@Nullable ExternalIdentity externalIdentity) {
+    this.externalIdentity = externalIdentity;
     return this;
   }
 
   public static NewUser create() {
     return new NewUser();
+  }
+
+  public static class ExternalIdentity {
+    private String provider;
+    private String id;
+
+    public ExternalIdentity(String provider, String id) {
+      this.provider = requireNonNull(provider, "Identity provider cannot be null");
+      this.id = requireNonNull(id, "Identity id cannot be null");
+    }
+
+    public String getProvider() {
+      return provider;
+    }
+
+    public String getId() {
+      return id;
+    }
   }
 }
