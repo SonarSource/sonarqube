@@ -96,6 +96,11 @@ export default Modal.extend({
     this.newToken = null;
   },
 
+  onDestroy: function () {
+    this.model.collection.refresh();
+    Modal.prototype.onDestroy.apply(this, arguments);
+  },
+
   serializeData() {
     return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
       tokens: this.tokens,
