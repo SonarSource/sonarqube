@@ -62,17 +62,17 @@
   {{#if newToken}}
     <div class="panel panel-white big-spacer-top">
       <div class="alert alert-warning">
-        Make sure you copy the token now. You won’t be able to see it again!
+        New token "{{newToken.name}}" has been created. Make sure you copy it now, you won’t be able to see it again!
       </div>
 
       <table class="data">
         <tr>
 
           <td class="thin">
-            <button class="js-copy-to-clipboard" data-clipboard-text="{{newToken}}">Copy</button>
+            <button class="js-copy-to-clipboard" data-clipboard-text="{{newToken.token}}">Copy</button>
           </td>
           <td class="nowrap">
-            <code class="text-success">{{newToken}}</code>
+            <code class="text-success">{{newToken.token}}</code>
           </td>
         </tr>
       </table>
