@@ -10,7 +10,7 @@
       search_options['componentUuids'] = @project.uuid
     end
     if @dashboard_configuration.selected_period?
-      search_options['createdAfter'] = @snapshot.period_datetime(@dashboard_configuration.period_index).strftime('%FT%T%z')
+      search_options['createdAfter'] = @snapshot.period_datetime(@dashboard_configuration.period_index).strftime('%Y-%m-%d')
     end
 
     title = message('widget.issue_tag_cloud.title')
@@ -30,7 +30,7 @@
   (function () {
     var createdAfter = '';
     <% if @dashboard_configuration.selected_period? -%>
-    createdAfter = moment('<%= search_options['createdAfter'] -%>').format('YYYY-MM-DD');
+    createdAfter = '<%= search_options['createdAfter'] -%>';
     <% end -%>
 
     var queryParams = [
