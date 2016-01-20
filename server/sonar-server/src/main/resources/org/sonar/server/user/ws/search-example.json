@@ -10,7 +10,7 @@
         "sonar-users",
         "sonar-administrators"
       ],
-      "tokenCount": 1
+      "tokensCount": 1
     },
     {
       "login": "sbrandhof",
@@ -24,7 +24,7 @@
       "groups": [
         "sonar-users"
       ],
-      "tokenCount": 3
+      "tokensCount": 3
     }
   ]
 }

@@ -10,7 +10,7 @@
       "scmAccounts": [
         "user-0"
       ],
-      "tokenCount": 0
+      "tokensCount": 0
     },
     {
       "login": "user-1",
@@ -19,7 +19,7 @@
       "scmAccounts": [
         "user-1"
       ],
-      "tokenCount": 1
+      "tokensCount": 1
     },
     {
       "login": "user-2",
@@ -28,7 +28,7 @@
       "scmAccounts": [
         "user-2"
       ],
-      "tokenCount": 2
+      "tokensCount": 2
     },
     {
       "login": "user-3",
@@ -37,7 +37,7 @@
       "scmAccounts": [
         "user-3"
       ],
-      "tokenCount": 3
+      "tokensCount": 3
     },
     {
       "login": "user-4",
@@ -46,7 +46,7 @@
       "scmAccounts": [
         "user-4"
       ],
-      "tokenCount": 4
+      "tokensCount": 4
     }
   ]
 }
