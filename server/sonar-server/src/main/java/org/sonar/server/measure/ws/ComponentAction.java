@@ -157,9 +157,9 @@ public class ComponentAction implements MeasuresWsAction {
       MetricDto metric = metricsById.get(measure.getMetricId());
       measuresByMetric.put(metric, measure);
     }
-    Map<Long, String> referenceComponentUuidById = new HashMap<>();
+    Map<Long, ComponentDto> referenceComponentUuidById = new HashMap<>();
     if (refComponent.isPresent()) {
-      referenceComponentUuidById.put(refComponent.get().getId(), refComponent.get().uuid());
+      referenceComponentUuidById.put(refComponent.get().getId(), refComponent.get());
     }
 
     response.setComponent(componentDtoToWsComponent(component, measuresByMetric, referenceComponentUuidById));

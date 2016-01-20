@@ -128,7 +128,7 @@ public class ComponentActionTest {
 
   @Test
   public void reference_uuid_in_the_response() {
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
     ComponentDto view = newView("view-uuid");
     componentDb.insertViewAndSnapshot(view);
     componentDb.insertProjectAndSnapshot(project);
@@ -139,6 +139,7 @@ public class ComponentActionTest {
 
     assertThat(response.getComponent().getId()).isEqualTo("project-uuid-copy");
     assertThat(response.getComponent().getRefId()).isEqualTo("project-uuid");
+    assertThat(response.getComponent().getRefKey()).isEqualTo("project-key");
   }
 
   @Test
