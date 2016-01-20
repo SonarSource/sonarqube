@@ -177,28 +177,28 @@ public class MeasureDaoTest {
   public void select_past_measures_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
     db.prepareDbUnit(getClass(), "past_measures.xml");
 
-    List<PastMeasureDto> fileMeasures = underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "CDEF", 1000L, ImmutableSet.of(1, 2));
+    Map<Long, PastMeasureDto> fileMeasures = pastMeasuresById(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "CDEF", 1000L, ImmutableSet.of(1, 2)));
     assertThat(fileMeasures).hasSize(2);
 
-    PastMeasureDto fileMeasure1 = fileMeasures.get(0);
+    PastMeasureDto fileMeasure1 = fileMeasures.get(5L);
     assertThat(fileMeasure1.getValue()).isEqualTo(5d);
     assertThat(fileMeasure1.getMetricId()).isEqualTo(1);
     assertThat(fileMeasure1.getRuleId()).isNull();
     assertThat(fileMeasure1.getCharacteristicId()).isNull();
     assertThat(fileMeasure1.getPersonId()).isNull();
 
-    PastMeasureDto fileMeasure2 = fileMeasures.get(1);
+    PastMeasureDto fileMeasure2 = fileMeasures.get(6L);
     assertThat(fileMeasure2.getValue()).isEqualTo(60d);
     assertThat(fileMeasure2.getMetricId()).isEqualTo(2);
 
-    List<PastMeasureDto> projectMeasures = underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "ABCD", 1000L, ImmutableSet.of(1, 2));
+    Map<Long, PastMeasureDto> projectMeasures = pastMeasuresById(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "ABCD", 1000L, ImmutableSet.of(1, 2)));
     assertThat(projectMeasures).hasSize(2);
 
-    PastMeasureDto projectMeasure1 = projectMeasures.get(0);
+    PastMeasureDto projectMeasure1 = projectMeasures.get(1L);
     assertThat(projectMeasure1.getValue()).isEqualTo(60d);
     assertThat(projectMeasure1.getMetricId()).isEqualTo(1);
 
-    PastMeasureDto projectMeasure2 = projectMeasures.get(1);
+    PastMeasureDto projectMeasure2 = projectMeasures.get(2L);
     assertThat(projectMeasure2.getValue()).isEqualTo(80d);
     assertThat(projectMeasure2.getMetricId()).isEqualTo(2);
 
@@ -420,7 +420,7 @@ public class MeasureDaoTest {
     assertThat(measureDtos).isEmpty();
   }
 
-  //TODO add test for selectBySnapshotIdsAndMetricIds
+  // TODO add test for selectBySnapshotIdsAndMetricIds
 
   @Test
   public void selectProjectMeasuresByDeveloperForMetrics_returns_empty_on_empty_db() {
@@ -474,11 +474,11 @@ public class MeasureDaoTest {
   public void selectProjectMeasuresByDeveloperForMetrics_returns_ignores_snapshots_of_any_component_but_project() {
     ComponentDto projectDto = insertProject("aa");
     insertSnapshot(projectDto, true);
-    ComponentDto moduleDto =  insertComponent(ComponentTesting.newModuleDto(projectDto));
+    ComponentDto moduleDto = insertComponent(ComponentTesting.newModuleDto(projectDto));
     insertMeasure(insertSnapshot(moduleDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 15d);
-    ComponentDto dirDto =  insertComponent(ComponentTesting.newDirectory(moduleDto, "toto"));
+    ComponentDto dirDto = insertComponent(ComponentTesting.newDirectory(moduleDto, "toto"));
     insertMeasure(insertSnapshot(dirDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 25d);
-    ComponentDto fileDto =  insertComponent(ComponentTesting.newFileDto(moduleDto, "tutu"));
+    ComponentDto fileDto = insertComponent(ComponentTesting.newFileDto(moduleDto, "tutu"));
     insertMeasure(insertSnapshot(fileDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 35d);
 
     assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID))).isEmpty();
@@ -530,10 +530,10 @@ public class MeasureDaoTest {
       .setAlertStatus("alert")
       .setAlertText("alert-text")
       .setDescription("measure-description")
-    );
+      );
     dbSession.commit();
 
-    db.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "project_measures");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "project_measures");
   }
 
   @Test
@@ -541,16 +541,16 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     underTest.insert(dbSession, new MeasureDto()
-        .setSnapshotId(2L)
-        .setMetricId(3)
-        .setComponentId(6L)
-        .setValue(2.0d),
+      .setSnapshotId(2L)
+      .setMetricId(3)
+      .setComponentId(6L)
+      .setValue(2.0d),
       new MeasureDto()
         .setSnapshotId(3L)
         .setMetricId(4)
         .setComponentId(6L)
         .setValue(4.0d)
-    );
+      );
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
