@@ -42,7 +42,7 @@ public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, St
   @Override
   public void start() {
     Integer v = dbVersion.getVersion();
-    this.initialDbVersion = (v != null ? v : -1);
+    this.initialDbVersion = v != null ? v : -1;
   }
 
   @Override
