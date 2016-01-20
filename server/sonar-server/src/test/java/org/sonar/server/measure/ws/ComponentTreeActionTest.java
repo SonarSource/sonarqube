@@ -270,7 +270,7 @@ public class ComponentTreeActionTest {
   @Test
   public void load_developer_descendants() {
     ComponentDto developer = newDeveloper("developer").setUuid("developer-uuid");
-    ComponentDto project = newProjectDto("project-uuid");
+    ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
     SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-uuid-copy", project, developer), developerSnapshot);
@@ -284,6 +284,7 @@ public class ComponentTreeActionTest {
     WsMeasures.Component projectCopy = response.getComponents(0);
     assertThat(projectCopy.getId()).isEqualTo("project-uuid-copy");
     assertThat(projectCopy.getRefId()).isEqualTo("project-uuid");
+    assertThat(projectCopy.getRefKey()).isEqualTo("project-key");
   }
 
   @Test

@@ -33,11 +33,13 @@ class ComponentDtoToWsComponent {
   }
 
   static WsMeasures.Component.Builder componentDtoToWsComponent(ComponentDto component, Map<MetricDto, MeasureDto> measuresByMetric,
-    Map<Long, String> referenceComponentUuidsById) {
+    Map<Long, ComponentDto> referenceComponentsById) {
     WsMeasures.Component.Builder wsComponent = componentDtoToWsComponent(component);
 
-    if (!referenceComponentUuidsById.isEmpty() && referenceComponentUuidsById.get(component.getCopyResourceId()) != null) {
-      wsComponent.setRefId(referenceComponentUuidsById.get(component.getCopyResourceId()));
+    ComponentDto referenceComponent = referenceComponentsById.get(component.getCopyResourceId());
+    if (!referenceComponentsById.isEmpty() && referenceComponent != null) {
+      wsComponent.setRefId(referenceComponent.uuid());
+      wsComponent.setRefKey(referenceComponent.key());
     }
 
     for (Map.Entry<MetricDto, MeasureDto> entry : measuresByMetric.entrySet()) {

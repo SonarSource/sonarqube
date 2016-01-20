@@ -111,7 +111,7 @@ public class ComponentTreeDataLoader {
 
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
       components = paginateComponents(components, componentCount, wsRequest);
-      Map<Long, String> referenceComponentUuidsById = searchReferenceComponentUuidsById(dbSession, components);
+      Map<Long, ComponentDto> referenceComponentsById = searchReferenceComponentsById(dbSession, components);
 
       return ComponentTreeData.builder()
         .setBaseComponent(baseComponent)
@@ -120,14 +120,14 @@ public class ComponentTreeDataLoader {
         .setMeasuresByComponentUuidAndMetric(measuresByComponentUuidAndMetric)
         .setMetrics(metrics)
         .setPeriods(periods)
-        .setReferenceComponentUuidsById(referenceComponentUuidsById)
+        .setReferenceComponentsById(referenceComponentsById)
         .build();
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private Map<Long, String> searchReferenceComponentUuidsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
+  private Map<Long, ComponentDto> searchReferenceComponentsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
     List<Long> referenceComponentIds = from(components)
       .transform(ComponentDtoWithSnapshotIdToCopyResourceIdFunction.INSTANCE)
       .filter(Predicates.<Long>notNull())
@@ -137,9 +137,9 @@ public class ComponentTreeDataLoader {
     }
 
     List<ComponentDto> referenceComponents = dbClient.componentDao().selectByIds(dbSession, referenceComponentIds);
-    Map<Long, String> referenceComponentUuidsById = new HashMap<>();
+    Map<Long, ComponentDto> referenceComponentUuidsById = new HashMap<>();
     for (ComponentDto referenceComponent : referenceComponents) {
-      referenceComponentUuidsById.put(referenceComponent.getId(), referenceComponent.uuid());
+      referenceComponentUuidsById.put(referenceComponent.getId(), referenceComponent);
     }
 
     return referenceComponentUuidsById;
