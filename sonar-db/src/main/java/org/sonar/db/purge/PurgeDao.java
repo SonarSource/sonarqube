@@ -89,22 +89,12 @@ public class PurgeDao implements Dao {
   }
 
   private static void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
-    if (hasAbortedBuilds(project.getId(), commands)) {
-      LOG.debug("<- Delete aborted builds");
-      PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-        .setIslast(false)
-        .setStatus(new String[] {"U"})
-        .setRootProjectId(project.getId());
-      commands.deleteSnapshots(query);
-    }
-  }
-
-  private static boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
+    LOG.debug("<- Delete aborted builds");
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
       .setIslast(false)
       .setStatus(new String[] {"U"})
-      .setResourceId(projectId);
-    return !commands.selectSnapshotIds(query).isEmpty();
+      .setRootProjectId(project.getId());
+    commands.deleteSnapshots(query);
   }
 
   private static void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
