@@ -387,10 +387,14 @@ public interface WebService extends Definable<WebService.Context> {
      * used to restrict the number of fields returned in JSON response.
      */
     public NewAction addFieldsParam(Collection<?> possibleValues) {
-      createParam(Param.FIELDS)
+      createFieldsParam(possibleValues);
+      return this;
+    }
+
+    public NewParam createFieldsParam(Collection<?> possibleValues) {
+      return createParam(Param.FIELDS)
         .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
         .setPossibleValues(possibleValues);
-      return this;
     }
 
     /**$

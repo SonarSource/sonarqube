@@ -21,6 +21,7 @@ package org.sonar.server.user.ws;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.user.User;
@@ -80,7 +81,7 @@ public class UserJsonWriter {
     if (user == null) {
       json.beginObject().endObject();
     } else {
-      write(json, user, ImmutableSet.<String>of(), CONCISE_FIELDS);
+      write(json, user, Collections.<String>emptySet(), CONCISE_FIELDS);
     }
   }
 

@@ -64,7 +64,8 @@ public class SearchAction implements UsersWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
 
-    action.addFieldsParam(UserJsonWriter.FIELDS);
+    action.createFieldsParam(UserJsonWriter.FIELDS)
+      .setDeprecatedSince("5.4");
     action.addPagingParams(50, MAX_LIMIT);
 
     action.createParam(Param.TEXT_QUERY)
