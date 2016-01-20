@@ -62,7 +62,7 @@ const Component = ({ component, previous, onBrowse }) => {
         <span>{component.name.substr(prefix.length)}</span>
       </span>
   ) : component.name;
-  const canBrowse = !!onBrowse && !component.copy;
+  const canBrowse = !!onBrowse;
 
   return (
       <Truncated title={getTooltip(component)}>

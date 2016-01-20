@@ -24,10 +24,10 @@ import { formatMeasure } from '../../../helpers/measures';
 
 
 const ComponentMeasure = ({ component, metricKey, metricType }) => {
-  const measure = _.findWhere(component.msr, { key: metricKey });
+  const measure = _.findWhere(component.measures, { metric: metricKey });
   return (
       <span>
-        {measure ? formatMeasure(measure.val, metricType) : ''}
+        {measure ? formatMeasure(measure.value, metricType) : ''}
       </span>
   );
 };

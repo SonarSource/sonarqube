@@ -28,9 +28,9 @@ function hasSourceCode (component) {
 }
 
 function selectCoverageMetric (component) {
-  const coverage = _.findWhere(component.msr, { key: 'coverage' });
-  const itCoverage = _.findWhere(component.msr, { key: 'it_coverage' });
-  const overallCoverage = _.findWhere(component.msr, { key: 'overall_coverage' });
+  const coverage = _.findWhere(component.measures, { metric: 'coverage' });
+  const itCoverage = _.findWhere(component.measures, { metric: 'it_coverage' });
+  const overallCoverage = _.findWhere(component.measures, { metric: 'overall_coverage' });
 
   if (coverage != null && itCoverage != null && overallCoverage != null) {
     return 'overall_coverage';

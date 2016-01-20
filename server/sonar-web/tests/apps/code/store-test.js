@@ -143,8 +143,8 @@ describe('Code :: Store', () => {
         it('should be set to "coverage"', () => {
           const componentWithCoverage = {
             ...exampleComponent,
-            msr: [
-              { key: 'coverage', val: 13 }
+            measures: [
+              { metric: 'coverage', value: 13 }
             ]
           };
 
@@ -155,8 +155,8 @@ describe('Code :: Store', () => {
         it('should be set to "it_coverage"', () => {
           const componentWithCoverage = {
             ...exampleComponent,
-            msr: [
-              { key: 'it_coverage', val: 13 }
+            measures: [
+              { metric: 'it_coverage', value: 13 }
             ]
           };
 
@@ -167,10 +167,10 @@ describe('Code :: Store', () => {
         it('should be set to "overall_coverage"', () => {
           const componentWithCoverage = {
             ...exampleComponent,
-            msr: [
-              { key: 'coverage', val: 11 },
-              { key: 'it_coverage', val: 12 },
-              { key: 'overall_coverage', val: 13 }
+            measures: [
+              { metric: 'coverage', value: 11 },
+              { metric: 'it_coverage', value: 12 },
+              { metric: 'overall_coverage', value: 13 }
             ]
           };
 
@@ -181,7 +181,7 @@ describe('Code :: Store', () => {
         it('should fallback to "it_coverage"', () => {
           const componentWithCoverage = {
             ...exampleComponent,
-            msr: []
+            measures: []
           };
 
           expect(current(initialState, initComponentAction(componentWithCoverage)).coverageMetric)

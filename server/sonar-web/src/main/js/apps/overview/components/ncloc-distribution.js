@@ -50,8 +50,8 @@ export const NclocDistribution = React.createClass({
     return getChildren(this.props.component.key, metrics).then(r => {
       let components = r.map(component => {
         let measures = {};
-        (component.msr || []).forEach(measure => {
-          measures[measure.key] = measure.val;
+        (component.measures || []).forEach(measure => {
+          measures[measure.metric] = measure.value;
         });
         return _.extend(component, { measures });
       });
@@ -76,7 +76,7 @@ export const NclocDistribution = React.createClass({
 
     let data = this.state.components.map((component, index) => {
       return {
-        x: parseInt(component.measures[METRIC], 10),
+        x: component.measures[METRIC] ? parseInt(component.measures[METRIC], 10) : 0,
         y: index,
         value: component.name,
         component: component

@@ -32,7 +32,7 @@ const BUBBLES_LIMIT = 500;
 
 
 function getMeasure (component, metric) {
-  return component.measures[metric] || 0;
+  return Number(component.measures[metric]) || 0;
 }
 
 
@@ -53,26 +53,27 @@ export class DomainBubbleChart extends React.Component {
   }
 
   requestFiles () {
-    let metrics = [].concat(this.props.xMetric, this.props.yMetric, this.props.sizeMetrics);
-    return getFiles(this.props.component.key, metrics).then(r => {
+    const metrics = [].concat(this.props.xMetric, this.props.yMetric, this.props.sizeMetrics);
+    const options = {
+      s: 'metric',
+      metricSort: this.props.sizeMetrics,
+      asc: false,
+      ps: BUBBLES_LIMIT
+    };
+    return getFiles(this.props.component.key, metrics, options).then(r => {
       let files = r.map(file => {
         let measures = {};
-        (file.msr || []).forEach(measure => {
-          measures[measure.key] = measure.val;
+        (file.measures || []).forEach(measure => {
+          measures[measure.metric] = measure.value;
         });
         return _.extend(file, { measures });
       });
       this.setState({
         loading: false,
-        files: this.limitFiles(files),
+        files: files,
         total: files.length
       });
     });
-  }
-
-  limitFiles (files) {
-    const comparator = file => -1 * this.getSizeMetricsValue(file);
-    return _.sortBy(files, comparator).slice(0, BUBBLES_LIMIT);
   }
 
   getMetricObject (metrics, metricKey) {
@@ -96,15 +97,17 @@ export class DomainBubbleChart extends React.Component {
     /* eslint max-len: 0 */
     let inner = [
       component.name,
-      `${this.state.xMetric.name}: ${formatMeasure(getMeasure(component, this.props.xMetric), this.state.xMetric.type)}`,
-      `${this.state.yMetric.name}: ${formatMeasure(getMeasure(component, this.props.yMetric), this.state.yMetric.type)}`,
+      `${this.state.xMetric.name}: ${formatMeasure(getMeasure(component, this.props.xMetric),
+          this.state.xMetric.type)}`,
+      `${this.state.yMetric.name}: ${formatMeasure(getMeasure(component, this.props.yMetric),
+          this.state.yMetric.type)}`,
       `${sizeMetricsTitle}: ${formatMeasure(this.getSizeMetricsValue(component), sizeMetricsType)}`
     ].join('<br>');
     return `<div class="text-left">${inner}</div>`;
   }
 
-  handleBubbleClick (uuid) {
-    Workspace.openComponent({ uuid });
+  handleBubbleClick (id) {
+    Workspace.openComponent({ uuid: id });
   }
 
   renderLoading () {
@@ -123,7 +126,7 @@ export class DomainBubbleChart extends React.Component {
         x: getMeasure(component, this.props.xMetric),
         y: getMeasure(component, this.props.yMetric),
         size: this.getSizeMetricsValue(component),
-        link: component.uuid,
+        link: component.id,
         tooltip: this.getTooltip(component)
       };
     });
@@ -160,7 +163,8 @@ export class DomainBubbleChart extends React.Component {
           {this.state.xMetric.name}
         </div>
         {this.state.total > BUBBLES_LIMIT &&
-        <div className="note text-center">{translateWithParameters('overview.chart.files.limit_message', BUBBLES_LIMIT)}</div>}
+        <div className="note text-center">{translateWithParameters('overview.chart.files.limit_message',
+            BUBBLES_LIMIT)}</div>}
       </div>
     </div>;
   }

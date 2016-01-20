@@ -46,27 +46,29 @@ export function createProject (data) {
 }
 
 export function getChildren (componentKey, metrics = []) {
-  const url = baseUrl + '/api/resources/index';
-  const data = { resource: componentKey, metrics: metrics.join(','), depth: 1 };
-  return getJSON(url, data);
+  const url = baseUrl + '/api/measures/component_tree';
+  const data = {
+    baseComponentKey: componentKey,
+    metricKeys: metrics.join(','),
+    strategy: 'children'
+  };
+  return getJSON(url, data).then(r => r.components);
 }
 
-export function getFiles (componentKey, metrics = []) {
-  // due to the limitation of the WS we can not ask qualifiers=FIL,
-  // in this case the WS does not return measures
-  // so the filtering by a qualifier is done manually
-
-  const url = baseUrl + '/api/resources/index';
-  const data = { resource: componentKey, metrics: metrics.join(','), depth: -1 };
-  return getJSON(url, data).then(r => {
-    return r.filter(component => component.qualifier === 'FIL');
+export function getFiles (componentKey, metrics = [], additional = {}) {
+  const url = baseUrl + '/api/measures/component_tree';
+  const data = Object.assign({}, additional, {
+    baseComponentKey: componentKey,
+    metricKeys: metrics.join(','),
+    strategy: 'leaves'
   });
+  return getJSON(url, data).then(r => r.components);
 }
 
 export function getComponent (componentKey, metrics = []) {
-  const url = baseUrl + '/api/resources/index';
-  const data = { resource: componentKey, metrics: metrics.join(',') };
-  return getJSON(url, data).then(r => r[0]);
+  const url = baseUrl + '/api/measures/component';
+  const data = { componentKey, metricKeys: metrics.join(',') };
+  return getJSON(url, data).then(r => r.component);
 }
 
 export function getTree (baseComponentKey, options = {}) {

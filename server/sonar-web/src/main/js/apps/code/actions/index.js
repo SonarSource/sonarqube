@@ -22,6 +22,7 @@ import { pushPath } from 'redux-simple-router';
 
 import { getChildren, getComponent, getTree, getBreadcrumbs } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
+import { getComponentUrl } from '../../../helpers/urls';
 
 
 const METRICS = [
@@ -192,7 +193,12 @@ export function browse (componentKey) {
     dispatch(startFetching());
     return retrieveComponent(componentKey, bucket)
         .then(([component, children, breadcrumbs]) => {
-          dispatch(browseAction(component, children, breadcrumbs));
+          if (component.refKey) {
+            window.location = getComponentUrl(component.refKey);
+            return new Promise();
+          } else {
+            dispatch(browseAction(component, children, breadcrumbs));
+          }
         })
         .then(() => dispatch(pushPath(getPath(componentKey))))
         .then(() => dispatch(stopFetching()))

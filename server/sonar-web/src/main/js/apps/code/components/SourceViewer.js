@@ -28,7 +28,7 @@ export default class SourceViewer extends Component {
   }
 
   shouldComponentUpdate (nextProps) {
-    return nextProps.component.uuid !== this.props.component.uuid;
+    return nextProps.component.id !== this.props.component.id;
   }
 
   componentWillUpdate () {
@@ -46,7 +46,7 @@ export default class SourceViewer extends Component {
   renderSourceViewer () {
     this.sourceViewer = new BaseSourceViewer();
     this.sourceViewer.render().$el.appendTo(this.refs.container);
-    this.sourceViewer.open(this.props.component.uuid);
+    this.sourceViewer.open(this.props.component.id);
   }
 
   destroySourceViewer () {

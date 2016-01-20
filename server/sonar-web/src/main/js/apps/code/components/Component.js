@@ -67,13 +67,15 @@ class Component extends React.Component {
 
     let componentAction = null;
 
-    switch (component.qualifier) {
-      case 'FIL':
-      case 'UTS':
-        componentAction = <ComponentPin component={component}/>;
-        break;
-      default:
-        componentAction = <ComponentDetach component={component}/>;
+    if (!component.refKey) {
+      switch (component.qualifier) {
+        case 'FIL':
+        case 'UTS':
+          componentAction = <ComponentPin component={component}/>;
+          break;
+        default:
+          componentAction = <ComponentDetach component={component}/>;
+      }
     }
 
     return (

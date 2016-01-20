@@ -21,14 +21,14 @@ chai.use(sinonChai);
 
 
 const measures = [
-  { key: 'ncloc', val: 9757 }
+  { metric: 'ncloc', value: 9757 }
 ];
 const exampleComponent = {
   uuid: 'A1',
   key: 'A',
   name: 'AA',
   qualifier: 'TRK',
-  msr: measures
+  measures: measures
 };
 const exampleComponent2 = { uuid: 'B2', key: 'B' };
 const exampleComponent3 = { uuid: 'C3', key: 'C' };

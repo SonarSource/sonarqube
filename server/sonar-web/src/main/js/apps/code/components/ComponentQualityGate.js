@@ -25,13 +25,13 @@ import { translate } from '../../../helpers/l10n';
 const METRIC = 'alert_status';
 
 const ComponentQualityGate = ({ component }) => {
-  const measure = _.findWhere(component.msr, { key: METRIC });
+  const measure = _.findWhere(component.measures, { metric: METRIC });
   return measure ? (
       <span
           className="spacer-right"
-          title={translate('metric.level', measure.data)}
+          title={translate('metric.level', measure.value)}
           style={{ position: 'relative', top: '-1px' }}>
-        <i className={`icon-alert-${measure.data.toLowerCase()}`}/>
+        <i className={`icon-alert-${measure.value.toLowerCase()}`}/>
       </span>
   ) : <span/>;
 };

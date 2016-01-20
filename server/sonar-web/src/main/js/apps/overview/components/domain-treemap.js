@@ -51,12 +51,12 @@ export class DomainTreemap extends React.Component {
     return getChildren(componentKey, metrics).then(r => {
       let components = r.map(component => {
         let measures = {};
-        (component.msr || []).forEach(measure => {
-          measures[measure.key] = measure.val;
+        (component.measures || []).forEach(measure => {
+          measures[measure.metric] = measure.value;
         });
         return _.extend(component, {
           measures,
-          key: component.copy ? `${component.copy}` : component.key
+          key: component.refKey || component.key
         });
       });
       this.setState({ loading: false, components });
