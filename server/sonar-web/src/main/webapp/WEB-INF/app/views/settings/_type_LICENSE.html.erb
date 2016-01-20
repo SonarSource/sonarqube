@@ -6,7 +6,7 @@
      product = license.getProduct() || '-'
      # super-hack here
      # should be avoided in the future
-     does_product_match = property.key == "sonar.#{product}.license.secured"
+     does_product_match = property.key.include? product
 %>
   <div class="width100">
     <textarea rows="6" name="<%= name -%>" id="<%= id -%>" style="float: left;width: 390px"><%= h value -%></textarea>
