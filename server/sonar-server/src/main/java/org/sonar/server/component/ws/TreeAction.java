@@ -173,7 +173,7 @@ public class TreeAction implements ComponentsWsAction {
         default:
           throw new IllegalStateException("Unknown component tree strategy");
       }
-      Map<Long, String> referenceComponentUuidsById = searchReferenceComponentUuidsById(dbSession, components);
+      Map<Long, ComponentDto> referenceComponentUuidsById = searchReferenceComponentUuidsById(dbSession, components);
 
       return buildResponse(baseComponent, components, referenceComponentUuidsById,
         Paging.forPageIndex(query.getPage()).withPageSize(query.getPageSize()).andTotal(total));
@@ -182,7 +182,7 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private Map<Long, String> searchReferenceComponentUuidsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
+  private Map<Long, ComponentDto> searchReferenceComponentUuidsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
     List<Long> referenceComponentIds = from(components)
       .transform(ComponentDtoWithSnapshotIdToCopyResourceIdFunction.INSTANCE)
       .filter(Predicates.<Long>notNull())
@@ -192,9 +192,9 @@ public class TreeAction implements ComponentsWsAction {
     }
 
     List<ComponentDto> referenceComponents = dbClient.componentDao().selectByIds(dbSession, referenceComponentIds);
-    Map<Long, String> referenceComponentUuidsById = new HashMap<>();
+    Map<Long, ComponentDto> referenceComponentUuidsById = new HashMap<>();
     for (ComponentDto referenceComponent : referenceComponents) {
-      referenceComponentUuidsById.put(referenceComponent.getId(), referenceComponent.uuid());
+      referenceComponentUuidsById.put(referenceComponent.getId(), referenceComponent);
     }
 
     return referenceComponentUuidsById;
@@ -209,8 +209,8 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDtoWithSnapshotId> components, Map<Long, String> referenceComponentUuidsById,
-    Paging paging) {
+  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDtoWithSnapshotId> components, Map<Long, ComponentDto> referenceComponentsById,
+                                              Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -218,31 +218,12 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(paging.total())
       .build();
 
-    response.setBaseComponent(componentDtoToWsComponent(baseComponent, referenceComponentUuidsById));
+    response.setBaseComponent(componentDtoToWsComponent(baseComponent, referenceComponentsById));
     for (ComponentDto dto : components) {
-      response.addComponents(componentDtoToWsComponent(dto, referenceComponentUuidsById));
+      response.addComponents(componentDtoToWsComponent(dto, referenceComponentsById));
     }
 
     return response.build();
-  }
-
-  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, Map<Long, String> referenceComponentUuidsById) {
-    WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
-      .setId(dto.uuid())
-      .setKey(dto.key())
-      .setName(dto.name())
-      .setQualifier(dto.qualifier());
-    if (dto.path() != null) {
-      wsComponent.setPath(dto.path());
-    }
-    if (dto.description() != null) {
-      wsComponent.setDescription(dto.description());
-    }
-    if (!referenceComponentUuidsById.isEmpty() && referenceComponentUuidsById.get(dto.getCopyResourceId()) != null) {
-      wsComponent.setRefId(referenceComponentUuidsById.get(dto.getCopyResourceId()));
-    }
-
-    return wsComponent;
   }
 
   private static TreeWsResponse emptyResponse(ComponentDto baseComponent, TreeWsRequest request) {
@@ -251,9 +232,30 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(0)
       .setPageIndex(request.getPage())
       .setPageSize(request.getPageSize());
-    response.setBaseComponent(componentDtoToWsComponent(baseComponent, Collections.<Long, String>emptyMap()));
+    response.setBaseComponent(componentDtoToWsComponent(baseComponent, Collections.<Long, ComponentDto>emptyMap()));
 
     return response.build();
+  }
+
+  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto component, Map<Long, ComponentDto> referenceComponentsById) {
+    WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
+      .setId(component.uuid())
+      .setKey(component.key())
+      .setName(component.name())
+      .setQualifier(component.qualifier());
+    if (component.path() != null) {
+      wsComponent.setPath(component.path());
+    }
+    if (component.description() != null) {
+      wsComponent.setDescription(component.description());
+    }
+    ComponentDto referenceComponent = referenceComponentsById.get(component.getCopyResourceId());
+    if (!referenceComponentsById.isEmpty() && referenceComponent != null) {
+      wsComponent.setRefId(referenceComponent.uuid());
+      wsComponent.setRefKey(referenceComponent.key());
+    }
+
+    return wsComponent;
   }
 
   private ComponentTreeQuery toComponentTreeQuery(TreeWsRequest request, SnapshotDto baseSnapshot) {

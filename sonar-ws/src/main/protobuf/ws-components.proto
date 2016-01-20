@@ -48,12 +48,13 @@ message ShowWsResponse {
 
 message Component {
   optional string id = 1;
-  optional string refId = 2;
-  optional string key = 3;
-  optional string projectId = 4;
-  optional string name = 5;
-  optional string description = 6;
-  optional string qualifier = 7;
-  optional string path = 8;
-  optional string language = 9;
+  optional string key = 2;
+  optional string refId = 3;
+  optional string refKey = 4;
+  optional string projectId = 5;
+  optional string name = 6;
+  optional string description = 7;
+  optional string qualifier = 8;
+  optional string path = 9;
+  optional string language = 10;
 }
