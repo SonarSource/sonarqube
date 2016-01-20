@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
 
-import { getMeasuresAndVariations } from '../../../api/measures';
+import { getMeasures } from '../../../api/measures';
 import { DetailedMeasure } from '../components/detailed-measure';
 import { DomainTimeline } from '../components/domain-timeline';
 import { DomainTreemap } from '../components/domain-treemap';
@@ -49,16 +50,19 @@ export const DuplicationsMain = React.createClass({
 
   componentDidMount() {
     this.requestMeasures().then(r => {
-      let measures = this.getMeasuresValues(r, 'value');
-      let leak = this.getMeasuresValues(r, 'var' + this.props.leakPeriodIndex);
+      let measures = this.getMeasuresValues(r);
+      let leak = this.getMeasuresValues(r, Number(this.props.leakPeriodIndex));
       this.setState({ ready: true, measures, leak });
     });
   },
 
-  getMeasuresValues (measures, fieldKey) {
+  getMeasuresValues (measures, period) {
     let values = {};
-    Object.keys(measures).forEach(measureKey => {
-      values[measureKey] = measures[measureKey][fieldKey];
+    measures.forEach(measure => {
+      const container = period ? _.findWhere(measure.periods, { index: period }) : measure;
+      if (container) {
+        values[measure.metric] = container.value;
+      }
     });
     return values;
   },
@@ -78,7 +82,7 @@ export const DuplicationsMain = React.createClass({
   },
 
   requestMeasures () {
-    return getMeasuresAndVariations(this.props.component.key, this.getMetricsForDomain());
+    return getMeasures(this.props.component.key, this.getMetricsForDomain());
   },
 
   renderLoading () {

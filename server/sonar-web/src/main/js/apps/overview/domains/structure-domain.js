@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import _ from 'underscore';
 import React from 'react';
 
 import { LanguageDistribution } from './../components/language-distribution';
 import { ComplexityDistribution } from './../components/complexity-distribution';
 import { NclocDistribution } from '../components/ncloc-distribution';
-import { getMeasuresAndVariations } from '../../../api/measures';
+import { getMeasures } from '../../../api/measures';
 import { DetailedMeasure } from '../components/detailed-measure';
 import { DomainTimeline } from '../components/domain-timeline';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
@@ -45,16 +46,19 @@ export const StructureMain = React.createClass({
 
   componentDidMount() {
     this.requestMeasures().then(r => {
-      let measures = this.getMeasuresValues(r, 'value');
-      let leak = this.getMeasuresValues(r, 'var' + this.props.leakPeriodIndex);
+      let measures = this.getMeasuresValues(r);
+      let leak = this.getMeasuresValues(r, Number(this.props.leakPeriodIndex));
       this.setState({ ready: true, measures, leak });
     });
   },
 
-  getMeasuresValues (measures, fieldKey) {
+  getMeasuresValues (measures, period) {
     let values = {};
-    Object.keys(measures).forEach(measureKey => {
-      values[measureKey] = measures[measureKey][fieldKey];
+    measures.forEach(measure => {
+      const container = period ? _.findWhere(measure.periods, { index: period }) : measure;
+      if (container) {
+        values[measure.metric] = container.value;
+      }
     });
     return values;
   },
@@ -74,7 +78,7 @@ export const StructureMain = React.createClass({
   },
 
   requestMeasures () {
-    return getMeasuresAndVariations(this.props.component.key, this.getMetricsForDomain());
+    return getMeasures(this.props.component.key, this.getMetricsForDomain());
   },
 
   renderLoading () {
@@ -118,7 +122,7 @@ export const StructureMain = React.createClass({
     if (distribution == null) {
       return null;
     }
-    return <LanguageDistribution lines={this.state.measures['ncloc']} distribution={distribution}/>;
+    return <LanguageDistribution lines={Number(this.state.measures['ncloc'])} distribution={distribution}/>;
   },
 
   renderComplexityDistribution(distribution, props) {

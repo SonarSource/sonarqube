@@ -21,7 +21,7 @@ import _ from 'underscore';
 import d3 from 'd3';
 import React from 'react';
 
-import { getMeasuresAndVariations } from '../../../api/measures';
+import { getMeasures } from '../../../api/measures';
 import { DetailedMeasure } from '../components/detailed-measure';
 import { DomainTimeline } from '../components/domain-timeline';
 import { DomainTreemap } from '../components/domain-treemap';
@@ -64,18 +64,21 @@ export const DebtMain = React.createClass({
       this.requestIssues(),
       this.requestAssignees()
     ]).then(responses => {
-      let measures = this.getMeasuresValues(responses[0], 'value');
-      let leak = this.getMeasuresValues(responses[0], 'var' + this.props.leakPeriodIndex);
+      let measures = this.getMeasuresValues(responses[0]);
+      let leak = this.getMeasuresValues(responses[0], Number(this.props.leakPeriodIndex));
       let tags = responses[1].facet;
       let assignees = extractAssignees(responses[2].facet, responses[2].response);
       this.setState({ ready: true, measures, leak, tags, assignees });
     });
   },
 
-  getMeasuresValues (measures, fieldKey) {
+  getMeasuresValues (measures, period) {
     let values = {};
-    Object.keys(measures).forEach(measureKey => {
-      values[measureKey] = measures[measureKey][fieldKey];
+    measures.forEach(measure => {
+      const container = period ? _.findWhere(measure.periods, { index: period }) : measure;
+      if (container) {
+        values[measure.metric] = container.value;
+      }
     });
     return values;
   },
@@ -95,7 +98,7 @@ export const DebtMain = React.createClass({
   },
 
   requestMeasures () {
-    return getMeasuresAndVariations(this.props.component.key, this.getMetricsForDomain());
+    return getMeasures(this.props.component.key, this.getMetricsForDomain());
   },
 
   getFacet (facets, facetKey) {

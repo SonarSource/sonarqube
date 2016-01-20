@@ -63,7 +63,7 @@ export const GeneralStructure = React.createClass({
     }
     return <Measure composite={true}>
       <div style={{ width: 200 }}>
-        <LanguageDistribution lines={this.props.measures['ncloc']}
+        <LanguageDistribution lines={Number(this.props.measures['ncloc'])}
                               distribution={this.props.measures['ncloc_language_distribution']}/>
       </div>
     </Measure>;

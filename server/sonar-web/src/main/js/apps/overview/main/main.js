@@ -27,7 +27,7 @@ import { GeneralDuplications } from './duplications';
 import { GeneralStructure } from './structure';
 import { CoverageSelectionMixin } from '../components/coverage-selection-mixin';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
-import { getMeasuresAndVariations } from '../../../api/measures';
+import { getMeasures } from '../../../api/measures';
 import { getIssuesCount } from '../../../api/issues';
 import { getTimeMachineData } from '../../../api/time-machine';
 
@@ -76,13 +76,13 @@ export default React.createClass({
       this.requestIssuesAndDebt(),
       this.requestLeakIssuesAndDebt()
     ]).then(responses => {
-      let measures = this.getMeasuresValues(responses[0], 'value');
+      let measures = this.getMeasuresValues(responses[0]);
       measures.issues = responses[1].issues;
       measures.debt = responses[1].debt;
 
       let leak;
       if (this.state.leakPeriodDate) {
-        leak = this.getMeasuresValues(responses[0], 'var' + this.props.leakPeriodIndex);
+        leak = this.getMeasuresValues(responses[0], Number(this.props.leakPeriodIndex));
         leak.issues = responses[2].issues;
         leak.debt = responses[2].debt;
       }
@@ -97,13 +97,16 @@ export default React.createClass({
   },
 
   requestMeasures () {
-    return getMeasuresAndVariations(this.props.component.key, METRICS_LIST);
+    return getMeasures(this.props.component.key, METRICS_LIST);
   },
 
-  getMeasuresValues (measures, fieldKey) {
+  getMeasuresValues (measures, period) {
     let values = {};
-    Object.keys(measures).forEach(measureKey => {
-      values[measureKey] = measures[measureKey][fieldKey];
+    measures.forEach(measure => {
+      const container = period ? _.findWhere(measure.periods, { index: period }) : measure;
+      if (container) {
+        values[measure.metric] = container.value;
+      }
     });
     return values;
   },
