@@ -130,8 +130,8 @@ public class SparkLinesChart extends BaseChartWeb implements DeprecatedChart {
         }
         series1.add(vX, vY);
 
-        min = (vY < min ? vY : min);
-        max = (vY > max ? vY : max);
+        min = vY < min ? vY : min;
+        max = vY > max ? vY : max;
       }
       dataset.addSeries(series1);
       y.setRange(min-1, max+1);

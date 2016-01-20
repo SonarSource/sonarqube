@@ -86,7 +86,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
     initWidgetGlobal(view);
     initRequiredMeasures(view);
 
-    isWidget = (view instanceof Widget);
+    isWidget = view instanceof Widget;
   }
 
   private void initRequiredMeasures(V view) {

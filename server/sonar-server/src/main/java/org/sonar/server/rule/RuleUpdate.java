@@ -90,7 +90,7 @@ public class RuleUpdate {
    * Set to <code>null</code> or blank to remove existing note.
    */
   public RuleUpdate setMarkdownNote(@Nullable String s) {
-    this.markdownNote = (s == null ? null : StringUtils.defaultIfBlank(s, null));
+    this.markdownNote = s == null ? null : StringUtils.defaultIfBlank(s, null);
     this.changeMarkdownNote = true;
     return this;
   }
@@ -105,7 +105,7 @@ public class RuleUpdate {
    * to reset to default characteristic.
    */
   public RuleUpdate setDebtSubCharacteristic(@Nullable String c) {
-    this.debtSubCharacteristicKey = (c == null ? null : StringUtils.defaultIfBlank(c, null));
+    this.debtSubCharacteristicKey = c == null ? null : StringUtils.defaultIfBlank(c, null);
     this.changeDebtSubCharacteristic = true;
     return this;
   }

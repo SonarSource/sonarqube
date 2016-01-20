@@ -633,7 +633,7 @@ public interface WebService extends Definable<WebService.Context> {
      * @since 4.4
      */
     public NewParam setExampleValue(@Nullable Object s) {
-      this.exampleValue = ((s != null) ? s.toString() : null);
+      this.exampleValue = (s != null) ? s.toString() : null;
       return this;
     }
 
@@ -676,7 +676,7 @@ public interface WebService extends Definable<WebService.Context> {
      * @since 4.4
      */
     public NewParam setDefaultValue(@Nullable Object o) {
-      this.defaultValue = ((o != null) ? o.toString() : null);
+      this.defaultValue = (o != null) ? o.toString() : null;
       return this;
     }
 

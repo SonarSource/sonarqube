@@ -192,7 +192,7 @@ public class ResourceIndexDao extends AbstractDao {
       .setRootProjectId(rootId)
       .setNameSize(nameLength);
 
-    int maxPosition = (key.length() == SINGLE_INDEX_SIZE ? 0 : key.length() - MINIMUM_KEY_SIZE);
+    int maxPosition = key.length() == SINGLE_INDEX_SIZE ? 0 : key.length() - MINIMUM_KEY_SIZE;
     for (int position = 0; position <= maxPosition; position++) {
       dto.setPosition(position);
       dto.setKey(StringUtils.substring(key, position));
