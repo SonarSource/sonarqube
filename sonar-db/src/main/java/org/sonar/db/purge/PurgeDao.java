@@ -29,6 +29,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -210,11 +211,8 @@ public class PurgeDao implements Dao {
   /**
    * Load the whole tree of projects, including the project given in parameter.
    */
-  private List<ResourceDto> getProjects(long rootProjectId, SqlSession session) {
-    List<ResourceDto> projects = Lists.newArrayList();
-    projects.add(resourceDao.selectResource(rootProjectId, session));
-    projects.addAll(resourceDao.getDescendantProjects(rootProjectId, session));
-    return projects;
+  private List<ResourceDto> getProjects(long rootId, SqlSession session) {
+    return resourceDao.selectWholeTreeForRootId(session, rootId, Scopes.PROJECT);
   }
 
   private PurgeMapper mapper(DbSession session) {

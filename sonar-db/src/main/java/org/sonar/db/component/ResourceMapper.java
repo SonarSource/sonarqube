@@ -35,7 +35,7 @@ public interface ResourceMapper {
 
   ResourceDto selectResourceByUuid(String uuid);
 
-  List<ResourceDto> selectDescendantProjects(long rootProjectId);
+  List<ResourceDto> selectWholeTreeForRootId(@Param("rootId") long rootId, @Param("scope") String scope);
 
   /**
    * @since 3.0

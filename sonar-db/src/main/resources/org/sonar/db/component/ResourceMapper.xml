@@ -127,8 +127,14 @@
     </where>
   </select>
 
-  <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
-    select * from projects where scope='PRJ' and root_id=#{id}
+  <select id="selectWholeTreeForRootId" parameterType="long" resultMap="resourceResultMap">
+    select
+    pAll.*
+    from projects pAll
+    inner join projects pRoot on pAll.project_uuid = pRoot.uuid and pRoot.id = #{rootId}
+    <where>
+      pAll.scope = #{scope}
+    </where>
   </select>
 
   <select id="selectRootProjectByComponentKey" parameterType="string" resultMap="resourceResultMap">

@@ -87,19 +87,8 @@ public class ResourceDao extends AbstractDao {
     return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceKey(resourceKey);
   }
 
-  public List<ResourceDto> getDescendantProjects(long projectId, SqlSession session) {
-    ResourceMapper mapper = session.getMapper(ResourceMapper.class);
-    List<ResourceDto> resources = newArrayList();
-    appendChildProjects(projectId, mapper, resources);
-    return resources;
-  }
-
-  private void appendChildProjects(long projectId, ResourceMapper mapper, List<ResourceDto> resources) {
-    List<ResourceDto> subProjects = mapper.selectDescendantProjects(projectId);
-    for (ResourceDto subProject : subProjects) {
-      resources.add(subProject);
-      appendChildProjects(subProject.getId(), mapper, resources);
-    }
+  public List<ResourceDto> selectWholeTreeForRootId(SqlSession session, long rootId, String scope) {
+    return session.getMapper(ResourceMapper.class).selectWholeTreeForRootId(rootId, scope);
   }
 
   public void updateAuthorizationDate(Long projectId, SqlSession session) {
