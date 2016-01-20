@@ -19,11 +19,7 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
-import org.sonar.batch.protocol.input.BatchInput.User;
 import com.google.common.annotations.VisibleForTesting;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,10 +28,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +51,11 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.batch.protocol.input.BatchInput;
+import org.sonar.batch.protocol.input.BatchInput.User;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import static com.google.common.collect.Sets.newHashSet;
 
 @Properties({
   @Property(
@@ -118,8 +115,8 @@ public class JSONReport implements Reporter {
       json.beginObject();
       json.prop("version", server.getVersion());
 
-      Set<RuleKey> ruleKeys = newHashSet();
-      Set<String> userLogins = newHashSet();
+      Set<RuleKey> ruleKeys = new LinkedHashSet<>();
+      Set<String> userLogins = new LinkedHashSet<>();
       writeJsonIssues(json, ruleKeys, userLogins);
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
