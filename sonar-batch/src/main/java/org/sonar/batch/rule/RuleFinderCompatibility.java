@@ -46,6 +46,12 @@ import java.util.Collections;
 public class RuleFinderCompatibility implements RuleFinder {
 
   private final Rules rules;
+  private static Function<org.sonar.api.batch.rule.Rule, Rule> ruleTransformer = new Function<org.sonar.api.batch.rule.Rule, Rule>() {
+    @Override
+    public Rule apply(@Nonnull org.sonar.api.batch.rule.Rule input) {
+      return toRule(input);
+    }
+  };
 
   public RuleFinderCompatibility(Rules rules) {
     this.rules = rules;
@@ -98,12 +104,7 @@ public class RuleFinderCompatibility implements RuleFinder {
     return Collections2.transform(rules.findByRepository(query.getRepositoryKey()), ruleTransformer);
   }
 
-  private static Function<org.sonar.api.batch.rule.Rule, Rule> ruleTransformer = new Function<org.sonar.api.batch.rule.Rule, Rule>() {
-    @Override
-    public Rule apply(@Nonnull org.sonar.api.batch.rule.Rule input) {
-      return toRule(input);
-    }
-  };
+  
 
   private Collection<Rule> byKey(RuleQuery query) {
     Rule rule = toRule(rules.find(RuleKey.of(query.getRepositoryKey(), query.getKey())));

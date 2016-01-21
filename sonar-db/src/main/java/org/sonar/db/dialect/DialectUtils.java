@@ -29,12 +29,12 @@ import org.sonar.api.utils.MessageException;
 
 public final class DialectUtils {
 
+  private static final Dialect[] DIALECTS = new Dialect[] {new H2(), new MySql(), new Oracle(), new PostgreSql(), new MsSql()};
+
   private DialectUtils() {
     // only static stuff
   }
-
-  private static final Dialect[] DIALECTS = new Dialect[] {new H2(), new MySql(), new Oracle(), new PostgreSql(), new MsSql()};
-
+  
   public static Dialect find(final String dialectId, final String jdbcConnectionUrl) {
     Dialect match = StringUtils.isNotBlank(dialectId) ? findById(dialectId) : findByJdbcUrl(jdbcConnectionUrl);
     if (match == null) {

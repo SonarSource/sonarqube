@@ -31,6 +31,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable {
+  private O nextObject = null;
+  boolean isClosed = false;
   private static final CloseableIterator<?> EMPTY_CLOSEABLE_ITERATOR = new CloseableIterator<Object>() {
     @Override
     public boolean hasNext() {
@@ -75,9 +77,6 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
   public static <T> CloseableIterator<T> wrap(CloseableIterator<T> iterator, AutoCloseable... otherCloseables) {
     return new CloseablesIteratorWrapper<>(iterator, otherCloseables);
   }
-
-  private O nextObject = null;
-  boolean isClosed = false;
 
   @Override
   public boolean hasNext() {

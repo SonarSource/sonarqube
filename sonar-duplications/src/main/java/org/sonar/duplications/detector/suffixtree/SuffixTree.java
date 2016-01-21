@@ -46,7 +46,12 @@ public final class SuffixTree {
   final Text text;
 
   private final Node root;
-
+  
+  private SuffixTree(Text text) {
+    this.text = text;
+    root = new Node(this, null);
+  }
+  
   public static SuffixTree create(Text text) {
     SuffixTree tree = new SuffixTree(text);
     Suffix active = new Suffix(tree.root, 0, -1);
@@ -54,11 +59,6 @@ public final class SuffixTree {
       tree.addPrefix(active, i);
     }
     return tree;
-  }
-
-  private SuffixTree(Text text) {
-    this.text = text;
-    root = new Node(this, null);
   }
 
   private void addPrefix(Suffix active, int endIndex) {

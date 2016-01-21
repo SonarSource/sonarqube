@@ -45,10 +45,6 @@ public abstract class ServletFilter implements Filter {
     private String url;
     private String urlToMatch;
 
-    public static UrlPattern create(String pattern) {
-      return new UrlPattern(pattern);
-    }
-
     private UrlPattern(String url) {
       Preconditions.checkArgument(!Strings.isNullOrEmpty(url), "Empty url");
       this.url = url;
@@ -62,6 +58,10 @@ public abstract class ServletFilter implements Filter {
       } else {
         code = 4;
       }
+    }
+    
+    public static UrlPattern create(String pattern) {
+      return new UrlPattern(pattern);
     }
 
     public boolean matches(String path) {

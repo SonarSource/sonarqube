@@ -25,6 +25,10 @@ package org.sonar.batch.issue.tracking;
 public class RollingFileHashes {
 
   final int[] rollingHashes;
+  
+  private RollingFileHashes(int[] hashes) {
+    this.rollingHashes = hashes;
+  }
 
   public static RollingFileHashes create(FileHashes hashes, int halfBlockSize) {
     int size = hashes.length();
@@ -51,10 +55,6 @@ public class RollingFileHashes {
 
   public int getHash(int line) {
     return rollingHashes[line - 1];
-  }
-
-  private RollingFileHashes(int[] hashes) {
-    this.rollingHashes = hashes;
   }
 
   private static class RollingHashCalculator {

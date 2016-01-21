@@ -33,6 +33,7 @@ import java.nio.file.Path;
 public class AnalysisTempFolderProvider extends ProviderAdapter implements ComponentLifecycle<TempFolder> {
   static final String TMP_NAME = ".sonartmp";
   private DefaultTempFolder projectTempFolder;
+  private boolean started = false;
 
   public TempFolder provide(ProjectReactor projectReactor) {
     if (projectTempFolder == null) {
@@ -54,8 +55,6 @@ public class AnalysisTempFolderProvider extends ProviderAdapter implements Compo
   public void start(PicoContainer container) {
     started = true;
   }
-
-  private boolean started = false;
 
   @Override
   public void stop(PicoContainer container) {
