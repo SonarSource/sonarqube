@@ -71,6 +71,15 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   private final System2 system;
   private final File out;
+  
+  public PhasesSumUpTimeProfiler(System2 system, GlobalProperties bootstrapProps) {
+    String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
+    File workingDir = new File(workingDirPath).getAbsoluteFile();
+    this.out = new File(workingDir, "profiling");
+    this.out.mkdirs();
+    this.totalProfiling = new ModuleProfiling(null, system);
+    this.system = system;
+  }
 
   static void println(String msg) {
     LOG.info(msg);
@@ -83,15 +92,6 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       sb.append(" (").append((int) (phaseProfiling.totalTime() / percent)).append("%)");
     }
     println(sb.toString());
-  }
-
-  public PhasesSumUpTimeProfiler(System2 system, GlobalProperties bootstrapProps) {
-    String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-    File workingDir = new File(workingDirPath).getAbsoluteFile();
-    this.out = new File(workingDir, "profiling");
-    this.out.mkdirs();
-    this.totalProfiling = new ModuleProfiling(null, system);
-    this.system = system;
   }
 
   @Override

@@ -30,18 +30,17 @@ public class JavaAnnotationTokenizer extends Tokenizer {
 
   private final String tagBefore;
   private final String tagAfter;
-
-  public JavaAnnotationTokenizer(String tagBefore, String tagAfter) {
-    this.tagBefore = tagBefore;
-    this.tagAfter = tagAfter;
-  }
-
   private static final EndMatcher END_TOKEN_MATCHER = new EndMatcher() {
     @Override
     public boolean match(int endFlag) {
       return !Character.isJavaIdentifierPart(endFlag);
     }
   };
+
+  public JavaAnnotationTokenizer(String tagBefore, String tagAfter) {
+    this.tagBefore = tagBefore;
+    this.tagAfter = tagAfter;
+  }
 
   @Override
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {

@@ -20,11 +20,11 @@
 package org.sonar.db.ce;
 
 public final class CeTaskTypes {
+  
+  public static final String REPORT = "REPORT";
 
   private CeTaskTypes() {
     // only statics
   }
-
-  public static final String REPORT = "REPORT";
 
 }

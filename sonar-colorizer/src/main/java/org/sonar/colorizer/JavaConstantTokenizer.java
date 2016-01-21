@@ -31,6 +31,13 @@ public class JavaConstantTokenizer extends Tokenizer {
   private final String tagBefore;
   private final String tagAfter;
   private static final int DOT = '.';
+  private EndMatcher endTokenMatcher = new EndMatcher() {
+
+    @Override
+    public boolean match(int endFlag) {
+      return !isJavaConstantPart(endFlag);
+    }
+  };
 
   public JavaConstantTokenizer(String tagBefore, String tagAfter) {
     this.tagBefore = tagBefore;
@@ -70,13 +77,5 @@ public class JavaConstantTokenizer extends Tokenizer {
   private boolean isJavaConstantPart(int character) {
     return Character.isUpperCase(character) || character == '_' || character == '-' || Character.isDigit(character);
   }
-
-  private EndMatcher endTokenMatcher = new EndMatcher() {
-
-    @Override
-    public boolean match(int endFlag) {
-      return !isJavaConstantPart(endFlag);
-    }
-  };
 
 }

@@ -34,6 +34,12 @@ public abstract class InlineDocTokenizer extends Tokenizer {
   private final String tagAfter;
 
   private final char[] startToken;
+  private static final EndMatcher LINE_END_MATCHER = new EndMatcher() {
+    @Override
+    public boolean match(int endFlag) {
+      return endFlag == '\r' || endFlag == '\n';
+    }
+  };
 
   public InlineDocTokenizer(String startToken, String tagBefore, String tagAfter) {
     this.tagBefore = tagBefore;
@@ -52,12 +58,5 @@ public abstract class InlineDocTokenizer extends Tokenizer {
       return false;
     }
   }
-
-  private static final EndMatcher LINE_END_MATCHER = new EndMatcher() {
-    @Override
-    public boolean match(int endFlag) {
-      return endFlag == '\r' || endFlag == '\n';
-    }
-  };
 
 }

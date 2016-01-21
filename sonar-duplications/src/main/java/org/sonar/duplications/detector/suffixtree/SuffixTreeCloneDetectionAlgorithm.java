@@ -34,7 +34,17 @@ import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 
 public final class SuffixTreeCloneDetectionAlgorithm {
-
+  
+  private SuffixTreeCloneDetectionAlgorithm() {
+  }
+  
+  private static final Comparator<Block> BLOCK_COMPARATOR = new Comparator<Block>() {
+    @Override
+    public int compare(Block o1, Block o2) {
+      return o1.getIndexInFile() - o2.getIndexInFile();
+    }
+  };
+  
   public static List<CloneGroup> detect(CloneIndex cloneIndex, Collection<Block> fileBlocks) {
     if (fileBlocks.isEmpty()) {
       return Collections.emptyList();
@@ -46,9 +56,6 @@ public final class SuffixTreeCloneDetectionAlgorithm {
     DuplicationsCollector reporter = new DuplicationsCollector(text);
     Search.perform(text, reporter);
     return reporter.getResult();
-  }
-
-  private SuffixTreeCloneDetectionAlgorithm() {
   }
 
   private static TextSet createTextSet(CloneIndex index, Collection<Block> fileBlocks) {
@@ -111,12 +118,5 @@ public final class SuffixTreeCloneDetectionAlgorithm {
     }
     return collection;
   }
-
-  private static final Comparator<Block> BLOCK_COMPARATOR = new Comparator<Block>() {
-    @Override
-    public int compare(Block o1, Block o2) {
-      return o1.getIndexInFile() - o2.getIndexInFile();
-    }
-  };
 
 }

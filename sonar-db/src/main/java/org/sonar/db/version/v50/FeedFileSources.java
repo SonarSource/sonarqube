@@ -39,6 +39,7 @@ import org.sonar.db.version.SqlStatement;
  */
 public class FeedFileSources extends BaseDataChange {
 
+  private final System2 system;
   private static final String SELECT_FILES_AND_MEASURES_SQL = "SELECT " +
     "p.uuid, " +
     "f.uuid, " +
@@ -138,6 +139,11 @@ public class FeedFileSources extends BaseDataChange {
     "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' " +
     "AND fs.file_uuid IS NULL";
 
+  public FeedFileSources(Database db, System2 system) {
+    super(db);
+    this.system = system;
+  }
+  
   private static final class FileSourceBuilder implements MassUpdate.Handler {
     private final long now;
 
@@ -218,13 +224,6 @@ public class FeedFileSources extends BaseDataChange {
       result = shortBytes;
     }
     return new String(result, StandardCharsets.UTF_8);
-  }
-
-  private final System2 system;
-
-  public FeedFileSources(Database db, System2 system) {
-    super(db);
-    this.system = system;
   }
 
   @Override

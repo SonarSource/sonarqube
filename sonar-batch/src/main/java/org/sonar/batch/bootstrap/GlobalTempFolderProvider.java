@@ -44,7 +44,8 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
   private static final Logger LOG = Loggers.get(GlobalTempFolderProvider.class);
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
   static final String TMP_NAME_PREFIX = ".sonartmp_";
-
+  private boolean started = false;
+  
   private System2 system;
   private DefaultTempFolder tempFolder;
 
@@ -150,8 +151,6 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
   public void start(PicoContainer container) {
     started = true;
   }
-
-  private boolean started = false;
 
   @Override
   public void stop(PicoContainer container) {

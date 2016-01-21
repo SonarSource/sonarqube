@@ -35,15 +35,22 @@ public final class Search {
 
   private final List<Integer> list = new ArrayList<>();
   private final List<Node> innerNodes = new ArrayList<>();
-
-  public static void perform(TextSet text, Collector reporter) {
-    new Search(SuffixTree.create(text), text, reporter).compute();
-  }
+  
+  private static final Comparator<Node> DEPTH_COMPARATOR = new Comparator<Node>() {
+    @Override
+    public int compare(Node o1, Node o2) {
+      return o2.depth - o1.depth;
+    }
+  };
 
   private Search(SuffixTree tree, TextSet text, Collector reporter) {
     this.tree = tree;
     this.text = text;
     this.reporter = reporter;
+  }
+  
+  public static void perform(TextSet text, Collector reporter) {
+    new Search(SuffixTree.create(text), text, reporter).compute();
   }
 
   private void compute() {
@@ -56,13 +63,6 @@ public final class Search {
     // O(N)
     visitInnerNodes();
   }
-
-  private static final Comparator<Node> DEPTH_COMPARATOR = new Comparator<Node>() {
-    @Override
-    public int compare(Node o1, Node o2) {
-      return o2.depth - o1.depth;
-    }
-  };
 
   /**
    * Depth-first search (DFS).

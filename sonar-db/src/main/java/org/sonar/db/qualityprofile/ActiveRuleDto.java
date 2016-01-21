@@ -45,6 +45,8 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   private Integer ruleId;
   private Integer severity;
   private String inheritance;
+  //This field do not exists in db, it's only retrieve by joins
+  private Integer parentId;
 
   /**
    * @deprecated for internal use, should be private
@@ -61,9 +63,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   public ActiveRuleKey getKey() {
     return ActiveRuleKey.of(profileKey, RuleKey.of(repository, ruleField));
   }
-
-  // This field do not exists in db, it's only retrieve by joins
-  private Integer parentId;
 
   public Integer getId() {
     return id;
