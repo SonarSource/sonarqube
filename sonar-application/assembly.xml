@@ -135,6 +135,7 @@
           <exclude>**/*.bat</exclude>
           <exclude>**/sample*/**</exclude>
           <exclude>**/macosx-universal-32/**</exclude>
+          <exclude>**/solaris*/**</exclude>
           <!-- SONAR-6110 - Drop support files for Linux PPC 64 -->
           <exclude>**/linux-ppc-64/**</exclude>
         </excludes>
