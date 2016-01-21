@@ -20,9 +20,17 @@
 package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import java.util.LinkedHashSet;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
+
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
 
 class PurgeCommands {
 
@@ -32,6 +40,13 @@ class PurgeCommands {
   private final SqlSession session;
   private final PurgeMapper purgeMapper;
   private final PurgeProfiler profiler;
+  private final Function<PurgeSnapshotQuery, Iterable<Long>> purgeSnapshotQueryToSnapshotIds = new Function<PurgeSnapshotQuery, Iterable<Long>>() {
+    @Nullable
+    @Override
+    public Iterable<Long> apply(PurgeSnapshotQuery query) {
+      return purgeMapper.selectSnapshotIds(query);
+    }
+  };
 
   PurgeCommands(SqlSession session, PurgeMapper purgeMapper, PurgeProfiler profiler) {
     this.session = session;
@@ -146,8 +161,10 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteSnapshots(final PurgeSnapshotQuery query) {
-    deleteSnapshots(purgeMapper.selectSnapshotIds(query));
+  void deleteSnapshots(PurgeSnapshotQuery... queries) {
+    List<Long> snapshotIds = from(asList(queries))
+      .transformAndConcat(purgeSnapshotQueryToSnapshotIds).toList();
+    deleteSnapshots(snapshotIds);
   }
 
   @VisibleForTesting
@@ -179,14 +196,16 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void purgeSnapshots(final PurgeSnapshotQuery query) {
-    purgeSnapshots(purgeMapper.selectSnapshotIds(query));
+  void purgeSnapshots(PurgeSnapshotQuery... queries) {
+    // use LinkedHashSet to keep order by remove duplicated ids
+    LinkedHashSet<Long> snapshotIds = Sets.newLinkedHashSet(from(asList(queries)).transformAndConcat(purgeSnapshotQueryToSnapshotIds));
+    purgeSnapshots(snapshotIds);
   }
 
   @VisibleForTesting
-  protected void purgeSnapshots(final List<Long> snapshotIds) {
+  protected void purgeSnapshots(Iterable<Long> snapshotIds) {
     // note that events are not deleted
-    List<List<Long>> snapshotIdsPartition = Lists.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
+    Iterable<List<Long>> snapshotIdsPartition = Iterables.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
 
     deleteSnapshotDuplications(snapshotIdsPartition);
 
@@ -206,7 +225,7 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  private void deleteSnapshotDuplications(final List<List<Long>> snapshotIdsPartition) {
+  private void deleteSnapshotDuplications(Iterable<List<Long>> snapshotIdsPartition) {
     profiler.start("deleteSnapshotDuplications (duplications_index)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
       purgeMapper.deleteSnapshotDuplications(partSnapshotIds);

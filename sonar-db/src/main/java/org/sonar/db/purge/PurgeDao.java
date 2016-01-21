@@ -46,6 +46,8 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
  */
 public class PurgeDao implements Dao {
   private static final Logger LOG = Loggers.get(PurgeDao.class);
+  private static final String[] UNPROCESSED_STATUS = new String[] {"U"};
+
   private final MyBatis mybatis;
   private final ResourceDao resourceDao;
   private final System2 system2;
@@ -92,7 +94,7 @@ public class PurgeDao implements Dao {
     LOG.debug("<- Delete aborted builds");
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
       .setIslast(false)
-      .setStatus(new String[] {"U"})
+      .setStatus(UNPROCESSED_STATUS)
       .setRootProjectId(project.getId());
     commands.deleteSnapshots(query);
   }
@@ -114,11 +116,10 @@ public class PurgeDao implements Dao {
         purgeCommands.deleteSnapshots(query);
       }
 
-      PurgeSnapshotQuery query = PurgeSnapshotQuery.create().setRootSnapshotId(projectSnapshotId).setNotPurged(true);
-      purgeCommands.purgeSnapshots(query);
-
       // must be executed at the end for reentrance
-      purgeCommands.purgeSnapshots(PurgeSnapshotQuery.create().setId(projectSnapshotId).setNotPurged(true));
+      purgeCommands.purgeSnapshots(
+        PurgeSnapshotQuery.create().setRootSnapshotId(projectSnapshotId).setNotPurged(true),
+        PurgeSnapshotQuery.create().setId(projectSnapshotId).setNotPurged(true));
     }
   }
 
@@ -186,15 +187,15 @@ public class PurgeDao implements Dao {
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query, PurgeProfiler profiler) {
     final DbSession session = mybatis.openSession(true);
     try {
-      return deleteSnapshots(query, session, profiler);
+      return deleteSnapshots(session, profiler, query);
 
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public PurgeDao deleteSnapshots(PurgeSnapshotQuery query, DbSession session, PurgeProfiler profiler) {
-    new PurgeCommands(session, profiler).deleteSnapshots(query);
+  public PurgeDao deleteSnapshots(DbSession session, PurgeProfiler profiler, PurgeSnapshotQuery... queries) {
+    new PurgeCommands(session, profiler).deleteSnapshots(queries);
     return this;
   }
 

@@ -58,8 +58,7 @@ public class DefaultPeriodCleanerTest {
 
     verify(filter1).log();
     verify(filter2).log();
-    verify(dao, times(2)).deleteSnapshots(argThat(newRootSnapshotQuery()), eq(session), any(PurgeProfiler.class));
-    verify(dao, times(2)).deleteSnapshots(argThat(newSnapshotIdQuery()), eq(session), any(PurgeProfiler.class));
+    verify(dao, times(2)).deleteSnapshots(eq(session), any(PurgeProfiler.class), argThat(newRootSnapshotQuery()), argThat(newSnapshotIdQuery()));
   }
 
   private BaseMatcher<PurgeSnapshotQuery> newRootSnapshotQuery() {

@@ -60,8 +60,10 @@ public class DefaultPeriodCleaner {
   private void delete(List<PurgeableSnapshotDto> snapshots, DbSession session) {
     for (PurgeableSnapshotDto snapshot : snapshots) {
       LOG.debug("<- Delete snapshot: {} [{}]", DateUtils.formatDateTime(snapshot.getDate()), snapshot.getSnapshotId());
-      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()), session, profiler);
-      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()), session, profiler);
+      purgeDao.deleteSnapshots(
+        session, profiler,
+        PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()),
+        PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()));
     }
   }
 
