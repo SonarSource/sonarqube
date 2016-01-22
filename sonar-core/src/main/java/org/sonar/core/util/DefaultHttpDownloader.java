@@ -133,7 +133,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   }
 
   public String getProxySynthesis(URI uri) {
-    return downloader.getProxySynthesis(uri);
+    return BaseHttpDownloader.getProxySynthesis(uri);
   }
 
   @Override
