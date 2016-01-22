@@ -51,7 +51,7 @@ public class ResourceDao extends AbstractDao {
     try {
       return selectResource(query, session);
     } finally {
-      myBatis().closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -74,7 +74,7 @@ public class ResourceDao extends AbstractDao {
     try {
       return session.getMapper(ResourceMapper.class).selectResourceByUuid(componentUuid);
     } finally {
-      myBatis().closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -128,7 +128,7 @@ public class ResourceDao extends AbstractDao {
     try {
       return getRootProjectByComponentKey(session, componentKey);
     } finally {
-      myBatis().closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -154,7 +154,7 @@ public class ResourceDao extends AbstractDao {
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectProjectsByQualifiers(qualifiers));
     } finally {
-      myBatis().closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -169,7 +169,7 @@ public class ResourceDao extends AbstractDao {
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectProjectsIncludingNotCompletedOnesByQualifiers(qualifiers));
     } finally {
-      myBatis().closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -187,7 +187,7 @@ public class ResourceDao extends AbstractDao {
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectGhostsProjects(qualifiers));
     } finally {
-      myBatis().closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -202,7 +202,7 @@ public class ResourceDao extends AbstractDao {
     try {
       return session.getMapper(ResourceMapper.class).selectProvisionedProjects(qualifiers);
     } finally {
-      myBatis().closeQuietly(session);
+      MyBatis.closeQuietly(session);
     }
   }
 
