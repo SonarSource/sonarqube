@@ -87,7 +87,8 @@ public interface OAuth2IdentityProvider extends IdentityProvider {
     void redirectToRequestedPage();
 
     /**
-     * Authenticate and register the user into the platform
+     * Authenticate and register the user into the platform.
+     * @see org.sonar.api.server.authentication.BaseIdentityProvider.Context#authenticate(UserIdentity)
      */
     void authenticate(UserIdentity userIdentity);
   }

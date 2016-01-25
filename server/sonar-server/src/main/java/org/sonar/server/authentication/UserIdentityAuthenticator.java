@@ -66,6 +66,12 @@ public class UserIdentityAuthenticator {
       if (!provider.allowsUsersToSignUp()) {
         throw new NotAllowUserToSignUpException(provider);
       }
+
+      String email = user.getEmail();
+      if (email != null && dbClient.userDao().doesEmailExist(dbSession, email)) {
+        throw new EmailAlreadyExistsException(email);
+      }
+
       userUpdater.create(dbSession, NewUser.create()
         .setLogin(uuidFactory.create())
         .setEmail(user.getEmail())

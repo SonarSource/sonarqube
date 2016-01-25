@@ -187,6 +187,13 @@ public class UserDao implements Dao {
     throw new RowNotFoundException(String.format("User with identity provider '%s' and id '%s' has not been found", extIdentityProvider, extIdentity));
   }
 
+  /**
+   * Please note that email is case insensitive, result for searching 'mail@email.com' or 'Mail@Email.com' will be the same
+   */
+  public boolean doesEmailExist(DbSession dbSession, String email){
+    return mapper(dbSession).countByEmail(email.toLowerCase()) > 0;
+  }
+
   protected UserMapper mapper(DbSession session) {
     return session.getMapper(UserMapper.class);
   }

@@ -142,6 +142,28 @@ public class InitFilterTest {
     assertError("Fail to initialize authentication with provider 'unsupported'");
   }
 
+  @Test
+  public void redirect_when_failing_because_of_NotAllowUserToSignUpException() throws Exception {
+    IdentityProvider identityProvider = new FailWithNotAllowUserToSignUpIdProvider("failing");
+    when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sessions/not_allowed_to_sign_up?providerName=Failing provider");
+  }
+
+  @Test
+  public void redirect_when_failing_because_of_EmailAlreadyExistsException() throws Exception {
+    IdentityProvider identityProvider = new FailWithEmailAlreadyExistsExceptionIdProvider("failing");
+    when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sessions/email_already_exists?email=john@email.com");
+  }
+
   private void assertOAuth2InitCalled(){
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isInitCalled()).isTrue();
@@ -156,5 +178,34 @@ public class InitFilterTest {
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains(expectedError);
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
+  }
+
+  private static class FailWithNotAllowUserToSignUpIdProvider extends FakeBasicIdentityProvider {
+
+    public FailWithNotAllowUserToSignUpIdProvider(String key) {
+      super(key, true);
+    }
+
+    @Override
+    public String getName() {
+      return "Failing provider";
+    }
+
+    @Override
+    public void init(Context context) {
+      throw new NotAllowUserToSignUpException(this);
+    }
+  }
+
+  private static class FailWithEmailAlreadyExistsExceptionIdProvider extends FakeBasicIdentityProvider {
+
+    public FailWithEmailAlreadyExistsExceptionIdProvider(String key) {
+      super(key, true);
+    }
+
+    @Override
+    public void init(Context context) {
+      throw new EmailAlreadyExistsException("john@email.com");
+    }
   }
 }

@@ -59,7 +59,11 @@ public interface BaseIdentityProvider extends IdentityProvider {
      * The first time a user is authenticated (and if {@link #allowsUsersToSignUp()} is true), a new user will be registered.
      * Then, only user's name and email are updated.
      *
-     * @throws NotAllowUserToSignUpException when {@link #allowsUsersToSignUp()} is false and a new user try to authenticate
+     * If @link #allowsUsersToSignUp()} is set to false and a new user try to authenticate,
+     * then the user is not authenticated and he's redirected to a dedicated page.
+     *
+     * If the email of the user is already used by an existing user of the platform,
+     * then the user is not authenticated and he's redirected to a dedicated page.
      */
     void authenticate(UserIdentity userIdentity);
 

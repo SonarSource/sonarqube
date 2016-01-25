@@ -57,6 +57,8 @@ public interface UserMapper {
   @CheckForNull
   GroupDto selectGroupByName(String name);
 
+  long countByEmail(String email);
+
   void insert(UserDto userDto);
 
   void update(UserDto userDto);

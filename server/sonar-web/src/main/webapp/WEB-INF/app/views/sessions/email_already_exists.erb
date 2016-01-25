@@ -3,7 +3,7 @@
     <td align="center">
 
       <div id="login_form">
-        <p id="unauthorized"><%= h params[:providerName] %> users are not allowed to signup</p>
+        <p id="unauthorized">Email <%= h params[:email] %> is already used by an existing user</p>
       </div>
     </td>
   </tr>

@@ -98,6 +98,12 @@
     </where>
   </select>
 
+  <select id="countByEmail" parameterType="String" resultType="long">
+    SELECT count(u.id)
+    FROM users u
+    where lower(u.email)=#{email}
+  </select>
+
   <select id="selectGroupByName" parameterType="string" resultType="Group">
     SELECT id, name, description, created_at AS "createdAt", updated_at AS "updatedAt"
     FROM groups WHERE name=#{id}

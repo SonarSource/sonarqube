@@ -31,6 +31,7 @@ import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.web.ServletFilter;
 
+import static org.sonar.server.authentication.AuthenticationError.handleEmailAlreadyExistsError;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
 import static org.sonar.server.authentication.AuthenticationError.handleNotAllowedToSignUpError;
 
@@ -67,6 +68,8 @@ public class OAuth2CallbackFilter extends ServletFilter {
       }
     } catch (NotAllowUserToSignUpException e) {
       handleNotAllowedToSignUpError(e, (HttpServletResponse) response);
+    } catch (EmailAlreadyExistsException e) {
+      handleEmailAlreadyExistsError(e, (HttpServletResponse) response);
     } catch (Exception e) {
       handleError(e, (HttpServletResponse) response, String.format("Fail to callback authentication with %s", keyProvider));
     }

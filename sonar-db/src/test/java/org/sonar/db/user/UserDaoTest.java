@@ -342,4 +342,13 @@ public class UserDaoTest {
     thrown.expectMessage("User with identity provider 'unknown' and id 'unknown' has not been found");
     underTest.selectOrFailByExternalIdentity(session, "unknown", "unknown");
   }
+
+  @Test
+  public void exists_by_email() throws Exception {
+    db.prepareDbUnit(getClass(), "exists_by_email.xml");
+
+    assertThat(underTest.doesEmailExist(session, "marius@lesbronzes.fr")).isTrue();
+    assertThat(underTest.doesEmailExist(session, "Marius@LesBronzes.fr")).isTrue();
+    assertThat(underTest.doesEmailExist(session, "unknown")).isFalse();
+  }
 }

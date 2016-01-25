@@ -146,4 +146,14 @@ public class UserIdentityAuthenticatorTest {
     thrown.expect(NotAllowUserToSignUpException.class);
     underTest.authenticate(USER_IDENTITY, identityProvider, httpSession);
   }
+
+  @Test
+  public void fail_to_authenticate_new_user_when_email_already_exists() throws Exception {
+    when(userDao.selectByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(Optional.<UserDto>absent());
+    when(userDao.selectOrFailByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(ACTIVE_USER);
+    when(userDao.doesEmailExist(dbSession, USER_IDENTITY.getEmail())).thenReturn(true);
+
+    thrown.expect(EmailAlreadyExistsException.class);
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, httpSession);
+  }
 }

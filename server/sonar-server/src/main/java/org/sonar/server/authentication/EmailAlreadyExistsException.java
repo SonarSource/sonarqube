@@ -19,19 +19,17 @@
  */
 package org.sonar.server.authentication;
 
-import org.sonar.api.server.authentication.IdentityProvider;
+public class EmailAlreadyExistsException extends RuntimeException {
 
-public class NotAllowUserToSignUpException extends RuntimeException {
+  public static final String EMAIL_ALREADY_EXISTS_PATH = "/sessions/email_already_exists?email=%s";
 
-  public static final String NOT_ALLOWED_TO_SIGHNUP_PATH = "/sessions/not_allowed_to_sign_up?providerName=%s";
+  private final String email;
 
-  private final IdentityProvider provider;
-
-  public NotAllowUserToSignUpException(IdentityProvider provider) {
-    this.provider = provider;
+  public EmailAlreadyExistsException(String email) {
+    this.email = email;
   }
 
-  public IdentityProvider getProvider() {
-    return provider;
+  public String getEmail() {
+    return email;
   }
 }
