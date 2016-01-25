@@ -133,13 +133,6 @@ public class CorePropertyDefinitions {
         .defaultValue(String.valueOf(true))
         .hidden()
         .build(),
-      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_UPDATE_USER_ATTRIBUTES)
-        .name("Update user attributes")
-        .description("When using the LDAP or OpenID plugin, at each login, the user attributes (name, email, ...) are re-synchronized")
-        .hidden()
-        .type(PropertyType.BOOLEAN)
-        .defaultValue(String.valueOf(true))
-        .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE)
         .name("Ignore failures during authenticator startup")
         .type(PropertyType.BOOLEAN)

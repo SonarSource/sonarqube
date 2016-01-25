@@ -148,7 +148,7 @@ class PluginRealm
         end
       else
         # Existing user
-        if details && Api::Utils.java_facade.getSettings().getBoolean('sonar.security.updateUserAttributes')
+        if details
           user.name = details.getName()
           user.email = details.getEmail()
         end

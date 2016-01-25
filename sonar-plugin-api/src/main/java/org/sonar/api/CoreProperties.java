@@ -242,7 +242,9 @@ public interface CoreProperties {
 
   /**
    * @since 3.6
+   * @deprecated since 5.4. This feature is not supported anymore. See http://jira.sonarsource.com/browse/SONAR-7219
    */
+  @Deprecated
   String CORE_AUTHENTICATOR_UPDATE_USER_ATTRIBUTES = "sonar.security.updateUserAttributes";
 
   String SERVER_VERSION = "sonar.core.version";
