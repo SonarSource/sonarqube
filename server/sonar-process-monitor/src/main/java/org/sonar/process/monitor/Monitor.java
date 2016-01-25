@@ -92,16 +92,10 @@ public class Monitor {
     // intercepts CTRL-C
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
-    // start watching for stop requested by other process (eg. orchestrator) if enabled
-    if (watchForHardStop) {
-      this.hardStopWatcher = new HardStopWatcherThread();
-      this.hardStopWatcher.start();
-    }
-
     // start watching for restart requested by child process
-    this.restartWatcher.start();
+    restartWatcher.start();
 
-    this.javaCommands = commands;
+    javaCommands = commands;
     startProcesses();
   }
 
@@ -109,6 +103,12 @@ public class Monitor {
     // do no start any child process if not in state INIT or RESTARTING (a stop could be in progress too)
     if (lifecycle.tryToMoveTo(State.STARTING)) {
       resetFileSystem();
+
+      // start watching for stop requested by other process (eg. orchestrator) if enabled and not started yet
+      if (watchForHardStop && hardStopWatcher == null) {
+        hardStopWatcher = new HardStopWatcherThread();
+        hardStopWatcher.start();
+      }
 
       startAndMonitorProcesses();
       stopIfAnyProcessDidNotStart();
