@@ -30,6 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
@@ -167,6 +168,26 @@ public class AuthenticationTest {
     BuildResult buildResult = ORCHESTRATOR.executeBuildQuietly(sampleProject);
 
     assertThat(buildResult.isSuccess()).isFalse();
+  }
+
+  @Test
+  public void authentication_with_web_service() {
+    assertThat(checkAuthenticationThroughWebService("admin", "admin")).isTrue();
+    assertThat(checkAuthenticationThroughWebService("wrong", "admin")).isFalse();
+    assertThat(checkAuthenticationThroughWebService("admin", "wrong")).isFalse();
+    assertThat(checkAuthenticationThroughWebService(null, null)).isTrue();
+
+    ORCHESTRATOR.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
+
+    assertThat(checkAuthenticationThroughWebService("admin", "admin")).isTrue();
+    assertThat(checkAuthenticationThroughWebService("wrong", "admin")).isFalse();
+    assertThat(checkAuthenticationThroughWebService("admin", "wrong")).isFalse();
+    assertThat(checkAuthenticationThroughWebService(null, null)).isFalse();
+  }
+
+  private boolean checkAuthenticationThroughWebService(String login, String password) {
+    String result = ORCHESTRATOR.getServer().wsClient(login, password).get("/api/authentication/validate");
+    return result.contains("true");
   }
 
   private static void createUser(String login, String password) {

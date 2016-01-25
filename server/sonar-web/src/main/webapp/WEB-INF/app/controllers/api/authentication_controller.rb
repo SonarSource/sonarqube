@@ -55,7 +55,7 @@ class Api::AuthenticationController < Api::ApiController
   end
 
   def anonymous?
-    !session.has_key?(:user_id)
+    !session.has_key?('user_id')
   end
 
   def set_cache_buster
