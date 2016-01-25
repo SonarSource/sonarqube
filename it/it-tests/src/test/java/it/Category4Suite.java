@@ -28,8 +28,8 @@ import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
-import it.serverSystem.RestartTest;
 import it.serverSystem.HttpsTest;
+import it.serverSystem.RestartTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
 import it.serverSystem.ServerSystemTest;
 import it.updateCenter.UpdateCenterTest;
@@ -70,6 +70,7 @@ public class Category4Suite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .setContext("/")
     .addPlugin(xooPlugin())
     .build();
 }
