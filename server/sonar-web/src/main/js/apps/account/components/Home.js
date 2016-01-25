@@ -18,31 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { render } from 'react-dom';
-import { Router, Route, IndexRoute, Redirect } from 'react-router';
-import { createHistory, useBasename } from 'history';
 
-import AccountApp from './containers/AccountApp';
-import Home from './components/Home';
-import Notifications from './components/Notifications';
+import UserCard from './UserCard';
+import Favorites from './Favorites';
+import FavoriteIssueFilters from './FavoriteIssueFilters';
+import FavoriteMeasureFilters from './FavoriteMeasureFilters';
 
-window.sonarqube.appStarted.then(options => {
-  const el = document.querySelector(options.el);
+const Home = ({ user, favorites, issueFilters, measureFilters }) => (
+    <div>
+      <UserCard user={user}/>
+      <div className="overflow-hidden">
+        <Favorites favorites={favorites}/>
+        {issueFilters && <FavoriteIssueFilters issueFilters={issueFilters}/>}
+        {measureFilters && <FavoriteMeasureFilters measureFilters={measureFilters}/>}
+      </div>
+    </div>
+);
 
-  const history = useBasename(createHistory)({
-    basename: window.baseUrl + '/account'
-  });
-
-  document.querySelector('html').classList.add('dashboard-page');
-  document.querySelector('#container').classList.add('page-wrapper-context');
-
-  render((
-      <Router history={history}>
-        <Route path="/" component={AccountApp}>
-          <IndexRoute component={Home}/>
-
-          <Redirect from="/index" to="/"/>
-        </Route>
-      </Router>
-  ), el);
-});
+export default Home;

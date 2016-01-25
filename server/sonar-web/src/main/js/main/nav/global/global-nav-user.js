@@ -32,7 +32,7 @@ export default React.createClass({
           </a>
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
-              <a href={`${window.baseUrl}/account/index`}>{translate('layout.user_panel.my_profile')}</a>
+              <a href={`${window.baseUrl}/account/`}>{translate('my_account.page')}</a>
             </li>
             <li>
               <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>

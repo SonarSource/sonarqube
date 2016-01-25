@@ -68,3 +68,8 @@ export function getIssuesCount (query) {
     return { issues: r.total, debt: r.debtTotal };
   });
 }
+
+export function getIssueFilters () {
+  const url = window.baseUrl + '/api/issue_filters/search';
+  return getJSON(url).then(r => r.issueFilters);
+}

@@ -22,14 +22,18 @@ class AccountController < ApplicationController
   before_filter :login_required
 
   def index
+
+  end
+
+  def notifications
     @channels = notification_service.getChannels()
     @global_dispatchers = dispatchers_for_scope("globalNotification")
     @per_project_dispatchers = dispatchers_for_scope("perProjectNotification")
-    
+
     @global_notifications = {}
     @per_project_notifications = {}
     load_notification_properties
-    
+
     if params[:new_project]
       new_project = Project.by_key params[:new_project]
       unless @per_project_notifications[new_project.id]
@@ -79,33 +83,33 @@ class AccountController < ApplicationController
         end
       end
     end
-    
+
     # New project added
     new_params = {}
     unless params[:new_project].blank?
       new_params[:new_project] = params[:new_project]
     end
-    
+
     redirect_to :action => 'index', :params => new_params
   end
-  
+
   private
 
   def notification_service
     java_facade.getCoreComponentByClassname('org.sonar.server.notification.NotificationCenter')
   end
-  
+
   def dispatchers_for_scope(scope)
     notification_service.getDispatcherKeysForProperty(scope, "true").to_a.sort {|x,y| dispatcher_name(x) <=> dispatcher_name(y)}
   end
-  
+
   def dispatcher_name(dispatcher_key)
     Api::Utils.message('notification.dispatcher.' + dispatcher_key)
   end
-  
+
   def load_notification_properties
     channel_keys = @channels.map {|c| c.getKey()}
-    
+
     Property.find(:all, :conditions => ['prop_key like ? AND user_id = ?', 'notification.%', current_user.id]).each do |property|
       r_id = property.resource_id
       if r_id
@@ -132,7 +136,7 @@ class AccountController < ApplicationController
     end
     project_notifs
   end
-  
+
   def init_project_notifications
     project_notifs = {}
     @per_project_dispatchers.each do |dispatcher|

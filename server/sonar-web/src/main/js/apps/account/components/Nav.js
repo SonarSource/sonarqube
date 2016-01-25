@@ -18,31 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { render } from 'react-dom';
-import { Router, Route, IndexRoute, Redirect } from 'react-router';
-import { createHistory, useBasename } from 'history';
+import { IndexLink } from 'react-router';
 
-import AccountApp from './containers/AccountApp';
-import Home from './components/Home';
-import Notifications from './components/Notifications';
+import { translate } from '../../../helpers/l10n';
 
-window.sonarqube.appStarted.then(options => {
-  const el = document.querySelector(options.el);
+const Nav = () => (
+    <nav className="navbar navbar-context page-container">
+      <div className="container">
+        <ul className="nav navbar-nav nav-crumbs">
+          <li>
+            <IndexLink to="/" activeClassName="active">
+              {translate('my_account.page')}
+            </IndexLink>
+          </li>
+        </ul>
+        <ul className="nav navbar-nav nav-tabs">
+          <li>
+            <IndexLink to="/" activeClassName="active">
+              <i className="icon-home"/>
+            </IndexLink>
+          </li>
+        </ul>
+      </div>
+    </nav>
+);
 
-  const history = useBasename(createHistory)({
-    basename: window.baseUrl + '/account'
-  });
-
-  document.querySelector('html').classList.add('dashboard-page');
-  document.querySelector('#container').classList.add('page-wrapper-context');
-
-  render((
-      <Router history={history}>
-        <Route path="/" component={AccountApp}>
-          <IndexRoute component={Home}/>
-
-          <Redirect from="/index" to="/"/>
-        </Route>
-      </Router>
-  ), el);
-});
+export default Nav;

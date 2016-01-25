@@ -25,11 +25,8 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.util.Iterator;
 import javax.mail.internet.MimeMessage;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+
+import org.junit.*;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
@@ -73,6 +70,7 @@ public class QualityGateNotificationTest {
   }
 
   @Test
+  @Ignore("waiting for SONAR-7230")
   public void status_on_metric_variation_and_send_notifications() throws Exception {
     Wiser smtpServer = new Wiser(NetworkUtils.getNextAvailablePort());
     try {

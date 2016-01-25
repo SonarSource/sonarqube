@@ -1,0 +1,75 @@
+<div class="page">
+
+  <div class="pull-left big-spacer-right abs-width-240">
+    <div class="panel panel-white">
+      <div class="text-center">
+        <% if configuration('sonar.lf.enableGravatar', 'true') == 'true' %>
+          <div class="js-avatar big-spacer-bottom"></div>
+        <% end %>
+        <h2 id="name" class="text-ellipsis" title="<%= current_user.name -%>"><%= current_user.name -%></h2>
+        <p id="login" class="note text-ellipsis" title="<%= current_user.login -%>"><%= current_user.login -%></p>
+        <div class="text-center spacer-top">
+          <p id="email" class="text-ellipsis" title="<%= current_user.email -%>"><%= current_user.email -%></p>
+        </div>
+      </div>
+
+      <div class="big-spacer-top">
+        <h3 class="text-center"><%= message('my_profile.groups') -%></h3>
+        <ul id="groups">
+          <% current_user.groups.sort.each do |group| -%>
+            <li class="text-ellipsis" title="<%= group.name -%>"><%= group.name -%></li>
+          <% end -%>
+        </ul>
+      </div>
+
+      <div class="big-spacer-top">
+        <h3 class="text-center"><%= message('my_profile.scm_accounts') -%></h3>
+        <ul id="scm-accounts">
+          <% current_user.full_scm_accounts.each do |scm_account| -%>
+            <li class="text-ellipsis" title="<%= scm_account -%>"><%= scm_account -%></li>
+          <% end -%>
+        </ul>
+      </div>
+
+      <% if User.editable_password? %>
+        <div class="big-spacer-top text-center">
+          <button id="account-change-password-trigger">
+            <i class="icon-lock"></i> <%= message('my_profile.password.title') -%>
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="overflow-hidden">
+    <% unless current_user.favourites.empty? -%>
+      <section class="big-spacer-bottom">
+        <%= render "account/favorites" -%>
+      </section>
+    <% end %>
+
+    <form id="notif_form" method="post" action="<%= ApplicationController.root_context -%>/account/update_notifications">
+      <% unless @global_dispatchers.empty? -%>
+        <section class="big-spacer-bottom">
+          <%= render "account/global_notifications" -%>
+        </section>
+      <% end %>
+
+      <% unless @per_project_dispatchers.empty? -%>
+        <section>
+          <%= render "account/per_project_notifications" -%>
+        </section>
+      <% end %>
+
+      <section class="big-spacer-top">
+        <input type="submit" value="<%= message('my_profile.notifications.submit') -%>" name="commit">
+      </section>
+    </form>
+
+    <section id="account-tokens" class="huge-spacer-top spacer-bottom"></section>
+  </div>
+</div>
+
+<% content_for :extra_script do %>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/account.js?v=<%= sonar_version -%>"></script>
+<% end %>

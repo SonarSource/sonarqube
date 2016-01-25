@@ -18,31 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { render } from 'react-dom';
-import { Router, Route, IndexRoute, Redirect } from 'react-router';
-import { createHistory, useBasename } from 'history';
 
-import AccountApp from './containers/AccountApp';
-import Home from './components/Home';
-import Notifications from './components/Notifications';
+import { translate } from '../../../helpers/l10n';
 
-window.sonarqube.appStarted.then(options => {
-  const el = document.querySelector(options.el);
+const FavoriteIssueFilters = ({ issueFilters }) => (
+    <section className="big-spacer-bottom">
+      <h2 className="spacer-bottom">
+        {translate('my_account.favorite_issue_filters')}
+      </h2>
+      <table id="favorite-issue-filters" className="data">
+        <tbody>
+          {issueFilters.map(f => (
+              <tr key={f.name}>
+                <td className="thin">
+                  <i className="icon-favorite"/>
+                </td>
+                <td>
+                  <a href={`${window.baseUrl}/issues/search#id=${f.id}`}>
+                    {f.name}
+                  </a>
+                </td>
+              </tr>
+          ))}
+        </tbody>
+      </table>
 
-  const history = useBasename(createHistory)({
-    basename: window.baseUrl + '/account'
-  });
+    </section>
+);
 
-  document.querySelector('html').classList.add('dashboard-page');
-  document.querySelector('#container').classList.add('page-wrapper-context');
-
-  render((
-      <Router history={history}>
-        <Route path="/" component={AccountApp}>
-          <IndexRoute component={Home}/>
-
-          <Redirect from="/index" to="/"/>
-        </Route>
-      </Router>
-  ), el);
-});
+export default FavoriteIssueFilters;
