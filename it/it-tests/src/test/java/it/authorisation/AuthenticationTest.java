@@ -25,12 +25,12 @@ import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import java.util.UUID;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
@@ -50,6 +50,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.setServerProperty;
 
 public class AuthenticationTest {
   @ClassRule
@@ -78,10 +79,15 @@ public class AuthenticationTest {
   }
 
   @AfterClass
-  public static void delete_data() {
+  public static void deleteData() {
     deactivateUser(LOGIN);
     addGroupPermission("anyone", "dryRunScan");
     addGroupPermission("anyone", "scan");
+  }
+
+  @After
+  public void resetProperties() throws Exception {
+    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", null);
   }
 
   @Test
@@ -120,22 +126,6 @@ public class AuthenticationTest {
   }
 
   @Test
-  public void basic_authentication_with_utf8_passwords() {
-    String userId = UUID.randomUUID().toString();
-    String login = format("login-%s", userId);
-    // see http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
-    String password = "κόσμε";
-
-    // create user with a UTF-8 password
-    createUser(login, format("name-%s", userId), password);
-
-    // authenticate
-    WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
-    WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
-    assertThat(response.content()).isEqualTo("{\"valid\":true}");
-  }
-
-  @Test
   @Ignore
   public void web_login_form_should_support_utf8_passwords() {
     // TODO selenium
@@ -170,6 +160,23 @@ public class AuthenticationTest {
     assertThat(buildResult.isSuccess()).isFalse();
   }
 
+  /**
+   * This is currently a limitation of Ruby on Rails stack.
+   */
+  @Test
+  public void basic_authentication_does_not_support_utf8_passwords() {
+    String userId = UUID.randomUUID().toString();
+    String login = format("login-%s", userId);
+    // see http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
+    String password = "κόσμε";
+
+    // create user with a UTF-8 password
+    createUser(login, format("name-%s", userId), password);
+
+    // authenticate
+    assertThat(checkAuthenticationThroughWebService(login, password)).isFalse();
+  }
+
   @Test
   public void authentication_with_web_service() {
     assertThat(checkAuthenticationThroughWebService("admin", "admin")).isTrue();
@@ -177,7 +184,7 @@ public class AuthenticationTest {
     assertThat(checkAuthenticationThroughWebService("admin", "wrong")).isFalse();
     assertThat(checkAuthenticationThroughWebService(null, null)).isTrue();
 
-    ORCHESTRATOR.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.forceAuthentication", "true"));
+    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
 
     assertThat(checkAuthenticationThroughWebService("admin", "admin")).isTrue();
     assertThat(checkAuthenticationThroughWebService("wrong", "admin")).isFalse();
@@ -187,7 +194,7 @@ public class AuthenticationTest {
 
   private boolean checkAuthenticationThroughWebService(String login, String password) {
     String result = ORCHESTRATOR.getServer().wsClient(login, password).get("/api/authentication/validate");
-    return result.contains("true");
+    return result.contains("{\"valid\":true}");
   }
 
   private static void createUser(String login, String password) {
