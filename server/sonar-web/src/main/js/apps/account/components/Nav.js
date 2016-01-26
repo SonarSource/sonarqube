@@ -43,6 +43,11 @@ const Nav = () => (
               {translate('my_account.notifications')}
             </IndexLink>
           </li>
+          <li>
+            <IndexLink to="security" activeClassName="active">
+              {translate('my_account.security')}
+            </IndexLink>
+          </li>
         </ul>
       </div>
     </nav>

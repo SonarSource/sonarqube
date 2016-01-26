@@ -22,26 +22,31 @@ package it.user;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.sonar.wsclient.SonarClient;
-import org.sonar.wsclient.user.UserParameters;
+import org.junit.*;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClient;
 import util.selenium.SeleneseTest;
+
+import static util.ItUtils.newAdminWsClient;
 
 public class MyAccountPageTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  private static WsClient adminWsClient;
 
   @BeforeClass
-  public static void initUser() {
+  public static void setUp() {
+    adminWsClient = newAdminWsClient(orchestrator);
+  }
+
+  @Before
+  public void initUser() {
     createUser("account-user", "User With Account", "user@example.com");
   }
 
-  @AfterClass
-  public static void deleteTestUser() {
+  @After
+  public void deleteTestUser() {
     deactivateUser("account-user");
   }
 
@@ -53,19 +58,27 @@ public class MyAccountPageTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
-  private static void createUser(String login, String name, String email) {
-    SonarClient client = orchestrator.getServer().adminWsClient();
-    UserParameters userCreationParameters = UserParameters.create()
-      .login(login)
-      .name(name)
-      .email(email)
-      .password("password")
-      .passwordConfirmation("password");
-    client.userClient().create(userCreationParameters);
+  @Test
+  public void should_change_password() throws Exception {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_change_password",
+      "/user/MyAccountPageTest/should_change_password.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
-  private static void deactivateUser(String user) {
-    orchestrator.getServer().adminWsClient().userClient().deactivate(user);
+  private static void createUser(String login, String name, String email) {
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/users/create")
+        .setParam("login", login)
+        .setParam("name", name)
+        .setParam("email", email)
+        .setParam("password", "password"));
+  }
+
+  private static void deactivateUser(String login) {
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/users/deactivate")
+        .setParam("login", login));
   }
 
 }

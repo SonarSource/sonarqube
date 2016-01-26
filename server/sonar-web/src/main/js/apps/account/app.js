@@ -27,6 +27,7 @@ import configureStore from './store/configureStore';
 import AccountApp from './containers/AccountApp';
 import Home from './components/Home';
 import NotificationsContainer from './containers/NotificationsContainer';
+import SecurityContainer from './containers/SecurityContainer';
 
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
@@ -46,6 +47,7 @@ window.sonarqube.appStarted.then(options => {
           <Route path="/" component={AccountApp}>
             <IndexRoute component={Home}/>
             <Route path="notifications" component={NotificationsContainer}/>
+            <Route path="security" component={SecurityContainer}/>
 
             <Redirect from="/index" to="/"/>
           </Route>

@@ -65,6 +65,7 @@ import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
 import it.settings.SettingsTestRestartingOrchestrator;
 import it.settings.SubCategoriesTest;
+import it.user.MyAccountPageTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -110,7 +111,8 @@ import static util.ItUtils.xooPlugin;
   TimeMachineTest.class,
   // action plan
   ActionPlanTest.class,
-  ActionPlanUiTest.class
+  ActionPlanUiTest.class,
+  MyAccountPageTest.class
 })
 public class Category1Suite {
 

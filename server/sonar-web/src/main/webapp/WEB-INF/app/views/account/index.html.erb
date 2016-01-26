@@ -4,6 +4,7 @@
       login: '<%= escape_javascript current_user.login -%>',
       name: '<%= escape_javascript current_user.name -%>',
       email: '<%= escape_javascript current_user.email -%>',
+      canChangePassword: <%= User.editable_password? ? 'true' : 'false' -%>,
       groups: [
         <% current_user.groups.sort.each do |group| -%>
           '<%= escape_javascript group.name -%>',
