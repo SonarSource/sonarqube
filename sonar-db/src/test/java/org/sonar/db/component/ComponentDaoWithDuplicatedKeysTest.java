@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -26,13 +27,15 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.dialect.MySql;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 /**
- * On H2, the index on PROJECTS.KEE is unique. In order to simulate the MySQL behaviour where the index is not unique, we need to create a schema where there's no unique index on PROJECTS.KEE
+ * On H2, the index on PROJECTS.KEE is unique. In order to simulate the MySQL behaviour we drop the index on DB other
+ * than MySQL.
  */
 @Category(DbTests.class)
 public class ComponentDaoWithDuplicatedKeysTest {
@@ -40,13 +43,20 @@ public class ComponentDaoWithDuplicatedKeysTest {
   static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, ComponentDaoWithDuplicatedKeysTest.class, "schema.sql");
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   DbClient dbClient = db.getDbClient();
 
   DbSession dbSession = db.getSession();
 
   ComponentDao underTest = new ComponentDao();
+
+  @Before
+  public void setUp() throws Exception {
+    if (!MySql.ID.equals(db.getDbClient().getDatabase().getDialect().getId())) {
+      db.executeUpdateSql("drop index if exists PROJECTS_KEE");
+    }
+  }
 
   @Test
   public void select_components_having_same_key() {
