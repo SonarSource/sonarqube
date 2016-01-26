@@ -29,6 +29,6 @@ public class MigrationStepModuleTest {
   public void verify_count_of_added_MigrationStep_types() {
     ComponentContainer container = new ComponentContainer();
     new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(47);
+    assertThat(container.size()).isEqualTo(48);
   }
 }

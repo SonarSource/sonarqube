@@ -63,6 +63,7 @@ import org.sonar.db.version.v53.FixMsSqlCollation;
 import org.sonar.db.version.v53.UpdateCustomDashboardInLoadedTemplates;
 import org.sonar.db.version.v54.AddUsersIdentityColumns;
 import org.sonar.db.version.v54.InsertGateAdminPermissionForEachProfileAdmin;
+import org.sonar.db.version.v54.MigrateQualityGatesConditions;
 import org.sonar.db.version.v54.MigrateUsersIdentity;
 import org.sonar.db.version.v54.RemoveComponentPageProperties;
 
@@ -125,7 +126,8 @@ public class MigrationStepModule extends Module {
       InsertGateAdminPermissionForEachProfileAdmin.class,
       RemoveComponentPageProperties.class,
       AddUsersIdentityColumns.class,
-      MigrateUsersIdentity.class
+      MigrateUsersIdentity.class,
+      MigrateQualityGatesConditions.class
     );
   }
 }

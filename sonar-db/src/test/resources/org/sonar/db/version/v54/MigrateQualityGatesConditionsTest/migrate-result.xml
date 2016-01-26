@@ -1,0 +1,11 @@
+<dataset>
+  <quality_gates id="1" name="qg-1"/>
+  <quality_gates id="2" name="qg-2"/>
+  <quality_gates id="3" name="qg-3"/>
+  <quality_gate_conditions id="1" qgate_id="1" period="[null]" updated_at="1900-12-01"/>
+  <quality_gate_conditions id="2" qgate_id="1" period="1" updated_at="1919-12-24"/>
+  <quality_gate_conditions id="3" qgate_id="2" period="1" updated_at="1919-12-24"/>
+  <!-- quality gate 3 conditions don't need to be updated -->
+  <quality_gate_conditions id="4" qgate_id="3" period="[null]" updated_at="1900-12-01"/>
+  <quality_gate_conditions id="5" qgate_id="3" period="1" updated_at="1900-12-01"/>
+</dataset>
