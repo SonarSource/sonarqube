@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.util.Locale;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
@@ -29,6 +28,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.qualitygate.QualityGates;
+
+import static java.lang.String.format;
 
 public class AppAction implements QGateWsAction {
 
@@ -69,18 +70,11 @@ public class AppAction implements QGateWsAction {
 
   private void addPeriods(JsonWriter writer) {
     writer.name("periods").beginArray();
-    for (int i = 0; i < 3; i++) {
-      writer.beginObject().prop("key", (long) i + 1).prop("text", periods.label(i + 1)).endObject();
-    }
-    addProjectPeriod(4, writer);
-    addProjectPeriod(5, writer);
+    writer.beginObject()
+      .prop("key", 1L)
+      .prop("text", format("over Leak Period (%s)", periods.label(1)))
+      .endObject();
     writer.endArray();
-  }
-
-  private void addProjectPeriod(int periodIndex, JsonWriter writer) {
-    writer.beginObject().prop("key", periodIndex).prop("text",
-      i18n.message(Locale.getDefault(), "quality_gates.project_period", "Period " + periodIndex, periodIndex)
-      ).endObject();
   }
 
   private void addMetrics(JsonWriter writer) {

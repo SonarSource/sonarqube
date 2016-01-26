@@ -94,7 +94,7 @@ public class AppActionTest {
     Map responseJson = (Map) JSONValue.parse(json);
     assertThat((Boolean) responseJson.get("edit")).isFalse();
     Collection<Map> periods = (Collection<Map>) responseJson.get("periods");
-    assertThat(periods).hasSize(5);
+    assertThat(periods).hasSize(1);
     Collection<Map> metrics = (Collection<Map>) responseJson.get("metrics");
     assertThat(metrics).hasSize(1);
     Map metricMap = metrics.iterator().next();
