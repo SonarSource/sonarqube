@@ -61,8 +61,8 @@ class User < ActiveRecord::Base
   # HACK HACK HACK -- how to do attr_accessible from here?
   # prevents a user from submitting a crafted form that bypasses activation
   # anything else you want your user to change should be added here.
-  attr_accessible :login, :email, :name, :password, :password_confirmation
-  attr_accessor :token_authenticated
+  attr_accessible :login, :email, :name, :password, :password_confirmation, :external_identity, :external_identity_provider
+  attr_accessor :token_authenticated, :external_identity, :external_identity_provider
 
   ####
   # As now dates are saved in long they should be no more automatically managed by Rails

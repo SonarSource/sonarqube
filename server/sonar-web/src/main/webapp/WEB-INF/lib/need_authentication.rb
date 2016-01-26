@@ -132,6 +132,8 @@ class PluginRealm
         return nil if !Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
         # Automatically create a user in the sonar db if authentication has been successfully done
         user = User.new(:login => username, :name => username, :email => '', :created_at => now, :updated_at => now)
+        user.external_identity = username
+        user.external_identity_provider = 'sonarqube'
 
         if details
           user.name = details.getName()
