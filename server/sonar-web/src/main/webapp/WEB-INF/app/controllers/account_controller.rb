@@ -22,10 +22,6 @@ class AccountController < ApplicationController
   before_filter :login_required
 
   def index
-
-  end
-
-  def notifications
     @channels = notification_service.getChannels()
     @global_dispatchers = dispatchers_for_scope("globalNotification")
     @per_project_dispatchers = dispatchers_for_scope("perProjectNotification")
@@ -84,13 +80,7 @@ class AccountController < ApplicationController
       end
     end
 
-    # New project added
-    new_params = {}
-    unless params[:new_project].blank?
-      new_params[:new_project] = params[:new_project]
-    end
-
-    redirect_to :action => 'index', :params => new_params
+    redirect_to "#{ApplicationController.root_context}/account/notifications"
   end
 
   private

@@ -91,3 +91,13 @@ export function getBreadcrumbs ({ id, key }) {
     return [...reversedAncestors, r.component];
   });
 }
+
+export function getProjectsWithInternalId (query) {
+  const url = window.baseUrl + '/api/resources/search';
+  const data = {
+    f: 's2',
+    q: 'TRK',
+    s: query
+  };
+  return getJSON(url, data).then(r => r.results);
+}

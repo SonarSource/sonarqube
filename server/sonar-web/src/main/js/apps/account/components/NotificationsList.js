@@ -18,34 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { IndexLink } from 'react-router';
 
 import { translate } from '../../../helpers/l10n';
 
-const Nav = () => (
-    <nav className="navbar navbar-context page-container">
-      <div className="container">
-        <ul className="nav navbar-nav nav-crumbs">
-          <li>
-            <IndexLink to="/" activeClassName="active">
-              {translate('my_account.page')}
-            </IndexLink>
-          </li>
-        </ul>
-        <ul className="nav navbar-nav nav-tabs">
-          <li>
-            <IndexLink to="/" activeClassName="active">
-              <i className="icon-home"/>
-            </IndexLink>
-          </li>
-          <li>
-            <IndexLink to="notifications" activeClassName="active">
-              {translate('my_account.notifications')}
-            </IndexLink>
-          </li>
-        </ul>
-      </div>
-    </nav>
-);
-
-export default Nav;
+export default function NotificationsList ({ notifications, checkboxName, checkboxId }) {
+  return (
+      <tbody>
+        {notifications.map(notification => (
+            <tr key={notification.dispatcher}>
+              <td>{translate('notification.dispatcher', notification.dispatcher)}</td>
+              {notification.channels.map(channel => (
+                  <td key={channel.id} className="text-center">
+                    <input defaultChecked={channel.checked}
+                           id={checkboxId(notification.dispatcher, channel.id)}
+                           name={checkboxName(notification.dispatcher, channel.id)}
+                           type="checkbox"/>
+                  </td>
+              ))}
+            </tr>
+        ))}
+      </tbody>
+  );
+}

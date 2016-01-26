@@ -19,8 +19,41 @@
  */
 import React from 'react';
 
-const Notifications = () => (
-    <h1>Notifications</h1>
-);
+import GlobalNotifications from './GlobalNotifications';
+import ProjectNotifications from './ProjectNotifications';
+import { translate } from '../../../helpers/l10n';
 
-export default Notifications;
+export default function Notifications ({ globalNotifications, projectNotifications, onAddProject, onRemoveProject }) {
+  const channels = globalNotifications[0].channels.map(c => c.id);
+
+  return (
+      <div>
+        <p className="big-spacer-bottom">
+          {translate('notification.dispatcher.information')}
+        </p>
+        <form id="notif_form" method="post" action={`${window.baseUrl}/account/update_notifications`}>
+          <div className="columns">
+            <div className="column-half">
+              <GlobalNotifications
+                  notifications={globalNotifications}
+                  channels={channels}/>
+            </div>
+
+            <div className="column-half">
+              <ProjectNotifications
+                  notifications={projectNotifications}
+                  channels={channels}
+                  onAddProject={onAddProject}
+                  onRemoveProject={onRemoveProject}/>
+            </div>
+          </div>
+
+          <p className="big-spacer-top panel panel-vertical bordered-top text-right">
+            <button id="submit-notifications" type="submit">
+              {translate('my_profile.notifications.submit')}
+            </button>
+          </p>
+        </form>
+      </div>
+  );
+}

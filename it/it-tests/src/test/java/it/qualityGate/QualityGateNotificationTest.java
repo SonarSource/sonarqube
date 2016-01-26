@@ -70,7 +70,6 @@ public class QualityGateNotificationTest {
   }
 
   @Test
-  @Ignore("waiting for SONAR-7230")
   public void status_on_metric_variation_and_send_notifications() throws Exception {
     Wiser smtpServer = new Wiser(NetworkUtils.getNextAvailablePort());
     try {

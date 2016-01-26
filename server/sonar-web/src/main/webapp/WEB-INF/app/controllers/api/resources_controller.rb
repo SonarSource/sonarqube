@@ -39,7 +39,6 @@ class Api::ResourcesController < Api::ApiController
       qualifiers=[]
     end
 
-    bad_request("Minimum search is #{ResourceIndex::MIN_SEARCH_SIZE} characters") if search_text.size<ResourceIndex::MIN_SEARCH_SIZE
     bad_request("Page index must be greater than 0") if page<=0
     bad_request("Page size must be greater than 0") if page_size<=0
 

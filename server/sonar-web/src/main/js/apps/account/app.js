@@ -21,10 +21,12 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, Redirect } from 'react-router';
 import { createHistory, useBasename } from 'history';
+import { Provider } from 'react-redux';
 
+import configureStore from './store/configureStore';
 import AccountApp from './containers/AccountApp';
 import Home from './components/Home';
-import Notifications from './components/Notifications';
+import NotificationsContainer from './containers/NotificationsContainer';
 
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
@@ -33,16 +35,21 @@ window.sonarqube.appStarted.then(options => {
     basename: window.baseUrl + '/account'
   });
 
+  const store = configureStore();
+
   document.querySelector('html').classList.add('dashboard-page');
   document.querySelector('#container').classList.add('page-wrapper-context');
 
   render((
-      <Router history={history}>
-        <Route path="/" component={AccountApp}>
-          <IndexRoute component={Home}/>
+      <Provider store={store}>
+        <Router history={history}>
+          <Route path="/" component={AccountApp}>
+            <IndexRoute component={Home}/>
+            <Route path="notifications" component={NotificationsContainer}/>
 
-          <Redirect from="/index" to="/"/>
-        </Route>
-      </Router>
+            <Redirect from="/index" to="/"/>
+          </Route>
+        </Router>
+      </Provider>
   ), el);
 });

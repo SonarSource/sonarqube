@@ -18,34 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { IndexLink } from 'react-router';
 
+import NotificationsList from './NotificationsList';
 import { translate } from '../../../helpers/l10n';
 
-const Nav = () => (
-    <nav className="navbar navbar-context page-container">
-      <div className="container">
-        <ul className="nav navbar-nav nav-crumbs">
-          <li>
-            <IndexLink to="/" activeClassName="active">
-              {translate('my_account.page')}
-            </IndexLink>
-          </li>
-        </ul>
-        <ul className="nav navbar-nav nav-tabs">
-          <li>
-            <IndexLink to="/" activeClassName="active">
-              <i className="icon-home"/>
-            </IndexLink>
-          </li>
-          <li>
-            <IndexLink to="notifications" activeClassName="active">
-              {translate('my_account.notifications')}
-            </IndexLink>
-          </li>
-        </ul>
-      </div>
-    </nav>
-);
+export default function GlobalNotifications ({ notifications, channels }) {
+  return (
+      <div>
+        <header className="page-header">
+          <h2 className="page-title">
+            {translate('my_profile.overall_notifications.title')}
+          </h2>
+        </header>
 
-export default Nav;
+        <table className="form">
+          <thead>
+            <tr>
+              <th></th>
+              {channels.map(channel => (
+                  <th key={channel} className="text-center">
+                    <h4>{translate('notification.channel', channel)}</h4>
+                  </th>
+              ))}
+            </tr>
+          </thead>
+
+          <NotificationsList
+              notifications={notifications}
+              checkboxId={(d, c) => `global_notifs_${d}_${c}`}
+              checkboxName={(d, c) => `global_notifs[${d}.${c}]`}/>
+        </table>
+      </div>
+  );
+}

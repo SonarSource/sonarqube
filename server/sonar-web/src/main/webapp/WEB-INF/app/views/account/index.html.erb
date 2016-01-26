@@ -33,6 +33,77 @@
         <% end %>
       ]
     };
+    window.sonarqube.notifications = {
+      channels: [
+        <% for channel in @channels -%>
+          '<%= escape_javascript channel.getKey() -%>',
+        <% end %>
+      ],
+
+      globalDispatchers: [
+        <% for dispatcher in @global_dispatchers -%>
+        '<%= escape_javascript dispatcher -%>',
+        <% end %>
+      ],
+
+      projectDispatchers: [
+        <% for dispatcher in @per_project_dispatchers -%>
+        '<%= escape_javascript dispatcher -%>',
+        <% end %>
+      ],
+
+      global: [
+        <% for dispatcher in @global_dispatchers %>
+          {
+            dispatcher: '<%= escape_javascript dispatcher -%>',
+            channels: [
+              <%
+                 for channel in @channels
+                   notification_id = dispatcher + '.' + channel.getKey()
+                   check_box_checked = @global_notifications[notification_id]
+              -%>
+                {
+                  id: '<%= escape_javascript channel.getKey() -%>',
+                  checked: <%= check_box_checked ? 'true' : 'false' %>
+                },
+              <% end %>
+            ]
+          },
+        <% end %>
+      ],
+
+      project: [
+        <% @per_project_notifications.each do |project_key, notification| %>
+          <% project = Project.by_key(project_key) %>
+          {
+            project: {
+              internalId: <%= project.id -%>,
+              id: '<%= escape_javascript project.uuid -%>',
+              key: '<%= escape_javascript project.key -%>',
+              name: '<%= escape_javascript project.name -%>'
+            },
+            notifications: [
+              <% @per_project_dispatchers.each do |dispatcher| %>
+              {
+                dispatcher: '<%= escape_javascript dispatcher -%>',
+                channels: [
+                  <%
+                     for channel in @channels
+                       check_box_checked = notification[dispatcher].include?(channel.getKey())
+                  -%>
+                    {
+                      id: '<%= escape_javascript channel.getKey() -%>',
+                      checked: <%= check_box_checked ? 'true' : 'false' %>
+                    },
+                  <% end %>
+                ]
+              },
+              <% end %>
+            ]
+          },
+        <% end %>
+      ]
+    };
   </script>
   <script src="<%= ApplicationController.root_context -%>/js/bundles/account.js?v=<%= sonar_version -%>"></script>
 <% end %>

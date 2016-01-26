@@ -34,6 +34,8 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'api_documentation/*other', :controller => 'api_documentation', :action => 'index'
   map.connect 'quality_gates/*other', :controller => 'quality_gates', :action => 'index'
   map.connect 'overview/*other', :controller => 'overview', :action => 'index'
+  map.connect 'account/update_notifications', :controller => 'account', :action => 'update_notifications'
+  map.connect 'account/*other', :controller => 'account', :action => 'index'
 
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id', :requirements => { :id => /.*/ }
