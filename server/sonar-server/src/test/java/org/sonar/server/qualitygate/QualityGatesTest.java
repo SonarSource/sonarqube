@@ -347,7 +347,7 @@ public class QualityGatesTest {
     Metric newCoverage = Mockito.spy(CoreMetrics.NEW_COVERAGE);
     when(newCoverage.getId()).thenReturn(metricId);
     when(metricFinder.findByKey(metricKey)).thenReturn(newCoverage);
-    int period = 2;
+    int period = 1;
 
     QualityGateConditionDto newCondition = qGates.createCondition(qGateId, metricKey, operator, null, errorThreshold, period);
     assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
@@ -461,7 +461,7 @@ public class QualityGatesTest {
     Metric newCoverage = Mockito.spy(CoreMetrics.NEW_COVERAGE);
     when(newCoverage.getId()).thenReturn(metricId);
     when(metricFinder.findByKey(metricKey)).thenReturn(newCoverage);
-    int period = 2;
+    int period = 1;
 
     assertThat(qGates.updateCondition(condId, metricKey, operator, null, errorThreshold, period)).isEqualTo(condition);
     assertThat(condition.getId()).isEqualTo(condId);

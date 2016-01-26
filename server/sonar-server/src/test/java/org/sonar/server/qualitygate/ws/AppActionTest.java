@@ -67,7 +67,7 @@ public class AppActionTest {
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
-      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates, periods, i18n)));
+      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates, periods)));
   }
 
   @Test

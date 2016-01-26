@@ -179,7 +179,10 @@ public class QualityGates {
     validateCondition(metric, operator, warningThreshold, errorThreshold, period);
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qGateId)
       .setMetricId(metric.getId()).setMetricKey(metric.getKey())
-      .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold).setPeriod(period);
+      .setOperator(operator)
+      .setWarningThreshold(warningThreshold)
+      .setErrorThreshold(errorThreshold)
+      .setPeriod(period);
     conditionDao.insert(newCondition);
     return newCondition;
   }
@@ -190,8 +193,13 @@ public class QualityGates {
     QualityGateConditionDto condition = getNonNullCondition(condId);
     Metric metric = getNonNullMetric(metricKey);
     validateCondition(metric, operator, warningThreshold, errorThreshold, period);
-    condition.setMetricId(metric.getId()).setMetricKey(metric.getKey())
-      .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold).setPeriod(period);
+    condition
+      .setMetricId(metric.getId())
+      .setMetricKey(metric.getKey())
+      .setOperator(operator)
+      .setWarningThreshold(warningThreshold)
+      .setErrorThreshold(errorThreshold)
+      .setPeriod(period);
     conditionDao.update(condition);
     return condition;
   }
@@ -269,9 +277,8 @@ public class QualityGates {
   private void checkPeriod(Metric metric, @Nullable Integer period, Errors errors) {
     if (period == null) {
       errors.check(!metric.getKey().startsWith("new_"), "A period must be selected for differential metrics.");
-
     } else {
-      errors.check(period >= 1 && period <= 5, "Valid periods are integers between 1 and 5 (included).");
+      errors.check(period == 1, "The only valid quality gate period is 1, the leak period.");
     }
   }
 

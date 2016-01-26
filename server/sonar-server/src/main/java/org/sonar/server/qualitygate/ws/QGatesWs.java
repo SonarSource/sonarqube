@@ -79,8 +79,8 @@ public class QGatesWs implements WebService {
       .setPossibleValues(QualityGateConditionDto.ALL_OPERATORS);
 
     action.createParam(PARAM_PERIOD)
-      .setDescription("Condition period")
-      .setExampleValue("1");
+      .setDescription("Condition period. If not set, the absolute value is considered.")
+      .setPossibleValues("1");
 
     action.createParam(PARAM_WARNING)
       .setDescription("Condition warning threshold")

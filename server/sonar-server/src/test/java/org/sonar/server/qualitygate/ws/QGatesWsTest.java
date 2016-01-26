@@ -27,7 +27,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
@@ -71,7 +70,7 @@ public class QGatesWsTest {
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
-      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates, mock(Periods.class), mock(I18n.class))));
+      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates, mock(Periods.class))));
   }
 
   @Test

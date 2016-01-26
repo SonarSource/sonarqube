@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -37,12 +36,9 @@ public class AppAction implements QGateWsAction {
 
   private final Periods periods;
 
-  private final I18n i18n;
-
-  public AppAction(QualityGates qualityGates, Periods periods, I18n i18n) {
+  public AppAction(QualityGates qualityGates, Periods periods) {
     this.qualityGates = qualityGates;
     this.periods = periods;
-    this.i18n = i18n;
   }
 
   @Override
