@@ -45,7 +45,7 @@ public class AddUsersIdentityColumnsTest {
     migration.execute();
 
     db.assertColumnDefinition("users", "external_identity_provider", VARCHAR, 100);
-    db.assertColumnDefinition("users", "external_identity", VARCHAR, 4000);
+    db.assertColumnDefinition("users", "external_identity", VARCHAR, 255);
   }
 
 }

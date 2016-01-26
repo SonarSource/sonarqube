@@ -47,7 +47,7 @@ public class AddUsersIdentityColumns extends DdlChange {
 
   private String generateSql() {
     return new AddColumnsBuilder(db.getDialect(), "users")
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("external_identity").setLimit(4000).setIsNullable(true).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("external_identity").setLimit(255).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("external_identity_provider").setLimit(100).setIsNullable(true).build())
       .build();
   }
