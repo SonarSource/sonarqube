@@ -22,30 +22,66 @@ package org.sonar.server.user.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDbTester;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDbTester;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class CurrentActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  UserDbTester userDb = new UserDbTester(db);
+  GroupDbTester groupDb = new GroupDbTester(db);
+  DbClient dbClient = db.getDbClient();
 
-  private WsTester tester;
+  private WsActionTester ws;
 
   @Before
   public void before() {
-    tester = new WsTester(new UsersWs(new CurrentAction(userSessionRule)));
+    ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient));
+  }
+
+  @Test
+  public void json_example() throws Exception {
+    userSessionRule.login("obiwan.kenobi").setName("Obiwan Kenobi")
+      .setGlobalPermissions(GlobalPermissions.ALL.toArray(new String[0]));
+    UserDto obiwan = userDb.insertUser(
+      newUserDto("obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com")
+        .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
+    GroupDto jedi = groupDb.insertGroup(newGroupDto().setName("Jedi"));
+    GroupDto rebel = groupDb.insertGroup(newGroupDto().setName("Rebel"));
+    groupDb.insertGroup(newGroupDto().setName("Sith"));
+    dbClient.userGroupDao().insert(db.getSession(), new UserGroupDto()
+      .setUserId(obiwan.getId())
+      .setGroupId(jedi.getId()));
+    dbClient.userGroupDao().insert(db.getSession(), new UserGroupDto()
+      .setUserId(obiwan.getId())
+      .setGroupId(rebel.getId()));
+    db.commit();
+
+    String response = ws.newRequest().execute().getInput();
+
+    assertJson(response).isSimilarTo(getClass().getResource("current-example.json"));
   }
 
   @Test
   public void anonymous() throws Exception {
-    tester.newGetRequest("api/users", "current").execute().assertJson(getClass(), "anonymous.json");
-  }
+    String response = ws.newRequest().execute().getInput();
 
-  @Test
-  public void authenticated() throws Exception {
-    userSessionRule.login("obiwan.kenobi").setName("Obiwan Kenobi")
-      .setGlobalPermissions(GlobalPermissions.ALL.toArray(new String[0]));
-    tester.newGetRequest("api/users", "current").execute().assertJson(getClass(), "authenticated.json");
+    assertJson(response).isSimilarTo(getClass().getResource("CurrentActionTest/anonymous.json"));
   }
 }

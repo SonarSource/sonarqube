@@ -1,8 +1,0 @@
-{
-  "isLoggedIn": true,
-  "login": "obiwan.kenobi",
-  "name": "Obiwan Kenobi",
-  "permissions": {
-    "global": ["admin", "profileadmin", "gateadmin", "shareDashboard", "scan", "dryRunScan", "provisioning"]
-  }
-}

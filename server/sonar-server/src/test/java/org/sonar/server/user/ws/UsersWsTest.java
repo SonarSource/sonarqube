@@ -43,7 +43,7 @@ public class UsersWsTest {
     WsTester tester = new WsTester(new UsersWs(
       new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class), userSessionRule, mock(UserJsonWriter.class)),
       new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
-      new CurrentAction(userSessionRule),
+      new CurrentAction(userSessionRule, mock(org.sonar.db.DbClient.class)),
       new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),
       new SearchAction(mock(UserIndex.class), mock(DbClient.class), mock(UserJsonWriter.class))));

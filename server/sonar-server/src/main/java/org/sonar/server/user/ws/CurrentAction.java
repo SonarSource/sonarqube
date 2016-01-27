@@ -19,17 +19,28 @@
  */
 package org.sonar.server.user.ws;
 
+import com.google.common.base.Optional;
+import java.util.Collection;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 public class CurrentAction implements UsersWsAction {
   private final UserSession userSession;
+  private final DbClient dbClient;
 
-  public CurrentAction(UserSession userSession) {
+  public CurrentAction(UserSession userSession, DbClient dbClient) {
     this.userSession = userSession;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -44,27 +55,79 @@ public class CurrentAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Optional<UserDto> user = Optional.absent();
+      Collection<String> groups = emptyList();
+      if (userSession.isLoggedIn()) {
+        user = selectCurrentUser(dbSession);
+        groups = selectGroups(dbSession);
+      }
+      writeResponse(response, user, groups);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  private Optional<UserDto> selectCurrentUser(DbSession dbSession) {
+    return Optional.fromNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin()));
+  }
+
+  private Collection<String> selectGroups(DbSession dbSession) {
+    return dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userSession.getLogin()))
+      .get(userSession.getLogin());
+  }
+
+  private void writeResponse(Response response, Optional<UserDto> user, Collection<String> groups) {
     JsonWriter json = response.newJsonWriter().beginObject();
-
-    writeUserDetails(json, userSession);
-
+    writeUserDetails(json, user, groups);
     json.endObject().close();
   }
 
-  private void writeUserDetails(JsonWriter json, UserSession session) {
-    json.prop("isLoggedIn", session.isLoggedIn())
-      .prop("login", session.getLogin())
-      .prop("name", session.getName());
-    writePermissions(json, session);
+  private void writeUserDetails(JsonWriter json, Optional<UserDto> optionalUser, Collection<String> groups) {
+    json
+      .prop("isLoggedIn", userSession.isLoggedIn())
+      .prop("login", userSession.getLogin())
+      .prop("name", userSession.getName());
+    if (optionalUser.isPresent()) {
+      UserDto user = optionalUser.get();
+      if (!isNullOrEmpty(user.getEmail())) {
+        json.prop("email", user.getEmail());
+      }
+    }
+
+    writeScmAccounts(json, optionalUser);
+    writeGroups(json, groups);
+    writePermissions(json, userSession);
   }
 
-  private void writePermissions(JsonWriter json, UserSession session) {
+  private static void writeScmAccounts(JsonWriter json, Optional<UserDto> optionalUser) {
+    json.name("scmAccounts");
+    json.beginArray();
+    if (optionalUser.isPresent()) {
+      for (String scmAccount : optionalUser.get().getScmAccountsAsList()) {
+        json.value(scmAccount);
+      }
+    }
+    json.endArray();
+  }
+
+  private static void writeGroups(JsonWriter json, Collection<String> groups) {
+    json.name("groups");
+    json.beginArray();
+    for (String group : groups) {
+      json.value(group);
+    }
+    json.endArray();
+  }
+
+  private static void writePermissions(JsonWriter json, UserSession session) {
     json.name("permissions").beginObject();
     writeGlobalPermissions(json, session);
     json.endObject();
   }
 
-  private void writeGlobalPermissions(JsonWriter json, UserSession session) {
+  private static void writeGlobalPermissions(JsonWriter json, UserSession session) {
     json.name("global").beginArray();
     for (String permission : session.globalPermissions()) {
       json.value(permission);

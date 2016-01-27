@@ -1,10 +1,24 @@
 {
   "isLoggedIn": true,
-  "login": "george.orwell",
-  "name": "George Orwell",
+  "login": "obiwan.kenobi",
+  "name": "Obiwan Kenobi",
+  "email": "obiwan.kenobi@starwars.com",
+  "scmAccounts": [
+    "obiwan:github",
+    "obiwan:bitbucket"
+  ],
+  "groups": [
+    "Jedi", "Rebel"
+  ],
   "permissions": {
     "global": [
-      "dryRunScan"
+      "admin",
+      "profileadmin",
+      "gateadmin",
+      "shareDashboard",
+      "scan",
+      "dryRunScan",
+      "provisioning"
     ]
   }
 }
