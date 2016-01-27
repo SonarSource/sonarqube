@@ -42,6 +42,10 @@
   <filter>
     <filter-name>RackFilter</filter-name>
     <filter-class>org.jruby.rack.RackFilter</filter-class>
+    <init-param>
+      <param-name>addsHtmlToPathInfo</param-name>
+      <param-value>false</param-value>
+    </init-param>
   </filter>
   <filter>
     <filter-name>SecurityFilter</filter-name>
