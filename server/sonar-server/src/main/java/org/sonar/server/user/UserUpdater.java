@@ -107,7 +107,7 @@ public class UserUpdater {
       saveUser(dbSession, userDto);
       addDefaultGroup(dbSession, userDto);
     } else {
-      isUserReactivated = updateExistingUser(dbSession, existingUser.get(), login, newUser);
+      isUserReactivated = reactivateUser(dbSession, existingUser.get(), login, newUser);
     }
     dbSession.commit();
     notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
@@ -115,15 +115,17 @@ public class UserUpdater {
     return isUserReactivated;
   }
 
-  private boolean updateExistingUser(DbSession dbSession, UserDto existingUser, String login, NewUser newUser) {
+  private boolean reactivateUser(DbSession dbSession, UserDto existingUser, String login, NewUser newUser) {
     if (existingUser.isActive()) {
       throw new IllegalArgumentException(String.format("An active user with login '%s' already exists", login));
     }
     UpdateUser updateUser = UpdateUser.create(login)
       .setName(newUser.name())
       .setEmail(newUser.email())
-      .setScmAccounts(newUser.scmAccounts())
-      .setPassword(newUser.password());
+      .setScmAccounts(newUser.scmAccounts());
+    if (newUser.password() != null) {
+      updateUser.setPassword(newUser.password());
+    }
     updateUserDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
     addDefaultGroup(dbSession, existingUser);

@@ -473,7 +473,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void reactivate_user_when_creating_user_with_existing_login() {
+  public void reactivate_user_when_creating_user_with_existing_login_and_with_authority() {
     db.prepareDbUnit(getClass(), "reactivate_user.xml");
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
@@ -493,6 +493,32 @@ public class UserUpdaterTest {
 
     assertThat(dto.getSalt()).isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
     assertThat(dto.getCryptedPassword()).isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+    assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
+    assertThat(dto.getUpdatedAt()).isEqualTo(1418215735486L);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  public void reactivate_user_not_having_password() {
+    db.prepareDbUnit(getClass(), "reactivate_user_not_having_password.xml");
+    when(system2.now()).thenReturn(1418215735486L);
+    createDefaultGroup();
+
+    boolean result = userUpdater.create(NewUser.create()
+      .setLogin(DEFAULT_LOGIN)
+      .setName("Marius2")
+      .setEmail("marius2@mail.com"));
+    session.commit();
+
+    UserDto dto = userDao.selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.isActive()).isTrue();
+    assertThat(dto.getName()).isEqualTo("Marius2");
+    assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
+    assertThat(dto.getScmAccounts()).isNull();
+
+    assertThat(dto.getSalt()).isNull();
+    assertThat(dto.getCryptedPassword()).isNull();
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735486L);
 
