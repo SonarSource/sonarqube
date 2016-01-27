@@ -29,6 +29,8 @@ import Home from './components/Home';
 import NotificationsContainer from './containers/NotificationsContainer';
 import SecurityContainer from './containers/SecurityContainer';
 
+import './styles/account.css';
+
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
 
@@ -37,9 +39,6 @@ window.sonarqube.appStarted.then(options => {
   });
 
   const store = configureStore();
-
-  document.querySelector('html').classList.add('dashboard-page');
-  document.querySelector('#container').classList.add('page-wrapper-context');
 
   render((
       <Provider store={store}>

@@ -20,18 +20,14 @@
 import React from 'react';
 import { IndexLink } from 'react-router';
 
+import UserCard from './UserCard';
 import { translate } from '../../../helpers/l10n';
 
-const Nav = () => (
-    <nav className="navbar navbar-context page-container">
-      <div className="container">
-        <ul className="nav navbar-nav nav-crumbs">
-          <li>
-            <IndexLink to="/" activeClassName="active">
-              {translate('my_account.page')}
-            </IndexLink>
-          </li>
-        </ul>
+const Nav = ({ user }) => (
+    <header className="account-header">
+      <UserCard user={user}/>
+
+      <nav className="account-nav clearfix">
         <ul className="nav navbar-nav nav-tabs">
           <li>
             <IndexLink to="/" activeClassName="active">
@@ -49,8 +45,8 @@ const Nav = () => (
             </IndexLink>
           </li>
         </ul>
-      </div>
-    </nav>
+      </nav>
+    </header>
 );
 
 export default Nav;

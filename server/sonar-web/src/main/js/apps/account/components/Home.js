@@ -19,18 +19,56 @@
  */
 import React from 'react';
 
-import UserCard from './UserCard';
 import Favorites from './Favorites';
 import FavoriteIssueFilters from './FavoriteIssueFilters';
 import FavoriteMeasureFilters from './FavoriteMeasureFilters';
+import { translate } from '../../../helpers/l10n';
 
 const Home = ({ user, favorites, issueFilters, measureFilters }) => (
     <div>
-      <UserCard user={user}/>
-      <div className="overflow-hidden">
-        <Favorites favorites={favorites}/>
-        {issueFilters && <FavoriteIssueFilters issueFilters={issueFilters}/>}
-        {measureFilters && <FavoriteMeasureFilters measureFilters={measureFilters}/>}
+      <div className="columns">
+        <div className="column-third">
+          <Favorites favorites={favorites}/>
+          {issueFilters && <FavoriteIssueFilters issueFilters={issueFilters}/>}
+          {measureFilters && <FavoriteMeasureFilters measureFilters={measureFilters}/>}
+        </div>
+
+        <div className="column-third">
+          <section>
+            <h2 className="spacer-bottom">{translate('issues.page')}</h2>
+            <p>Some cool issue widgets go here...</p>
+          </section>
+        </div>
+
+        <div className="column-third">
+          <section>
+            <h2 className="spacer-bottom">{translate('my_profile.groups')}</h2>
+            <ul id="groups">
+              {user.groups.map(group => (
+                  <li
+                      key={group}
+                      className="little-spacer-bottom text-ellipsis"
+                      title={group}>
+                    {group}
+                  </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="huge-spacer-top">
+            <h2 className="spacer-bottom">{translate('my_profile.scm_accounts')}</h2>
+            <ul id="scm-accounts">
+              {user.scmAccounts.map(scmAccount => (
+                  <li
+                      key={scmAccount}
+                      className="little-spacer-bottom text-ellipsis"
+                      title={scmAccount}>
+                    {scmAccount}
+                  </li>
+              ))}
+            </ul>
+          </section>
+        </div>
       </div>
     </div>
 );

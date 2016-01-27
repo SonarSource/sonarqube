@@ -22,7 +22,7 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 const FavoriteMeasureFilters = ({ measureFilters }) => (
-    <section className="big-spacer-bottom">
+    <section className="huge-spacer-top">
       <h2 className="spacer-bottom">
         {translate('my_account.favorite_measure_filters')}
       </h2>

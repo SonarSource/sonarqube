@@ -48,7 +48,7 @@ export default class AccountApp extends Component {
 
     return (
         <div>
-          <Nav/>
+          <Nav user={user}/>
           <div className="page">
             {children}
           </div>

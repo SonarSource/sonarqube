@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 import { getComponentUrl } from '../../../helpers/urls';
 
 const Favorites = ({ favorites }) => (
-    <section className="big-spacer-bottom">
+    <section>
       <h2 className="spacer-bottom">
         {translate('my_account.favorite_components')}
       </h2>

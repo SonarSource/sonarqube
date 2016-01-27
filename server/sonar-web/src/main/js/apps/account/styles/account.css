@@ -1,0 +1,20 @@
+.account-header {
+  background-color: #f3f3f3;
+}
+
+.account-nav {
+
+}
+
+.account-nav .nav-tabs {
+  width: 100%;
+}
+
+.account-user {
+  padding: 10px;
+}
+
+.account-nav-avatar {
+  float: left;
+  margin-right: 20px;
+}

@@ -28,7 +28,7 @@ export default function Notifications ({ globalNotifications, projectNotificatio
 
   return (
       <div>
-        <p className="big-spacer-bottom">
+        <p className="spacer-top big-spacer-bottom">
           {translate('notification.dispatcher.information')}
         </p>
         <form id="notif_form" method="post" action={`${window.baseUrl}/account/update_notifications`}>

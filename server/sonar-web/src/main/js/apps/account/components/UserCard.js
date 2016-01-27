@@ -20,41 +20,18 @@
 import React from 'react';
 
 import Avatar from '../../../components/shared/avatar';
-import { translate } from '../../../helpers/l10n';
 
-const UserCard = ({ user }) => (
-    <div className="pull-left big-spacer-right abs-width-240">
-      <div className="panel panel-white">
-        <div className="text-center">
-          <div id="avatar" className="big-spacer-bottom">
-            <Avatar email={user.email} size={100}/>
-          </div>
-          <h2 id="name" className="text-ellipsis" title={user.name}>{user.name}</h2>
-          <p id="login" className="note text-ellipsis" title={user.login}>{user.login}</p>
-          <div className="text-center spacer-top">
-            <p id="email" className="text-ellipsis" title={user.email}>{user.email}</p>
-          </div>
+export default function UserCard ({ user }) {
+  return (
+      <section className="account-user clearfix">
+        <div id="avatar" className="account-nav-avatar">
+          <Avatar email={user.email} size={48}/>
         </div>
-
-        <div className="big-spacer-top">
-          <h3 className="text-center">{translate('my_profile.groups')}</h3>
-          <ul id="groups">
-            {user.groups.map(group => (
-                <li key={group} className="text-ellipsis" title={group}>{group}</li>
-            ))}
-          </ul>
+        <div>
+          <h1 id="name" className="display-inline-block">{user.name}</h1>
+          <span id="login" className="note big-spacer-left">{user.login}</span>
         </div>
-
-        <div className="big-spacer-top">
-          <h3 className="text-center">{translate('my_profile.scm_accounts')}</h3>
-          <ul id="scm-accounts">
-            {user.scmAccounts.map(scmAccount => (
-                <li key={scmAccount} className="text-ellipsis" title={scmAccount}>{scmAccount}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
-);
-
-export default UserCard;
+        <div id="email" className="little-spacer-top">{user.email}</div>
+      </section>
+  );
+}
