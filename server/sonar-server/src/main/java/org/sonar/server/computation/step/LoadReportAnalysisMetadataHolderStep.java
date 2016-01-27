@@ -22,16 +22,21 @@ package org.sonar.server.computation.step;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.queue.CeTask;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Feed analysis metadata holder with metadata from the analysis report.
  */
 public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
 
+  private final CeTask ceTask;
   private final BatchReportReader reportReader;
   private final MutableAnalysisMetadataHolder mutableAnalysisMetadataHolder;
 
-  public LoadReportAnalysisMetadataHolderStep(BatchReportReader reportReader, MutableAnalysisMetadataHolder mutableAnalysisMetadataHolder) {
+  public LoadReportAnalysisMetadataHolderStep(CeTask ceTask, BatchReportReader reportReader, MutableAnalysisMetadataHolder mutableAnalysisMetadataHolder) {
+    this.ceTask = ceTask;
     this.reportReader = reportReader;
     this.mutableAnalysisMetadataHolder = mutableAnalysisMetadataHolder;
   }
@@ -39,6 +44,12 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   @Override
   public void execute() {
     BatchReport.Metadata reportMetadata = reportReader.readMetadata();
+    checkState(
+      ceTask.getComponentKey().equals(reportMetadata.getProjectKey()),
+      "ProjectKey in report (%s) is not consistent with projectKey under which the report as been submitted (%s)",
+      reportMetadata.getProjectKey(),
+      ceTask.getComponentKey());
+
     mutableAnalysisMetadataHolder.setRootComponentRef(reportMetadata.getRootComponentRef());
     mutableAnalysisMetadataHolder.setBranch(reportMetadata.hasBranch() ? reportMetadata.getBranch() : null);
     mutableAnalysisMetadataHolder.setAnalysisDate(reportMetadata.getAnalysisDate());

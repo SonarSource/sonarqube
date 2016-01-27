@@ -21,30 +21,37 @@ package org.sonar.server.computation.step;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.queue.CeTask;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LoadReportAnalysisMetadataHolderStepTest {
 
+  public static final String PROJECT_KEY = "project_key";
   static long ANALYSIS_DATE = 123456789L;
 
   static String BRANCH = "origin/master";
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  ComputationStep underTest = new LoadReportAnalysisMetadataHolderStep(reportReader, analysisMetadataHolder);
+  private CeTask ceTask = createCeTask(PROJECT_KEY);
+  private ComputationStep underTest = new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder);
 
   @Test
   public void set_root_component_ref() throws Exception {
     reportReader.setMetadata(
-      BatchReport.Metadata.newBuilder()
+      newBatchReportBuilder()
         .setRootComponentRef(1)
         .build());
 
@@ -56,7 +63,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   @Test
   public void set_analysis_date() throws Exception {
     reportReader.setMetadata(
-      BatchReport.Metadata.newBuilder()
+      newBatchReportBuilder()
         .setAnalysisDate(ANALYSIS_DATE)
         .build());
 
@@ -68,7 +75,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   @Test
   public void set_branch() throws Exception {
     reportReader.setMetadata(
-      BatchReport.Metadata.newBuilder()
+      newBatchReportBuilder()
         .setBranch(BRANCH)
         .build());
 
@@ -80,7 +87,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   @Test
   public void set_null_branch_when_nothing_in_the_report() throws Exception {
     reportReader.setMetadata(
-      BatchReport.Metadata.newBuilder()
+      newBatchReportBuilder()
         .build());
 
     underTest.execute();
@@ -91,7 +98,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   @Test
   public void set_cross_project_duplication_to_true() throws Exception {
     reportReader.setMetadata(
-      BatchReport.Metadata.newBuilder()
+      newBatchReportBuilder()
         .setCrossProjectDuplicationActivated(true)
         .build());
 
@@ -103,7 +110,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   @Test
   public void set_cross_project_duplication_to_false() throws Exception {
     reportReader.setMetadata(
-      BatchReport.Metadata.newBuilder()
+      newBatchReportBuilder()
         .setCrossProjectDuplicationActivated(false)
         .build());
 
@@ -115,12 +122,36 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   @Test
   public void set_cross_project_duplication_to_false_when_nothing_in_the_report() throws Exception {
     reportReader.setMetadata(
-      BatchReport.Metadata.newBuilder()
+      newBatchReportBuilder()
         .build());
 
     underTest.execute();
 
     assertThat(analysisMetadataHolder.isCrossProjectDuplicationEnabled()).isEqualTo(false);
+  }
+
+  @Test
+  public void execute_fails_with_ISE_when_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
+    reportReader.setMetadata(
+        BatchReport.Metadata.newBuilder()
+            .setProjectKey("some other key")
+            .build());
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("ProjectKey in report (some other key) is not consistent with projectKey under which the report as been submitted (" + PROJECT_KEY + ")");
+
+    underTest.execute();
+  }
+
+  private static BatchReport.Metadata.Builder newBatchReportBuilder() {
+    return BatchReport.Metadata.newBuilder()
+      .setProjectKey(PROJECT_KEY);
+  }
+
+  private CeTask createCeTask(String projectKey) {
+    CeTask res = mock(CeTask.class);
+    when(res.getComponentKey()).thenReturn(projectKey);
+    return res;
   }
 
 }
