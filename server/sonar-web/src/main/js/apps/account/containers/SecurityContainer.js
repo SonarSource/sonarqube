@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import { connect } from 'react-redux';
 
 import Security from './../components/Security';
 
-export default function SecurityContainer () {
-  const { user } = window.sonarqube;
-
-  return <Security user={user}/>;
+function mapStateToProps (state) {
+  return {
+    user: state.user
+  };
 }
+
+export default connect(mapStateToProps)(Security);

@@ -48,6 +48,7 @@ function removeProjectNotifications (state, project) {
 }
 
 export const initialState = {
+  user: window.sonarqube.user,
   projectNotifications: window.sonarqube.notifications.project
 };
 

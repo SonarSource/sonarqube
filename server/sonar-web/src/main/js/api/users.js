@@ -18,8 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
+import { post, postJSON } from '../helpers/request.js';
 
 export function getCurrentUser () {
   const url = baseUrl + '/api/users/current';
   return $.get(url);
+}
+
+export function changePassword (login, password, previousPassword) {
+  const url = window.baseUrl + '/api/users/change_password';
+  const data = { login, password };
+
+  if (previousPassword != null) {
+    data.previousPassword = previousPassword;
+  }
+
+  return post(url, data);
 }

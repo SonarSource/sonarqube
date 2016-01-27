@@ -31,7 +31,7 @@ export default function Security ({ user }) {
 
         {user.canChangePassword && (
             <div className="column-half">
-              <Password/>
+              <Password user={user}/>
             </div>
         )}
       </div>
