@@ -54,7 +54,8 @@
   </select>
 
   <select id="selectComponentsHavingSameKeyOrderedById" parameterType="String" resultType="Component">
-    SELECT id
+    SELECT
+    <include refid="componentColumns"/>
     FROM projects p
     <where>
       AND p.kee=#{key}
