@@ -52,7 +52,7 @@ import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
-public class AuthenticationTest {
+public class LocalAuthenticationTest {
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
   private static WsClient adminWsClient;

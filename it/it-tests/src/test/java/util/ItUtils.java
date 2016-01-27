@@ -56,6 +56,8 @@ import org.sonarqube.ws.client.HttpWsClient;
 import org.sonarqube.ws.client.WsClient;
 
 import static com.google.common.collect.FluentIterable.from;
+import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
+import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -99,7 +101,7 @@ public class ItUtils {
     Server server = orchestrator.getServer();
     return new HttpWsClient(new HttpConnector.Builder()
       .url(server.getUrl())
-      .credentials(server.ADMIN_LOGIN, server.ADMIN_PASSWORD)
+      .credentials(ADMIN_LOGIN, ADMIN_PASSWORD)
       .build());
   }
 

@@ -41,9 +41,11 @@ import com.sonar.orchestrator.Orchestrator;
 import it.actionPlan.ActionPlanTest;
 import it.actionPlan.ActionPlanUiTest;
 import it.administration.UsersUITest;
-import it.authorisation.AuthenticationTest;
+import it.authorisation.BaseIdentityProviderTest;
 import it.authorisation.ExecuteAnalysisPermissionTest;
 import it.authorisation.IssuePermissionTest;
+import it.authorisation.LocalAuthenticationTest;
+import it.authorisation.OAuth2IdentityProviderTest;
 import it.authorisation.PermissionTest;
 import it.i18n.I18nTest;
 import it.measureHistory.DifferentialPeriodsTest;
@@ -92,8 +94,11 @@ import static util.ItUtils.xooPlugin;
   QualityGateTest.class,
   QualityGateUiTest.class,
   QualityGateNotificationTest.class,
+  // authentication
+  LocalAuthenticationTest.class,
+  BaseIdentityProviderTest.class,
+  OAuth2IdentityProviderTest.class,
   // permission
-  AuthenticationTest.class,
   PermissionTest.class,
   IssuePermissionTest.class,
   ExecuteAnalysisPermissionTest.class,
@@ -127,6 +132,12 @@ public class Category1Suite {
 
     // Used in SettingsTest.should_get_settings_default_value
     .addPlugin(pluginArtifact("server-plugin"))
+
+    // Used in BaseIdentityProviderTest
+    .addPlugin(pluginArtifact("base-auth-plugin"))
+
+    // Used in OAuth2IdentityProviderTest
+    .addPlugin(pluginArtifact("oauth2-auth-plugin"))
 
     .addPlugin(xooPlugin())
     .build();
