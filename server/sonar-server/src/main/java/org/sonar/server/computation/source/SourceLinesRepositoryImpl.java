@@ -38,34 +38,41 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
   }
 
   @Override
-  public CloseableIterator<String> readLines(Component component) {
-    requireNonNull(component, "Component should not be bull");
-    checkArgument(component.getType() == FILE, "Component '%s' is not a file", component);
+  public CloseableIterator<String> readLines(Component file) {
+    requireNonNull(file, "Component should not be bull");
+    checkArgument(file.getType() == FILE, "Component '%s' is not a file", file);
 
-    Optional<CloseableIterator<String>> linesIteratorOptional = reportReader.readFileSource(component.getReportAttributes().getRef());
+    Optional<CloseableIterator<String>> linesIteratorOptional = reportReader.readFileSource(file.getReportAttributes().getRef());
 
-    checkState(linesIteratorOptional.isPresent(), String.format("File '%s' has no source code", component));
-    int numberOfLines = reportReader.readComponent(component.getReportAttributes().getRef()).getLines();
+    checkState(linesIteratorOptional.isPresent(), String.format("File '%s' has no source code", file));
+    int numberOfLines = reportReader.readComponent(file.getReportAttributes().getRef()).getLines();
     CloseableIterator<String> lineIterator = linesIteratorOptional.get();
 
-    return new ComponentLinesCloseableIterator(lineIterator, numberOfLines);
+    return new ComponentLinesCloseableIterator(file, lineIterator, numberOfLines);
   }
 
   private static class ComponentLinesCloseableIterator extends CloseableIterator<String> {
     private static final String EXTRA_END_LINE = "";
+
+    private final Component file;
     private final CloseableIterator<String> delegate;
     private final int numberOfLines;
     private int currentLine = 0;
-    private boolean addedExtraLine = false;
 
-    public ComponentLinesCloseableIterator(CloseableIterator<String> lineIterator, int numberOfLines) {
+    public ComponentLinesCloseableIterator(Component file, CloseableIterator<String> lineIterator, int numberOfLines) {
+      this.file = file;
       this.delegate = lineIterator;
       this.numberOfLines = numberOfLines;
     }
 
     @Override
     public boolean hasNext() {
-      return delegate.hasNext() || (currentLine < numberOfLines && !addedExtraLine);
+      if (delegate.hasNext()) {
+        checkState(currentLine < numberOfLines, "Source of file '%s' has at least one more line than the expected number (%s)", file, numberOfLines);
+        return true;
+      }
+      checkState((currentLine + 1) >= numberOfLines, "Source of file '%s' has less lines (%s) than the expected number (%s)", file, currentLine, numberOfLines);
+      return currentLine < numberOfLines;
     }
 
     @Override
@@ -79,7 +86,6 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
       if (delegate.hasNext()) {
         return delegate.next();
       }
-      addedExtraLine = true;
       return EXTRA_END_LINE;
     }
 

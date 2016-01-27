@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 
@@ -57,19 +58,33 @@ public class SourceLinesRepositoryImplTest {
   }
 
   @Test
-  public void read_lines_add_at_most_one_extra_empty_line_when_sourceLine_has_less_elements_then_lineCount() throws Exception {
-    reportReader.putComponent(createFileBatchComponent(10));
+  public void read_lines_adds_one_extra_empty_line_when_sourceLine_has_elements_count_equals_to_lineCount_minus_1() throws Exception {
+    reportReader.putComponent(createFileBatchComponent(3));
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
     assertThat(underTest.readLines(FILE)).containsOnly("line1", "line2", "");
   }
 
   @Test
-  public void read_lines_reads_all_lines_from_sourceLines_when_it_has_more_elements_then_lineCount() throws Exception {
+  public void read_lines_throws_ISE_when_sourceLine_has_less_elements_then_lineCount_minus_1() throws Exception {
+    reportReader.putComponent(createFileBatchComponent(10));
+    reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Source of file 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has less lines (2) than the expected number (10)");
+
+    consume(underTest.readLines(FILE));
+  }
+
+  @Test
+  public void read_lines_throws_ISE_when_sourceLines_has_more_elements_then_lineCount() throws Exception {
     reportReader.putComponent(createFileBatchComponent(2));
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2", "line3");
 
-    assertThat(underTest.readLines(FILE)).containsOnly("line1", "line2", "line3");
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Source of file 'ReportComponent{ref=2, key='FILE_KEY', type=FILE}' has at least one more line than the expected number (2)");
+
+    consume(underTest.readLines(FILE));
   }
 
   @Test
@@ -108,6 +123,16 @@ public class SourceLinesRepositoryImplTest {
 
   private static BatchReport.Component createFileBatchComponent(int lineCount) {
     return BatchReport.Component.newBuilder().setRef(FILE_REF).setLines(lineCount).build();
+  }
+
+  private static void consume(CloseableIterator<String> stringCloseableIterator) {
+    try{
+      while (stringCloseableIterator.hasNext()) {
+        stringCloseableIterator.next();
+      }
+    } finally {
+      stringCloseableIterator.close();
+    }
   }
 
 }
