@@ -17,22 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import classNames from 'classnames';
+import React, { Component } from 'react';
 
 import NotificationsList from './NotificationsList';
 import { translate } from '../../../helpers/l10n';
 
-export default function GlobalNotifications ({ notifications, channels }) {
-  return (
-      <section>
-        <h2 className="spacer-bottom">
-          {translate('my_profile.overall_notifications.title')}
-        </h2>
+export default class ProjectNotification extends Component {
+  state = {
+    toDelete: false
+  }
 
-        <table className="form">
+  handleRemoveProject (e) {
+    e.preventDefault();
+    if (this.state.toDelete) {
+      const { data, onRemoveProject } = this.props;
+      onRemoveProject(data.project);
+    } else {
+      this.setState({ toDelete: true });
+    }
+  }
+
+  render () {
+    const { data, channels } = this.props;
+    const buttonClassName = classNames('big-spacer-left', 'button-red', {
+      'active': this.state.toDelete
+    });
+
+    return (
+        <table key={data.project.internalId} className="form big-spacer-bottom">
           <thead>
             <tr>
-              <th></th>
+              <th>
+                <h3 className="display-inline-block">{data.project.name}</h3>
+                <button
+                    onClick={this.handleRemoveProject.bind(this)}
+                    className={buttonClassName}>
+                  {this.state.toDelete ? 'Sure?' : translate('delete')}
+                </button>
+              </th>
               {channels.map(channel => (
                   <th key={channel} className="text-center">
                     <h4>{translate('notification.channel', channel)}</h4>
@@ -40,12 +63,11 @@ export default function GlobalNotifications ({ notifications, channels }) {
               ))}
             </tr>
           </thead>
-
           <NotificationsList
-              notifications={notifications}
-              checkboxId={(d, c) => `global_notifs_${d}_${c}`}
-              checkboxName={(d, c) => `global_notifs[${d}.${c}]`}/>
+              notifications={data.notifications}
+              checkboxId={(d, c) => `project_notifs_${data.project.internalId}_${d}_${c}`}
+              checkboxName={(d, c) => `project_notifs[${data.project.internalId}][${d}][${c}]`}/>
         </table>
-      </section>
-  );
+    );
+  }
 }

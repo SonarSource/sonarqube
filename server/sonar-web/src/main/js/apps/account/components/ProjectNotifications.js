@@ -20,7 +20,7 @@
 import React from 'react';
 import Select from 'react-select';
 
-import NotificationsList from './NotificationsList';
+import ProjectNotification from './ProjectNotification';
 import { translate } from '../../../helpers/l10n';
 import { getProjectsWithInternalId } from '../../../api/components';
 
@@ -46,28 +46,11 @@ export default function ProjectNotifications ({ notifications, channels, onAddPr
     onAddProject(project);
   };
 
-  const handleRemoveProject = (project) => (
-      (e) => {
-        e.preventDefault;
-        onRemoveProject(project);
-      }
-  );
-
   return (
-      <div>
-        <header className="page-header">
-          <h2 className="page-title">
-            {translate('my_profile.per_project_notifications.title')}
-          </h2>
-          <div className="pull-right">
-            <Select.Async
-                name="new_project"
-                style={{ width: '150px' }}
-                loadOptions={loadOptions}
-                onChange={handleAddProject}
-                placeholder="Add Project"/>
-          </div>
-        </header>
+      <section>
+        <h2 className="spacer-bottom">
+          {translate('my_profile.per_project_notifications.title')}
+        </h2>
 
         {!notifications.length && (
             <div className="note">
@@ -76,27 +59,24 @@ export default function ProjectNotifications ({ notifications, channels, onAddPr
         )}
 
         {notifications.map(p => (
-            <table key={p.project.internalId} className="form spacer-bottom">
-              <thead>
-                <tr>
-                  <th>
-                    <a onClick={handleRemoveProject(p.project)}
-                       className="spacer-right icon-delete js-delete-project" href="#"></a>
-                    <h3 className="display-inline-block">{p.project.name}</h3>
-                  </th>
-                  {channels.map(channel => (
-                      <th key={channel} className="text-center">
-                        <h4>{translate('notification.channel', channel)}</h4>
-                      </th>
-                  ))}
-                </tr>
-              </thead>
-              <NotificationsList
-                  notifications={p.notifications}
-                  checkboxId={(d, c) => `project_notifs_${p.project.internalId}_${d}_${c}`}
-                  checkboxName={(d, c) => `project_notifs[${p.project.internalId}][${d}][${c}]`}/>
-            </table>
+            <ProjectNotification
+                key={p.project.internalId}
+                data={p}
+                channels={channels}
+                onRemoveProject={onRemoveProject}/>
         ))}
-      </div>
+
+        <div className="huge-spacer-top panel bg-muted">
+          <span className="text-middle spacer-right">
+            Set notifications for:
+          </span>
+          <Select.Async
+              name="new_project"
+              style={{ width: '150px' }}
+              loadOptions={loadOptions}
+              onChange={handleAddProject}
+              placeholder="Search Project"/>
+        </div>
+      </section>
   );
 }

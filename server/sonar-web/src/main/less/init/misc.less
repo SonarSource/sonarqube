@@ -131,12 +131,13 @@ td.big-spacer-top    { padding-top: 16px; }
 
 // Background Color
 
-.bg-variant(@color) {
+.bg-variant(@color, @fontColor: #fff) {
   background-color: @color;
-  color: #fff;
+  color: @fontColor;
 }
 
 .bg-danger  { .bg-variant(@red); }
 .bg-warning { .bg-variant(@orange); }
 .bg-info    { .bg-variant(@blue); }
 .bg-success { .bg-variant(@green); }
+.bg-muted   { .bg-variant(@barBackgroundColor, inherit); }
