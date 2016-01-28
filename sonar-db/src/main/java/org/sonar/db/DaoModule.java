@@ -47,6 +47,7 @@ import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureFilterDao;
+import org.sonar.db.measure.MeasureFilterFavouriteDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
@@ -95,6 +96,7 @@ public class DaoModule extends Module {
     LoadedTemplateDao.class,
     MeasureDao.class,
     MeasureFilterDao.class,
+    MeasureFilterFavouriteDao.class,
     MetricDao.class,
     NotificationQueueDao.class,
     PermissionDao.class,

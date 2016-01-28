@@ -33,10 +33,14 @@ public class IssueFilterFavouriteDao implements Dao {
     this.mybatis = mybatis;
   }
 
+  public IssueFilterFavouriteDto selectById(DbSession session, long id) {
+    return mapper(session).selectById(id);
+  }
+
   public IssueFilterFavouriteDto selectById(long id) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      return mapper(session).selectById(id);
+      return selectById(session, id);
     } finally {
       MyBatis.closeQuietly(session);
     }

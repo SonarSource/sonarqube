@@ -19,13 +19,47 @@
  */
 package org.sonar.db.measure;
 
-/**
- * @since 3.4
- */
-public interface MeasureFilterMapper {
-  MeasureFilterDto findSystemFilterByName(String name);
+import java.util.Date;
 
-  MeasureFilterDto selectById(long id);
+public class MeasureFilterFavouriteDto {
+  private Long id;
+  private Long userId;
+  private Long measureFilterId;
+  private Date createdAt;
 
-  void insert(MeasureFilterDto filter);
+  public Long getId() {
+    return id;
+  }
+
+  public MeasureFilterFavouriteDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public Long getUserId() {
+    return userId;
+  }
+
+  public MeasureFilterFavouriteDto setUserId(Long userId) {
+    this.userId = userId;
+    return this;
+  }
+
+  public Long getMeasureFilterId() {
+    return measureFilterId;
+  }
+
+  public MeasureFilterFavouriteDto setMeasureFilterId(Long measureFilterId) {
+    this.measureFilterId = measureFilterId;
+    return this;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public MeasureFilterFavouriteDto setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
 }

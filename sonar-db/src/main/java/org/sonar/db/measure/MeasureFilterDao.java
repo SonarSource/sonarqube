@@ -21,6 +21,7 @@ package org.sonar.db.measure;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 public class MeasureFilterDao implements Dao {
@@ -40,11 +41,18 @@ public class MeasureFilterDao implements Dao {
     }
   }
 
+  public MeasureFilterDto selectById(DbSession session, long id){
+    return session.getMapper(MeasureFilterMapper.class).selectById(id);
+  }
+
+  public void insert(DbSession session, MeasureFilterDto filter) {
+    session.getMapper(MeasureFilterMapper.class).insert(filter);
+  }
+
   public void insert(MeasureFilterDto filter) {
-    SqlSession session = mybatis.openSession(false);
-    MeasureFilterMapper mapper = session.getMapper(MeasureFilterMapper.class);
+    DbSession session = mybatis.openSession(false);
     try {
-      mapper.insert(filter);
+      insert(session, filter);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

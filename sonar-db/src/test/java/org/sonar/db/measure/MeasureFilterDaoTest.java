@@ -19,9 +19,11 @@
  */
 package org.sonar.db.measure;
 
+import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,13 +33,15 @@ public class MeasureFilterDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  MeasureFilterDao dao = db.getDbClient().measureFilterDao();
+  DbSession session = db.getSession();
+
+  MeasureFilterDao underTest = db.getDbClient().measureFilterDao();
 
   @Test
   public void should_find_filter() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureFilterDto filter = dao.selectSystemFilterByName("Projects");
+    MeasureFilterDto filter = underTest.selectSystemFilterByName("Projects");
 
     assertThat(filter.getId()).isEqualTo(1L);
     assertThat(filter.getName()).isEqualTo("Projects");
@@ -47,7 +51,33 @@ public class MeasureFilterDaoTest {
   public void should_not_find_filter() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(dao.selectSystemFilterByName("Unknown")).isNull();
+    assertThat(underTest.selectSystemFilterByName("Unknown")).isNull();
+  }
+
+  @Test
+  public void select_by_id() throws Exception {
+    MeasureFilterDto dto = new MeasureFilterDto()
+      .setUserId(10L)
+      .setName("name")
+      .setDescription("description")
+      .setData("data")
+      .setShared(true)
+      .setCreatedAt(new Date(1000L))
+      .setUpdatedAt(new Date(2000L));
+    underTest.insert(session, dto);
+    session.commit();
+
+    MeasureFilterDto dtoReloded = underTest.selectById(session, dto.getId());
+    assertThat(dtoReloded).isNotNull();
+    assertThat(dtoReloded.getUserId()).isEqualTo(10L);
+    assertThat(dtoReloded.getName()).isEqualTo("name");
+    assertThat(dtoReloded.getDescription()).isEqualTo("description");
+    assertThat(dtoReloded.getData()).isEqualTo("data");
+    assertThat(dtoReloded.isShared()).isTrue();
+    assertThat(dtoReloded.getCreatedAt()).isEqualTo(new Date(1000L));
+    assertThat(dtoReloded.getUpdatedAt()).isEqualTo(new Date(2000L));
+
+    assertThat(underTest.selectById(session, 123L)).isNull();
   }
 
   @Test
@@ -61,7 +91,7 @@ public class MeasureFilterDaoTest {
     filterDto.setDescription("Treemap of projects");
     filterDto.setData("qualifiers=TRK|display=treemap");
 
-    dao.insert(filterDto);
+    underTest.insert(filterDto);
 
     db.assertDbUnit(getClass(), "shouldInsert-result.xml", new String[]{"created_at", "updated_at"}, "measure_filters");
   }

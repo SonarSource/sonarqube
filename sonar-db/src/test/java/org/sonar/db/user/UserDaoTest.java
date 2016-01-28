@@ -21,7 +21,9 @@ package org.sonar.db.user;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -29,16 +31,28 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.dashboard.ActiveDashboardDto;
+import org.sonar.db.dashboard.DashboardDto;
+import org.sonar.db.issue.IssueFilterDto;
+import org.sonar.db.issue.IssueFilterFavouriteDto;
+import org.sonar.db.measure.MeasureFilterDto;
+import org.sonar.db.measure.MeasureFilterFavouriteDto;
+import org.sonar.db.property.PropertyDto;
+import org.sonar.db.property.PropertyQuery;
 import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.user.GroupMembershipQuery.IN;
+import static org.sonar.db.user.GroupMembershipQuery.builder;
 
 @Category(DbTests.class)
 public class UserDaoTest {
@@ -51,8 +65,17 @@ public class UserDaoTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
+  static final long NOW = 1500000000000L;
+
+  DbClient dbClient = db.getDbClient();
+
   UserDao underTest = db.getDbClient().userDao();
   DbSession session = db.getSession();
+
+  @Before
+  public void setUp() throws Exception {
+    when(system2.now()).thenReturn(NOW);
+  }
 
   @Test
   public void selectUserByLogin_ignore_inactive() {
@@ -166,6 +189,8 @@ public class UserDaoTest {
       .setCryptedPassword("abcd")
       .setExternalIdentity("johngithub")
       .setExternalIdentityProvider("github")
+      .setRememberToken("1234")
+      .setRememberTokenExpiresAt(new Date())
       .setCreatedAt(date)
       .setUpdatedAt(date);
     underTest.insert(db.getSession(), userDto);
@@ -183,6 +208,8 @@ public class UserDaoTest {
     assertThat(user.getCryptedPassword()).isEqualTo("abcd");
     assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.getRememberToken()).isEqualTo("1234");
+    assertThat(user.getRememberTokenExpiresAt()).isNotNull();
     assertThat(user.getCreatedAt()).isEqualTo(date);
     assertThat(user.getUpdatedAt()).isEqualTo(date);
   }
@@ -225,31 +252,100 @@ public class UserDaoTest {
   }
 
   @Test
-  public void deactivate_user() {
-    db.prepareDbUnit(getClass(), "deactivate_user.xml");
+  public void deactivate_user() throws Exception {
+    UserDto user = newActiveUser();
+    DashboardDto dashboard = newDashboard(user, false);
+    ActiveDashboardDto activeDashboard = newActiveDashboard(dashboard, user);
+    IssueFilterDto issueFilter = newIssueFilter(user, false);
+    IssueFilterFavouriteDto issueFilterFavourite = newIssueFilterFavourite(issueFilter, user);
+    MeasureFilterDto measureFilter = newMeasureFilter(user, false);
+    MeasureFilterFavouriteDto measureFilterFavourite = newMeasureFilterFavourite(measureFilter, user);
+    PropertyDto property = newProperty(user);
+    newUserRole(user);
+    newUserGroup(user);
 
-    when(system2.now()).thenReturn(1500000000000L);
+    UserDto otherUser = newActiveUser();
 
-    String login = "marius";
-    boolean deactivated = underTest.deactivateUserByLogin(session, login);
+    session.commit();
+
+    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
     assertThat(deactivated).isTrue();
 
-    assertThat(underTest.selectActiveUserByLogin(login)).isNull();
+    UserDto userReloaded = underTest.selectUserById(session, user.getId());
+    assertThat(userReloaded.isActive()).isFalse();
+    assertThat(userReloaded.getEmail()).isNull();
+    assertThat(userReloaded.getScmAccounts()).isNull();
+    assertThat(userReloaded.getSalt()).isNull();
+    assertThat(userReloaded.getCryptedPassword()).isNull();
+    assertThat(userReloaded.getExternalIdentity()).isNull();
+    assertThat(userReloaded.getExternalIdentityProvider()).isNull();
+    assertThat(userReloaded.getRememberToken()).isNull();
+    assertThat(userReloaded.getRememberTokenExpiresAt()).isNull();
+    assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
 
-    UserDto userDto = underTest.selectUserById(100);
-    assertThat(userDto.isActive()).isFalse();
-    assertThat(userDto.getUpdatedAt()).isEqualTo(1500000000000L);
+    assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
 
-    db.assertDbUnit(getClass(), "deactivate_user-result.xml",
-      "dashboards", "active_dashboards", "groups_users", "issue_filters",
-      "issue_filter_favourites", "measure_filters", "measure_filter_favourites",
-      "properties", "user_roles");
+    assertThat(dbClient.dashboardDao().selectById(session, dashboard.getId())).isNull();
+    assertThat(dbClient.activeDashboardDao().selectById(session, activeDashboard.getId())).isNull();
+    assertThat(dbClient.issueFilterDao().selectById(session, issueFilter.getId())).isNull();
+    assertThat(dbClient.issueFilterFavouriteDao().selectById(session, issueFilterFavourite.getId())).isNull();
+    assertThat(dbClient.measureFilterDao().selectById(session, measureFilter.getId())).isNull();
+    assertThat(dbClient.measureFilterFavouriteDao().selectById(session, measureFilterFavourite.getId())).isNull();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey(property.getKey()).build(), session)).isEmpty();
+    assertThat(dbClient.roleDao().selectUserPermissions(session, user.getLogin(), null)).isEmpty();
+    assertThat(dbClient.groupMembershipDao().countGroups(session, builder().login(user.getLogin()).membership(IN).build(), user.getId())).isZero();
+  }
+
+  @Test
+  public void deactivate_user_does_not_remove_shared_dashboard() throws Exception {
+    UserDto user = newActiveUser();
+    DashboardDto notSharedDashboard = newDashboard(user, false);
+    DashboardDto sharedDashboard = newDashboard(user, true);
+    session.commit();
+
+    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
+    assertThat(deactivated).isTrue();
+
+    assertThat(dbClient.dashboardDao().selectById(session, notSharedDashboard.getId())).isNull();
+    DashboardDto sharedDashboardReloaded = dbClient.dashboardDao().selectById(session, sharedDashboard.getId());
+    assertThat(sharedDashboardReloaded).isNotNull();
+    assertThat(sharedDashboardReloaded.getUserId()).isEqualTo(user.getId());
+  }
+
+  @Test
+  public void deactivate_user_does_not_remove_shared_issue_filter() throws Exception {
+    UserDto user = newActiveUser();
+    IssueFilterDto notSharedFilter = newIssueFilter(user, false);
+    IssueFilterDto sharedFilter = newIssueFilter(user, true);
+    session.commit();
+
+    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
+    assertThat(deactivated).isTrue();
+
+    assertThat(dbClient.issueFilterDao().selectById(session, notSharedFilter.getId())).isNull();
+    IssueFilterDto sharedFilterReloaded = dbClient.issueFilterDao().selectById(session, sharedFilter.getId());
+    assertThat(sharedFilterReloaded).isNotNull();
+    assertThat(sharedFilterReloaded.getUserLogin()).isEqualTo(user.getLogin());
+  }
+
+  @Test
+  public void deactivate_user_does_not_remove_shared_measure_filter() throws Exception {
+    UserDto user = newActiveUser();
+    MeasureFilterDto notSharedFilter = newMeasureFilter(user, false);
+    MeasureFilterDto sharedFilter = newMeasureFilter(user, true);
+    session.commit();
+
+    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
+    assertThat(deactivated).isTrue();
+
+    assertThat(dbClient.measureFilterDao().selectById(session, notSharedFilter.getId())).isNull();
+    MeasureFilterDto sharedFilterReloaded = dbClient.measureFilterDao().selectById(session, sharedFilter.getId());
+    assertThat(sharedFilterReloaded).isNotNull();
+    assertThat(sharedFilterReloaded.getUserId()).isEqualTo(user.getId());
   }
 
   @Test
   public void deactivate_missing_user() {
-    db.prepareDbUnit(getClass(), "deactivate_user.xml");
-
     String login = "does_not_exist";
     boolean deactivated = underTest.deactivateUserByLogin(session, login);
     assertThat(deactivated).isFalse();
@@ -336,4 +432,66 @@ public class UserDaoTest {
     assertThat(underTest.doesEmailExist(session, "unknown")).isFalse();
   }
 
+  private UserDto newActiveUser(){
+    UserDto dto = UserTesting.newUserDto().setActive(true);
+    underTest.insert(session, dto);
+    return dto;
+  }
+
+  private DashboardDto newDashboard(UserDto user, boolean shared){
+    DashboardDto dto = new DashboardDto().setUserId(user.getId()).setShared(shared);
+    dbClient.dashboardDao().insert(session, dto);
+    return dto;
+  }
+
+  private ActiveDashboardDto newActiveDashboard(DashboardDto dashboard, UserDto user){
+    ActiveDashboardDto dto = new ActiveDashboardDto().setDashboardId(dashboard.getId()).setUserId(user.getId());
+    dbClient.activeDashboardDao().insert(session, dto);
+    return dto;
+  }
+
+  private IssueFilterDto newIssueFilter(UserDto user, boolean shared){
+    IssueFilterDto dto = new IssueFilterDto().setUserLogin(user.getLogin()).setName(randomAlphanumeric(100)).setShared(shared);
+    dbClient.issueFilterDao().insert(session, dto);
+    return dto;
+  }
+
+  private IssueFilterFavouriteDto newIssueFilterFavourite(IssueFilterDto filter, UserDto user){
+    IssueFilterFavouriteDto dto = new IssueFilterFavouriteDto().setUserLogin(user.getLogin()).setIssueFilterId(filter.getId());
+    dbClient.issueFilterFavouriteDao().insert(session, dto);
+    return dto;
+  }
+
+  private MeasureFilterDto newMeasureFilter(UserDto user, boolean shared){
+    MeasureFilterDto dto = new MeasureFilterDto().setUserId(user.getId()).setName(randomAlphanumeric(100)).setShared(shared);
+    dbClient.measureFilterDao().insert(session, dto);
+    return dto;
+  }
+
+  private MeasureFilterFavouriteDto newMeasureFilterFavourite(MeasureFilterDto measureFilter, UserDto user){
+    MeasureFilterFavouriteDto dto = new MeasureFilterFavouriteDto().setUserId(user.getId()).setMeasureFilterId(measureFilter.getId());
+    dbClient.measureFilterFavouriteDao().insert(session, dto);
+    return dto;
+  }
+
+  private PropertyDto newProperty(UserDto user){
+    PropertyDto dto = new PropertyDto().setKey(randomAlphanumeric(100)).setUserId(user.getId());
+    dbClient.propertiesDao().insertProperty(session, dto);
+    return dto;
+  }
+
+  private UserRoleDto newUserRole(UserDto user){
+    UserRoleDto dto = new UserRoleDto().setUserId(user.getId()).setRole(randomAlphanumeric(64));
+    dbClient.roleDao().insertUserRole(session, dto);
+    return dto;
+  }
+
+  private UserGroupDto newUserGroup(UserDto user){
+    GroupDto group = new GroupDto().setName(randomAlphanumeric(30));
+    dbClient.groupDao().insert(session, group);
+
+    UserGroupDto dto = new UserGroupDto().setUserId(user.getId()).setGroupId(group.getId());
+    dbClient.userGroupDao().insert(session, dto);
+    return dto;
+  }
 }

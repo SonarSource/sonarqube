@@ -20,9 +20,11 @@
 package org.sonar.db.dashboard;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 public class ActiveDashboardDao implements Dao {
@@ -33,14 +35,24 @@ public class ActiveDashboardDao implements Dao {
     this.mybatis = mybatis;
   }
 
+  public void insert(DbSession session, ActiveDashboardDto activeDashboardDto) {
+    mapper(session).insert(activeDashboardDto);
+    session.commit();
+  }
+
   public void insert(ActiveDashboardDto activeDashboardDto) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      mapper(session).insert(activeDashboardDto);
+      insert(session, activeDashboardDto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  @CheckForNull
+  public ActiveDashboardDto selectById(DbSession session, long id){
+    return mapper(session).selectById(id);
   }
 
   public int selectMaxOrderIndexForNullUser() {

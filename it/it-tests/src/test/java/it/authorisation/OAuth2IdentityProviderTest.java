@@ -25,6 +25,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
 import it.Category1Suite;
 import java.net.HttpURLConnection;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -75,6 +76,11 @@ public class OAuth2IdentityProviderTest {
   @After
   public void tearDown() throws Exception {
     fakeServerAuthProvider.shutdown();
+  }
+
+  @AfterClass
+  public static void disableAuthPlugin() throws Exception {
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.enabled", "false");
   }
 
   @Test

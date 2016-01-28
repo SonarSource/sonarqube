@@ -8,7 +8,7 @@
       "name": "user-name",
       "email": "user@mail.com",
       "active": true,
-      "scmAccounts": [],
+      "scmAccounts": ["user1"],
       "tokensCount": 0
     }
   ]

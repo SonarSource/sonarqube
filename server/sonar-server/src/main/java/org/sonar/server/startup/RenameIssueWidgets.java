@@ -21,23 +21,22 @@ package org.sonar.server.startup;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.dashboard.WidgetDto;
 import org.sonar.db.dashboard.WidgetPropertyDto;
 import org.sonar.db.issue.IssueFilterDto;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.db.DbClient;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public class RenameIssueWidgets implements Startable {
 
@@ -149,7 +148,7 @@ public class RenameIssueWidgets implements Startable {
   }
 
   private String getReplacementWidgetKey(DbSession session, WidgetDto widget) {
-    DashboardDto dashboard = dbClient.dashboardDao().selectByKey(session, widget.getDashboardId());
+    DashboardDto dashboard = dbClient.dashboardDao().selectById(session, widget.getDashboardId());
     if (dashboard == null) {
       LOGGER.warn(String.format("Widget with ID=%d is not displayed on any dashboard, updating nevertheless", widget.getId()));
     }

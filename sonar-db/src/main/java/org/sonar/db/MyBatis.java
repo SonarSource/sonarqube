@@ -80,6 +80,8 @@ import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateMapper;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureFilterDto;
+import org.sonar.db.measure.MeasureFilterFavouriteDto;
+import org.sonar.db.measure.MeasureFilterFavouriteMapper;
 import org.sonar.db.measure.MeasureFilterMapper;
 import org.sonar.db.measure.MeasureMapper;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -175,6 +177,7 @@ public class MyBatis {
     confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
     confBuilder.loadAlias("LoadedTemplate", LoadedTemplateDto.class);
     confBuilder.loadAlias("MeasureFilter", MeasureFilterDto.class);
+    confBuilder.loadAlias("MeasureFilterFavourite", MeasureFilterFavouriteDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("Property", PropertyDto.class);
     confBuilder.loadAlias("PurgeableSnapshot", PurgeableSnapshotDto.class);
@@ -229,7 +232,7 @@ public class MyBatis {
       DuplicationMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       IsAliveMapper.class,
-      LoadedTemplateMapper.class, MeasureFilterMapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
+      LoadedTemplateMapper.class, MeasureFilterMapper.class, MeasureFilterFavouriteMapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       UserMapper.class, GroupMapper.class, UserGroupMapper.class, UserTokenMapper.class,

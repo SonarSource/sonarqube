@@ -3,10 +3,23 @@
 
 <mapper namespace="org.sonar.db.dashboard.ActiveDashboardMapper">
 
+  <sql id="activeDashboardColumns">
+    ad.id,
+    ad.user_id as "userId",
+    ad.dashboard_id as "dashboardId",
+    ad.order_index as "orderIndex"
+  </sql>
+
   <insert id="insert" parameterType="ActiveDashboard" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO active_dashboards (dashboard_id, user_id, order_index)
     VALUES (#{dashboardId}, #{userId}, #{orderIndex})
   </insert>
+
+  <select id="selectById" resultType="ActiveDashboard">
+    SELECT <include refid="activeDashboardColumns"/>
+    FROM active_dashboards ad
+    WHERE ad.id=#{id}
+  </select>
 
   <select id="selectMaxOrderIndexForNullUser" resultType="Integer">
     SELECT MAX(order_index)

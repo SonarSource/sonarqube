@@ -22,6 +22,7 @@ package org.sonar.db.user;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -44,6 +45,8 @@ public class UserDto {
   private String externalIdentityProvider;
   private String cryptedPassword;
   private String salt;
+  private String rememberToken;
+  private Date rememberTokenExpiresAt;
   private Long createdAt;
   private Long updatedAt;
 
@@ -164,6 +167,24 @@ public class UserDto {
 
   public UserDto setSalt(String salt) {
     this.salt = salt;
+    return this;
+  }
+
+  public String getRememberToken() {
+    return rememberToken;
+  }
+
+  public UserDto setRememberToken(String rememberToken) {
+    this.rememberToken = rememberToken;
+    return this;
+  }
+
+  public Date getRememberTokenExpiresAt() {
+    return rememberTokenExpiresAt;
+  }
+
+  public UserDto setRememberTokenExpiresAt(Date rememberTokenExpiresAt) {
+    this.rememberTokenExpiresAt = rememberTokenExpiresAt;
     return this;
   }
 

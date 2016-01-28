@@ -35,11 +35,15 @@ public class IssueFilterDao implements Dao {
   }
 
   @CheckForNull
+  public IssueFilterDto selectById(DbSession session, long id) {
+    return mapper(session).selectById(id);
+  }
+
+  @CheckForNull
   public IssueFilterDto selectById(long id) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      session.getMapper(IssueFilterMapper.class);
-      return mapper(session).selectById(id);
+      return selectById(session, id);
     } finally {
       MyBatis.closeQuietly(session);
     }

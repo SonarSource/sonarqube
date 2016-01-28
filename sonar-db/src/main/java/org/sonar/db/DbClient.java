@@ -47,6 +47,7 @@ import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureFilterDao;
+import org.sonar.db.measure.MeasureFilterFavouriteDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
@@ -83,6 +84,7 @@ public class DbClient {
   private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
   private final MeasureDao measureDao;
   private final MeasureFilterDao measureFilterDao;
+  private final MeasureFilterFavouriteDao measureFilterFavouriteDao;
   private final ActivityDao activityDao;
   private final AuthorizationDao authorizationDao;
   private final UserDao userDao;
@@ -138,6 +140,7 @@ public class DbClient {
     resourceKeyUpdaterDao = getDao(map, ResourceKeyUpdaterDao.class);
     measureDao = getDao(map, MeasureDao.class);
     measureFilterDao = getDao(map, MeasureFilterDao.class);
+    measureFilterFavouriteDao = getDao(map, MeasureFilterFavouriteDao.class);
     activityDao = getDao(map, ActivityDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     userDao = getDao(map, UserDao.class);
@@ -248,6 +251,10 @@ public class DbClient {
 
   public MeasureFilterDao measureFilterDao() {
     return measureFilterDao;
+  }
+
+  public MeasureFilterFavouriteDao measureFilterFavouriteDao() {
+    return measureFilterFavouriteDao;
   }
 
   public ActivityDao activityDao() {

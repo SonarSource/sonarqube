@@ -44,12 +44,10 @@ public class DashboardDao implements Dao {
     }
   }
 
-  public void insert(DashboardDto dashboardDto) {
-    SqlSession session = mybatis.openSession(false);
+  public void insert(DbSession session, DashboardDto dashboardDto) {
     DashboardMapper dashboardMapper = session.getMapper(DashboardMapper.class);
     WidgetMapper widgetMapper = session.getMapper(WidgetMapper.class);
     WidgetPropertyMapper widgetPropertyMapper = session.getMapper(WidgetPropertyMapper.class);
-    try {
       dashboardMapper.insert(dashboardDto);
       for (WidgetDto widgetDto : dashboardDto.getWidgets()) {
         widgetDto.setDashboardId(dashboardDto.getId());
@@ -59,6 +57,12 @@ public class DashboardDao implements Dao {
           widgetPropertyMapper.insert(widgetPropertyDto);
         }
       }
+  }
+
+  public void insert(DashboardDto dashboardDto) {
+    DbSession session = mybatis.openSession(false);
+    try {
+      insert(session, dashboardDto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -66,8 +70,8 @@ public class DashboardDao implements Dao {
   }
 
   @CheckForNull
-  public DashboardDto selectByKey(DbSession session, Long key) {
-    return mapper(session).selectById(key);
+  public DashboardDto selectById(DbSession session, long id) {
+    return mapper(session).selectById(id);
   }
 
   /**

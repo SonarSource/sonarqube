@@ -23,9 +23,9 @@ import com.google.common.base.Optional;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category1Suite;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
@@ -66,9 +66,17 @@ public class BaseIdentityProviderTest {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
   }
 
+  @AfterClass
+  public static void disableAuthPlugin() throws Exception {
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "false");
+  }
+
   @After
-  public void removeUsers() throws Exception {
-    userRule.deactivateUsers(userRule.getUsersByEmails(USER_EMAIL, USER_EMAIL_UPDATED));
+  public void removeUser() throws Exception {
+    Optional<Users.User> user = userRule.getUserByLogin(USER_LOGIN);
+    if (user.isPresent()) {
+      userRule.deactivateUsers(user.get());
+    }
   }
 
   @Test
@@ -99,7 +107,6 @@ public class BaseIdentityProviderTest {
   }
 
   @Test
-  @Ignore("Waiting for SONAR-7233 to be implemented")
   public void reactivate_disabled_user() throws Exception {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
@@ -108,7 +115,7 @@ public class BaseIdentityProviderTest {
     // First connection, user is created
     authenticateWithFakeAuthProvider();
 
-    Optional<Users.User> user = userRule.getUserByLogin(USER_EMAIL);
+    Optional<Users.User> user = userRule.getUserByLogin(USER_LOGIN);
     assertThat(user).isPresent();
 
     // Disable user
@@ -119,7 +126,7 @@ public class BaseIdentityProviderTest {
     userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
 
-  private void setUserCreatedByAuthPlugin(String login, String providerId, String name, String email){
+  private void setUserCreatedByAuthPlugin(String login, String providerId, String name, String email) {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", login + "," + providerId + "," + name + "," + email);
   }
 

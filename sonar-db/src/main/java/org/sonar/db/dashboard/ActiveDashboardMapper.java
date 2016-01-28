@@ -28,6 +28,8 @@ public interface ActiveDashboardMapper {
 
   void insert(ActiveDashboardDto activeDashboardDto);
 
+  ActiveDashboardDto selectById(long id);
+
   @CheckForNull
   Integer selectMaxOrderIndexForNullUser();
 
