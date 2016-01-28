@@ -20,7 +20,6 @@
 package org.sonar.db.user;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -33,8 +32,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
-
-import static com.google.common.base.Optional.fromNullable;
 
 public class UserDao implements Dao {
 
@@ -173,18 +170,6 @@ public class UserDao implements Dao {
       .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
       .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append("%").toString();
     return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
-  }
-
-  public Optional<UserDto> selectByExternalIdentity(DbSession session, String extIdentity, String extIdentityProvider){
-    return fromNullable(mapper(session).selectByIdentity(extIdentity, extIdentityProvider));
-  }
-
-  public UserDto selectOrFailByExternalIdentity(DbSession session, String extIdentity, String extIdentityProvider) {
-    Optional<UserDto> user = selectByExternalIdentity(session, extIdentity, extIdentityProvider);
-    if (user.isPresent()) {
-      return user.get();
-    }
-    throw new RowNotFoundException(String.format("User with identity provider '%s' and id '%s' has not been found", extIdentityProvider, extIdentity));
   }
 
   /**

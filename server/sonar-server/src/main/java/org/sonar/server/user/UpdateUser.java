@@ -19,12 +19,11 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.base.Preconditions;
-
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.List;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class UpdateUser {
 
@@ -36,10 +35,13 @@ public class UpdateUser {
   private String password;
   private String passwordConfirmation;
 
-  boolean isNameChanged;
-  boolean isEmailChanged;
-  boolean isScmAccountsChanged;
-  boolean isPasswordChanged;
+  private ExternalIdentity externalIdentity;
+
+  boolean nameChanged;
+  boolean emailChanged;
+  boolean scmAccountsChanged;
+  boolean passwordChanged;
+  boolean externalIdentityChanged;
 
   private UpdateUser(String login) {
     // No direct call to this constructor
@@ -57,7 +59,7 @@ public class UpdateUser {
 
   public UpdateUser setName(@Nullable String name) {
     this.name = name;
-    isNameChanged = true;
+    nameChanged = true;
     return this;
   }
 
@@ -68,7 +70,7 @@ public class UpdateUser {
 
   public UpdateUser setEmail(@Nullable String email) {
     this.email = email;
-    isEmailChanged = true;
+    emailChanged = true;
     return this;
   }
 
@@ -79,7 +81,7 @@ public class UpdateUser {
 
   public UpdateUser setScmAccounts(@Nullable List<String> scmAccounts) {
     this.scmAccounts = scmAccounts;
-    isScmAccountsChanged = true;
+    scmAccountsChanged = true;
     return this;
   }
 
@@ -90,7 +92,7 @@ public class UpdateUser {
 
   public UpdateUser setPassword(@Nullable String password) {
     this.password = password;
-    isPasswordChanged = true;
+    passwordChanged = true;
     return this;
   }
 
@@ -101,28 +103,43 @@ public class UpdateUser {
 
   public UpdateUser setPasswordConfirmation(@Nullable String passwordConfirmation) {
     this.passwordConfirmation = passwordConfirmation;
-    isPasswordChanged = true;
+    passwordChanged = true;
+    return this;
+  }
+
+  @CheckForNull
+  public ExternalIdentity externalIdentity() {
+    return externalIdentity;
+  }
+
+  public UpdateUser setExternalIdentity(@Nullable ExternalIdentity externalIdentity) {
+    this.externalIdentity = externalIdentity;
+    externalIdentityChanged = true;
     return this;
   }
 
   public boolean isNameChanged() {
-    return isNameChanged;
+    return nameChanged;
   }
 
   public boolean isEmailChanged() {
-    return isEmailChanged;
+    return emailChanged;
   }
 
   public boolean isScmAccountsChanged() {
-    return isScmAccountsChanged;
+    return scmAccountsChanged;
   }
 
   public boolean isPasswordChanged() {
-    return isPasswordChanged;
+    return passwordChanged;
+  }
+
+  public boolean isExternalIdentityChanged() {
+    return externalIdentityChanged;
   }
 
   public static UpdateUser create(String login) {
-    Preconditions.checkNotNull(login);
+    checkNotNull(login);
     return new UpdateUser(login);
   }
 }

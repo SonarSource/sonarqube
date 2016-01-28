@@ -36,7 +36,6 @@ import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -203,6 +202,8 @@ public class UserDaoTest {
       .setActive(false)
       .setSalt("12345")
       .setCryptedPassword("abcde")
+      .setExternalIdentity("johngithub")
+      .setExternalIdentityProvider("github")
       .setUpdatedAt(date);
     underTest.update(db.getSession(), userDto);
     db.getSession().commit();
@@ -217,6 +218,8 @@ public class UserDaoTest {
     assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,johndoo,");
     assertThat(user.getSalt()).isEqualTo("12345");
     assertThat(user.getCryptedPassword()).isEqualTo("abcde");
+    assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
+    assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(user.getUpdatedAt()).isEqualTo(date);
   }
@@ -325,25 +328,6 @@ public class UserDaoTest {
   }
 
   @Test
-  public void select_user_by_external_identity() {
-    db.prepareDbUnit(getClass(), "select_users_by_ext_identity.xml");
-
-    assertThat(underTest.selectByExternalIdentity(session, "mariusgithub", "github")).isPresent();
-    assertThat(underTest.selectByExternalIdentity(session, "mariusgithub", "google")).isAbsent();
-    assertThat(underTest.selectByExternalIdentity(session, "unknown", "unknown")).isAbsent();
-  }
-
-  @Test
-  public void select_or_fail_by_external_identity() throws Exception {
-    db.prepareDbUnit(getClass(), "select_users_by_ext_identity.xml");
-    assertThat(underTest.selectOrFailByExternalIdentity(session, "mariusgithub", "github")).isNotNull();
-
-    thrown.expect(RowNotFoundException.class);
-    thrown.expectMessage("User with identity provider 'unknown' and id 'unknown' has not been found");
-    underTest.selectOrFailByExternalIdentity(session, "unknown", "unknown");
-  }
-
-  @Test
   public void exists_by_email() throws Exception {
     db.prepareDbUnit(getClass(), "exists_by_email.xml");
 
@@ -351,4 +335,5 @@ public class UserDaoTest {
     assertThat(underTest.doesEmailExist(session, "Marius@LesBronzes.fr")).isTrue();
     assertThat(underTest.doesEmailExist(session, "unknown")).isFalse();
   }
+
 }

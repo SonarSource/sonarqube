@@ -20,7 +20,6 @@
 package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -102,12 +101,12 @@ public class UserUpdater {
     boolean isUserReactivated = false;
     UserDto userDto = createNewUserDto(dbSession, newUser);
     String login = userDto.getLogin();
-    Optional<UserDto> existingUser = dbClient.userDao().selectByExternalIdentity(dbSession, userDto.getExternalIdentity(), userDto.getExternalIdentityProvider());
-    if (!existingUser.isPresent()) {
+    UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, userDto.getLogin());
+    if (existingUser == null) {
       saveUser(dbSession, userDto);
       addDefaultGroup(dbSession, userDto);
     } else {
-      isUserReactivated = reactivateUser(dbSession, existingUser.get(), login, newUser);
+      isUserReactivated = reactivateUser(dbSession, existingUser, login, newUser);
     }
     dbSession.commit();
     notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
@@ -122,7 +121,8 @@ public class UserUpdater {
     UpdateUser updateUser = UpdateUser.create(login)
       .setName(newUser.name())
       .setEmail(newUser.email())
-      .setScmAccounts(newUser.scmAccounts());
+      .setScmAccounts(newUser.scmAccounts())
+      .setExternalIdentity(newUser.externalIdentity());
     if (newUser.password() != null) {
       updateUser.setPassword(newUser.password());
     }
@@ -207,14 +207,7 @@ public class UserUpdater {
       userDto.setScmAccounts(scmAccounts);
     }
 
-    NewUser.ExternalIdentity externalIdentity = newUser.externalIdentity();
-    if (externalIdentity == null) {
-      userDto.setExternalIdentity(login);
-      userDto.setExternalIdentityProvider(SQ_AUTHORITY);
-    } else {
-      userDto.setExternalIdentity(externalIdentity.getId());
-      userDto.setExternalIdentityProvider(externalIdentity.getProvider());
-    }
+    setExternalIdentity(userDto, newUser.externalIdentity());
 
     if (!messages.isEmpty()) {
       throw new BadRequestException(messages);
@@ -254,8 +247,20 @@ public class UserUpdater {
       }
     }
 
+    setExternalIdentity(userDto, updateUser.externalIdentity());
+
     if (!messages.isEmpty()) {
       throw new BadRequestException(messages);
+    }
+  }
+
+  private static void setExternalIdentity(UserDto dto, @Nullable ExternalIdentity externalIdentity) {
+    if (externalIdentity == null) {
+      dto.setExternalIdentity(dto.getLogin());
+      dto.setExternalIdentityProvider(SQ_AUTHORITY);
+    } else {
+      dto.setExternalIdentity(externalIdentity.getId());
+      dto.setExternalIdentityProvider(externalIdentity.getProvider());
     }
   }
 

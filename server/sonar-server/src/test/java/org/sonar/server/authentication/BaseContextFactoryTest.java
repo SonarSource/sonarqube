@@ -38,7 +38,8 @@ public class BaseContextFactoryTest {
   static String PUBLIC_ROOT_URL = "https://mydomain.com";
 
   static UserIdentity USER_IDENTITY = UserIdentity.builder()
-    .setId("johndoo")
+    .setProviderLogin("johndoo")
+    .setLogin("id:johndoo")
     .setName("John")
     .setEmail("john@email.com")
     .build();

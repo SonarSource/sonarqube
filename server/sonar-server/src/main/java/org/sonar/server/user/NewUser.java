@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static java.util.Objects.requireNonNull;
-
 public class NewUser {
 
   private String login;
@@ -102,21 +100,4 @@ public class NewUser {
     return new NewUser();
   }
 
-  public static class ExternalIdentity {
-    private String provider;
-    private String id;
-
-    public ExternalIdentity(String provider, String id) {
-      this.provider = requireNonNull(provider, "Identity provider cannot be null");
-      this.id = requireNonNull(id, "Identity id cannot be null");
-    }
-
-    public String getProvider() {
-      return provider;
-    }
-
-    public String getId() {
-      return id;
-    }
-  }
 }

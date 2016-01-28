@@ -34,22 +34,31 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 @Immutable
 public final class UserIdentity {
 
-  private final String id;
+  private final String providerLogin;
+  private final String login;
   private final String name;
   private final String email;
 
   private UserIdentity(Builder builder) {
-    this.id = builder.id;
+    this.providerLogin = builder.providerLogin;
+    this.login = builder.login;
     this.name = builder.name;
     this.email = builder.email;
   }
 
   /**
-   * Non-blank user ID, unique for the related {@link IdentityProvider}. If two {@link IdentityProvider}
-   * define two users with the same ID, then users are considered as different.
+   * Non-blank user login for the related {@link IdentityProvider}.
    */
-  public String getId() {
-    return id;
+  public String getProviderLogin() {
+    return providerLogin;
+  }
+
+  /**
+   * Non-blank user login, unique for the SonarQube platform.
+   * If two {@link IdentityProvider} define two users with the same login, then users are considered as identical.
+   */
+  public String getLogin() {
+    return login;
   }
 
   /**
@@ -74,7 +83,8 @@ public final class UserIdentity {
   }
 
   public static class Builder {
-    private String id;
+    private String providerLogin;
+    private String login;
     private String name;
     private String email;
 
@@ -82,10 +92,18 @@ public final class UserIdentity {
     }
 
     /**
-     * @see UserIdentity#getId()
+     * @see UserIdentity#getProviderLogin()
      */
-    public Builder setId(String id) {
-      this.id = id;
+    public Builder setProviderLogin(String providerLogin) {
+      this.providerLogin = providerLogin;
+      return this;
+    }
+
+    /**
+     * @see UserIdentity#getLogin() ()
+     */
+    public Builder setLogin(String login) {
+      this.login = login;
       return this;
     }
 
@@ -106,15 +124,21 @@ public final class UserIdentity {
     }
 
     public UserIdentity build() {
-      validateId(id);
+      validateProviderLogin(providerLogin);
+      validateLogin(login);
       validateName(name);
       validateEmail(email);
       return new UserIdentity(this);
     }
 
-    private static void validateId(String id){
-      checkArgument(isNotBlank(id), "User id must not be blank");
-      checkArgument(id.length() <= 255 && id.length() >= 3, "User id size is incorrect (Between 3 and 255 characters)");
+    private static void validateProviderLogin(String providerLogin){
+      checkArgument(isNotBlank(providerLogin), "Provider login must not be blank");
+      checkArgument(providerLogin.length() <= 255, "Provider login size is incorrect (maximum 255 characters)");
+    }
+
+    private static void validateLogin(String login){
+      checkArgument(isNotBlank(login), "User login must not be blank");
+      checkArgument(login.length() <= 255 && login.length() >= 3, "User login size is incorrect (Between 3 and 255 characters)");
     }
 
     private static void validateName(String name){

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.base.Optional;
 import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,7 +26,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDao;
@@ -44,12 +42,13 @@ import static org.mockito.Mockito.when;
 
 public class UserIdentityAuthenticatorTest {
 
-  static String USER_LOGIN = "ABCD";
+  static String USER_LOGIN = "github-johndoo";
   static UserDto ACTIVE_USER = new UserDto().setId(10L).setLogin(USER_LOGIN).setActive(true);
   static UserDto UNACTIVE_USER = new UserDto().setId(11L).setLogin("UNACTIVE").setActive(false);
 
   static UserIdentity USER_IDENTITY = UserIdentity.builder()
-    .setId("johndoo")
+    .setProviderLogin("johndoo")
+    .setLogin(USER_LOGIN)
     .setName("John")
     .setEmail("john@email.com")
     .build();
@@ -68,21 +67,19 @@ public class UserIdentityAuthenticatorTest {
 
   HttpSession httpSession = mock(HttpSession.class);
   UserUpdater userUpdater = mock(UserUpdater.class);
-  UuidFactory uuidFactory = mock(UuidFactory.class);
 
-  UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(dbClient, userUpdater, uuidFactory);
+  UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(dbClient, userUpdater);
 
   @Before
   public void setUp() throws Exception {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.userDao()).thenReturn(userDao);
-    when(uuidFactory.create()).thenReturn(USER_LOGIN);
   }
 
   @Test
   public void authenticate_new_user() throws Exception {
-    when(userDao.selectByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(Optional.<UserDto>absent());
-    when(userDao.selectOrFailByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(ACTIVE_USER);
+    when(userDao.selectByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(null);
+    when(userDao.selectOrFailByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(ACTIVE_USER);
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, httpSession);
 
@@ -99,23 +96,25 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void authenticate_existing_user() throws Exception {
-    when(userDao.selectByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(Optional.of(ACTIVE_USER));
+    when(userDao.selectByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(ACTIVE_USER);
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, httpSession);
 
     ArgumentCaptor<UpdateUser> updateUserArgumentCaptor = ArgumentCaptor.forClass(UpdateUser.class);
     verify(userUpdater).update(eq(dbSession), updateUserArgumentCaptor.capture());
-    UpdateUser newUser = updateUserArgumentCaptor.getValue();
+    UpdateUser updateUser = updateUserArgumentCaptor.getValue();
 
-    assertThat(newUser.login()).isEqualTo(USER_LOGIN);
-    assertThat(newUser.name()).isEqualTo("John");
-    assertThat(newUser.email()).isEqualTo("john@email.com");
+    assertThat(updateUser.login()).isEqualTo(USER_LOGIN);
+    assertThat(updateUser.name()).isEqualTo("John");
+    assertThat(updateUser.email()).isEqualTo("john@email.com");
+    assertThat(updateUser.externalIdentity().getProvider()).isEqualTo("github");
+    assertThat(updateUser.externalIdentity().getId()).isEqualTo("johndoo");
   }
 
   @Test
   public void authenticate_existing_disabled_user() throws Exception {
-    when(userDao.selectByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(Optional.of(UNACTIVE_USER));
-    when(userDao.selectOrFailByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(UNACTIVE_USER);
+    when(userDao.selectByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(UNACTIVE_USER);
+    when(userDao.selectOrFailByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(UNACTIVE_USER);
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, httpSession);
 
@@ -125,7 +124,7 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void update_session_for_rails() throws Exception {
-    when(userDao.selectByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(Optional.of(ACTIVE_USER));
+    when(userDao.selectByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(ACTIVE_USER);
 
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, httpSession);
 
@@ -134,8 +133,8 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void fail_to_authenticate_new_user_when_allow_users_to_signup_is_false() throws Exception {
-    when(userDao.selectByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(Optional.<UserDto>absent());
-    when(userDao.selectOrFailByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(ACTIVE_USER);
+    when(userDao.selectByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(null);
+    when(userDao.selectOrFailByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(ACTIVE_USER);
 
     TestIdentityProvider identityProvider = new TestIdentityProvider()
       .setKey("github")
@@ -149,8 +148,8 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void fail_to_authenticate_new_user_when_email_already_exists() throws Exception {
-    when(userDao.selectByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(Optional.<UserDto>absent());
-    when(userDao.selectOrFailByExternalIdentity(dbSession, USER_IDENTITY.getId(), IDENTITY_PROVIDER.getKey())).thenReturn(ACTIVE_USER);
+    when(userDao.selectByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(null);
+    when(userDao.selectOrFailByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(ACTIVE_USER);
     when(userDao.doesEmailExist(dbSession, USER_IDENTITY.getEmail())).thenReturn(true);
 
     thrown.expect(EmailAlreadyExistsException.class);

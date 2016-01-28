@@ -162,7 +162,7 @@ public class UserUpdaterTest {
       .setLogin("ABCD")
       .setName("User")
       .setPassword("password")
-      .setExternalIdentity(new NewUser.ExternalIdentity("github", "user")));
+      .setExternalIdentity(new ExternalIdentity("github", "user")));
 
     UserDto dto = userDao.selectByLogin(session, "ABCD");
     assertThat(dto.getExternalIdentity()).isEqualTo("user");
@@ -473,7 +473,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void reactivate_user_when_creating_user_with_existing_login_and_with_authority() {
+  public void reactivate_user_when_creating_user_with_existing_login() {
     db.prepareDbUnit(getClass(), "reactivate_user.xml");
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
@@ -523,6 +523,24 @@ public class UserUpdaterTest {
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735486L);
 
     assertThat(result).isTrue();
+  }
+
+  @Test
+  public void update_external_provider_when_reactivating_user() {
+    db.prepareDbUnit(getClass(), "reactivate_user.xml");
+    when(system2.now()).thenReturn(1418215735486L);
+    createDefaultGroup();
+
+    userUpdater.create(NewUser.create()
+      .setLogin(DEFAULT_LOGIN)
+      .setName("Marius2")
+      .setPassword("password2")
+      .setExternalIdentity(new ExternalIdentity("github", "john")));
+    session.commit();
+
+    UserDto dto = userDao.selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.getExternalIdentity()).isEqualTo("john");
+    assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
   }
 
   @Test
@@ -592,6 +610,24 @@ public class UserUpdaterTest {
         entry("login", DEFAULT_LOGIN),
         entry("name", "Marius2"),
         entry("email", "marius2@mail.com"));
+  }
+
+  @Test
+  public void update_user_external_identity() {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    when(system2.now()).thenReturn(1418215735486L);
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+      .setName("Marius2")
+      .setPassword("password2")
+      .setExternalIdentity(new ExternalIdentity("github", "john")));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.getExternalIdentity()).isEqualTo("john");
+    assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
   }
 
   @Test

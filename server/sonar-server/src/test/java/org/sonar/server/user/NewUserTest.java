@@ -66,25 +66,9 @@ public class NewUserTest {
       .setName("name")
       .setEmail("email")
       .setPassword("password")
-      .setExternalIdentity(new NewUser.ExternalIdentity("github", "github_login"));
+      .setExternalIdentity(new ExternalIdentity("github", "github_login"));
 
     assertThat(newUser.externalIdentity().getProvider()).isEqualTo("github");
     assertThat(newUser.externalIdentity().getId()).isEqualTo("github_login");
-  }
-
-  @Test
-  public void fail_with_NPE_when_identity_provider_is_null() throws Exception {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Identity provider cannot be null");
-
-    new NewUser.ExternalIdentity(null, "github_login");
-  }
-
-  @Test
-  public void fail_with_NPE_when_identity_id_is_null() throws Exception {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Identity id cannot be null");
-
-    new NewUser.ExternalIdentity("github", null);
   }
 }

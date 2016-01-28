@@ -25,6 +25,7 @@ import org.sonar.api.server.authentication.UserIdentity;
 public class FakeBaseIdProvider implements BaseIdentityProvider {
 
   private static final String ENABLED = "sonar.auth.fake-base-id-provider.enabled";
+  private static final String ALLOWS_USERS_TO_SIGN_UP = "sonar.auth.fake-base-id-provider.allowsUsersToSignUp";
   private static final String USER_INFO = "sonar.auth.fake-base-id-provider.user";
 
   private final Settings settings;
@@ -41,9 +42,10 @@ public class FakeBaseIdProvider implements BaseIdentityProvider {
     }
     String[] userInfos = userInfoProperty.split(",");
     context.authenticate(UserIdentity.builder()
-      .setId(userInfos[0])
-      .setName(userInfos[1])
-      .setEmail(userInfos[2])
+      .setLogin(userInfos[0])
+      .setProviderLogin(userInfos[1])
+      .setName(userInfos[2])
+      .setEmail(userInfos[3])
       .build());
 
     try {
@@ -75,6 +77,10 @@ public class FakeBaseIdProvider implements BaseIdentityProvider {
 
   @Override
   public boolean allowsUsersToSignUp() {
+    if (settings.hasKey(ALLOWS_USERS_TO_SIGN_UP)) {
+      return settings.getBoolean(ALLOWS_USERS_TO_SIGN_UP);
+    }
+    // If property is not defined, default behaviour is not always allow users to sign up
     return true;
   }
 }

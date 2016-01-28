@@ -46,7 +46,8 @@ public class OAuth2ContextFactoryTest {
   static String NOT_SECURED_PUBLIC_URL = "http://mydomain.com";
 
   static UserIdentity USER_IDENTITY = UserIdentity.builder()
-    .setId("johndoo")
+    .setProviderLogin("johndoo")
+    .setLogin("id:johndoo")
     .setName("John")
     .setEmail("john@email.com")
     .build();

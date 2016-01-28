@@ -89,15 +89,6 @@
     ORDER BY u.name
   </select>
 
-  <select id="selectByIdentity" parameterType="map" resultType="User">
-    SELECT <include refid="userColumns"/>
-    FROM users u
-    <where>
-      u.external_identity=#{extIdentity}
-      AND u.external_identity_provider=#{extIdentityProvider}
-    </where>
-  </select>
-
   <select id="countByEmail" parameterType="String" resultType="long">
     SELECT count(u.id)
     FROM users u
@@ -159,7 +150,7 @@
 
   <insert id="update" parameterType="User" useGeneratedKeys="false">
     UPDATE users set name=#{name,jdbcType=VARCHAR}, email=#{email,jdbcType=VARCHAR}, active=#{active,jdbcType=BOOLEAN},
-    scm_accounts=#{scmAccounts,jdbcType=VARCHAR},
+    scm_accounts=#{scmAccounts,jdbcType=VARCHAR}, external_identity=#{externalIdentity,jdbcType=VARCHAR}, external_identity_provider=#{externalIdentityProvider,jdbcType=VARCHAR},
     salt=#{salt,jdbcType=VARCHAR}, crypted_password=#{cryptedPassword,jdbcType=BIGINT},
     updated_at=#{updatedAt,jdbcType=BIGINT}
     WHERE login = #{login}

@@ -52,9 +52,10 @@ public class FakeOAuth2IdProvider implements OAuth2IdentityProvider {
     }
     String[] userInfos = userInfoProperty.split(",");
     context.authenticate(UserIdentity.builder()
-      .setId(userInfos[0])
-      .setName(userInfos[1])
-      .setEmail(userInfos[2])
+      .setLogin(userInfos[0])
+      .setProviderLogin(userInfos[1])
+      .setName(userInfos[2])
+      .setEmail(userInfos[3])
       .build());
     context.redirectToRequestedPage();
   }
@@ -71,7 +72,7 @@ public class FakeOAuth2IdProvider implements OAuth2IdentityProvider {
 
   @Override
   public String getIconPath() {
-    return "/static/baseauthplugin/base.png";
+    return "/static/oauth2authplugin/oauth2.png";
   }
 
   @Override

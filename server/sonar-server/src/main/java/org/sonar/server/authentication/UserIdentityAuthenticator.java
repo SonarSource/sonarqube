@@ -19,14 +19,13 @@
  */
 package org.sonar.server.authentication;
 
-import com.google.common.base.Optional;
 import javax.servlet.http.HttpSession;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
@@ -35,12 +34,10 @@ public class UserIdentityAuthenticator {
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
-  private final UuidFactory uuidFactory;
 
-  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater, UuidFactory uuidFactory) {
+  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
-    this.uuidFactory = uuidFactory;
   }
 
   public void authenticate(UserIdentity user, IdentityProvider provider, HttpSession session) {
@@ -53,14 +50,14 @@ public class UserIdentityAuthenticator {
   private long register(UserIdentity user, IdentityProvider provider) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      String userId = user.getId();
-      Optional<UserDto> userDto = dbClient.userDao().selectByExternalIdentity(dbSession, userId, provider.getKey());
-      if (userDto.isPresent() && userDto.get().isActive()) {
-        userUpdater.update(dbSession, UpdateUser.create(userDto.get().getLogin())
+      String userLogin = user.getLogin();
+      UserDto userDto = dbClient.userDao().selectByLogin(dbSession, userLogin);
+      if (userDto != null && userDto.isActive()) {
+        userUpdater.update(dbSession, UpdateUser.create(userDto.getLogin())
           .setEmail(user.getEmail())
           .setName(user.getName())
-          );
-        return userDto.get().getId();
+          .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin())));
+        return userDto.getId();
       }
 
       if (!provider.allowsUsersToSignUp()) {
@@ -73,12 +70,12 @@ public class UserIdentityAuthenticator {
       }
 
       userUpdater.create(dbSession, NewUser.create()
-        .setLogin(uuidFactory.create())
+        .setLogin(userLogin)
         .setEmail(user.getEmail())
         .setName(user.getName())
-        .setExternalIdentity(new NewUser.ExternalIdentity(provider.getKey(), userId))
+        .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin()))
         );
-      return dbClient.userDao().selectOrFailByExternalIdentity(dbSession, userId, provider.getKey()).getId();
+      return dbClient.userDao().selectOrFailByLogin(dbSession, userLogin).getId();
 
     } finally {
       dbClient.closeSession(dbSession);
