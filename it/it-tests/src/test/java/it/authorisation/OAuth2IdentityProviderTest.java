@@ -49,8 +49,8 @@ public class OAuth2IdentityProviderTest {
 
   static String FAKE_PROVIDER_KEY = "fake-oauth2-id-provider";
 
-  static String USER_PROVIDER_LOGIN = "john";
-
+  static String USER_LOGIN = "john";
+  static String USER_PROVIDER_ID = "fake-john";
   static String USER_NAME = "John";
   static String USER_EMAIL = "john@email.com";
 
@@ -83,11 +83,11 @@ public class OAuth2IdentityProviderTest {
 
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.enabled", "true");
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.url", fakeServerAuthProviderUrl);
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.user", USER_PROVIDER_LOGIN + "," + USER_NAME + "," + USER_EMAIL);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.user", USER_LOGIN + "," + USER_PROVIDER_ID + "," + USER_NAME + "," + USER_EMAIL);
 
     authenticateWithFakeAuthProvider();
 
-    userRule.verifyUserExists(USER_NAME, USER_EMAIL);
+    userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
 
   private void authenticateWithFakeAuthProvider() {

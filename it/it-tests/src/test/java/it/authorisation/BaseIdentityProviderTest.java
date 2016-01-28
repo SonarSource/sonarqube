@@ -49,8 +49,8 @@ public class BaseIdentityProviderTest {
 
   static String FAKE_PROVIDER_KEY = "fake-base-id-provider";
 
-  static String USER_PROVIDER_LOGIN = "john";
-
+  static String USER_LOGIN = "john";
+  static String USER_PROVIDER_ID = "fake-john";
   static String USER_NAME = "John";
   static String USER_EMAIL = "john@email.com";
 
@@ -63,6 +63,7 @@ public class BaseIdentityProviderTest {
   public static void setUp() {
     ORCHESTRATOR.resetData();
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
   }
 
   @After
@@ -72,45 +73,42 @@ public class BaseIdentityProviderTest {
 
   @Test
   public void create_new_user_when_authenticate() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", USER_PROVIDER_LOGIN + "," + USER_NAME + "," + USER_EMAIL);
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
-    userRule.verifyUserDoesNotExist(USER_EMAIL);
+    userRule.verifyUserDoesNotExist(USER_LOGIN);
 
     // First connection, user is created
     authenticateWithFakeAuthProvider();
 
-    userRule.verifyUserExists(USER_NAME, USER_EMAIL);
+    userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
 
   @Test
   public void update_existing_user_when_authenticate() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", USER_PROVIDER_LOGIN + "," + USER_NAME + "," + USER_EMAIL);
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+
     // First connection, user is created
     authenticateWithFakeAuthProvider();
 
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", USER_PROVIDER_LOGIN + "," + USER_NAME_UPDATED + "," + USER_EMAIL_UPDATED);
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME_UPDATED, USER_EMAIL_UPDATED);
 
     // Second connection, user should be updated
     authenticateWithFakeAuthProvider();
 
-    userRule.verifyUserDoesNotExist(USER_EMAIL);
-    userRule.verifyUserExists(USER_NAME_UPDATED, USER_EMAIL_UPDATED);
+    userRule.verifyUserExists(USER_LOGIN, USER_NAME_UPDATED, USER_EMAIL_UPDATED);
   }
 
   @Test
   @Ignore("Waiting for SONAR-7233 to be implemented")
   public void reactivate_disabled_user() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", USER_PROVIDER_LOGIN + "," + USER_NAME + "," + USER_EMAIL);
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
-    userRule.verifyUserDoesNotExist(USER_EMAIL);
+    userRule.verifyUserDoesNotExist(USER_LOGIN);
 
     // First connection, user is created
     authenticateWithFakeAuthProvider();
 
-    Optional<Users.User> user = userRule.getUserByEmail(USER_EMAIL);
+    Optional<Users.User> user = userRule.getUserByLogin(USER_EMAIL);
     assertThat(user).isPresent();
 
     // Disable user
@@ -118,7 +116,11 @@ public class BaseIdentityProviderTest {
 
     // Second connection, user is reactivated
     authenticateWithFakeAuthProvider();
-    userRule.verifyUserExists(USER_NAME, USER_EMAIL);
+    userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
+  }
+
+  private void setUserCreatedByAuthPlugin(String login, String providerId, String name, String email){
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", login + "," + providerId + "," + name + "," + email);
   }
 
   private void authenticateWithFakeAuthProvider() {

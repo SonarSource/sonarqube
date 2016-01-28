@@ -57,25 +57,26 @@ public class UserRule extends ExternalResource {
     adminWsClient = newAdminWsClient(orchestrator);
   }
 
-  public void verifyUserExists(String name, String email) {
-    Optional<Users.User> user = getUserByEmail(email);
-    assertThat(user).isPresent();
+  public void verifyUserExists(String login, String name, String email) {
+    Optional<Users.User> user = getUserByLogin(login);
+    assertThat(user).as("User with login '%s' hasn't been found", login).isPresent();
+    Assertions.assertThat(user.get().getLogin()).isEqualTo(login);
     Assertions.assertThat(user.get().getName()).isEqualTo(name);
     Assertions.assertThat(user.get().getEmail()).isEqualTo(email);
   }
 
-  public void verifyUserDoesNotExist(String email) {
-    assertThat(getUserByEmail(email)).isAbsent();
+  public void verifyUserDoesNotExist(String login) {
+    assertThat(getUserByLogin(login)).as("Unexpected user with login '%s' has been found", login).isAbsent();
   }
 
-  public Optional<Users.User> getUserByEmail(String email) {
-    return FluentIterable.from(getUsers().getUsers()).firstMatch(new MatchUserEmail(email));
+  public Optional<Users.User> getUserByLogin(String login) {
+    return FluentIterable.from(getUsers().getUsers()).firstMatch(new MatchUserLogin(login));
   }
 
   public List<Users.User> getUsersByEmails(String... emails) {
     List<Users.User> foundUsers = new ArrayList<>();
     for (String email : emails) {
-      Optional<Users.User> user = FluentIterable.from(getUsers().getUsers()).firstMatch(new MatchUserEmail(email));
+      Optional<Users.User> user = FluentIterable.from(getUsers().getUsers()).firstMatch(new MatchUserLogin(email));
       if (user.isPresent()) {
         foundUsers.add(user.get());
       }
@@ -90,17 +91,17 @@ public class UserRule extends ExternalResource {
     return Users.parse(response.content());
   }
 
-  private class MatchUserEmail implements Predicate<Users.User> {
-    private final String email;
+  private class MatchUserLogin implements Predicate<Users.User> {
+    private final String login;
 
-    private MatchUserEmail(String email) {
-      this.email = email;
+    private MatchUserLogin(String login) {
+      this.login = login;
     }
 
     @Override
     public boolean apply(@Nonnull Users.User user) {
-      String userEmail = user.getEmail();
-      return userEmail != null && userEmail.equals(email) && user.isActive();
+      String login = user.getLogin();
+      return login != null && login.equals(this.login) && user.isActive();
     }
   }
 
