@@ -71,7 +71,7 @@ public class CEQueueStatusImplTest {
   }
 
   @Test
-  public void addReceived_sets_received_and_pending_counts_to_1_when_initPendingCount_has_not_been_called() {
+  public void addReceived_sets_received_to_1_and_pending_counts_to_initial_value_plus_1() {
     underTest.initPendingCount(INITIAL_PENDING_COUNT);
 
     underTest.addReceived();
@@ -91,6 +91,55 @@ public class CEQueueStatusImplTest {
 
     assertThat(underTest.getReceivedCount()).isEqualTo(calls);
     assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + calls);
+  }
+
+  @Test
+  public void addReceived_with_argument_throws_IAE_if_parameter_is_0() {
+    underTest.initPendingCount(INITIAL_PENDING_COUNT);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("numberOfReceived must be > 0");
+
+    underTest.addReceived(0);
+  }
+
+  @Test
+  public void addReceived_with_argument_throws_IAE_if_parameter_less_than_0() {
+    underTest.initPendingCount(INITIAL_PENDING_COUNT);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("numberOfReceived must be > 0");
+
+    underTest.addReceived(-1 * (new Random().nextInt(SOME_RANDOM_MAX)));
+  }
+
+  @Test
+  public void addReceived_with_argument_sets_received_to_value_and_pending_counts_to_initial_value_plus_value() {
+    long value = 123;
+    underTest.initPendingCount(INITIAL_PENDING_COUNT);
+
+    underTest.addReceived(value);
+
+    assertThat(underTest.getReceivedCount()).isEqualTo(value);
+    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + value);
+  }
+
+  @Test
+  public void addReceived_with_argument_any_number_of_call_adds_some_number_per_call() {
+    underTest.initPendingCount(INITIAL_PENDING_COUNT);
+
+    Random random = new Random();
+    int calls = random.nextInt(SOME_RANDOM_MAX);
+    long added = 0;
+    for (int i = 0; i < calls; i++) {
+      // adding 1 to random number because value can not be 0
+      long numberOfReceived = random.nextInt(SOME_RANDOM_MAX) + 1;
+      underTest.addReceived(numberOfReceived);
+      added += numberOfReceived;
+    }
+
+    assertThat(underTest.getReceivedCount()).isEqualTo(added);
+    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + added);
   }
 
   @Test

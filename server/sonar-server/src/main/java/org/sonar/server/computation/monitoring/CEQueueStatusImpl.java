@@ -52,6 +52,15 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   }
 
   @Override
+  public long addReceived(long numberOfReceived) {
+    ensurePendingInitialized("addReceived");
+    checkArgument(numberOfReceived > 0, "numberOfReceived must be > 0");
+
+    pending.addAndGet(numberOfReceived);
+    return received.addAndGet(numberOfReceived);
+  }
+
+  @Override
   public long addInProgress() {
     ensurePendingInitialized("addInProgress");
 

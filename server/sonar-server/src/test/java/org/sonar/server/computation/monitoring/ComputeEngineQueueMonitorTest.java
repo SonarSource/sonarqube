@@ -73,8 +73,9 @@ public class ComputeEngineQueueMonitorTest {
       return methodNotImplemented();
     }
 
-    private long methodNotImplemented() {
-      throw new UnsupportedOperationException("Not Implemented");
+    @Override
+    public long addReceived(long numberOfReceived) {
+      return methodNotImplemented();
     }
 
     @Override
@@ -125,6 +126,10 @@ public class ComputeEngineQueueMonitorTest {
     @Override
     public long getProcessingTime() {
       return PROCESSING_TIME;
+    }
+
+    private long methodNotImplemented() {
+      throw new UnsupportedOperationException("Not Implemented");
     }
   }
 }

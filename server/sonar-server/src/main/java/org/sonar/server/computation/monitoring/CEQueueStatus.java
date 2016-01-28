@@ -35,6 +35,10 @@ public interface CEQueueStatus {
 
   /**
    * Adds 1 to the count of received batch reports and 1 to the count of batch reports waiting for processing.
+   * <p>
+   * Calling this method is equivalent to calling {@link #addReceived(long)} with {@code 1} as argument but will
+   * trigger no parameter check. So, it can be faster.
+   * </p>
    *
    * @return the new count of received batch reports
    *
@@ -44,6 +48,20 @@ public interface CEQueueStatus {
    * @throws IllegalStateException if {@link #initPendingCount(long)} has not been called yet
    */
   long addReceived();
+
+  /**
+   * Adds {@code numberOfReceived} to the count of received batch reports and {@code numberOfReceived} to the count of
+   * batch reports waiting for processing.
+   *
+   * @return the new count of received batch reports
+   *
+   * @see #getReceivedCount()
+   * @see #getPendingCount()
+   *
+   * @throws IllegalStateException if {@link #initPendingCount(long)} has not been called yet
+   * @throws IllegalArgumentException if {@code numberOfReceived} is less or equal to 0
+   */
+  long addReceived(long numberOfReceived);
 
   /**
    * Adds 1 to the count of batch reports under processing and removes 1 from the count of batch reports waiting for
