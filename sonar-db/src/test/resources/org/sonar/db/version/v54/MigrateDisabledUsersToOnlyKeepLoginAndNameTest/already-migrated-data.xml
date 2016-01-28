@@ -1,0 +1,19 @@
+<dataset>
+
+  <!-- Active user, nothing has changed -->
+  <users id="101" login="john" name="John" email="john@email.com" active="[true]" scm_accounts="john3"
+         external_identity="sonarqube" external_identity_provider="john"
+         salt="79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365" crypted_password="650d2261c98361e2f67f90ce5c65a95e7d8ea2fg"
+         remember_token="8e19b60487d9e6659b1e5018248edb42d690c7e3" remember_token_expires_at="2016-02-11 17:22:41.132"
+         created_at="1418215735482" updated_at="1418215735485"
+  />
+
+  <!-- Disabled user, only login and name are kept -->
+  <users id="102" login="arthur" name="Arthur" email="[null]" active="[false]" scm_accounts="[null]"
+         external_identity="[null]" external_identity_provider="[null]"
+         remember_token="[null]" remember_token_expires_at="[null]"
+         salt="[null]" crypted_password="[null]"
+         created_at="1418215735482" updated_at="1418215735485"
+  />
+
+</dataset>
