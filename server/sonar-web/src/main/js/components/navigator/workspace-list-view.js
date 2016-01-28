@@ -86,6 +86,11 @@ export default Marionette.CompositeView.extend({
     });
   },
 
+  unbindShortcuts: function () {
+    key.unbind('up', 'list');
+    key.unbind('down', 'list');
+  },
+
   loadMore: function () {
     if (!this.options.app.state.get('maxResultsReached')) {
       var that = this;

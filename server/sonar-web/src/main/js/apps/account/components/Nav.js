@@ -35,6 +35,13 @@ const Nav = ({ user }) => (
             </IndexLink>
           </li>
           <li>
+            <a
+                className={window.location.pathname === `${window.baseUrl}/account/issues` && 'active'}
+                href={`${window.baseUrl}/account/issues`}>
+              {translate('issues.page')}
+            </a>
+          </li>
+          <li>
             <IndexLink to="notifications" activeClassName="active">
               {translate('my_account.notifications')}
             </IndexLink>

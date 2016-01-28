@@ -17,41 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React, { Component, cloneElement } from 'react';
+import React, { Component } from 'react';
 
-import Nav from '../components/Nav';
-import { getIssueFilters } from '../../../api/issues';
+import IssuesApp from '../issues-app';
 
-export default class AccountApp extends Component {
-  state = {};
-
+export default class IssuesContainer extends Component {
   componentDidMount () {
-    this.fetchFavoriteIssueFilters();
+    this.issuesApp = IssuesApp;
+    this.issuesApp.start({
+      el: this.refs.container
+    });
   }
 
-  fetchFavoriteIssueFilters () {
-    getIssueFilters().then(issueFilters => {
-      const favoriteIssueFilters = issueFilters.filter(f => f.favorite);
-      this.setState({ issueFilters: favoriteIssueFilters });
-    });
+  componentWillUnmount () {
+    this.issuesApp.stop();
   }
 
   render () {
-    const { user } = window.sonarqube;
-    const { favorites } = user;
-    const { issueFilters } = this.state;
-    const children = cloneElement(this.props.children, {
-      measureFilters: user.favoriteMeasureFilters,
-      user,
-      favorites,
-      issueFilters
-    });
-
-    return (
-        <div className="account-page">
-          <Nav user={user}/>
-          {children}
-        </div>
-    );
+    return <div ref="container"></div>;
   }
 }

@@ -28,6 +28,7 @@ import AccountApp from './containers/AccountApp';
 import Home from './components/Home';
 import NotificationsContainer from './containers/NotificationsContainer';
 import SecurityContainer from './containers/SecurityContainer';
+import IssuesContainer from './containers/IssuesContainer';
 
 import './styles/account.css';
 
@@ -45,6 +46,7 @@ window.sonarqube.appStarted.then(options => {
         <Router history={history}>
           <Route path="/" component={AccountApp}>
             <IndexRoute component={Home}/>
+            <Route path="issues" component={IssuesContainer}/>
             <Route path="notifications" component={NotificationsContainer}/>
             <Route path="security" component={SecurityContainer}/>
 

@@ -1,4 +1,9 @@
 .account-header {
+  position: fixed;
+  top: 30px;
+  left: 0;
+  right: 0;
+  z-index: 420;
   background-color: #f3f3f3;
 }
 
@@ -17,4 +22,8 @@
 .account-nav-avatar {
   float: left;
   margin-right: 20px;
+}
+
+.account-page {
+  padding-top: 102px;
 }

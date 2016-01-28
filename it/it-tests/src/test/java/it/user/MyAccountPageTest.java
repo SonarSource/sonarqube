@@ -66,6 +66,14 @@ public class MyAccountPageTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
+  @Test
+  public void should_display_issues() throws Exception {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_issues",
+      "/user/MyAccountPageTest/should_display_issues.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
   private static void createUser(String login, String name, String email) {
     adminWsClient.wsConnector().call(
       new PostRequest("api/users/create")

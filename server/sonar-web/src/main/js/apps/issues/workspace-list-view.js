@@ -73,9 +73,22 @@ export default WorkspaceListView.extend({
     key('c', 'list', function () {
       return doAction('comment');
     });
-    return key('t', 'list', function () {
+    key('t', 'list', function () {
       return doAction('edit-tags');
     });
+  },
+
+  unbindShortcuts: function () {
+    WorkspaceListView.prototype.unbindShortcuts.apply(this, arguments);
+    key.unbind('right', 'list');
+    key.unbind('space', 'list');
+    key.unbind('f', 'list');
+    key.unbind('a', 'list');
+    key.unbind('m', 'list');
+    key.unbind('p', 'list');
+    key.unbind('i', 'list');
+    key.unbind('c', 'list');
+    key.unbind('t', 'list');
   },
 
   scrollTo: function () {
