@@ -44,16 +44,29 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   @Override
   public void execute() {
     BatchReport.Metadata reportMetadata = reportReader.readMetadata();
-    checkState(
-      ceTask.getComponentKey().equals(reportMetadata.getProjectKey()),
-      "ProjectKey in report (%s) is not consistent with projectKey under which the report as been submitted (%s)",
-      reportMetadata.getProjectKey(),
-      ceTask.getComponentKey());
+
+    checkProjectKeyConsistency(reportMetadata);
 
     mutableAnalysisMetadataHolder.setRootComponentRef(reportMetadata.getRootComponentRef());
     mutableAnalysisMetadataHolder.setBranch(reportMetadata.hasBranch() ? reportMetadata.getBranch() : null);
     mutableAnalysisMetadataHolder.setAnalysisDate(reportMetadata.getAnalysisDate());
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.hasCrossProjectDuplicationActivated() && reportMetadata.getCrossProjectDuplicationActivated());
+  }
+
+  private void checkProjectKeyConsistency(BatchReport.Metadata reportMetadata) {
+    String reportProjectKey = projectKeyFromReport(reportMetadata);
+    checkState(
+      ceTask.getComponentKey().equals(reportProjectKey),
+      "ProjectKey in report (%s) is not consistent with projectKey under which the report as been submitted (%s)",
+      reportProjectKey,
+      ceTask.getComponentKey());
+  }
+
+  private static String projectKeyFromReport(BatchReport.Metadata reportMetadata) {
+    if (reportMetadata.hasBranch()) {
+      return reportMetadata.getProjectKey() + ":" + reportMetadata.getBranch();
+    }
+    return reportMetadata.getProjectKey();
   }
 
   @Override

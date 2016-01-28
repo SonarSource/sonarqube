@@ -79,6 +79,9 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .setBranch(BRANCH)
         .build());
 
+    CeTask ceTask = createCeTask(PROJECT_KEY + ":" + BRANCH);
+    ComputationStep underTest = new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder);
+
     underTest.execute();
 
     assertThat(analysisMetadataHolder.getBranch()).isEqualTo(BRANCH);
