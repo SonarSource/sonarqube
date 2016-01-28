@@ -13,6 +13,10 @@
   <name>SonarQube :: Core</name>
   <description>Library shared by analyzer and server</description>
 
+  <properties>
+    <sonar.exclusions>target/generated-sources/**/*</sonar.exclusions>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
