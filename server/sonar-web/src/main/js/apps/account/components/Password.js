@@ -26,7 +26,7 @@ export default class Password extends Component {
   state = {
     success: false,
     errors: null
-  }
+  };
 
   handleSuccessfulChange () {
     this.refs.oldPassword.value = '';

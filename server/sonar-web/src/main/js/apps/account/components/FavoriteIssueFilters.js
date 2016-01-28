@@ -26,6 +26,13 @@ const FavoriteIssueFilters = ({ issueFilters }) => (
       <h2 className="spacer-bottom">
         {translate('my_account.favorite_issue_filters')}
       </h2>
+
+      {!issueFilters.length && (
+          <p className="note">
+            {translate('my_account.no_favorite_issue_filters')}
+          </p>
+      )}
+
       <table id="favorite-issue-filters" className="data">
         <tbody>
           {issueFilters.map(f => (

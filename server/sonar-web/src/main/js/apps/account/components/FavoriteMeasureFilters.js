@@ -26,6 +26,13 @@ const FavoriteMeasureFilters = ({ measureFilters }) => (
       <h2 className="spacer-bottom">
         {translate('my_account.favorite_measure_filters')}
       </h2>
+
+      {!measureFilters.length && (
+          <p className="note">
+            {translate('my_account.no_favorite_measure_filters')}
+          </p>
+      )}
+
       <table id="favorite-measure-filters" className="data">
         <tbody>
           {measureFilters.map(f => (

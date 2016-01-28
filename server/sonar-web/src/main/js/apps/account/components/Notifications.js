@@ -27,8 +27,8 @@ export default function Notifications ({ globalNotifications, projectNotificatio
   const channels = globalNotifications[0].channels.map(c => c.id);
 
   return (
-      <div>
-        <p className="spacer-top big-spacer-bottom">
+      <div className="page page-limited">
+        <p className="big-spacer-bottom">
           {translate('notification.dispatcher.information')}
         </p>
         <form id="notif_form" method="post" action={`${window.baseUrl}/account/update_notifications`}>

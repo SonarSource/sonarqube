@@ -26,7 +26,7 @@ import { translate } from '../../../helpers/l10n';
 export default class ProjectNotification extends Component {
   state = {
     toDelete: false
-  }
+  };
 
   handleRemoveProject (e) {
     e.preventDefault();
@@ -49,7 +49,7 @@ export default class ProjectNotification extends Component {
           <thead>
             <tr>
               <th>
-                <h3 className="display-inline-block">{data.project.name}</h3>
+                <h4 className="display-inline-block">{data.project.name}</h4>
                 <button
                     onClick={this.handleRemoveProject.bind(this)}
                     className={buttonClassName}>

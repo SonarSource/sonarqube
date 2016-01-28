@@ -29,6 +29,13 @@ const Favorites = ({ favorites }) => (
       <h2 className="spacer-bottom">
         {translate('my_account.favorite_components')}
       </h2>
+
+      {!favorites.length && (
+          <p className="note">
+            {translate('my_account.no_favorite_components')}
+          </p>
+      )}
+
       <table id="favorite-components" className="data">
         <tbody>
           {favorites.map(f => (

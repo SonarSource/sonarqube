@@ -23,7 +23,7 @@ import Nav from '../components/Nav';
 import { getIssueFilters } from '../../../api/issues';
 
 export default class AccountApp extends Component {
-  state = {}
+  state = {};
 
   componentDidMount () {
     this.fetchFavoriteIssueFilters();
@@ -31,7 +31,8 @@ export default class AccountApp extends Component {
 
   fetchFavoriteIssueFilters () {
     getIssueFilters().then(issueFilters => {
-      this.setState({ issueFilters });
+      const favoriteIssueFilters = issueFilters.filter(f => f.favorite);
+      this.setState({ issueFilters: favoriteIssueFilters });
     });
   }
 
@@ -49,9 +50,7 @@ export default class AccountApp extends Component {
     return (
         <div>
           <Nav user={user}/>
-          <div className="page">
-            {children}
-          </div>
+          {children}
         </div>
     );
   }

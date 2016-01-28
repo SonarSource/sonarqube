@@ -25,7 +25,7 @@ import FavoriteMeasureFilters from './FavoriteMeasureFilters';
 import { translate } from '../../../helpers/l10n';
 
 const Home = ({ user, favorites, issueFilters, measureFilters }) => (
-    <div>
+    <div className="page page-limited">
       <div className="columns">
         <div className="column-third">
           <Favorites favorites={favorites}/>

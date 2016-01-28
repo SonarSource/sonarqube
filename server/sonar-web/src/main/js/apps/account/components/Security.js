@@ -24,16 +24,18 @@ import Tokens from './Tokens';
 
 export default function Security ({ user }) {
   return (
-      <div className="columns">
-        <div className="column-half">
-          <Tokens user={user}/>
-        </div>
+      <div className="page page-limited">
+        <div className="columns">
+          <div className="column-half">
+            <Tokens user={user}/>
+          </div>
 
-        {user.canChangePassword && (
-            <div className="column-half">
-              <Password user={user}/>
-            </div>
-        )}
+          {user.canChangePassword && (
+              <div className="column-half">
+                <Password user={user}/>
+              </div>
+          )}
+        </div>
       </div>
   );
 }

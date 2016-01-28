@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { IndexLink } from 'react-router';
 
 import Avatar from '../../../components/shared/avatar';
 
@@ -25,10 +26,14 @@ export default function UserCard ({ user }) {
   return (
       <section className="account-user clearfix">
         <div id="avatar" className="account-nav-avatar">
-          <Avatar email={user.email} size={48}/>
+          <IndexLink to="/" className="link-no-underline">
+            <Avatar email={user.email} size={48}/>
+          </IndexLink>
         </div>
         <div>
-          <h1 id="name" className="display-inline-block">{user.name}</h1>
+          <IndexLink to="/" className="link-no-underline">
+            <h1 id="name" className="display-inline-block">{user.name}</h1>
+          </IndexLink>
           <span id="login" className="note big-spacer-left">{user.login}</span>
         </div>
         <div id="email" className="little-spacer-top">{user.email}</div>
