@@ -24,6 +24,7 @@ import com.sonar.orchestrator.selenium.Selenese;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -34,6 +35,9 @@ import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NotFoundException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -70,10 +74,22 @@ public class SeleneseTest {
             String param1 = tr.child(1).text();
             String param2 = tr.child(2).text();
 
-            action(action, param1, param2);
+            try {
+              action(action, param1, param2);
+            } catch (AssertionError e) {
+              analyzeLog(driver);
+              throw e;
+            }
           }
         }
       }
+    }
+  }
+
+  private static void analyzeLog(SeleniumDriver driver) {
+    LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
+    for (LogEntry entry : logEntries) {
+      System.out.println(new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
     }
   }
 
