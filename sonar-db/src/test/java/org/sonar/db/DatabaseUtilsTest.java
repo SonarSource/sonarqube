@@ -27,10 +27,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -39,12 +43,14 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.DatabaseUtils.buildLikeValue;
+import static org.sonar.db.DatabaseUtils.toUniqueAndSortedList;
 import static org.sonar.db.WildcardPosition.AFTER;
 import static org.sonar.db.WildcardPosition.BEFORE;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
@@ -54,7 +60,8 @@ public class DatabaseUtilsTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -121,6 +128,83 @@ public class DatabaseUtilsTest {
 
     // no failure
     verify(rs).close(); // just to be sure
+  }
+
+  @Test
+  public void toUniqueAndSortedList_throws_NPE_if_arg_is_null() {
+    expectedException.expect(NullPointerException.class);
+
+    toUniqueAndSortedList(null);
+  }
+
+  @Test
+  public void toUniqueAndSortedList_throws_NPE_if_arg_contains_a_null() {
+    expectedException.expect(NullPointerException.class);
+
+    toUniqueAndSortedList(asList("A", null, "C"));
+  }
+
+  @Test
+  public void toUniqueAndSortedList_throws_NPE_if_arg_is_a_set_containing_a_null() {
+    expectedException.expect(NullPointerException.class);
+
+    toUniqueAndSortedList(new HashSet<Comparable>(asList("A", null, "C")));
+  }
+
+  @Test
+  public void toUniqueAndSortedList_enforces_natural_order() {
+    assertThat(toUniqueAndSortedList(asList("A", "B", "C"))).containsExactly("A", "B", "C");
+    assertThat(toUniqueAndSortedList(asList("B", "A", "C"))).containsExactly("A", "B", "C");
+    assertThat(toUniqueAndSortedList(asList("B", "C", "A"))).containsExactly("A", "B", "C");
+  }
+
+  @Test
+  public void toUniqueAndSortedList_removes_duplicates() {
+    assertThat(toUniqueAndSortedList(asList("A", "A", "A"))).containsExactly("A");
+    assertThat(toUniqueAndSortedList(asList("A", "C", "A"))).containsExactly("A", "C");
+    assertThat(toUniqueAndSortedList(asList("C", "C", "B", "B", "A", "N", "C", "A"))).containsExactly("A", "B", "C", "N");
+  }
+
+  @Test
+  public void toUniqueAndSortedList_removes_duplicates_and_apply_natural_order_of_any_Comparable() {
+    assertThat(
+      toUniqueAndSortedList(asList(myComparable(2), myComparable(5), myComparable(2), myComparable(4), myComparable(-1), myComparable(10))))
+      .containsExactly(
+        myComparable(-1), myComparable(2), myComparable(4), myComparable(5), myComparable(10));
+  }
+
+  private static DatabaseUtilsTest.MyComparable myComparable(int ordinal) {
+    return new DatabaseUtilsTest.MyComparable(ordinal);
+  }
+
+  private static final class MyComparable implements Comparable<MyComparable> {
+    private final int ordinal;
+
+    private MyComparable(int ordinal) {
+      this.ordinal = ordinal;
+    }
+
+    @Override
+    public int compareTo(MyComparable o) {
+      return ordinal - o.ordinal;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      MyComparable that = (MyComparable) o;
+      return ordinal == that.ordinal;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(ordinal);
+    }
   }
 
   /**

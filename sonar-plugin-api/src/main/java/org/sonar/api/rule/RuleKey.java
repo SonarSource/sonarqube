@@ -21,8 +21,8 @@ package org.sonar.api.rule;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-
 import java.io.Serializable;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -31,7 +31,7 @@ import javax.annotation.concurrent.Immutable;
  * @since 3.6
  */
 @Immutable
-public class RuleKey implements Serializable {
+public class RuleKey implements Serializable, Comparable<RuleKey> {
 
   public static final String MANUAL_REPOSITORY_KEY = "manual";
   private final String repository;
@@ -82,7 +82,7 @@ public class RuleKey implements Serializable {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
@@ -90,10 +90,7 @@ public class RuleKey implements Serializable {
       return false;
     }
     RuleKey ruleKey = (RuleKey) o;
-    if (!repository.equals(ruleKey.repository)) {
-      return false;
-    }
-    return rule.equals(ruleKey.rule);
+    return repository.equals(ruleKey.repository) && rule.equals(ruleKey.rule);
   }
 
   @Override
@@ -109,5 +106,14 @@ public class RuleKey implements Serializable {
   @Override
   public String toString() {
     return String.format("%s:%s", repository, rule);
+  }
+
+  @Override
+  public int compareTo(RuleKey o) {
+    int compareRepositories = this.repository.compareTo(o.repository);
+    if (compareRepositories == 0) {
+      return this.rule.compareTo(o.rule);
+    }
+    return compareRepositories;
   }
 }

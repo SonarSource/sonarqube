@@ -121,4 +121,17 @@ public class RuleKeyTest {
     assertThat(key1.hashCode()).isEqualTo(key1.hashCode());
     assertThat(key1.hashCode()).isEqualTo(key2.hashCode());
   }
+
+  @Test
+  public void test_compareTo() {
+    RuleKey aa = RuleKey.of("A", "A");
+    RuleKey ab = RuleKey.of("A", "B");
+
+    assertThat(ab).isGreaterThan(aa);
+    assertThat(aa).isLessThan(ab);
+    assertThat(aa).isNotEqualTo(ab);
+    assertThat(ab).isNotEqualTo(aa);
+    assertThat(aa).isEqualTo(aa);
+    assertThat(ab).isEqualTo(ab);
+  }
 }

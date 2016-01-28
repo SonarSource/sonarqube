@@ -20,7 +20,10 @@
 package org.sonar.db;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
@@ -117,17 +121,39 @@ public class DatabaseUtils {
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    */
-  public static <OUTPUT, INPUT> List<OUTPUT> executeLargeInputs(Collection<INPUT> input, Function<List<INPUT>, List<OUTPUT>> function) {
+  public static <OUTPUT, INPUT extends Comparable<INPUT>> List<OUTPUT> executeLargeInputs(Collection<INPUT> input, Function<List<INPUT>, List<OUTPUT>> function) {
     if (input.isEmpty()) {
       return Collections.emptyList();
     }
     List<OUTPUT> results = new ArrayList<>(input.size());
-    List<List<INPUT>> partitionList = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
-    for (List<INPUT> partition : partitionList) {
+    for (List<INPUT> partition : toUniqueAndSortedPartitions(input)) {
       List<OUTPUT> subResults = function.apply(partition);
-      results.addAll(subResults);
+      if (subResults != null) {
+        results.addAll(subResults);
+      }
     }
     return results;
+  }
+
+  /**
+   * Ensure values {@code inputs} are unique (which avoids useless arguments) and sorted before creating the partition.
+   */
+  private static <INPUT extends Comparable<INPUT>> Iterable<List<INPUT>> toUniqueAndSortedPartitions(Collection<INPUT> inputs) {
+    return Iterables.partition(toUniqueAndSortedList(inputs), PARTITION_SIZE_FOR_ORACLE);
+  }
+
+  /**
+   * Ensure values {@code inputs} are unique (which avoids useless arguments) and sorted so that there is little
+   * variations of SQL requests over time as possible with a IN clause and/or a group of OR clauses. Such requests can
+   * then be more easily optimized by the SGDB engine.
+   */
+  public static <INPUT extends Comparable<INPUT>> List<INPUT> toUniqueAndSortedList(Iterable<INPUT> inputs) {
+    if (inputs instanceof Set) {
+      // inputs are unique but order is not enforced
+      return Ordering.natural().immutableSortedCopy(inputs);
+    }
+    // inputs are not unique and order is not guaranteed
+    return Ordering.natural().immutableSortedCopy(Sets.newHashSet(inputs));
   }
 
   /**
