@@ -1,16 +1,15 @@
 {
+  "total": 1,
   "p": 1,
   "ps": 50,
-  "total": 1,
   "users": [
     {
-      "login": "user-1",
-      "name": "User 1",
-      "email": "user-1@mail.com",
-      "scmAccounts": [
-        "user-1"
-      ],
-      "tokensCount": 1
+      "login": "user-%_%-login",
+      "name": "user-name",
+      "email": "user@mail.com",
+      "active": true,
+      "scmAccounts": [],
+      "tokensCount": 0
     }
   ]
 }

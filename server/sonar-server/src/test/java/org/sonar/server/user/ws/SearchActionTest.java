@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.es.EsTester;
@@ -46,6 +47,7 @@ import org.sonar.test.DbTests;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
 @Category(DbTests.class)
@@ -57,6 +59,7 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  UserDbTester userDb = new UserDbTester(db);
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
 
@@ -85,8 +88,18 @@ public class SearchActionTest {
   @Test
   public void search_with_query() throws Exception {
     injectUsers(5);
+    UserDto user = userDb.insertUser(newUserDto("user-%_%-login", "user-name", "user@mail.com"));
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
+      new UserDoc()
+        .setActive(true)
+        .setEmail(user.getEmail())
+        .setLogin(user.getLogin())
+        .setName(user.getName())
+        .setCreatedAt(user.getCreatedAt())
+        .setUpdatedAt(user.getUpdatedAt())
+        .setScmAccounts(user.getScmAccountsAsList()));
 
-    ws.newGetRequest("api/users", "search").setParam("q", "user-1").execute().assertJson(getClass(), "user_one.json");
+    ws.newGetRequest("api/users", "search").setParam("q", "user-%_%-").execute().assertJson(getClass(), "user_one.json");
   }
 
   @Test
