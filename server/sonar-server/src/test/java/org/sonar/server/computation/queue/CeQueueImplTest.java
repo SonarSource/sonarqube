@@ -20,6 +20,8 @@
 package org.sonar.server.computation.queue;
 
 import com.google.common.base.Optional;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,13 +30,16 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Matchers.any;
@@ -54,6 +59,7 @@ public class CeQueueImplTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
+  DbSession session = dbTester.getSession();
 
   UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
   CEQueueStatus queueStatus = new CEQueueStatusImpl();
@@ -66,33 +72,90 @@ public class CeQueueImplTest {
   }
 
   @Test
-  public void test_submit() {
-    CeTaskSubmit.Builder submission = underTest.prepareSubmit();
-    submission.setComponentUuid("PROJECT_1");
-    submission.setType(CeTaskTypes.REPORT);
-    submission.setSubmitterLogin("rob");
+  public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "rob");
+    CeTask task = underTest.submit(taskSubmit);
 
-    CeTask task = underTest.submit(submission.build());
-    assertThat(task.getUuid()).isEqualTo(submission.getUuid());
-    assertThat(task.getComponentUuid()).isEqualTo("PROJECT_1");
-    assertThat(task.getSubmitterLogin()).isEqualTo("rob");
-
-    Optional<CeQueueDto> queueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), submission.getUuid());
-    assertThat(queueDto.isPresent()).isTrue();
-    assertThat(queueDto.get().getTaskType()).isEqualTo(CeTaskTypes.REPORT);
-    assertThat(queueDto.get().getComponentUuid()).isEqualTo("PROJECT_1");
-    assertThat(queueDto.get().getSubmitterLogin()).isEqualTo("rob");
-    assertThat(queueDto.get().getCreatedAt()).isEqualTo(1_450_000_000_000L);
-    assertThat(queueStatus.getReceivedCount()).isEqualTo(1L);
+    verifyCeTask(taskSubmit, task, null);
+    verifyCeQueueDtoForTaskSubmit(taskSubmit);
   }
 
   @Test
-  public void fail_to_submit_if_paused() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Compute Engine does not currently accept new tasks");
+  public void submit_increments_receivedCount_of_QueueStatus() {
+    underTest.submit(createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "rob"));
+
+    assertThat(queueStatus.getReceivedCount()).isEqualTo(1L);
+
+    underTest.submit(createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_2", "rob"));
+
+    assertThat(queueStatus.getReceivedCount()).isEqualTo(2L);
+  }
+
+  @Test
+  public void submit_populates_component_name_and_key_of_CeTask_if_component_exists() {
+    ComponentDto componentDto = insertComponent(newComponentDto("PROJECT_1"));
+    CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, componentDto.uuid(), null);
+
+    CeTask task = underTest.submit(taskSubmit);
+
+    verifyCeTask(taskSubmit, task, componentDto);
+  }
+
+  @Test
+  public void submit_returns_task_without_component_info_when_submit_has_none() {
+    CeTaskSubmit taskSubmit = createTaskSubmit("not cpt related");
+
+    CeTask task = underTest.submit(taskSubmit);
+
+    verifyCeTask(taskSubmit, task, null);
+  }
+
+  @Test
+  public void submit_fails_with_ISE_if_paused() {
     underTest.pauseSubmit();
 
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Compute Engine does not currently accept new tasks");
+
     submit(CeTaskTypes.REPORT, "PROJECT_1");
+  }
+
+  @Test
+  public void massSubmit_returns_tasks_for_each_CeTaskSubmit_populated_from_CeTaskSubmit_and_creates_CeQueue_row_for_each() {
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "rob");
+    CeTaskSubmit taskSubmit2 = createTaskSubmit("some type");
+
+    List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
+
+    assertThat(tasks).hasSize(2);
+    verifyCeTask(taskSubmit1, tasks.get(0), null);
+    verifyCeTask(taskSubmit2, tasks.get(1), null);
+    verifyCeQueueDtoForTaskSubmit(taskSubmit1);
+    verifyCeQueueDtoForTaskSubmit(taskSubmit2);
+  }
+
+  @Test
+  public void massSubmit_populates_component_name_and_key_of_CeTask_if_component_exists() {
+    ComponentDto componentDto1 = insertComponent(newComponentDto("PROJECT_1"));
+    CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, componentDto1.uuid(), null);
+    CeTaskSubmit taskSubmit2 = createTaskSubmit("something", "non existing component uuid", null);
+
+    List<CeTask> tasks = underTest.massSubmit(asList(taskSubmit1, taskSubmit2));
+
+    assertThat(tasks).hasSize(2);
+    verifyCeTask(taskSubmit1, tasks.get(0), componentDto1);
+    verifyCeTask(taskSubmit2, tasks.get(1), null);
+  }
+
+  @Test
+  public void massSubmit_increments_receivedCount_of_QueueStatus() {
+    underTest.massSubmit(asList(createTaskSubmit("type 1"), createTaskSubmit("type 2")));
+
+    assertThat(queueStatus.getReceivedCount()).isEqualTo(2L);
+
+    underTest.massSubmit(asList(createTaskSubmit("a"), createTaskSubmit("a"), createTaskSubmit("b")));
+
+    assertThat(queueStatus.getReceivedCount()).isEqualTo(5L);
   }
 
   @Test
@@ -143,11 +206,11 @@ public class CeQueueImplTest {
 
   @Test
   public void fail_to_remove_if_not_in_queue() throws Exception {
-    expectedException.expect(IllegalStateException.class);
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     underTest.remove(task, CeActivityDto.Status.SUCCESS, null);
 
-    // fail
+    expectedException.expect(IllegalStateException.class);
+
     underTest.remove(task, CeActivityDto.Status.SUCCESS, null);
   }
 
@@ -244,16 +307,58 @@ public class CeQueueImplTest {
     assertThat(underTest.isPeekPaused()).isFalse();
   }
 
+  private void verifyCeTask(CeTaskSubmit taskSubmit, CeTask task, @Nullable ComponentDto componentDto) {
+    assertThat(task.getUuid()).isEqualTo(taskSubmit.getUuid());
+    assertThat(task.getComponentUuid()).isEqualTo(task.getComponentUuid());
+    assertThat(task.getType()).isEqualTo(taskSubmit.getType());
+    if (componentDto == null) {
+      assertThat(task.getComponentKey()).isNull();
+      assertThat(task.getComponentName()).isNull();
+    } else {
+      assertThat(task.getComponentKey()).isEqualTo(componentDto.key());
+      assertThat(task.getComponentName()).isEqualTo(componentDto.name());
+    }
+    assertThat(task.getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());
+  }
+
+  private void verifyCeQueueDtoForTaskSubmit(CeTaskSubmit taskSubmit) {
+    Optional<CeQueueDto> queueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), taskSubmit.getUuid());
+    assertThat(queueDto.isPresent()).isTrue();
+    assertThat(queueDto.get().getTaskType()).isEqualTo(taskSubmit.getType());
+    assertThat(queueDto.get().getComponentUuid()).isEqualTo(taskSubmit.getComponentUuid());
+    assertThat(queueDto.get().getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());
+    assertThat(queueDto.get().getCreatedAt()).isEqualTo(1_450_000_000_000L);
+  }
+
+  private static ComponentDto newComponentDto(String uuid) {
+    return new ComponentDto().setUuid(uuid).setName("name_" + uuid).setKey("key_" + uuid);
+  }
+
   private CeTask submit(String reportType, String componentUuid) {
+    return underTest.submit(createTaskSubmit(reportType, componentUuid, null));
+  }
+
+  private CeTaskSubmit createTaskSubmit(String type) {
+    return createTaskSubmit(type, null, null);
+  }
+
+  private CeTaskSubmit createTaskSubmit(String type, @Nullable String componentUuid, @Nullable String submitterLogin) {
     CeTaskSubmit.Builder submission = underTest.prepareSubmit();
-    submission.setType(reportType);
+    submission.setType(type);
     submission.setComponentUuid(componentUuid);
-    return underTest.submit(submission.build());
+    submission.setSubmitterLogin(submitterLogin);
+    return submission.build();
   }
 
   private CeTaskResult newTaskResult(Long snapshotId) {
     CeTaskResult taskResult = mock(CeTaskResult.class);
     when(taskResult.getSnapshotId()).thenReturn(snapshotId);
     return taskResult;
+  }
+
+  private ComponentDto insertComponent(ComponentDto componentDto) {
+    dbTester.getDbClient().componentDao().insert(session, componentDto);
+    session.commit();
+    return componentDto;
   }
 }

@@ -20,6 +20,8 @@
 package org.sonar.server.computation.queue;
 
 import com.google.common.base.Optional;
+import java.util.Collection;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.db.ce.CeActivityDto;
 
@@ -40,10 +42,23 @@ public interface CeQueue {
 
   /**
    * Submits a task to the queue. The task is processed asynchronously.
-   * If submits are paused (see {@link #isSubmitPaused()}, then an
-   * unchecked exception is thrown.
+   * <p>
+   * This method is equivalent to calling {@code massSubmit(Collections.singletonList(submission))}.
+   * </p>
+   *
+   * @throws IllegalStateException If submits are paused (see {@link #isSubmitPaused()})
    */
   CeTask submit(CeTaskSubmit submission);
+
+  /**
+   * Submits multiple tasks to the queue at once. All tasks are processed asynchronously.
+   * <p>
+   * This method will perform significantly better that calling {@link #submit(CeTaskSubmit)} in a loop.
+   * </p>
+   *
+   * @throws IllegalStateException If submits are paused (see {@link #isSubmitPaused()})
+   */
+  List<CeTask> massSubmit(Collection<CeTaskSubmit> submissions);
 
   /**
    * Peek the oldest task in status {@link org.sonar.db.ce.CeQueueDto.Status#PENDING}.

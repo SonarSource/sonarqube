@@ -19,8 +19,16 @@
  */
 package org.sonar.server.computation.queue;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -33,7 +41,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Predicates.notNull;
+import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
+import static org.sonar.db.component.ComponentDtoFunctions.toUuid;
 
 @ServerSide
 public class CeQueueImpl implements CeQueue {
@@ -68,18 +79,33 @@ public class CeQueueImpl implements CeQueue {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      CeQueueDto dto = new CeQueueDto();
-      dto.setUuid(submission.getUuid());
-      dto.setTaskType(submission.getType());
-      dto.setComponentUuid(submission.getComponentUuid());
-      dto.setStatus(CeQueueDto.Status.PENDING);
-      dto.setSubmitterLogin(submission.getSubmitterLogin());
-      dto.setStartedAt(null);
-      dbClient.ceQueueDao().insert(dbSession, dto);
+      CeQueueDto dto = new CeTaskSubmitToInsertedCeQueueDto(dbSession, dbClient).apply(submission);
       CeTask task = loadTask(dbSession, dto);
       dbSession.commit();
       queueStatus.addReceived();
       return task;
+
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  @Override
+  public List<CeTask> massSubmit(Collection<CeTaskSubmit> submissions) {
+    checkState(!submitPaused.get(), "Compute Engine does not currently accept new tasks");
+    if (submissions.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    DbSession dbSession = dbClient.openSession(true);
+    try {
+      List<CeQueueDto> ceQueueDtos = from(submissions)
+        .transform(new CeTaskSubmitToInsertedCeQueueDto(dbSession, dbClient))
+        .toList();
+      List<CeTask> tasks = loadTasks(dbSession, ceQueueDtos);
+      dbSession.commit();
+      queueStatus.addReceived(tasks.size());
+      return tasks;
 
     } finally {
       dbClient.closeSession(dbSession);
@@ -107,20 +133,28 @@ public class CeQueueImpl implements CeQueue {
   }
 
   private CeTask loadTask(DbSession dbSession, CeQueueDto dto) {
-    CeTask.Builder builder = new CeTask.Builder();
-    builder.setUuid(dto.getUuid());
-    builder.setType(dto.getTaskType());
-    builder.setSubmitterLogin(dto.getSubmitterLogin());
-    String componentUuid = dto.getComponentUuid();
-    if (componentUuid != null) {
-      builder.setComponentUuid(componentUuid);
-      Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
-      if (component.isPresent()) {
-        builder.setComponentKey(component.get().getKey());
-        builder.setComponentName(component.get().name());
-      }
+    if (dto.getComponentUuid() == null) {
+      return new CeQueueDtoToCeTask().apply(dto);
     }
-    return builder.build();
+    Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, dto.getComponentUuid());
+    if (componentDto.isPresent()) {
+      return new CeQueueDtoToCeTask(ImmutableMap.of(dto.getComponentUuid(), componentDto.get())).apply(dto);
+    }
+    return new CeQueueDtoToCeTask().apply(dto);
+  }
+
+  private List<CeTask> loadTasks(DbSession dbSession, List<CeQueueDto> dtos) {
+    Set<String> componentUuids = from(dtos)
+      .transform(CeQueueDtoToComponentUuid.INSTANCE)
+      .filter(notNull())
+      .toSet();
+    Map<String, ComponentDto> componentDtoByUuid = from(dbClient.componentDao()
+      .selectByUuids(dbSession, componentUuids))
+      .uniqueIndex(toUuid());
+
+    return from(dtos)
+      .transform(new CeQueueDtoToCeTask(componentDtoByUuid))
+      .toList();
   }
 
   @Override
@@ -252,5 +286,70 @@ public class CeQueueImpl implements CeQueue {
   @Override
   public boolean isPeekPaused() {
     return peekPaused.get();
+  }
+
+  private static class CeQueueDtoToCeTask implements Function<CeQueueDto, CeTask> {
+    private final Map<String, ComponentDto> componentDtoByUuid;
+
+    public CeQueueDtoToCeTask() {
+      this.componentDtoByUuid = Collections.emptyMap();
+    }
+
+    public CeQueueDtoToCeTask(Map<String, ComponentDto> componentDtoByUuid) {
+      this.componentDtoByUuid = componentDtoByUuid;
+    }
+
+    @Override
+    @Nonnull
+    public CeTask apply(@Nonnull CeQueueDto dto) {
+      CeTask.Builder builder = new CeTask.Builder();
+      builder.setUuid(dto.getUuid());
+      builder.setType(dto.getTaskType());
+      builder.setSubmitterLogin(dto.getSubmitterLogin());
+      String componentUuid = dto.getComponentUuid();
+      if (componentUuid != null) {
+        builder.setComponentUuid(componentUuid);
+        ComponentDto component = componentDtoByUuid.get(componentUuid);
+        if (component != null) {
+          builder.setComponentKey(component.getKey());
+          builder.setComponentName(component.name());
+        }
+      }
+      return builder.build();
+    }
+  }
+
+  private static class CeTaskSubmitToInsertedCeQueueDto implements Function<CeTaskSubmit, CeQueueDto> {
+    private final DbSession dbSession;
+    private final DbClient dbClient;
+
+    public CeTaskSubmitToInsertedCeQueueDto(DbSession dbSession, DbClient dbClient) {
+      this.dbSession = dbSession;
+      this.dbClient = dbClient;
+    }
+
+    @Override
+    @Nonnull
+    public CeQueueDto apply(@Nonnull CeTaskSubmit submission) {
+      CeQueueDto dto = new CeQueueDto();
+      dto.setUuid(submission.getUuid());
+      dto.setTaskType(submission.getType());
+      dto.setComponentUuid(submission.getComponentUuid());
+      dto.setStatus(CeQueueDto.Status.PENDING);
+      dto.setSubmitterLogin(submission.getSubmitterLogin());
+      dto.setStartedAt(null);
+      dbClient.ceQueueDao().insert(dbSession, dto);
+      return dto;
+    }
+  }
+
+  private enum CeQueueDtoToComponentUuid implements Function<CeQueueDto, String> {
+    INSTANCE;
+
+    @Override
+    @Nullable
+    public String apply(@Nonnull CeQueueDto input) {
+      return input.getComponentUuid();
+    }
   }
 }
