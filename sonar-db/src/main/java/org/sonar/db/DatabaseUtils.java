@@ -121,7 +121,7 @@ public class DatabaseUtils {
     if (input.isEmpty()) {
       return Collections.emptyList();
     }
-    List<OUTPUT> results = new ArrayList<>();
+    List<OUTPUT> results = new ArrayList<>(input.size());
     List<List<INPUT>> partitionList = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
     for (List<INPUT> partition : partitionList) {
       List<OUTPUT> subResults = function.apply(partition);
