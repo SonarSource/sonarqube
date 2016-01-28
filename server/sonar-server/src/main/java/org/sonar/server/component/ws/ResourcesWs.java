@@ -41,7 +41,14 @@ public class ResourcesWs implements WebService {
 
   private void defineIndexAction(NewController controller) {
     NewAction action = controller.createAction("index")
-      .setDescription("Get a list of components. Requires Browse permission on resource")
+      .setDescription("Gets a list of components. Requires Browse permission on resource.<br>" +
+        "The web service is deprecated and you're invited to use the alternatives: " +
+        "<ul>" +
+        "<li>if you need components only: api/components/tree</li>" +
+        "<li>if you need components with measures: api/measures/component_tree</li>" +
+        "</ul>" +
+        "When you provide one metric, the number of results is limited to 500. When several metrics are provided, the number of results is not limited. " +
+        "This is a known limitation and it won't be fixed.")
       .setSince("2.10")
       .setDeprecatedSince("5.4")
       .setHandler(RailsHandler.INSTANCE)
