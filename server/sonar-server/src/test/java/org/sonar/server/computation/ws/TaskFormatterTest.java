@@ -22,7 +22,6 @@ package org.sonar.server.computation.ws;
 import com.google.common.base.Optional;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -160,7 +159,7 @@ public class TaskFormatterTest {
     dto2.setStatus(CeQueueDto.Status.PENDING);
     dto2.setCreatedAt(1_451_000_000_000L);
 
-    List<WsCe.Task> wsTasks = underTest.formatQueue(db.getSession(), asList(dto1, dto2));
+    Iterable<WsCe.Task> wsTasks = underTest.formatQueue(db.getSession(), asList(dto1, dto2));
     assertThat(wsTasks).extracting("id").containsExactly("UUID1", "UUID2");
   }
 
@@ -195,7 +194,7 @@ public class TaskFormatterTest {
     CeActivityDto dto1 = newActivity("UUID1", "COMPONENT_UUID", CeActivityDto.Status.FAILED);
     CeActivityDto dto2 = newActivity("UUID2", "COMPONENT_UUID", CeActivityDto.Status.SUCCESS);
 
-    List<WsCe.Task> wsTasks = underTest.formatActivity(db.getSession(), asList(dto1, dto2));
+    Iterable<WsCe.Task> wsTasks = underTest.formatActivity(db.getSession(), asList(dto1, dto2));
 
     assertThat(wsTasks).extracting("id").containsExactly("UUID1", "UUID2");
   }
