@@ -33,3 +33,5 @@ before_cache:
 
 notifications:
   email: false
+  webhooks:
+    - secure: "UsCLBZ1wEQkEPhlIETa8127r+/e+p0NFQR2f6XxvpDdyogQsgsmdz5nOjdttrWItbNNPGyZu+d/W6a/BckpS+hZBgbGbnwKe2Ht6VVIWvhDgcyXpM19CQqfXQVaGpnLTDwXy4ajases1aqsvGaUrljII74phkij/AhnIURxH/FY="
