@@ -19,15 +19,41 @@
  */
 package org.sonarqube.ws.client.qualitygate;
 
-public class ProjectStatusWsRequest {
-  private String taskId;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
+public class ProjectStatusWsRequest {
+  private String analysisId;
+  private String projectId;
+  private String projectKey;
+
+  @CheckForNull
   public String getAnalysisId() {
-    return taskId;
+    return analysisId;
   }
 
-  public ProjectStatusWsRequest setAnalysisId(String taskId) {
-    this.taskId = taskId;
+  public ProjectStatusWsRequest setAnalysisId(@Nullable String analysisId) {
+    this.analysisId = analysisId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getProjectId() {
+    return projectId;
+  }
+
+  public ProjectStatusWsRequest setProjectId(@Nullable String projectId) {
+    this.projectId = projectId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  public ProjectStatusWsRequest setProjectKey(@Nullable String projectKey) {
+    this.projectKey = projectKey;
     return this;
   }
 }
