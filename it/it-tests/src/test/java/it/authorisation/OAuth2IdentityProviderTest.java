@@ -25,7 +25,6 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
 import it.Category1Suite;
 import java.net.HttpURLConnection;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -40,6 +39,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.setServerProperty;
 
+/**
+ * There's only tests specific to OAuth2 in this class
+ */
 public class OAuth2IdentityProviderTest {
 
   @ClassRule
@@ -76,11 +78,9 @@ public class OAuth2IdentityProviderTest {
   @After
   public void tearDown() throws Exception {
     fakeServerAuthProvider.shutdown();
-  }
-
-  @AfterClass
-  public static void disableAuthPlugin() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.enabled", "false");
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.enabled", null);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.url", null);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-oauth2-id-provider.user", null);
   }
 
   @Test

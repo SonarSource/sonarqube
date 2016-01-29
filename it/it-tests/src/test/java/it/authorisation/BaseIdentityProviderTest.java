@@ -21,11 +21,12 @@ package it.authorisation;
 
 import com.google.common.base.Optional;
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
@@ -39,6 +40,11 @@ import static org.assertj.guava.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.setServerProperty;
 
+/**
+ * TODO : Add missing ITs
+ * - creating new user using email already used
+ * - display multiple identity provider plugins (probably in another class)
+ */
 public class BaseIdentityProviderTest {
 
   @ClassRule
@@ -63,24 +69,21 @@ public class BaseIdentityProviderTest {
   public static void setUp() {
     ORCHESTRATOR.resetData();
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
-  }
-
-  @AfterClass
-  public static void disableAuthPlugin() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "false");
   }
 
   @After
-  public void removeUser() throws Exception {
+  public void removeUserAndCleanPluginProperties() throws Exception {
     Optional<Users.User> user = userRule.getUserByLogin(USER_LOGIN);
     if (user.isPresent()) {
       userRule.deactivateUsers(user.get());
     }
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", null);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
   }
 
   @Test
   public void create_new_user_when_authenticate() throws Exception {
+    enablePlugin();
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
@@ -92,7 +95,47 @@ public class BaseIdentityProviderTest {
   }
 
   @Test
+  public void authenticate_user() throws Exception {
+    enablePlugin();
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+
+    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("authenticate_through_ui",
+      "/authorisation/BaseIdentityProviderTest/authenticate_user.html"
+    ).build());
+
+    userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
+  }
+
+  @Test
+  public void display_unauthorized_page_when_authentication_failed() throws Exception {
+    enablePlugin();
+    // As this property is null, the plugin will throw an exception
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
+
+    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("display_unauthorized_page_when_authentication_failed",
+      "/authorisation/BaseIdentityProviderTest/display_unauthorized_page_when_authentication_failed.html"
+    ).build());
+
+    userRule.verifyUserDoesNotExist(USER_LOGIN);
+  }
+
+  @Test
+  @Ignore("Do not understand why it's failing...")
+  public void fail_to_authenticate_when_not_allowed_to_sign_up() throws Exception {
+    enablePlugin();
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.allowsUsersToSignUp", "false");
+
+    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
+      "/authorisation/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html"
+    ).build());
+
+    userRule.verifyUserDoesNotExist(USER_LOGIN);
+  }
+
+  @Test
   public void update_existing_user_when_authenticate() throws Exception {
+    enablePlugin();
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
     // First connection, user is created
@@ -108,6 +151,7 @@ public class BaseIdentityProviderTest {
 
   @Test
   public void reactivate_disabled_user() throws Exception {
+    enablePlugin();
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
     userRule.verifyUserDoesNotExist(USER_LOGIN);
@@ -126,14 +170,31 @@ public class BaseIdentityProviderTest {
     userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
 
-  private void setUserCreatedByAuthPlugin(String login, String providerId, String name, String email) {
+  @Test
+  public void not_authenticate_when_plugin_is_disabled() throws Exception {
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "false");
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+
+    authenticateWithFakeAuthProvider();
+
+    // User is not created as nothing plugin is disabled
+    userRule.verifyUserDoesNotExist(USER_LOGIN);
+
+    // TODO Add Selenium test to check login form
+  }
+
+  private static void setUserCreatedByAuthPlugin(String login, String providerId, String name, String email) {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", login + "," + providerId + "," + name + "," + email);
   }
 
-  private void authenticateWithFakeAuthProvider() {
+  private static void authenticateWithFakeAuthProvider() {
     WsResponse response = adminWsClient.wsConnector().call(
       new GetRequest(("/sessions/init/" + FAKE_PROVIDER_KEY)));
     assertThat(response.code()).isEqualTo(200);
+  }
+
+  private static void enablePlugin() {
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
   }
 
 }
