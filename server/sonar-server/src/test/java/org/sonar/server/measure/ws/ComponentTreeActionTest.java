@@ -75,6 +75,8 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIO
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 
 @Category(DbTests.class)
 public class ComponentTreeActionTest {
@@ -99,6 +101,8 @@ public class ComponentTreeActionTest {
   @Before
   public void setUp() {
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
+    resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   }
 
   @Test
@@ -237,6 +241,8 @@ public class ComponentTreeActionTest {
       .setParam(Param.SORT, NAME_SORT + ", " + METRIC_SORT)
       .setParam(PARAM_METRIC_SORT, "coverage")
       .setParam(PARAM_METRIC_KEYS, "coverage")
+      .setParam(PARAM_STRATEGY, "leaves")
+      .setParam(PARAM_QUALIFIERS, "FIL,UTS")
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3"));
 
@@ -347,6 +353,19 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_METRIC_KEYS, "ncloc,violations")
       .setParam(PARAM_METRIC_SORT, "complexity")
       .setParam(Param.SORT, METRIC_SORT));
+  }
+
+  @Test
+  public void fail_when_paging_parameter_is_too_big() {
+    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+    insertNclocMetric();
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The 'ps' parameter must be less than 500");
+
+    call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .setParam(Param.PAGE_SIZE, "2540"));
   }
 
   private static ComponentTreeWsResponse call(TestRequest request) {

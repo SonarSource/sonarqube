@@ -89,7 +89,7 @@ public class TreeActionTest {
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient), resourceTypes, userSession, Mockito.mock(I18n.class)));
     resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
-    resourceTypes.setLeavesQualifiers(Qualifiers.FILE);
+    resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   }
 
   @Test

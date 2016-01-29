@@ -31,6 +31,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -296,10 +297,9 @@ public class ComponentTreeDataLoader {
       return requestQualifiers;
     }
 
-    // intersection of request and children qualifiers
-    childrenQualifiers.retainAll(requestQualifiers);
+    Sets.SetView<String> qualifiersIntersection = Sets.intersection(new HashSet<>(childrenQualifiers), new HashSet<Object>(requestQualifiers));
 
-    return childrenQualifiers;
+    return new ArrayList<>(qualifiersIntersection);
   }
 
   private ComponentTreeQuery toComponentTreeQuery(ComponentTreeWsRequest wsRequest, SnapshotDto baseSnapshot) {

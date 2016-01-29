@@ -275,9 +275,9 @@ public class TreeAction implements ComponentsWsAction {
       return requestQualifiers;
     }
 
-    Sets.SetView<String> intersectQualifiers = Sets.intersection(newHashSet(childrenQualifiers), newHashSet(requestQualifiers));
+    Sets.SetView<String> qualifiersIntersection = Sets.intersection(newHashSet(childrenQualifiers), newHashSet(requestQualifiers));
 
-    return new ArrayList<>(intersectQualifiers);
+    return new ArrayList<>(qualifiersIntersection);
   }
 
   private static TreeWsRequest toTreeWsRequest(Request request) {
