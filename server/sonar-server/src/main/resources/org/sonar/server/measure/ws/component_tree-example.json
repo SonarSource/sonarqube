@@ -29,11 +29,11 @@
       },
       {
         "metric": "complexity",
-        "value": "42",
+        "value": "42"
       },
       {
         "metric": "ncloc",
-        "value": "1984",
+        "value": "1984"
       }
     ]
   },
@@ -43,6 +43,7 @@
       "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
       "name": "ElementImpl.java",
       "qualifier": "FIL",
+      "language": "java",
       "path": "src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
       "measures": [
         {
@@ -64,11 +65,11 @@
         },
         {
           "metric": "complexity",
-          "value": "12",
+          "value": "12"
         },
         {
           "metric": "ncloc",
-          "value": "114",
+          "value": "114"
         }
       ]
     },
@@ -77,6 +78,7 @@
       "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
       "name": "ElementImplTest.java",
       "qualifier": "UTS",
+      "language": "java",
       "path": "src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java",
       "measures": [
         {

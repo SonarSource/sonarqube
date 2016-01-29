@@ -390,12 +390,14 @@ public class ComponentTreeActionTest {
       .setUuid("AVIwDXE-bJbJqrw6wFv5")
       .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/ElementImpl.java")
       .setName("ElementImpl.java")
+      .setLanguage("java")
       .setQualifier(Qualifiers.FILE)
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"), projectSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project)
       .setUuid("AVIwDXE_bJbJqrw6wFwJ")
       .setKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
       .setName("ElementImplTest.java")
+      .setLanguage("java")
       .setQualifier(Qualifiers.UNIT_TEST_FILE)
       .setPath("src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java"), projectSnapshot);
     SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(newDirectory(project, "src/main/java/com/sonarsource/markdown/impl")

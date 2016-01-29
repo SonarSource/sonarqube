@@ -253,6 +253,7 @@ public class ComponentActionTest {
       .setKey("MY_PROJECT:ElementImpl.java")
       .setName("ElementImpl.java")
       .setQualifier(Qualifiers.FILE)
+      .setLanguage("java")
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java");
     componentDb.insertComponent(file);
     SnapshotDto fileSnapshot = dbClient.snapshotDao().insert(dbSession, createForComponent(file, projectSnapshot)

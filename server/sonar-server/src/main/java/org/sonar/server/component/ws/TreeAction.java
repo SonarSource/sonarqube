@@ -48,7 +48,6 @@ import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 
@@ -59,6 +58,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
+import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
@@ -238,27 +238,6 @@ public class TreeAction implements ComponentsWsAction {
     response.setBaseComponent(componentDtoToWsComponent(baseComponent, Collections.<Long, ComponentDto>emptyMap()));
 
     return response.build();
-  }
-
-  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto component, Map<Long, ComponentDto> referenceComponentsById) {
-    WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
-      .setId(component.uuid())
-      .setKey(component.key())
-      .setName(component.name())
-      .setQualifier(component.qualifier());
-    if (component.path() != null) {
-      wsComponent.setPath(component.path());
-    }
-    if (component.description() != null) {
-      wsComponent.setDescription(component.description());
-    }
-    ComponentDto referenceComponent = referenceComponentsById.get(component.getCopyResourceId());
-    if (!referenceComponentsById.isEmpty() && referenceComponent != null) {
-      wsComponent.setRefId(referenceComponent.uuid());
-      wsComponent.setRefKey(referenceComponent.key());
-    }
-
-    return wsComponent;
   }
 
   private ComponentTreeQuery toComponentTreeQuery(TreeWsRequest request, SnapshotDto baseSnapshot) {

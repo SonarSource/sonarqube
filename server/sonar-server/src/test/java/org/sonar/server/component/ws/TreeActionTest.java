@@ -370,6 +370,7 @@ public class TreeActionTest {
         .setUuid(getJsonField(componentAsJsonObject, "id"))
         .setKey(getJsonField(componentAsJsonObject, "key"))
         .setName(getJsonField(componentAsJsonObject, "name"))
+        .setLanguage(getJsonField(componentAsJsonObject, "language"))
         .setPath(getJsonField(componentAsJsonObject, "path"))
         .setProjectUuid(project.projectUuid())
         .setQualifier(getJsonField(componentAsJsonObject, "qualifier"))

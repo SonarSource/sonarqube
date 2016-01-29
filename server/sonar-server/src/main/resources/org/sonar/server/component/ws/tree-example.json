@@ -16,14 +16,16 @@
       "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/BasicMarkdownParser.java",
       "name": "BasicMarkdownParser.java",
       "qualifier": "UTS",
-      "path": "src/test/java/com/sonarsource/markdown/BasicMarkdownParser.java"
+      "path": "src/test/java/com/sonarsource/markdown/BasicMarkdownParser.java",
+      "language":"java"
     },
     {
       "id": "AVHE6Jo3EplJjXTo0Rzx",
       "key": "com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/BasicMarkdownParserTest.java",
       "name": "BasicMarkdownParserTest.java",
       "qualifier": "UTS",
-      "path": "src/test/java/com/sonarsource/markdown/BasicMarkdownParserTest.java"
+      "path": "src/test/java/com/sonarsource/markdown/BasicMarkdownParserTest.java",
+      "language":"java"
     },
     {
       "id": "AVHE6Jo1EplJjXTo0Rzj",

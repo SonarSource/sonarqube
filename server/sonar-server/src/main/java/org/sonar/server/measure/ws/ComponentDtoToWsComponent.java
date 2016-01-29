@@ -61,6 +61,9 @@ class ComponentDtoToWsComponent {
     if (component.description() != null) {
       wsComponent.setDescription(component.description());
     }
+    if (component.language() != null) {
+      wsComponent.setLanguage(component.language());
+    }
 
     return wsComponent;
   }

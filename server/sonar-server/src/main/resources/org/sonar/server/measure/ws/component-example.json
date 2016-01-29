@@ -4,6 +4,7 @@
     "key": "MY_PROJECT:ElementImpl.java",
     "name": "ElementImpl.java",
     "qualifier": "FIL",
+    "language": "java",
     "path": "src/main/java/com/sonarsource/markdown/impl/ElementImpl.java",
     "measures": [
       {

@@ -32,15 +32,14 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 
 import static com.google.common.base.Objects.firstNonNull;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -123,22 +122,6 @@ public class ShowAction implements ComponentsWsAction {
     }
 
     return response.build();
-  }
-
-  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto) {
-    WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
-      .setId(dto.uuid())
-      .setKey(dto.key())
-      .setName(dto.name())
-      .setQualifier(dto.qualifier());
-    if (!isNullOrEmpty(dto.path())) {
-      wsComponent.setPath(dto.path());
-    }
-    if (!isNullOrEmpty(dto.description())) {
-      wsComponent.setDescription(dto.description());
-    }
-
-    return wsComponent;
   }
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, ShowWsRequest request) {

@@ -136,7 +136,7 @@ public class ShowActionTest {
       request.setParam(PARAM_KEY, key);
     }
 
-    try(InputStream responseStream = request.execute().getInputStream()) {
+    try (InputStream responseStream = request.execute().getInputStream()) {
       return ShowWsResponse.parseFrom(responseStream);
     } catch (IOException e) {
       throw Throwables.propagate(e);
@@ -162,6 +162,7 @@ public class ShowActionTest {
         .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
         .setName("Rule.java")
         .setPath("src/main/java/com/sonarsource/markdown/impl/Rule.java")
+        .setLanguage("java")
         .setQualifier(Qualifiers.FILE),
       directorySnapshot);
   }

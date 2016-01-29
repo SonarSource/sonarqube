@@ -4,6 +4,7 @@
     "key": "com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java",
     "name": "Rule.java",
     "qualifier": "FIL",
+    "language": "java",
     "path": "src/main/java/com/sonarsource/markdown/impl/Rule.java"
   },
   "ancestors": [
