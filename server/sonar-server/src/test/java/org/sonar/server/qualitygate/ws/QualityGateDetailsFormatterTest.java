@@ -19,8 +19,10 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import com.google.common.base.Optional;
 import java.io.IOException;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +51,7 @@ public class QualityGateDetailsFormatterTest {
       .setPeriodMode(3, "last_analysis")
       .setPeriodMode(5, "last_30_days")
       .setPeriodParam(5, "2015-11-07");
-    underTest = new QualityGateDetailsFormatter(measureData, snapshot);
+    underTest = newQualityGateDetailsFormatter(measureData, snapshot);
 
     ProjectStatus result = underTest.format();
 
@@ -82,20 +84,8 @@ public class QualityGateDetailsFormatterTest {
     assertThat(periods).extracting("index").containsExactly(1, 2, 3, 5);
     assertThat(periods).extracting("mode").containsExactly("last_period", "last_version", "last_analysis", "last_30_days");
     assertThat(periods).extracting("parameter").containsExactly("", "2015-12-07", "", "2015-11-07");
-    System.out.println(System.currentTimeMillis());
     assertThat(periods.get(0).getDate()).startsWith("2015-12-07T");
     assertThat(periods.get(1).getDate()).startsWith("2015-12-06T");
-  }
-
-  @Test
-  public void undefined_quality_gate_when_ill_formatted_measure_data() {
-    underTest = new QualityGateDetailsFormatter("", new SnapshotDto());
-
-    ProjectStatus result = underTest.format();
-
-    assertThat(result.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.NONE);
-    assertThat(result.getPeriodsCount()).isEqualTo(0);
-    assertThat(result.getConditionsCount()).isEqualTo(0);
   }
 
   @Test
@@ -114,7 +104,7 @@ public class QualityGateDetailsFormatterTest {
       "    }\n" +
       "  ]\n" +
       "}";
-    underTest = new QualityGateDetailsFormatter(measureData, new SnapshotDto());
+    underTest = newQualityGateDetailsFormatter(measureData, new SnapshotDto());
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Unknown quality gate status 'UNKNOWN'");
 
@@ -137,10 +127,14 @@ public class QualityGateDetailsFormatterTest {
       "    }\n" +
       "  ]\n" +
       "}";
-    underTest = new QualityGateDetailsFormatter(measureData, new SnapshotDto());
+    underTest = newQualityGateDetailsFormatter(measureData, new SnapshotDto());
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Unknown quality gate comparator 'UNKNOWN'");
 
     underTest.format();
+  }
+
+  private static QualityGateDetailsFormatter newQualityGateDetailsFormatter(@Nullable String measureData, @Nullable SnapshotDto snapshotDto) {
+    return new QualityGateDetailsFormatter(Optional.fromNullable(measureData), Optional.fromNullable(snapshotDto));
   }
 }

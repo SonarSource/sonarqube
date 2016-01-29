@@ -24,6 +24,10 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+
 public class QualityGatesService extends BaseService {
 
   public QualityGatesService(WsConnector wsConnector) {
@@ -32,7 +36,9 @@ public class QualityGatesService extends BaseService {
 
   public ProjectStatusWsResponse projectStatus(ProjectStatusWsRequest request) {
     return call(new GetRequest(path("project_status"))
-      .setParam("analysisId", request.getAnalysisId()),
+      .setParam(PARAM_ANALYSIS_ID, request.getAnalysisId())
+      .setParam(PARAM_PROJECT_ID, request.getProjectId())
+      .setParam(PARAM_PROJECT_KEY, request.getProjectKey()),
       ProjectStatusWsResponse.parser());
   }
 }
