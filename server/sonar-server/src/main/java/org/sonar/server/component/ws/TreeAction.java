@@ -22,6 +22,8 @@ package org.sonar.server.component.ws;
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +54,7 @@ import org.sonarqube.ws.client.component.TreeWsRequest;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
@@ -210,7 +213,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDtoWithSnapshotId> components, Map<Long, ComponentDto> referenceComponentsById,
-                                              Paging paging) {
+    Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -293,10 +296,9 @@ public class TreeAction implements ComponentsWsAction {
       return requestQualifiers;
     }
 
-    // intersection of request and children qualifiers
-    childrenQualifiers.retainAll(requestQualifiers);
+    Sets.SetView<String> intersectQualifiers = Sets.intersection(newHashSet(childrenQualifiers), newHashSet(requestQualifiers));
 
-    return childrenQualifiers;
+    return new ArrayList<>(intersectQualifiers);
   }
 
   private static TreeWsRequest toTreeWsRequest(Request request) {
@@ -310,7 +312,7 @@ public class TreeAction implements ComponentsWsAction {
       .setAsc(request.mandatoryParamAsBoolean(Param.ASCENDING))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
-    checkRequest(treeWsRequest.getPageSize() <= MAX_SIZE, "The '%s' parameter must be less thant %d", Param.PAGE_SIZE, MAX_SIZE);
+    checkRequest(treeWsRequest.getPageSize() <= MAX_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_SIZE);
 
     return treeWsRequest;
   }

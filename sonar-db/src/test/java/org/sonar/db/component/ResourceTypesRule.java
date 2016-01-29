@@ -19,8 +19,8 @@
  */
 package org.sonar.db.component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -29,11 +29,14 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+
 public class ResourceTypesRule extends ResourceTypes {
-  private final Set<ResourceType> allResourceTypes = new HashSet<>();
-  private final Set<ResourceType> rootResourceTypes = new HashSet<>();
-  private final List<String> childrenQualifiers = new ArrayList<>();
-  private final List<String> leavesQualifiers = new ArrayList<>();
+  private Set<ResourceType> allResourceTypes = emptySet();
+  private Set<ResourceType> rootResourceTypes = emptySet();
+  private List<String> childrenQualifiers = emptyList();
+  private List<String> leavesQualifiers = emptyList();
 
   @Override
   public Collection<ResourceType> getAll() {
@@ -46,32 +49,31 @@ public class ResourceTypesRule extends ResourceTypes {
   }
 
   public ResourceTypesRule setRootQualifiers(String... qualifiers) {
-    rootResourceTypes.clear();
+    Set<ResourceType> resourceTypes = new HashSet<>();
     for (String qualifier : qualifiers) {
-      rootResourceTypes.add(ResourceType.builder(qualifier).build());
+      resourceTypes.add(ResourceType.builder(qualifier).build());
     }
+    rootResourceTypes = ImmutableSet.copyOf(resourceTypes);
 
     return this;
   }
 
   public ResourceTypesRule setLeavesQualifiers(String... qualifiers) {
-    leavesQualifiers.clear();
-    leavesQualifiers.addAll(Arrays.asList(qualifiers));
+    leavesQualifiers = ImmutableList.copyOf(qualifiers);
     return this;
   }
 
   public ResourceTypesRule setChildrenQualifiers(String... qualifiers) {
-    childrenQualifiers.clear();
-    childrenQualifiers.addAll(Arrays.asList(qualifiers));
-
+    childrenQualifiers = ImmutableList.copyOf(qualifiers);
     return this;
   }
 
   public ResourceTypesRule setAllQualifiers(String... qualifiers) {
-    allResourceTypes.clear();
+    Set<ResourceType> resourceTypes = new HashSet<>();
     for (String qualifier : qualifiers) {
-      allResourceTypes.add(ResourceType.builder(qualifier).build());
+      resourceTypes.add(ResourceType.builder(qualifier).build());
     }
+    allResourceTypes = ImmutableSet.copyOf(resourceTypes);
 
     return this;
   }
