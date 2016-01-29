@@ -25,7 +25,6 @@ CI)
 
     mvn deploy \
         -Pdeploy-sonarsource \
-        -Dmaven.test.redirectTestOutputToFile=false \
         -B -e -V
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
@@ -37,7 +36,6 @@ CI)
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar \
         -Pcoverage-per-test \
         -Dclirr=true \
-        -Dmaven.test.redirectTestOutputToFile=false \
         -Dsonar.analysis.mode=issues \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
