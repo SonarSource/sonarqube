@@ -180,22 +180,22 @@ public class PersistFileSourcesStep implements ComputationStep {
         }
       }
     }
-  }
 
-  @CheckForNull
-  private static String computeRevision(FileSourceDto previousDto, @Nullable Changeset latestChange) {
-    if (latestChange == null) {
-      return previousDto.getRevision();
+    @CheckForNull
+    private String computeRevision(FileSourceDto previousDto, @Nullable Changeset latestChange) {
+      if (latestChange == null) {
+        return previousDto.getRevision();
+      }
+      return latestChange.getRevision();
     }
-    return latestChange.getRevision();
-  }
 
-  @CheckForNull
-  private static String computeRevision(@Nullable Changeset latestChange) {
-    if (latestChange == null) {
-      return null;
+    @CheckForNull
+    private String computeRevision(@Nullable Changeset latestChange) {
+      if (latestChange == null) {
+        return null;
+      }
+      return latestChange.getRevision();
     }
-    return latestChange.getRevision();
   }
 
   private static class LineReaders {

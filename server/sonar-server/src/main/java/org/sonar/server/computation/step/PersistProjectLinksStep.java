@@ -144,14 +144,14 @@ public class PersistProjectLinksStep implements ComputationStep {
         }
       }
     }
-  }
 
-  private static String convertType(Constants.ComponentLinkType reportType) {
-    String type = typesConverter.get(reportType);
-    if (type != null) {
-      return type;
-    } else {
-      throw new IllegalArgumentException(String.format("Unsupported type %s", reportType.name()));
+    private String convertType(Constants.ComponentLinkType reportType) {
+      String type = typesConverter.get(reportType);
+      if (type != null) {
+        return type;
+      } else {
+        throw new IllegalArgumentException(String.format("Unsupported type %s", reportType.name()));
+      }
     }
   }
 

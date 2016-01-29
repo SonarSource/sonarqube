@@ -170,22 +170,22 @@ public class TrackerRawInputFactory {
       }
       return target.build();
     }
-  }
 
-  private static DbCommons.TextRange.Builder convertTextRange(BatchReport.TextRange sourceRange) {
-    DbCommons.TextRange.Builder targetRange = DbCommons.TextRange.newBuilder();
-    if (sourceRange.hasStartLine()) {
-      targetRange.setStartLine(sourceRange.getStartLine());
+    private DbCommons.TextRange.Builder convertTextRange(BatchReport.TextRange sourceRange) {
+      DbCommons.TextRange.Builder targetRange = DbCommons.TextRange.newBuilder();
+      if (sourceRange.hasStartLine()) {
+        targetRange.setStartLine(sourceRange.getStartLine());
+      }
+      if (sourceRange.hasStartOffset()) {
+        targetRange.setStartOffset(sourceRange.getStartOffset());
+      }
+      if (sourceRange.hasEndLine()) {
+        targetRange.setEndLine(sourceRange.getEndLine());
+      }
+      if (sourceRange.hasEndOffset()) {
+        targetRange.setEndOffset(sourceRange.getEndOffset());
+      }
+      return targetRange;
     }
-    if (sourceRange.hasStartOffset()) {
-      targetRange.setStartOffset(sourceRange.getStartOffset());
-    }
-    if (sourceRange.hasEndLine()) {
-      targetRange.setEndLine(sourceRange.getEndLine());
-    }
-    if (sourceRange.hasEndOffset()) {
-      targetRange.setEndOffset(sourceRange.getEndOffset());
-    }
-    return targetRange;
   }
 }

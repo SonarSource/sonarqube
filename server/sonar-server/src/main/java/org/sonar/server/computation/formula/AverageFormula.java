@@ -153,25 +153,24 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
       }
       return Optional.absent();
     }
-  }
 
-  private static Optional<Double> getDoubleValue(Optional<Measure> measureOptional) {
-    if (!measureOptional.isPresent()) {
-      return Optional.absent();
-    }
-    Measure measure = measureOptional.get();
-    switch (measure.getValueType()) {
-      case DOUBLE:
-        return Optional.of(measure.getDoubleValue());
-      case LONG:
-        return Optional.of((double) measure.getLongValue());
-      case INT:
-        return Optional.of((double) measure.getIntValue());
-      case NO_VALUE:
+    private Optional<Double> getDoubleValue(Optional<Measure> measureOptional) {
+      if (!measureOptional.isPresent()) {
         return Optional.absent();
-      default:
-        throw new IllegalArgumentException(String.format("Measure of type '%s' are not supported", measure.getValueType().name()));
+      }
+      Measure measure = measureOptional.get();
+      switch (measure.getValueType()) {
+        case DOUBLE:
+          return Optional.of(measure.getDoubleValue());
+        case LONG:
+          return Optional.of((double) measure.getLongValue());
+        case INT:
+          return Optional.of((double) measure.getIntValue());
+        case NO_VALUE:
+          return Optional.absent();
+        default:
+          throw new IllegalArgumentException(String.format("Measure of type '%s' are not supported", measure.getValueType().name()));
+      }
     }
   }
-
 }

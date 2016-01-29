@@ -177,6 +177,10 @@ public class PersistComponentsStep implements ComputationStep {
         return existingComponent;
       }
     }
+
+    private void addToCache(Component component, ComponentDto componentDto) {
+      dbIdsRepository.setComponentId(component, componentDto.getId());
+    }
   }
 
   public ComponentDto createForProject(Component project) {
@@ -318,10 +322,6 @@ public class PersistComponentsStep implements ComputationStep {
     componentDto.setProjectUuid(parentModule.projectUuid());
     componentDto.setModuleUuid(parentModule.uuid());
     componentDto.setModuleUuidPath(parentModule.moduleUuidPath());
-  }
-
-  private void addToCache(Component component, ComponentDto componentDto) {
-    dbIdsRepository.setComponentId(component, componentDto.getId());
   }
 
   private static boolean updateExisting(ComponentDto existingComponent, ComponentDto newComponent) {

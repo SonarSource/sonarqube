@@ -107,7 +107,7 @@ public class PermissionFinder {
    * As the anyone group does not exists in db, it's not returned when it has not the permission.
    * We have to manually add it at the begin of the list, if it matched the search text
    */
-  private void addAnyoneGroup(List<GroupWithPermissionDto> groups, PermissionQuery query) {
+  private static void addAnyoneGroup(List<GroupWithPermissionDto> groups, PermissionQuery query) {
     boolean hasAnyoneGroup = Iterables.any(groups, IsAnyoneGroup.INSTANCE);
     if (!hasAnyoneGroup
       && !GlobalPermissions.SYSTEM_ADMIN.equals(query.permission())

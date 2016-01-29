@@ -153,20 +153,20 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
         }
       }
     }
-  }
 
-  private static double computeVariation(Measure measure, Double pastValue) {
-    switch (measure.getValueType()) {
-      case INT:
-        return measure.getIntValue() - pastValue;
-      case LONG:
-        return measure.getLongValue() - pastValue;
-      case DOUBLE:
-        return measure.getDoubleValue() - pastValue;
-      case BOOLEAN:
-        return (measure.getBooleanValue() ? 1d : 0d) - pastValue;
-      default:
-        throw new IllegalArgumentException("Unsupported Measure.ValueType " + measure.getValueType());
+    private double computeVariation(Measure measure, Double pastValue) {
+      switch (measure.getValueType()) {
+        case INT:
+          return measure.getIntValue() - pastValue;
+        case LONG:
+          return measure.getLongValue() - pastValue;
+        case DOUBLE:
+          return measure.getDoubleValue() - pastValue;
+        case BOOLEAN:
+          return (measure.getBooleanValue() ? 1d : 0d) - pastValue;
+        default:
+          throw new IllegalArgumentException("Unsupported Measure.ValueType " + measure.getValueType());
+      }
     }
   }
 

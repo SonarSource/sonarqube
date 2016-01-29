@@ -92,11 +92,11 @@ public class TestMeasureComputerDefinition implements MeasureComputer.MeasureCom
       checkNotNull(outputMetrics);
       return outputMetrics;
     }
-  }
 
-  private static void checkNotNull(String[] metrics) {
-    for (String metric : metrics) {
-      requireNonNull(metric, "Null metric is not allowed");
+    private static void checkNotNull(String[] metrics) {
+      for (String metric : metrics) {
+        requireNonNull(metric, "Null metric is not allowed");
+      }
     }
   }
 

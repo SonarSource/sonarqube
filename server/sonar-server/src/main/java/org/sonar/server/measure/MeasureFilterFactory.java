@@ -40,6 +40,7 @@ import org.sonar.api.utils.System2;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
+import static java.util.Collections.singletonList;
 
 @ServerSide
 public class MeasureFilterFactory {
@@ -164,11 +165,11 @@ public class MeasureFilterFactory {
     return null;
   }
 
-  private List<String> toList(@Nullable Object obj) {
+  private static List<String> toList(@Nullable Object obj) {
     List<String> result = null;
     if (obj != null) {
       if (obj instanceof String) {
-        result = Arrays.asList((String) obj);
+        result = singletonList((String) obj);
       } else {
         result = (List<String>) obj;
       }
@@ -177,7 +178,7 @@ public class MeasureFilterFactory {
   }
 
   @CheckForNull
-  private Date toDate(@Nullable String date) {
+  private static Date toDate(@Nullable String date) {
     if (date != null) {
       return DateUtils.parseDate(date);
     }

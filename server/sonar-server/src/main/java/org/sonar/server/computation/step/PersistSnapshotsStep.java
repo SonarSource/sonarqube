@@ -139,6 +139,15 @@ public class PersistSnapshotsStep implements ComputationStep {
       commonForAnyVisit(projectView, path, snapshot);
     }
 
+    private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
+      for (Period period : periodsHolder.getPeriods()) {
+        int index = period.getIndex();
+        snapshotDto.setPeriodMode(index, period.getMode());
+        snapshotDto.setPeriodParam(index, period.getModeParameter());
+        snapshotDto.setPeriodDate(index, period.getSnapshotDate());
+      }
+    }
+
     private void commonForAnyVisit(Component project, Path<SnapshotDtoHolder> path, SnapshotDto snapshot) {
       persist(snapshot, dbSession);
       addToCache(project, snapshot);
@@ -184,15 +193,6 @@ public class PersistSnapshotsStep implements ComputationStep {
 
   private void addToCache(Component component, SnapshotDto snapshotDto) {
     dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
-  }
-
-  private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
-    for (Period period : periodsHolder.getPeriods()) {
-      int index = period.getIndex();
-      snapshotDto.setPeriodMode(index, period.getMode());
-      snapshotDto.setPeriodParam(index, period.getModeParameter());
-      snapshotDto.setPeriodDate(index, period.getSnapshotDate());
-    }
   }
 
   private static String getFileQualifier(Component component) {
