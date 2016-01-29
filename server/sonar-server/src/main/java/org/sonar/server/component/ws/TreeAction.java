@@ -137,7 +137,7 @@ public class TreeAction implements ComponentsWsAction {
       .setDescription("Strategy to search for base component descendants:" +
         "<ul>" +
         "<li>children: return the children components of the base component. Grandchildren components are not returned</li>" +
-        "<li>all: return all the descendants components of the base component. Grandchildren are returned. Base component is not returned.</li>" +
+        "<li>all: return all the descendants components of the base component. Grandchildren are returned.</li>" +
         "<li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li>" +
         "</ul>")
       .setPossibleValues(STRATEGIES)
