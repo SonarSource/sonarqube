@@ -13,24 +13,12 @@
   <name>SonarQube Integration Tests</name>
   <packaging>pom</packaging>
 
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
   <modules>
     <module>it-plugins</module>
     <module>it-tests</module>
   </modules>
 
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
