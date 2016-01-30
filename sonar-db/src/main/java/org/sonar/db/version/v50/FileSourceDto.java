@@ -89,7 +89,7 @@ class FileSourceDto {
     Map<Integer, String> duplicationsPerLine = computeDuplicationsPerLine(duplicationGroups);
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     int line = 0;
-    String sourceLine = null;
+    String sourceLine;
     CsvWriter csv = CsvWriter.of(new OutputStreamWriter(output, UTF_8));
     StringBuilder lineHashes = new StringBuilder();
     while (sourceSplitter.hasNext()) {
