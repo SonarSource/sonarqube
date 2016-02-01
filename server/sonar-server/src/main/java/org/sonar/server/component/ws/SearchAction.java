@@ -133,7 +133,7 @@ public class SearchAction implements ComponentsWsAction {
       paging.pageSize());
   }
 
-  private SearchWsResponse buildResponse(List<ComponentDto> components, Paging paging) {
+  private static SearchWsResponse buildResponse(List<ComponentDto> components, Paging paging) {
     WsComponents.SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())

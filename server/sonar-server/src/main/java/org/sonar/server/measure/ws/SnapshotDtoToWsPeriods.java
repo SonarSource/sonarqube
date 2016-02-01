@@ -33,7 +33,7 @@ class SnapshotDtoToWsPeriods {
     // prevent instantiation
   }
 
-  static List<WsMeasures.Period> snapshotsToPeriods(@Nullable SnapshotDto snapshot) {
+  static List<WsMeasures.Period> snapshotToWsPeriods(@Nullable SnapshotDto snapshot) {
     if (snapshot == null) {
       return emptyList();
     }

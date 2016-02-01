@@ -65,13 +65,13 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.ALL_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.CHILDREN_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
+import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ComponentTreeDataLoader {
@@ -106,7 +106,7 @@ public class ComponentTreeDataLoader {
       List<ComponentDtoWithSnapshotId> components = componentDtosAndTotal.componentDtos;
       int componentCount = componentDtosAndTotal.total;
       List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
-      List<WsMeasures.Period> periods = periodsFromSnapshot(baseSnapshot);
+      List<WsMeasures.Period> periods = snapshotToWsPeriods(baseSnapshot);
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, baseSnapshot, components, metrics,
         periods);
 
@@ -228,33 +228,6 @@ public class ComponentTreeDataLoader {
         }
       }
     }
-  }
-
-  private static List<WsMeasures.Period> periodsFromSnapshot(SnapshotDto baseSnapshot) {
-    List<WsMeasures.Period> periods = new ArrayList<>();
-    for (int periodIndex = 1; periodIndex <= 5; periodIndex++) {
-      if (baseSnapshot.getPeriodDate(periodIndex) != null) {
-        periods.add(snapshotDtoToWsPeriod(baseSnapshot, periodIndex));
-      }
-    }
-
-    return periods;
-  }
-
-  private static WsMeasures.Period snapshotDtoToWsPeriod(SnapshotDto snapshot, int periodIndex) {
-    WsMeasures.Period.Builder period = WsMeasures.Period.newBuilder();
-    period.setIndex(periodIndex);
-    if (snapshot.getPeriodMode(periodIndex) != null) {
-      period.setMode(snapshot.getPeriodMode(periodIndex));
-    }
-    if (snapshot.getPeriodModeParameter(periodIndex) != null) {
-      period.setParameter(snapshot.getPeriodModeParameter(periodIndex));
-    }
-    if (snapshot.getPeriodDate(periodIndex) != null) {
-      period.setDate(formatDateTime(snapshot.getPeriodDate(periodIndex)));
-    }
-
-    return period.build();
   }
 
   private static List<ComponentDtoWithSnapshotId> sortComponents(List<ComponentDtoWithSnapshotId> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,

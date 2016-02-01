@@ -64,7 +64,7 @@ import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDto
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
-import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotsToPeriods;
+import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -131,7 +131,7 @@ public class ComponentAction implements MeasuresWsAction {
       checkPermissions(component);
       SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, component.getId());
       List<MetricDto> metrics = searchMetrics(dbSession, request);
-      List<WsMeasures.Period> periods = snapshotsToPeriods(lastSnapshot);
+      List<WsMeasures.Period> periods = snapshotToWsPeriods(lastSnapshot);
       List<MeasureDto> measures = searchMeasures(dbSession, component, lastSnapshot, metrics, periods);
 
       return buildResponse(request, component, refComponent, measures, metrics, periods);

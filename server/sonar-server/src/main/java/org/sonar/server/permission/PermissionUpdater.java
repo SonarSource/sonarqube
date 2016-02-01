@@ -177,7 +177,7 @@ public class PermissionUpdater {
     }
   }
 
-  private boolean shouldSkipPermissionChange(Operation operation, List<String> existingPermissions, PermissionChange permissionChange) {
+  private static boolean shouldSkipPermissionChange(Operation operation, List<String> existingPermissions, PermissionChange permissionChange) {
     return (Operation.ADD == operation && existingPermissions.contains(permissionChange.permission())) ||
       (Operation.REMOVE == operation && !existingPermissions.contains(permissionChange.permission()));
   }

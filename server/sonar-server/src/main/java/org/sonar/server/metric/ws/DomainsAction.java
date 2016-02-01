@@ -19,15 +19,14 @@
  */
 package org.sonar.server.metric.ws;
 
+import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.server.db.DbClient;
-
-import java.util.List;
 
 public class DomainsAction implements MetricsWsAction {
 

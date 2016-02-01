@@ -101,7 +101,7 @@ class ComponentTreeSort {
    */
   private static Ordering<ComponentDtoWithSnapshotId> metricOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
-    if (wsRequest.getMetricSort()==null) {
+    if (wsRequest.getMetricSort() == null) {
       return componentNameOrdering(wsRequest.getAsc());
     }
     Map<String, MetricDto> metricsByKey = Maps.uniqueIndex(metrics, MetricDtoFunctions.toKey());
