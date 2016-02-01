@@ -40,10 +40,10 @@
         <% auth_providers.each do |provider| %>
           <li>
             <a class="oauth-link"
-               href="<%= ApplicationController.root_context -%>/sessions/init/<%= provider.getKey().to_s %>"
+               href="/sessions/init/<%= provider.getKey().to_s %>"
                title="Login with <%= provider.getName().to_s -%>">
               <img alt="<%= provider.getName().to_s -%>" width="24" height="24"
-                   src="<%= ApplicationController.root_context + provider.getIconPath().to_s -%>">
+                   src="<%= provider.getIconPath().to_s -%>">
             </a>
           </li>
         <% end %>

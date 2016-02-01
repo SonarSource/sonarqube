@@ -4,7 +4,7 @@
     <% if is_admin?(@resource.id) %>
       <div class="page-actions">
         <a id="create-link-action_plans"
-           href="<%=ApplicationController.root_context-%>/action_plans/create_form/<%= h(@resource.id) -%>"
+           href="/action_plans/create_form/<%= h(@resource.id) -%>"
            class="open-modal button"><%= message('action_plans.add_new_action_plan') -%></a>
       </div>
     <% end %>
@@ -35,7 +35,7 @@
           %>
             <tr class="<%= cycle('even', 'odd', :name => 'open_plans') -%>">
               <td class="thin nowrap text-center">
-                <img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message("action_plans.status.#{plan.status}") -%>"/></td>
+                <img src="/images/status/<%= plan.status() -%>.png" title="<%= message("action_plans.status.#{plan.status}") -%>"/></td>
               <td class="thin nowrap"><%= h(plan.name()) -%></td>
               <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right"><%= format_date(plan.deadLine()) -%></td>
               <% if plan.totalIssues()==0 %>
@@ -61,7 +61,7 @@
                 <%= link_to message('close'),
                             {:action => 'change_status', :id => @resource.id, :plan_key => plan.key()}, {:method => 'POST', :class => 'link-action'}.merge(close_confirmation_message) -%>
                 &nbsp;
-                <%= link_to_action message('delete'), "#{ApplicationController.root_context}/action_plans/delete/#{h(@resource.id)}?plan_key=#{h(plan.key)}",
+                <%= link_to_action message('delete'), "/action_plans/delete/#{h(@resource.id)}?plan_key=#{h(plan.key)}",
                                      :class => 'link-action link-red',
                                      :id => "delete_#{h(plan.key)}",
                                      :confirm_button => message('delete'),
@@ -98,7 +98,7 @@
                @closed_action_plans.each do |plan|
             %>
               <tr class="<%= cycle('even', 'odd', :name => 'closed_plans') -%>">
-                <td class="thin nowrap text-center"><img src="<%= ApplicationController.root_context -%>/images/status/<%= plan.status() -%>.png" title="<%= message("action_plans.status.#{plan.status}") -%>"/>
+                <td class="thin nowrap text-center"><img src="/images/status/<%= plan.status() -%>.png" title="<%= message("action_plans.status.#{plan.status}") -%>"/>
                 </td>
                 <td class="thin nowrap"><%= h(plan.name) -%></td>
                 <td class="thin nowrap <%= 'over-due' if plan.overDue() -%>" align="right"><%= format_date(plan.deadLine()) -%></td>
@@ -118,7 +118,7 @@
                   <%= link_to message('action_plans.reopen'),
                               {:action => 'change_status', :id => @resource.id, :plan_key => plan.key}, {:method => 'POST', :class => 'link-action'} -%>
                   &nbsp;
-                    <%= link_to_action message('delete'), "#{ApplicationController.root_context}/action_plans/delete/#{h(@resource.id)}?plan_key=#{h(plan.key)}",
+                    <%= link_to_action message('delete'), "/action_plans/delete/#{h(@resource.id)}?plan_key=#{h(plan.key)}",
                                        :class => 'link-action link-red',
                                        :id => "delete_#{h(plan.key)}",
                                        :confirm_button => message('delete'),

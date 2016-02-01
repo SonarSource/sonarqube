@@ -167,9 +167,9 @@ module ApplicationHelper
   #   url_for_static(:plugin => 'myplugin', :path => 'image.png')
   def url_for_static(options={})
     if options[:plugin]
-      "#{ApplicationController.root_context}/static/#{options[:plugin]}/#{options[:path]}"
+      "/static/#{options[:plugin]}/#{options[:path]}"
     else
-      "#{ApplicationController.root_context}/#{options[:path]}"
+      "/#{options[:path]}"
     end
   end
 
@@ -329,10 +329,10 @@ module ApplicationHelper
     period_index=nil if period_index && period_index<=0
     if resource.display_dashboard?
       if options[:dashboard]
-        root = "#{ApplicationController.root_context}/dashboard/index?"
+        root = "/dashboard/index?"
       else
         # stay on the same page (for example components)
-        root = "#{ApplicationController.root_context}/#{u params[:controller]}/#{u params[:action]}?"
+        root = "/#{u params[:controller]}/#{u params[:action]}?"
       end
       path = ''
       query = request.query_parameters
@@ -345,7 +345,7 @@ module ApplicationHelper
       end
       "<a class='#{options[:class]}' title='#{options[:title]}' href='#{root + path}'>#{name || resource.name}</a>"
     else
-      url = "#{ApplicationController.root_context}/dashboard/index?id=#{u resource.key}"
+      url = "/dashboard/index?id=#{u resource.key}"
       url += "&period=#{u period_index}" if period_index
       url += "&metric=#{u options[:metric]}" if options[:metric]
       "<a class='#{options[:class]}' title='#{options[:title]}' " +
@@ -413,7 +413,7 @@ module ApplicationHelper
   end
 
   def chart(parameters, options={})
-    image_tag("#{ApplicationController.root_context}/chart?#{parameters}", options)
+    image_tag("/chart?#{parameters}", options)
   end
 
   def link_to_favourite(resource, deprecated_options=nil)
@@ -645,7 +645,7 @@ module ApplicationHelper
     # see limitation in /api/resources/search
     options[:min_length]=2
 
-    ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
+    ws_url="/api/resources/search?f=s2&"
     if options[:qualifiers]
       ws_url+="q=#{options[:qualifiers].join(',')}"
     elsif options[:resource_type_property]
@@ -679,7 +679,7 @@ module ApplicationHelper
     # see limitation in /api/resources/search
     options[:min_length]=2
 
-    ws_url="#{ApplicationController::root_context}/api/resources/search?f=s2&"
+    ws_url="/api/resources/search?f=s2&"
     if options[:qualifiers]
       ws_url+="q=#{options[:qualifiers].join(',')}"
     elsif options[:resource_type_property]
@@ -711,7 +711,7 @@ module ApplicationHelper
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def user_select_tag(name, options={})
-    ws_url="#{ApplicationController::root_context}/api/users/search"
+    ws_url="/api/users/search"
     options[:min_length]=2
     options[:select2_ajax_options]={
       'data' => 'function (term, page) { return { q: term, p: page } }',
@@ -851,7 +851,7 @@ module ApplicationHelper
     message_params = options[:confirm_msg_params]
     width = options[:confirm_width]||500
 
-    url = "#{ApplicationController.root_context}/confirm?url=#{u post_url}"
+    url = "/confirm?url=#{u post_url}"
     url += "&tk=#{u title_key}" if title_key
     if message_key
       url += "&mk=#{u message_key}&"
@@ -877,7 +877,7 @@ module ApplicationHelper
     html += " colspan='#{options[:colspan]}'" if options[:colspan]
     html += '>'
     if options[:include_loading_icon] && options[:id]
-      html += "<img src='#{ApplicationController.root_context}/images/loading-small.gif' style='display: none' id='#{options[:id]}_loading'>"
+      html += "<img src='/images/loading-small.gif' style='display: none' id='#{options[:id]}_loading'>"
     end
     html += '<div'
     html += " id='#{options[:id]}_pages'" if options[:id]
@@ -944,7 +944,7 @@ module ApplicationHelper
     html += " colspan='#{options[:colspan]}'" if options[:colspan]
     html += '>'
     if options[:include_loading_icon] && options[:id]
-      html += "<img src='#{ApplicationController.root_context}/images/loading-small.gif' style='display: none' id='#{options[:id]}_loading'>"
+      html += "<img src='/images/loading-small.gif' style='display: none' id='#{options[:id]}_loading'>"
     end
     html += '<div'
     html += " id='#{options[:id]}_pages'" if options[:id]
@@ -992,7 +992,7 @@ module ApplicationHelper
   end
 
   def url_for_issues(params)
-    url = ApplicationController.root_context + '/issues/search#'
+    url = '/issues/search#'
     params.each_with_index do |(key, value), index|
       if key == 'filter'
         key = 'id'
@@ -1009,7 +1009,7 @@ module ApplicationHelper
     if component.blank?
       url_for_issues(params)
     else
-      url = ApplicationController.root_context + '/component_issues/index?id=' + url_encode(component.key) + '#'
+      url = '/component_issues/index?id=' + url_encode(component.key) + '#'
       params.each_with_index do |(key, value), index|
         if key != 'componentUuids'
           url += key.to_s + '=' + value.to_s

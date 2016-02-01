@@ -60,11 +60,11 @@
                 <% end %>
               </td>
               <td class="text-thin nowrap text-right">
-                <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
+                <a id="copy-<%= filter.name.parameterize -%>" href="/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
                 &nbsp;
-                <a id="edit_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
+                <a id="edit_<%= filter.name.parameterize -%>" href="/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
                 &nbsp;
-                <%= link_to_action message('delete'), "#{ApplicationController.root_context}/measures/delete/#{filter.id}",
+                <%= link_to_action message('delete'), "/measures/delete/#{filter.id}",
                                    :class => 'link-action link-red',
                                    :id => "delete_#{filter.name.parameterize}",
                                    :confirm_button => message('delete'),
@@ -111,12 +111,12 @@
                 <%= filter.user ? h(filter.user.name) : '[SonarQube]' -%>
               </td>
               <td class="thin nowrap text-right">
-                <a id="copy-<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
+                <a id="copy-<%= filter.name.parameterize -%>" href="/measures/copy_form/<%= filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a>
                 <% if has_role?(:admin) %>
                   &nbsp;
-                  <a id="edit_system_<%= filter.name.parameterize -%>" href="<%= ApplicationController.root_context -%>/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
+                  <a id="edit_system_<%= filter.name.parameterize -%>" href="/measures/edit_form/<%= filter.id -%>" class="link-action open-modal"><%= message('edit') -%></a>
                   &nbsp;
-                  <%= link_to_action message('delete'), "#{ApplicationController.root_context}/measures/delete/#{filter.id}",
+                  <%= link_to_action message('delete'), "/measures/delete/#{filter.id}",
                                      :class => 'link-action link-red',
                                      :id => "delete_system_#{filter.name.parameterize}",
                                      :confirm_button => message('delete'),

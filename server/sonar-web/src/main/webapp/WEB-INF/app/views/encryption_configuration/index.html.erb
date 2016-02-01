@@ -13,7 +13,7 @@
         <form 	class="spacer-bottom"
                onsubmit=
                  "$j.ajax({
-                   url:'<%=ApplicationController.root_context-%>/encryption_configuration/encrypt',
+                   url:'/encryption_configuration/encrypt',
                    type:'post',
                    success:function(response)
                      {
@@ -31,7 +31,7 @@
                    });
                    return false;"
                method="post"
-               action="<%=ApplicationController.root_context-%>/encryption_configuration/encrypt"	>
+               action="/encryption_configuration/encrypt"	>
         <input type="text" name="text" id="clear_text"/>
         <input type="submit" value="Encrypt" id="submit_encrypt"/>
       </form>
