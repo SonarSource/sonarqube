@@ -5,9 +5,9 @@
   {{/if}}
 </td>
 
-<td class="thin text-middle nowrap">
+<td class="text-right nowrap">
   {{#if canEdit}}
-    <select class="input-medium" name="period">
+    <select class="input-super-large" name="period">
       {{#unless isDiffMetric}}
         <option value="0" {{#eq period 0}}selected{{/eq}}>{{t 'value'}}</option>
       {{/unless}}
@@ -22,7 +22,7 @@
 
 <td class="thin text-middle nowrap">
   {{#if canEdit}}
-    <select class="input-small" name="operator">
+    <select class="input-medium" name="operator">
       {{#operators}}
         <option value="{{this}}" {{#eq this ../op}}selected{{/eq}}>{{t 'quality_gates.operator' this}}</option>
       {{/operators}}
