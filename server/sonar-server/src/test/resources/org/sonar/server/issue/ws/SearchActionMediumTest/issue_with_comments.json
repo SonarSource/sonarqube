@@ -8,7 +8,7 @@
         {
           "key": "COMMENT-ABCD",
           "login": "john",
-          "htmlText": "\u003cem\u003eMy comment\u003c/em\u003e",
+          "htmlText": "\u003cstrong\u003eMy comment\u003c/strong\u003e",
           "markdown": "*My comment*",
           "updatable": true,
           "createdAt": "2014-09-09T12:00:00+0000"
