@@ -14,6 +14,8 @@
     <sonar.skip>true</sonar.skip>
     <skipBenchmarks>true</skipBenchmarks>
     <enableBenchmarkAssertions>false</enableBenchmarkAssertions>
+    <maven.install.skip>true</maven.install.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
   <dependencies>
@@ -97,19 +99,6 @@
         <enableBenchmarkAssertions>true</enableBenchmarkAssertions>
         <skipBenchmarks>false</skipBenchmarks>
       </properties>
-    </profile>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 </project>
