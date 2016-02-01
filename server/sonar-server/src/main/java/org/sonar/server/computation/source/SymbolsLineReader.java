@@ -19,17 +19,16 @@
  */
 package org.sonar.server.computation.source;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
-import java.io.Serializable;
+import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -46,20 +45,20 @@ public class SymbolsLineReader implements LineReader {
 
   private final Component file;
   private final RangeOffsetConverter rangeOffsetConverter;
-  private final List<BatchReport.Symbol> symbols;
   private final Map<BatchReport.Symbol, Integer> idsBySymbol;
+  private final SetMultimap<Integer, BatchReport.Symbol> symbolsPerLine;
 
   private boolean areSymbolsValid = true;
 
-  public SymbolsLineReader(Component file, Iterator<BatchReport.Symbol> symbols, RangeOffsetConverter rangeOffsetConverter) {
+  public SymbolsLineReader(Component file, Iterator<BatchReport.Symbol> symbolIterator, RangeOffsetConverter rangeOffsetConverter) {
     this.file = file;
     this.rangeOffsetConverter = rangeOffsetConverter;
-    this.symbols = Lists.newArrayList(symbols);
-    // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
-    // data
-    Collections.sort(this.symbols, new SymbolsComparator());
+    List<BatchReport.Symbol> symbols = Lists.newArrayList(symbolIterator);
+    // Sort symbols to have deterministic id generation
+    Collections.sort(symbols, SymbolsComparator.INSTANCE);
 
-    this.idsBySymbol = createIdsBySymbolMap(this.symbols);
+    this.idsBySymbol = createIdsBySymbolMap(symbols);
+    this.symbolsPerLine = buildSymbolsPerLine(symbols);
   }
 
   @Override
@@ -77,19 +76,23 @@ public class SymbolsLineReader implements LineReader {
 
   private void processSymbols(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
-    List<BatchReport.Symbol> lineSymbols = findSymbolsMatchingLine(line);
+
+    List<BatchReport.Symbol> lineSymbols = new ArrayList<>(this.symbolsPerLine.get(line));
+    // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
+    // data
+    Collections.sort(lineSymbols, SymbolsComparator.INSTANCE);
+
+    StringBuilder symbolString = new StringBuilder();
     for (BatchReport.Symbol lineSymbol : lineSymbols) {
       int symbolId = idsBySymbol.get(lineSymbol);
-      StringBuilder symbolString = new StringBuilder(lineBuilder.getSymbols());
 
       appendSymbol(symbolString, lineSymbol.getDeclaration(), line, symbolId, lineBuilder.getSource());
       for (BatchReport.TextRange range : lineSymbol.getReferenceList()) {
         appendSymbol(symbolString, range, line, symbolId, lineBuilder.getSource());
       }
-
-      if (symbolString.length() > 0) {
-        lineBuilder.setSymbols(symbolString.toString());
-      }
+    }
+    if (symbolString.length() > 0) {
+      lineBuilder.setSymbols(symbolString.toString());
     }
   }
 
@@ -107,31 +110,12 @@ public class SymbolsLineReader implements LineReader {
     }
   }
 
-  private List<BatchReport.Symbol> findSymbolsMatchingLine(int line) {
-    List<BatchReport.Symbol> lineSymbols = new ArrayList<>();
-    Set<BatchReport.Symbol> symbolsIndex = new HashSet<>();
-    for (BatchReport.Symbol symbol : symbols) {
-      if (matchLine(symbol.getDeclaration(), line) && !symbolsIndex.contains(symbol)) {
-        lineSymbols.add(symbol);
-        symbolsIndex.add(symbol);
-      } else {
-        for (BatchReport.TextRange range : symbol.getReferenceList()) {
-          if (matchLine(range, line) && !symbolsIndex.contains(symbol)) {
-            lineSymbols.add(symbol);
-            symbolsIndex.add(symbol);
-          }
-        }
-      }
-    }
-    return lineSymbols;
-  }
-
   private static boolean matchLine(BatchReport.TextRange range, int line) {
     return range.getStartLine() <= line && range.getEndLine() >= line;
   }
 
   private static Map<BatchReport.Symbol, Integer> createIdsBySymbolMap(List<BatchReport.Symbol> symbols) {
-    Map<BatchReport.Symbol, Integer> map = new HashMap<>();
+    Map<BatchReport.Symbol, Integer> map = new HashMap<>(symbols.size());
     int symbolId = 1;
     for (BatchReport.Symbol symbol : symbols) {
       map.put(symbol, symbolId);
@@ -140,7 +124,26 @@ public class SymbolsLineReader implements LineReader {
     return map;
   }
 
-  private static class SymbolsComparator implements Comparator<BatchReport.Symbol>, Serializable {
+  private static SetMultimap<Integer, BatchReport.Symbol> buildSymbolsPerLine(List<BatchReport.Symbol> symbols) {
+    SetMultimap<Integer, BatchReport.Symbol> res = HashMultimap.create();
+    for (BatchReport.Symbol symbol : symbols) {
+      putForTextRange(res, symbol, symbol.getDeclaration());
+      for (BatchReport.TextRange textRange : symbol.getReferenceList()) {
+        putForTextRange(res, symbol, textRange);
+      }
+    }
+    return res;
+  }
+
+  private static void putForTextRange(SetMultimap<Integer, BatchReport.Symbol> res, BatchReport.Symbol symbol, BatchReport.TextRange declaration) {
+    for (int i = declaration.getStartLine(); i <= declaration.getEndLine(); i++) {
+      res.put(i, symbol);
+    }
+  }
+
+  private enum SymbolsComparator implements Comparator<BatchReport.Symbol> {
+    INSTANCE;
+
     @Override
     public int compare(BatchReport.Symbol o1, BatchReport.Symbol o2) {
       if (o1.getDeclaration().getStartLine() == o2.getDeclaration().getStartLine()) {
