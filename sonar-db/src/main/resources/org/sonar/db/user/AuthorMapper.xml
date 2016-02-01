@@ -3,9 +3,20 @@
 
 <mapper namespace="org.sonar.db.user.AuthorMapper">
 
+  <sql id="authorColumns">
+    id, person_id AS personId, login, created_at AS createdAt, updated_at AS updatedAt
+  </sql>
+
   <select id="selectByLogin" parameterType="string" resultType="Author">
-    SELECT id, person_id AS personId, login, created_at AS createdAt, updated_at AS updatedAt
+    SELECT
+    <include refid="authorColumns"/>
     FROM authors WHERE login=#{id}
+  </select>
+
+  <select id="selectAll" parameterType="string" resultType="Author">
+    SELECT
+    <include refid="authorColumns"/>
+    FROM authors
   </select>
 
   <select id="countDeveloperLogins" parameterType="long" resultType="int">

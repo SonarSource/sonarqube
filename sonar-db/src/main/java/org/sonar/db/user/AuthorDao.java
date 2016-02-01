@@ -37,6 +37,10 @@ public class AuthorDao implements Dao {
     return getMapper(session).selectByLogin(login);
   }
 
+  public List<AuthorDto> selectAll(DbSession session) {
+    return getMapper(session).selectAll();
+  }
+
   public int countDeveloperLogins(DbSession session, long developerId) {
     return getMapper(session).countDeveloperLogins(developerId);
   }
