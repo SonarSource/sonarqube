@@ -54,7 +54,6 @@ public class Category3Suite {
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
     .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
-    .setContext("/")
 
     // Used by SettingsEncryptionTest
     .addPlugin(pluginArtifact("settings-encryption-plugin"))
