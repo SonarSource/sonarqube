@@ -173,6 +173,8 @@ public class UserDao implements Dao {
   }
 
   /**
+   * Check if an active user with the given email exits in database
+   *
    * Please note that email is case insensitive, result for searching 'mail@email.com' or 'Mail@Email.com' will be the same
    */
   public boolean doesEmailExist(DbSession dbSession, String email){

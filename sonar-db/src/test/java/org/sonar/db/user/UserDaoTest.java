@@ -425,15 +425,20 @@ public class UserDaoTest {
 
   @Test
   public void exists_by_email() throws Exception {
-    db.prepareDbUnit(getClass(), "exists_by_email.xml");
+    UserDto activeUser = newActiveUser();
+    UserDto disableUser = newUser(false);
 
-    assertThat(underTest.doesEmailExist(session, "marius@lesbronzes.fr")).isTrue();
-    assertThat(underTest.doesEmailExist(session, "Marius@LesBronzes.fr")).isTrue();
+    assertThat(underTest.doesEmailExist(session, activeUser.getEmail())).isTrue();
+    assertThat(underTest.doesEmailExist(session, disableUser.getEmail())).isFalse();
     assertThat(underTest.doesEmailExist(session, "unknown")).isFalse();
   }
 
   private UserDto newActiveUser(){
-    UserDto dto = UserTesting.newUserDto().setActive(true);
+    return newUser(true);
+  }
+
+  private UserDto newUser(boolean active){
+    UserDto dto = UserTesting.newUserDto().setActive(active);
     underTest.insert(session, dto);
     return dto;
   }

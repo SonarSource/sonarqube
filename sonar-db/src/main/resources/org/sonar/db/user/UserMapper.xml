@@ -94,7 +94,7 @@
   <select id="countByEmail" parameterType="String" resultType="long">
     SELECT count(u.id)
     FROM users u
-    where lower(u.email)=#{email}
+    where lower(u.email)=#{email} AND u.active=${_true}
   </select>
 
   <select id="selectGroupByName" parameterType="string" resultType="Group">
