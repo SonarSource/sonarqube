@@ -34,12 +34,13 @@ export default React.createClass({
   },
 
   onKeyPress(e) {
-    var tagName = e.target.tagName;
-    if (tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA') {
-      var code = e.keyCode || e.which;
-      if (code === 63) {
-        this.openHelp();
-      }
+    const tagName = e.target.tagName;
+    const code = e.keyCode || e.which;
+    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+    const isTriggerKey = code === 63;
+    const isModalOpen = document.querySelector('html').classList.contains('modal-open');
+    if (!isInput && !isModalOpen && isTriggerKey) {
+      this.openHelp();
     }
   },
 

@@ -38,7 +38,10 @@ export default React.createClass({
 
   componentDidMount() {
     key('s', () => {
-      this.openSearch();
+      const isModalOpen = document.querySelector('html').classList.contains('modal-open');
+      if (!isModalOpen) {
+        this.openSearch();
+      }
       return false;
     });
   },
