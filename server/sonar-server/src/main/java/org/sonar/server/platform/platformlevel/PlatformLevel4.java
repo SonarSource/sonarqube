@@ -50,9 +50,6 @@ import org.sonar.server.activity.ws.ActivitiesWs;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
-import org.sonar.server.charts.ChartFactory;
-import org.sonar.server.charts.DistributionAreaChart;
-import org.sonar.server.charts.DistributionBarChart;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -328,9 +325,6 @@ public class PlatformLevel4 extends PlatformLevel {
   protected void configureLevel() {
     add(
       PluginDownloader.class,
-      ChartFactory.class,
-      DistributionBarChart.class,
-      DistributionAreaChart.class,
       Views.class,
       ResourceTypes.class,
       DefaultResourceTypes.get(),

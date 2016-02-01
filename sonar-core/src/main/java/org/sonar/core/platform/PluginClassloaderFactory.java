@@ -163,7 +163,6 @@ public class PluginClassloaderFactory {
       .addInclusion("org/codehaus/stax2/")
       .addInclusion("org/codehaus/staxmate/")
       .addInclusion("com/ctc/wstx/")
-      .addInclusion("org/jfree/")
       .addInclusion("org/slf4j/")
       .addInclusion("javax/servlet/")
 
