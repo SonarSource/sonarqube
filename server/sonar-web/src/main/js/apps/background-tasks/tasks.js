@@ -170,7 +170,7 @@ export default React.createClass({
     }
     let tasks = this.props.tasks.map(this.renderTask);
     return (
-        <table className="data zebra background-tasks">
+        <table className="data zebra zebra-hover background-tasks">
           <thead>
             <tr>
               <th>&nbsp;</th>
