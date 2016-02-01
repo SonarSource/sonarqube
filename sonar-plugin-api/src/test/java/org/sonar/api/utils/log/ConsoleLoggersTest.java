@@ -40,5 +40,7 @@ public class ConsoleLoggersTest {
 
     underTest.setLevel(LoggerLevel.DEBUG);
     assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.DEBUG);
+
+    underTest.setLevel(LoggerLevel.INFO);
   }
 }

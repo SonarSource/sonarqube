@@ -19,9 +19,8 @@
  */
 package org.sonar.api.utils.log;
 
-import org.junit.rules.ExternalResource;
-
 import java.util.List;
+import org.junit.rules.ExternalResource;
 
 /**
  * <b>For tests only</b>
@@ -58,12 +57,8 @@ import java.util.List;
  */
 public class LogTester extends ExternalResource {
 
-  private LoggerLevel initialLevel;
-
   @Override
   protected void before() throws Throwable {
-    initialLevel = Loggers.getFactory().getLevel();
-
     // this shared instance breaks compatibility with parallel execution of tests
     LogInterceptors.set(new ListInterceptor());
     setLevel(LoggerLevel.INFO);
@@ -72,7 +67,7 @@ public class LogTester extends ExternalResource {
   @Override
   protected void after() {
     LogInterceptors.set(NullInterceptor.NULL_INSTANCE);
-    setLevel(initialLevel);
+    setLevel(LoggerLevel.INFO);
   }
 
   LoggerLevel getLevel() {
@@ -81,7 +76,7 @@ public class LogTester extends ExternalResource {
 
   /**
    * Enable/disable debug logs. Info, warn and error logs are always enabled.
-   * By default debug logs are enabled when LogTester is started.
+   * By default INFO logs are enabled when LogTester is started.
    */
   public LogTester setLevel(LoggerLevel level) {
     Loggers.getFactory().setLevel(level);

@@ -29,8 +29,6 @@ public class LogTesterTest {
 
   @Test
   public void info_level_by_default() throws Throwable {
-    LoggerLevel initial = underTest.getLevel();
-
     // when LogTester is used, then info logs are enabled by default
     underTest.before();
     assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.INFO);
@@ -43,8 +41,8 @@ public class LogTesterTest {
 
     // reset to initial level after execution of test
     underTest.after();
-    assertThat(underTest.getLevel()).isEqualTo(initial);
-    assertThat(Loggers.getFactory().getLevel()).isEqualTo(initial);
+    assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.INFO);
+    assertThat(Loggers.getFactory().getLevel()).isEqualTo(LoggerLevel.INFO);
   }
 
   @Test
