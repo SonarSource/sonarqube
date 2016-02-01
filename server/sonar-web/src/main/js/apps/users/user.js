@@ -75,14 +75,18 @@ export default Backbone.Model.extend({
     return Backbone.ajax(opts);
   },
 
-  changePassword: function (password, options) {
+  changePassword: function (oldPassword, password, options) {
+    const data = {
+      login: this.id,
+      password: password
+    };
+    if (oldPassword != null) {
+      data.previousPassword = oldPassword;
+    }
     var opts = _.defaults(options || {}, {
       url: this.urlRoot() + '/change_password',
       type: 'POST',
-      data: {
-        login: this.id,
-        password: password
-      }
+      data: data
     });
     return Backbone.ajax(opts);
   }

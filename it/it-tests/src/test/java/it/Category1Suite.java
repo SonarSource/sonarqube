@@ -40,7 +40,7 @@ package it;/*
 import com.sonar.orchestrator.Orchestrator;
 import it.actionPlan.ActionPlanTest;
 import it.actionPlan.ActionPlanUiTest;
-import it.administration.UsersUITest;
+import it.administration.UsersPageTest;
 import it.authorisation.BaseIdentityProviderTest;
 import it.authorisation.ExecuteAnalysisPermissionTest;
 import it.authorisation.IssuePermissionTest;
@@ -76,7 +76,7 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   // administration
-  UsersUITest.class,
+  UsersPageTest.class,
   // project administration
   BulkDeletionTest.class,
   ProjectAdministrationTest.class,

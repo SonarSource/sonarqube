@@ -30,6 +30,7 @@ export default ModalForm.extend({
 
   sendRequest: function () {
     var that = this,
+        oldPassword = this.$('#change-user-password-old-password').val(),
         password = this.$('#change-user-password-password').val(),
         confirmation = this.$('#change-user-password-password-confirmation').val();
     if (password !== confirmation) {
@@ -37,7 +38,7 @@ export default ModalForm.extend({
       return;
     }
     this.disableForm();
-    return this.model.changePassword(password, {
+    return this.model.changePassword(oldPassword, password, {
       statusCode: {
         // do not show global error
         400: null
@@ -47,6 +48,12 @@ export default ModalForm.extend({
     }).fail(function (jqXHR) {
       that.enableForm();
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+    });
+  },
+
+  serializeData: function () {
+    return Object.assign({}, ModalForm.prototype.serializeData.apply(this, arguments), {
+      isOwnPassword: window.SS.user === this.model.id
     });
   }
 });
