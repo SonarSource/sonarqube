@@ -35,16 +35,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>jfree</groupId>
-          <artifactId>jcommon</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>jfree</groupId>
-          <artifactId>jfreechart</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -61,16 +51,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>jfree</groupId>
-          <artifactId>jcommon</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>jfree</groupId>
-          <artifactId>jfreechart</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
