@@ -66,7 +66,7 @@ public class LogTester extends ExternalResource {
 
     // this shared instance breaks compatibility with parallel execution of tests
     LogInterceptors.set(new ListInterceptor());
-    setLevel(LoggerLevel.TRACE);
+    setLevel(LoggerLevel.INFO);
   }
 
   @Override

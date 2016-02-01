@@ -34,17 +34,17 @@ public class DefaultProfilerTest {
 
   @Test
   public void test_levels() throws Exception {
-    // trace by default
-    assertThat(underTest.isDebugEnabled()).isTrue();
-    assertThat(underTest.isTraceEnabled()).isTrue();
+    // info by default
+    assertThat(underTest.isDebugEnabled()).isFalse();
+    assertThat(underTest.isTraceEnabled()).isFalse();
 
     tester.setLevel(LoggerLevel.DEBUG);
     assertThat(underTest.isDebugEnabled()).isTrue();
     assertThat(underTest.isTraceEnabled()).isFalse();
 
-    tester.setLevel(LoggerLevel.INFO);
-    assertThat(underTest.isDebugEnabled()).isFalse();
-    assertThat(underTest.isTraceEnabled()).isFalse();
+    tester.setLevel(LoggerLevel.TRACE);
+    assertThat(underTest.isDebugEnabled()).isTrue();
+    assertThat(underTest.isTraceEnabled()).isTrue();
   }
 
   @Test

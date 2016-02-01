@@ -28,18 +28,18 @@ public class LogTesterTest {
   LogTester underTest = new LogTester();
 
   @Test
-  public void debugLevel() throws Throwable {
+  public void info_level_by_default() throws Throwable {
     LoggerLevel initial = underTest.getLevel();
 
-    // when LogTester is used, then debug logs are enabled by default
+    // when LogTester is used, then info logs are enabled by default
     underTest.before();
-    assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.TRACE);
-    assertThat(Loggers.getFactory().getLevel()).isEqualTo(LoggerLevel.TRACE);
-
-    // change
-    underTest.setLevel(LoggerLevel.INFO);
     assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.INFO);
     assertThat(Loggers.getFactory().getLevel()).isEqualTo(LoggerLevel.INFO);
+
+    // change
+    underTest.setLevel(LoggerLevel.DEBUG);
+    assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.DEBUG);
+    assertThat(Loggers.getFactory().getLevel()).isEqualTo(LoggerLevel.DEBUG);
 
     // reset to initial level after execution of test
     underTest.after();
