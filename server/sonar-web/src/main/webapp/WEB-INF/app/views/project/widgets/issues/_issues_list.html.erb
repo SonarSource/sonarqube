@@ -56,7 +56,7 @@
             <%= h truncate(issue.message, :length => 100) -%></a>
           <% if last_comment && last_comment.userLogin() %>
             <div class="comment-excerpt">
-              <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
+              <img src="/images/reviews/comment.png"/>
               <% commentAuthor = users_by_login[last_comment.userLogin()] %>
               &nbsp;<b><%= h( commentAuthor.nil? ? last_comment.userLogin() : commentAuthor.name() ) -%> :</b>
               <%= Internal.text.markdownToHtml(last_comment.markdownText) -%>

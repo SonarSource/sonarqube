@@ -24,7 +24,8 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
-import com.sonar.orchestrator.build.SonarRunnerInstaller;
+import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.build.SonarScannerInstaller;
 import com.sonar.orchestrator.config.FileSystem;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.version.Version;
@@ -405,7 +406,7 @@ public class IssuesModeTest {
   private void runConcurrentIssues() throws Exception {
     // Install sonar-runner in advance to avoid concurrent unzip issues
     FileSystem fileSystem = orchestrator.getConfiguration().fileSystem();
-    new SonarRunnerInstaller(fileSystem).install(Version.create(SonarRunner.DEFAULT_RUNNER_VERSION), fileSystem.workspace());
+    new SonarScannerInstaller(fileSystem).install(Version.create(SonarScanner.DEFAULT_RUNNER_VERSION), fileSystem.workspace());
     final int nThreads = 3;
     ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
     List<Callable<BuildResult>> tasks = new ArrayList<>();
@@ -414,7 +415,7 @@ public class IssuesModeTest {
       tasks.add(new Callable<BuildResult>() {
 
         public BuildResult call() throws Exception {
-          SonarRunner runner = configureRunnerIssues("shared/xoo-sample", homeDir, "sonar.it.enableWaitingSensor", "true");
+          SonarScanner runner = configureRunnerIssues("shared/xoo-sample", homeDir, "sonar.it.enableWaitingSensor", "true");
           return orchestrator.executeBuild(runner);
         }
       });
@@ -447,18 +448,18 @@ public class IssuesModeTest {
     return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(key, "lines"));
   }
 
-  private SonarRunner configureRunnerIssues(String projectDir, @Nullable File homeDir, String... props) throws IOException {
-    SonarRunner runner = SonarRunner.create(ItUtils.projectDir(projectDir),
+  private SonarScanner configureRunnerIssues(String projectDir, @Nullable File homeDir, String... props) throws IOException {
+    SonarScanner scanner = SonarScanner.create(ItUtils.projectDir(projectDir),
       "sonar.working.directory", temp.newFolder().getAbsolutePath(),
       "sonar.analysis.mode", "issues",
       "sonar.report.export.path", "sonar-report.json");
     if (homeDir != null) {
-      runner.setProperty("sonar.userHome", homeDir.getAbsolutePath());
+      scanner.setProperty("sonar.userHome", homeDir.getAbsolutePath());
     } else {
-      runner.setProperty("sonar.userHome", temp.newFolder().getAbsolutePath());
+      scanner.setProperty("sonar.userHome", temp.newFolder().getAbsolutePath());
     }
-    runner.setProperties(props);
-    return runner;
+    scanner.setProperties(props);
+    return scanner;
   }
 
   private SonarRunner configureRunner(String projectDir, String... props) throws IOException {

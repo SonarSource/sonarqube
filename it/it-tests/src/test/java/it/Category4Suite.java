@@ -70,7 +70,6 @@ public class Category4Suite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setContext("/")
     .addPlugin(xooPlugin())
     .build();
 }

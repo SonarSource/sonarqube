@@ -55,7 +55,6 @@ public final class ServerImpl extends Server implements Startable {
   private String id;
   private String version;
   private String implementationBuild;
-  private String contextPath;
   private File sonarHome;
   private File deployDir;
 
@@ -78,9 +77,6 @@ public final class ServerImpl extends Server implements Startable {
 
       version = readVersion(versionPath);
       implementationBuild = read(buildProperties).getProperty("Implementation-Build");
-      contextPath = StringUtils.defaultIfBlank(settings.getString("sonar.web.context"), "")
-        // Remove trailing slashes
-        .replaceFirst("(\\/+)$", "");
 
       sonarHome = new File(settings.getString(ProcessProperties.PATH_HOME));
       if (!sonarHome.isDirectory()) {
@@ -138,7 +134,7 @@ public final class ServerImpl extends Server implements Startable {
 
   @Override
   public String getContextPath() {
-    return contextPath;
+    return "";
   }
 
   @Override

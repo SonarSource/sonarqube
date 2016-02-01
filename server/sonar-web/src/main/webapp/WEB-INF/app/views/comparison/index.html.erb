@@ -69,7 +69,7 @@
     <header class="page-header">
       <h1 class="page-title"><%= h message('comparison.page') -%></h1>
     </header>
-    <form method="GET" id="compare-form" action="<%= ApplicationController.root_context -%>/comparison/index">
+    <form method="GET" id="compare-form" action="/comparison/index">
       <input type="hidden" name="sids" id="sids" value="<%= @snapshots.map { |s| s.id.to_s }.join(',') -%>">
       <input type="hidden" name="metrics" id="metrics" value="<%= @metrics.map { |m| m.key }.join(',') -%>">
 
@@ -112,7 +112,7 @@
                   $j('#version_loading').show();
                   $j.ajax({
                     type:'GET',
-                    url:'<%= ApplicationController.root_context -%>/comparison/versions?resource='
+                    url:'/comparison/versions?resource='
                       + id + '&sids='
                       + $j('#sids').val(),
                     success:function (data) {
@@ -169,7 +169,7 @@
                     <% if index > 0 %>
                       <a class="icon-move-left" href="#" onclick="moveLeft(<%= index -%>)" id="left-<%= index -%>"></a>
                     <% else %>
-                      <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
+                      <img src="/images/transparent_16.gif"/>
                     <% end %>
                   </td>
                   <td style="text-align: center; min-width: 100px">
@@ -181,7 +181,7 @@
                     <% if index < last_index %>
                       <a class="icon-move-right" href="#" onclick="moveRight(<%= index -%>)" id="right-<%= index -%>"></a>
                     <% else %>
-                      <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
+                      <img src="/images/transparent_16.gif"/>
                     <% end %>
                   </td>
                 </tr>
@@ -199,7 +199,7 @@
             %>
               <th style="text-align: center; vertical-align: top; line-height: 1.5;">
                 <span class="no-transform">
-                  <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= h s.resource.name(true) -%></a>
+                  <a href="/dashboard/index/<%= s.resource.key -%>"><%= h s.resource.name(true) -%></a>
                   <br/>
                   <span class="note"><b><%= event ? event.name : message('comparison.version.latest') -%></b></span>
                   <br/>

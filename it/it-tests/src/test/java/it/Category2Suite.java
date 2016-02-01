@@ -105,8 +105,6 @@ public class Category2Suite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setContext("/")
-
     .addPlugin(xooPlugin())
 
     // issue
