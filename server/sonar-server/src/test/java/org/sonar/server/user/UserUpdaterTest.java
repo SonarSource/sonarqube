@@ -258,6 +258,20 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void fail_to_create_user_with_space_in_login() {
+    try {
+      userUpdater.create(NewUser.create()
+        .setLogin("mari us")
+        .setName("Marius")
+        .setEmail("marius@mail.com")
+        .setPassword("password"));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.bad_login"));
+    }
+  }
+
+  @Test
   public void fail_to_create_user_with_too_short_login() {
     try {
       userUpdater.create(NewUser.create()
