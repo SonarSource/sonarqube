@@ -22,6 +22,7 @@ import React from 'react';
 import Favorites from './Favorites';
 import FavoriteIssueFilters from './FavoriteIssueFilters';
 import FavoriteMeasureFilters from './FavoriteMeasureFilters';
+import IssueWidgets from './IssueWidgets';
 import { translate } from '../../../helpers/l10n';
 
 const Home = ({ user, favorites, issueFilters, measureFilters }) => (
@@ -34,10 +35,7 @@ const Home = ({ user, favorites, issueFilters, measureFilters }) => (
         </div>
 
         <div className="column-third">
-          <section>
-            <h2 className="spacer-bottom">{translate('issues.page')}</h2>
-            <p>Some cool issue widgets go here...</p>
-          </section>
+          <IssueWidgets/>
         </div>
 
         <div className="column-third">

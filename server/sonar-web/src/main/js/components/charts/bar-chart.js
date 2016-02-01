@@ -30,7 +30,8 @@ export const BarChart = React.createClass({
     xValues: React.PropTypes.arrayOf(React.PropTypes.any),
     height: React.PropTypes.number,
     padding: React.PropTypes.arrayOf(React.PropTypes.number),
-    barsWidth: React.PropTypes.number
+    barsWidth: React.PropTypes.number,
+    onBarClick: React.PropTypes.func
   },
 
   mixins: [ResizeMixin, TooltipsMixin],
@@ -46,6 +47,10 @@ export const BarChart = React.createClass({
 
   getInitialState () {
     return { width: this.props.width, height: this.props.height };
+  },
+
+  handleClick(point) {
+    this.props.onBarClick(point);
   },
 
   renderXTicks (xScale, yScale) {
@@ -67,6 +72,8 @@ export const BarChart = React.createClass({
                    x={x}
                    y={y}
                    dy="1.5em"
+                   onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
                    {...tooltipAtts}>{tick}</text>;
     });
     return <g>{ticks}</g>;
@@ -91,6 +98,8 @@ export const BarChart = React.createClass({
                    x={x}
                    y={y}
                    dy="-1em"
+                   onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
+                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
                    {...tooltipAtts}>{value}</text>;
     });
     return <g>{ticks}</g>;
@@ -113,7 +122,9 @@ export const BarChart = React.createClass({
                    x={x}
                    y={y}
                    width={this.props.barsWidth}
-                   height={height}/>;
+                   height={height}
+                   onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
+                   style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}/>;
     });
     return <g>{bars}</g>;
   },

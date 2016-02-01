@@ -27,3 +27,21 @@
 .account-page {
   padding-top: 102px;
 }
+
+.account-bar-chart .bar-chart-bar {
+  fill: #4b9fd5;
+}
+
+.account-bar-chart .bar-chart-tick {
+  fill: #777;
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.account-bar-chart .histogram-tick {
+  text-anchor: end;
+}
+
+.account-bar-chart .histogram-value {
+  text-anchor: start;
+}
