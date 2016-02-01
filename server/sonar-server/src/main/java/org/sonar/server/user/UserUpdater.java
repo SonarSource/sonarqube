@@ -277,7 +277,7 @@ public class UserUpdater {
         messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, LOGIN_MIN_LENGTH));
       } else if (login.length() > LOGIN_MAX_LENGTH) {
         messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, LOGIN_MAX_LENGTH));
-      } else if (!login.matches("\\A\\w[\\w\\.\\-_@\\s]+\\z")) {
+      } else if (!login.matches("\\A\\w[\\w\\.\\-_@]+\\z")) {
         messages.add(Message.of("user.bad_login"));
       }
     }

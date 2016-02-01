@@ -59,6 +59,10 @@ public class UserDto {
     return this;
   }
 
+  /**
+   * Spaces were authorized before SQ 5.4.
+   * For versions 5.4+ it's not possible to create a login with a space character.
+   */
   public String getLogin() {
     return login;
   }
