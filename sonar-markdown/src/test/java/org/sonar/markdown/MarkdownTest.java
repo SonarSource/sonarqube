@@ -101,14 +101,14 @@ public class MarkdownTest {
 
   @Test
   public void shouldEmphaseText() {
-    assertThat(Markdown.convertToHtml("This is *important*")).isEqualTo("This is <em>important</em>");
+    assertThat(Markdown.convertToHtml("This is *important*")).isEqualTo("This is <strong>important</strong>");
     assertThat(Markdown.convertToHtml("This should not be * \n emphase")).isEqualTo("This should not be * <br/> emphase");
-    assertThat(Markdown.convertToHtml("This is *very* very *important*")).isEqualTo("This is <em>very</em> very <em>important</em>");
+    assertThat(Markdown.convertToHtml("This is *very* very *important*")).isEqualTo("This is <strong>very</strong> very <strong>important</strong>");
     assertThat(Markdown.convertToHtml("Not * emphase * because of whitespaces")).isEqualTo("Not * emphase * because of whitespaces");
     assertThat(Markdown.convertToHtml("Not *emphase * because of whitespace")).isEqualTo("Not *emphase * because of whitespace");
     assertThat(Markdown.convertToHtml("Not * emphase* because of whitespace")).isEqualTo("Not * emphase* because of whitespace");
-    assertThat(Markdown.convertToHtml("emphase*inside*word")).isEqualTo("emphase<em>inside</em>word");
-    assertThat(Markdown.convertToHtml("*Emphase many words*")).isEqualTo("<em>Emphase many words</em>");
+    assertThat(Markdown.convertToHtml("emphase*inside*word")).isEqualTo("emphase<strong>inside</strong>word");
+    assertThat(Markdown.convertToHtml("*Emphase many words*")).isEqualTo("<strong>Emphase many words</strong>");
   }
 
   @Test

@@ -34,8 +34,8 @@ class HtmlEmphasisChannel extends RegexChannel<MarkdownOutput> {
 
   @Override
   protected void consume(CharSequence token, MarkdownOutput output) {
-    output.append("<em>");
+    output.append("<strong>");
     output.append(token.subSequence(1, token.length() - 1));
-    output.append("</em>");
+    output.append("</strong>");
   }
 }
