@@ -160,9 +160,9 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_METRIC_KEYS, "ncloc,coverage")
       .setParam(PARAM_ADDITIONAL_FIELDS, ADDITIONAL_PERIODS));
 
-    assertThat(response.getComponentsList().get(0).getMeasures().getMeasuresList()).extracting("metric").containsOnly("coverage");
+    assertThat(response.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
     // file measures
-    List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasures().getMeasuresList();
+    List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasuresList();
     assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage");
     assertThat(fileMeasures).extracting("value").containsOnly("5", "15.5");
     assertThat(response.getPeriods().getPeriodsList()).extracting("mode").containsOnly("last_version", "last_analysis");
@@ -199,9 +199,9 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_ADDITIONAL_FIELDS, "metrics"));
 
     // directory measures
-    assertThat(response.getComponentsList().get(0).getMeasures().getMeasuresList()).extracting("metric").containsOnly("coverage");
+    assertThat(response.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
     // file measures
-    List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasures().getMeasuresList();
+    List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasuresList();
     assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage", "new_violations");
     assertThat(fileMeasures).extracting("value").containsOnly("100", "15.5", "");
 

@@ -43,7 +43,7 @@ class ComponentDtoToWsComponent {
     }
 
     for (Map.Entry<MetricDto, MeasureDto> entry : measuresByMetric.entrySet()) {
-      wsComponent.getMeasuresBuilder().addMeasures(measureDtoToWsMeasure(entry.getKey(), entry.getValue()));
+      wsComponent.addMeasures(measureDtoToWsMeasure(entry.getKey(), entry.getValue()));
     }
 
     return wsComponent;

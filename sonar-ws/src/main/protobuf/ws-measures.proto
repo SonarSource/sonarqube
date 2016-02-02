@@ -53,7 +53,7 @@ message Component {
   optional string qualifier = 8;
   optional string path = 9;
   optional string language = 10;
-  optional Measures measures = 11;
+  repeated Measure measures = 11;
 }
 
 message Period {
@@ -69,10 +69,6 @@ message Periods {
 
 message Metrics {
   repeated sonarqube.ws.commons.Metric metrics = 1;
-}
-
-message Measures {
-  repeated Measure measures = 1;
 }
 
 message Measure {

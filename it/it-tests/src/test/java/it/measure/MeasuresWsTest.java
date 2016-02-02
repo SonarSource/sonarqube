@@ -80,7 +80,7 @@ public class MeasuresWsTest {
     assertThat(response.getMetrics().getMetricsList()).extracting("key").containsOnly("ncloc");
     List<WsMeasures.Component> components = response.getComponentsList();
     assertThat(components).hasSize(2).extracting("key").containsOnly("sample:src/main/xoo/sample", FILE_KEY);
-    assertThat(components.get(0).getMeasures().getMeasuresList().get(0).getValue()).isEqualTo("13");
+    assertThat(components.get(0).getMeasuresList().get(0).getValue()).isEqualTo("13");
   }
 
   @Test
@@ -92,7 +92,7 @@ public class MeasuresWsTest {
 
     WsMeasures.Component component = response.getComponent();
     assertThat(component.getKey()).isEqualTo("sample");
-    assertThat(component.getMeasures().getMeasuresList()).isNotEmpty();
+    assertThat(component.getMeasuresList()).isNotEmpty();
     assertThat(response.getMetrics().getMetricsList()).extracting("key").containsOnly("ncloc");
 
   }
