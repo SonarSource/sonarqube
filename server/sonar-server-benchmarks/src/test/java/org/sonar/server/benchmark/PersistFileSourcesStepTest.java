@@ -105,7 +105,7 @@ public class PersistFileSourcesStepTest {
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(NUMBER_OF_FILES);
     LOGGER.info(String.format("File sources have been persisted in %d ms", duration));
 
-    benchmark.expectAround("Duration to persist FILE_SOURCES", duration, 93700, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
+    benchmark.expectAround("Duration to persist FILE_SOURCES", duration, 40000L, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
   }
 
   private File prepareReport() throws IOException {
