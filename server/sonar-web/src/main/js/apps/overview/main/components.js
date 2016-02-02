@@ -34,8 +34,7 @@ export const Domain = React.createClass({
 export const DomainTitle = React.createClass({
   render () {
     if (this.props.linkTo) {
-      let url = window.baseUrl + '/overview' + this.props.linkTo +
-          '?id=' + encodeURIComponent(this.props.component.key);
+      let url = '/overview' + this.props.linkTo + '?id=' + encodeURIComponent(this.props.component.key);
       return <div>
         <div className="overview-title">
           {this.props.children}

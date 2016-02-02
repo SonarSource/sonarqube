@@ -21,7 +21,7 @@ import { getJSON } from '../helpers/request.js';
 
 
 export function getMeasures (componentKey, metrics) {
-  const url = baseUrl + '/api/measures/component';
+  const url = '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(',') };
   return getJSON(url, data).then(r => r.component.measures);
 }

@@ -42,7 +42,7 @@ export default Marionette.ItemView.extend({
       title: translate('delete'),
       html: translate('are_you_sure'),
       yesHandler: function () {
-        var url = baseUrl + '/api/rules/delete',
+        var url = '/api/rules/delete',
             options = { key: that.model.id };
         $.post(url, options).done(function () {
           that.model.collection.remove(that.model);
@@ -56,7 +56,7 @@ export default Marionette.ItemView.extend({
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canWrite: this.options.app.canWrite,
       templateRule: this.options.templateRule,
-      permalink: baseUrl + '/coding_rules/#rule_key=' + encodeURIComponent(this.model.id)
+      permalink: '/coding_rules/#rule_key=' + encodeURIComponent(this.model.id)
     });
   }
 });

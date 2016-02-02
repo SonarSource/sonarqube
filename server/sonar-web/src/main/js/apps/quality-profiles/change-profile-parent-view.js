@@ -42,7 +42,7 @@ export default ModalFormView.extend({
 
   sendRequest: function () {
     var that = this,
-        url = baseUrl + '/api/qualityprofiles/change_parent',
+        url = '/api/qualityprofiles/change_parent',
         parent = this.$('#change-profile-parent').val(),
         options = {
           profileKey: this.model.get('key'),

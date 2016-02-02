@@ -40,7 +40,7 @@ export default React.createClass({
   },
 
   requestUsers() {
-    const url = `${window.baseUrl}/api/permissions/users`;
+    const url = `/api/permissions/users`;
     let data = { permission: this.props.permission.key, ps: MAX_ITEMS };
     if (this.props.project) {
       data.projectId = this.props.project;
@@ -49,7 +49,7 @@ export default React.createClass({
   },
 
   requestGroups() {
-    const url = `${window.baseUrl}/api/permissions/groups`;
+    const url = `/api/permissions/groups`;
     let data = { permission: this.props.permission.key, ps: MAX_ITEMS };
     if (this.props.project) {
       data.projectId = this.props.project;

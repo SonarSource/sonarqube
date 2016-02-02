@@ -36,7 +36,7 @@ export default Marionette.ItemView.extend({
 
   requestIssues: function () {
     var that = this,
-        url = baseUrl + '/api/issues/search',
+        url = '/api/issues/search',
         options = {
           rules: this.model.id,
           resolved: false,
@@ -61,7 +61,7 @@ export default Marionette.ItemView.extend({
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       total: this.total,
       projects: this.projects,
-      baseSearchUrl: baseUrl + '/issues/search#resolved=false|rules=' + encodeURIComponent(this.model.id)
+      baseSearchUrl: '/issues/search#resolved=false|rules=' + encodeURIComponent(this.model.id)
     });
   }
 });

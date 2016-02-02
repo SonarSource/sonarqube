@@ -33,7 +33,7 @@ export default ModalFormView.extend({
 
   sendRequest: function () {
     var that = this,
-        url = baseUrl + '/api/qualityprofiles/copy',
+        url = '/api/qualityprofiles/copy',
         name = this.$('#copy-profile-name').val(),
         options = {
           fromKey: this.model.get('key'),

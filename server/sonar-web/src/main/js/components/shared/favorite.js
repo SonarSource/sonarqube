@@ -40,13 +40,13 @@ export default React.createClass({
   },
 
   addFavorite() {
-    const url = `${window.baseUrl}/api/favourites`;
+    const url = `/api/favourites`;
     const data = { key: this.props.component };
     $.ajax({ type: 'POST', url, data }).done(() => this.setState({ favorite: true }));
   },
 
   removeFavorite() {
-    const url = `${window.baseUrl}/api/favourites/${encodeURIComponent(this.props.component)}`;
+    const url = `/api/favourites/${encodeURIComponent(this.props.component)}`;
     $.ajax({ type: 'DELETE', url }).done(() => this.setState({ favorite: false }));
   },
 

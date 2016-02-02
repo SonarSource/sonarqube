@@ -32,7 +32,7 @@ export default React.createClass({
           </a>
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
-              <a href={`${window.baseUrl}/account/`}>{translate('my_account.page')}</a>
+              <a href={`/account/`}>{translate('my_account.page')}</a>
             </li>
             <li>
               <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>
@@ -53,13 +53,13 @@ export default React.createClass({
   handleLogin(e) {
     e.preventDefault();
     const returnTo = window.location.pathname + window.location.search;
-    window.location = `${window.baseUrl}/sessions/new?return_to=${encodeURIComponent(returnTo)}${window.location.hash}`;
+    window.location = `/sessions/new?return_to=${encodeURIComponent(returnTo)}${window.location.hash}`;
   },
 
   handleLogout(e) {
     e.preventDefault();
     RecentHistory.clear();
-    window.location = `${window.baseUrl}/sessions/logout`;
+    window.location = `/sessions/logout`;
   },
 
   render() {

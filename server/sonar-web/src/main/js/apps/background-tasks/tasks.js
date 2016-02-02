@@ -137,7 +137,7 @@ export default React.createClass({
 
   renderLogsLink(task) {
     if (task.logs) {
-      let url = `${window.baseUrl}/api/ce/logs?taskId=${task.id}`;
+      let url = `/api/ce/logs?taskId=${task.id}`;
       return <a target="_blank" href={url}>{translate('background_tasks.logs')}</a>;
     } else {
       return null;

@@ -23,7 +23,7 @@ import '../../components/SelectList';
 import Template from './templates/project-permissions-groups.hbs';
 
 function getSearchUrl (permission, project) {
-  return baseUrl + '/api/permissions/groups?ps=100&permission=' + permission + '&projectId=' + project;
+  return '/api/permissions/groups?ps=100&permission=' + permission + '&projectId=' + project;
 }
 
 export default Modal.extend({
@@ -41,8 +41,8 @@ export default Modal.extend({
       },
       queryParam: 'q',
       searchUrl: getSearchUrl(this.options.permission, this.options.project),
-      selectUrl: baseUrl + '/api/permissions/add_group',
-      deselectUrl: baseUrl + '/api/permissions/remove_group',
+      selectUrl: '/api/permissions/add_group',
+      deselectUrl: '/api/permissions/remove_group',
       extra: {
         permission: this.options.permission,
         projectId: this.options.project

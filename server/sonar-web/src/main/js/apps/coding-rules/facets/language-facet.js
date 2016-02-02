@@ -23,7 +23,7 @@ import CustomValuesFacet from './custom-values-facet';
 export default CustomValuesFacet.extend({
 
   getUrl: function () {
-    return baseUrl + '/api/languages/list';
+    return '/api/languages/list';
   },
 
   prepareAjaxSearch: function () {

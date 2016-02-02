@@ -23,7 +23,7 @@
  * @returns {string}
  */
 export function getComponentUrl (componentKey) {
-  return window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
+  return '/dashboard?id=' + encodeURIComponent(componentKey);
 }
 
 
@@ -37,7 +37,7 @@ export function getComponentIssuesUrl (componentKey, query) {
   let serializedQuery = Object.keys(query).map(criterion => {
     return `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`;
   }).join('|');
-  return window.baseUrl + '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
+  return '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
 }
 
 
@@ -50,7 +50,7 @@ export function getComponentIssuesUrl (componentKey, query) {
  * @returns {string}
  */
 export function getComponentDrilldownUrl (componentKey, metric, period, highlightedMetric) {
-  let url = window.baseUrl + '/drilldown/measures?id=' + encodeURIComponent(componentKey) +
+  let url = '/drilldown/measures?id=' + encodeURIComponent(componentKey) +
       '&metric=' + encodeURIComponent(metric);
   if (period) {
     url += '&period=' + period;
@@ -70,7 +70,7 @@ export function getComponentDrilldownUrl (componentKey, metric, period, highligh
  * @returns {string}
  */
 export function getComponentDashboardUrl (componentKey, dashboardKey, period) {
-  let url = window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey) +
+  let url = '/dashboard?id=' + encodeURIComponent(componentKey) +
       '&did=' + encodeURIComponent(dashboardKey);
   if (period) {
     url += '&period=' + period;
@@ -86,7 +86,7 @@ export function getComponentDashboardUrl (componentKey, dashboardKey, period) {
  * @returns {string}
  */
 export function getComponentFixedDashboardUrl (componentKey, dashboardKey) {
-  return window.baseUrl + '/overview' + dashboardKey + '?id=' + encodeURIComponent(componentKey);
+  return '/overview' + dashboardKey + '?id=' + encodeURIComponent(componentKey);
 }
 
 
@@ -96,5 +96,5 @@ export function getComponentFixedDashboardUrl (componentKey, dashboardKey) {
  * @returns {string}
  */
 export function getComponentDashboardManagementUrl (componentKey) {
-  return window.baseUrl + '/dashboards?resource=' + encodeURIComponent(componentKey);
+  return '/dashboards?resource=' + encodeURIComponent(componentKey);
 }

@@ -27,7 +27,7 @@ import { getJSON } from '../helpers/request.js';
  * @returns {Promise}
  */
 export function getEvents (componentKey, categories) {
-  const url = baseUrl + '/api/events';
+  const url = '/api/events';
   const data = { resource: componentKey };
   if (categories) {
     data.categories = categories;

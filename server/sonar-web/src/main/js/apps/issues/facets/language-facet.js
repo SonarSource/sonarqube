@@ -23,7 +23,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
   getUrl: function () {
-    return baseUrl + '/api/languages/list';
+    return '/api/languages/list';
   },
 
   prepareSearch: function () {

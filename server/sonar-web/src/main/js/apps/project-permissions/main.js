@@ -60,7 +60,7 @@ export default React.createClass({
   },
 
   requestPermissions(page = 1, query = '', filter = this.state.filter) {
-    let url = `${window.baseUrl}/api/permissions/search_project_permissions`;
+    let url = `/api/permissions/search_project_permissions`;
     let data = { p: page, q: query };
     if (filter !== '__ALL__') {
       data.qualifier = filter;

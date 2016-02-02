@@ -41,7 +41,7 @@ const FavoriteMeasureFilters = ({ measureFilters }) => (
                   <i className="icon-favorite"/>
                 </td>
                 <td>
-                  <a href={`${window.baseUrl}/measures/filter/${f.id}`}>
+                  <a href={`/measures/filter/${f.id}`}>
                     {f.name}
                   </a>
                 </td>

@@ -41,7 +41,7 @@ const FavoriteIssueFilters = ({ issueFilters }) => (
                   <i className="icon-favorite"/>
                 </td>
                 <td>
-                  <a href={`${window.baseUrl}/issues/search#id=${f.id}`}>
+                  <a href={`/issues/search#id=${f.id}`}>
                     {f.name}
                   </a>
                 </td>

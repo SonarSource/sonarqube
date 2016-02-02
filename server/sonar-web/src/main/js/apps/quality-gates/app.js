@@ -64,7 +64,7 @@ var init = function () {
   });
 };
 
-var appXHR = $.get(baseUrl + '/api/qualitygates/app')
+var appXHR = $.get('/api/qualitygates/app')
     .done(function (r) {
       App.canEdit = r.edit;
       App.periods = r.periods;

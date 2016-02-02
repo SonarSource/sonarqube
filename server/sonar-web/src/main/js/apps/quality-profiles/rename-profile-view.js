@@ -31,7 +31,7 @@ export default ModalFormView.extend({
 
   sendRequest: function () {
     var that = this,
-        url = baseUrl + '/api/qualityprofiles/rename',
+        url = '/api/qualityprofiles/rename',
         name = this.$('#rename-profile-name').val(),
         options = {
           key: this.model.get('key'),

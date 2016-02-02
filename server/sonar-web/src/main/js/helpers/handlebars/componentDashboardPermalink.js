@@ -35,5 +35,5 @@ module.exports = function (componentKey, dashboardKey) {
   var query = params.map(function (p) {
     return p.key + '=' + encodeURIComponent(p.value);
   }).join('&');
-  return baseUrl + '/dashboard/index?' + query;
+  return '/dashboard/index?' + query;
 };

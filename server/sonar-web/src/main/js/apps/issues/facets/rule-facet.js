@@ -23,7 +23,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
   prepareSearch: function () {
-    var url = baseUrl + '/api/rules/search?f=name,langName',
+    var url = '/api/rules/search?f=name,langName',
         languages = this.options.app.state.get('query').languages;
     if (languages != null) {
       url += '&languages=' + languages;
