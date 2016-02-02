@@ -1,20 +1,22 @@
 <h1 class="maintenance-title text-center">Log In to SonarQube</h1>
 
-<section class="oauth-providers">
-  <% auth_providers = Api::Utils.java_facade.getIdentityProviders().to_a %>
-  <ul>
-    <% auth_providers.each do |provider| %>
-      <li>
-        <a href="<%= ApplicationController.root_context -%>/sessions/init/<%= provider.getKey().to_s %>"
-           title="Log in with <%= provider.getName().to_s -%>">
-          <img alt="<%= provider.getName().to_s -%>" width="20" height="20"
-               src="<%= ApplicationController.root_context + provider.getIconPath().to_s -%>">
-          <span>Log in with <%= provider.getName().to_s -%></span>
-        </a>
-      </li>
-    <% end %>
-  </ul>
-</section>
+<% auth_providers = Api::Utils.java_facade.getIdentityProviders().to_a %>
+<% if auth_providers.size > 0 %>
+  <section class="oauth-providers">
+    <ul>
+      <% auth_providers.each do |provider| %>
+        <li>
+          <a href="<%= ApplicationController.root_context -%>/sessions/init/<%= provider.getKey().to_s %>"
+             title="Log in with <%= provider.getName().to_s -%>">
+            <img alt="<%= provider.getName().to_s -%>" width="20" height="20"
+                 src="<%= ApplicationController.root_context + provider.getIconPath().to_s -%>">
+            <span>Log in with <%= provider.getName().to_s -%></span>
+          </a>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
 
 <form id="login_form" action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
   <input type="hidden" name="return_to_anchor" value="<%= h @return_to_anchor %>">
