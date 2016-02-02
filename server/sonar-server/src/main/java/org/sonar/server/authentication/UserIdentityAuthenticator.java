@@ -56,7 +56,8 @@ public class UserIdentityAuthenticator {
         userUpdater.update(dbSession, UpdateUser.create(userDto.getLogin())
           .setEmail(user.getEmail())
           .setName(user.getName())
-          .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin())));
+          .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin()))
+          .setPassword(null));
         return userDto.getId();
       }
 

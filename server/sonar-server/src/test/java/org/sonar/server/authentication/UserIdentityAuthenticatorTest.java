@@ -109,6 +109,8 @@ public class UserIdentityAuthenticatorTest {
     assertThat(updateUser.email()).isEqualTo("john@email.com");
     assertThat(updateUser.externalIdentity().getProvider()).isEqualTo("github");
     assertThat(updateUser.externalIdentity().getId()).isEqualTo("johndoo");
+    assertThat(updateUser.isPasswordChanged()).isTrue();
+    assertThat(updateUser.password()).isNull();
   }
 
   @Test

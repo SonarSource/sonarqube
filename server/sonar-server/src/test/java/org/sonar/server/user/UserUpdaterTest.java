@@ -804,6 +804,21 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void update_password_with_null_value() {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create(DEFAULT_LOGIN)
+      .setPassword(null));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.getSalt()).isNull();
+    assertThat(dto.getCryptedPassword()).isNull();
+  }
+
+  @Test
   public void fail_to_update_password_when_external_auth_is_used() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();

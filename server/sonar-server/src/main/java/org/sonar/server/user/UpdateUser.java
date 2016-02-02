@@ -97,17 +97,6 @@ public class UpdateUser {
   }
 
   @CheckForNull
-  public String passwordConfirmation() {
-    return passwordConfirmation;
-  }
-
-  public UpdateUser setPasswordConfirmation(@Nullable String passwordConfirmation) {
-    this.passwordConfirmation = passwordConfirmation;
-    passwordChanged = true;
-    return this;
-  }
-
-  @CheckForNull
   public ExternalIdentity externalIdentity() {
     return externalIdentity;
   }

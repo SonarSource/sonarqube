@@ -232,9 +232,14 @@ public class UserUpdater {
 
     String password = updateUser.password();
     if (updateUser.isPasswordChanged()) {
-      checkPasswordChangeAllowed(updateUser.login(), messages);
       validatePasswords(password, messages);
-      setEncryptedPassWord(password, userDto);
+      checkPasswordChangeAllowed(updateUser.login(), messages);
+      if (Strings.isNullOrEmpty(password)) {
+        userDto.setSalt(null);
+        userDto.setCryptedPassword(null);
+      } else {
+        setEncryptedPassWord(password, userDto);
+      }
     }
 
     if (updateUser.isScmAccountsChanged()) {
@@ -304,7 +309,9 @@ public class UserUpdater {
   }
 
   private static void validatePasswords(@Nullable String password, List<Message> messages) {
-    checkNotEmptyParam(password, PASSWORD_PARAM, messages);
+    if (password != null && password.length() == 0) {
+      messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, PASSWORD_PARAM));
+    }
   }
 
   private void validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
