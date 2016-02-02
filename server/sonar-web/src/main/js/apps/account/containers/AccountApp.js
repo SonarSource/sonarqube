@@ -47,9 +47,10 @@ class AccountApp extends Component {
     }
 
     const { favorites } = window.sonarqube.user;
+    const measureFilters = window.sonarqube.user.favoriteMeasureFilters;
     const { issueFilters } = this.state;
     const children = cloneElement(this.props.children, {
-      measureFilters: user.favoriteMeasureFilters,
+      measureFilters,
       user,
       favorites,
       issueFilters
