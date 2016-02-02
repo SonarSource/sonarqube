@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -134,13 +135,27 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   }
 
   @Test
-  public void execute_fails_with_ISE_when_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
-    reportReader.setMetadata(
-        BatchReport.Metadata.newBuilder()
-            .setProjectKey("some other key")
-            .build());
+  public void execute_fails_with_MessageException_if_projectKey_is_null_in_CE_task() {
+    CeTask res = mock(CeTask.class);
+    when(res.getComponentUuid()).thenReturn("prj_uuid");
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
 
-    expectedException.expect(IllegalStateException.class);
+    ComputationStep underTest = new LoadReportAnalysisMetadataHolderStep(res, reportReader, analysisMetadataHolder);
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Compute Engine task component key is null. Project with UUID prj_uuid must have been deleted since report was uploaded. Can not proceed.");
+
+    underTest.execute();
+  }
+
+  @Test
+  public void execute_fails_with_MessageException_when_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
+    reportReader.setMetadata(
+      BatchReport.Metadata.newBuilder()
+        .setProjectKey("some other key")
+        .build());
+
+    expectedException.expect(MessageException.class);
     expectedException.expectMessage("ProjectKey in report (some other key) is not consistent with projectKey under which the report as been submitted (" + PROJECT_KEY + ")");
 
     underTest.execute();

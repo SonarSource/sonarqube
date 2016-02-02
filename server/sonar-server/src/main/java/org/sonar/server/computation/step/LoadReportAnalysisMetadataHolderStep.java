@@ -19,12 +19,13 @@
  */
 package org.sonar.server.computation.step;
 
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.queue.CeTask;
 
-import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 
 /**
  * Feed analysis metadata holder with metadata from the analysis report.
@@ -55,11 +56,19 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
 
   private void checkProjectKeyConsistency(BatchReport.Metadata reportMetadata) {
     String reportProjectKey = projectKeyFromReport(reportMetadata);
-    checkState(
-      ceTask.getComponentKey().equals(reportProjectKey),
-      "ProjectKey in report (%s) is not consistent with projectKey under which the report as been submitted (%s)",
-      reportProjectKey,
-      ceTask.getComponentKey());
+    if (ceTask.getComponentKey() == null) {
+      throw MessageException.of(format(
+        "Compute Engine task component key is null. Project with UUID %s must have been deleted since report was uploaded. Can not proceed.",
+        ceTask.getComponentUuid()
+        ));
+    }
+    if (!ceTask.getComponentKey().equals(reportProjectKey)) {
+      throw MessageException.of(format(
+        "ProjectKey in report (%s) is not consistent with projectKey under which the report as been submitted (%s)",
+        reportProjectKey,
+        ceTask.getComponentKey()
+        ));
+    }
   }
 
   private static String projectKeyFromReport(BatchReport.Metadata reportMetadata) {
