@@ -45,6 +45,7 @@ import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsTests;
@@ -56,6 +57,7 @@ public class ListAction implements TestsWsAction {
   public static final String TEST_FILE_ID = "testFileId";
   public static final String TEST_FILE_KEY = "testFileKey";
   public static final String SOURCE_FILE_ID = "sourceFileId";
+  public static final String SOURCE_FILE_KEY = "sourceFileKey";
   public static final String SOURCE_FILE_LINE_NUMBER = "sourceFileLineNumber";
 
   private final DbClient dbClient;
@@ -82,6 +84,7 @@ public class ListAction implements TestsWsAction {
           "<li>" + TEST_FILE_ID + "</li>" +
           "<li>" + TEST_ID + "</li>" +
           "<li>" + SOURCE_FILE_ID + " and " + SOURCE_FILE_LINE_NUMBER + "</li>" +
+          "<li>" + SOURCE_FILE_KEY + "and" + SOURCE_FILE_LINE_NUMBER + "</li>" +
           "</ul>")
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
@@ -105,12 +108,18 @@ public class ListAction implements TestsWsAction {
 
     action
       .createParam(SOURCE_FILE_ID)
-      .setDescription("IF of source file. Must be provided with the source file line number.")
+      .setDescription("ID of source file. Must be provided with the source file line number.")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
 
     action
+      .createParam(SOURCE_FILE_KEY)
+      .setSince("5.4")
+      .setDescription("Key of source file. Must be provided with the source file line number.")
+      .setExampleValue(KeyExamples.KEY_FILE_EXAMPLE_001);
+
+    action
       .createParam(SOURCE_FILE_LINE_NUMBER)
-      .setDescription("Source file line number. Must be provided with the source file ID.")
+      .setDescription("Source file line number. Must be provided with the source file ID or key.")
       .setExampleValue("10");
   }
 
@@ -120,17 +129,17 @@ public class ListAction implements TestsWsAction {
     String testFileUuid = request.param(TEST_FILE_ID);
     String testFileKey = request.param(TEST_FILE_KEY);
     String sourceFileUuid = request.param(SOURCE_FILE_ID);
+    String sourceFileKey = request.param(SOURCE_FILE_KEY);
     Integer sourceFileLineNumber = request.paramAsInt(SOURCE_FILE_LINE_NUMBER);
     SearchOptions searchOptions = new SearchOptions().setPage(
       request.mandatoryParamAsInt(WebService.Param.PAGE),
-      request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE)
-      );
+      request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
 
     DbSession dbSession = dbClient.openSession(false);
     SearchResult<TestDoc> tests;
     Map<String, ComponentDto> componentsByTestFileUuid;
     try {
-      tests = searchTests(dbSession, testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileLineNumber, searchOptions);
+      tests = searchTests(dbSession, testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileKey, sourceFileLineNumber, searchOptions);
       componentsByTestFileUuid = buildComponentsByTestFileUuid(dbSession, tests.getDocs());
     } finally {
       MyBatis.closeQuietly(dbSession);
@@ -185,15 +194,8 @@ public class ListAction implements TestsWsAction {
     return Maps.uniqueIndex(components, ComponentDtoFunctions.toUuid());
   }
 
-  private static class TestToFileUuidFunction implements Function<TestDoc, String> {
-    @Override
-    public String apply(@Nonnull TestDoc testDoc) {
-      return testDoc.fileUuid();
-    }
-  }
-
   private SearchResult<TestDoc> searchTests(DbSession dbSession, @Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey,
-    @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
+    @Nullable String sourceFileUuid, @Nullable String sourceFileKey, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
     if (testUuid != null) {
       return searchTestsByTestUuid(dbSession, testUuid, searchOptions);
     }
@@ -206,10 +208,14 @@ public class ListAction implements TestsWsAction {
     if (sourceFileUuid != null && sourceFileLineNumber != null) {
       return searchTestsBySourceFileUuidAndLineNumber(dbSession, sourceFileUuid, sourceFileLineNumber, searchOptions);
     }
+    if (sourceFileKey != null && sourceFileLineNumber != null) {
+      ComponentDto component = componentFinder.getByKey(dbSession, sourceFileKey);
+      return searchTestsBySourceFileUuidAndLineNumber(dbSession, component.uuid(), sourceFileLineNumber, searchOptions);
+    }
 
     throw new IllegalArgumentException(
       "One (and only one) of the following combination of parameters must be provided: 1) test UUID. 2) test file UUID. " +
-        "3) test file key. 4) source file UUID and source file line number.");
+        "3) test file key. 4) source file ID or key with a source file line number.");
   }
 
   private SearchResult<TestDoc> searchTestsBySourceFileUuidAndLineNumber(DbSession dbSession, String sourceFileUuid, Integer sourceFileLineNumber, SearchOptions searchOptions) {
@@ -237,5 +243,12 @@ public class ListAction implements TestsWsAction {
   private void checkComponentUuidPermission(DbSession dbSession, String componentUuid) {
     ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, componentUuid);
     userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
+  }
+
+  private static class TestToFileUuidFunction implements Function<TestDoc, String> {
+    @Override
+    public String apply(@Nonnull TestDoc testDoc) {
+      return testDoc.fileUuid();
+    }
   }
 }

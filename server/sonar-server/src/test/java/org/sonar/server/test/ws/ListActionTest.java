@@ -142,7 +142,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void list_based_on_main_file_and_line_number() throws Exception {
+  public void list_based_on_source_file_uuid_and_line_number() throws Exception {
     String mainFileUuid = "MAIN-FILE-UUID";
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(db.getSession(),
@@ -187,6 +187,59 @@ public class ListActionTest {
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list")
       .setParam(ListAction.SOURCE_FILE_ID, mainFileUuid)
+      .setParam(ListAction.SOURCE_FILE_LINE_NUMBER, "10");
+
+    request.execute().assertJson(getClass(), "list-main-file.json");
+  }
+
+  @Test
+  public void list_based_on_source_file_key_and_line_number() throws Exception {
+    String sourceFileUuid = "MAIN-FILE-UUID";
+    String sourceFileKey = "MAIN-FILE-KEY";
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
+    dbClient.componentDao().insert(db.getSession(),
+      new ComponentDto()
+        .setUuid(TestFile1.FILE_UUID)
+        .setLongName(TestFile1.LONG_NAME)
+        .setKey(TestFile1.KEY)
+        .setProjectUuid(TestFile1.PROJECT_UUID),
+      new ComponentDto()
+        .setUuid(TestFile2.FILE_UUID)
+        .setLongName(TestFile2.LONG_NAME)
+        .setProjectUuid(TestFile2.PROJECT_UUID)
+        .setKey(TestFile2.KEY),
+      new ComponentDto()
+        .setUuid(sourceFileUuid)
+        .setKey(sourceFileKey)
+        .setProjectUuid(TestFile1.PROJECT_UUID)
+    );
+    db.getSession().commit();
+
+    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
+      new TestDoc()
+        .setUuid(TestFile1.UUID)
+        .setProjectUuid(TestFile1.PROJECT_UUID)
+        .setName(TestFile1.NAME)
+        .setFileUuid(TestFile1.FILE_UUID)
+        .setDurationInMs(TestFile1.DURATION_IN_MS)
+        .setStatus(TestFile1.STATUS)
+        .setMessage(TestFile1.MESSAGE)
+        .setCoveredFiles(TestFile1.COVERED_FILES)
+        .setStackTrace(TestFile1.STACKTRACE),
+      new TestDoc()
+        .setUuid(TestFile2.UUID)
+        .setProjectUuid(TestFile2.PROJECT_UUID)
+        .setName(TestFile2.NAME)
+        .setFileUuid(TestFile2.FILE_UUID)
+        .setDurationInMs(TestFile2.DURATION_IN_MS)
+        .setStatus(TestFile2.STATUS)
+        .setStackTrace(TestFile2.STATUS)
+        .setMessage(TestFile2.MESSAGE)
+        .setCoveredFiles(TestFile2.COVERED_FILES)
+        .setStackTrace(TestFile2.STACKTRACE));
+
+    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list")
+      .setParam(ListAction.SOURCE_FILE_KEY, sourceFileKey)
       .setParam(ListAction.SOURCE_FILE_LINE_NUMBER, "10");
 
     request.execute().assertJson(getClass(), "list-main-file.json");
