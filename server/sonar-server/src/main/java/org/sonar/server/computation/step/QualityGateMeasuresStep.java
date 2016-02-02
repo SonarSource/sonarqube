@@ -134,7 +134,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Computes Quality Gate measures";
+    return "Compute Quality Gate measures";
   }
 
   private static final class QualityGateDetailsDataBuilder {
