@@ -56,8 +56,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateUserDto;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.WsPermissions.UsersWsResponse.parseFrom;
 
 @Category(DbTests.class)
@@ -177,7 +177,7 @@ public class TemplateUsersActionTest {
   public void fail_if_not_a_project_permission() throws IOException {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(GlobalPermissions.PREVIEW_EXECUTION, template1.getUuid())
+    newRequest(GlobalPermissions.PROVISIONING, template1.getUuid())
       .execute();
   }
 

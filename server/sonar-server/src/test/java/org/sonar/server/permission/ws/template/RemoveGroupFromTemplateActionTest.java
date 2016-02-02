@@ -61,8 +61,8 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 @Category(DbTests.class)
 public class RemoveGroupFromTemplateActionTest {
@@ -159,7 +159,7 @@ public class RemoveGroupFromTemplateActionTest {
   public void fail_if_not_a_project_permission() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(GROUP_NAME, permissionTemplate.getUuid(), GlobalPermissions.PREVIEW_EXECUTION);
+    newRequest(GROUP_NAME, permissionTemplate.getUuid(), GlobalPermissions.PROVISIONING);
   }
 
   @Test

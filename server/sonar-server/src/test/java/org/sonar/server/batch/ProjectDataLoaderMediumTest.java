@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
@@ -47,11 +48,13 @@ import org.sonar.server.tester.UserSessionRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.qualityprofile.QProfileTesting.newQProfileDto;
 
 public class ProjectDataLoaderMediumTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @ClassRule
   public static ServerTester tester = new ServerTester().addXoo();
@@ -120,9 +123,9 @@ public class ProjectDataLoaderMediumTest {
   }
 
   @Test
-  public void not_returned_secured_settings_with_only_preview_permission() {
+  public void not_returned_secured_settings_when_lgged_but_no_scan_permission() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    userSessionRule.login("john").setGlobalPermissions(PREVIEW_EXECUTION).addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -442,7 +445,7 @@ public class ProjectDataLoaderMediumTest {
   }
 
   @Test
-  public void fail_if_no_permission() {
+  public void fail_when_no_browse_permission_and_no_scan_permission() {
     userSessionRule.login("john").setGlobalPermissions();
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -458,21 +461,17 @@ public class ProjectDataLoaderMediumTest {
   }
 
   @Test
-  public void fail_when_not_preview_and_only_dry_run_permission() {
-    userSessionRule.login("john").setGlobalPermissions(PREVIEW_EXECUTION);
-
+  public void fail_when_not_preview_and_only_browse_permission_without_scan_permission() {
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     dbSession.commit();
 
-    try {
-      underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(false));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage(
-        "You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. " +
-          "Please contact your SonarQube administrator.");
-    }
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.projectUuid());
+
+    thrown.expect(ForbiddenException.class);
+    thrown.expectMessage("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. " +
+      "Please contact your SonarQube administrator.");
+    underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(false));
   }
 
   @Test

@@ -117,7 +117,7 @@ public class PermissionChangeTest {
     PermissionChange query = PermissionChange.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
-    thrown.expectMessage("Invalid global permission key invalid. Valid values are [admin, profileadmin, gateadmin, shareDashboard, scan, dryRunScan, provisioning]");
+    thrown.expectMessage("Invalid global permission key invalid. Valid values are [admin, profileadmin, gateadmin, shareDashboard, scan, provisioning]");
     query.validate();
   }
 

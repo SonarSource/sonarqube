@@ -429,7 +429,7 @@ public class IssueFilterServiceTest {
     String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
 
-    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(GlobalPermissions.PREVIEW_EXECUTION));
+    when(authorizationDao.selectGlobalPermissions(currentUser)).thenReturn(newArrayList(GlobalPermissions.PROVISIONING));
     when(issueFilterDao.selectById(1L)).thenReturn(sharedFilter);
 
     try {

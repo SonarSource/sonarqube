@@ -27,17 +27,18 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
@@ -58,9 +59,17 @@ import static org.mockito.Mockito.mock;
 @Category(DbTests.class)
 public class IssuesActionTest {
 
-  private final static String PROJECT_KEY = "struts";
-  private final static String MODULE_KEY = "struts-core";
-  private final static String FILE_KEY = "Action.java";
+  final static String PROJECT_KEY = "struts";
+  static final String PROJECT_UUID = "ABCD";
+
+  final static String MODULE_KEY = "struts-core";
+  static final String MODULE_UUID = "BCDE";
+
+  final static String FILE_KEY = "Action.java";
+  static final String FILE_UUID = "CDEF";
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -94,9 +103,9 @@ public class IssuesActionTest {
 
   @Test
   public void return_minimal_fields() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath(null);
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath(null);
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -111,8 +120,7 @@ public class IssuesActionTest {
       .setChecksum(null)
       .setAssignee(null));
 
-    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
-
+    addBrowsePermissionOnComponent(PROJECT_KEY);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -133,9 +141,9 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_project() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java");
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -150,8 +158,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
-
+    addBrowsePermissionOnComponent(PROJECT_KEY);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -172,9 +179,9 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_module() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java");
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -189,9 +196,9 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    addBrowsePermissionOnComponent(PROJECT_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
@@ -210,9 +217,9 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_file() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java");
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -227,9 +234,9 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
-
+    addBrowsePermissionOnComponent(FILE_KEY);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", FILE_KEY);
+
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
@@ -248,8 +255,8 @@ public class IssuesActionTest {
 
   @Test
   public void issues_attached_on_module() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
     db.getDbClient().componentDao().insert(db.getSession(), project, module);
     db.getSession().commit();
 
@@ -264,9 +271,9 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
-
+    addBrowsePermissionOnComponent(MODULE_KEY);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
+
     ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(previousIssue.getKey()).isEqualTo("EFGH");
     assertThat(previousIssue.getModuleKey()).isEqualTo(MODULE_KEY);
@@ -285,10 +292,10 @@ public class IssuesActionTest {
 
   @Test
   public void project_issues_attached_file_on_removed_module() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     // File and module are removed
-    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setEnabled(false);
-    ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false);
+    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY).setEnabled(false);
+    ComponentDto file = ComponentTesting.newFileDto(module, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false);
     db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
     db.getSession().commit();
 
@@ -303,21 +310,21 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
-
+    addBrowsePermissionOnComponent(PROJECT_KEY);
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
+
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     // Module key of removed file should be returned
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
   }
 
-  @Test(expected = ForbiddenException.class)
-  public void fail_without_preview_permission() throws Exception {
-    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+  @Test
+  public void fail_without_browse_permission_on_file() throws Exception {
+    addBrowsePermissionOnComponent(PROJECT_KEY);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
-    request.execute();
+    thrown.expect(ForbiddenException.class);
+    tester.newGetRequest("batch", "issues").setParam("key", "Other component key").execute();
   }
 
   private void indexIssues(IssueDoc... issues) {
@@ -329,5 +336,9 @@ public class IssuesActionTest {
 
   private void addIssueAuthorization(String projectUuid, @Nullable String group, @Nullable String user) {
     issueAuthorizationIndexer.index(newArrayList(new IssueAuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
+  }
+
+  private void addBrowsePermissionOnComponent(String componentKey){
+    userSessionRule.addComponentPermission(UserRole.USER, PROJECT_KEY, componentKey);
   }
 }

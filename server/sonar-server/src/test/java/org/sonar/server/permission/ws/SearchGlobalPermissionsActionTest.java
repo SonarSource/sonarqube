@@ -42,10 +42,9 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
 import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
-import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -87,8 +86,6 @@ public class SearchGlobalPermissionsActionTest {
     insertUserRole(newUserRoleDto(QUALITY_PROFILE_ADMIN, adminUser.getId()));
     insertUserRole(newUserRoleDto(QUALITY_GATE_ADMIN, user.getId()));
     insertUserRole(newUserRoleDto(QUALITY_GATE_ADMIN, adminUser.getId()));
-    insertUserRole(newUserRoleDto(PREVIEW_EXECUTION, adminUser.getId()));
-    insertUserRole(newUserRoleDto(PREVIEW_EXECUTION, user.getId()));
 
     db.getSession().commit();
 
@@ -135,10 +132,6 @@ public class SearchGlobalPermissionsActionTest {
     i18n.put("global_permissions.scan", "Execute Analysis");
     i18n.put("global_permissions.scan.desc", "Ability to execute analyses, and to get all settings required to perform the analysis, " +
       "even the secured ones like the scm account password, the jira account password, and so on.");
-    i18n.put("global_permissions.dryRunScan", "Execute Preview Analysis");
-    i18n.put("global_permissions.dryRunScan.desc", "Ability to execute preview analysis (results are not pushed to the server). " +
-      "This permission does not include the ability to access secured settings such as the scm account password, the jira account password, and so on. " +
-      "This permission is required to execute preview analysis in Eclipse or via the Issues Report plugin.");
     i18n.put("global_permissions.provisioning", "Provision Projects");
     i18n.put("global_permissions.provisioning.desc", "Ability to initialize project structure before first analysis.");
   }

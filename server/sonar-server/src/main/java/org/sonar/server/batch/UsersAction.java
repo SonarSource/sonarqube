@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.BatchInput;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -63,7 +62,7 @@ public class UsersAction implements BatchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.PREVIEW_EXECUTION);
+    userSession.checkLoggedIn();
     List<String> logins = request.mandatoryParamAsStrings(PARAM_LOGINS);
 
     response.stream().setMediaType(MediaTypes.PROTOBUF);

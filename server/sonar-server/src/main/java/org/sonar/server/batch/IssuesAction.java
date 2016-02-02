@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.BatchInput;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -41,6 +40,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class IssuesAction implements BatchWsAction {
@@ -77,13 +77,13 @@ public class IssuesAction implements BatchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkPermission(GlobalPermissions.PREVIEW_EXECUTION);
-    final String moduleKey = request.mandatoryParam(PARAM_KEY);
+    String componentKey = request.mandatoryParam(PARAM_KEY);
+    userSession.checkComponentPermission(USER, componentKey);
 
     response.stream().setMediaType(MediaTypes.PROTOBUF);
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = componentFinder.getByKey(session, moduleKey);
+      ComponentDto component = componentFinder.getByKey(session, componentKey);
       Map<String, String> keysByUUid = keysByUUid(session, component);
 
       BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();

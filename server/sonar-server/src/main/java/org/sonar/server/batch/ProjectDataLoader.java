@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.db.DbClient;
@@ -41,7 +40,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
@@ -64,11 +63,11 @@ public class ProjectDataLoader {
         "Project or module with key '%s' is not found", query.getModuleKey());
 
       boolean hasScanPerm = userSession.hasComponentUuidPermission(SCAN_EXECUTION, module.projectUuid());
-      boolean hasPreviewPerm = userSession.hasPermission(PREVIEW_EXECUTION);
-      checkPermission(query.isIssuesMode(), hasScanPerm, hasPreviewPerm);
+      boolean hasBrowsePerm = userSession.hasComponentUuidPermission(USER, module.projectUuid());
+      checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
 
-      // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
-      if (query.isIssuesMode() && !userSession.hasComponentUuidPermission(UserRole.USER, module.projectUuid())) {
+      // Scan permission is enough to analyze all projects but browse permission is limited to projects user can access
+      if (query.isIssuesMode() && !userSession.hasComponentUuidPermission(USER, module.projectUuid())) {
         throw new ForbiddenException("You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
       }
 
@@ -182,15 +181,15 @@ public class ProjectDataLoader {
     }
   }
 
-  private static void checkPermission(boolean preview, boolean hasScanPerm, boolean hasPreviewPerm) {
-    if (!hasPreviewPerm && !hasScanPerm) {
+  private static void checkPermission(boolean preview, boolean hasScanPerm, boolean hasBrowsePerm) {
+    if (!hasBrowsePerm && !hasScanPerm) {
       throw new ForbiddenException(Messages.NO_PERMISSION);
     }
     if (!preview && !hasScanPerm) {
       throw new ForbiddenException("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. " +
         "Please contact your SonarQube administrator.");
     }
-    if (preview && !hasPreviewPerm) {
+    if (preview && !hasBrowsePerm) {
       throw new ForbiddenException("You're not authorized to execute a preview analysis. Please contact your SonarQube administrator.");
     }
   }

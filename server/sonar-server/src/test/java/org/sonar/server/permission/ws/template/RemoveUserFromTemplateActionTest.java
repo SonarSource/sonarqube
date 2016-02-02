@@ -149,7 +149,7 @@ public class RemoveUserFromTemplateActionTest {
   public void fail_if_not_a_project_permission() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(USER_LOGIN, permissionTemplate.getUuid(), GlobalPermissions.PREVIEW_EXECUTION);
+    newRequest(USER_LOGIN, permissionTemplate.getUuid(), GlobalPermissions.PROVISIONING);
   }
 
   @Test

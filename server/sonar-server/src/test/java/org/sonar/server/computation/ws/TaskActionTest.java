@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
@@ -185,7 +185,7 @@ public class TaskActionTest {
 
   @Test
   public void fail_on_queue_task_not_linked_on_project_if_not_admin_nor_scan_permission() {
-    userSession.login("john").setGlobalPermissions(PREVIEW_EXECUTION);
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
 
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType("fake");

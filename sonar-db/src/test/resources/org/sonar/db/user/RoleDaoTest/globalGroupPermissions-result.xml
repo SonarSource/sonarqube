@@ -9,7 +9,7 @@
 
   <!-- Group 'anyone' has a NULL group_id -->
   <group_roles id="5" group_id="[null]" role="scan" resource_id="[null]"/>
-  <group_roles id="6" group_id="[null]" role="dryRunScan" resource_id="[null]"/>
+  <group_roles id="6" group_id="[null]" role="provisioning" resource_id="[null]"/>
 
   <group_roles id="7" group_id="102" role="admin" resource_id="1"/>
 

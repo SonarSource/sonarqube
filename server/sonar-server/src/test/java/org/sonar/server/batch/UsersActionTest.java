@@ -26,11 +26,12 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.batch.protocol.input.BatchInput.User;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -42,8 +43,12 @@ import static org.mockito.Mockito.mock;
 
 public class UsersActionTest {
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -68,7 +73,7 @@ public class UsersActionTest {
     es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
       new UserDoc().setLogin("ada.lovelace").setName("Ada Lovelace").setActive(false),
       new UserDoc().setLogin("grace.hopper").setName("Grace Hopper").setActive(true));
-    userSessionRule.login("sonarqtech").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.login("sonarqtech");
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "users").setParam("logins", "ada.lovelace,grace.hopper");
 
@@ -81,4 +86,11 @@ public class UsersActionTest {
     assertThat(users).extracting("login").containsOnly("ada.lovelace", "grace.hopper");
     assertThat(users).extracting("name").containsOnly("Ada Lovelace", "Grace Hopper");
   }
+
+  @Test
+  public void fail_without_being_logged() throws Exception {
+    thrown.expect(UnauthorizedException.class);
+    tester.newGetRequest("batch", "users").setParam("logins", "ada.lovelace,grace.hopper").execute();
+  }
+
 }

@@ -70,7 +70,6 @@ public class LocalAuthenticationTest {
 
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
     userTokensWsClient = adminWsClient.userTokens();
-    removeGroupPermission("anyone", "dryRunScan");
     removeGroupPermission("anyone", "scan");
 
     createUser(LOGIN, "123456");
@@ -81,7 +80,6 @@ public class LocalAuthenticationTest {
   @AfterClass
   public static void deleteData() {
     deactivateUser(LOGIN);
-    addGroupPermission("anyone", "dryRunScan");
     addGroupPermission("anyone", "scan");
   }
 

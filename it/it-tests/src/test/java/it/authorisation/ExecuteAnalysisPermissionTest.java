@@ -42,6 +42,7 @@ public class ExecuteAnalysisPermissionTest {
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   private final static String USER_LOGIN = "scanperm";
+  private final static String USER_PASSWORD = "thewhite";
   private final static String PROJECT_KEY = "sample";
 
   private static SonarClient adminClient;
@@ -50,34 +51,33 @@ public class ExecuteAnalysisPermissionTest {
   public void setUp() {
     orchestrator.resetData();
     adminClient = orchestrator.getServer().adminWsClient();
-    adminClient.userClient().create(UserParameters.create().login(USER_LOGIN).name(USER_LOGIN).password("thewhite").passwordConfirmation("thewhite"));
+    adminClient.userClient().create(UserParameters.create().login(USER_LOGIN).name(USER_LOGIN).password(USER_PASSWORD).passwordConfirmation(USER_PASSWORD));
     orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
   }
 
   @After
   public void tearDown() {
     addGlobalPermission("anyone", "scan");
-    addGlobalPermission("anyone", "dryRunScan");
     adminClient.userClient().deactivate(USER_LOGIN);
   }
 
   @Test
-  public void should_fail_if_no_scan_permission() throws Exception {
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
+  public void should_fail_if_logged_but_no_scan_permission() throws Exception {
+    executeLoggedAnalysis();
 
     removeGlobalPermission("anyone", "scan");
     try {
-      runProjectAnalysis(orchestrator, "shared/xoo-sample");
+      // Execute logged analysis, but without the "Execute Anaylsis" permission
+      executeLoggedAnalysis();
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains(
         "You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.");
     }
 
-    // Remove Anyone from dryrun permission
-    removeGlobalPermission("anyone", "dryRunScan");
     try {
-      runProjectAnalysis(orchestrator, "shared/xoo-sample");
+      // Execute anonymous analysis
+      executeAnonymousAnalysis();;
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains(
@@ -88,22 +88,21 @@ public class ExecuteAnalysisPermissionTest {
   @Test
   public void no_need_for_browse_permission_to_scan() throws Exception {
     // Do a first analysis, no error
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
+    executeAnonymousAnalysis();
 
     // Remove browse permission for groups Anyone on the project
     removeProjectPermission("anyone", "sample", "user");
 
     // still no error
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
+    executeAnonymousAnalysis();
   }
 
   @Test
-  public void execute_analysis_permission_only_on_project() throws Exception {
+  public void execute_analysis_with_scan_permission_only_on_project() throws Exception {
     removeGlobalPermission("anyone", "scan");
     addProjectPermission("anyone", PROJECT_KEY, "scan");
-    addGlobalPermission("anyone", "dryRunScan");
 
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
+    executeLoggedAnalysis();
   }
 
   private static void addProjectPermission(String groupName, String projectKey, String permission) {
@@ -130,5 +129,13 @@ public class ExecuteAnalysisPermissionTest {
     adminClient.post("api/permissions/remove_group",
       "groupName", groupName,
       "permission", permission);
+  }
+
+  private static void executeLoggedAnalysis(){
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", USER_PASSWORD);
+  }
+
+  private static void executeAnonymousAnalysis(){
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
   }
 }

@@ -47,7 +47,7 @@ import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.Status;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -235,7 +235,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    userSession.login("john").setGlobalPermissions(PREVIEW_EXECUTION);
+    userSession.login("john").setGlobalPermissions(PROVISIONING);
 
     ComponentDto project = newProjectDto("project-uuid");
     dbClient.componentDao().insert(dbSession, project);

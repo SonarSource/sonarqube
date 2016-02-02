@@ -363,7 +363,7 @@ public class IssuesModeTest {
     client.issueClient().assign(issue.key(), "julien");
 
     // Issues
-    runner = configureRunnerIssues("shared/xoo-sample", null);
+    runner = configureRunnerIssues("shared/xoo-sample", null, "sonar.login", "julien", "sonar.password", "password");
     BuildResult result = orchestrator.executeBuild(runner);
 
     JSONObject obj = ItUtils.getJSONReport(result);

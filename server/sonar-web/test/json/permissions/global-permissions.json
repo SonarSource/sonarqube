@@ -36,13 +36,6 @@
       "groupsCount": 1
     },
     {
-      "key": "dryRunScan",
-      "name": "Execute Preview Analysis",
-      "description": "Ability to execute preview analysis (results are not pushed to the server). This permission does not include the ability to access secured settings such as the scm account password, the jira account password, and so on.<br/>This permission is <em>required</em> to execute preview analysis in Eclipse or via the Issues Report plugin.",
-      "usersCount": 0,
-      "groupsCount": 1
-    },
-    {
       "key": "provisioning",
       "name": "Provision Projects",
       "description": "Ability to initialize project structure before first analysis.",

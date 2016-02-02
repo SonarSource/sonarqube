@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.GlobalRepositories;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -34,6 +33,8 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
+
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 public class GlobalAction implements BatchWsAction {
 
@@ -59,9 +60,9 @@ public class GlobalAction implements BatchWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    boolean hasScanPerm = userSession.hasPermission(GlobalPermissions.SCAN_EXECUTION);
-    boolean hasPreviewPerm = userSession.hasPermission(GlobalPermissions.PREVIEW_EXECUTION);
-    if (!hasPreviewPerm && !hasScanPerm) {
+    boolean hasScanPerm = userSession.hasPermission(SCAN_EXECUTION);
+    boolean isLogged = userSession.isLoggedIn();
+    if (!isLogged && !hasScanPerm) {
       throw new ForbiddenException(Messages.NO_PERMISSION);
     }
 
@@ -69,7 +70,7 @@ public class GlobalAction implements BatchWsAction {
     try {
       GlobalRepositories ref = new GlobalRepositories();
       addMetrics(ref, session);
-      addSettings(ref, hasScanPerm, hasPreviewPerm, session);
+      addSettings(ref, hasScanPerm, isLogged, session);
 
       response.stream().setMediaType(MediaTypes.JSON);
       IOUtils.write(ref.toJson(), response.stream().output());
@@ -94,19 +95,19 @@ public class GlobalAction implements BatchWsAction {
     }
   }
 
-  private void addSettings(GlobalRepositories ref, boolean hasScanPerm, boolean hasPreviewPerm, DbSession session) {
+  private void addSettings(GlobalRepositories ref, boolean hasScanPerm, boolean isLogged, DbSession session) {
     for (PropertyDto propertyDto : propertiesDao.selectGlobalProperties(session)) {
       String key = propertyDto.getKey();
       String value = propertyDto.getValue();
 
-      if (isPropertyAllowed(key, hasScanPerm, hasPreviewPerm)) {
+      if (isPropertyAllowed(key, hasScanPerm, isLogged)) {
         ref.addGlobalSetting(key, value);
       }
     }
   }
 
-  private static boolean isPropertyAllowed(String key, boolean hasScanPerm, boolean hasPreviewPerm) {
-    return !key.contains(".secured") || hasScanPerm || (key.contains(".license") && hasPreviewPerm);
+  private static boolean isPropertyAllowed(String key, boolean hasScanPerm, boolean isLogged) {
+    return !key.contains(".secured") || hasScanPerm || (key.contains(".license") && isLogged);
   }
 
 }

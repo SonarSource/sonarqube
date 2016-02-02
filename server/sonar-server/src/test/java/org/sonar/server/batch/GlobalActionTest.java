@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDao;
@@ -40,6 +39,7 @@ import org.sonar.server.ws.WsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GlobalActionTest {
@@ -70,7 +70,7 @@ public class GlobalActionTest {
 
   @Test
   public void return_metrics() throws Exception {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.setGlobalPermissions(SCAN_EXECUTION);
 
     when(metricDao.selectEnabled(session)).thenReturn(newArrayList(
       new MetricDto().setId(1).setKey("coverage").setDescription("Coverage by unit tests").setValueType("PERCENT").setQualitative(true)
@@ -83,7 +83,7 @@ public class GlobalActionTest {
 
   @Test
   public void return_global_settings() throws Exception {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.setGlobalPermissions(SCAN_EXECUTION);
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
       new PropertyDto().setKey("foo").setValue("bar"),
@@ -96,12 +96,24 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void return_only_license_settings_without_scan_but_with_preview_permission() throws Exception {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+  public void does_not_return_secured_settings_without_scan_permission_but_being_logged() throws Exception {
+    userSessionRule.login("john");
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
       new PropertyDto().setKey("foo").setValue("bar"),
-      new PropertyDto().setKey("foo.secured").setValue("1234"),
+      new PropertyDto().setKey("foo.secured").setValue("1234")
+      ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "global");
+    request.execute().assertJson(getClass(), "not_return_secured_settings_without_scan_but_being_logged.json");
+  }
+
+  @Test
+  public void return_license_settings_without_scan_permission_but_being_logged() throws Exception {
+    userSessionRule.login("john");
+
+    when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("foo").setValue("bar"),
       new PropertyDto().setKey("foo.license.secured").setValue("5678")
       ));
 
@@ -110,7 +122,7 @@ public class GlobalActionTest {
   }
 
   @Test
-  public void access_forbidden_without_scan_and_preview_permission() throws Exception {
+  public void access_forbidden_without_preview_permission_and_not_logged() throws Exception {
     userSessionRule.setGlobalPermissions();
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(

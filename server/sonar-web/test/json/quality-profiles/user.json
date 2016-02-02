@@ -2,8 +2,7 @@
   "isLoggedIn": false,
   "permissions": {
     "global": [
-      "scan",
-      "dryRunScan"
+      "scan"
     ]
   }
 }
