@@ -85,6 +85,14 @@ class User < ActiveRecord::Base
     write_attribute :email, (value && value.downcase)
   end
 
+  def external_identity=(value)
+    write_attribute :external_identity, value
+  end
+
+  def external_identity_provider=(value)
+    write_attribute :external_identity_provider, value
+  end
+
   # SCM accounts should also contain login and email
   def full_scm_accounts
     new_scm_accounts = self.scm_accounts.split(/\r?\n/).reject { |c| c.empty? } if self.scm_accounts

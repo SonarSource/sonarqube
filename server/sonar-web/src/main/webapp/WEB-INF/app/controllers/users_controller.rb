@@ -66,6 +66,8 @@ class UsersController < ApplicationController
 
   def prepare_user
     user = User.new(params[:user])
+    user.external_identity = user.login
+    user.external_identity_provider = 'sonarqube'
     default_group_name=java_facade.getSettings().getString('sonar.defaultGroup')
     default_group=Group.find_by_name(default_group_name)
     user.groups<<default_group if default_group
