@@ -24,7 +24,7 @@ export default Backbone.Model.extend({
   idAttribute: 'id',
 
   urlRoot: function () {
-    return baseUrl + '/api/metrics';
+    return '/api/metrics';
   },
 
   sync: function (method, model, options) {

@@ -22,7 +22,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default React.createClass({
   renderLogo() {
-    let url = this.props.logoUrl || `${window.baseUrl}/images/logo.svg`;
+    let url = this.props.logoUrl || `/images/logo.svg`;
     let width = this.props.logoWidth || 100;
     let height = 30;
     let title = translate('layout.sonar.slogan');
@@ -34,7 +34,7 @@ export default React.createClass({
   },
 
   render() {
-    const homeUrl = window.baseUrl + '/';
+    const homeUrl = '/';
     const homeLinkClassName = 'navbar-brand' + (this.props.logoUrl ? ' navbar-brand-custom' : '');
     return (
         <div className="navbar-header">

@@ -61,7 +61,7 @@ export default Controller.extend({
     this.hideDetails(firstPage);
 
     var that = this,
-        url = baseUrl + '/api/rules/search',
+        url = '/api/rules/search',
         options = _.extend(this._searchParameters(), this.app.state.get('query'));
     return $.get(url, options).done(function (r) {
       var rules = that.app.list.parseRules(r);
@@ -93,7 +93,7 @@ export default Controller.extend({
   },
 
   requestFacet: function (id) {
-    var url = baseUrl + '/api/rules/search',
+    var url = '/api/rules/search',
         facet = this.app.facets.get(id),
         options = _.extend({ facets: id, ps: 1 }, this.app.state.get('query'));
     return $.get(url, options).done(function (r) {
@@ -113,7 +113,7 @@ export default Controller.extend({
 
   getRuleDetails: function (rule) {
     var that = this,
-        url = baseUrl + '/api/rules/show',
+        url = '/api/rules/show',
         options = {
           key: rule.id,
           actives: true

@@ -98,7 +98,7 @@ export default Marionette.LayoutView.extend({
 
   fetchCustomRules: function () {
     var that = this,
-        url = baseUrl + '/api/rules/search',
+        url = '/api/rules/search',
         options = {
           template_key: this.model.get('key'),
           f: 'name,severity,params'
@@ -153,7 +153,7 @@ export default Marionette.LayoutView.extend({
       title: translate('delete'),
       html: translateWithParameters('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
       yesHandler: function () {
-        var url = baseUrl + '/api/rules/delete',
+        var url = '/api/rules/delete',
             options = { key: that.model.id };
         $.post(url, options).done(function () {
           that.options.app.controller.fetchList();

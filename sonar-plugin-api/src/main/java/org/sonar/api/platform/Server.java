@@ -43,6 +43,10 @@ public abstract class Server {
   @CheckForNull
   public abstract File getDeployDir();
 
+  /**
+   * @deprecated in 5.4. Web context path can not be configured. It's always {@code ""}. See https://jira.sonarsource.com/browse/SONAR-7122
+   */
+  @Deprecated
   public abstract String getContextPath();
 
   /**

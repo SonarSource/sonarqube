@@ -70,7 +70,7 @@ var Plugins = Backbone.Collection.extend({
     var that = this;
     var opts = {
       type: 'GET',
-      url: baseUrl + '/api/plugins/installed',
+      url: '/api/plugins/installed',
       success: function (r) {
         that._installed = that.parse(r);
       }
@@ -85,7 +85,7 @@ var Plugins = Backbone.Collection.extend({
     var that = this;
     var opts = {
       type: 'GET',
-      url: baseUrl + '/api/plugins/updates',
+      url: '/api/plugins/updates',
       success: function (r) {
         that._updates = that.parse(r);
       }
@@ -100,7 +100,7 @@ var Plugins = Backbone.Collection.extend({
     var that = this;
     var opts = {
       type: 'GET',
-      url: baseUrl + '/api/plugins/available',
+      url: '/api/plugins/available',
       success: function (r) {
         that._available = that.parse(r);
       }
@@ -112,7 +112,7 @@ var Plugins = Backbone.Collection.extend({
     var that = this;
     var opts = {
       type: 'GET',
-      url: baseUrl + '/api/plugins/pending',
+      url: '/api/plugins/pending',
       success: function (r) {
         var installing = r.installing.map(function (plugin) {
               return { key: plugin.key, _status: 'installing' };
@@ -135,7 +135,7 @@ var Plugins = Backbone.Collection.extend({
     var that = this;
     var opts = {
       type: 'GET',
-      url: baseUrl + '/api/system/upgrades',
+      url: '/api/system/upgrades',
       success: function (r) {
         that._systemUpdates = r.upgrades.map(function (update) {
           return _.extend(update, { _system: true });
@@ -195,7 +195,7 @@ var Plugins = Backbone.Collection.extend({
     var that = this;
     var opts = {
       type: 'POST',
-      url: baseUrl + '/api/plugins/cancel_all',
+      url: '/api/plugins/cancel_all',
       success: function () {
         that._installedCount = 0;
         that._uninstalledCount = 0;

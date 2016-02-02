@@ -83,7 +83,7 @@ export default Marionette.ItemView.extend({
 
   requestLanguages: function () {
     var that = this,
-        url = baseUrl + '/api/languages/list';
+        url = '/api/languages/list';
     return $.get(url).done(function (r) {
       that.languages = r.languages;
     });
@@ -91,7 +91,7 @@ export default Marionette.ItemView.extend({
 
   requestImporters: function () {
     var that = this,
-        url = baseUrl + '/api/qualityprofiles/importers';
+        url = '/api/qualityprofiles/importers';
     return $.get(url).done(function (r) {
       that.importers = r.importers;
     });

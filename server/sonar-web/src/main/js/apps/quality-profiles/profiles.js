@@ -22,7 +22,7 @@ import Profile from './profile';
 
 export default Backbone.Collection.extend({
   model: Profile,
-  url: baseUrl + '/api/qualityprofiles/search',
+  url: '/api/qualityprofiles/search',
   comparator: 'key',
 
   parse: function (r) {

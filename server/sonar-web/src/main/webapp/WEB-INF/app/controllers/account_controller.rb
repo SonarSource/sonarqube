@@ -80,7 +80,7 @@ class AccountController < ApplicationController
       end
     end
 
-    redirect_to "#{ApplicationController.root_context}/account/notifications"
+    redirect_to "/account/notifications"
   end
 
   private

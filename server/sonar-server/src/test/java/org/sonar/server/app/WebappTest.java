@@ -19,6 +19,8 @@
  */
 package org.sonar.server.app;
 
+import java.io.File;
+import java.util.Properties;
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -26,9 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
-
-import java.io.File;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -93,32 +92,5 @@ public class WebappTest {
 
     verify(context).addParameter("jruby.max.runtimes", "1");
     verify(context).addParameter("rails.env", "production");
-  }
-
-  @Test
-  public void context_path_must_start_with_slash() {
-    Properties p = new Properties();
-    p.setProperty("sonar.web.context", "foo");
-
-    try {
-      Webapp.getContextPath(new Props(p));
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Value of 'sonar.web.context' must start with a forward slash: 'foo'");
-    }
-  }
-
-  @Test
-  public void root_context_path_must_be_blank() {
-    Properties p = new Properties();
-    p.setProperty("sonar.web.context", "/");
-
-    assertThat(Webapp.getContextPath(new Props(p))).isEqualTo("");
-  }
-
-  @Test
-  public void default_context_path_is_root() {
-    String context = Webapp.getContextPath(new Props(new Properties()));
-    assertThat(context).isEqualTo("");
   }
 }

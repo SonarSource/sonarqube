@@ -129,7 +129,7 @@ Workspace.prototype = {
   },
 
   fetchRule: function (model) {
-    var url = baseUrl + '/api/rules/show',
+    var url = '/api/rules/show',
         options = { key: model.get('key') };
     return $.get(url, options).done(function (r) {
       model.set(r.rule);

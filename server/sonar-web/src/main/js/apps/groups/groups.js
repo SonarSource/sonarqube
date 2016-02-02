@@ -24,7 +24,7 @@ export default Backbone.Collection.extend({
   model: Group,
 
   url: function () {
-    return baseUrl + '/api/user_groups/search';
+    return '/api/user_groups/search';
   },
 
   parse: function (r) {

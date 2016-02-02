@@ -24,7 +24,7 @@ export default FormView.extend({
 
   prepareRequest: function () {
     var that = this;
-    var url = baseUrl + '/api/qualitygates/copy',
+    var url = '/api/qualitygates/copy',
         name = this.$('#quality-gate-form-name').val(),
         options = {
           url: url,

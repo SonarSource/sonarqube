@@ -70,8 +70,8 @@ export default React.createClass({
       <header className="page-header">
         <h1 className="page-title">{translate('system_info.page')}</h1>
         <div className="page-actions">
-          <a className="spacer-right" href={window.baseUrl + '/api/system/logs'} id="logs-link">Logs</a>
-          <a href={window.baseUrl + '/api/system/info'} id="download-link">Download</a>
+          <a className="spacer-right" href={'/api/system/logs'} id="logs-link">Logs</a>
+          <a href={'/api/system/info'} id="download-link">Download</a>
           <button
               id="restart-server-button"
               className="big-spacer-left"

@@ -37,14 +37,14 @@ class Webapp {
 
   private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
   private static final String RAILS_ENV = "rails.env";
-  private static final String PROPERTY_CONTEXT = "sonar.web.context";
+  private static final String ROOT_CONTEXT_PATH = "";
 
   private Webapp() {
   }
 
   static StandardContext configure(Tomcat tomcat, Props props) {
     try {
-      StandardContext context = (StandardContext) tomcat.addWebapp(getContextPath(props), webappPath(props));
+      StandardContext context = (StandardContext) tomcat.addWebapp(ROOT_CONTEXT_PATH, webappPath(props));
       context.setClearReferencesHttpClientKeepAliveThread(false);
       context.setClearReferencesStatic(false);
       context.setClearReferencesStopThreads(false);
@@ -70,16 +70,6 @@ class Webapp {
     } catch (Exception e) {
       throw new IllegalStateException("Fail to configure webapp", e);
     }
-  }
-
-  static String getContextPath(Props props) {
-    String context = props.value(PROPERTY_CONTEXT, "");
-    if ("/".equals(context)) {
-      context = "";
-    } else if (!"".equals(context) && !context.startsWith("/")) {
-      throw new IllegalStateException(String.format("Value of '%s' must start with a forward slash: '%s'", PROPERTY_CONTEXT, context));
-    }
-    return context;
   }
 
   static void configureRails(Props props, Context context) {

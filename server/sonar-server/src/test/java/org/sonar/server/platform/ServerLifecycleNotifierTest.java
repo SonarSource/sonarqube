@@ -115,7 +115,7 @@ class FakeServer extends Server {
 
   @Override
   public String getContextPath() {
-    return null;
+    return "";
   }
 
   @Override

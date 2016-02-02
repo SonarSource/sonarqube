@@ -36,9 +36,9 @@ export default Marionette.ItemView.extend({
         format: function (item) {
           return item.name;
         },
-        searchUrl: baseUrl + '/api/qualitygates/search?gateId=' + this.model.id,
-        selectUrl: baseUrl + '/api/qualitygates/select',
-        deselectUrl: baseUrl + '/api/qualitygates/deselect',
+        searchUrl: '/api/qualitygates/search?gateId=' + this.model.id,
+        selectUrl: '/api/qualitygates/select',
+        deselectUrl: '/api/qualitygates/deselect',
         extra: {
           gateId: this.model.id
         },

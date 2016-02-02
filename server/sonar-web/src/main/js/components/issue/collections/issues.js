@@ -25,7 +25,7 @@ export default Backbone.Collection.extend({
   model: Issue,
 
   url: function () {
-    return baseUrl + '/api/issues/search';
+    return '/api/issues/search';
   },
 
   _injectRelational: function (issue, source, baseField, lookupField) {

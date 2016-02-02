@@ -20,23 +20,23 @@
 import { getJSON, post } from '../helpers/request';
 
 export function setLogLevel (level) {
-  const url = window.baseUrl + '/api/system/change_log_level';
+  const url = '/api/system/change_log_level';
   const data = { level };
   return post(url, data);
 }
 
 export function getSystemInfo () {
-  const url = window.baseUrl + '/api/system/info';
+  const url = '/api/system/info';
   return getJSON(url);
 }
 
 export function getStatus () {
-  const url = window.baseUrl + '/api/system/status';
+  const url = '/api/system/status';
   return getJSON(url);
 }
 
 export function restart () {
-  const url = window.baseUrl + '/api/system/restart';
+  const url = '/api/system/restart';
   return post(url);
 }
 

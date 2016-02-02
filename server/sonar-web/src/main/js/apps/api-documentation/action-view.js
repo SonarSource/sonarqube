@@ -57,7 +57,7 @@ export default Marionette.ItemView.extend({
 
   fetchResponse: function () {
     var that = this,
-        url = baseUrl + '/api/webservices/response_example',
+        url = '/api/webservices/response_example',
         options = { controller: this.model.get('path'), action: this.model.get('key') };
     return $.get(url, options).done(function (r) {
       that.model.set({ responseExample: r.example });

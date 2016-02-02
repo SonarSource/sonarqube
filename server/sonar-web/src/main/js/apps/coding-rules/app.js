@@ -96,7 +96,7 @@ App.getSubCharacteristicName = function (key) {
   }
 };
 
-var appXHR = $.get(baseUrl + '/api/rules/app').done(function (r) {
+var appXHR = $.get('/api/rules/app').done(function (r) {
   App.canWrite = r.canWrite;
   App.qualityProfiles = _.sortBy(r.qualityprofiles, ['name', 'lang']);
   App.languages = _.extend(r.languages, {

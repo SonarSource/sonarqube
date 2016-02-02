@@ -2,7 +2,7 @@
   <% if params[:period] && @snapshot.project_snapshot.periods? %>
     <div id="snapshot_title" class="spacer-bottom">
       <h4>
-        <form method="GET" action="<%= ApplicationController.root_context -%>/drilldown/measures" style="display: inline">
+        <form method="GET" action="/drilldown/measures" style="display: inline">
           <input type="hidden" name="id" value="<%= h @snapshot.project.key -%>"/>
           <input type="hidden" name="metric" value="<%= h params[:metric] -%>"/>
           <% if params[:highlight] %>
@@ -141,5 +141,5 @@
   <script>
     window.sonarqube.el = '#source-viewer';
   </script>
-  <script src="<%= ApplicationController.root_context -%>/js/bundles/drilldown.js?v=<%= sonar_version -%>"></script>
+  <script src="/js/bundles/drilldown.js?v=<%= sonar_version -%>"></script>
 <% end %>

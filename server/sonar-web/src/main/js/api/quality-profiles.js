@@ -20,7 +20,7 @@
 import { checkStatus, parseJSON } from '../helpers/request';
 
 export function createQualityProfile (data) {
-  const url = window.baseUrl + '/api/qualityprofiles/create';
+  const url = '/api/qualityprofiles/create';
   const options = {
     method: 'post',
     credentials: 'same-origin',

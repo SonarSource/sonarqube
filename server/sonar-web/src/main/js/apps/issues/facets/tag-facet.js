@@ -23,7 +23,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
   prepareSearch: function () {
-    var url = baseUrl + '/api/issues/tags?ps=10',
+    var url = '/api/issues/tags?ps=10',
         tags = this.options.app.state.get('query').tags;
     if (tags != null) {
       url += '&tags=' + tags;

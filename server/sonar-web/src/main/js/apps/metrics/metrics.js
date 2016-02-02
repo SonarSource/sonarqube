@@ -25,7 +25,7 @@ export default Backbone.Collection.extend({
   model: Metric,
 
   url: function () {
-    return baseUrl + '/api/metrics/search';
+    return '/api/metrics/search';
   },
 
   parse: function (r) {

@@ -154,7 +154,7 @@ export default ModalFormView.extend({
   sendRequest: function (action, options) {
     this.$('.alert').addClass('hidden');
     var that = this,
-        url = baseUrl + '/api/rules/' + action;
+        url = '/api/rules/' + action;
     return $.ajax({
       url: url,
       type: 'POST',

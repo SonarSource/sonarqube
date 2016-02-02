@@ -70,7 +70,7 @@ export default Controller.extend({
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
-    return $.get(baseUrl + '/api/issues/search', data).done(function (r) {
+    return $.get('/api/issues/search', data).done(function (r) {
       var issues = that.options.app.list.parseIssues(r);
       if (firstPage) {
         that.options.app.list.reset(issues);
@@ -108,7 +108,7 @@ export default Controller.extend({
     var that = this;
     return $.when(
         that.options.app.filters.fetch({ reset: true }),
-        $.get(baseUrl + '/api/issue_filters/app', function (r) {
+        $.get('/api/issue_filters/app', function (r) {
           that.options.app.state.set({
             canBulkChange: r.canBulkChange,
             canManageFilters: r.canManageFilters
@@ -132,7 +132,7 @@ export default Controller.extend({
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
-    return $.get(baseUrl + '/api/issues/search', data, function (r) {
+    return $.get('/api/issues/search', data, function (r) {
       FACET_DATA_FIELDS.forEach(function (field) {
         that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
       });
@@ -151,7 +151,7 @@ export default Controller.extend({
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
-    return $.get(baseUrl + '/api/issues/search', data, function (r) {
+    return $.get('/api/issues/search', data, function (r) {
       FACET_DATA_FIELDS.forEach(function (field) {
         that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
       });
