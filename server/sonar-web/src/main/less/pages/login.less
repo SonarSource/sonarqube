@@ -68,3 +68,40 @@
     cursor: pointer;
   }
 }
+
+.oauth-providers {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid @barBorderColor;
+
+  & > ul {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    & > li {
+      & > a {
+        display: block;
+        width: 180px;
+        line-height: 22px;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 2px;
+        box-sizing: border-box;
+        background-color: @darkBlue;
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:hover, &:focus {
+          box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.3);
+        }
+
+        & > span {
+          padding-left: 6px;
+        }
+      }
+    }
+  }
+}

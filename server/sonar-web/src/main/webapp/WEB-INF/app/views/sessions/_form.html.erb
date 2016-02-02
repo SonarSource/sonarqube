@@ -1,7 +1,23 @@
+<h1 class="maintenance-title text-center">Log In to SonarQube</h1>
+
+<section class="oauth-providers">
+  <% auth_providers = Api::Utils.java_facade.getIdentityProviders().to_a %>
+  <ul>
+    <% auth_providers.each do |provider| %>
+      <li>
+        <a href="<%= ApplicationController.root_context -%>/sessions/init/<%= provider.getKey().to_s %>"
+           title="Log in with <%= provider.getName().to_s -%>">
+          <img alt="<%= provider.getName().to_s -%>" width="20" height="20"
+               src="<%= ApplicationController.root_context + provider.getIconPath().to_s -%>">
+          <span>Log in with <%= provider.getName().to_s -%></span>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+</section>
+
 <form id="login_form" action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
   <input type="hidden" name="return_to_anchor" value="<%= h @return_to_anchor %>">
-
-  <h1 class="maintenance-title text-center">Log In to SonarQube</h1>
 
   <% if flash[:loginerror] %>
     <div class="alert alert-danger"> <%= flash[:loginerror] %></div>
@@ -33,28 +49,10 @@
     <label for="remember_me"><%= message('sessions.remember_me') -%></label>
   </p>
 
-  <div>
-    <div class="pull-left">
-      <% auth_providers = Api::Utils.java_facade.getIdentityProviders().to_a %>
-      <ul class="list-inline">
-        <% auth_providers.each do |provider| %>
-          <li>
-            <a class="oauth-link"
-               href="<%= ApplicationController.root_context -%>/sessions/init/<%= provider.getKey().to_s %>"
-               title="Login with <%= provider.getName().to_s -%>">
-              <img alt="<%= provider.getName().to_s -%>" width="24" height="24"
-                   src="<%= ApplicationController.root_context + provider.getIconPath().to_s -%>">
-            </a>
-          </li>
-        <% end %>
-      </ul>
-    </div>
-    <div class="text-right overflow-hidden">
-      <button name="commit"><%= message('sessions.log_in') -%></button>
-      <a class="spacer-left" href="<%= home_path -%>"><%= message('cancel') -%></a>
-    </div>
+  <div class="text-right overflow-hidden">
+    <button name="commit"><%= message('sessions.log_in') -%></button>
+    <a class="spacer-left" href="<%= home_path -%>"><%= message('cancel') -%></a>
   </div>
-
 </form>
 
 <script>
