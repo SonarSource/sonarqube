@@ -67,6 +67,7 @@ import org.sonar.db.version.v54.MigrateDisabledUsersToOnlyKeepLoginAndName;
 import org.sonar.db.version.v54.MigrateQualityGatesConditions;
 import org.sonar.db.version.v54.MigrateUsersIdentity;
 import org.sonar.db.version.v54.RemoveComponentPageProperties;
+import org.sonar.db.version.v54.RemovePreviewPermission;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -129,7 +130,8 @@ public class MigrationStepModule extends Module {
       AddUsersIdentityColumns.class,
       MigrateUsersIdentity.class,
       MigrateQualityGatesConditions.class,
-      MigrateDisabledUsersToOnlyKeepLoginAndName.class
+      MigrateDisabledUsersToOnlyKeepLoginAndName.class,
+      RemovePreviewPermission.class
     );
   }
 }

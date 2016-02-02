@@ -1,0 +1,14 @@
+<dataset>
+
+  <!-- Groups -->
+  <group_roles id="1" group_id="[null]" role="scan" resource_id="[null]"/>
+  <!--<group_roles id="2" group_id="[null]" role="dryRunScan" resource_id="[null]"/>-->
+
+  <group_roles id="3" group_id="102" role="admin" resource_id="1"/>
+  <!--<group_roles id="4" group_id="102" role="dryRunScan" resource_id="1"/>-->
+
+  <!-- Users -->
+  <user_roles id="1" user_id="200" role="admin" resource_id="[null]"/>
+  <!--<user_roles id="2" user_id="201" role="dryRunScan" resource_id="[null]"/>-->
+  <!--<user_roles id="3" user_id="201" role="dryRunScan" resource_id="1"/>-->
+</dataset>
