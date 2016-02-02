@@ -32,7 +32,7 @@ export default BaseFacet.extend({
   },
 
   getUrl: function () {
-    return baseUrl;
+    return '';
   },
 
   onRender: function () {

@@ -9,7 +9,6 @@ global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
 global.window = document.defaultView;
 global.navigator = document.defaultView.navigator;
 
-global.window.baseUrl = '';
 global.window.t = global.window.tp = function () {
   var args = Array.prototype.slice.call(arguments, 0);
   return args.join('.');

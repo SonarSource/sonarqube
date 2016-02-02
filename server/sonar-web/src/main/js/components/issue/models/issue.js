@@ -30,11 +30,11 @@ export default Backbone.Model.extend({
   },
 
   url: function () {
-    return window.baseUrl + '/api/issues';
+    return '/api/issues';
   },
 
   urlRoot: function () {
-    return window.baseUrl + '/api/issues';
+    return '/api/issues';
   },
 
   parse: function (r) {

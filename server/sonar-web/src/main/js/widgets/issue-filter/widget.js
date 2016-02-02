@@ -51,10 +51,10 @@ var FACET_LIMIT = 15,
         r.facetMode = 'debt';
       }
       if (r.componentKey != null) {
-        return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+        return '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
             '#' + getQuery(_.omit(r, 'componentKey'));
       } else {
-        return baseUrl + '/issues/search#' + getQuery(r);
+        return '/issues/search#' + getQuery(r);
       }
     },
     byDistributionConf = {
@@ -194,10 +194,10 @@ var FACET_LIMIT = 15,
             r.facetMode = 'debt';
           }
           if (r.componentKey != null) {
-            return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+            return '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
                 '#' + getQuery(_.omit(r, 'componentKey'));
           } else {
-            return baseUrl + '/issues/search#' + getQuery(r);
+            return '/issues/search#' + getQuery(r);
           }
         }
       }
@@ -298,7 +298,7 @@ export default Marionette.ItemView.extend({
   requestIssues: function () {
     var that = this,
         facetMode = this.options.displayMode,
-        url = baseUrl + '/api/issues/search',
+        url = '/api/issues/search',
         options = _.extend({}, this.query, {
           ps: 1,
           facets: this.options.distributionAxis,

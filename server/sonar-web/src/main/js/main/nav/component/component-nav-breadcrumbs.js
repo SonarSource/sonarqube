@@ -26,7 +26,7 @@ export default React.createClass({
       return null;
     }
     const items = this.props.breadcrumbs.map((item, index) => {
-      const url = `${window.baseUrl}/dashboard/index?id=${encodeURIComponent(item.key)}`;
+      const url = `/dashboard/index?id=${encodeURIComponent(item.key)}`;
       return (
           <li key={index}>
             <a href={url}>

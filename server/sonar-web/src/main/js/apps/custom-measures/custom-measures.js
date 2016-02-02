@@ -29,7 +29,7 @@ export default Backbone.Collection.extend({
   },
 
   url: function () {
-    return baseUrl + '/api/custom_measures/search';
+    return '/api/custom_measures/search';
   },
 
   parse: function (r) {

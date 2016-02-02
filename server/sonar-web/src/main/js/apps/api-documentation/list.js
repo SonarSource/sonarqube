@@ -21,7 +21,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 
 export default Backbone.Collection.extend({
-  url: baseUrl + '/api/webservices/list',
+  url: '/api/webservices/list',
   comparator: 'path',
 
   parse: function (r) {

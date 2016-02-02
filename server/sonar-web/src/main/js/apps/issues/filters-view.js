@@ -75,26 +75,26 @@ export default Marionette.ItemView.extend({
 
   saveAs: function () {
     var query = this.options.app.controller.getQuery('&'),
-        url = baseUrl + '/issues/save_as_form?' + query;
+        url = '/issues/save_as_form?' + query;
     window.openModalWindow(url, {});
   },
 
   save: function () {
     var that = this;
     var query = this.options.app.controller.getQuery('&'),
-        url = baseUrl + '/issues/save/' + (this.options.app.state.get('filter').id) + '?' + query;
+        url = '/issues/save/' + (this.options.app.state.get('filter').id) + '?' + query;
     return $.post(url).done(function () {
       return that.options.app.state.set({ changed: false });
     });
   },
 
   copy: function () {
-    var url = baseUrl + '/issues/copy_form/' + (this.options.app.state.get('filter').id);
+    var url = '/issues/copy_form/' + (this.options.app.state.get('filter').id);
     window.openModalWindow(url, {});
   },
 
   edit: function () {
-    var url = baseUrl + '/issues/edit_form/' + (this.options.app.state.get('filter').id);
+    var url = '/issues/edit_form/' + (this.options.app.state.get('filter').id);
     window.openModalWindow(url, {});
   },
 

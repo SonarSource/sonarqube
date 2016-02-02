@@ -22,7 +22,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default React.createClass({
   render() {
-    let qualityGatesUrl = window.baseUrl + '/quality_gates';
+    let qualityGatesUrl = '/quality_gates';
 
     return (
         <div className="overview-gate">

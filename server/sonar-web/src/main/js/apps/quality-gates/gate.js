@@ -26,7 +26,7 @@ export default Backbone.Model.extend({
   },
 
   url: function () {
-    return baseUrl + '/api/qualitygates';
+    return '/api/qualitygates';
   },
 
   showUrl: function () {

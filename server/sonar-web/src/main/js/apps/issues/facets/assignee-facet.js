@@ -26,7 +26,7 @@ export default CustomValuesFacet.extend({
   template: Template,
 
   getUrl: function () {
-    return baseUrl + '/api/users/search';
+    return '/api/users/search';
   },
 
   prepareAjaxSearch: function () {

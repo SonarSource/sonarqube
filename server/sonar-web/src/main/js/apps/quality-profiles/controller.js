@@ -99,7 +99,7 @@ export default Marionette.Controller.extend({
 
   onProfileSetAsDefault: function (profile) {
     var that = this,
-        url = baseUrl + '/api/qualityprofiles/set_default',
+        url = '/api/qualityprofiles/set_default',
         key = profile.get('key'),
         options = { profileKey: key };
     return $.post(url, options).done(function () {

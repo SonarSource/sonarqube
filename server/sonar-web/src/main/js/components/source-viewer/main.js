@@ -149,7 +149,7 @@ export default Marionette.LayoutView.extend({
 
   requestComponent: function () {
     var that = this,
-        url = baseUrl + '/api/components/app',
+        url = '/api/components/app',
         data = { uuid: this.model.id };
     return $.ajax({
       type: 'GET',
@@ -205,7 +205,7 @@ export default Marionette.LayoutView.extend({
 
   requestSource: function () {
     var that = this,
-        url = baseUrl + '/api/sources/lines',
+        url = '/api/sources/lines',
         options = _.extend({ uuid: this.model.id }, this.linesLimit());
     return $.get(url, options).done(function (data) {
       var source = (data.sources || []).slice(0);
@@ -242,7 +242,7 @@ export default Marionette.LayoutView.extend({
 
   requestDuplications: function () {
     var that = this,
-        url = baseUrl + '/api/duplications/show',
+        url = '/api/duplications/show',
         options = { uuid: this.model.id };
     return $.get(url, options, function (data) {
       var hasDuplications = (data != null) && (data.duplications != null),
@@ -417,7 +417,7 @@ export default Marionette.LayoutView.extend({
     this.clearTooltips();
     var line = $(e.currentTarget).data('line-number'),
         row = _.findWhere(this.model.get('source'), { line: line }),
-        url = baseUrl + '/api/tests/list',
+        url = '/api/tests/list',
         options = {
           sourceFileId: this.model.id,
           sourceFileLineNumber: line,
@@ -605,7 +605,7 @@ export default Marionette.LayoutView.extend({
     var that = this,
         source = this.model.get('source'),
         firstLine = _.first(source).line,
-        url = baseUrl + '/api/sources/lines',
+        url = '/api/sources/lines',
         options = {
           uuid: this.model.id,
           from: firstLine - this.LINES_AROUND,
@@ -651,7 +651,7 @@ export default Marionette.LayoutView.extend({
     var that = this,
         source = this.model.get('source'),
         lastLine = _.last(source).line,
-        url = baseUrl + '/api/sources/lines',
+        url = '/api/sources/lines',
         options = {
           uuid: this.model.id,
           from: lastLine + 1,

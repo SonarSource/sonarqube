@@ -34,7 +34,7 @@ export default Marionette.ItemView.extend({
   initialize: function () {
     var that = this;
     this.rules = [];
-    $.get(baseUrl + '/api/rules/search?repositories=manual&f=name&ps=9999999').done(function (r) {
+    $.get('/api/rules/search?repositories=manual&f=name&ps=9999999').done(function (r) {
       that.rules = r.rules;
       that.render();
     });

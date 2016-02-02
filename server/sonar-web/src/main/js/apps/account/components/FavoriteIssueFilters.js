@@ -42,7 +42,7 @@ const FavoriteIssueFilters = ({ issueFilters }) => (
                   <FavoriteIssueFilter filter={f} favorite={true}/>
                 </td>
                 <td>
-                  <a href={`${window.baseUrl}/issues/search#id=${f.id}`}>
+                  <a href={`/issues/search#id=${f.id}`}>
                     {f.name}
                   </a>
                 </td>
@@ -52,7 +52,7 @@ const FavoriteIssueFilters = ({ issueFilters }) => (
       </table>
 
       <div className="spacer-top small">
-        <a href={`${window.baseUrl}/issues/manage`}>{translate('see_all')}</a>
+        <a href="/issues/manage">{translate('see_all')}</a>
       </div>
 
     </section>

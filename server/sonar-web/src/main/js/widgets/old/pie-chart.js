@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/*global d3:false, baseUrl:false */
+/*global d3:false */
 /*jshint eqnull:true */
 
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;

@@ -27,7 +27,7 @@ export default Modal.extend({
 
   onRender: function () {
     Modal.prototype.onRender.apply(this, arguments);
-    var searchUrl = baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission +
+    var searchUrl = '/api/permissions/users?ps=100&permission=' + this.options.permission +
         '&projectId=' + this.options.project;
     new window.SelectList({
       el: this.$('#project-permissions-users'),
@@ -39,8 +39,8 @@ export default Modal.extend({
       },
       queryParam: 'q',
       searchUrl: searchUrl,
-      selectUrl: baseUrl + '/api/permissions/add_user',
-      deselectUrl: baseUrl + '/api/permissions/remove_user',
+      selectUrl: '/api/permissions/add_user',
+      deselectUrl: '/api/permissions/remove_user',
       extra: {
         permission: this.options.permission,
         projectId: this.options.project

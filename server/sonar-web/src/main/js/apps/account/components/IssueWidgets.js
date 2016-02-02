@@ -32,27 +32,27 @@ const BASE_QUERY = { resolved: false, assignees: '__me__' };
 
 
 function getTotalUrl () {
-  return window.baseUrl + '/account/issues#resolved=false';
+  return '/account/issues#resolved=false';
 }
 
 function getToFixUrl () {
-  return window.baseUrl + '/account/issues#resolved=false|statuses=CONFIRMED';
+  return '/account/issues#resolved=false|statuses=CONFIRMED';
 }
 
 function getToReviewUrl () {
-  return window.baseUrl + '/account/issues#resolved=false|statuses=' + encodeURIComponent('OPEN,REOPENED');
+  return '/account/issues#resolved=false|statuses=' + encodeURIComponent('OPEN,REOPENED');
 }
 
 function getSeverityUrl (severity) {
-  return window.baseUrl + '/account/issues#resolved=false|severities=' + severity;
+  return '/account/issues#resolved=false|severities=' + severity;
 }
 
 function getProjectUrl (project) {
-  return window.baseUrl + '/account/issues#resolved=false|projectUuids=' + project;
+  return '/account/issues#resolved=false|projectUuids=' + project;
 }
 
 function getPeriodUrl (createdAfter, createdBefore) {
-  return window.baseUrl + `/account/issues#resolved=false|createdAfter=${createdAfter}|createdBefore=${createdBefore}`;
+  return `/account/issues#resolved=false|createdAfter=${createdAfter}|createdBefore=${createdBefore}`;
 }
 
 
