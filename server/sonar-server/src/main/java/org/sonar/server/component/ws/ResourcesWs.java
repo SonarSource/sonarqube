@@ -44,11 +44,14 @@ public class ResourcesWs implements WebService {
       .setDescription("Gets a list of components. Requires Browse permission on resource.<br>" +
         "The web service is deprecated and you're invited to use the alternatives: " +
         "<ul>" +
-        "<li>if you need components only: api/components/tree</li>" +
-        "<li>if you need components with measures: api/measures/component_tree</li>" +
+        "<li>if you need one component without measures: api/components/show</li>" +
+        "<li>if you need one component with measures: api/measures/component</li>" +
+        "<li>if you need several components without measures: api/components/tree</li>" +
+        "<li>if you need several components with measures: api/measures/component_tree</li>" +
         "</ul>" +
-        "When you provide one metric, the number of results is limited to 500. When several metrics are provided, the number of results is not limited. " +
-        "This is a known limitation and it won't be fixed.")
+        "When you provide one metric, the number of results is limited to 500. When several metrics are provided, the number of measures is limited to 10000. " +
+        "The number of components is limited to 500." +
+        "This is a known limitation and it won't be fixed. You're invited to use the alternatives suggested above.")
       .setSince("2.10")
       .setDeprecatedSince("5.4")
       .setHandler(RailsHandler.INSTANCE)
