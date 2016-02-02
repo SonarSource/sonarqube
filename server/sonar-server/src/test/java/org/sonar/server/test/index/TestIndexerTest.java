@@ -169,10 +169,6 @@ public class TestIndexerTest {
     indexTest("P1", "F2", "T1", "U121");
     indexTest("P2", "F3", "T1", "U231");
 
-    for (SearchHit hit : getDocuments()) {
-      System.out.println("BEFORE " + hit.getSourceAsString());
-    }
-
     underTest.deleteByProject("P1");
 
     List<SearchHit> hits = getDocuments();
