@@ -123,7 +123,8 @@ class Api::ResourcesController < Api::ApiController
       measures_conditions=[]
       measures_values={}
       measures_order = nil
-      measures_limit = nil
+      # SONAR-6584 avoid OOM errors
+      measures_limit = 10000
       measures_by_sid={}
       measures=nil
       rules_by_id=nil
@@ -225,7 +226,11 @@ class Api::ResourcesController < Api::ApiController
         snapshots_conditions << 'projects.qualifier in (:qualifiers)'
       end
 
-      snapshots_including_resource=Snapshot.all(:conditions => [snapshots_conditions.join(' AND '), snapshots_values], :include => 'project')
+      snapshots_including_resource=Snapshot.all(
+        :conditions => [snapshots_conditions.join(' AND '), snapshots_values],
+        :include => 'project',
+        # SONAR-6584 avoid OOM errors
+        :limit => 500)
 
       # ---------- APPLY SECURITY - remove unauthorized resources - only if no selected resource
       if @resource.nil?
