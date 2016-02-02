@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ADD_PROJECT_NOTIFICATIONS, REMOVE_PROJECT_NOTIFICATIONS } from './actions';
+import { RECEIVE_USER, ADD_PROJECT_NOTIFICATIONS, REMOVE_PROJECT_NOTIFICATIONS } from './actions';
 
 function addProjectNotifications (state, project) {
   const found = state.find(notification => {
@@ -48,12 +48,17 @@ function removeProjectNotifications (state, project) {
 }
 
 export const initialState = {
-  user: window.sonarqube.user,
+  user: null,
   projectNotifications: window.sonarqube.notifications.project
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
+    case RECEIVE_USER:
+      return {
+        ...state,
+        user: action.user
+      };
     case ADD_PROJECT_NOTIFICATIONS:
       return {
         ...state,

@@ -23,7 +23,8 @@ import Security from './../components/Security';
 
 function mapStateToProps (state) {
   return {
-    user: state.user
+    user: state.user,
+    canChangePassword: window.sonarqube.user.canChangePassword
   };
 }
 

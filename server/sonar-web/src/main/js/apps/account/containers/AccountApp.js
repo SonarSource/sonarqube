@@ -18,14 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component, cloneElement } from 'react';
+import { connect } from 'react-redux';
 
 import Nav from '../components/Nav';
+import { fetchUser } from '../store/actions';
 import { getIssueFilters } from '../../../api/issues';
 
-export default class AccountApp extends Component {
+class AccountApp extends Component {
   state = {};
 
   componentDidMount () {
+    this.props.fetchUser();
     this.fetchFavoriteIssueFilters();
   }
 
@@ -37,8 +40,13 @@ export default class AccountApp extends Component {
   }
 
   render () {
-    const { user } = window.sonarqube;
-    const { favorites } = user;
+    const { user } = this.props;
+
+    if (!user) {
+      return null;
+    }
+
+    const { favorites } = window.sonarqube.user;
     const { issueFilters } = this.state;
     const children = cloneElement(this.props.children, {
       measureFilters: user.favoriteMeasureFilters,
@@ -55,3 +63,16 @@ export default class AccountApp extends Component {
     );
   }
 }
+
+function mapStateToProps (state) {
+  return { user: state.user };
+}
+
+function mapDispatchToProps (dispatch) {
+  return { fetchUser: () => dispatch(fetchUser()) };
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(AccountApp);

@@ -17,8 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { getCurrentUser } from '../../../api/users';
+
+export const REQUEST_USER = 'REQUEST_USER';
+export const RECEIVE_USER = 'RECEIVE_USER';
 export const ADD_PROJECT_NOTIFICATIONS = 'ADD_PROJECT_NOTIFICATIONS';
 export const REMOVE_PROJECT_NOTIFICATIONS = 'REMOVE_PROJECT_NOTIFICATIONS';
+
+export function requestUser () {
+  return {
+    type: REQUEST_USER
+  };
+}
+
+export function receiveUser (user) {
+  return {
+    type: RECEIVE_USER,
+    user
+  };
+}
 
 export function addProjectNotifications (project) {
   return {
@@ -31,5 +48,12 @@ export function removeProjectNotifications (project) {
   return {
     type: REMOVE_PROJECT_NOTIFICATIONS,
     project
+  };
+}
+
+export function fetchUser () {
+  return dispatch => {
+    dispatch(requestUser());
+    return getCurrentUser().then(user => dispatch(receiveUser(user)));
   };
 }

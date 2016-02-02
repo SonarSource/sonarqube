@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import { post, postJSON } from '../helpers/request.js';
+import { getJSON, post } from '../helpers/request.js';
 
 export function getCurrentUser () {
   const url = baseUrl + '/api/users/current';
-  return $.get(url);
+  return getJSON(url);
 }
 
 export function changePassword (login, password, previousPassword) {

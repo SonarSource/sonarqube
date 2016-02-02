@@ -56,6 +56,18 @@ const Home = ({ user, favorites, issueFilters, measureFilters }) => (
           <section className="huge-spacer-top">
             <h2 className="spacer-bottom">{translate('my_profile.scm_accounts')}</h2>
             <ul id="scm-accounts">
+              <li
+                  className="little-spacer-bottom text-ellipsis"
+                  title={user.login}>
+                {user.login}
+              </li>
+              {user.email && (
+                  <li
+                      className="little-spacer-bottom text-ellipsis"
+                      title={user.email}>
+                    {user.email}
+                  </li>
+              )}
               {user.scmAccounts.map(scmAccount => (
                   <li
                       key={scmAccount}
