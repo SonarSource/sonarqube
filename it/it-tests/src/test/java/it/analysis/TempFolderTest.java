@@ -25,6 +25,8 @@ import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import java.io.File;
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -56,7 +58,7 @@ public class TempFolderTest {
 
   // SONAR-4748
   @Test
-  public void should_create_in_temp_folder() {
+  public void should_create_in_temp_folder() throws IOException {
     File projectDir = ItUtils.projectDir("shared/xoo-sample");
     BuildResult result = scan();
 
@@ -65,9 +67,9 @@ public class TempFolderTest {
 
     result = scan("sonar.createTempFiles", "true");
     assertThat(result.getLogs()).contains(
-      "Creating temp directory: " + projectDir.getAbsolutePath() + File.separator + ".sonar" + File.separator + ".sonartmp" + File.separator + "sonar-it");
+      "Creating temp directory: " + projectDir.getCanonicalPath() + File.separator + ".sonar" + File.separator + ".sonartmp" + File.separator + "sonar-it");
     assertThat(result.getLogs()).contains(
-      "Creating temp file: " + projectDir.getAbsolutePath() + File.separator + ".sonar" + File.separator + ".sonartmp" + File.separator + "sonar-it");
+      "Creating temp file: " + projectDir.getCanonicalPath() + File.separator + ".sonar" + File.separator + ".sonartmp" + File.separator + "sonar-it");
 
     // Verify temp folder is deleted after analysis
     assertThat(new File(projectDir, ".sonar/.sonartmp/sonar-it")).doesNotExist();
