@@ -55,7 +55,9 @@
 
   <properties>
     <sonarUpdateCenter.version>1.13</sonarUpdateCenter.version>
-    <sonarJava.version>3.7.1</sonarJava.version>
+    <sonarJava.version>3.9</sonarJava.version>
+    <sonarJavaScript.version>2.10</sonarJavaScript.version>
+    <sonarCSharp.version>4.4</sonarCSharp.version>
     <sonarGit.version>1.0</sonarGit.version>
     <sonarSvn.version>1.2</sonarSvn.version>
     <h2.version>1.3.176</h2.version>
@@ -530,6 +532,7 @@
         <artifactId>sonar-java-plugin</artifactId>
         <version>${sonarJava.version}</version>
         <type>sonar-plugin</type>
+        <!--<scope>provided</scope>-->
         <exclusions>
           <!-- A banned dependency is bring because java-squid is using maven-project:2.07
           This exclusion should be removed when the plugin will no more used maven-project -->
@@ -537,7 +540,24 @@
             <groupId>classworlds</groupId>
             <artifactId>classworlds</artifactId>
           </exclusion>
+          <!-- The mockito version of the Java plugin is not compatible with the mockito version used in SonarQube -->
+          <exclusion>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+          </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.javascript</groupId>
+        <artifactId>sonar-javascript-plugin</artifactId>
+        <version>${sonarJavaScript.version}</version>
+        <type>sonar-plugin</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.dotnet</groupId>
+        <artifactId>sonar-csharp-plugin</artifactId>
+        <version>${sonarCSharp.version}</version>
+        <type>sonar-plugin</type>
       </dependency>
       <dependency>
         <groupId>commons-collections</groupId>

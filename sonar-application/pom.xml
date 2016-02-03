@@ -92,6 +92,18 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.javascript</groupId>
+      <artifactId>sonar-javascript-plugin</artifactId>
+      <type>sonar-plugin</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.dotnet</groupId>
+      <artifactId>sonar-csharp-plugin</artifactId>
+      <type>sonar-plugin</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.sonar-plugins</groupId>
       <artifactId>sonar-scm-git-plugin</artifactId>
       <type>sonar-plugin</type>
@@ -220,8 +232,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>100000000</minsize>
-                  <maxsize>115000000</maxsize>
+                  <minsize>105000000</minsize>
+                  <maxsize>120000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>
