@@ -1,0 +1,10 @@
+{
+  "user": {
+    "login": "john",
+    "name": "John",
+    "active": true,
+    "scmAccounts": [
+      "jn"
+    ]
+  }
+}

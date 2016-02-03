@@ -28,27 +28,28 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class UpdateActionTest {
@@ -61,7 +62,7 @@ public class UpdateActionTest {
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
   @Rule
   public final UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin")
-      .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
   WebService.Controller controller;
 
@@ -148,6 +149,20 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void blank_email_is_updated_to_null() throws Exception {
+    createUser();
+
+    tester.newPostRequest("api/users", "update")
+      .setParam("login", "john")
+      .setParam("email", "")
+      .execute()
+      .assertJson(getClass(), "blank_email_is_updated_to_null.json");
+
+    UserDto userDto = dbClient.userDao().selectByLogin(session, "john");
+    assertThat(userDto.getEmail()).isNull();
+  }
+
+  @Test
   public void update_only_scm_accounts() throws Exception {
     createUser();
 
@@ -175,7 +190,9 @@ public class UpdateActionTest {
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
-      .setActive(true));
+      .setActive(true))
+      .setExternalIdentity("jo")
+      .setExternalIdentityProvider("sonarqube");
     session.commit();
     userIndexer.index();
   }

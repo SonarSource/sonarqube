@@ -36,6 +36,8 @@ import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
+import static com.google.common.base.Strings.emptyToNull;
+
 public class UpdateAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
@@ -97,7 +99,7 @@ public class UpdateAction implements UsersWsAction {
       updateUser.setName(request.mandatoryParam(PARAM_NAME));
     }
     if (request.hasParam(PARAM_EMAIL)) {
-      updateUser.setEmail(request.param(PARAM_EMAIL));
+      updateUser.setEmail(emptyToNull(request.param(PARAM_EMAIL)));
     }
     if (request.hasParam(PARAM_SCM_ACCOUNTS) || request.hasParam(PARAM_SCM_ACCOUNTS_DEPRECATED)) {
       updateUser.setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS));
