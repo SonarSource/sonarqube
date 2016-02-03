@@ -8,6 +8,7 @@ var autoprefixer = require('gulp-autoprefixer');
 
 
 var nanoOptions = {
+  zindex: false,
   discardComments: { removeAll: true }
 };
 
