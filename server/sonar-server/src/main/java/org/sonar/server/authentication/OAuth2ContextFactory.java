@@ -25,8 +25,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.utils.MessageException;
 
+import static java.lang.String.format;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
+import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
 
 public class OAuth2ContextFactory {
 
@@ -64,9 +67,9 @@ public class OAuth2ContextFactory {
     public String getCallbackUrl() {
       String publicRootUrl = server.getPublicRootUrl();
       if (publicRootUrl.startsWith("http:") && !server.isDev()) {
-        throw new IllegalStateException(String.format("The server url should be configured in https, please update the property '%s'", SERVER_BASE_URL));
+        throw MessageException.of(format("The server url should be configured in https, please update the property '%s'", SERVER_BASE_URL));
       }
-      return publicRootUrl +  OAuth2CallbackFilter.CALLBACK_PATH + "/" + identityProvider.getKey();
+      return publicRootUrl +  CALLBACK_PATH + "/" + identityProvider.getKey();
     }
 
     @Override
@@ -89,7 +92,7 @@ public class OAuth2ContextFactory {
       try {
         response.sendRedirect(url);
       } catch (IOException e) {
-        throw new IllegalStateException(String.format("Fail to redirect to %s", url), e);
+        throw new IllegalStateException(format("Fail to redirect to %s", url), e);
       }
     }
 

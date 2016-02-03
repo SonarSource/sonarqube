@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.utils.MessageException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -104,7 +105,7 @@ public class OAuth2ContextFactoryTest {
 
     OAuth2IdentityProvider.InitContext context = underTest.newContext(request, response, identityProvider);
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("The server url should be configured in https, please update the property 'sonar.core.serverBaseURL'");
     context.getCallbackUrl();
   }
