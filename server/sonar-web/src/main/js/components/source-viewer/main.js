@@ -541,20 +541,17 @@ export default Marionette.LayoutView.extend({
 
   bindScrollEvents: function () {
     var that = this;
-    this.$el.scrollParent().on('scroll.source-viewer', function () {
+    $(window).on('scroll.source-viewer', function () {
       that.onScroll();
     });
   },
 
   unbindScrollEvents: function () {
-    this.$el.scrollParent().off('scroll.source-viewer');
+    $(window).off('scroll.source-viewer');
   },
 
   onScroll: function () {
-    var p = this.$el.scrollParent();
-    if (p.is(document)) {
-      p = $(window);
-    }
+    var p = $(window);
     var pTopOffset = p.offset() != null ? p.offset().top : 0,
         pPosition = p.scrollTop() + pTopOffset;
     if (this.model.get('hasSourceBefore') && (pPosition <= this.ui.sourceBeforeSpinner.offset().top)) {
@@ -568,10 +565,7 @@ export default Marionette.LayoutView.extend({
   scrollToLine: function (line) {
     var row = this.$('.source-line[data-line-number=' + line + ']');
     if (row.length > 0) {
-      var p = this.$el.scrollParent();
-      if (p.is(document)) {
-        p = $(window);
-      }
+      var p = $(window);
       var pTopOffset = p.offset() != null ? p.offset().top : 0,
           pHeight = p.height(),
           goal = row.offset().top - pHeight / 3 - pTopOffset;
@@ -583,10 +577,7 @@ export default Marionette.LayoutView.extend({
   scrollToFirstLine: function (line) {
     var row = this.$('.source-line[data-line-number=' + line + ']');
     if (row.length > 0) {
-      var p = this.$el.scrollParent();
-      if (p.is(document)) {
-        p = $(window);
-      }
+      var p = $(window);
       var pTopOffset = p.offset() != null ? p.offset().top : 0,
           goal = row.offset().top - pTopOffset;
       p.scrollTop(goal);
@@ -597,7 +588,7 @@ export default Marionette.LayoutView.extend({
   scrollToLastLine: function (line) {
     var row = this.$('.source-line[data-line-number=' + line + ']');
     if (row.length > 0) {
-      var p = this.$el.scrollParent();
+      var p = $(window);
       if (p.is(document)) {
         p = $(window);
       }
