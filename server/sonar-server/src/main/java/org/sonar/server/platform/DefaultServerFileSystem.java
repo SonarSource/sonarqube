@@ -116,10 +116,6 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     return server.getDeployDir();
   }
 
-  public File getDeployedJdbcDriverIndex() {
-    return new File(getDeployDir(), "jdbc-driver.txt");
-  }
-
   public File getDeployedPluginsDir() {
     return new File(getDeployDir(), "plugins");
   }

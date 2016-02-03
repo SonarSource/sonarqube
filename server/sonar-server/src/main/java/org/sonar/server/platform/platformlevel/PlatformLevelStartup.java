@@ -29,7 +29,6 @@ import org.sonar.server.search.IndexSynchronizer;
 import org.sonar.server.startup.ClearRulesOverloadedDebt;
 import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
 import org.sonar.server.startup.GeneratePluginIndex;
-import org.sonar.server.startup.JdbcDriverDeployer;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.startup.RegisterDashboards;
 import org.sonar.server.startup.RegisterDebtModel;
@@ -55,7 +54,6 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterQualityGates.class,
       RegisterRules.class,
       RegisterQualityProfiles.class,
-      JdbcDriverDeployer.class,
       RegisterDebtModel.class,
       GeneratePluginIndex.class,
       RegisterNewMeasureFilters.class,
