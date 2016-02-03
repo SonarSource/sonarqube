@@ -2,7 +2,7 @@
   <tr>
     <td align="center">
       <div id="login_form">
-        <p id="unauthorized">Email <%= h params[:email] %> is already used by an existing user</p>
+        <p id="unauthorized">You can't sign up because email '<%= h params[:email] %>' is already used by an existing user. This means that you probably already registered with another account.</p>
       </div>
       <br/>
       <a class="spacer-left" href="<%= home_path -%>"><%= message('layout.home') -%></a>
