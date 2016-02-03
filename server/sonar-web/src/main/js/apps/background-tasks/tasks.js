@@ -67,8 +67,7 @@ export default React.createClass({
       default:
         inner = '';
     }
-    return <td className="thin spacer-right" title={translate('background_task.status', task.status)}
-               data-toggle="tooltip">{inner}</td>;
+    return <td className="thin spacer-right">{inner}</td>;
   },
 
   renderTaskComponent(task) {
