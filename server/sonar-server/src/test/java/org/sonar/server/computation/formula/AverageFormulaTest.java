@@ -24,7 +24,6 @@ import org.assertj.guava.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
@@ -36,7 +35,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
 import static org.sonar.server.computation.formula.AverageFormula.Builder;
@@ -51,7 +49,7 @@ public class AverageFormulaTest {
 
   CounterInitializationContext counterInitializationContext = mock(CounterInitializationContext.class);
   CreateMeasureContext createMeasureContext = new DumbCreateMeasureContext(
-      ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
+    ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -205,42 +203,6 @@ public class AverageFormulaTest {
     counter.initialize(counterInitializationContext);
 
     Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext)).isAbsent();
-  }
-
-  @Test
-  public void create_measure_from_fall_back_measure() {
-    AverageFormula underTest = Builder.newBuilder()
-      .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
-      .setByMetricKey(FUNCTIONS_KEY)
-      .setFallbackMetricKey(CoreMetrics.COMPLEXITY_KEY)
-      .build();
-
-    AverageFormula.AverageCounter counter = underTest.createNewCounter();
-    when(counterInitializationContext.getMeasure(COMPLEXITY_IN_FUNCTIONS_KEY)).thenReturn(Optional.<Measure>absent());
-    addMeasure(COMPLEXITY_KEY, 10d);
-    addMeasure(FUNCTIONS_KEY, 2d);
-    counter.initialize(counterInitializationContext);
-
-    assertThat(underTest.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
-  }
-
-  @Test
-  public void not_use_fallback_measure_if_main_measure_exists() {
-    AverageFormula underTest = Builder.newBuilder()
-      .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
-      .setByMetricKey(FUNCTIONS_KEY)
-      .setFallbackMetricKey(CoreMetrics.COMPLEXITY_KEY)
-      .build();
-
-    AverageFormula.AverageCounter counter = underTest.createNewCounter();
-    addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10d);
-    addMeasure(COMPLEXITY_KEY, 12d);
-    addMeasure(FUNCTIONS_KEY, 2d);
-    counter.initialize(counterInitializationContext);
-
-    assertThat(underTest.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
   }
 
   private void addMeasure(String metricKey, double value) {

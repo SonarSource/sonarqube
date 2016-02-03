@@ -20,8 +20,6 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.server.computation.measure.Measure;
 
 import static java.util.Objects.requireNonNull;
@@ -32,14 +30,11 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
 
   private final String mainMetric;
   private final String byMetric;
-  @CheckForNull
-  private final String fallbackMetric;
 
   private AverageFormula(Builder builder) {
     this.outputMetricKey = builder.outputMetricKey;
     this.mainMetric = builder.mainMetric;
     this.byMetric = builder.byMetric;
-    this.fallbackMetric = builder.fallbackMetric;
   }
 
   @Override
@@ -70,8 +65,6 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
     private String outputMetricKey;
     private String mainMetric;
     private String byMetric;
-    @CheckForNull
-    private String fallbackMetric;
 
     private Builder() {
       // prevents instantiation outside static method
@@ -93,11 +86,6 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
 
     public Builder setByMetricKey(String m) {
       this.byMetric = m;
-      return this;
-    }
-
-    public Builder setFallbackMetricKey(@Nullable String m) {
-      this.fallbackMetric = m;
       return this;
     }
 
@@ -124,9 +112,6 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
     @Override
     public void initialize(CounterInitializationContext context) {
       Optional<Double> mainValueOptional = getDoubleValue(context.getMeasure(mainMetric));
-      if (!mainValueOptional.isPresent() && fallbackMetric != null) {
-        mainValueOptional = getDoubleValue(context.getMeasure(fallbackMetric));
-      }
       Optional<Double> byValueOptional = getDoubleValue(context.getMeasure(byMetric));
       addValuesIfPresent(mainValueOptional, byValueOptional);
     }

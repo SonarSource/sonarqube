@@ -175,18 +175,8 @@ public class ViewsComplexityMeasuresStepTest {
   }
 
   @Test
-  public void compute_and_aggregate_class_complexity_with_fallback_metric() throws Exception {
-    verify_average_compute_and_aggregation(CLASS_COMPLEXITY_KEY, COMPLEXITY_KEY, CLASSES_KEY);
-  }
-
-  @Test
   public void compute_and_aggregate_function_complexity() throws Exception {
     verify_average_compute_and_aggregation(FUNCTION_COMPLEXITY_KEY, COMPLEXITY_IN_FUNCTIONS_KEY, FUNCTIONS_KEY);
-  }
-
-  @Test
-  public void compute_and_aggregate_function_complexity_with_fallback_metric() throws Exception {
-    verify_average_compute_and_aggregation(FUNCTION_COMPLEXITY_KEY, COMPLEXITY_KEY, FUNCTIONS_KEY);
   }
 
   private void verify_average_compute_and_aggregation(String metricKey, String mainMetric, String byMetric) {

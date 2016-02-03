@@ -62,12 +62,10 @@ public class ComplexityMeasuresStep implements ComputationStep {
     AverageFormula.Builder.newBuilder().setOutputMetricKey(CLASS_COMPLEXITY_KEY)
       .setMainMetricKey(COMPLEXITY_IN_CLASSES_KEY)
       .setByMetricKey(CLASSES_KEY)
-      .setFallbackMetricKey(COMPLEXITY_KEY)
       .build(),
     AverageFormula.Builder.newBuilder().setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
       .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
       .setByMetricKey(FUNCTIONS_KEY)
-      .setFallbackMetricKey(COMPLEXITY_KEY)
       .build());
 
   private final TreeRootHolder treeRootHolder;
@@ -84,7 +82,7 @@ public class ComplexityMeasuresStep implements ComputationStep {
   public void execute() {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(FORMULAS))
-        .visit(treeRootHolder.getRoot());
+      .visit(treeRootHolder.getRoot());
   }
 
   @Override
