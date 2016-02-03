@@ -6,7 +6,14 @@
 
   <% if !@snapshot %>
 
-  <p class="alert alert-warning"><%= message('provisioning.no_analysis') -%></p>
+  <div class="alert alert-warning">
+    <%= h message('provisioning.no_analysis') -%>
+  </div>
+
+  <div className="big-spacer-top">
+    <h4><%= h message('key') -%></h4>
+    <code><%= h @project.key -%></code>
+  </div>
 
   <% elsif @snapshot.root? %>
 

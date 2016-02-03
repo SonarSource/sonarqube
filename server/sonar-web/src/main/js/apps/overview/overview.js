@@ -116,6 +116,10 @@ export const EmptyOverview = React.createClass({
           <div className="alert alert-warning">
             {translate('provisioning.no_analysis')}
           </div>
+          <div className="big-spacer-top">
+            <h4>{translate('key')}</h4>
+            <code>{this.props.component.key}</code>
+          </div>
         </div>
     );
   }
