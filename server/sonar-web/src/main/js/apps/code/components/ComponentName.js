@@ -22,6 +22,7 @@ import React from 'react';
 
 import Truncated from './Truncated';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
+import { getComponentUrl } from '../../../helpers/urls';
 
 
 function getTooltip (component) {
@@ -62,23 +63,24 @@ const Component = ({ component, previous, onBrowse }) => {
         <span>{component.name.substr(prefix.length)}</span>
       </span>
   ) : component.name;
-  const canBrowse = !!onBrowse;
+
+  let inner = null;
+
+  if (component.refKey) {
+    inner = <a href={getComponentUrl(component.refKey)}>{name}</a>;
+  } else {
+    if (onBrowse) {
+      inner = <a onClick={handleClick} href="#">{name}</a>;
+    } else {
+      inner = <span>{name}</span>;
+    }
+  }
 
   return (
       <Truncated title={getTooltip(component)}>
         <QualifierIcon qualifier={component.qualifier}/>
         {' '}
-        {canBrowse ? (
-            <a
-                onClick={handleClick}
-                href="#">
-              {name}
-            </a>
-        ) : (
-            <span>
-              {name}
-            </span>
-        )}
+        {inner}
       </Truncated>
   );
 };
