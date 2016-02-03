@@ -34,14 +34,12 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
@@ -53,7 +51,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
@@ -99,7 +96,7 @@ public class SearchTemplatesActionTest {
 
     ws = new WsActionTester(underTest);
 
-    userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.login();
   }
 
   @Test
@@ -170,14 +167,6 @@ public class SearchTemplatesActionTest {
   public void fail_if_not_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
-
-    ws.newRequest().execute();
-  }
-
-  @Test
-  public void fail_if_not_global_admin() {
-    expectedException.expect(ForbiddenException.class);
-    userSession.login().setGlobalPermissions(QUALITY_PROFILE_ADMIN);
 
     ws.newRequest().execute();
   }

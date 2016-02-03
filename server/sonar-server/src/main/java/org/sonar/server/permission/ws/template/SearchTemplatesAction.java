@@ -38,7 +38,6 @@ import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse.TemplateIdQualif
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchTemplatesAction implements PermissionsWsAction {
@@ -61,7 +60,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     context.createAction("search_templates")
       .setDescription("List permission templates.<br />" +
-        "It requires administration permissions to access.")
+        "It requires to be authenticated.")
       .setResponseExample(getClass().getResource("search_templates-example.json"))
       .setSince("5.2")
       .addSearchQuery("defau", "permission template names")
@@ -70,7 +69,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    checkGlobalAdminUser(userSession);
+    userSession.checkLoggedIn();
 
     SearchTemplatesWsResponse searchTemplatesWsResponse = doHandle(toSearchTemplatesWsRequest(wsRequest));
     writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
