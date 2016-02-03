@@ -35,6 +35,14 @@ function getTotalUrl () {
   return window.baseUrl + '/account/issues#resolved=false';
 }
 
+function getToFixUrl () {
+  return window.baseUrl + '/account/issues#resolved=false|statuses=CONFIRMED';
+}
+
+function getToReviewUrl () {
+  return window.baseUrl + '/account/issues#resolved=false|statuses=' + encodeURIComponent('OPEN,REOPENED');
+}
+
 function getSeverityUrl (severity) {
   return window.baseUrl + '/account/issues#resolved=false|severities=' + severity;
 }
@@ -70,13 +78,15 @@ export default class IssueWidgets extends Component {
         total: facets.total,
         severities: facets.severities,
         projects: facets.projects,
+        toFix: facets.toFix,
+        toReview: facets.toReview,
         byDate
       });
     });
   }
 
   fetchFacets () {
-    return getFacets(BASE_QUERY, ['severities', 'projectUuids']).then(r => {
+    return getFacets(BASE_QUERY, ['statuses', 'severities', 'projectUuids']).then(r => {
       const severities = _.sortBy(
           _.findWhere(r.facets, { property: 'severities' }).values,
           (facet) => window.severityComparator(facet.val)
@@ -87,9 +97,14 @@ export default class IssueWidgets extends Component {
         return Object.assign({}, p, base);
       });
 
+      const statuses = _.findWhere(r.facets, { property: 'statuses' }).values;
+      const toFix = _.findWhere(statuses, { val: 'CONFIRMED' }).count;
+      const toReview = _.findWhere(statuses, { val: 'OPEN' }).count +
+          _.findWhere(statuses, { val: 'REOPENED' }).count;
+
       const total = r.response.total;
 
-      return { severities, projects, total };
+      return { severities, projects, toFix, toReview, total };
     });
   }
 
@@ -114,7 +129,7 @@ export default class IssueWidgets extends Component {
     return (
         <section className="abs-width-300 huge-spacer-top account-bar-chart">
           <h4 className="spacer-bottom">
-            {translate('my_account.issue_widget.by_creation_date')}
+            {translate('my_account.issue_widget.leak_over_last_week')}
           </h4>
           <BarChart
               data={data}
@@ -131,7 +146,7 @@ export default class IssueWidgets extends Component {
   render () {
     return (
         <section>
-          <h2 className="spacer-bottom">{translate('issues.page')}</h2>
+          <h2 className="spacer-bottom">{translate('my_account.my_issues')}</h2>
 
           {this.state.loading && (
               <i className="spinner"/>
@@ -151,10 +166,32 @@ export default class IssueWidgets extends Component {
                         </a>
                       </td>
                     </tr>
+                    <tr>
+                      <td>
+                        <span className="spacer-left">{translate('my_account.to_review')}</span>
+                      </td>
+                      <td className="thin nowrap text-right">
+                        <a href={getToReviewUrl()}>
+                          {formatMeasure(this.state.toReview, 'SHORT_INT')}
+                        </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <span className="spacer-left">{translate('my_account.to_fix')}</span>
+                      </td>
+                      <td className="thin nowrap text-right">
+                        <a href={getToFixUrl()}>
+                          {formatMeasure(this.state.toFix, 'SHORT_INT')}
+                        </a>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </section>
           )}
+
+          {!this.state.loading && this.renderByDate()}
 
           {!this.state.loading && (
               <section className="abs-width-300 huge-spacer-top">
@@ -203,8 +240,6 @@ export default class IssueWidgets extends Component {
                 </table>
               </section>
           )}
-
-          {!this.state.loading && this.renderByDate()}
         </section>
     );
   }
