@@ -123,8 +123,7 @@ class Api::ResourcesController < Api::ApiController
       measures_conditions=[]
       measures_values={}
       measures_order = nil
-      # SONAR-6584 avoid OOM errors
-      measures_limit = 10000
+      measures_limit = nil
       measures_by_sid={}
       measures=nil
       rules_by_id=nil
@@ -192,7 +191,8 @@ class Api::ResourcesController < Api::ApiController
                                      :select => select_columns_for_measures,
                                      :conditions => [(snapshots_conditions + measures_conditions).join(' AND '), snapshots_values.merge(measures_values)],
                                      :order => measures_order,
-                                     :limit => measures_limit)
+                                     # SONAR-6584 avoid OOM errors
+                                     :limit => measures_limit ? measures_limit : 10000)
 
         measures.each do |measure|
           measures_by_sid[measure.snapshot_id]||=[]
