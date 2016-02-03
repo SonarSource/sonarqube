@@ -73,21 +73,10 @@ public class ListActionTest {
   public void list_based_on_test_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
 
-    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
     db.getSession().commit();
 
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      new TestDoc()
-        .setUuid(TestFile1.UUID)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-        .setName(TestFile1.NAME)
-        .setFileUuid(TestFile1.FILE_UUID)
-        .setDurationInMs(TestFile1.DURATION_IN_MS)
-        .setStatus(TestFile1.STATUS)
-        .setMessage(TestFile1.MESSAGE)
-        .setCoveredFiles(TestFile1.COVERED_FILES)
-        .setStackTrace(TestFile1.STACKTRACE)
-    );
+    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestFile1.doc());
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_ID, TestFile1.UUID);
 
@@ -97,20 +86,10 @@ public class ListActionTest {
   @Test
   public void list_based_on_test_file_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
     db.getSession().commit();
 
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      new TestDoc()
-        .setUuid(TestFile1.UUID)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-        .setName(TestFile1.NAME)
-        .setFileUuid(TestFile1.FILE_UUID)
-        .setDurationInMs(TestFile1.DURATION_IN_MS)
-        .setCoveredFiles(TestFile1.COVERED_FILES)
-        .setStatus(TestFile1.STATUS)
-        .setMessage(TestFile1.MESSAGE)
-        .setStackTrace(TestFile1.STACKTRACE));
+    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestFile1.doc());
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID);
 
@@ -120,21 +99,10 @@ public class ListActionTest {
   @Test
   public void list_based_on_test_file_key() throws Exception {
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID, TestFile1.KEY);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
     db.getSession().commit();
 
-    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      new TestDoc()
-        .setUuid(TestFile1.UUID)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-        .setName(TestFile1.NAME)
-        .setFileUuid(TestFile1.FILE_UUID)
-        .setDurationInMs(TestFile1.DURATION_IN_MS)
-        .setCoveredFiles(TestFile1.COVERED_FILES)
-        .setStatus(TestFile1.STATUS)
-        .setMessage(TestFile1.MESSAGE)
-        .setStackTrace(TestFile1.STACKTRACE)
-    );
+    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestFile1.doc());
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_KEY, TestFile1.KEY);
 
@@ -146,44 +114,16 @@ public class ListActionTest {
     String mainFileUuid = "MAIN-FILE-UUID";
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(db.getSession(),
-      new ComponentDto()
-        .setUuid(TestFile1.FILE_UUID)
-        .setLongName(TestFile1.LONG_NAME)
-        .setKey(TestFile1.KEY)
-        .setProjectUuid(TestFile1.PROJECT_UUID),
-      new ComponentDto()
-        .setUuid(TestFile2.FILE_UUID)
-        .setLongName(TestFile2.LONG_NAME)
-        .setProjectUuid(TestFile2.PROJECT_UUID)
-        .setKey(TestFile2.KEY),
+      TestFile1.dto(),
+      TestFile2.dto(),
       new ComponentDto()
         .setUuid(mainFileUuid)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-    );
+        .setProjectUuid(TestFile1.PROJECT_UUID));
     db.getSession().commit();
 
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      new TestDoc()
-        .setUuid(TestFile1.UUID)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-        .setName(TestFile1.NAME)
-        .setFileUuid(TestFile1.FILE_UUID)
-        .setDurationInMs(TestFile1.DURATION_IN_MS)
-        .setStatus(TestFile1.STATUS)
-        .setMessage(TestFile1.MESSAGE)
-        .setCoveredFiles(TestFile1.COVERED_FILES)
-        .setStackTrace(TestFile1.STACKTRACE),
-      new TestDoc()
-        .setUuid(TestFile2.UUID)
-        .setProjectUuid(TestFile2.PROJECT_UUID)
-        .setName(TestFile2.NAME)
-        .setFileUuid(TestFile2.FILE_UUID)
-        .setDurationInMs(TestFile2.DURATION_IN_MS)
-        .setStatus(TestFile2.STATUS)
-        .setStackTrace(TestFile2.STATUS)
-        .setMessage(TestFile2.MESSAGE)
-        .setCoveredFiles(TestFile2.COVERED_FILES)
-        .setStackTrace(TestFile2.STACKTRACE));
+      TestFile1.doc(),
+      TestFile2.doc());
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list")
       .setParam(ListAction.SOURCE_FILE_ID, mainFileUuid)
@@ -198,45 +138,16 @@ public class ListActionTest {
     String sourceFileKey = "MAIN-FILE-KEY";
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(db.getSession(),
-      new ComponentDto()
-        .setUuid(TestFile1.FILE_UUID)
-        .setLongName(TestFile1.LONG_NAME)
-        .setKey(TestFile1.KEY)
-        .setProjectUuid(TestFile1.PROJECT_UUID),
-      new ComponentDto()
-        .setUuid(TestFile2.FILE_UUID)
-        .setLongName(TestFile2.LONG_NAME)
-        .setProjectUuid(TestFile2.PROJECT_UUID)
-        .setKey(TestFile2.KEY),
+      TestFile1.dto(),
+      TestFile2.dto(),
       new ComponentDto()
         .setUuid(sourceFileUuid)
         .setKey(sourceFileKey)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-    );
+        .setProjectUuid(TestFile1.PROJECT_UUID));
     db.getSession().commit();
 
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      new TestDoc()
-        .setUuid(TestFile1.UUID)
-        .setProjectUuid(TestFile1.PROJECT_UUID)
-        .setName(TestFile1.NAME)
-        .setFileUuid(TestFile1.FILE_UUID)
-        .setDurationInMs(TestFile1.DURATION_IN_MS)
-        .setStatus(TestFile1.STATUS)
-        .setMessage(TestFile1.MESSAGE)
-        .setCoveredFiles(TestFile1.COVERED_FILES)
-        .setStackTrace(TestFile1.STACKTRACE),
-      new TestDoc()
-        .setUuid(TestFile2.UUID)
-        .setProjectUuid(TestFile2.PROJECT_UUID)
-        .setName(TestFile2.NAME)
-        .setFileUuid(TestFile2.FILE_UUID)
-        .setDurationInMs(TestFile2.DURATION_IN_MS)
-        .setStatus(TestFile2.STATUS)
-        .setStackTrace(TestFile2.STATUS)
-        .setMessage(TestFile2.MESSAGE)
-        .setCoveredFiles(TestFile2.COVERED_FILES)
-        .setStackTrace(TestFile2.STACKTRACE));
+      TestFile1.doc(), TestFile2.doc());
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list")
       .setParam(ListAction.SOURCE_FILE_KEY, sourceFileKey)
@@ -258,7 +169,7 @@ public class ListActionTest {
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_file_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
     db.getSession().commit();
     ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID).execute();
   }
@@ -266,7 +177,7 @@ public class ListActionTest {
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_test_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
     db.getSession().commit();
     ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_ID, TestFile1.FILE_UUID).execute();
   }
@@ -274,7 +185,7 @@ public class ListActionTest {
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_file_key() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    dbClient.componentDao().insert(db.getSession(), TestFile1.dto());
     db.getSession().commit();
     ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_KEY, TestFile1.KEY).execute();
   }
@@ -305,12 +216,25 @@ public class ListActionTest {
     public static final String LONG_NAME = "src/test/java/org/foo/BarTest.java";
     public static final List<CoveredFileDoc> COVERED_FILES = Arrays.asList(new CoveredFileDoc().setFileUuid("MAIN-FILE-UUID").setCoveredLines(Arrays.asList(1, 2, 3, 10)));
 
-    public static ComponentDto newDto() {
+    public static ComponentDto dto() {
       return new ComponentDto()
         .setUuid(TestFile1.FILE_UUID)
         .setLongName(TestFile1.LONG_NAME)
         .setProjectUuid(TestFile1.PROJECT_UUID)
         .setKey(TestFile1.KEY);
+    }
+
+    public static TestDoc doc() {
+      return new TestDoc()
+        .setUuid(TestFile1.UUID)
+        .setProjectUuid(TestFile1.PROJECT_UUID)
+        .setName(TestFile1.NAME)
+        .setFileUuid(TestFile1.FILE_UUID)
+        .setDurationInMs(TestFile1.DURATION_IN_MS)
+        .setStatus(TestFile1.STATUS)
+        .setMessage(TestFile1.MESSAGE)
+        .setCoveredFiles(TestFile1.COVERED_FILES)
+        .setStackTrace(TestFile1.STACKTRACE);
     }
 
     private TestFile1() {
@@ -330,6 +254,28 @@ public class ListActionTest {
     public static final String KEY = "org.foo.FileTest.java";
     public static final String LONG_NAME = "src/test/java/org/foo/FileTest.java";
     public static final List<CoveredFileDoc> COVERED_FILES = Arrays.asList(new CoveredFileDoc().setFileUuid("MAIN-FILE-UUID").setCoveredLines(Arrays.asList(11, 12, 13, 10)));
+
+    public static ComponentDto dto() {
+      return new ComponentDto()
+        .setUuid(TestFile2.FILE_UUID)
+        .setLongName(TestFile2.LONG_NAME)
+        .setProjectUuid(TestFile2.PROJECT_UUID)
+        .setKey(TestFile2.KEY);
+    }
+
+    public static TestDoc doc() {
+      return new TestDoc()
+        .setUuid(TestFile2.UUID)
+        .setProjectUuid(TestFile2.PROJECT_UUID)
+        .setName(TestFile2.NAME)
+        .setFileUuid(TestFile2.FILE_UUID)
+        .setDurationInMs(TestFile2.DURATION_IN_MS)
+        .setStatus(TestFile2.STATUS)
+        .setStackTrace(TestFile2.STATUS)
+        .setMessage(TestFile2.MESSAGE)
+        .setCoveredFiles(TestFile2.COVERED_FILES)
+        .setStackTrace(TestFile2.STACKTRACE);
+    }
 
     private TestFile2() {
       // static stuff for test purposes
