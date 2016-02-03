@@ -65,7 +65,7 @@ public class PluginsTest {
    */
   static final Set<String> DISABLED_PLUGINS = Sets.newHashSet(
     // internal plugin used for integration tests of language plugins
-    "lits");
+    "lits", "citymodel");
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
     "abap", "cobol", "cpp", "devcockpit", "objc", "pli", "plsql", "report", "rpg",
