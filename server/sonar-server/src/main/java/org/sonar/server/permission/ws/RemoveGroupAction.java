@@ -33,7 +33,7 @@ import static org.sonar.server.permission.ws.PermissionRequestValidator.validate
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupIdParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createGroupNameParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.usergroups.ws.WsGroupRef.newWsGroupRef;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
@@ -70,7 +70,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
     createPermissionParameter(action);
     createGroupNameParameter(action);
     createGroupIdParameter(action);
-    createProjectParameter(action);
+    createProjectParameters(action);
   }
 
   @Override

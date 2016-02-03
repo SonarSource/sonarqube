@@ -45,7 +45,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjec
 import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validatePermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -83,7 +83,7 @@ public class UsersAction implements PermissionsWsAction {
       .setHandler(this);
 
     createPermissionParameter(action);
-    createProjectParameter(action);
+    createProjectParameters(action);
   }
 
   @Override

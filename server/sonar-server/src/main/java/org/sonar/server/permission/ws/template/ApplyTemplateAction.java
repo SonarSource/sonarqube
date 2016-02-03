@@ -33,7 +33,7 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonarqube.ws.client.permission.ApplyTemplateWsRequest;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
 import static org.sonar.server.permission.ws.WsProjectRef.newWsProjectRef;
 import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
@@ -64,7 +64,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       .setHandler(this);
 
     createTemplateParameters(action);
-    createProjectParameter(action);
+    createProjectParameters(action);
   }
 
   @Override

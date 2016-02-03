@@ -81,7 +81,7 @@ public class PermissionsWsParametersBuilder {
       .setExampleValue("42");
   }
 
-  public static void createProjectParameter(NewAction action) {
+  public static void createProjectParameters(NewAction action) {
     createProjectIdParameter(action);
     createProjectKeyParameter(action);
   }

@@ -42,7 +42,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
@@ -80,7 +80,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .addSearchQuery("sonarq", "project names", "project keys")
       .setHandler(this);
 
-    createProjectParameter(action);
+    createProjectParameters(action);
     createRootQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
       .setSince("5.3");
   }
