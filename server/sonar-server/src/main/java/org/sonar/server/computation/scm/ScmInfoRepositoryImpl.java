@@ -33,7 +33,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.source.SourceHashRepository;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 public class ScmInfoRepositoryImpl implements ScmInfoRepository {
 
@@ -55,24 +55,32 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
 
   @Override
   public Optional<ScmInfo> getScmInfo(Component component) {
-    checkNotNull(component, "Component cannot be bull");
-    initializeScmInfoForComponent(component);
-    return Optional.fromNullable(scmInfoCache.get(component));
+    requireNonNull(component, "Component cannot be bull");
+    return initializeScmInfoForComponent(component);
   }
 
-  private void initializeScmInfoForComponent(Component component) {
-    if (scmInfoCache.containsKey(component)) {
-      return;
-    }
-    Optional<ScmInfo> scmInfoOptional = getScmInfoForComponent(component);
-    scmInfoCache.put(component, scmInfoOptional.orNull());
-  }
-
-  private Optional<ScmInfo> getScmInfoForComponent(Component component) {
+  private Optional<ScmInfo> initializeScmInfoForComponent(Component component) {
     if (component.getType() != Component.Type.FILE) {
       return Optional.absent();
     }
+    ScmInfo scmInfo = scmInfoCache.get(component);
+    if (scmInfo != null) {
+      return optionalOf(scmInfo);
+    }
 
+    scmInfo = getScmInfoForComponent(component);
+    scmInfoCache.put(component, scmInfo);
+    return optionalOf(scmInfo);
+  }
+
+  private static Optional<ScmInfo> optionalOf(ScmInfo scmInfo) {
+    if (scmInfo == NoScmInfo.INSTANCE) {
+      return Optional.absent();
+    }
+    return Optional.of(scmInfo);
+  }
+
+  private ScmInfo getScmInfoForComponent(Component component) {
     BatchReport.Changesets changesets = batchReportReader.readChangesets(component.getReportAttributes().getRef());
     if (changesets == null) {
       return getScmInfoFromDb(component);
@@ -80,9 +88,9 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     return getScmInfoFromReport(component, changesets);
   }
 
-  private Optional<ScmInfo> getScmInfoFromDb(Component file) {
+  private ScmInfo getScmInfoFromDb(Component file) {
     if (analysisMetadataHolder.isFirstAnalysis()) {
-      return Optional.absent();
+      return NoScmInfo.INSTANCE;
     }
 
     LOGGER.trace("Reading SCM info from db for file '{}'", file.getKey());
@@ -90,16 +98,47 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     try {
       FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, file.getUuid());
       if (dto == null || !sourceHashRepository.getRawSourceHash(file).equals(dto.getSrcHash())) {
-        return Optional.absent();
+        return NoScmInfo.INSTANCE;
       }
-      return DbScmInfo.create(file, dto.getSourceData().getLinesList());
+      return DbScmInfo.create(file, dto.getSourceData().getLinesList()).or(NoScmInfo.INSTANCE);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private static Optional<ScmInfo> getScmInfoFromReport(Component file, BatchReport.Changesets changesets) {
+  private static ScmInfo getScmInfoFromReport(Component file, BatchReport.Changesets changesets) {
     LOGGER.trace("Reading SCM info from report for file '{}'", file.getKey());
-    return Optional.<ScmInfo>of(new ReportScmInfo(changesets));
+    return new ReportScmInfo(changesets);
+  }
+
+  /**
+   * Internally used to populate cache when no ScmInfo exist.
+   */
+  private enum NoScmInfo implements ScmInfo {
+    INSTANCE {
+      @Override
+      public Changeset getLatestChangeset() {
+        return notImplemented();
+      }
+
+      @Override
+      public Changeset getChangesetForLine(int lineNumber) {
+        return notImplemented();
+      }
+
+      @Override
+      public boolean hasChangesetForLine(int lineNumber) {
+        return notImplemented();
+      }
+
+      @Override
+      public Iterable<Changeset> getAllChangesets() {
+        return notImplemented();
+      }
+
+      private <T> T notImplemented() {
+        throw new UnsupportedOperationException("NoScmInfo does not implement any method");
+      }
+    }
   }
 }
