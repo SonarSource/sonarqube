@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import _ from 'underscore';
-import { pushPath } from 'redux-simple-router';
+import { pushPath, replacePath } from 'redux-simple-router';
 
 import { getChildren, getComponent, getTree, getBreadcrumbs } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
@@ -183,6 +183,7 @@ export function initComponent (componentKey, breadcrumbs) {
     dispatch(startFetching());
     return getComponent(componentKey, METRICS_WITH_COVERAGE)
         .then(component => dispatch(initComponentAction(component, breadcrumbs)))
+        .then(() => dispatch(replacePath(getPath(componentKey))))
         .then(() => dispatch(stopFetching()));
   };
 }
