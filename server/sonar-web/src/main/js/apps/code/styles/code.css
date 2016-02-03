@@ -45,10 +45,6 @@
   max-width: 100%;
 }
 
-.code-source-viewer .source-viewer-header-component {
-  visibility: hidden;
-}
-
 .code-search-box {
   float: left;
   padding-right: 10px;
