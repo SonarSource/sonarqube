@@ -23,7 +23,7 @@ import Main from './main';
 import { getCurrentUser } from '../../api/users';
 
 window.sonarqube.appStarted.then(options => {
-  getCurrentUser().done(user => {
+  getCurrentUser().then(user => {
     let el = document.querySelector(options.el);
     let hasProvisionPermission = user.permissions.global.indexOf('provisioning') !== -1;
     let topLevelQualifiers = options.rootQualifiers;
