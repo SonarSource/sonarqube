@@ -47,13 +47,9 @@ public interface IdentityProvider {
   String getName();
 
   /**
-   * URL path to the provider icon, as deployed at runtime, for example "/static/authgithub/github.svg" (in this
-   * case "authgithub" is the plugin key. Source file is "src/main/resources/static/github.svg"). Must not be blank.
-   * <p/>
-   * The recommended format is SVG with a size of 24x24 pixels.
-   * Other supported format is PNG, with a size of 48x48 pixels.
+   * Display information for the login form
    */
-  String getIconPath();
+  Display getDisplay();
 
   /**
    * Is the provider fully configured and enabled ? If {@code true}, then
@@ -67,4 +63,5 @@ public interface IdentityProvider {
    * registered users can login.
    */
   boolean allowsUsersToSignUp();
+
 }

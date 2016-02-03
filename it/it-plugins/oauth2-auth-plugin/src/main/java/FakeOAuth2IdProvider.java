@@ -19,6 +19,7 @@
  */
 
 import org.sonar.api.config.Settings;
+import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 
@@ -71,8 +72,11 @@ public class FakeOAuth2IdProvider implements OAuth2IdentityProvider {
   }
 
   @Override
-  public String getIconPath() {
-    return "/static/oauth2authplugin/oauth2.png";
+  public Display getDisplay() {
+    return Display.builder()
+      .setIconPath("/static/oauth2authplugin/oauth2.png")
+      .setBackgroundColor("#444444")
+      .build();
   }
 
   @Override

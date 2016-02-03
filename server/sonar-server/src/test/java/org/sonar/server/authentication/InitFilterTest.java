@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
+import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.utils.log.LogTester;
@@ -122,7 +123,7 @@ public class InitFilterTest {
       }
 
       @Override
-      public String getIconPath() {
+      public Display getDisplay() {
         return null;
       }
 

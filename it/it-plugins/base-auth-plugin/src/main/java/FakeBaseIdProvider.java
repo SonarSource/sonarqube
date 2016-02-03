@@ -20,6 +20,7 @@
 import java.io.IOException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
+import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.UserIdentity;
 
 public class FakeBaseIdProvider implements BaseIdentityProvider {
@@ -66,8 +67,11 @@ public class FakeBaseIdProvider implements BaseIdentityProvider {
   }
 
   @Override
-  public String getIconPath() {
-    return "/static/baseauthplugin/base.png";
+  public Display getDisplay() {
+    return Display.builder()
+      .setIconPath("/static/baseauthplugin/base.png")
+      .setBackgroundColor("#205081")
+      .build();
   }
 
   @Override

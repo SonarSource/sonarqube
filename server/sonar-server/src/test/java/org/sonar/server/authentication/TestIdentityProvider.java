@@ -19,13 +19,14 @@
  */
 package org.sonar.server.authentication;
 
+import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 
 public class TestIdentityProvider implements IdentityProvider {
 
   private String key;
   private String name;
-  private String iconPatch;
+  private Display display;
   private boolean enabled;
   private boolean allowsUsersToSignUp;
 
@@ -50,12 +51,12 @@ public class TestIdentityProvider implements IdentityProvider {
   }
 
   @Override
-  public String getIconPath() {
-    return iconPatch;
+  public Display getDisplay() {
+    return display;
   }
 
-  public TestIdentityProvider setIconPatch(String iconPatch) {
-    this.iconPatch = iconPatch;
+  public TestIdentityProvider setDisplay(Display display) {
+    this.display = display;
     return this;
   }
 

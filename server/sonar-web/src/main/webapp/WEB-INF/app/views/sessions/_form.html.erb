@@ -6,10 +6,11 @@
     <ul>
       <% auth_providers.each do |provider| %>
         <li>
-          <a href="<%= ApplicationController.root_context -%>/sessions/init/<%= provider.getKey().to_s %>"
+          <a href="/sessions/init/<%= provider.getKey().to_s %>"
+             style="background-color: <%= provider.getDisplay().getBackgroundColor().to_s %>"
              title="Log in with <%= provider.getName().to_s -%>">
             <img alt="<%= provider.getName().to_s -%>" width="20" height="20"
-                 src="<%= ApplicationController.root_context + provider.getIconPath().to_s -%>">
+                 src="<%= provider.getDisplay().getIconPath().to_s -%>">
             <span>Log in with <%= provider.getName().to_s -%></span>
           </a>
         </li>
@@ -52,21 +53,6 @@
   </p>
 
   <div>
-    <div class="pull-left">
-      <% auth_providers = Api::Utils.java_facade.getIdentityProviders().to_a %>
-      <ul class="list-inline">
-        <% auth_providers.each do |provider| %>
-          <li>
-            <a class="oauth-link"
-               href="/sessions/init/<%= provider.getKey().to_s %>"
-               title="Login with <%= provider.getName().to_s -%>">
-              <img alt="<%= provider.getName().to_s -%>" width="24" height="24"
-                   src="<%= provider.getIconPath().to_s -%>">
-            </a>
-          </li>
-        <% end %>
-      </ul>
-    </div>
     <div class="text-right overflow-hidden">
       <button name="commit"><%= message('sessions.log_in') -%></button>
       <a class="spacer-left" href="<%= home_path -%>"><%= message('cancel') -%></a>
