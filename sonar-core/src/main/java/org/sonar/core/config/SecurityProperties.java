@@ -36,8 +36,8 @@ class SecurityProperties {
 
       PropertyDefinition.builder(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY)
         .defaultValue(Boolean.toString(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE))
-        .name("Allow users to sign up online")
-        .description("Users can sign up online.")
+        .name("Activate sign up for local account")
+        .description("Allow users to sign up online for a local account. For that purpose, a \"Sign Up\" link will be available in the \"Login\" page.")
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
         .build(),
