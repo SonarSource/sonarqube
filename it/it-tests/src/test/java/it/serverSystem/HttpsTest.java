@@ -123,7 +123,7 @@ public class HttpsTest {
   }
 
   private void connectTrusted() throws IOException {
-    URL url = new URL("https://localhost:" + httpsPort + "/sonar");
+    URL url = new URL("https://localhost:" + httpsPort);
     HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
     try {
       connection.getInputStream();
@@ -162,7 +162,7 @@ public class HttpsTest {
         return true;
       }
     };
-    URL url = new URL("https://localhost:" + httpsPort + "/sonar/sessions/login");
+    URL url = new URL("https://localhost:" + httpsPort + "/sessions/login");
     HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
     connection.setRequestMethod("POST");
     connection.setAllowUserInteraction(true);
