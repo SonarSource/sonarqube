@@ -1,10 +1,11 @@
 <table class="spaced">
   <tr>
     <td align="center">
-
       <div id="login_form">
         <p id="unauthorized"><%= h params[:providerName] %> users are not allowed to signup</p>
       </div>
+      <br/>
+      <a class="spacer-left" href="<%= home_path -%>"><%= message('layout.home') -%></a>
     </td>
   </tr>
 </table>
