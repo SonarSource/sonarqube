@@ -132,7 +132,7 @@ public class SearchGlobalPermissionsActionTest {
     i18n.put("global_permissions.scan", "Execute Analysis");
     i18n.put("global_permissions.scan.desc", "Ability to execute analyses, and to get all settings required to perform the analysis, " +
       "even the secured ones like the scm account password, the jira account password, and so on.");
-    i18n.put("global_permissions.provisioning", "Provision Projects");
+    i18n.put("global_permissions.provisioning", "Create Projects");
     i18n.put("global_permissions.provisioning.desc", "Ability to initialize project structure before first analysis.");
   }
 

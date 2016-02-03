@@ -56,7 +56,7 @@ public class ProvisionedAction implements ProjectsWsAction {
       .createAction("provisioned")
       .setDescription(
         "Get the list of provisioned projects.<br /> " +
-          "Require 'Provision Projects' permission.")
+          "Require 'Create Projects' permission.")
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "projects-example-provisioned.json"))
       .setHandler(this)

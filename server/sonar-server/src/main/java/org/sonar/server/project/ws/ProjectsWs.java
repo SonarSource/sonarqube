@@ -97,7 +97,7 @@ public class ProjectsWs implements WebService {
 
   private void defineCreateAction(NewController controller) {
     WebService.NewAction action = controller.createAction("create")
-      .setDescription("Provision a project. Requires Provision Projects permission")
+      .setDescription("Create a project. Requires Create Projects permission")
       .setSince("4.0")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE)
