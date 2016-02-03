@@ -38,7 +38,6 @@ import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse.TemplateIdQualif
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchTemplatesAction implements PermissionsWsAction {
@@ -70,7 +69,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    checkGlobalAdminUser(userSession);
+    userSession.checkLoggedIn();
 
     SearchTemplatesWsResponse searchTemplatesWsResponse = doHandle(toSearchTemplatesWsRequest(wsRequest));
     writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);

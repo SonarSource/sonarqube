@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.permission.RemoveUserWsRequest;
 
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validatePermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameter;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
 import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRef;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -65,7 +65,7 @@ public class RemoveUserAction implements PermissionsWsAction {
 
     createPermissionParameter(action);
     createUserLoginParameter(action);
-    createProjectParameter(action);
+    createProjectParameters(action);
   }
 
   @Override
