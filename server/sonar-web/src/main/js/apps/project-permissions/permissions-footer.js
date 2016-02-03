@@ -28,12 +28,17 @@ export default React.createClass({
     loadMore: React.PropTypes.func.isRequired
   },
 
+  handleLoadMore (e) {
+    e.preventDefault();
+    this.props.loadMore();
+  },
+
   render() {
     if (this.props.componentId) {
       return null;
     }
     let hasMore = this.props.total > this.props.count;
-    let loadMoreLink = <a onClick={this.props.loadMore} className="spacer-left" href="#">show more</a>;
+    let loadMoreLink = <a onClick={this.handleLoadMore} className="spacer-left" href="#">show more</a>;
     let className = classNames('spacer-top note text-center', { 'new-loading': !this.props.ready });
     return (
         <footer className={className}>
