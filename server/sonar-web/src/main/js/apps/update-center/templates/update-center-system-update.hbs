@@ -33,24 +33,27 @@
       <div class="pull-left spacer-right">
         <strong>How to upgrade</strong>
       </div>
-      <ul class="js-plugin-update-steps list-styled overflow-hidden bordered-left">
-        <li class="little-spacer-bottom">Stop SonarQube</li>
-        <li class="little-spacer-bottom"><a href="{{downloadUrl}}" target="_blank">Download</a> and install
-          SonarQube {{version}} after having carefully read the
-          <a href="http://redirect.sonarsource.com/doc/upgrading.html" target="_blank">upgrade guide</a>.
+      <ol class="js-plugin-update-steps list-styled overflow-hidden bordered-left">
+        <li class="little-spacer-bottom">
+          Download SonarQube and start it on an empty DB (the bundled H2 DB for instance).
         </li>
-        {{#each plugins.incompatible}}
-          <li class="little-spacer-bottom">
-            Uninstall the plugin {{name}} which is not compatible with SonarQube {{../version}}.
-          </li>
-        {{/each}}
-        {{#each plugins.requireUpdate}}
-          <li class="little-spacer-bottom">
-            Replace current version of plugin {{name}} by version {{version}}.
-          </li>
-        {{/each}}
-        <li>Start SonarQube</li>
-      </ul>
+        <li class="little-spacer-bottom">
+          Install (from the update center) every plugin you want to have.
+        </li>
+        <li class="little-spacer-bottom">
+          Install your own made plugins (if any).
+        </li>
+        <li class="little-spacer-bottom">
+          Update the <code>conf/sonar.properties</code> file to use relevant former configuration (that includes at
+          least the connection to your production DB).
+        </li>
+        <li class="little-spacer-bottom">
+          Make sure that the previous version of SonarQube running on your production DB is stopped.
+        </li>
+        <li>
+          Restart the new SonarQube instance: you're done!
+        </li>
+      </ol>
     </td>
   </tr>
 </table>
