@@ -19,22 +19,22 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.base.Objects;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
 import org.sonar.core.issue.tracking.LineHashSequence;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.server.computation.component.Component;
-import org.sonar.db.DbClient;
 
 /**
  * Factory of {@link Input} of base data for issue tracking. Data are lazy-loaded.
  */
 public class TrackerBaseInputFactory {
+  private static final LineHashSequence EMPTY_LINE_HASH_SEQUENCE = new LineHashSequence(Collections.<String>emptyList());
 
   private final BaseIssuesLoader baseIssuesLoader;
   private final DbClient dbClient;
@@ -57,10 +57,17 @@ public class TrackerBaseInputFactory {
 
     @Override
     protected LineHashSequence loadLineHashSequence() {
+      if (component.getType() != Component.Type.FILE) {
+        return EMPTY_LINE_HASH_SEQUENCE;
+      }
+      
       DbSession session = dbClient.openSession(false);
       try {
         List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, component.getUuid());
-        return new LineHashSequence(Objects.firstNonNull(hashes, Collections.<String>emptyList()));
+        if (hashes == null || hashes.isEmpty()) {
+          return EMPTY_LINE_HASH_SEQUENCE;
+        }
+        return new LineHashSequence(hashes);
       } finally {
         MyBatis.closeQuietly(session);
       }
