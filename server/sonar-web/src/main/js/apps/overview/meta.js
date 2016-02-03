@@ -99,10 +99,10 @@ export default React.createClass({
         <div>
           <h4 className="overview-meta-header">{translate('key')}</h4>
           <input
+              className="overview-key"
               type="text"
               value={this.props.component.key}
-              readOnly={true}
-              style={{ width: '100%' }}/>
+              readOnly={true}/>
         </div>
     );
 
