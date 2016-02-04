@@ -19,6 +19,8 @@
  */
 package org.sonar.server.app;
 
+import java.io.File;
+import java.util.Map;
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
@@ -26,9 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-
-import java.io.File;
-import java.util.Map;
 
 /**
  * Configures webapp into Tomcat
@@ -44,6 +43,9 @@ class Webapp {
 
   static StandardContext configure(Tomcat tomcat, Props props) {
     try {
+      // URL /deploy must serve files deployed during startup into DATA_DIR/web/deploy
+      new WebDeployContext().configureTomcat(tomcat, props);
+
       StandardContext context = (StandardContext) tomcat.addWebapp(ROOT_CONTEXT_PATH, webappPath(props));
       context.setClearReferencesHttpClientKeepAliveThread(false);
       context.setClearReferencesStatic(false);
