@@ -20,14 +20,15 @@
 package org.sonar.server.platform;
 
 import com.google.common.base.Throwables;
-
+import java.util.Enumeration;
+import java.util.Properties;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Enumeration;
-import java.util.Properties;
 
 public final class PlatformServletContextListener implements ServletContextListener {
+
+  static final String STARTED_ATTRIBUTE = "sonarqube.started";
 
   @Override
   public void contextInitialized(ServletContextEvent event) {
@@ -41,6 +42,8 @@ public final class PlatformServletContextListener implements ServletContextListe
       }
       Platform.getInstance().init(props, servletContext);
       Platform.getInstance().doStart();
+      event.getServletContext().setAttribute(STARTED_ATTRIBUTE, Boolean.TRUE);
+
     } catch (Throwable t) {
       // Tomcat 7 "limitations":
       // - server does not stop if webapp fails at startup
