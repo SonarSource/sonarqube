@@ -41,6 +41,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.app.WebDeployContext;
 
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
@@ -83,7 +84,7 @@ public final class ServerImpl extends Server implements Startable {
         throw new IllegalStateException("SonarQube home directory is not valid");
       }
 
-      deployDir = new File(sonarHome, "/web/deploy/");
+      deployDir = new File(settings.getString(ProcessProperties.PATH_DATA), WebDeployContext.RELATIVE_DIR_IN_DATA);
 
       LOG.info("SonarQube {}", Joiner.on(" / ").skipNulls().join("Server", version, implementationBuild));
 

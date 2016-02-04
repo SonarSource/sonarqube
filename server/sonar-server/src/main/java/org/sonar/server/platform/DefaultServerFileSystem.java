@@ -19,8 +19,13 @@
  */
 package org.sonar.server.platform;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
@@ -28,15 +33,6 @@ import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
-
-import javax.annotation.CheckForNull;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Introspect the filesystem and the classloader to get extension files at startup.
@@ -74,18 +70,6 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     if (deployDir == null) {
       throw new IllegalArgumentException("Web app directory does not exist");
     }
-    try {
-      FileUtils.forceMkdir(deployDir);
-      FileFilter fileFilter = FileFilterUtils.directoryFileFilter();
-      File[] files = deployDir.listFiles(fileFilter);
-      if (files != null) {
-        for (File subDirectory : files) {
-          FileUtils.cleanDirectory(subDirectory);
-        }
-      }
-    } catch (IOException e) {
-      throw new IllegalStateException("The following directory can not be created: " + deployDir.getAbsolutePath(), e);
-    }
 
     File deprecated = getDeprecatedPluginsDir();
     try {
@@ -114,10 +98,6 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   @CheckForNull
   public File getDeployDir() {
     return server.getDeployDir();
-  }
-
-  public File getDeployedJdbcDriverIndex() {
-    return new File(getDeployDir(), "jdbc-driver.txt");
   }
 
   public File getDeployedPluginsDir() {
