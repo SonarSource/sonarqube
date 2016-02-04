@@ -30,7 +30,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.MutableDbIdsRepository;
 import org.sonar.server.computation.component.PathAwareCrawler;
@@ -79,11 +78,11 @@ public class PersistSnapshotsStep implements ComputationStep {
 
     private final DbSession dbSession;
     private final long analysisDate;
-    private final DbIdsRepository dbIdsRepository;
+    private final MutableDbIdsRepository dbIdsRepository;
 
     private long rootId;
 
-    public PersistSnapshotsPathAwareVisitor(DbSession dbSession, long analysisDate, DbIdsRepository dbIdsRepository) {
+    public PersistSnapshotsPathAwareVisitor(DbSession dbSession, long analysisDate, MutableDbIdsRepository dbIdsRepository) {
       super(CrawlerDepthLimit.LEAVES, Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
       this.dbSession = dbSession;
       this.analysisDate = analysisDate;
@@ -185,14 +184,14 @@ public class PersistSnapshotsStep implements ComputationStep {
       }
       return snapshotDto;
     }
+
+    private void addToCache(Component component, SnapshotDto snapshotDto) {
+      dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
+    }
   }
 
   private void persist(SnapshotDto snapshotDto, DbSession dbSession) {
     dbClient.snapshotDao().insert(dbSession, snapshotDto);
-  }
-
-  private void addToCache(Component component, SnapshotDto snapshotDto) {
-    dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
   }
 
   private static String getFileQualifier(Component component) {

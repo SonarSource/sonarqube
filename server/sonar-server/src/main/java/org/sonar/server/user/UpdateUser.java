@@ -31,10 +31,7 @@ public class UpdateUser {
   private String name;
   private String email;
   private List<String> scmAccounts;
-
   private String password;
-  private String passwordConfirmation;
-
   private ExternalIdentity externalIdentity;
 
   boolean nameChanged;

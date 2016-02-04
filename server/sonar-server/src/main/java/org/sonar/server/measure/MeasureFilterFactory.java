@@ -127,7 +127,7 @@ public class MeasureFilterFactory {
     }
   }
 
-  private List<String> sortFieldLabels() {
+  private static List<String> sortFieldLabels() {
     return newArrayList(Iterables.transform(Arrays.asList(MeasureFilterSort.Field.values()), FieldToName.INSTANCE));
   }
 
