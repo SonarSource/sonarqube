@@ -44,7 +44,7 @@ class Webapp {
   static StandardContext configure(Tomcat tomcat, Props props) {
     try {
       // URL /deploy must serve files deployed during startup into DATA_DIR/web/deploy
-      WebDeployContext.configureTomcatContext(tomcat, props);
+      new WebDeployContext().configureTomcat(tomcat, props);
 
       StandardContext context = (StandardContext) tomcat.addWebapp(ROOT_CONTEXT_PATH, webappPath(props));
       context.setClearReferencesHttpClientKeepAliveThread(false);

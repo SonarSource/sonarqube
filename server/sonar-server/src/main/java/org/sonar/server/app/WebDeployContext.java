@@ -19,6 +19,7 @@
  */
 package org.sonar.server.app;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -27,18 +28,36 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
+import static java.lang.String.format;
+
 public class WebDeployContext {
 
   public static final String RELATIVE_DIR_IN_DATA = "web/deploy";
+  private final Fs fs;
 
-  static void configureTomcatContext(Tomcat tomcat, Props props) throws ServletException {
+  public WebDeployContext() {
+    this(new Fs());
+  }
+
+  @VisibleForTesting
+  public WebDeployContext(Fs fs) {
+    this.fs = fs;
+  }
+
+  public void configureTomcat(Tomcat tomcat, Props props) throws ServletException {
     File deployDir = new File(props.nonNullValueAsFile(ProcessProperties.PATH_DATA), RELATIVE_DIR_IN_DATA);
     try {
-      FileUtils.forceMkdir(deployDir);
-      FileUtils.cleanDirectory(deployDir);
+      fs.createOrCleanupDir(deployDir);
     } catch (IOException e) {
-      throw new IllegalStateException("The following directory can not be created: " + deployDir.getAbsolutePath(), e);
+      throw new IllegalStateException(format("Fail to create or clean-up directory %s", deployDir.getAbsolutePath()), e);
     }
     tomcat.addWebapp("/deploy", deployDir.getAbsolutePath());
+  }
+
+  static class Fs {
+    void createOrCleanupDir(File dir) throws IOException {
+      FileUtils.forceMkdir(dir);
+      FileUtils.cleanDirectory(dir);
+    }
   }
 }
