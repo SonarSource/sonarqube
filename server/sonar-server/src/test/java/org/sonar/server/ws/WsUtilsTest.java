@@ -19,12 +19,15 @@
  */
 package org.sonar.server.ws;
 
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,6 +35,8 @@ public class WsUtilsTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LogTester logger = new LogTester();
 
   @Test
   public void write_json_by_default() throws Exception {
@@ -59,6 +64,22 @@ public class WsUtilsTest {
 
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.PROTOBUF);
     assertThat(Issues.Issue.parseFrom(response.getFlushedOutput()).getKey()).isEqualTo("I1");
+  }
+
+  @Test
+  public void log_message_when_error_writing_message() throws IOException {
+    TestRequest request = new TestRequest();
+    request.setMediaType(MediaTypes.PROTOBUF);
+
+    WsPermissions.Permission message = WsPermissions.Permission.newBuilder().setName("permission-name").build();
+
+    try {
+      // provoke NullPointerException
+      WsUtils.writeProtobuf(message, null, new DumbResponse());
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NullPointerException.class);
+      assertThat(logger.logs()).contains("Error while writing protobuf message org.sonarqube.ws.WsPermissions.Permission[name: \"permission-name\"]");
+    }
   }
 
   @Test
