@@ -104,7 +104,7 @@
     <listener-class>org.sonar.server.platform.PlatformServletContextListener</listener-class>
   </listener>
   <listener>
-    <listener-class>org.jruby.rack.rails.RailsServletContextListener</listener-class>
+    <listener-class>org.sonar.server.platform.RubyRailsContextListener</listener-class>
   </listener>
 
   <mime-mapping>

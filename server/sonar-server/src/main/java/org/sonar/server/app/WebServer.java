@@ -29,7 +29,7 @@ public class WebServer implements Monitored {
 
   private final EmbeddedTomcat tomcat;
 
-  WebServer(Props props) throws Exception {
+  WebServer(Props props) {
     new MinimumViableSystem()
       .checkJavaVersion()
       .checkWritableTempDir()
