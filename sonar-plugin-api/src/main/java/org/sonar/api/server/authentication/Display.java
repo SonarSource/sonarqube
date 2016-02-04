@@ -58,7 +58,7 @@ public final class Display {
    * Background color for the provider button displayed in the login form.
    * It's a Hexadecimal value, for instance #205081.
    * <p/>
-   * If not provided, the default value is black (#000000)
+   * If not provided, the default value is #236a97
    */
   public String getBackgroundColor() {
     return backgroundColor;
@@ -71,7 +71,7 @@ public final class Display {
   public static class Builder {
 
     private String iconPath;
-    private String backgroundColor = "#000000";
+    private String backgroundColor = "#236a97";
 
     private Builder() {
     }

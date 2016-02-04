@@ -42,12 +42,12 @@ public class DisplayTest {
   }
 
   @Test
-  public void create_display_woth_default_background_color() throws Exception {
+  public void create_display_with_default_background_color() throws Exception {
     Display display = Display.builder()
       .setIconPath("/static/authgithub/github.svg")
       .build();
 
-    assertThat(display.getBackgroundColor()).isEqualTo("#000000");
+    assertThat(display.getBackgroundColor()).isEqualTo("#236a97");
   }
 
   @Test
