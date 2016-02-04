@@ -20,6 +20,7 @@
 package org.sonar.server.ws;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -27,21 +28,25 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.MessageFormatter;
 
 import static java.lang.String.format;
 
 public class WsUtils {
+  private static final Logger LOG = Loggers.get(WsUtils.class);
 
   private WsUtils() {
     // only statics
   }
 
-  public static void writeProtobuf(Message msg, Request request, Response response) throws Exception {
+  public static void writeProtobuf(Message msg, Request request, Response response) {
     OutputStream output = response.stream().output();
     try {
       if (request.getMediaType().equals(MediaTypes.PROTOBUF)) {
@@ -53,6 +58,9 @@ public class WsUtils {
           ProtobufJsonFormat.write(msg, JsonWriter.of(writer));
         }
       }
+    } catch (Exception e) {
+      LOG.error("Error while writing protobuf message {}", MessageFormatter.print(msg));
+      Throwables.propagate(e);
     } finally {
       IOUtils.closeQuietly(output);
     }
