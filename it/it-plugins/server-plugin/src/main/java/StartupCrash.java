@@ -17,18 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.SonarPlugin;
 
-@Properties({
-  @Property(key = "some-property", name = "Some Property", defaultValue = "aDefaultValue", global = true, project = false)
-})
-public class ServerPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(
-      StartupCrash.class, WidgetDisplayingProperties.class, TempFolderExtension.class);
+import org.sonar.api.config.Settings;
+import org.sonar.api.server.ServerSide;
+
+
+@ServerSide
+public class StartupCrash {
+
+  private final Settings settings;
+
+  public StartupCrash(Settings settings) {
+    this.settings = settings;
+  }
+
+  public void start() {
+    if (settings.getBoolean("failAtStartup")) {
+      throw new IllegalStateException("Error in plugin [server]");
+    }
+  }
+
+  public void stop() {
+
   }
 }
