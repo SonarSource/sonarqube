@@ -66,11 +66,6 @@ public class ProjectDataLoader {
       boolean hasBrowsePerm = userSession.hasComponentUuidPermission(USER, module.projectUuid());
       checkPermission(query.isIssuesMode(), hasScanPerm, hasBrowsePerm);
 
-      // Scan permission is enough to analyze all projects but browse permission is limited to projects user can access
-      if (query.isIssuesMode() && !userSession.hasComponentUuidPermission(USER, module.projectUuid())) {
-        throw new ForbiddenException("You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
-      }
-
       ComponentDto project = getProject(module, session);
       if (!project.key().equals(module.key())) {
         addSettings(data, module.getKey(), getSettingsFromParents(module, hasScanPerm, session));
@@ -190,7 +185,7 @@ public class ProjectDataLoader {
         "Please contact your SonarQube administrator.");
     }
     if (preview && !hasBrowsePerm) {
-      throw new ForbiddenException("You're not authorized to execute a preview analysis. Please contact your SonarQube administrator.");
+      throw new ForbiddenException("You don't have the required permissions to access this project. Please contact your SonarQube administrator.");
     }
   }
 

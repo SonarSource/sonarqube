@@ -31,6 +31,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -472,6 +473,19 @@ public class ProjectDataLoaderMediumTest {
     thrown.expectMessage("You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. " +
       "Please contact your SonarQube administrator.");
     underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(false));
+  }
+
+  @Test
+  public void fail_when_preview_and_only_scan_permission_without_browse_permission() {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    tester.get(DbClient.class).componentDao().insert(dbSession, project);
+    dbSession.commit();
+
+    userSessionRule.login("john").addProjectUuidPermissions(GlobalPermissions.SCAN_EXECUTION, project.projectUuid());
+
+    thrown.expect(ForbiddenException.class);
+    thrown.expectMessage("You don't have the required permissions to access this project. Please contact your SonarQube administrator.");
+    underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
   }
 
   @Test
