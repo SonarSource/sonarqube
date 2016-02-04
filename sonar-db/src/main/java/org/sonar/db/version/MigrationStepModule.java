@@ -62,6 +62,7 @@ import org.sonar.db.version.v52.RemoveSnapshotLibraries;
 import org.sonar.db.version.v53.FixMsSqlCollation;
 import org.sonar.db.version.v53.UpdateCustomDashboardInLoadedTemplates;
 import org.sonar.db.version.v54.AddUsersIdentityColumns;
+import org.sonar.db.version.v54.IncreaseProjectsNameColumnsSize;
 import org.sonar.db.version.v54.InsertGateAdminPermissionForEachProfileAdmin;
 import org.sonar.db.version.v54.MigrateDisabledUsersToOnlyKeepLoginAndName;
 import org.sonar.db.version.v54.MigrateQualityGatesConditions;
@@ -131,7 +132,8 @@ public class MigrationStepModule extends Module {
       MigrateUsersIdentity.class,
       MigrateQualityGatesConditions.class,
       MigrateDisabledUsersToOnlyKeepLoginAndName.class,
-      RemovePreviewPermission.class
+      RemovePreviewPermission.class,
+      IncreaseProjectsNameColumnsSize.class
     );
   }
 }

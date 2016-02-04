@@ -22,10 +22,10 @@
 # SonarQube 5.4
 # SONAR-7123
 #
-class IncreaseProjectsLongNameSize < ActiveRecord::Migration
+class IncreaseProjectsNameColumnsSize < ActiveRecord::Migration
 
   def self.up
-    change_column('projects', 'long_name', :string, :limit => 2000, :null => true)
+    execute_java_migration('org.sonar.db.version.v54.IncreaseProjectsNameColumnsSize')
   end
 
 end
