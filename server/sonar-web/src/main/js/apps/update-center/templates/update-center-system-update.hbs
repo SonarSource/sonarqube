@@ -35,20 +35,20 @@
       </div>
       <ol class="js-plugin-update-steps list-styled overflow-hidden bordered-left">
         <li class="little-spacer-bottom">
-          Download SonarQube and start it on an empty DB (the bundled H2 DB for instance).
+          Download the new SonarQube version and start it on an empty DB (the bundled H2 DB for instance).
         </li>
         <li class="little-spacer-bottom">
-          Install (from the update center) every plugin you want to have.
+          Install (from the update center) the plugins you want.
         </li>
         <li class="little-spacer-bottom">
-          Install your own made plugins (if any).
+          Install your custom plugins (if any).
         </li>
         <li class="little-spacer-bottom">
-          Update the <code>conf/sonar.properties</code> file to use relevant former configuration (that includes at
-          least the connection to your production DB).
+          Update the <code>conf/sonar.properties</code> file to use the relevant configurations from your old instance,
+          including the connection information for your production DB.
         </li>
         <li class="little-spacer-bottom">
-          Make sure that the previous version of SonarQube running on your production DB is stopped.
+          Stop your old SonarQube server.
         </li>
         <li>
           Restart the new SonarQube instance: you're done!
