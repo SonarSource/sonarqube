@@ -108,6 +108,7 @@ public final class Changeset {
     }
 
     Changeset changeset = (Changeset) o;
+
     if (date != changeset.date) {
       return false;
     }

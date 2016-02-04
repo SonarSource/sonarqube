@@ -40,7 +40,9 @@ public class ScmInfoImpl implements ScmInfo {
 
   public ScmInfoImpl(Iterable<Changeset> lineChangesets) {
     checkState(!isEmpty(lineChangesets), "A ScmInfo must have at least one Changeset and does not support any null one");
-    this.lineChangesets = from(lineChangesets).filter(CheckNotNull.INSTANCE).toArray(Changeset.class);
+    this.lineChangesets = from(lineChangesets)
+      .filter(CheckNotNull.INSTANCE)
+      .toArray(Changeset.class);
     this.latestChangeset = computeLatestChangeset(lineChangesets);
   }
 

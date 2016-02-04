@@ -127,7 +127,7 @@ public class ReportScmInfoTest {
   @Test
   public void fail_with_ISE_when_changeset_has_no_revision() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Changeset must have a revision");
+    thrown.expectMessage("Changeset on line 1 must have a revision");
 
     new ReportScmInfo(BatchReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
@@ -142,7 +142,7 @@ public class ReportScmInfoTest {
   @Test
   public void fail_with_ISE_when_changeset_has_no_date() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Changeset must have a date");
+    thrown.expectMessage("Changeset on line 1 must have a date");
 
     new ReportScmInfo(BatchReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
