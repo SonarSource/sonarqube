@@ -171,12 +171,12 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   }
 
   protected void appendFooter(StringBuilder message, Notification notification) {
-    String projectUuid = notification.getFieldValue(FIELD_PROJECT_UUID);
+    String projectKey = notification.getFieldValue(FIELD_PROJECT_KEY);
     String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
-    if (projectUuid != null && dateString != null) {
+    if (projectKey != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/issues/search#projectUuids=%s|createdAt=%s",
-        settings.getServerBaseURL(), encode(projectUuid), encode(DateUtils.formatDateTime(date)));
+      String url = String.format("%s/component_issues?id=%s#createdAt=%s",
+        settings.getServerBaseURL(), encode(projectKey), encode(DateUtils.formatDateTime(date)));
       message
         .append("See it in SonarQube: ")
         .append(url)
