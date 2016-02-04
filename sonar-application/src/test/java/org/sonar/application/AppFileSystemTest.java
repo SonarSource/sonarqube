@@ -21,7 +21,12 @@ package org.sonar.application;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
+import javax.annotation.CheckForNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -135,9 +140,10 @@ public class AppFileSystemTest {
   }
 
   @Test
-  public void reset_delete_temp_dir_if_already_exists() throws Exception {
+  public void reset_deletes_content_of_temp_dir_but_not_temp_dir_itself_if_it_already_exists() throws Exception {
     File tempDir = new File(homeDir, DEFAULT_TEMP_DIR_NAME);
     assertThat(tempDir.mkdir()).isTrue();
+    Object tempDirKey = getFileKey(tempDir);
     File fileInTempDir = new File(tempDir, "someFile.txt");
     assertThat(fileInTempDir.createNewFile()).isTrue();
 
@@ -147,6 +153,14 @@ public class AppFileSystemTest {
 
     assertThat(tempDir).exists();
     assertThat(fileInTempDir).doesNotExist();
+    assertThat(getFileKey(tempDir)).isEqualTo(tempDirKey);
+  }
+
+  @CheckForNull
+  private static Object getFileKey(File fileInTempDir) throws IOException {
+    Path path = Paths.get(fileInTempDir.toURI());
+    BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+    return attrs.fileKey();
   }
 
   @Test

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.FileSystem;
 
-import static org.apache.commons.io.FileUtils.deleteQuietly;
+import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
@@ -67,9 +67,9 @@ public class AppFileSystem implements FileSystem {
     if (!initialized) {
       throw new IllegalStateException("method verifyProps must be called first");
     }
-    ensureDirectoryExists(props, PATH_DATA);
-    ensureDirectoryExists(props, PATH_WEB);
-    ensureDirectoryExists(props, PATH_LOGS);
+    createDirectory(props, PATH_DATA);
+    createDirectory(props, PATH_WEB);
+    createDirectory(props, PATH_LOGS);
     createOrCleanDirectory(props, PATH_TEMP);
   }
 
@@ -89,7 +89,7 @@ public class AppFileSystem implements FileSystem {
     return d;
   }
 
-  private static boolean ensureDirectoryExists(Props props, String propKey) throws IOException {
+  private static boolean createDirectory(Props props, String propKey) throws IOException {
     File dir = props.nonNullValueAsFile(propKey);
     if (dir.exists()) {
       ensureIsNotAFile(propKey, dir);
@@ -111,10 +111,9 @@ public class AppFileSystem implements FileSystem {
 
   private static void createOrCleanDirectory(Props props, String propKey) throws IOException {
     File dir = props.nonNullValueAsFile(propKey);
-    LOG.info("Deleting and/or creating temp directory {}", dir.getAbsolutePath());
-    if (!ensureDirectoryExists(props, propKey)) {
-      deleteQuietly(dir);
-      forceMkdir(dir);
+    LOG.info("Cleaning and/or creating temp directory {}", dir.getAbsolutePath());
+    if (!createDirectory(props, propKey)) {
+      cleanDirectory(dir);
     }
   }
 }
