@@ -46,9 +46,11 @@ public class EmbeddedTomcatTest {
 
     // prepare file system
     File home = temp.newFolder();
+    File data = temp.newFolder();
     File webDir = new File(home, "web");
     FileUtils.write(new File(home, "web/WEB-INF/web.xml"), "<web-app/>");
     props.set("sonar.path.home", home.getAbsolutePath());
+    props.set("sonar.path.data", data.getAbsolutePath());
     props.set("sonar.path.web", webDir.getAbsolutePath());
     props.set("sonar.path.logs", temp.newFolder().getAbsolutePath());
 
