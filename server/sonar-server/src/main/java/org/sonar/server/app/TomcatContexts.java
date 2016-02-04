@@ -19,34 +19,73 @@
  */
 package org.sonar.server.app;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
+import javax.servlet.ServletException;
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 /**
- * Configures webapp into Tomcat
+ * Configures Tomcat contexts:
+ * <ul>
+ *   <li>/deploy delivers the plugins required by analyzers. It maps directory ${sonar.path.data}/web/deploy.</li>
+ *   <li>/ is the regular webapp</li>
+ * </ul>
  */
-class Webapp {
+public class TomcatContexts {
 
   private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
   private static final String RAILS_ENV = "rails.env";
   private static final String ROOT_CONTEXT_PATH = "";
+  public static final String WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR = "web/deploy";
 
-  private Webapp() {
+  private final Fs fs;
+
+  public TomcatContexts() {
+    this.fs = new Fs();
   }
 
-  static StandardContext configure(Tomcat tomcat, Props props) {
-    try {
-      // URL /deploy must serve files deployed during startup into DATA_DIR/web/deploy
-      new WebDeployContext().configureTomcat(tomcat, props);
+  @VisibleForTesting
+  TomcatContexts(Fs fs) {
+    this.fs = fs;
+  }
 
-      StandardContext context = (StandardContext) tomcat.addWebapp(ROOT_CONTEXT_PATH, webappPath(props));
+  public StandardContext configure(Tomcat tomcat, Props props) {
+    addStaticDir(tomcat, "/deploy", new File(props.nonNullValueAsFile(ProcessProperties.PATH_DATA), WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR));
+
+    StandardContext webapp = addContext(tomcat, ROOT_CONTEXT_PATH, webappDir(props));
+    configureRails(props, webapp);
+    for (Map.Entry<Object, Object> entry : props.rawProperties().entrySet()) {
+      String key = entry.getKey().toString();
+      webapp.addParameter(key, entry.getValue().toString());
+    }
+    return webapp;
+  }
+
+  @VisibleForTesting
+  StandardContext addStaticDir(Tomcat tomcat, String contextPath, File dir) {
+    try {
+      fs.createOrCleanupDir(dir);
+    } catch (IOException e) {
+      throw new IllegalStateException(format("Fail to create or clean-up directory %s", dir.getAbsolutePath()), e);
+    }
+
+    return addContext(tomcat, contextPath, dir);
+  }
+
+  private StandardContext addContext(Tomcat tomcat, String contextPath, File dir) {
+    try {
+      StandardContext context = (StandardContext) tomcat.addWebapp(contextPath, dir.getAbsolutePath());
       context.setClearReferencesHttpClientKeepAliveThread(false);
       context.setClearReferencesStatic(false);
       context.setClearReferencesStopThreads(false);
@@ -61,16 +100,9 @@ class Webapp {
       context.setUseNaming(false);
       context.setDelegate(true);
       context.setJarScanner(new NullJarScanner());
-      configureRails(props, context);
-
-      for (Map.Entry<Object, Object> entry : props.rawProperties().entrySet()) {
-        String key = entry.getKey().toString();
-        context.addParameter(key, entry.getValue().toString());
-      }
       return context;
-
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to configure webapp", e);
+    } catch (ServletException e) {
+      throw new IllegalStateException("Fail to configure webapp from " + dir, e);
     }
   }
 
@@ -82,19 +114,29 @@ class Webapp {
     if (props.valueAsBoolean("sonar.web.dev", false)) {
       context.addParameter(RAILS_ENV, "development");
       context.addParameter(JRUBY_MAX_RUNTIMES, "3");
-      Loggers.get(Webapp.class).warn("WEB DEVELOPMENT MODE IS ENABLED - DO NOT USE FOR PRODUCTION USAGE");
+      Loggers.get(TomcatContexts.class).warn("WEB DEVELOPMENT MODE IS ENABLED - DO NOT USE FOR PRODUCTION USAGE");
     } else {
       context.addParameter(RAILS_ENV, "production");
       context.addParameter(JRUBY_MAX_RUNTIMES, "1");
     }
   }
 
-  static String webappPath(Props props) {
-    String webDir = props.value("sonar.web.dev.sources");
-    if (StringUtils.isEmpty(webDir)) {
-      webDir = new File(props.value(ProcessProperties.PATH_HOME), "web").getAbsolutePath();
+  static File webappDir(Props props) {
+    String devDir = props.value("sonar.web.dev.sources");
+    File dir;
+    if (isEmpty(devDir)) {
+      dir = new File(props.value(ProcessProperties.PATH_HOME), "web");
+    } else {
+      dir = new File(devDir);
     }
-    Loggers.get(Webapp.class).info(String.format("Webapp directory: %s", webDir));
-    return webDir;
+    Loggers.get(TomcatContexts.class).info("Webapp directory: {}", dir);
+    return dir;
+  }
+
+  static class Fs {
+    void createOrCleanupDir(File dir) throws IOException {
+      FileUtils.forceMkdir(dir);
+      FileUtils.cleanDirectory(dir);
+    }
   }
 }
