@@ -19,7 +19,7 @@
  */
 package org.sonar.markdown;
 
-import org.sonar.channel.RegexChannel;
+import org.sonar.sslr.channel.RegexChannel;
 
 /**
  * Markdown replace any line return by an HTML {@literal <br/>}

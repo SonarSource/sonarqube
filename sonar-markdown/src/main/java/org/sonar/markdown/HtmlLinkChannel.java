@@ -19,7 +19,7 @@
  */
 package org.sonar.markdown;
 
-import org.sonar.channel.RegexChannel;
+import org.sonar.sslr.channel.RegexChannel;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

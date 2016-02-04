@@ -22,7 +22,7 @@ package org.sonar.markdown;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.sonar.channel.RegexChannel;
+import org.sonar.sslr.channel.RegexChannel;
 
 /**
  * Markdown treats double backtick quote (``) as indicators of code. Text wrapped with two `` and that spans on multiple lines will be wrapped with 

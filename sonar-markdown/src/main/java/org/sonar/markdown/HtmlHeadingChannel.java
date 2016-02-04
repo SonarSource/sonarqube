@@ -19,7 +19,7 @@
  */
 package org.sonar.markdown;
 
-import org.sonar.channel.RegexChannel;
+import org.sonar.sslr.channel.RegexChannel;
 
 /**
  * Headings are triggered by equal signs at the beginning of a line. The depth of the heading is determined by the number

@@ -19,7 +19,7 @@
  */
 package org.sonar.markdown;
 
-import org.sonar.channel.RegexChannel;
+import org.sonar.sslr.channel.RegexChannel;
 
 /**
  * Markdown will wrap any URL with an HTML {@literal <a href="URL">} tag.

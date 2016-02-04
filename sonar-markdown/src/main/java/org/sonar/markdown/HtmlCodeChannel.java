@@ -19,7 +19,7 @@
  */
 package org.sonar.markdown;
 
-import org.sonar.channel.RegexChannel;
+import org.sonar.sslr.channel.RegexChannel;
 
 /**
  * Markdown treats double backtick quote (``) as indicators of code. Text wrapped with two `` will be wrapped with an HTML {@literal <code>} tag.

@@ -14,10 +14,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-channel</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
@@ -35,6 +31,11 @@
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+		<groupId>org.sonarsource.sslr</groupId>
+		<artifactId>sslr-core</artifactId>
+		<version>1.21</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -48,4 +49,13 @@
       </plugin>
     </plugins>
   </build>
+  <dependencyManagement>
+	<dependencies>
+		<dependency>
+		<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>10.0.1</version>
+		</dependency>
+	</dependencies>
+	</dependencyManagement>
 </project>

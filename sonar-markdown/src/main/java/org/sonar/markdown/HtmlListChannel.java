@@ -19,9 +19,9 @@
  */
 package org.sonar.markdown;
 
-import org.sonar.channel.Channel;
-import org.sonar.channel.CodeReader;
-import org.sonar.channel.RegexChannel;
+import org.sonar.sslr.channel.Channel;
+import org.sonar.sslr.channel.CodeReader;
+import org.sonar.sslr.channel.RegexChannel;
 
 /**
  * Lists come in two flavors:
