@@ -74,6 +74,13 @@ public class ProjectOverviewTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
+  @Test
+  public void should_display_a_nice_error_when_requesting_unknown_project() {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_a_nice_error_when_requesting_unknown_project",
+      "/projectServices/ProjectOverviewTest/should-display-nice-error-on-unknown-project.html").build();
+    orchestrator.executeSelenese(selenese);
+  }
+
   private void executeBuild(String projectLocation, String projectKey, String projectName) {
     orchestrator.executeBuild(
       SonarRunner.create(projectDir(projectLocation))

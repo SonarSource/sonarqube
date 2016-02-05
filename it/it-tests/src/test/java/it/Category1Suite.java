@@ -56,8 +56,7 @@ import it.measureHistory.TimeMachineTest;
 import it.projectAdministration.BackgroundTasksTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
-import it.projectServices.ProjectCodeTest;
-import it.projectServices.ProjectOverviewTest;
+import it.projectServices.*;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;
@@ -84,6 +83,10 @@ import static util.ItUtils.xooPlugin;
   // project pages
   ProjectOverviewTest.class,
   ProjectCodeTest.class,
+  ProjectDrilldownTest.class,
+  ProjectComparisonTest.class,
+  AllProjectsTest.class,
+  ProjectWidgetsTest.class,
   // settings
   PropertySetsTest.class,
   SubCategoriesTest.class,

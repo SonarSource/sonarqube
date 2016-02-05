@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>should_display_measure_drilldown</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+	<td>open</td>
+	<td>/drilldown/measures?id=project-drilldown-test-project&amp;metric=ncloc</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=a[data-key=&quot;project-drilldown-test-project:src/main/xoo/sample/Sample.xoo&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=a[data-key=&quot;project-drilldown-test-project:src/main/xoo/sample/Sample.xoo&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=.source-viewer</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=.source-viewer</td>
+	<td>*src/main/xoo/sample/*Sample.xoo*</td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=.source-viewer</td>
+	<td>*public class Sample {*</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
