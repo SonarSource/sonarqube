@@ -12,11 +12,11 @@
         <option value="0" {{#eq period 0}}selected{{/eq}}>{{t 'value'}}</option>
       {{/unless}}
       {{#each periods}}
-        <option value="{{key}}" {{#eq key ../period}}selected{{/eq}}>&Delta; {{text}}</option>
+        <option value="{{key}}" {{#eq key ../period}}selected{{/eq}}>{{text}}</option>
       {{/each}}
     </select>
   {{else}}
-    &Delta; {{periodText}}
+    {{periodText}}
   {{/if}}
 </td>
 

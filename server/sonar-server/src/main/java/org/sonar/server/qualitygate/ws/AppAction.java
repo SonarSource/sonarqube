@@ -28,8 +28,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.qualitygate.QualityGates;
 
-import static java.lang.String.format;
-
 public class AppAction implements QGateWsAction {
 
   private final QualityGates qualityGates;
@@ -64,11 +62,11 @@ public class AppAction implements QGateWsAction {
     writer.prop("edit", qualityGates.currentUserHasWritePermission());
   }
 
-  private void addPeriods(JsonWriter writer) {
+  private static void addPeriods(JsonWriter writer) {
     writer.name("periods").beginArray();
     writer.beginObject()
       .prop("key", 1L)
-      .prop("text", format("over Leak Period (%s)", periods.label(1)))
+      .prop("text", "Leak")
       .endObject();
     writer.endArray();
   }
