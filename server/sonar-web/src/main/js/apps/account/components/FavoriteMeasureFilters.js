@@ -50,6 +50,10 @@ const FavoriteMeasureFilters = ({ measureFilters }) => (
         </tbody>
       </table>
 
+      <div className="spacer-top small">
+        <a href={`${window.baseUrl}/measures/manage`}>{translate('see_all')}</a>
+      </div>
+
     </section>
 );
 

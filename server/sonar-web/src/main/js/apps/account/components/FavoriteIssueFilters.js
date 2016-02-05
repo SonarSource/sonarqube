@@ -50,6 +50,10 @@ const FavoriteIssueFilters = ({ issueFilters }) => (
         </tbody>
       </table>
 
+      <div className="spacer-top small">
+        <a href={`${window.baseUrl}/issues/manage`}>{translate('see_all')}</a>
+      </div>
+
     </section>
 );
 
