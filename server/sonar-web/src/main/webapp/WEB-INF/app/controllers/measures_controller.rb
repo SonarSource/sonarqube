@@ -210,7 +210,6 @@ class MeasuresController < ApplicationController
   # POST /measures/toggle_fav/<filter id>
   def toggle_fav
     access_denied unless logged_in?
-    verify_ajax_request
     require_parameters :id
 
     favourites = MeasureFilterFavourite.all(:conditions => ['user_id=? and measure_filter_id=?', current_user.id, params[:id]])

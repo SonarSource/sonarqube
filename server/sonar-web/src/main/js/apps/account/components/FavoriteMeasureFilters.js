@@ -19,6 +19,7 @@
  */
 import React from 'react';
 
+import FavoriteMeasureFilter from '../../../components/shared/FavoriteMeasureFilter';
 import { translate } from '../../../helpers/l10n';
 
 const FavoriteMeasureFilters = ({ measureFilters }) => (
@@ -38,7 +39,7 @@ const FavoriteMeasureFilters = ({ measureFilters }) => (
           {measureFilters.map(f => (
               <tr key={f.name}>
                 <td className="thin">
-                  <i className="icon-favorite"/>
+                  <FavoriteMeasureFilter filter={f} favorite={true}/>
                 </td>
                 <td>
                   <a href={`${window.baseUrl}/measures/filter/${f.id}`}>

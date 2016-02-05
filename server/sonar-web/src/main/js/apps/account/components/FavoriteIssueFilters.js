@@ -19,6 +19,7 @@
  */
 import React from 'react';
 
+import FavoriteIssueFilter from '../../../components/shared/FavoriteIssueFilter';
 import { translate } from '../../../helpers/l10n';
 
 const FavoriteIssueFilters = ({ issueFilters }) => (
@@ -38,7 +39,7 @@ const FavoriteIssueFilters = ({ issueFilters }) => (
           {issueFilters.map(f => (
               <tr key={f.name}>
                 <td className="thin">
-                  <i className="icon-favorite"/>
+                  <FavoriteIssueFilter filter={f} favorite={true}/>
                 </td>
                 <td>
                   <a href={`${window.baseUrl}/issues/search#id=${f.id}`}>

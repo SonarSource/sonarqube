@@ -126,7 +126,6 @@ class IssuesController < ApplicationController
 
   # POST /issues/toggle_fav/<filter id>
   def toggle_fav
-    verify_ajax_request
     require_parameters :id
     render :text => Internal.issues.toggleFavouriteIssueFilter(params[:id].to_i), :status => 200
   end
