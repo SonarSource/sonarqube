@@ -80,7 +80,7 @@ public class IssueBulkChangeQuery {
     }
   }
 
-  private List<String> sanitizeList(@Nullable List<String> list) {
+  private static List<String> sanitizeList(@Nullable List<String> list) {
     if (list == null || list.isEmpty()) {
       return Collections.emptyList();
     }

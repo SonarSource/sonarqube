@@ -162,9 +162,7 @@ public class Checks<C> {
       }
       configureFields(activeRule, check);
       return check;
-    } catch (InstantiationException e) {
-      throw failToInstantiateCheck(activeRule, checkClassOrInstance, e);
-    } catch (IllegalAccessException e) {
+    } catch (InstantiationException | IllegalAccessException e) {
       throw failToInstantiateCheck(activeRule, checkClassOrInstance, e);
     }
   }

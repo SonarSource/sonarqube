@@ -35,7 +35,6 @@ import org.sonar.db.WildcardPosition;
 
 public class GroupDao implements Dao {
 
-  private static final String SQL_WILDCARD = "%";
   private System2 system;
 
   public GroupDao(System2 system) {

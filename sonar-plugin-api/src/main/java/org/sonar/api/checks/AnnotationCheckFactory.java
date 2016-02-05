@@ -83,11 +83,9 @@ public final class AnnotationCheckFactory extends CheckFactory {
       configureFields(activeRule, check);
       return check;
 
-    } catch (InstantiationException e) {
+    } catch (InstantiationException | IllegalAccessException e) {
       throw new SonarException(CAN_NOT_INSTANTIATE_THE_CHECK_RELATED_TO_THE_RULE + activeRule, e);
 
-    } catch (IllegalAccessException e) {
-      throw new SonarException(CAN_NOT_INSTANTIATE_THE_CHECK_RELATED_TO_THE_RULE + activeRule, e);
     }
   }
 

@@ -48,15 +48,15 @@ public class DashboardDao implements Dao {
     DashboardMapper dashboardMapper = session.getMapper(DashboardMapper.class);
     WidgetMapper widgetMapper = session.getMapper(WidgetMapper.class);
     WidgetPropertyMapper widgetPropertyMapper = session.getMapper(WidgetPropertyMapper.class);
-      dashboardMapper.insert(dashboardDto);
-      for (WidgetDto widgetDto : dashboardDto.getWidgets()) {
-        widgetDto.setDashboardId(dashboardDto.getId());
-        widgetMapper.insert(widgetDto);
-        for (WidgetPropertyDto widgetPropertyDto : widgetDto.getWidgetProperties()) {
-          widgetPropertyDto.setWidgetId(widgetDto.getId());
-          widgetPropertyMapper.insert(widgetPropertyDto);
-        }
+    dashboardMapper.insert(dashboardDto);
+    for (WidgetDto widgetDto : dashboardDto.getWidgets()) {
+      widgetDto.setDashboardId(dashboardDto.getId());
+      widgetMapper.insert(widgetDto);
+      for (WidgetPropertyDto widgetPropertyDto : widgetDto.getWidgetProperties()) {
+        widgetPropertyDto.setWidgetId(widgetDto.getId());
+        widgetPropertyMapper.insert(widgetPropertyDto);
       }
+    }
   }
 
   public void insert(DashboardDto dashboardDto) {

@@ -167,7 +167,7 @@ public class ActionPlanService {
     return !actionPlanDao.selectByNameAndProjectId(name, findProject(projectKey).getId()).isEmpty();
   }
 
-  private List<ActionPlan> toActionPlans(List<ActionPlanDto> actionPlanDtos) {
+  private static List<ActionPlan> toActionPlans(List<ActionPlanDto> actionPlanDtos) {
     return newArrayList(Iterables.transform(actionPlanDtos, ToActionPlan.INSTANCE));
   }
 

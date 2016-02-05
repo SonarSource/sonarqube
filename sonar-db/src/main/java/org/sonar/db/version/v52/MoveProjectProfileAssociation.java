@@ -79,6 +79,11 @@ public class MoveProjectProfileAssociation extends BaseDataChange {
       update.setLong(1, id);
       return true;
     }
+
+    private static String extractLanguage(String propertyKey) {
+      return propertyKey.substring("sonar.profile.".length());
+    }
+
   }
 
   private static final Logger LOGGER = Loggers.get(MoveProjectProfileAssociation.class);
@@ -109,10 +114,6 @@ public class MoveProjectProfileAssociation extends BaseDataChange {
       associateProjectToProfile.close();
       setDefaultProfile.close();
     }
-  }
-
-  private static String extractLanguage(String propertyKey) {
-    return propertyKey.substring("sonar.profile.".length());
   }
 
   private Table<String, String, String> getProfileKeysByLanguageThenName(final Context context) throws SQLException {

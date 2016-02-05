@@ -70,11 +70,11 @@ public class JavaConstantTokenizer extends Tokenizer {
     }
   }
 
-  private boolean isJavaConstantStart(int character) {
+  private static boolean isJavaConstantStart(int character) {
     return Character.isUpperCase(character);
   }
 
-  private boolean isJavaConstantPart(int character) {
+  private static boolean isJavaConstantPart(int character) {
     return Character.isUpperCase(character) || character == '_' || character == '-' || Character.isDigit(character);
   }
 
