@@ -129,7 +129,7 @@ export default class IssueWidgets extends Component {
     return (
         <section className="abs-width-300 huge-spacer-top account-bar-chart">
           <h4 className="spacer-bottom">
-            {translate('my_account.issue_widget.leak_over_last_week')}
+            {translate('my_account.issue_widget.leak_last_week')}
           </h4>
           <BarChart
               data={data}
