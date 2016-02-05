@@ -23,7 +23,7 @@ import { toggleIssueFilter } from '../../api/issue-filters';
 
 export default React.createClass({
   propTypes: {
-    filter: React.PropTypes.string.isRequired,
+    filter: React.PropTypes.object.isRequired,
     favorite: React.PropTypes.bool.isRequired
   },
 
