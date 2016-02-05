@@ -83,7 +83,7 @@ public class TomcatContexts {
     return addContext(tomcat, contextPath, dir);
   }
 
-  private StandardContext addContext(Tomcat tomcat, String contextPath, File dir) {
+  private static StandardContext addContext(Tomcat tomcat, String contextPath, File dir) {
     try {
       StandardContext context = (StandardContext) tomcat.addWebapp(contextPath, dir.getAbsolutePath());
       context.setClearReferencesHttpClientKeepAliveThread(false);
