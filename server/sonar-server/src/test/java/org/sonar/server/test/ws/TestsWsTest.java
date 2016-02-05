@@ -63,6 +63,16 @@ public class TestsWsTest {
     assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(8);
+    assertThat(action.description()).isEqualTo("Get the list of tests either in a test file or that test a given line of source code.<br /> " +
+      "Require Browse permission on the file's project.<br /> " +
+      "One (and only one) of the following combination of parameters must be provided: " +
+      "<ul>" +
+      "<li>testId - get a specific test</li>" +
+      "<li>testFileId - get the tests in a test file</li>" +
+      "<li>testFileKey - get the tests in a test file</li>" +
+      "<li>sourceFileId and sourceFileLineNumber - get the tests that cover a specific line of code</li>" +
+      "<li>sourceFileKey and sourceFileLineNumber - get the tests that cover a specific line of code</li>" +
+      "</ul>");
   }
 
   @Test

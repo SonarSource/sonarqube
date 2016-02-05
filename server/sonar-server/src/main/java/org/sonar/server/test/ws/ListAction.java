@@ -76,16 +76,17 @@ public class ListAction implements TestsWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("list")
-      .setDescription(
-        "Get the list of tests.<br /> " +
-          "Require Browse permission on file's project.<br /> " +
+      .setDescription(String.format(
+        "Get the list of tests either in a test file or that test a given line of source code.<br /> " +
+          "Require Browse permission on the file's project.<br /> " +
           "One (and only one) of the following combination of parameters must be provided: " +
           "<ul>" +
-          "<li>" + TEST_FILE_ID + "</li>" +
-          "<li>" + TEST_ID + "</li>" +
-          "<li>" + SOURCE_FILE_ID + " and " + SOURCE_FILE_LINE_NUMBER + "</li>" +
-          "<li>" + SOURCE_FILE_KEY + "and" + SOURCE_FILE_LINE_NUMBER + "</li>" +
-          "</ul>")
+          "<li>%s - get a specific test</li>" +
+          "<li>%s - get the tests in a test file</li>" +
+          "<li>%s - get the tests in a test file</li>" +
+          "<li>%s and %6$s - get the tests that cover a specific line of code</li>" +
+          "<li>%s and %6$s - get the tests that cover a specific line of code</li>" +
+          "</ul>", TEST_ID, TEST_FILE_ID, TEST_FILE_KEY, SOURCE_FILE_ID, SOURCE_FILE_KEY, SOURCE_FILE_LINE_NUMBER))
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
       .setHandler(this)
