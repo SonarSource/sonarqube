@@ -93,7 +93,7 @@ public final class JRubyFacade {
   }
 
   public Collection<ResourceType> getResourceTypes() {
-    return get(ResourceTypes.class).getAll();
+    return get(ResourceTypes.class).getAllOrdered();
   }
 
   public Collection<ResourceType> getResourceRootTypes() {
