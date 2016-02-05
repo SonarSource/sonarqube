@@ -223,6 +223,11 @@ public final class Measure {
     public Measure createNoValue() {
       return new Measure(ValueType.NO_VALUE, ruleId, characteristicId, developer, null, null, null, description, qualityGateStatus, variations);
     }
+
+    private static double scale(double value, int decimalScale) {
+      BigDecimal bd = BigDecimal.valueOf(value);
+      return bd.setScale(decimalScale, RoundingMode.HALF_UP).doubleValue();
+    }
   }
 
   public static final class UpdateMeasureBuilder {
@@ -454,10 +459,5 @@ public final class Measure {
       .add("variations", variations)
       .add("description", description)
       .toString();
-  }
-
-  private static double scale(double value, int decimalScale) {
-    BigDecimal bd = BigDecimal.valueOf(value);
-    return bd.setScale(decimalScale, RoundingMode.HALF_UP).doubleValue();
   }
 }

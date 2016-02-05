@@ -57,10 +57,6 @@ public class DuplicationLineReader implements LineReader {
     }
   }
 
-  private static boolean isLineInBlock(TextBlock range, int line) {
-    return line >= range.getStart() && line <= range.getEnd();
-  }
-
   /**
    *
    * <p>
@@ -105,6 +101,10 @@ public class DuplicationLineReader implements LineReader {
     @Override
     public boolean apply(@Nonnull Map.Entry<TextBlock, Integer> input) {
       return isLineInBlock(input.getKey(), line);
+    }
+
+    private static boolean isLineInBlock(TextBlock range, int line) {
+      return line >= range.getStart() && line <= range.getEnd();
     }
   }
 

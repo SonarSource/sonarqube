@@ -144,28 +144,36 @@ public class TaskFormatter {
 
   private static Set<String> ceQueueDtoToComponentUuids(Iterable<CeQueueDto> dtos) {
     return from(dtos)
-      .transform(new Function<CeQueueDto, String>() {
-        @Override
-        @Nullable
-        public String apply(@Nonnull CeQueueDto input) {
-          return input.getComponentUuid();
-        }
-      })
+      .transform(CeQueueDtoToComponentUuid.INSTANCE)
       .filter(notNull())
       .toSet();
   }
 
   private static Set<String> ceActivityDtoToComponentUuids(Iterable<CeActivityDto> dtos) {
     return from(dtos)
-      .transform(new Function<CeActivityDto, String>() {
-        @Override
-        @Nullable
-        public String apply(@Nonnull CeActivityDto input) {
-          return input.getComponentUuid();
-        }
-      })
+      .transform(CeActivityDtoToComponentUuid.INSTANCE)
       .filter(notNull())
       .toSet();
+  }
+
+  private enum CeQueueDtoToComponentUuid implements Function<CeQueueDto, String> {
+    INSTANCE;
+
+    @Override
+    @Nullable
+    public String apply(@Nonnull CeQueueDto input) {
+      return input.getComponentUuid();
+    }
+  }
+
+  private enum CeActivityDtoToComponentUuid implements Function<CeActivityDto, String> {
+    INSTANCE;
+
+    @Override
+    @Nullable
+    public String apply(@Nonnull CeActivityDto input) {
+      return input.getComponentUuid();
+    }
   }
 
   private class ComponentDtoCache {
