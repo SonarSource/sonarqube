@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.SonarPlugin;
+package org.sonar.server.platform;
 
-@Properties({
-  @Property(key = "some-property", name = "Some Property", defaultValue = "aDefaultValue", global = true, project = false)
-})
-public class ServerPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(
-      StartupCrash.class, WidgetDisplayingProperties.class, TempFolderExtension.class);
+import javax.servlet.ServletContextEvent;
+import org.jruby.rack.rails.RailsServletContextListener;
+
+/**
+ * Overriding {@link RailsServletContextListener} allows to disable initialization of Ruby on Rails
+ * environment when Java components fail to start.
+ * See https://jira.sonarsource.com/browse/SONAR-6740
+ */
+public class RubyRailsContextListener extends RailsServletContextListener {
+
+  @Override
+  public void contextInitialized(ServletContextEvent event) {
+    if (event.getServletContext().getAttribute(PlatformServletContextListener.STARTED_ATTRIBUTE) != null) {
+      super.contextInitialized(event);
+    }
   }
 }

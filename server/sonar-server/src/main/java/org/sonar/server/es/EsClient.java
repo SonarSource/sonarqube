@@ -78,42 +78,38 @@ import org.sonar.server.search.SearchClient;
 public class EsClient implements Startable {
 
   public static final Logger LOGGER = Loggers.get("es");
-  private final Client client;
+  private final SearchClient deprecatedClient;
 
   public EsClient(SearchClient deprecatedClient) {
-    this.client = deprecatedClient;
-  }
-
-  EsClient(Client client) {
-    this.client = client;
+    this.deprecatedClient = deprecatedClient;
   }
 
   public RefreshRequestBuilder prepareRefresh(String... indices) {
-    return new ProxyRefreshRequestBuilder(client).setIndices(indices);
+    return new ProxyRefreshRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public FlushRequestBuilder prepareFlush(String... indices) {
-    return new ProxyFlushRequestBuilder(client).setIndices(indices);
+    return new ProxyFlushRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public IndicesStatsRequestBuilder prepareStats(String... indices) {
-    return new ProxyIndicesStatsRequestBuilder(client).setIndices(indices);
+    return new ProxyIndicesStatsRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public NodesStatsRequestBuilder prepareNodesStats(String... nodesIds) {
-    return new ProxyNodesStatsRequestBuilder(client).setNodesIds(nodesIds);
+    return new ProxyNodesStatsRequestBuilder(deprecatedClient.nativeClient()).setNodesIds(nodesIds);
   }
 
   public ClusterStatsRequestBuilder prepareClusterStats() {
-    return new ProxyClusterStatsRequestBuilder(client);
+    return new ProxyClusterStatsRequestBuilder(deprecatedClient.nativeClient());
   }
 
   public ClusterStateRequestBuilder prepareState() {
-    return new ProxyClusterStateRequestBuilder(client);
+    return new ProxyClusterStateRequestBuilder(deprecatedClient.nativeClient());
   }
 
   public ClusterHealthRequestBuilder prepareHealth(String... indices) {
-    return new ProxyClusterHealthRequestBuilder(client).setIndices(indices);
+    return new ProxyClusterHealthRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public void waitForStatus(ClusterHealthStatus status) {
@@ -121,55 +117,55 @@ public class EsClient implements Startable {
   }
 
   public IndicesExistsRequestBuilder prepareIndicesExist(String... indices) {
-    return new ProxyIndicesExistsRequestBuilder(client, indices);
+    return new ProxyIndicesExistsRequestBuilder(deprecatedClient.nativeClient(), indices);
   }
 
   public CreateIndexRequestBuilder prepareCreate(String index) {
-    return new ProxyCreateIndexRequestBuilder(client, index);
+    return new ProxyCreateIndexRequestBuilder(deprecatedClient.nativeClient(), index);
   }
 
   public PutMappingRequestBuilder preparePutMapping(String... indices) {
-    return new ProxyPutMappingRequestBuilder(client).setIndices(indices);
+    return new ProxyPutMappingRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public SearchRequestBuilder prepareSearch(String... indices) {
-    return new ProxySearchRequestBuilder(client).setIndices(indices);
+    return new ProxySearchRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public SearchScrollRequestBuilder prepareSearchScroll(String scrollId) {
-    return new ProxySearchScrollRequestBuilder(scrollId, client);
+    return new ProxySearchScrollRequestBuilder(scrollId, deprecatedClient.nativeClient());
   }
 
   public GetRequestBuilder prepareGet() {
-    return new ProxyGetRequestBuilder(client);
+    return new ProxyGetRequestBuilder(deprecatedClient.nativeClient());
   }
 
   public GetRequestBuilder prepareGet(String index, String type, String id) {
-    return new ProxyGetRequestBuilder(client).setIndex(index).setType(type).setId(id);
+    return new ProxyGetRequestBuilder(deprecatedClient.nativeClient()).setIndex(index).setType(type).setId(id);
   }
 
   public MultiGetRequestBuilder prepareMultiGet() {
-    return new ProxyMultiGetRequestBuilder(client);
+    return new ProxyMultiGetRequestBuilder(deprecatedClient.nativeClient());
   }
 
   public CountRequestBuilder prepareCount(String... indices) {
-    return new ProxyCountRequestBuilder(client).setIndices(indices);
+    return new ProxyCountRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public BulkRequestBuilder prepareBulk() {
-    return new ProxyBulkRequestBuilder(client);
+    return new ProxyBulkRequestBuilder(deprecatedClient.nativeClient());
   }
 
   public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
-    return new ProxyDeleteRequestBuilder(client, index).setType(type).setId(id);
+    return new ProxyDeleteRequestBuilder(deprecatedClient.nativeClient(), index).setType(type).setId(id);
   }
 
   public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
-    return new ProxyDeleteByQueryRequestBuilder(client).setIndices(indices);
+    return new ProxyDeleteByQueryRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public IndexRequestBuilder prepareIndex(String index, String type) {
-    return new ProxyIndexRequestBuilder(client).setIndex(index).setType(type);
+    return new ProxyIndexRequestBuilder(deprecatedClient.nativeClient()).setIndex(index).setType(type);
   }
 
   public OptimizeRequestBuilder prepareOptimize(String indexName) {
@@ -179,7 +175,7 @@ public class EsClient implements Startable {
   }
 
   public ClearIndicesCacheRequestBuilder prepareClearCache(String... indices) {
-    return new ProxyClearCacheRequestBuilder(client).setIndices(indices);
+    return new ProxyClearCacheRequestBuilder(deprecatedClient.nativeClient()).setIndices(indices);
   }
 
   public long getMaxFieldValue(String indexName, String typeName, String fieldName) {
@@ -205,6 +201,6 @@ public class EsClient implements Startable {
   }
 
   protected Client nativeClient() {
-    return client;
+    return deprecatedClient.nativeClient();
   }
 }
