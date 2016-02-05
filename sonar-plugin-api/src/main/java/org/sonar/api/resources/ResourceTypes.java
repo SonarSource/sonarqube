@@ -27,17 +27,17 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.sonar.api.server.ServerSide;
-
-import javax.annotation.Nullable;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.14
@@ -55,6 +55,7 @@ public class ResourceTypes {
 
   private final Map<String, ResourceTypeTree> treeByQualifier;
   private final Map<String, ResourceType> typeByQualifier;
+  private final Collection<ResourceType> orderedTypes;
   private final Collection<ResourceType> rootTypes;
 
   public ResourceTypes() {
@@ -81,6 +82,27 @@ public class ResourceTypes {
     treeByQualifier = ImmutableMap.copyOf(treeMap);
     typeByQualifier = ImmutableMap.copyOf(typeMap);
     rootTypes = ImmutableList.copyOf(rootsSet);
+
+    List<ResourceType> mutableOrderedTypes = new ArrayList<>();
+    ResourceType view = null;
+    ResourceType subView = null;
+    for (ResourceType resourceType : typeByQualifier.values()) {
+      if (Qualifiers.VIEW.equals(resourceType.getQualifier())) {
+        view = resourceType;
+      } else if (Qualifiers.SUBVIEW.equals(resourceType.getQualifier())) {
+        subView = resourceType;
+      } else {
+        mutableOrderedTypes.add(resourceType);
+      }
+    }
+    if (subView != null) {
+      mutableOrderedTypes.add(0, subView);
+    }
+    if (view != null) {
+      mutableOrderedTypes.add(0, view);
+    }
+
+    orderedTypes = ImmutableSet.copyOf(mutableOrderedTypes);
   }
 
   public ResourceType get(String qualifier) {
@@ -90,6 +112,10 @@ public class ResourceTypes {
 
   public Collection<ResourceType> getAll() {
     return typeByQualifier.values();
+  }
+
+  public Collection<ResourceType> getAllOrdered() {
+    return orderedTypes;
   }
 
   public Collection<ResourceType> getRoots() {

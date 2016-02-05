@@ -44,7 +44,7 @@ public class ResourceTypesTest {
       .addRelations(Qualifiers.DIRECTORY, Qualifiers.FILE)
       .build();
 
-  private ResourceTypes types = new ResourceTypes(new ResourceTypeTree[] {viewsTree, defaultTree});
+  private ResourceTypes types = new ResourceTypes(new ResourceTypeTree[] {defaultTree, viewsTree});
 
   @Test
   public void get() {
@@ -56,7 +56,12 @@ public class ResourceTypesTest {
 
   @Test
   public void get_all() {
-    assertThat(qualifiers(types.getAll())).containsOnly(Qualifiers.PROJECT, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.VIEW, Qualifiers.SUBVIEW);
+    assertThat(qualifiers(types.getAll())).containsExactly(Qualifiers.PROJECT, Qualifiers.DIRECTORY, Qualifiers.FILE, Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  }
+
+  @Test
+  public void get_all_ordered() {
+    assertThat(qualifiers(types.getAllOrdered())).containsExactly(Qualifiers.VIEW, Qualifiers.SUBVIEW, Qualifiers.PROJECT, Qualifiers.DIRECTORY, Qualifiers.FILE);
   }
 
   @Test

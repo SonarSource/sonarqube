@@ -44,6 +44,11 @@ public class ResourceTypesRule extends ResourceTypes {
   }
 
   @Override
+  public Collection<ResourceType> getAllOrdered() {
+    return allResourceTypes;
+  }
+
+  @Override
   public Collection<ResourceType> getRoots() {
     return rootResourceTypes;
   }
