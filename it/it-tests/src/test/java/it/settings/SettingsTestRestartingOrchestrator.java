@@ -29,7 +29,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import util.selenium.SeleneseTest;
 
-import static util.ItUtils.*;
+import static util.ItUtils.pluginArtifact;
+import static util.ItUtils.projectDir;
+import static util.ItUtils.xooPlugin;
 
 /**
  * This class start a new orchestrator on each test case

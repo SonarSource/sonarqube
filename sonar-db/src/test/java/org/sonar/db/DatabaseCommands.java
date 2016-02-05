@@ -185,27 +185,31 @@ public abstract class DatabaseCommands {
   }
 
   public void resetPrimaryKeys(DataSource dataSource) throws SQLException {
-    Connection connection = dataSource.getConnection();
-    connection.setAutoCommit(false);
+    Connection connection = null;
+    Statement statement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = dataSource.getConnection();
+      connection.setAutoCommit(false);
 
-    Statement statement = connection.createStatement();
-    for (String table : DatabaseVersion.TABLES) {
-      try {
-        ResultSet result = statement.executeQuery("SELECT CASE WHEN MAX(ID) IS NULL THEN 1 ELSE MAX(ID)+1 END FROM " + table);
-        result.next();
-        int maxId = result.getInt(1);
-        result.close();
+      statement = connection.createStatement();
+      for (String table : DatabaseVersion.TABLES) {
+        try {
+          resultSet = statement.executeQuery("SELECT CASE WHEN MAX(ID) IS NULL THEN 1 ELSE MAX(ID)+1 END FROM " + table);
+          resultSet.next();
+          int maxId = resultSet.getInt(1);
+          resultSet.close();
 
-        for (String resetCommand : resetSequenceSql(table, maxId)) {
-          statement.executeUpdate(resetCommand);
+          for (String resetCommand : resetSequenceSql(table, maxId)) {
+            statement.executeUpdate(resetCommand);
+          }
+          connection.commit();
+        } catch (Exception e) {
+          connection.rollback(); // this table has no primary key
         }
-        connection.commit();
-      } catch (Exception e) {
-        connection.rollback(); // this table has no primary key
       }
+    } finally {
+      DbUtils.closeQuietly(connection, statement, resultSet);
     }
-
-    statement.close();
-    connection.close();
   }
 }

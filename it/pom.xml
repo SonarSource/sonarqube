@@ -15,7 +15,10 @@
 
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>
+    <source.skip>true</source.skip>
+    <enforcer.skip>true</enforcer.skip>
   </properties>
+
   <modules>
     <module>it-plugins</module>
     <module>it-tests</module>

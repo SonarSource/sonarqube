@@ -4,16 +4,16 @@ install: true
 jdk: oraclejdk7
 script: ./travis.sh
 
-env:
-  - TARGET=CI
-  - TARGET=IT IT_CATEGORY=Category1
-  - TARGET=IT IT_CATEGORY=Category2
-  - TARGET=IT IT_CATEGORY=Category3
-  - TARGET=IT IT_CATEGORY=Category4
-  - TARGET=IT IT_CATEGORY=Plugins
-  - TARGET=POSTGRES
-  - TARGET=MYSQL
-  - TARGET=WEB
+#env:
+#  - TARGET=CI
+#  - TARGET=IT IT_CATEGORY=Category1
+#  - TARGET=IT IT_CATEGORY=Category2
+#  - TARGET=IT IT_CATEGORY=Category3
+#  - TARGET=IT IT_CATEGORY=Category4
+#  - TARGET=IT IT_CATEGORY=Plugins
+#  - TARGET=POSTGRES
+#  - TARGET=MYSQL
+#  - TARGET=WEB
 
 
 matrix:
@@ -27,9 +27,11 @@ cache:
     - 'server/sonar-web/node_modules'
 
 before_cache:
-  - 'find ~/.m2/repository -type d -name \*-SNAPSHOT -exec rm -rf {} \;'
-  - 'find ~/.m2/repository -name maven-metadata-\* -exec rm {} \;'
-  - 'find ~/.m2/repository -name resolver-status.properties -exec rm {} \;'
+  - 'find $HOME/.m2/repository -type d -name \*-SNAPSHOT -exec rm -rf {} \;'
+  - 'find $HOME/.m2/repository -name maven-metadata-\* -exec rm {} \;'
+  - 'find $HOME/.m2/repository -name resolver-status.properties -exec rm {} \;'
+  # remove all the artifacts (JAR, ZIP) that are installed in local repo because of mvn deploy
+  - rm -rf $HOME/.m2/repository/org/sonarsource/sonarqube
 
 notifications:
   email: false

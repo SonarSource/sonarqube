@@ -4,7 +4,7 @@ set -euo pipefail
 
 function configureTravis {
   mkdir ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v24 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v25 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
@@ -28,7 +28,7 @@ CI)
         -Pdeploy-sonarsource \
         -B -e -V
 
-  elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
+  elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     strongEcho 'Build and analyze pull request, no deploy'
 
     # No need for Maven phase "install" as the generated JAR file does not need to be installed
@@ -57,21 +57,6 @@ CI)
   fi
   ;;
 
-POSTGRES)
-  psql -c 'create database sonar;' -U postgres
-
-  runDatabaseCI "postgresql" "jdbc:postgresql://localhost/sonar" "postgres" ""
-  ;;
-
-MYSQL)
-  mysql -e "CREATE DATABASE sonar CHARACTER SET UTF8;" -uroot
-  mysql -e "CREATE USER 'sonar'@'localhost' IDENTIFIED BY 'sonar';" -uroot
-  mysql -e "GRANT ALL ON sonar.* TO 'sonar'@'localhost';" -uroot
-  mysql -e "FLUSH PRIVILEGES;" -uroot
-
-  runDatabaseCI "mysql" "jdbc:mysql://localhost/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance" "sonar" "sonar"
-  ;;
-
 WEB)
   set +eu
   source ~/.nvm/nvm.sh && nvm install 4
@@ -80,11 +65,10 @@ WEB)
   ;;
 
 IT)
-  if [ "$IT_CATEGORY" == "Plugins" ] && [ ! -n "$GITHUB_TOKEN" ]; then
+  if [ "$IT_CATEGORY" == "Plugins" ] && [ ! -n "${GITHUB_TOKEN:-}" ]; then
     echo "This job is ignored as it needs to access a private GitHub repository"
   else
     start_xvfb
-
     mvn install -Pit,dev -DskipTests -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -B -V -e -Dsource.skip=true
   fi
   ;;

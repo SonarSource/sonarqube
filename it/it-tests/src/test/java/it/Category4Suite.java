@@ -28,11 +28,7 @@ import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
-import it.serverSystem.HttpsTest;
-import it.serverSystem.RestartTest;
-import it.serverSystem.ServerSystemRestartingOrchestrator;
 import it.serverSystem.ServerSystemTest;
-import it.updateCenter.UpdateCenterTest;
 import it.user.FavouriteTest;
 import it.user.ForceAuthenticationTest;
 import org.junit.ClassRule;
@@ -44,18 +40,13 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   // server system
-  RestartTest.class,
-  HttpsTest.class,
   ServerSystemTest.class,
-  ServerSystemRestartingOrchestrator.class,
   // user
   ForceAuthenticationTest.class,
   FavouriteTest.class,
   // component search
   ProjectSearchTest.class,
   ComponentsWsTest.class,
-  // update center
-  UpdateCenterTest.class,
   // analysis exclusion
   FileExclusionsTest.class,
   IssueExclusionsTest.class,

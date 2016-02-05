@@ -56,13 +56,17 @@ import it.measureHistory.TimeMachineTest;
 import it.projectAdministration.BackgroundTasksTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
-import it.projectServices.*;
+import it.projectServices.AllProjectsTest;
+import it.projectServices.ProjectCodeTest;
+import it.projectServices.ProjectComparisonTest;
+import it.projectServices.ProjectDrilldownTest;
+import it.projectServices.ProjectOverviewTest;
+import it.projectServices.ProjectWidgetsTest;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;
 import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
-import it.settings.SettingsTestRestartingOrchestrator;
 import it.settings.SubCategoriesTest;
 import it.user.MyAccountPageTest;
 import org.junit.ClassRule;
@@ -91,7 +95,6 @@ import static util.ItUtils.xooPlugin;
   PropertySetsTest.class,
   SubCategoriesTest.class,
   SettingsTest.class,
-  SettingsTestRestartingOrchestrator.class,
   // i18n
   I18nTest.class,
   // quality gate

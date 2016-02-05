@@ -66,6 +66,7 @@
     <slf4j.version>1.7.12</slf4j.version>
     <tomcat.version>8.0.30</tomcat.version>
     <elasticsearch.version>1.7.2</elasticsearch.version>
+    <orchestrator.version>3.11-build315</orchestrator.version>
     <okhttp.version>2.6.0</okhttp.version>
 
     <protobuf.version>3.0.0-beta-1</protobuf.version>
@@ -736,6 +737,11 @@
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>5.1.35</version>
+      </dependency>
+      <dependency>
+        <groupId>com.oracle</groupId>
+        <artifactId>ojdbc6</artifactId>
+        <version>11.2.0.4.0</version>
       </dependency>
       <dependency>
         <groupId>org.postgresql</groupId>

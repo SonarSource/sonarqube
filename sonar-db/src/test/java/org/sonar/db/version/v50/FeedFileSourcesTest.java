@@ -120,11 +120,10 @@ public class FeedFileSourcesTest {
     try {
       connection = db.openConnection();
 
-      connection.prepareStatement("insert into snapshot_sources " +
+      db.executeUpdateSql("insert into snapshot_sources " +
         "(snapshot_id, data, updated_at) " +
         "values " +
-        "(6, 'class Foo {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')")
-        .executeUpdate();
+        "(6, 'class Foo {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')");
 
       db.executeUpdateSql("insert into snapshot_sources " +
         "(snapshot_id, data, updated_at) " +
@@ -137,6 +136,7 @@ public class FeedFileSourcesTest {
         "(1, 6, ?)");
       revisionStmt.setBytes(1, "1=aef12a;2=abe465;3=afb789;4=afb789".getBytes(StandardCharsets.UTF_8));
       revisionStmt.executeUpdate();
+      revisionStmt.close();
 
       PreparedStatement authorStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -144,6 +144,7 @@ public class FeedFileSourcesTest {
         "(2, 6, ?)");
       authorStmt.setBytes(1, "1=alice;2=bob;3=carol;4=carol".getBytes(StandardCharsets.UTF_8));
       authorStmt.executeUpdate();
+      authorStmt.close();
 
       PreparedStatement dateStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -151,6 +152,7 @@ public class FeedFileSourcesTest {
         "(3, 6, ?)");
       dateStmt.setBytes(1, "1=2014-04-25T12:34:56+0100;2=2014-07-25T12:34:56+0100;3=2014-03-23T12:34:56+0100;4=2014-03-23T12:34:56+0100".getBytes(StandardCharsets.UTF_8));
       dateStmt.executeUpdate();
+      dateStmt.close();
 
       PreparedStatement utHitsStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -158,6 +160,7 @@ public class FeedFileSourcesTest {
         "(4, 6, ?)");
       utHitsStmt.setBytes(1, "1=1;3=0".getBytes(StandardCharsets.UTF_8));
       utHitsStmt.executeUpdate();
+      utHitsStmt.close();
 
       PreparedStatement utCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -165,6 +168,7 @@ public class FeedFileSourcesTest {
         "(5, 6, ?)");
       utCondStmt.setBytes(1, "1=4".getBytes(StandardCharsets.UTF_8));
       utCondStmt.executeUpdate();
+      utCondStmt.close();
 
       PreparedStatement utCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -172,6 +176,7 @@ public class FeedFileSourcesTest {
         "(6, 6, ?)");
       utCoveredCondStmt.setBytes(1, "1=2".getBytes(StandardCharsets.UTF_8));
       utCoveredCondStmt.executeUpdate();
+      utCoveredCondStmt.close();
 
       PreparedStatement itHitsStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -179,6 +184,7 @@ public class FeedFileSourcesTest {
         "(7, 6, ?)");
       itHitsStmt.setBytes(1, "1=2;3=0".getBytes(StandardCharsets.UTF_8));
       itHitsStmt.executeUpdate();
+      itHitsStmt.close();
 
       PreparedStatement itCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -186,6 +192,7 @@ public class FeedFileSourcesTest {
         "(8, 6, ?)");
       itCondStmt.setBytes(1, "1=5".getBytes(StandardCharsets.UTF_8));
       itCondStmt.executeUpdate();
+      itCondStmt.close();
 
       PreparedStatement itCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -193,6 +200,7 @@ public class FeedFileSourcesTest {
         "(9, 6, ?)");
       itCoveredCondStmt.setBytes(1, "1=3".getBytes(StandardCharsets.UTF_8));
       itCoveredCondStmt.executeUpdate();
+      itCoveredCondStmt.close();
 
       PreparedStatement overallHitsStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -200,6 +208,7 @@ public class FeedFileSourcesTest {
         "(10, 6, ?)");
       overallHitsStmt.setBytes(1, "1=3;3=0".getBytes(StandardCharsets.UTF_8));
       overallHitsStmt.executeUpdate();
+      overallHitsStmt.close();
 
       PreparedStatement overallCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -207,6 +216,7 @@ public class FeedFileSourcesTest {
         "(11, 6, ?)");
       overallCondStmt.setBytes(1, "1=6".getBytes(StandardCharsets.UTF_8));
       overallCondStmt.executeUpdate();
+      overallCondStmt.close();
 
       PreparedStatement overallCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -214,6 +224,7 @@ public class FeedFileSourcesTest {
         "(12, 6, ?)");
       overallCoveredCondStmt.setBytes(1, "1=4".getBytes(StandardCharsets.UTF_8));
       overallCoveredCondStmt.executeUpdate();
+      overallCoveredCondStmt.close();
 
       PreparedStatement duplicationDataStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
@@ -225,6 +236,7 @@ public class FeedFileSourcesTest {
           "<duplications><g><b s=\"1\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"2\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"3\" l=\"1\" r=\"MyProject:src/main/xoo/prj/AnotherFile.xoo\"/></g></duplications>"
             .getBytes(StandardCharsets.UTF_8));
       duplicationDataStmt.executeUpdate();
+      duplicationDataStmt.close();
     } finally {
       DbUtils.commitAndCloseQuietly(connection);
     }
@@ -259,6 +271,7 @@ public class FeedFileSourcesTest {
     db.prepareDbUnit(getClass(), "before.xml");
 
     Connection connection = null;
+    PreparedStatement duplicationDataStmt = null;
     try {
       connection = db.openConnection();
 
@@ -273,7 +286,7 @@ public class FeedFileSourcesTest {
         "values " +
         "(7, '', '2014-10-31 16:44:02.000')");
 
-      PreparedStatement duplicationDataStmt = connection.prepareStatement("insert into project_measures " +
+      duplicationDataStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, text_value) " +
         "values " +
         "(13, 6, ?)");
@@ -284,6 +297,7 @@ public class FeedFileSourcesTest {
             .getBytes(StandardCharsets.UTF_8));
       duplicationDataStmt.executeUpdate();
     } finally {
+      DbUtils.close(duplicationDataStmt);
       DbUtils.commitAndCloseQuietly(connection);
     }
 
