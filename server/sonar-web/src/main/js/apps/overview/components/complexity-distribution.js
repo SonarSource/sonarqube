@@ -54,8 +54,8 @@ export const ComplexityDistribution = React.createClass({
                      xTicks={xTicks}
                      xValues={xValues}
                      height={HEIGHT}
-                     barsWidth={10}
-                     padding={[25, 0, 25, 0]}/>;
+                     barsWidth={20}
+                     padding={[25, 10, 25, 10]}/>;
   },
 
   render () {

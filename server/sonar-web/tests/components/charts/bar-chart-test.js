@@ -13,7 +13,7 @@ describe('Bar Chart', function () {
       { x: 2, y: 30 },
       { x: 3, y: 20 }
     ];
-    let chart = TestUtils.renderIntoDocument(<BarChart data={data} width={100} height={100}/>);
+    let chart = TestUtils.renderIntoDocument(<BarChart data={data} width={100} height={100} barsWidth={20}/>);
     expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-bar')).to.have.length(3);
   });
 
@@ -24,7 +24,7 @@ describe('Bar Chart', function () {
       { x: 3, y: 20 }
     ];
     const ticks = ['A', 'B', 'C'];
-    let chart = TestUtils.renderIntoDocument(<BarChart data={data} xTicks={ticks} width={100} height={100}/>);
+    let chart = TestUtils.renderIntoDocument(<BarChart data={data} xTicks={ticks} width={100} height={100} barsWidth={20}/>);
     expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick')).to.have.length(3);
   });
 
@@ -35,7 +35,7 @@ describe('Bar Chart', function () {
       { x: 3, y: 20 }
     ];
     const values = ['A', 'B', 'C'];
-    let chart = TestUtils.renderIntoDocument(<BarChart data={data} xValues={values} width={100} height={100}/>);
+    let chart = TestUtils.renderIntoDocument(<BarChart data={data} xValues={values} width={100} height={100} barsWidth={20}/>);
     expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick')).to.have.length(3);
   });
 
@@ -48,7 +48,7 @@ describe('Bar Chart', function () {
     const ticks = ['A', 'B', 'C'];
     const values = ['A', 'B', 'C'];
     let chart = TestUtils.renderIntoDocument(
-        <BarChart data={data} xTicks={ticks} xValues={values} width={100} height={100}/>);
+        <BarChart data={data} xTicks={ticks} xValues={values} width={100} height={100} barsWidth={20}/>);
     expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-bar')).to.have.length(3);
     expect(TestUtils.scryRenderedDOMComponentsWithClass(chart, 'bar-chart-tick')).to.have.length(6);
   });

@@ -30,7 +30,7 @@ export const BarChart = React.createClass({
     xValues: React.PropTypes.arrayOf(React.PropTypes.any),
     height: React.PropTypes.number,
     padding: React.PropTypes.arrayOf(React.PropTypes.number),
-    barsWidth: React.PropTypes.number,
+    barsWidth: React.PropTypes.number.isRequired,
     onBarClick: React.PropTypes.func
   },
 
@@ -40,8 +40,7 @@ export const BarChart = React.createClass({
     return {
       xTicks: [],
       xValues: [],
-      padding: [10, 10, 10, 10],
-      barsWidth: 40
+      padding: [10, 10, 10, 10]
     };
   },
 
@@ -59,7 +58,7 @@ export const BarChart = React.createClass({
     }
     let ticks = this.props.xTicks.map((tick, index) => {
       let point = this.props.data[index];
-      let x = Math.round(xScale(point.x) + xScale.rangeBand() / 2 + this.props.barsWidth / 2);
+      let x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
       let y = yScale.range()[0];
       let d = this.props.data[index];
       let tooltipAtts = {};
@@ -85,7 +84,7 @@ export const BarChart = React.createClass({
     }
     let ticks = this.props.xValues.map((value, index) => {
       let point = this.props.data[index];
-      let x = Math.round(xScale(point.x) + xScale.rangeBand() / 2 + this.props.barsWidth / 2);
+      let x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
       let y = yScale(point.y);
       let d = this.props.data[index];
       let tooltipAtts = {};
@@ -107,7 +106,7 @@ export const BarChart = React.createClass({
 
   renderBars (xScale, yScale) {
     let bars = this.props.data.map((d, index) => {
-      let x = Math.round(xScale(d.x) + xScale.rangeBand() / 2);
+      let x = Math.round(xScale(d.x));
       let maxY = yScale.range()[0];
       let y = Math.round(yScale(d.y)) - /* minimum bar height */ 1;
       let height = maxY - y;
@@ -137,10 +136,13 @@ export const BarChart = React.createClass({
     let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
+    const innerPadding = (availableWidth - this.props.barsWidth * this.props.data.length) / (this.props.data.length - 1);
+    const relativeInnerPadding = innerPadding / (innerPadding + this.props.barsWidth);
+
     let maxY = d3.max(this.props.data, d => d.y);
     let xScale = d3.scale.ordinal()
                    .domain(this.props.data.map(d => d.x))
-                   .rangeRoundBands([0, availableWidth]);
+                   .rangeBands([0, availableWidth], relativeInnerPadding, 0);
     let yScale = d3.scale.linear()
                    .domain([0, maxY])
                    .range([availableHeight, 0]);

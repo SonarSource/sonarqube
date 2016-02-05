@@ -136,7 +136,7 @@ export default class IssueWidgets extends Component {
               xTicks={xTicks}
               xValues={xValues}
               barsWidth={20}
-              padding={[25, 0, 25, 0]}
+              padding={[25, 10, 25, 10]}
               height={80}
               onBarClick={this.handleByDateClick.bind(this)}/>
         </section>
