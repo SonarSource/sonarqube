@@ -52,6 +52,7 @@ public class BaseIndexTest {
     settings.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(holder.getPort()));
     settings.setProperty(ProcessProperties.SEARCH_HOST, String.valueOf(holder.getHostName()));
     searchClient = new SearchClient(settings);
+    searchClient.start();
   }
 
   @After
@@ -71,7 +72,7 @@ public class BaseIndexTest {
   public void creates_domain_index() {
     BaseIndex index = getIndex(this.searchClient);
 
-    IndicesExistsResponse indexExistsResponse = index.getClient().admin().indices()
+    IndicesExistsResponse indexExistsResponse = index.getClient().nativeClient().admin().indices()
       .prepareExists(IndexDefinition.TEST.getIndexName()).execute().actionGet();
 
     assertThat(indexExistsResponse.isExists()).isTrue();

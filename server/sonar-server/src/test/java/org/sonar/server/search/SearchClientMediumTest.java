@@ -33,6 +33,7 @@ public class SearchClientMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -45,43 +46,6 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_multi_search_is_not_yet_implemented() {
-    try {
-      searchClient.prepareMultiSearch();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_update_is_not_yet_implemented() {
-    try {
-      searchClient.prepareUpdate();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-
-    try {
-      searchClient.prepareUpdate("index", "type", "id");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_delete_is_not_yet_implemented() {
-    try {
-      searchClient.prepareDelete();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
   public void delete_by_query_is_not_supported() {
     try {
       searchClient.prepareDeleteByQuery();
@@ -91,83 +55,4 @@ public class SearchClientMediumTest {
     }
   }
 
-  @Test
-  public void prepare_percolate_is_not_yet_implemented() {
-    try {
-      searchClient.preparePercolate();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_multi_percolate_is_not_yet_implemented() {
-    try {
-      searchClient.prepareMultiPercolate();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_suggest_is_not_yet_implemented() {
-    try {
-      searchClient.prepareSuggest("index");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_more_like_this_is_not_yet_implemented() {
-    try {
-      searchClient.prepareMoreLikeThis("index", "tpye", "id");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_term_vector_is_not_yet_implemented() {
-    try {
-      searchClient.prepareTermVector("index", "tpye", "id");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_multi_term_vectors_is_not_yet_implemented() {
-    try {
-      searchClient.prepareMultiTermVectors();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_explain_is_not_yet_implemented() {
-    try {
-      searchClient.prepareExplain("index", "tpye", "id");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
-
-  @Test
-  public void prepare_clear_scroll_is_not_yet_implemented() {
-    try {
-      searchClient.prepareClearScroll();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
-  }
 }
