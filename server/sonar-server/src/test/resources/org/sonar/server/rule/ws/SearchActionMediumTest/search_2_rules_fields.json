@@ -7,7 +7,7 @@
       "key": "xoo:x2",
       "name": "Rule x2",
       "mdDesc": "A *Xoo* rule",
-      "htmlDesc": "A <em>Xoo</em> rule"
+      "htmlDesc": "A <strong>Xoo</strong> rule"
     },
     {
       "key": "xoo:x1",

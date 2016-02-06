@@ -40,7 +40,7 @@ public class RubyTextServiceTest {
   @Test
   public void markdownToHtml() {
     String html = text.markdownToHtml("some *markdown*");
-    assertThat(html).isEqualTo("some <em>markdown</em>");
+    assertThat(html).isEqualTo("some <strong>markdown</strong>");
   }
 
   @Test

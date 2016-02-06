@@ -17,7 +17,7 @@
         "key": "COMMENT-ABCD",
         "userName": "John",
         "raw": "*My comment*",
-        "html": "<em>My comment</em>",
+        "html": "<strong>My comment</strong>",
         "createdAt": "2014-02-22T19:10:03+0100",
         "fCreatedAge": "9 days",
         "updatable": false

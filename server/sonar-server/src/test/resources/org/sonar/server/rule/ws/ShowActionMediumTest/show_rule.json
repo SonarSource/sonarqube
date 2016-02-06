@@ -13,7 +13,7 @@
     "params": [
       {
         "key": "regex",
-        "htmlDesc": "Reg <em>exp</em>",
+        "htmlDesc": "Reg <strong>exp</strong>",
         "defaultValue": ".*"
       }
     ]
