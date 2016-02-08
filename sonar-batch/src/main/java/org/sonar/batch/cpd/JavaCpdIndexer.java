@@ -22,6 +22,7 @@ package org.sonar.batch.cpd;
 import com.google.common.collect.Lists;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
@@ -90,14 +91,12 @@ public class JavaCpdIndexer extends CpdIndexer {
 
       List<Statement> statements;
 
-      Reader reader = null;
-      try {
-        reader = new InputStreamReader(new FileInputStream(inputFile.file()), fs.encoding());
+      try(Reader reader = new InputStreamReader(new FileInputStream(inputFile.file()), fs.encoding())) {
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
         throw new IllegalStateException("Cannot find file " + inputFile.file(), e);
-      } finally {
-        IOUtils.closeQuietly(reader);
+      } catch (IOException e ) {
+        throw new IllegalStateException("Exception hnadling file: " + inputFile.file(), e);
       }
 
       List<Block> blocks = blockChunker.chunk(resourceEffectiveKey, statements);
