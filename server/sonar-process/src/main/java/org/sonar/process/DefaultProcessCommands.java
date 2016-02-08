@@ -36,7 +36,7 @@ public class DefaultProcessCommands implements ProcessCommands {
 
   public DefaultProcessCommands(File directory, int processNumber, boolean clean) {
     this.allProcessesCommands = new AllProcessesCommands(directory);
-    this.delegate = allProcessesCommands.getProcessCommand(processNumber, clean);
+    this.delegate = clean ? allProcessesCommands.createAfterClean(processNumber) : allProcessesCommands.create(processNumber);
   }
 
   @Override

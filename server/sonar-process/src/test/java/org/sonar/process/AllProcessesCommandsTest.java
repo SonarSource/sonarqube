@@ -134,7 +134,7 @@ public class AllProcessesCommandsTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Process number " + processNumber + " is not valid");
 
-    allProcessesCommands.getProcessCommand(processNumber, true);
+    allProcessesCommands.createAfterClean(processNumber);
   }
 
   @Test
@@ -147,6 +147,6 @@ public class AllProcessesCommandsTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Process number " + processNumber + " is not valid");
 
-    allProcessesCommands.getProcessCommand(processNumber, true);
+    allProcessesCommands.createAfterClean(processNumber);
   }
 }

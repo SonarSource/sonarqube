@@ -86,7 +86,15 @@ public class AllProcessesCommands {
     }
   }
 
-  public ProcessCommands getProcessCommand(int processNumber, boolean clean) {
+  public ProcessCommands create(int processNumber) {
+    return createForProcess(processNumber, false);
+  }
+
+  public ProcessCommands createAfterClean(int processNumber) {
+    return createForProcess(processNumber, true);
+  }
+
+  private ProcessCommands createForProcess(int processNumber, boolean clean) {
     checkProcessNumber(processNumber);
     ProcessCommands processCommands = new ProcessCommandsImpl(processNumber);
     if (clean) {

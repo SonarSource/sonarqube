@@ -52,7 +52,7 @@ public class JavaProcessLauncher {
   ProcessRef launch(JavaCommand command) {
     Process process = null;
     try {
-      ProcessCommands commands = allProcessesCommands.getProcessCommand(command.getProcessIndex(), true);
+      ProcessCommands commands = allProcessesCommands.createAfterClean(command.getProcessIndex());
 
       ProcessBuilder processBuilder = create(command);
       LoggerFactory.getLogger(getClass()).info("Launch process[{}]: {}",
