@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>show_events_using_filters</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+  <thead>
+  <tr>
+    <td rowspan="1" colspan="3">show_events_using_filters</td>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+	<td>open</td>
+	<td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/project/history?id=sample</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>create_event_1_change</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=create_event_name_1</td>
+	<td>Hello you</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=create_save_event_1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>content</td>
+	<td>*Event &quot;Hello you&quot; was created.*1.0-SNAPSHOT*Last*Hello you*</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/widget?id=events&amp;resource=sample</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>body</td>
+	<td>*Events*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>block_1</td>
+	<td>*Events*Version*1.0-SNAPSHOT*Other*Hello you*</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=select_category_1</td>
+	<td>label=Quality Profile</td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>block_1</td>
+	<td>*Version*1.0-SNAPSHOT*Other*Hello you*</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=select_category_1</td>
+	<td>label=Other</td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>block_1</td>
+	<td>*Version*1.0-SNAPSHOT*</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=select_category_1</td>
+	<td>label=Version</td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>block_1</td>
+	<td>*Other*Hello you*</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
