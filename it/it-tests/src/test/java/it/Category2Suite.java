@@ -51,6 +51,7 @@ import it.issue.IssueActionTest;
 import it.issue.IssueBulkChangeTest;
 import it.issue.IssueChangelogTest;
 import it.issue.IssueFilterExtensionTest;
+import it.issue.IssueNotificationsTest;
 import it.issue.IssuePurgeTest;
 import it.issue.IssueWorkflowTest;
 import it.issue.ManualRulesTest;
@@ -93,6 +94,7 @@ import static util.ItUtils.xooPlugin;
   IssueWorkflowTest.class,
   ManualRulesTest.class,
   NewIssuesMeasureTest.class,
+  IssueNotificationsTest.class,
   // debt
   SqaleRatingMeasureTest.class,
   TechnicalDebtInIssueChangelogTest.class,
@@ -110,6 +112,9 @@ public class Category2Suite {
     // issue
     .addPlugin(pluginArtifact("issue-action-plugin"))
     .addPlugin(pluginArtifact("issue-filter-plugin"))
+
+    // 1 second. Required for notification test.
+    .setServerProperty("sonar.notifications.delay", "1")
 
     .build();
 

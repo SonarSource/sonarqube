@@ -116,4 +116,13 @@ public class UserRule extends ExternalResource {
   public void deactivateUsers(Users.User... users) {
     deactivateUsers(asList(users));
   }
+
+  public void deactivateUsers(String... userLogins) {
+    for (String userLogin : userLogins) {
+      Optional<Users.User> user = getUserByLogin(userLogin);
+      if (user.isPresent()) {
+        deactivateUsers(user.get());
+      }
+    }
+  }
 }
