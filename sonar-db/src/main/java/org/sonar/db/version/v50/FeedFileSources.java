@@ -210,20 +210,20 @@ public class FeedFileSources extends BaseDataChange {
 
       return true;
     }
-  }
-
-  private static String ofNullableBytes(@Nullable byte[] shortBytes, @Nullable byte[] longBytes) {
-    byte[] result;
-    if (shortBytes == null) {
-      if (longBytes == null) {
-        return "";
+    
+    private static String ofNullableBytes(@Nullable byte[] shortBytes, @Nullable byte[] longBytes) {
+      byte[] result;
+      if (shortBytes == null) {
+        if (longBytes == null) {
+          return "";
+        } else {
+          result = longBytes;
+        }
       } else {
-        result = longBytes;
+        result = shortBytes;
       }
-    } else {
-      result = shortBytes;
+      return new String(result, StandardCharsets.UTF_8);
     }
-    return new String(result, StandardCharsets.UTF_8);
   }
 
   @Override

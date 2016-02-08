@@ -124,8 +124,6 @@ public class HtmlReport implements Reporter {
   }
 
   public void writeToFile(IssuesReport report, File toFile, boolean complete) {
-    Writer writer = null;
-    FileOutputStream fos = null;
     try {
       freemarker.log.Logger.selectLoggerLibrary(freemarker.log.Logger.LIBRARY_NONE);
       freemarker.template.Configuration cfg = new freemarker.template.Configuration();
@@ -138,17 +136,14 @@ public class HtmlReport implements Reporter {
       root.put("complete", complete);
 
       Template template = cfg.getTemplate("issuesreport.ftl");
-      fos = new FileOutputStream(toFile);
-      writer = new OutputStreamWriter(fos, fs.encoding());
-      template.process(root, writer);
-      writer.flush();
 
+      try (FileOutputStream fos = new FileOutputStream(toFile); Writer writer = new OutputStreamWriter(fos, fs.encoding())) {
+        template.process(root, writer);
+        writer.flush();
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to generate HTML Issues Report to: " + toFile, e);
 
-    } finally {
-      IOUtils.closeQuietly(writer);
-      IOUtils.closeQuietly(fos);
     }
   }
 
@@ -173,18 +168,11 @@ public class HtmlReport implements Reporter {
   }
 
   private void copyDependency(File target, String filename) {
-    InputStream input = null;
-    OutputStream output = null;
-    try {
-      input = getClass().getResourceAsStream("/org/sonar/batch/scan/report/issuesreport_files/" + filename);
-      output = new FileOutputStream(new File(target, filename));
+    try (InputStream input = getClass().getResourceAsStream("/org/sonar/batch/scan/report/issuesreport_files/" + filename);
+      OutputStream output = new FileOutputStream(new File(target, filename))) {
       IOUtils.copy(input, output);
-
     } catch (IOException e) {
       throw new IllegalStateException("Fail to copy file " + filename + " to " + target, e);
-    } finally {
-      IOUtils.closeQuietly(input);
-      IOUtils.closeQuietly(output);
     }
   }
 

@@ -111,10 +111,7 @@ public class DefaultNotificationManager implements NotificationManager {
         alreadyLoggedDeserializationIssue = true;
       }
       return null;
-    } catch (IOException e) {
-      throw new SonarException(UNABLE_TO_READ_NOTIFICATION, e);
-
-    } catch (ClassNotFoundException e) {
+    } catch (IOException | ClassNotFoundException e) {
       throw new SonarException(UNABLE_TO_READ_NOTIFICATION, e);
     }
   }
