@@ -31,11 +31,14 @@ public class JavaConstantTokenizer extends Tokenizer {
   private final String tagBefore;
   private final String tagAfter;
   private static final int DOT = '.';
-  private EndMatcher endTokenMatcher = new EndMatcher() {
-
+  private static final EndMatcher END_TOKEN_MATCHER = new EndMatcher() {
     @Override
     public boolean match(int endFlag) {
       return !isJavaConstantPart(endFlag);
+    }
+
+    private boolean isJavaConstantPart(int character) {
+      return Character.isUpperCase(character) || character == '_' || character == '-' || Character.isDigit(character);
     }
   };
 
@@ -48,7 +51,7 @@ public class JavaConstantTokenizer extends Tokenizer {
     int lastChar = code.lastChar();
     if (isJavaConstantStart(code.peek()) && !Character.isJavaIdentifierPart(lastChar) && !Character.isJavaIdentifierStart(lastChar)
       && lastChar != DOT) {
-      String constant = code.peekTo(endTokenMatcher);
+      String constant = code.peekTo(END_TOKEN_MATCHER);
       int nextCharAfterConstant = code.peek(constant.length() + 1)[constant.length()];
       if (nextCharAfterConstant != 0 && Character.isJavaIdentifierPart(nextCharAfterConstant)) {
         return false;
@@ -62,7 +65,7 @@ public class JavaConstantTokenizer extends Tokenizer {
   public boolean consume(CodeReader code, HtmlCodeBuilder codeBuilder) {
     if (hasNextToken(code)) {
       codeBuilder.appendWithoutTransforming(tagBefore);
-      code.popTo(endTokenMatcher, codeBuilder);
+      code.popTo(END_TOKEN_MATCHER, codeBuilder);
       codeBuilder.appendWithoutTransforming(tagAfter);
       return true;
     } else {
@@ -72,10 +75,6 @@ public class JavaConstantTokenizer extends Tokenizer {
 
   private static boolean isJavaConstantStart(int character) {
     return Character.isUpperCase(character);
-  }
-
-  private static boolean isJavaConstantPart(int character) {
-    return Character.isUpperCase(character) || character == '_' || character == '-' || Character.isDigit(character);
   }
 
 }
