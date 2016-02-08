@@ -33,7 +33,6 @@ import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.core.timemachine.Periods;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
@@ -70,7 +69,7 @@ public class QGatesWsTest {
       new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
-      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates, mock(Periods.class))));
+      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates)));
   }
 
   @Test

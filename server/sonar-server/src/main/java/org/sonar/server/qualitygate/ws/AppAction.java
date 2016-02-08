@@ -25,18 +25,14 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.timemachine.Periods;
 import org.sonar.server.qualitygate.QualityGates;
 
 public class AppAction implements QGateWsAction {
 
   private final QualityGates qualityGates;
 
-  private final Periods periods;
-
-  public AppAction(QualityGates qualityGates, Periods periods) {
+  public AppAction(QualityGates qualityGates) {
     this.qualityGates = qualityGates;
-    this.periods = periods;
   }
 
   @Override
