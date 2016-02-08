@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>change-shared-project-dashboard-owner</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+  <tbody>
+  <tr>
+      <td>open</td>
+      <td>/sessions/logout</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>open</td>
+    <td>/sessions/new</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>login</td>
+    <td>admin</td>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>password</td>
+    <td>admin</td>
+  </tr>
+  <tr>
+    <td>clickAndWait</td>
+    <td>commit</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>open</td>
+    <td>/dashboards?resource=sample</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>click</td>
+    <td>create-link-dashboard</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>waitForVisible</td>
+    <td>css=div.modal-body</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>name</td>
+    <td>shared-project-dashboard</td>
+  </tr>
+  <tr>
+    <td>storeValue</td>
+    <td>name</td>
+    <td>DASHBOARD_NAME</td>
+  </tr>
+  <tr>
+    <td>click</td>
+    <td>name=shared</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>clickAndWait</td>
+    <td>save-submit</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>waitForVisible</td>
+    <td>edit-${DASHBOARD_NAME}</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>click</td>
+    <td>edit-${DASHBOARD_NAME}</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>waitForVisible</td>
+    <td>css=div.modal-body</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>select-dashboard-owner</td>
+    <td>can_share</td>
+  </tr>
+  <tr>
+    <td>clickAndWait</td>
+    <td>save-submit</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>assertText</td>
+    <td>dashboards</td>
+    <td>glob:*can_share*</td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

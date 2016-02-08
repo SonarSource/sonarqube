@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>change-other-measure-filter-owner</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+	<td>storeEval</td>
+	<td>'filter_'+(new Date()).getTime()</td>
+	<td>FILTER_NAME</td>
+</tr>
+<tr>
+    <td>open</td>
+    <td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>can_share</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>password</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/measures</td>
+	<td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>class=navigator-filter-submit</td>
+  <td></td>
+</tr>
+<tr>
+	<td>click</td>
+  <td>class=navigator-filter-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*Save As*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>save-as</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>save-as-filter-form</td>
+	<td>*Save Filter*</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>${FILTER_NAME}</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>name=shared</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>save-as-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>filter-title</td>
+	<td>glob:*${FILTER_NAME}*Shared with all users*</td>
+</tr>
+<tr>
+    <td>open</td>
+    <td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/measures</td>
+	<td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>id=manage-favorites</td>
+  <td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+  <td>id=manage-favorites</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>shared-filters</td>
+	<td>glob:*${FILTER_NAME}*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>edit_system_${FILTER_NAME}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>edit-filter-form</td>
+	<td>*Edit Filter*</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>select-filter-owner</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>save-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>filter-title</td>
+	<td>glob:*${FILTER_NAME}*Shared with all users*</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
