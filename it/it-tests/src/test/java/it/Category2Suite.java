@@ -53,6 +53,7 @@ import it.issue.IssueChangelogTest;
 import it.issue.IssueFilterExtensionTest;
 import it.issue.IssueNotificationsTest;
 import it.issue.IssuePurgeTest;
+import it.issue.IssueSearchTest;
 import it.issue.IssueWorkflowTest;
 import it.issue.ManualRulesTest;
 import it.issue.NewIssuesMeasureTest;
@@ -95,6 +96,7 @@ import static util.ItUtils.xooPlugin;
   ManualRulesTest.class,
   NewIssuesMeasureTest.class,
   IssueNotificationsTest.class,
+  IssueSearchTest.class,
   // debt
   SqaleRatingMeasureTest.class,
   TechnicalDebtInIssueChangelogTest.class,
