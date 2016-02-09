@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it;/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+package it;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.customMeasure.CustomMeasuresTest;
@@ -45,6 +27,7 @@ import it.debt.TechnicalDebtMeasureTest;
 import it.debt.TechnicalDebtPurgeTest;
 import it.debt.TechnicalDebtTest;
 import it.debt.TechnicalDebtWidgetTest;
+import it.issue.AutoAssignTest;
 import it.issue.CommonRulesTest;
 import it.issue.CustomRulesTest;
 import it.issue.IssueActionTest;
@@ -54,6 +37,7 @@ import it.issue.IssueFilterExtensionTest;
 import it.issue.IssueNotificationsTest;
 import it.issue.IssuePurgeTest;
 import it.issue.IssueSearchTest;
+import it.issue.IssueTrackingTest;
 import it.issue.IssueWorkflowTest;
 import it.issue.ManualRulesTest;
 import it.issue.NewIssuesMeasureTest;
@@ -85,18 +69,21 @@ import static util.ItUtils.xooPlugin;
   NewCoverageTest.class,
   TestExecutionTest.class,
   // issue
+  AutoAssignTest.class,
   CommonRulesTest.class,
   CustomRulesTest.class,
   IssueActionTest.class,
   IssueBulkChangeTest.class,
   IssueChangelogTest.class,
   IssueFilterExtensionTest.class,
-  IssuePurgeTest.class,
-  IssueWorkflowTest.class,
-  ManualRulesTest.class,
-  NewIssuesMeasureTest.class,
   IssueNotificationsTest.class,
+  IssuePurgeTest.class,
   IssueSearchTest.class,
+  IssueTrackingTest.class,
+  IssueWorkflowTest.class,
+  NewIssuesMeasureTest.class,
+  // rule
+  ManualRulesTest.class,
   // debt
   SqaleRatingMeasureTest.class,
   TechnicalDebtInIssueChangelogTest.class,
