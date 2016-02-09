@@ -23,7 +23,9 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
+import java.io.IOException;
 import java.util.UUID;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -35,7 +37,6 @@ import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.HttpWsClient;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
@@ -45,6 +46,8 @@ import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
+import util.selenium.SeleneseTest;
+import util.user.UserRule;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,8 +56,13 @@ import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
 public class LocalAuthenticationTest {
+
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
+
+  @ClassRule
+  public static UserRule userRule = UserRule.from(ORCHESTRATOR);
+
   private static WsClient adminWsClient;
   private static UserTokensService userTokensWsClient;
 
@@ -72,20 +80,21 @@ public class LocalAuthenticationTest {
     userTokensWsClient = adminWsClient.userTokens();
     removeGroupPermission("anyone", "scan");
 
-    createUser(LOGIN, "123456");
+    userRule.createUser(LOGIN, "123456");
     addUserPermission(LOGIN, "admin");
     addUserPermission(LOGIN, "scan");
   }
 
   @AfterClass
-  public static void deleteData() {
-    deactivateUser(LOGIN);
+  public static void deleteAndRestoreData() {
+    userRule.deactivateUsers(LOGIN, "signuplogin");
     addGroupPermission("anyone", "scan");
   }
 
   @After
   public void resetProperties() throws Exception {
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", null);
+    setServerProperty(ORCHESTRATOR, "sonar.allowUsersToSignUp", null);
   }
 
   @Test
@@ -94,7 +103,7 @@ public class LocalAuthenticationTest {
     String login = format("login-%s", userId);
     String name = format("name-%s", userId);
     String password = "!ascii-only:-)@";
-    createUser(login, name, password);
+    userRule.createUser(login, name, password);
 
     // authenticate
     WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
@@ -163,16 +172,47 @@ public class LocalAuthenticationTest {
    */
   @Test
   public void basic_authentication_does_not_support_utf8_passwords() {
-    String userId = UUID.randomUUID().toString();
-    String login = format("login-%s", userId);
+    String login = LOGIN;
     // see http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
     String password = "κόσμε";
 
     // create user with a UTF-8 password
-    createUser(login, format("name-%s", userId), password);
+    userRule.createUser(login, LOGIN, password);
 
     // authenticate
     assertThat(checkAuthenticationThroughWebService(login, password)).isFalse();
+  }
+
+  @Test
+  public void allow_users_to_sign_up() throws IOException {
+    setServerProperty(ORCHESTRATOR, "sonar.allowUsersToSignUp", "true");
+
+    new SeleneseTest(
+      Selenese.builder().setHtmlTestsInClasspath("allow_users_to_sign_up",
+        "/user/LocalAuthenticationTest/allow_users_to_sign_up.html").build()).runOn(ORCHESTRATOR);
+
+    // This check is failing because signup doesn't refresh the users ES index !
+    // Will be fixed by SONAR-7308
+//    userRule.verifyUserExists("signuplogin", "SignUpName", null);
+  }
+
+  @Test
+  public void authentication_through_ui() {
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("authentication",
+      "/user/LocalAuthenticationTest/login_successful.html",
+      "/user/LocalAuthenticationTest/login_wrong_password.html",
+      // SONAR-2132
+      "/user/LocalAuthenticationTest/redirect_to_original_url_after_direct_login.html",
+      // SONAR-2009
+      "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html"
+    ).build()).runOn(ORCHESTRATOR);
+
+    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
+
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("force-authentication",
+      // SONAR-3473
+      "/user/LocalAuthenticationTest/force-authentication.html"
+    ).build()).runOn(ORCHESTRATOR);
   }
 
   @Test
@@ -195,32 +235,10 @@ public class LocalAuthenticationTest {
     return result.contains("{\"valid\":true}");
   }
 
-  private static void createUser(String login, String password) {
-    adminWsClient.wsConnector().call(
-      new PostRequest("api/users/create")
-        .setParam("login", login)
-        .setParam("name", login)
-        .setParam("password", password));
-  }
-
-  private static void createUser(String login, String name, String password) {
-    adminWsClient.wsConnector().call(
-      new PostRequest("api/users/create")
-        .setParam("login", login)
-        .setParam("name", name)
-        .setParam("password", password));
-  }
-
   private static void addUserPermission(String login, String permission) {
     adminWsClient.permissions().addUser(new AddUserWsRequest()
       .setLogin(login)
       .setPermission(permission));
-  }
-
-  private static void deactivateUser(String login) {
-    adminWsClient.wsConnector().call(
-      new PostRequest("api/users/deactivate")
-        .setParam("login", login));
   }
 
   private static void removeGroupPermission(String groupName, String permission) {

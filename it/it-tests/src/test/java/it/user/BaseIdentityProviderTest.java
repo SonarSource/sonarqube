@@ -73,10 +73,7 @@ public class BaseIdentityProviderTest {
 
   @After
   public void removeUserAndCleanPluginProperties() throws Exception {
-    Optional<Users.User> user = userRule.getUserByLogin(USER_LOGIN);
-    if (user.isPresent()) {
-      userRule.deactivateUsers(user.get());
-    }
+    userRule.deactivateUsers(USER_LOGIN);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", null);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
   }

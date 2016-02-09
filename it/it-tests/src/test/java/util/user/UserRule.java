@@ -23,9 +23,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.sonar.orchestrator.Orchestrator;
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.junit.rules.ExternalResource;
 import org.sonarqube.ws.client.GetRequest;
@@ -52,12 +52,14 @@ public class UserRule extends ExternalResource {
     return new UserRule(requireNonNull(orchestrator, "Orchestrator instance can not be null"));
   }
 
-  @Override
-  protected void before() throws Throwable {
-    adminWsClient = newAdminWsClient(orchestrator);
+  private WsClient adminWsClient(){
+    if (adminWsClient == null) {
+      adminWsClient = newAdminWsClient(orchestrator);
+    }
+    return adminWsClient;
   }
 
-  public void verifyUserExists(String login, String name, String email) {
+  public void verifyUserExists(String login, String name, @Nullable String email) {
     Optional<Users.User> user = getUserByLogin(login);
     assertThat(user).as("User with login '%s' hasn't been found", login).isPresent();
     Assertions.assertThat(user.get().getLogin()).isEqualTo(login);
@@ -69,45 +71,33 @@ public class UserRule extends ExternalResource {
     assertThat(getUserByLogin(login)).as("Unexpected user with login '%s' has been found", login).isAbsent();
   }
 
+
+  public void createUser(String login, String name, String password) {
+    adminWsClient().wsConnector().call(
+      new PostRequest("api/users/create")
+        .setParam("login", login)
+        .setParam("name", name)
+        .setParam("password", password));
+  }
+
+  public void createUser(String login, String password) {
+    createUser(login, login, password);
+  }
+
   public Optional<Users.User> getUserByLogin(String login) {
     return FluentIterable.from(getUsers().getUsers()).firstMatch(new MatchUserLogin(login));
   }
 
-  public List<Users.User> getUsersByEmails(String... emails) {
-    List<Users.User> foundUsers = new ArrayList<>();
-    for (String email : emails) {
-      Optional<Users.User> user = FluentIterable.from(getUsers().getUsers()).firstMatch(new MatchUserLogin(email));
-      if (user.isPresent()) {
-        foundUsers.add(user.get());
-      }
-    }
-    return foundUsers;
-  }
-
   public Users getUsers() {
-    WsResponse response = adminWsClient.wsConnector().call(
+    WsResponse response = adminWsClient().wsConnector().call(
       new GetRequest("api/users/search"));
     Assertions.assertThat(response.code()).isEqualTo(200);
     return Users.parse(response.content());
   }
 
-  private class MatchUserLogin implements Predicate<Users.User> {
-    private final String login;
-
-    private MatchUserLogin(String login) {
-      this.login = login;
-    }
-
-    @Override
-    public boolean apply(@Nonnull Users.User user) {
-      String login = user.getLogin();
-      return login != null && login.equals(this.login) && user.isActive();
-    }
-  }
-
   public void deactivateUsers(List<Users.User> users) {
     for (Users.User user : users) {
-      adminWsClient.wsConnector().call(
+      adminWsClient().wsConnector().call(
         new PostRequest("api/users/deactivate")
           .setParam("login", user.getLogin()));
     }
@@ -123,6 +113,20 @@ public class UserRule extends ExternalResource {
       if (user.isPresent()) {
         deactivateUsers(user.get());
       }
+    }
+  }
+
+  private class MatchUserLogin implements Predicate<Users.User> {
+    private final String login;
+
+    private MatchUserLogin(String login) {
+      this.login = login;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Users.User user) {
+      String login = user.getLogin();
+      return login != null && login.equals(this.login) && user.isActive();
     }
   }
 }
