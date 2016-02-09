@@ -17,20 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.issue;
+package it.rule;
 
+import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
+import it.Category2Suite;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import util.selenium.SeleneseTest;
 
-public class ManualRulesTest extends AbstractIssueTest {
+public class ManualRulesTest {
 
-  @BeforeClass
-  public static void setup() throws Exception {
+  @ClassRule
+  public static final Orchestrator ORCHESTRATOR = Category2Suite.ORCHESTRATOR;
+
+  @Before
+  public void setup() throws Exception {
     ORCHESTRATOR.resetData();
     deleteManualRules();
   }
@@ -41,13 +47,11 @@ public class ManualRulesTest extends AbstractIssueTest {
   }
 
   @Test
-  public void testManualRules() {
-    Selenese selenese = Selenese
-      .builder()
-      .setHtmlTestsInClasspath("manual-rules",
-        "/issue/ManualRulesTest/create_edit_delete_manual_rule.html"
-      ).build();
-    new SeleneseTest(selenese).runOn(ORCHESTRATOR);
+  public void manual_rules() {
+    new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("manual-rules",
+          "/rule/ManualRulesTest/create_edit_delete_manual_rule.html"
+        ).build()
+    ).runOn(ORCHESTRATOR);
   }
 
   protected static void deleteManualRules() {
