@@ -72,7 +72,7 @@ public class IssueActionTest extends AbstractIssueTest {
     assertThat(comment.createdAt()).isNotNull();
 
     // reload issue
-    Issue reloaded = searchIssues(issue.key(), true).iterator().next();
+    Issue reloaded = searchIssue(issue.key(), true);
 
     assertThat(reloaded.comments()).hasSize(1);
     assertThat(reloaded.comments().get(0).key()).isEqualTo(comment.key());
@@ -229,7 +229,7 @@ public class IssueActionTest extends AbstractIssueTest {
     adminIssueClient().doAction(issue.key(), "fake");
 
     // reload issue
-    Issue reloaded = searchIssues(issue.key(), true).iterator().next();
+    Issue reloaded = searchIssue(issue.key(), true);
 
     assertThat(reloaded.comments()).hasSize(1);
     assertThat(reloaded.comments().get(0).htmlText()).isEqualTo("New Comment from fake action");

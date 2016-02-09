@@ -64,8 +64,10 @@ public abstract class AbstractIssueTest {
     return searchIssues(issueKeys, false);
   }
 
-  static List<Issue> searchIssues(String issueKey, boolean withComments) {
-    return searchIssues(new String[] {issueKey}, withComments);
+  static Issue searchIssue(String issueKey, boolean withComments) {
+    List<Issue> issues = searchIssues(new String[] {issueKey}, withComments);
+    assertThat(issues).hasSize(1);
+    return issues.iterator().next();
   }
 
   static List<Issue> searchIssues(String[] issueKeys, boolean withComments) {
