@@ -39,6 +39,7 @@ import it.issue.IssuePurgeTest;
 import it.issue.IssueSearchTest;
 import it.issue.IssueTrackingTest;
 import it.issue.IssueWorkflowTest;
+import it.issue.ManualIssueRelocationTest;
 import it.issue.ManualIssueTest;
 import it.issue.NewIssuesMeasureTest;
 import it.measure.NewDebtRatioMeasureTest;
@@ -82,6 +83,7 @@ import static util.ItUtils.xooPlugin;
   IssueSearchTest.class,
   IssueTrackingTest.class,
   IssueWorkflowTest.class,
+  ManualIssueRelocationTest.class,
   ManualIssueTest.class,
   NewIssuesMeasureTest.class,
   // rule
