@@ -4,16 +4,15 @@ install: true
 jdk: oraclejdk7
 script: ./travis.sh
 
-#env:
-#  - TARGET=CI
-#  - TARGET=IT IT_CATEGORY=Category1
-#  - TARGET=IT IT_CATEGORY=Category2
-#  - TARGET=IT IT_CATEGORY=Category3
-#  - TARGET=IT IT_CATEGORY=Category4
-#  - TARGET=IT IT_CATEGORY=Plugins
-#  - TARGET=POSTGRES
-#  - TARGET=MYSQL
-#  - TARGET=WEB
+env:
+  - TARGET=CI
+  - TARGET=IT IT_CATEGORY=Category1
+  - TARGET=IT IT_CATEGORY=Category2
+  - TARGET=IT IT_CATEGORY=Category3
+  - TARGET=IT IT_CATEGORY=Category4
+  - TARGET=IT IT_CATEGORY=Category5
+  - TARGET=IT IT_CATEGORY=Plugins
+  - TARGET=WEB
 
 
 matrix:
