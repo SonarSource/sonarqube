@@ -2,5 +2,5 @@
 set -euo pipefail
 
 echo 'Run performance tests'
-cd it/perf-tests
+cd tests/perf
 mvn verify -B -e -V $*

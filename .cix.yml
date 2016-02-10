@@ -28,5 +28,5 @@ exclude:
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-it-released-plugins
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-it-released-plugins
+  - RUN_ACTIVITY: run-perf-tests
     SLAVE_TYPE: gva
