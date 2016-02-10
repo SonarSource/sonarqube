@@ -11,17 +11,8 @@ case "$RUN_ACTIVITY" in
     ./run-db-unit-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
     ;;
 
-  run-db-integration-tests-*)
-    DB_ENGINE=`echo $RUN_ACTIVITY | sed "s/run-db-integration-tests-//g" | cut -d \- -f 1`
-    CATEGORY=`echo $RUN_ACTIVITY | sed "s/run-db-integration-tests-//g" | cut -d \- -f 2`
-
-    echo "./run-db-integration-tests.sh $DB_ENGINE $CATEGORY $SLAVE_TYPE"
-    ;;
-
-  run-upgrade-tests-*)
-    DB_ENGINE=`echo $RUN_ACTIVITY | sed "s/run-upgrade-tests-//g"`
-
-    echo "./run-upgrade-tests.sh $DB_ENGINE  $SLAVE_TYPE"
+  run-it-released-plugins)
+    ./run-integration-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-h2.properties" "Plugins"
     ;;
 
   run-perf-tests)

@@ -65,12 +65,8 @@ WEB)
   ;;
 
 IT)
-  if [ "$IT_CATEGORY" == "Plugins" ] && [ ! -n "${GITHUB_TOKEN:-}" ]; then
-    echo "This job is ignored as it needs to access a private GitHub repository"
-  else
-    start_xvfb
-    mvn install -Pit,dev -DskipTests -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -B -V -e -Dsource.skip=true
-  fi
+  start_xvfb
+  mvn install -Pit,dev -DskipTests -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -B -V -e -Dsource.skip=true
   ;;
 
 *)

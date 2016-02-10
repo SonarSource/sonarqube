@@ -11,7 +11,6 @@ env:
   - TARGET=IT IT_CATEGORY=Category3
   - TARGET=IT IT_CATEGORY=Category4
   - TARGET=IT IT_CATEGORY=Category5
-  - TARGET=IT IT_CATEGORY=Plugins
   - TARGET=WEB
 
 

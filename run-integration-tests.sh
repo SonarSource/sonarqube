@@ -8,6 +8,5 @@ shift 2
 cd it
 mvn verify \
   -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL \
-  -Dwith-db-drivers \
   -Dcategory=$CATEGORY \
   -Dsource.skip=true -B -e -V $*
