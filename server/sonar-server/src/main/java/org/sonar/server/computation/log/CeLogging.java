@@ -19,11 +19,14 @@
  */
 package org.sonar.server.computation.log;
 
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.sift.MDCBasedDiscriminator;
 import ch.qos.logback.classic.sift.SiftingAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.sift.AppenderTracker;
+import ch.qos.logback.core.util.Duration;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import java.io.File;
@@ -34,11 +37,13 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.log4j.MDC;
 import org.sonar.api.config.Settings;
+import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.server.computation.queue.CeTask;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -52,10 +57,16 @@ import static java.lang.String.format;
  */
 public class CeLogging {
 
+  private static final long TIMEOUT_2_MINUTES = 1000 * 60 * 2L;
+  private static final String CE_APPENDER_NAME = "ce";
+  // using 0L as timestamp when retrieving appender to stop it will make it instantly eligible for removal
+  private static final long STOPPING_TRACKER_TIMESTAMP = 0L;
+
   @VisibleForTesting
   static final String MDC_LOG_PATH = "ceLogPath";
   public static final String MAX_LOGS_PROPERTY = "sonar.ce.maxLogsPerTask";
 
+  private final LogbackHelper helper = new LogbackHelper();
   private final File logsDir;
   private final Settings settings;
 
@@ -107,8 +118,16 @@ public class CeLogging {
     MDC.remove(MDC_LOG_PATH);
 
     if (relativePath != null) {
+      stopAppender(relativePath);
       purgeDir(new File(logsDir, relativePath).getParentFile());
     }
+  }
+
+  private void stopAppender(String relativePath) {
+    Appender<ILoggingEvent> appender = helper.getRootContext().getLogger(Logger.ROOT_LOGGER_NAME).getAppender(CE_APPENDER_NAME);
+    checkState(appender instanceof SiftingAppender, "Appender with name %s is null or not a SiftingAppender", CE_APPENDER_NAME);
+    AppenderTracker<ILoggingEvent> ceAppender = ((SiftingAppender) appender).getAppenderTracker();
+    ceAppender.getOrCreate(relativePath, STOPPING_TRACKER_TIMESTAMP).stop();
   }
 
   @VisibleForTesting
@@ -161,7 +180,8 @@ public class CeLogging {
     siftingAppender.setContext(ctx);
     siftingAppender.setDiscriminator(mdcDiscriminator);
     siftingAppender.setAppenderFactory(new CeFileAppenderFactory(logsDir));
-    siftingAppender.setName("ce");
+    siftingAppender.setName(CE_APPENDER_NAME);
+    siftingAppender.setTimeout(new Duration(TIMEOUT_2_MINUTES));
     siftingAppender.start();
     return siftingAppender;
   }
