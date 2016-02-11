@@ -66,7 +66,7 @@ WEB)
 
 IT)
   start_xvfb
-  ./quick-build.sh
+  mvn install -DskipTests=true -Dsource.skip=true -Denforcer.skip=true -B -e -V
   ./run-integration-tests.sh "$IT_CATEGORY" "" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 

@@ -39,4 +39,4 @@ echo ''
 echo ''
 
 ./stop.sh
-mvn install -B -e -V -DskipTests=true -Dsource.skip=true -Denforcer.skip=true $*
+mvn clean install -B -e -V -DskipTests=true -Dsource.skip=true -Denforcer.skip=true -Pdev $*
